@@ -14,4 +14,4 @@ EXPOSE 8080
 
 ENV GIN_MODE=release
 
-CMD ./golang-demo
+CMD ./Nv7Haven
