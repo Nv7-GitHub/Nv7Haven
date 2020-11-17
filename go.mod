@@ -2,4 +2,4 @@ module github.com/Nv7-Github/Nv7Haven
 
 go 1.15
 
-require github.com/gin-gonic/gin v1.6.3
+require github.com/gofiber/fiber/v2 v2.2.0
