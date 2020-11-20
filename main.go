@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/Nv7-Github/elemental"
+	"github.com/Nv7-Github/Nv7Haven/elemental"
 
 	"github.com/gofiber/fiber/v2"
 )
