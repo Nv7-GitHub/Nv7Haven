@@ -8,11 +8,14 @@ import (
 
 	firebase "firebase.google.com/go"
 	database "firebase.google.com/go/db"
+	fire "github.com/Nv7-Github/firebase"
+	authentication "github.com/Nv7-Github/firebase/auth"
 	"google.golang.org/api/option"
 )
 
 var db *database.Client
 var store *firestore.Client
+var auth *authentication.Auth
 
 // Element has the data for a created element
 type Element struct {
@@ -65,6 +68,9 @@ func InitElemental(app *fiber.App) error {
 	if err != nil {
 		return err
 	}
+
+	firebaseapp := fire.CreateApp("https://elementalserver-8c6d0.firebaseio.com", "AIzaSyCsqvV3clnwDTTgPHDVO2Yatv5JImSUJvU")
+	auth = authentication.CreateAuth(firebaseapp)
 
 	db, err = fireapp.Database(context.Background())
 	if err != nil {
