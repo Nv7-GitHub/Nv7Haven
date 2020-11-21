@@ -75,6 +75,16 @@ func InitElemental(app *fiber.App) error {
 	if err != nil {
 		return err
 	}
-	defer store.Close()
+
+	app.Get("/get_elem/:elem", getElem)
+	app.Get("/clear", func(c *fiber.Ctx) error {
+		cache = make(map[string]Element, 0)
+		return nil
+	})
 	return nil
+}
+
+// CloseElemental has the cleanup functions
+func CloseElemental() {
+	store.Close()
 }

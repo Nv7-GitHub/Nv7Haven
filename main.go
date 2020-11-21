@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"os"
+	"os/signal"
 
 	"github.com/Nv7-Github/Nv7Haven/elemental"
 
@@ -19,5 +22,17 @@ func main() {
 
 	elemental.InitElemental(app)
 
-	log.Fatal(app.Listen(":8080"))
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	go func() {
+		_ = <-c
+		fmt.Println("Gracefully shutting down...")
+		_ = app.Shutdown()
+	}()
+
+	if err := app.Listen(":8080"); err != nil {
+		log.Panic(err)
+	}
+
+	elemental.CloseElemental()
 }
