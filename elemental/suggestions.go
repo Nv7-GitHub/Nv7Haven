@@ -2,10 +2,27 @@ package elemental
 
 import (
 	"encoding/json"
+	"errors"
 	"net/url"
 
 	"github.com/gofiber/fiber/v2"
 )
+
+func getSugg(id string) (Suggestion, error) {
+	data, err := db.Get("suggestions/" + id)
+	if err != nil {
+		return Suggestion{}, err
+	}
+	if string(data) == "null" {
+		return Suggestion{}, errors.New("null")
+	}
+	var suggestion Suggestion
+	err = json.Unmarshal(data, &suggestion)
+	if err != nil {
+		return Suggestion{}, err
+	}
+	return suggestion, nil
+}
 
 func getSuggestion(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
@@ -14,16 +31,11 @@ func getSuggestion(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	data, err := db.Get("suggestions/" + id)
+	suggestion, err := getSugg(id)
 	if err != nil {
-		return err
-	}
-	if string(data) == "null" {
-		return c.SendString("null")
-	}
-	var suggestion Suggestion
-	err = json.Unmarshal(data, &suggestion)
-	if err != nil {
+		if err.Error() == "null" {
+			return c.SendString("null")
+		}
 		return err
 	}
 	return c.JSON(suggestion)
