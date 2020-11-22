@@ -9,6 +9,7 @@ import (
 )
 
 const minVotes = -1
+const maxVotes = 4
 
 func getSugg(id string) (Suggestion, error) {
 	data, err := db.Get("suggestions/" + id)
@@ -88,6 +89,38 @@ func downVoteSuggestion(c *fiber.Ctx) error {
 		db.SetData("suggestions/"+id, nil)
 	}
 	existing.Voted = append(existing.Voted, uid)
-	db.SetData("suggestion/"+id, existing)
+	err = db.SetData("suggestions/"+id, existing)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func upVoteSuggestion(c *fiber.Ctx) error {
+	c.Set("Access-Control-Allow-Origin", "*")
+	c.Set("Access-Control-Allow-Headers", "*")
+	id, err := url.PathUnescape(c.Params("id"))
+	if err != nil {
+		return err
+	}
+	uid := c.Params("uid")
+	existing, err := getSugg(id)
+	if err != nil {
+		return err
+	}
+	for _, voted := range existing.Voted {
+		if voted == uid {
+			return c.SendString("You already voted!")
+		}
+	}
+	existing.Votes++
+	if existing.Votes >= maxVotes {
+		return c.SendString("create")
+	}
+	existing.Voted = append(existing.Voted, uid)
+	err = db.SetData("suggestions/"+id, existing)
+	if err != nil {
+		return err
+	}
 	return nil
 }
