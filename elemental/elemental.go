@@ -65,6 +65,7 @@ func InitElemental(app *fiber.App) error {
 	app.Get("/recents", getRecents)
 	app.Get("/get_suggestion/:id", getSuggestion)
 	app.Get("/suggestion_combos/:elem1/:elem2", getSuggestionCombos)
+	app.Get("/down_suggestion/:id/:uid", downVoteSuggestion)
 	app.Get("/clear", func(c *fiber.Ctx) error {
 		cache = make(map[string]Element, 0)
 		elemMap = make(map[string]map[string]string, 0)
