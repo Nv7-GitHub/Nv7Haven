@@ -28,3 +28,26 @@ func getSuggestion(c *fiber.Ctx) error {
 	}
 	return c.JSON(suggestion)
 }
+
+func getSuggestionCombos(c *fiber.Ctx) error {
+	c.Set("Access-Control-Allow-Origin", "*")
+	c.Set("Access-Control-Allow-Headers", "*")
+	elem1, err := url.PathUnescape(c.Params("elem1"))
+	if err != nil {
+		return err
+	}
+	elem2, err := url.PathUnescape(c.Params("elem2"))
+	if err != nil {
+		return err
+	}
+	comboData, err := db.Get("suggestionMap/" + elem1 + "/" + elem2)
+	if err != nil {
+		return err
+	}
+	var data []string
+	err = json.Unmarshal(comboData, &data)
+	if err != nil {
+		return err
+	}
+	return c.JSON(data)
+}
