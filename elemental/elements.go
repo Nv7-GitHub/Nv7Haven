@@ -8,6 +8,24 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// Element has the data for a created element
+type Element struct {
+	Color     string   `json:"color"`
+	Comment   string   `json:"comment"`
+	CreatedOn int      `json:"createdOn"`
+	Creator   string   `json:"creator"`
+	Name      string   `json:"name"`
+	Parents   []string `json:"parents"`
+	Pioneer   string   `json:"pioneer"`
+}
+
+// Color has the data for a suggestion's color
+type Color struct {
+	Base       string  `json:"base"`
+	Lightness  float32 `json:"lightness"`
+	Saturation float32 `json:"saturation"`
+}
+
 var cache map[string]Element = make(map[string]Element, 0)
 var elemMap map[string]map[string]string = make(map[string]map[string]string, 0)
 
