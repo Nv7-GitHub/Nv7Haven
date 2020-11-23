@@ -26,12 +26,5 @@ func getRecents(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	if len(recents) > recentsLength {
-		recents = recents[len(recents)-recentsLength-1:]
-		err = db.SetData("recent", recents)
-		if err != nil {
-			return err
-		}
-	}
 	return c.JSON(recents)
 }

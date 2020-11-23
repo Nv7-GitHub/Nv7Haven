@@ -16,6 +16,7 @@ import (
 var db *database.Db
 var store *firestore.Client
 var auth *authentication.Auth
+var fireapp *firebase.App
 
 // Suggestion has the data for a suggestion
 type Suggestion struct {
@@ -40,7 +41,8 @@ func InitElemental(app *fiber.App) error {
 		ProjectID:     "elementalserver-8c6d0",
 		StorageBucket: "elementalserver-8c6d0.appspot.com",
 	}
-	fireapp, err := firebase.NewApp(context.Background(), config, opt)
+	var err error
+	fireapp, err = firebase.NewApp(context.Background(), config, opt)
 	if err != nil {
 		return err
 	}
@@ -67,6 +69,7 @@ func InitElemental(app *fiber.App) error {
 	app.Get("/suggestion_combos/:elem1/:elem2", getSuggestionCombos)
 	app.Get("/down_suggestion/:id/:uid", downVoteSuggestion)
 	app.Get("/up_suggestion/:id/:uid", upVoteSuggestion)
+	app.Get("/create_suggestion/:elem1/:elem2/:id/:mark/:pioneer", createSuggestion)
 	app.Get("/clear", func(c *fiber.Ctx) error {
 		cache = make(map[string]Element, 0)
 		elemMap = make(map[string]map[string]string, 0)

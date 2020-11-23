@@ -48,7 +48,7 @@ func getElem(c *fiber.Ctx) error {
 		if err != nil {
 			return err
 		}
-		var mutex = &sync.Mutex{}
+		var mutex = &sync.RWMutex{}
 		mutex.Lock()
 		cache[elemName] = elem
 		mutex.Unlock()
