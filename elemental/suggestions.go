@@ -124,3 +124,44 @@ func upVoteSuggestion(c *fiber.Ctx) error {
 	}
 	return nil
 }
+
+func newSuggestion(c *fiber.Ctx) error {
+	c.Set("Access-Control-Allow-Origin", "*")
+	c.Set("Access-Control-Allow-Headers", "*")
+	elem1, err := url.PathUnescape(c.Params("elem1"))
+	if err != nil {
+		return err
+	}
+	elem2, err := url.PathUnescape(c.Params("elem2"))
+	if err != nil {
+		return err
+	}
+	newElem, err := url.PathUnescape(c.Params("data"))
+	if err != nil {
+		return err
+	}
+
+	var suggestion Suggestion
+	err = json.Unmarshal([]byte(newElem), &suggestion)
+	if err != nil {
+		return err
+	}
+
+	err = db.SetData("suggestions/"+suggestion.Name, suggestion)
+	if err != nil {
+		return err
+	}
+
+	comboData, err := db.Get("suggestionMap/" + elem1 + "/" + elem2)
+	if err != nil {
+		return err
+	}
+	var data []string
+	err = json.Unmarshal(comboData, &data)
+	if err != nil {
+		return err
+	}
+	data = append(data, suggestion.Name)
+	db.SetData("suggestionMap/"+elem1+"/"+elem2, data)
+	return nil
+}
