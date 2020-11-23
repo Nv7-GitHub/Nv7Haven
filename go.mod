@@ -7,5 +7,6 @@ require (
 	firebase.google.com/go v3.13.0+incompatible
 	github.com/Nv7-Github/firebase v0.0.0-20201012033747-47c56e1d869d
 	github.com/gofiber/fiber/v2 v2.2.0
+	github.com/jdkato/prose/v2 v2.0.0
 	google.golang.org/api v0.35.0
 )
