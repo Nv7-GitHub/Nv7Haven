@@ -84,7 +84,7 @@ func createSuggestion(c *fiber.Ctx) error {
 	}
 	recents = append([]RecentCombination{combo}, recents...)
 	if len(recents) > recentsLength {
-		recents = recents[len(recents)-recentsLength-1:]
+		recents = recents[:recentsLength-1]
 	}
 	fdb, err := fireapp.Database(ctx)
 	if err != nil {
