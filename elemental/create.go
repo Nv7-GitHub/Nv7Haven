@@ -82,7 +82,7 @@ func createSuggestion(c *fiber.Ctx) error {
 		Recipe: [2]string{elem1, elem2},
 		Result: id,
 	}
-	recents = append(recents, combo)
+	recents = append([]RecentCombination{combo}, recents...)
 	if len(recents) > recentsLength {
 		recents = recents[len(recents)-recentsLength-1:]
 	}
