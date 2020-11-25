@@ -86,7 +86,7 @@ func getSuggestion(c *fiber.Ctx) error {
 	dat := make([]randutil.Choice, len(data))
 	for i, val := range data {
 		dat[i] = randutil.Choice{
-			Weight: int(float64(i) / float64(len(data)) * 100),
+			Weight: i + 1,
 			Item: itemData{
 				Name:  val.Name,
 				Index: i,
