@@ -9,6 +9,7 @@ require (
 	github.com/gofiber/adaptor/v2 v2.0.3
 	github.com/gofiber/fiber/v2 v2.2.0
 	github.com/jdkato/prose/v2 v2.0.0
+	github.com/jmcvetta/randutil v0.0.0-20150817122601-2bb1b664bcff
 	github.com/r3labs/sse/v2 v2.3.0
 	google.golang.org/api v0.35.0
 )

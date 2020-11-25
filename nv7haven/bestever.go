@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/jmcvetta/randutil"
 )
 
 // Suggestion represents the datatype for a suggestion
@@ -74,14 +75,41 @@ func newSuggestion(c *fiber.Ctx) error {
 	return nil
 }
 
+type itemData struct {
+	Name  string
+	Index int
+}
+
 func getSuggestion(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
-	randNum1 := rand.Intn(len(data))
-	randNum2 := rand.Intn(len(data))
+	dat := make([]randutil.Choice, len(data))
+	for i, val := range data {
+		dat[i] = randutil.Choice{
+			Weight: int(float64(i) / float64(len(data)) * 100),
+			Item: itemData{
+				Name:  val.Name,
+				Index: i,
+			},
+		}
+	}
+	choice1, err := randutil.WeightedChoice(dat)
+	if err != nil {
+		return err
+	}
+	choice2, err := randutil.WeightedChoice(dat)
+	if err != nil {
+		return err
+	}
+	for choice2.Item.(itemData).Index == choice1.Item.(itemData).Index {
+		choice2, err = randutil.WeightedChoice(dat)
+		if err != nil {
+			return err
+		}
+	}
 	output := map[int]string{
-		randNum1: data[randNum1].Name,
-		randNum2: data[randNum2].Name,
+		choice1.Item.(itemData).Index: choice1.Item.(itemData).Name,
+		choice2.Item.(itemData).Index: choice2.Item.(itemData).Name,
 	}
 	return c.JSON(output)
 }
