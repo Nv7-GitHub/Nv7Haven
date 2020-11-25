@@ -19,7 +19,7 @@ type Suggestion struct {
 var data []Suggestion
 var changes int
 
-const required = 0
+const required = 3
 
 func changed() error {
 	changes++
