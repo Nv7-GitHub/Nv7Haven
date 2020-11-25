@@ -77,8 +77,8 @@ func newSuggestion(c *fiber.Ctx) error {
 func getSuggestion(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
-	min := len(data) - 50
-	if min < 0 {
+	min := 9
+	if min > len(data) {
 		min = 0
 	}
 	randNum1 := rand.Intn(len(data)-min) + min
