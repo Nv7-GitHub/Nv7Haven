@@ -77,15 +77,8 @@ func newSuggestion(c *fiber.Ctx) error {
 func getSuggestion(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
-	min := 9
-	if min > len(data) {
-		min = 0
-	}
-	randNum1 := rand.Intn(len(data)-min) + min
-	randNum2 := rand.Intn(len(data)-min) + min
-	for randNum2 == randNum1 {
-		randNum2 = rand.Intn(len(data)-min) + min
-	}
+	randNum1 := rand.Intn(len(data))
+	randNum2 := rand.Intn(len(data))
 	output := map[int]string{
 		randNum1: data[randNum1].Name,
 		randNum2: data[randNum2].Name,
