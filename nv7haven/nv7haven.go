@@ -24,6 +24,6 @@ func InitNv7Haven(app *fiber.App) error {
 	app.Get("/bestever_new_suggest/:suggestion", newSuggestion)
 	app.Get("/bestever_get_suggest", getSuggestion)
 	app.Get("/bestever_vote/:item", vote)
-	app.Get("/bestever_get_ldb/", getLdb)
+	app.Get("/bestever_get_ldb/:len", getLdb)
 	return nil
 }

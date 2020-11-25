@@ -135,9 +135,13 @@ func vote(c *fiber.Ctx) error {
 func getLdb(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
-	end := len(data) - 1
-	if end > 9 {
-		end = 9
+	end, err := strconv.Atoi(c.Params("len"))
+	if err != nil {
+		return c.JSON([]string{"Invalid input", "error: " + err.Error()})
+	}
+	end--
+	if end > len(data)-1 {
+		end = len(data) - 1
 	}
 	dat := make([]string, end+1)
 	i := 0
