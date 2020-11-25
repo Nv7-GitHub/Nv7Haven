@@ -2,6 +2,7 @@ package nv7haven
 
 import (
 	"encoding/json"
+	"fmt"
 	"math/rand"
 	"net/url"
 	"strconv"
@@ -163,4 +164,25 @@ func refresh(c *fiber.Ctx) error {
 	}
 	data = rawMarshaled["data"]
 	return c.SendString("Success")
+}
+
+func deleteBad(c *fiber.Ctx) error {
+	needsDeletes := true
+	for needsDeletes {
+		needsDeletes = false
+		for i, val := range data {
+			if val.Votes < 0 {
+				c.Write([]byte(fmt.Sprintf("Deleted \"%s\"\n", val.Name)))
+				data = append(data[:i], data[i+1:]...)
+				needsDeletes = true
+				break
+			}
+		}
+	}
+	changes = required
+	err := changed()
+	if err != nil {
+		return err
+	}
+	return nil
 }
