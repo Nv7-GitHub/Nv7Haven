@@ -17,5 +17,13 @@ func InitNv7Haven(app *fiber.App) error {
 		return err
 	}
 	db = database.CreateDatabase(fireapp)
+	err = initBestEver()
+	if err != nil {
+		return err
+	}
+	app.Get("/bestever_new_suggest/:suggestion", newSuggestion)
+	app.Get("/bestever_get_suggest", getSuggestion)
+	app.Get("/bestever_vote/:item", vote)
+	app.Get("/bestever_get_ldb/", getLdb)
 	return nil
 }
