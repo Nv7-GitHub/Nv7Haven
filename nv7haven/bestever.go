@@ -151,3 +151,16 @@ func getLdb(c *fiber.Ctx) error {
 	}
 	return c.JSON(dat)
 }
+func refresh(c *fiber.Ctx) error {
+	rawData, err := db.Get("")
+	if err != nil {
+		return err
+	}
+	var rawMarshaled map[string][]Suggestion
+	err = json.Unmarshal(rawData, &rawMarshaled)
+	if err != nil {
+		return err
+	}
+	data = rawMarshaled["data"]
+	return c.SendString("Success")
+}
