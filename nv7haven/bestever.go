@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -62,8 +63,9 @@ func newSuggestion(c *fiber.Ctx) error {
 		Votes: 0,
 		Name:  suggest,
 	}
+	suggestLowered := strings.ToLower(suggest)
 	for _, val := range data {
-		if val.Name == suggest {
+		if strings.ToLower(val.Name) == suggestLowered {
 			return nil
 		}
 	}
