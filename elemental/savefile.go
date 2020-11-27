@@ -23,6 +23,9 @@ func getFound(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	if len(found) == 0 {
+		found = []string{"Air", "Earth", "Fire", "Water"}
+	}
 	return c.JSON(found)
 }
 
