@@ -9,7 +9,7 @@ import (
 )
 
 const minVotes = -1
-const maxVotes = 3
+const maxVotes = 0
 
 func getSugg(id string) (Suggestion, error) {
 	data, err := db.Get("suggestions/" + id)
