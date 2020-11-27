@@ -104,7 +104,7 @@ func createSuggestion(c *fiber.Ctx) error {
 		Pioneer:   pioneer,
 		Parents:   []string{elem1, elem2},
 		Comment:   mark,
-		CreatedOn: int(time.Now().Unix()),
+		CreatedOn: int(time.Now().Unix()) * 1000,
 	}
 
 	_, err = store.Collection("elements").Doc(newElement.Name).Set(ctx, newElement)
