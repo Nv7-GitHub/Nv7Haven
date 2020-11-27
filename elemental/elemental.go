@@ -75,7 +75,6 @@ func InitElemental(app *fiber.App) error {
 	app.Get("/login_user/:email/:password", loginUser)
 	app.Get("/clear", func(c *fiber.Ctx) error {
 		cache = make(map[string]Element, 0)
-		elemMap = make(map[string]map[string]string, 0)
 		return nil
 	})
 	return nil
