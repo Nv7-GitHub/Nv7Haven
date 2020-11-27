@@ -86,7 +86,7 @@ func checkUser(uid string) error {
 		return err
 	}
 	if string(data) == "null" {
-		db.SetData("users/"+uid, []string{"Air", "Earth", "Fire", "Water"})
+		db.SetData("users/"+uid+"/found", []string{"Air", "Earth", "Fire", "Water"})
 	}
 	return nil
 }
