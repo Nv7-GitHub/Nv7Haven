@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"sort"
 
 	firebase "firebase.google.com/go"
 	"google.golang.org/api/iterator"
@@ -43,7 +44,7 @@ func main() {
 		panic(err)
 	}
 
-	found := make([]string, 0)
+	foundElems := make([]Element, 0)
 	iter := store.Collection("elements").Documents(context.Background())
 	for {
 		doc, err := iter.Next()
@@ -55,7 +56,12 @@ func main() {
 		}
 		var data Element
 		doc.DataTo(&data)
-		found = append(found, data.Name)
+		foundElems = append(foundElems, data)
+	}
+	sort.Slice(foundElems, func(i, j int) bool { return foundElems[i].CreatedOn < foundElems[j].CreatedOn })
+	found := make([]string, len(foundElems))
+	for i, val := range foundElems {
+		found[i] = val.Name
 	}
 	var uid string
 	fmt.Print("UID: ")
