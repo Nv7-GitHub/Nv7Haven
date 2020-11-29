@@ -9,7 +9,7 @@ import (
 )
 
 const minVotes = -1
-const maxVotes = 0 // ANARCHY
+const maxVotes = 3
 
 func getSugg(id string) (Suggestion, error) {
 	data, err := db.Get("suggestions/" + id)
@@ -146,8 +146,6 @@ func newSuggestion(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-
-	suggestion.Voted = make([]string, 0) // ANARCHY
 
 	err = db.SetData("suggestions/"+suggestion.Name, suggestion)
 	if err != nil {
