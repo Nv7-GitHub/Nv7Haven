@@ -107,9 +107,12 @@ func createSuggestion(c *fiber.Ctx) error {
 		CreatedOn: int(time.Now().Unix()) * 1000,
 	}
 
-	_, err = store.Collection("elements").Doc(newElement.Name).Set(ctx, newElement)
-	if err != nil {
-		return err
+	elementExists, _ := store.Collection("elements").Doc(newElement.Name).Get(ctx)
+	if !elementExists.Exists() {
+		_, err = store.Collection("elements").Doc(newElement.Name).Set(ctx, newElement)
+		if err != nil {
+			return err
+		}
 	}
 
 	// Create combo
