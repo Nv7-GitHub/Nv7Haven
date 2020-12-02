@@ -12,7 +12,7 @@ const minVotes = -1
 const maxVotes = 3
 
 func getSugg(id string) (Suggestion, error) {
-	data, err := db.Get("suggestions/" + id)
+	data, err := db.Get("suggestions/" + url.PathEscape(id))
 	if err != nil {
 		return Suggestion{}, err
 	}
@@ -55,7 +55,7 @@ func getSuggestionCombos(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	comboData, err := db.Get("suggestionMap/" + elem1 + "/" + elem2)
+	comboData, err := db.Get("suggestionMap/" + url.PathEscape(elem1) + "/" + url.PathEscape(elem2))
 	if err != nil {
 		return err
 	}
@@ -86,10 +86,10 @@ func downVoteSuggestion(c *fiber.Ctx) error {
 	}
 	existing.Votes--
 	if existing.Votes < minVotes {
-		db.SetData("suggestions/"+id, nil)
+		db.SetData("suggestions/"+url.PathEscape(id), nil)
 	}
 	existing.Voted = append(existing.Voted, uid)
-	err = db.SetData("suggestions/"+id, existing)
+	err = db.SetData("suggestions/"+url.PathEscape(id), existing)
 	if err != nil {
 		return err
 	}
@@ -115,7 +115,7 @@ func upVoteSuggestion(c *fiber.Ctx) error {
 	}
 	existing.Votes++
 	existing.Voted = append(existing.Voted, uid)
-	err = db.SetData("suggestions/"+id, existing)
+	err = db.SetData("suggestions/"+url.PathEscape(id), existing)
 	if err != nil {
 		return err
 	}
@@ -147,12 +147,12 @@ func newSuggestion(c *fiber.Ctx) error {
 		return err
 	}
 
-	err = db.SetData("suggestions/"+suggestion.Name, suggestion)
+	err = db.SetData("suggestions/"+url.PathEscape(suggestion.Name), suggestion)
 	if err != nil {
 		return err
 	}
 
-	comboData, err := db.Get("suggestionMap/" + elem1 + "/" + elem2)
+	comboData, err := db.Get("suggestionMap/" + url.PathEscape(elem1) + "/" + url.PathEscape(elem2))
 	if err != nil {
 		return err
 	}
@@ -162,6 +162,6 @@ func newSuggestion(c *fiber.Ctx) error {
 		return err
 	}
 	data = append(data, suggestion.Name)
-	db.SetData("suggestionMap/"+elem1+"/"+elem2, data)
+	db.SetData("suggestionMap/"+url.PathEscape(elem1)+"/"+url.PathEscape(elem2), data)
 	return nil
 }
