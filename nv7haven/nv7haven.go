@@ -27,5 +27,6 @@ func InitNv7Haven(app *fiber.App) error {
 	app.Get("/bestever_get_ldb/:len", getLdb)
 	app.Get("/bestever_refresh", refresh)
 	app.Get("/bestever_mod", deleteBad)
+	app.Get("/getmyip", getIP)
 	return nil
 }
