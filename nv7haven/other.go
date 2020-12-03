@@ -1,7 +1,12 @@
 package nv7haven
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"net"
+	"strings"
+
+	"github.com/gofiber/fiber/v2"
+)
 
 func getIP(c *fiber.Ctx) error {
-	return c.JSON(c.IPs())
+	return c.SendString(net.ParseIP(strings.Split(c.Get("X-Forwarded-For"), ",")[0]).String())
 }
