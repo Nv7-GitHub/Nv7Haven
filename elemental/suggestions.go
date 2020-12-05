@@ -9,7 +9,7 @@ import (
 )
 
 const minVotes = -1
-const maxVotes = 0 // ANARCHY ORIRINGAL: 3
+const maxVotes = 3 // ANARCHY: 0, ORIGINAL: 3
 
 func getSugg(id string) (Suggestion, error) {
 	data, err := db.Get("suggestions/" + url.PathEscape(id))
@@ -146,7 +146,7 @@ func newSuggestion(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	suggestion.Voted = make([]string, 0) // ANARCHY ORIGINAL: DELETE THIS LINE
+	//suggestion.Voted = make([]string, 0) // ANARCHY
 
 	err = db.SetData("suggestions/"+url.PathEscape(suggestion.Name), suggestion)
 	if err != nil {
