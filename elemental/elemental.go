@@ -5,6 +5,7 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"github.com/gofiber/fiber/v2"
+	"google.golang.org/api/iterator"
 
 	firebase "firebase.google.com/go"
 	fire "github.com/Nv7-Github/firebase"
@@ -58,6 +59,20 @@ func InitElemental(app *fiber.App) error {
 	store, err = fireapp.Firestore(context.Background())
 	if err != nil {
 		return err
+	}
+
+	iter := store.Collection("elements").Documents(context.Background())
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			panic(err)
+		}
+		var data Element
+		doc.DataTo(&data)
+		cache[data.Name] = data
 	}
 
 	app.Get("/get_combo/:elem1/:elem2", getCombo)
