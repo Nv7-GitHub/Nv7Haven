@@ -108,11 +108,13 @@ func upVoteSuggestion(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	// ANARCHY: Comment out this section
 	for _, voted := range existing.Voted {
 		if voted == uid {
 			return c.SendString("You already voted!")
 		}
 	}
+	// ANARCHY
 	existing.Votes++
 	existing.Voted = append(existing.Voted, uid)
 	err = db.SetData("suggestions/"+url.PathEscape(id), existing)
@@ -146,7 +148,6 @@ func newSuggestion(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	//suggestion.Voted = make([]string, 0) // ANARCHY
 
 	err = db.SetData("suggestions/"+url.PathEscape(suggestion.Name), suggestion)
 	if err != nil {
