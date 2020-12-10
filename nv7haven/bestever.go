@@ -24,10 +24,10 @@ var changes int
 
 const required = 3
 
-func changed() error {
+func (n *Nv7Haven) changed() error {
 	changes++
 	if changes > required {
-		err := db.SetData("", map[string][]Suggestion{
+		err := n.db.SetData("", map[string][]Suggestion{
 			"data": data,
 		})
 		if err != nil {
@@ -37,9 +37,9 @@ func changed() error {
 	return nil
 }
 
-func initBestEver() error {
+func (n *Nv7Haven) initBestEver() error {
 	rand.Seed(time.Now().UnixNano())
-	rawData, err := db.Get("")
+	rawData, err := n.db.Get("")
 	if err != nil {
 		return err
 	}
@@ -52,7 +52,7 @@ func initBestEver() error {
 	return nil
 }
 
-func newSuggestion(c *fiber.Ctx) error {
+func (n *Nv7Haven) newSuggestion(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
 	suggest, err := url.PathUnescape(c.Params("suggestion"))
@@ -71,7 +71,7 @@ func newSuggestion(c *fiber.Ctx) error {
 	}
 	data = append(data, suggestion)
 	changes = required
-	err = changed()
+	err = n.changed()
 	if err != nil {
 		return err
 	}
@@ -83,7 +83,7 @@ type itemData struct {
 	Index int
 }
 
-func getSuggestion(c *fiber.Ctx) error {
+func (n *Nv7Haven) getSuggestion(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
 	dat := make([]randutil.Choice, len(data))
@@ -117,7 +117,7 @@ func getSuggestion(c *fiber.Ctx) error {
 	return c.JSON(output)
 }
 
-func vote(c *fiber.Ctx) error {
+func (n *Nv7Haven) vote(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
 	item, err := strconv.Atoi(c.Params("item"))
@@ -132,10 +132,10 @@ func vote(c *fiber.Ctx) error {
 		item--
 		changes = required
 	}
-	return changed()
+	return n.changed()
 }
 
-func getLdb(c *fiber.Ctx) error {
+func (n *Nv7Haven) getLdb(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
 	end, err := strconv.Atoi(c.Params("len"))
@@ -154,8 +154,8 @@ func getLdb(c *fiber.Ctx) error {
 	}
 	return c.JSON(dat)
 }
-func refresh(c *fiber.Ctx) error {
-	rawData, err := db.Get("")
+func (n *Nv7Haven) refresh(c *fiber.Ctx) error {
+	rawData, err := n.db.Get("")
 	if err != nil {
 		return err
 	}
@@ -168,7 +168,7 @@ func refresh(c *fiber.Ctx) error {
 	return c.SendString("Success")
 }
 
-func deleteBad(c *fiber.Ctx) error {
+func (n *Nv7Haven) deleteBad(c *fiber.Ctx) error {
 	needsDeletes := true
 	for needsDeletes {
 		needsDeletes = false
@@ -182,7 +182,7 @@ func deleteBad(c *fiber.Ctx) error {
 		}
 	}
 	changes = required
-	err := changed()
+	err := n.changed()
 	if err != nil {
 		return err
 	}

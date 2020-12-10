@@ -8,7 +8,7 @@ import (
 	"github.com/jdkato/prose/v2"
 )
 
-func calcHella(c *fiber.Ctx) error {
+func (d *Nv7Haven) calcHella(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
 	input, err := url.PathUnescape(c.Params("input"))
