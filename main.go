@@ -18,6 +18,8 @@ func main() {
 
 	app.Static("/", "./index.html")
 
+	mysqlsetup.Mysqlsetup()
+
 	err := elemental.InitElemental(app)
 	if err != nil {
 		panic(err)
@@ -27,8 +29,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
-	mysqlsetup.Mysqlsetup()
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
