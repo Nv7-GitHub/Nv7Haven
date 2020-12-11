@@ -18,10 +18,6 @@ func main() {
 
 	app.Static("/", "./index.html")
 
-	app.Get("/ping", func(c *fiber.Ctx) error {
-		return c.SendString("pong")
-	})
-
 	err := elemental.InitElemental(app)
 	if err != nil {
 		panic(err)
