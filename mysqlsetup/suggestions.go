@@ -2,14 +2,12 @@ package mysqlsetup
 
 import (
 	"database/sql"
-	"fmt"
 	"os"
 
-	/*"encoding/json"
-	"os"
+	"encoding/json"
 
 	fire "github.com/Nv7-Github/firebase"
-	database "github.com/Nv7-Github/firebase/db"*/
+	database "github.com/Nv7-Github/firebase/db"
 	_ "github.com/go-sql-driver/mysql" // mysql
 )
 
@@ -40,15 +38,13 @@ const (
 // Mysqlsetup adds the elements to the mysql db
 func Mysqlsetup() {
 	// mysql
-	fmt.Println("pre-setup")
 	db, err := sql.Open("mysql", "jdbc:mysql://"+dbUser+":"+dbPassword+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
-	fmt.Println("Setup!")
 
-	/*firebaseapp, err := fire.CreateAppWithServiceAccount("https://elementalserver-8c6d0.firebaseio.com", "AIzaSyCsqvV3clnwDTTgPHDVO2Yatv5JImSUJvU", []byte(serviceAccount))
+	firebaseapp, err := fire.CreateAppWithServiceAccount("https://elementalserver-8c6d0.firebaseio.com", "AIzaSyCsqvV3clnwDTTgPHDVO2Yatv5JImSUJvU", []byte(serviceAccount))
 	if err != nil {
 		panic(err)
 	}
@@ -73,5 +69,5 @@ func Mysqlsetup() {
 		if err != nil {
 			panic(err)
 		}
-	}*/
+	}
 }
