@@ -10,7 +10,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func createSuggestion(c *fiber.Ctx) error {
+func (e *Elemental) createSuggestion(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
 	ctx := context.Background()
@@ -35,7 +35,7 @@ func createSuggestion(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	existing, err := getSugg(id)
+	existing, err := e.getSugg(id)
 	if err != nil {
 		return err
 	}
@@ -44,7 +44,7 @@ func createSuggestion(c *fiber.Ctx) error {
 	}
 
 	// Get combos
-	comboData, err := db.Get("suggestionMap/" + elem1 + "/" + elem2)
+	comboData, err := e.db.Get("suggestionMap/" + elem1 + "/" + elem2)
 	if err != nil {
 		return err
 	}
@@ -56,21 +56,21 @@ func createSuggestion(c *fiber.Ctx) error {
 
 	// Delete hanging elements
 	for _, val := range combos {
-		err = db.SetData("suggestions/"+val, nil)
+		err = e.db.SetData("suggestions/"+val, nil)
 		if err != nil {
 			return err
 		}
 	}
 
 	// Delete combos
-	err = db.SetData("suggestionMap/"+elem1+"/"+elem2, nil)
+	err = e.db.SetData("suggestionMap/"+elem1+"/"+elem2, nil)
 	if err != nil {
 		return err
 	}
 
 	// New Recent Combo
 	var recents []RecentCombination
-	data, err := db.Get("recent")
+	data, err := e.db.Get("recent")
 	if err != nil {
 		return err
 	}
@@ -86,7 +86,7 @@ func createSuggestion(c *fiber.Ctx) error {
 	if len(recents) > recentsLength {
 		recents = recents[:recentsLength-1]
 	}
-	fdb, err := fireapp.Database(ctx)
+	fdb, err := e.fireapp.Database(ctx)
 	if err != nil {
 		return err
 	}
@@ -107,21 +107,21 @@ func createSuggestion(c *fiber.Ctx) error {
 		CreatedOn: int(time.Now().Unix()) * 1000,
 	}
 
-	elementExists, _ := store.Collection("elements").Doc(newElement.Name).Get(ctx)
+	elementExists, _ := e.store.Collection("elements").Doc(newElement.Name).Get(ctx)
 	if !elementExists.Exists() {
-		_, err = store.Collection("elements").Doc(newElement.Name).Set(ctx, newElement)
+		_, err = e.store.Collection("elements").Doc(newElement.Name).Set(ctx, newElement)
 		if err != nil {
 			return err
 		}
 	}
 
 	// Create combo
-	existingCombos, err := store.Collection("combos").Doc(elem1).Get(ctx)
+	existingCombos, err := e.store.Collection("combos").Doc(elem1).Get(ctx)
 	if !(existingCombos == nil || !existingCombos.Exists()) && err != nil {
 		return err
 	}
 	if existingCombos == nil || !existingCombos.Exists() {
-		_, err = store.Collection("combos").Doc(elem1).Set(ctx, map[string]string{elem2: newElement.Name})
+		_, err = e.store.Collection("combos").Doc(elem1).Set(ctx, map[string]string{elem2: newElement.Name})
 		if err != nil {
 			return err
 		}
@@ -132,7 +132,7 @@ func createSuggestion(c *fiber.Ctx) error {
 			return err
 		}
 		elemCombos[elem2] = newElement.Name
-		_, err = store.Collection("combos").Doc(elem1).Set(ctx, elemCombos)
+		_, err = e.store.Collection("combos").Doc(elem1).Set(ctx, elemCombos)
 		if err != nil {
 			return err
 		}

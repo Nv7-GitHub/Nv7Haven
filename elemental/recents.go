@@ -14,11 +14,11 @@ type RecentCombination struct {
 	Result string
 }
 
-func getRecents(c *fiber.Ctx) error {
+func (e *Elemental) getRecents(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
 	var recents []RecentCombination
-	data, err := db.Get("recent")
+	data, err := e.db.Get("recent")
 	if err != nil {
 		return err
 	}

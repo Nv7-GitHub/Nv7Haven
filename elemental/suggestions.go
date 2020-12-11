@@ -11,8 +11,8 @@ import (
 const minVotes = -1
 const maxVotes = 3 // ANARCHY: 0, ORIGINAL: 3
 
-func getSugg(id string) (Suggestion, error) {
-	data, err := db.Get("suggestions/" + url.PathEscape(id))
+func (e *Elemental) getSugg(id string) (Suggestion, error) {
+	data, err := e.db.Get("suggestions/" + url.PathEscape(id))
 	if err != nil {
 		return Suggestion{}, err
 	}
@@ -27,14 +27,14 @@ func getSugg(id string) (Suggestion, error) {
 	return suggestion, nil
 }
 
-func getSuggestion(c *fiber.Ctx) error {
+func (e *Elemental) getSuggestion(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
 	id, err := url.PathUnescape(c.Params("id"))
 	if err != nil {
 		return err
 	}
-	suggestion, err := getSugg(id)
+	suggestion, err := e.getSugg(id)
 	if err != nil {
 		if err.Error() == "null" {
 			return c.SendString("null")
@@ -44,7 +44,7 @@ func getSuggestion(c *fiber.Ctx) error {
 	return c.JSON(suggestion)
 }
 
-func getSuggestionCombos(c *fiber.Ctx) error {
+func (e *Elemental) getSuggestionCombos(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
 	elem1, err := url.PathUnescape(c.Params("elem1"))
@@ -55,7 +55,7 @@ func getSuggestionCombos(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	comboData, err := db.Get("suggestionMap/" + url.PathEscape(elem1) + "/" + url.PathEscape(elem2))
+	comboData, err := e.db.Get("suggestionMap/" + url.PathEscape(elem1) + "/" + url.PathEscape(elem2))
 	if err != nil {
 		return err
 	}
@@ -67,7 +67,7 @@ func getSuggestionCombos(c *fiber.Ctx) error {
 	return c.JSON(data)
 }
 
-func downVoteSuggestion(c *fiber.Ctx) error {
+func (e *Elemental) downVoteSuggestion(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
 	id, err := url.PathUnescape(c.Params("id"))
@@ -75,7 +75,7 @@ func downVoteSuggestion(c *fiber.Ctx) error {
 		return err
 	}
 	uid := c.Params("uid")
-	existing, err := getSugg(id)
+	existing, err := e.getSugg(id)
 	if err != nil {
 		return err
 	}
@@ -86,17 +86,17 @@ func downVoteSuggestion(c *fiber.Ctx) error {
 	}
 	existing.Votes--
 	if existing.Votes < minVotes {
-		db.SetData("suggestions/"+url.PathEscape(id), nil)
+		e.db.SetData("suggestions/"+url.PathEscape(id), nil)
 	}
 	existing.Voted = append(existing.Voted, uid)
-	err = db.SetData("suggestions/"+url.PathEscape(id), existing)
+	err = e.db.SetData("suggestions/"+url.PathEscape(id), existing)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func upVoteSuggestion(c *fiber.Ctx) error {
+func (e *Elemental) upVoteSuggestion(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
 	id, err := url.PathUnescape(c.Params("id"))
@@ -104,7 +104,7 @@ func upVoteSuggestion(c *fiber.Ctx) error {
 		return err
 	}
 	uid := c.Params("uid")
-	existing, err := getSugg(id)
+	existing, err := e.getSugg(id)
 	if err != nil {
 		return err
 	}
@@ -117,7 +117,7 @@ func upVoteSuggestion(c *fiber.Ctx) error {
 	// ANARCHY
 	existing.Votes++
 	existing.Voted = append(existing.Voted, uid)
-	err = db.SetData("suggestions/"+url.PathEscape(id), existing)
+	err = e.db.SetData("suggestions/"+url.PathEscape(id), existing)
 	if err != nil {
 		return err
 	}
@@ -127,7 +127,7 @@ func upVoteSuggestion(c *fiber.Ctx) error {
 	return nil
 }
 
-func newSuggestion(c *fiber.Ctx) error {
+func (e *Elemental) newSuggestion(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
 	elem1, err := url.PathUnescape(c.Params("elem1"))
@@ -149,12 +149,12 @@ func newSuggestion(c *fiber.Ctx) error {
 		return err
 	}
 
-	err = db.SetData("suggestions/"+url.PathEscape(suggestion.Name), suggestion)
+	err = e.db.SetData("suggestions/"+url.PathEscape(suggestion.Name), suggestion)
 	if err != nil {
 		return err
 	}
 
-	comboData, err := db.Get("suggestionMap/" + url.PathEscape(elem1) + "/" + url.PathEscape(elem2))
+	comboData, err := e.db.Get("suggestionMap/" + url.PathEscape(elem1) + "/" + url.PathEscape(elem2))
 	if err != nil {
 		return err
 	}
@@ -164,6 +164,6 @@ func newSuggestion(c *fiber.Ctx) error {
 		return err
 	}
 	data = append(data, suggestion.Name)
-	db.SetData("suggestionMap/"+url.PathEscape(elem1)+"/"+url.PathEscape(elem2), data)
+	e.db.SetData("suggestionMap/"+url.PathEscape(elem1)+"/"+url.PathEscape(elem2), data)
 	return nil
 }

@@ -26,9 +26,7 @@ type Color struct {
 	Saturation float32 `json:"saturation"`
 }
 
-var cache map[string]Element = make(map[string]Element, 0)
-
-func getElem(c *fiber.Ctx) error {
+func (e *Elemental) getElem(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
 	ctx := context.Background()
@@ -36,10 +34,10 @@ func getElem(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	val, exists := cache[elemName]
+	val, exists := e.cache[elemName]
 	if !exists {
 		var elem Element
-		data, err := store.Collection("elements").Doc(elemName).Get(ctx)
+		data, err := e.store.Collection("elements").Doc(elemName).Get(ctx)
 		if err != nil {
 			return err
 		}
@@ -49,14 +47,14 @@ func getElem(c *fiber.Ctx) error {
 		}
 		var mutex = &sync.RWMutex{}
 		mutex.Lock()
-		cache[elemName] = elem
+		e.cache[elemName] = elem
 		mutex.Unlock()
 		return c.JSON(elem)
 	}
 	return c.JSON(val)
 }
 
-func getCombo(c *fiber.Ctx) error {
+func (e *Elemental) getCombo(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
 	ctx := context.Background()
@@ -69,7 +67,7 @@ func getCombo(c *fiber.Ctx) error {
 		return err
 	}
 	var data map[string]string
-	snapshot, err := store.Collection("combos").Doc(elem1).Get(ctx)
+	snapshot, err := e.store.Collection("combos").Doc(elem1).Get(ctx)
 	if snapshot == nil || (snapshot.Exists() && err != nil) {
 		return err
 	} else if !snapshot.Exists() {

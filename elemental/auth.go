@@ -6,7 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func createUser(c *fiber.Ctx) error {
+func (e *Elemental) createUser(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
 	email, err := url.PathUnescape(c.Params("email"))
@@ -23,14 +23,14 @@ func createUser(c *fiber.Ctx) error {
 			"data":    err.Error(),
 		})
 	}
-	user, err := auth.SignUpWithEmailAndPassword(email, password)
+	user, err := e.auth.SignUpWithEmailAndPassword(email, password)
 	if err != nil {
 		return c.JSON(map[string]interface{}{
 			"success": false,
 			"data":    err.Error(),
 		})
 	}
-	err = checkUser(user.OtherData.LocalID)
+	err = e.checkUser(user.OtherData.LocalID)
 	if err != nil {
 		return c.JSON(map[string]interface{}{
 			"success": false,
@@ -43,7 +43,7 @@ func createUser(c *fiber.Ctx) error {
 	})
 }
 
-func loginUser(c *fiber.Ctx) error {
+func (e *Elemental) loginUser(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
 	email, err := url.PathUnescape(c.Params("email"))
@@ -60,14 +60,14 @@ func loginUser(c *fiber.Ctx) error {
 			"data":    err.Error(),
 		})
 	}
-	user, err := auth.SignInWithEmailAndPassword(email, password)
+	user, err := e.auth.SignInWithEmailAndPassword(email, password)
 	if err != nil {
 		return c.JSON(map[string]interface{}{
 			"success": false,
 			"data":    err.Error(),
 		})
 	}
-	err = checkUser(user.OtherData.LocalID)
+	err = e.checkUser(user.OtherData.LocalID)
 	if err != nil {
 		return c.JSON(map[string]interface{}{
 			"success": false,
@@ -80,25 +80,25 @@ func loginUser(c *fiber.Ctx) error {
 	})
 }
 
-func checkUser(uid string) error {
-	data, err := db.Get("users/" + uid)
+func (e *Elemental) checkUser(uid string) error {
+	data, err := e.db.Get("users/" + uid)
 	if err != nil {
 		return err
 	}
 	if string(data) == "null" {
-		db.SetData("users/"+uid+"/found", []string{"Air", "Earth", "Fire", "Water"})
+		e.db.SetData("users/"+uid+"/found", []string{"Air", "Earth", "Fire", "Water"})
 	}
 	return nil
 }
 
-func resetPassword(c *fiber.Ctx) error {
+func (e *Elemental) resetPassword(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
 	email, err := url.PathUnescape(c.Params("email"))
 	if err != nil {
 		return err
 	}
-	err = auth.ResetPassword(email)
+	err = e.auth.ResetPassword(email)
 	if err != nil {
 		return err
 	}
