@@ -64,7 +64,7 @@ func Mysqlsetup() {
 	}
 
 	// mysql
-	db, err := sql.Open("mysql", "jdbc:mysql://u29_c99qmCcqZ3:j8@tJ1vv5d@^xMixUqUl+NmA@tcp(host.docker.internal:3306)/s29_nv7haven")
+	db, err := sql.Open("mysql", "jdbc:mysql://u29_c99qmCcqZ3:j8@tJ1vv5d@^xMixUqUl+NmA@tcp(localhost:3306)/s29_nv7haven")
 	if err != nil {
 		panic(err)
 	}
