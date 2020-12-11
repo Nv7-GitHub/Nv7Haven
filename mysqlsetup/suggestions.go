@@ -54,7 +54,7 @@ func Mysqlsetup() {
 
 	firedb := database.CreateDatabase(firebaseapp)
 
-	var suggs []Suggestion
+	var suggs map[string]Suggestion
 	data, err := firedb.Get("suggestions")
 	if err != nil {
 		panic(err)
