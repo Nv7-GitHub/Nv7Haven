@@ -26,6 +26,13 @@ type Element struct {
 
 // Mysqlsetup adds the elements to the mysql db
 func Mysqlsetup() {
+	// mysql
+	db, err := sql.Open("mysql", "jdbc:mysql://u29_c99qmCcqZ3:j8@tJ1vv5d@^xMixUqUl+NmA@/s29_nv7haven") // After last "@": tcp(localhost:3306)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
 	// foundElems
 	opt := option.WithCredentialsJSON([]byte(serviceAccount))
 	config := &firebase.Config{
@@ -33,7 +40,6 @@ func Mysqlsetup() {
 		ProjectID:     "elementalserver-8c6d0",
 		StorageBucket: "elementalserver-8c6d0.appspot.com",
 	}
-	var err error
 	fireapp, err := firebase.NewApp(context.Background(), config, opt)
 	if err != nil {
 		panic(err)
@@ -62,13 +68,6 @@ func Mysqlsetup() {
 	for i, val := range foundElems {
 		found[i] = val.Name
 	}
-
-	// mysql
-	db, err := sql.Open("mysql", "jdbc:mysql://u29_c99qmCcqZ3:j8@tJ1vv5d@^xMixUqUl+NmA@/s29_nv7haven") // After last "@": tcp(localhost:3306)
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
 
 	insElem, err := db.Prepare("INSERT INTO elements VALUES( ?, ?, ?, ?, ?, ?, ?, ? )")
 	if err != nil {
