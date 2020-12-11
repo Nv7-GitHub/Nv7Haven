@@ -3,6 +3,7 @@ package mysqlsetup
 import (
 	"context"
 	"database/sql"
+	"os"
 	"sort"
 
 	firebase "firebase.google.com/go"
@@ -24,10 +25,16 @@ type Element struct {
 	Pioneer   string   `json:"pioneer"`
 }
 
+const (
+	dbUser     = "u29_c99qmCcqZ3"
+	dbPassword = "j8@tJ1vv5d@^xMixUqUl+NmA"
+	dbName     = "s29_nv7haven"
+)
+
 // Mysqlsetup adds the elements to the mysql db
 func Mysqlsetup() {
 	// mysql
-	db, err := sql.Open("mysql", "jdbc:mysql://u29_c99qmCcqZ3:j8@tJ1vv5d@^xMixUqUl+NmA@tcp(localhost:3306)/s29_nv7haven")
+	db, err := sql.Open("mysql", "jdbc:mysql://"+dbUser+":"+dbPassword+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
 	if err != nil {
 		panic(err)
 	}
