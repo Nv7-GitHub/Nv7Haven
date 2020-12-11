@@ -1,6 +1,6 @@
 package mysqlsetup
 
-import (
+/*import (
 	"database/sql"
 	"fmt"
 	"os"
@@ -82,4 +82,4 @@ func Mysqlsetup() {
 		}
 		fmt.Println("execed!")
 	}
-}
+}*/

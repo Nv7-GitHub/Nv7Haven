@@ -1,6 +1,6 @@
 package mysqlsetup
 
-/*import (
+import (
 	"context"
 	"database/sql"
 	"os"
@@ -34,7 +34,7 @@ const (
 // Mysqlsetup adds the elements to the mysql db
 func Mysqlsetup() {
 	// mysql
-	db, err := sql.Open("mysql", "jdbc:mysql://"+dbUser+":"+dbPassword+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
+	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
 	if err != nil {
 		panic(err)
 	}
@@ -88,4 +88,3 @@ func Mysqlsetup() {
 		}
 	}
 }
-*/
