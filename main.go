@@ -39,7 +39,7 @@ func main() {
 		_ = app.Shutdown()
 	}()
 
-	if err := app.Listen(":8080"); err != nil {
+	if err := app.Listen(":" + os.Getenv("PORT")); err != nil {
 		log.Panic(err)
 	}
 
