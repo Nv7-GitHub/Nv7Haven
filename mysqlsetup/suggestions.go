@@ -2,6 +2,7 @@ package mysqlsetup
 
 import (
 	"database/sql"
+	"fmt"
 	"os"
 
 	"encoding/json"
@@ -44,6 +45,8 @@ func Mysqlsetup() {
 	}
 	defer db.Close()
 
+	fmt.Println("opened db")
+
 	firebaseapp, err := fire.CreateAppWithServiceAccount("https://elementalserver-8c6d0.firebaseio.com", "AIzaSyCsqvV3clnwDTTgPHDVO2Yatv5JImSUJvU", []byte(serviceAccount))
 	if err != nil {
 		panic(err)
@@ -58,16 +61,21 @@ func Mysqlsetup() {
 	}
 	json.Unmarshal(data, &suggs)
 
+	fmt.Println("Got suggs")
+
 	insElem, err := db.Prepare("INSERT INTO suggestions VALUES( ?, ?, ?, ?, ? )")
 	if err != nil {
 		panic(err)
 	}
 	defer insElem.Close()
+	fmt.Println("Prepared command")
 	for _, val := range suggs {
 		a, _ := json.Marshal(val.Voted)
+		fmt.Println("ready to exec")
 		_, err = insElem.Exec(val.Name, val.Color, val.Creator, a, val.Votes)
 		if err != nil {
 			panic(err)
 		}
+		fmt.Println("execed!")
 	}
 }
