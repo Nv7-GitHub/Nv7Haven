@@ -7,6 +7,7 @@ import (
 	"os/signal"
 
 	"github.com/Nv7-Github/Nv7Haven/elemental"
+	"github.com/Nv7-Github/Nv7Haven/mysqlsetup"
 	"github.com/Nv7-Github/Nv7Haven/nv7haven"
 
 	"github.com/gofiber/fiber/v2"
@@ -30,6 +31,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	mysqlsetup.Mysqlsetup()
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
