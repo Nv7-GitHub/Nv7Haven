@@ -59,7 +59,10 @@ func Mysqlsetup() {
 	if err != nil {
 		panic(err)
 	}
-	json.Unmarshal(data, &suggs)
+	err = json.Unmarshal(data, &suggs)
+	if err != nil {
+		panic(err)
+	}
 
 	fmt.Println("Got suggs")
 
