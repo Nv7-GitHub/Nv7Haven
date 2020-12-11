@@ -6,6 +6,7 @@ import (
 	"sort"
 
 	firebase "firebase.google.com/go"
+	_ "github.com/go-sql-driver/mysql" // mysql
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 )
