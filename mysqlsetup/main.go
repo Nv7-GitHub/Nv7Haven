@@ -27,7 +27,7 @@ type Element struct {
 // Mysqlsetup adds the elements to the mysql db
 func Mysqlsetup() {
 	// mysql
-	db, err := sql.Open("mysql", "jdbc:mysql://u29_c99qmCcqZ3:j8@tJ1vv5d@^xMixUqUl+NmA@/s29_nv7haven") // After last "@": tcp(localhost:3306)
+	db, err := sql.Open("mysql", "jdbc:mysql://u29_c99qmCcqZ3:j8@tJ1vv5d@^xMixUqUl+NmA@tcp(docker.host.localhost:3306)/s29_nv7haven")
 	if err != nil {
 		panic(err)
 	}
