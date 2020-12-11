@@ -1,26 +1,25 @@
 package main
 
 import (
-	"fmt"
+	/*"fmt"
 	"log"
 	"os"
 	"os/signal"
 
-	"github.com/Nv7-Github/Nv7Haven/elemental"
+	"github.com/Nv7-Github/Nv7Haven/elemental"*/
 	"github.com/Nv7-Github/Nv7Haven/mysqlsetup"
-	"github.com/Nv7-Github/Nv7Haven/nv7haven"
+	/*"github.com/Nv7-Github/Nv7Haven/nv7haven"
 
-	"github.com/gofiber/fiber/v2"
-)
+	"github.com/gofiber/fiber/v2"*/)
 
 func main() {
-	app := fiber.New()
+	/*app := fiber.New()
 
-	app.Static("/", "./index.html")
+	app.Static("/", "./index.html")*/
 
 	mysqlsetup.Mysqlsetup()
 
-	err := elemental.InitElemental(app)
+	/*err := elemental.InitElemental(app)
 	if err != nil {
 		panic(err)
 	}
@@ -42,5 +41,5 @@ func main() {
 		log.Panic(err)
 	}
 
-	elemental.CloseElemental()
+	elemental.CloseElemental()*/
 }
