@@ -1,7 +1,7 @@
 package elemental
 
 import (
-	"context"
+	"encoding/json"
 	"net/url"
 	"sync"
 
@@ -29,7 +29,6 @@ type Color struct {
 func (e *Elemental) getElem(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
-	ctx := context.Background()
 	elemName, err := url.PathUnescape(c.Params("elem"))
 	if err != nil {
 		return err
@@ -37,13 +36,18 @@ func (e *Elemental) getElem(c *fiber.Ctx) error {
 	val, exists := e.cache[elemName]
 	if !exists {
 		var elem Element
-		data, err := e.store.Collection("elements").Doc(elemName).Get(ctx)
+		res, err := e.db.Query("SELECT * FROM elements WHERE name=\"?\"", elemName)
 		if err != nil {
 			return err
 		}
-		err = data.DataTo(&elem)
+		defer res.Close()
+		elem.Parents = make([]string, 2)
+		err = res.Scan(&elem.Name, &elem.Color, &elem.Comment, &elem.Parents[0], &elem.Parents[1], &elem.Creator, &elem.Pioneer, &elem.CreatedOn)
 		if err != nil {
 			return err
+		}
+		if (elem.Parents[0] == "") && (elem.Parents[1] == "") {
+			elem.Parents = make([]string, 0)
 		}
 		var mutex = &sync.RWMutex{}
 		mutex.Lock()
@@ -57,7 +61,6 @@ func (e *Elemental) getElem(c *fiber.Ctx) error {
 func (e *Elemental) getCombo(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
-	ctx := context.Background()
 	elem1, err := url.PathUnescape(c.Params("elem1"))
 	if err != nil {
 		return err
@@ -66,25 +69,43 @@ func (e *Elemental) getCombo(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	var data map[string]string
-	snapshot, err := e.store.Collection("combos").Doc(elem1).Get(ctx)
-	if snapshot == nil || (snapshot.Exists() && err != nil) {
+
+	res, err := e.db.Query("SELECT COUNT(1) FROM element_combos WHERE name=\"?\" LIMIT 1", elem1)
+	if err != nil {
 		return err
-	} else if !snapshot.Exists() {
+	}
+	defer res.Close()
+	var count int
+	res.Scan(&count)
+	if count == 0 {
 		return c.JSON(map[string]bool{
 			"exists": false,
 		})
 	}
-	err = snapshot.DataTo(&data)
+
+	var data map[string]string
+	res, err = e.db.Query("SELECT combos FROM element_combos WHERE name=\"?\" LIMIT 1", elem1)
 	if err != nil {
 		return err
 	}
+	defer res.Close()
+	var comboData string
+	err = res.Scan(&comboData)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal([]byte(comboData), &data)
+	if err != nil {
+		return err
+	}
+
 	output, exists := data[elem2]
 	if !exists {
 		return c.JSON(map[string]bool{
 			"exists": false,
 		})
 	}
+
 	return c.JSON(map[string]interface{}{
 		"exists": true,
 		"combo":  output,

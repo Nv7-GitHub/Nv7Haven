@@ -14,30 +14,32 @@ func (e *Elemental) foundElement(c *fiber.Ctx) error {
 func (e *Elemental) getFound(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
-	var found []string
-	data, err := e.db.Get("users/" + c.Params("uid") + "/found")
+	res, err := e.db.Query("SELECT found FROM users WHERE uid=\"?\"", c.Params("uid"))
 	if err != nil {
 		return err
 	}
-	err = json.Unmarshal(data, &found)
-	if err != nil {
-		return err
-	}
-	return c.JSON(found)
+	defer res.Close()
+	var data string
+	res.Scan(&data)
+	return c.SendString(data)
 }
 
 func (e *Elemental) newFound(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
 	var found []string
-	data, err := e.db.Get("users/" + c.Params("uid") + "/found")
+	res, err := e.db.Query("SELECT found FROM users WHERE uid=\"?\"", c.Params("uid"))
 	if err != nil {
 		return err
 	}
-	err = json.Unmarshal(data, &found)
+	defer res.Close()
+	var data string
+	res.Scan(&data)
+	err = json.Unmarshal([]byte(data), &found)
 	if err != nil {
 		return err
 	}
+
 	elem, err := url.PathUnescape(c.Params("elem"))
 	if err != nil {
 		return err
@@ -48,7 +50,13 @@ func (e *Elemental) newFound(c *fiber.Ctx) error {
 		}
 	}
 	found = append(found, elem)
-	err = e.db.SetData("users/"+c.Params("uid")+"/found", found)
+
+	dat, err := json.Marshal(found)
+	if err != nil {
+		return err
+	}
+	data = string(dat)
+	_, err = e.db.Exec("UPDATE users SET found=\"?\" WHERE uid=\"?\"", data, c.Params("uid"))
 	if err != nil {
 		return err
 	}

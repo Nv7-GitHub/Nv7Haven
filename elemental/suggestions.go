@@ -2,8 +2,10 @@ package elemental
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
 	"net/url"
+	"strconv"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -12,18 +14,41 @@ const minVotes = -1
 const maxVotes = 3 // ANARCHY: 0, ORIGINAL: 3
 
 func (e *Elemental) getSugg(id string) (Suggestion, error) {
-	data, err := e.db.Get("suggestions/" + url.PathEscape(id))
+	res, err := e.db.Query("SELECT * FROM suggestions WHERE name=\"?\"", id)
 	if err != nil {
 		return Suggestion{}, err
 	}
-	if string(data) == "null" {
-		return Suggestion{}, errors.New("null")
-	}
+	defer res.Close()
 	var suggestion Suggestion
-	err = json.Unmarshal(data, &suggestion)
+	var color string
+	var voted string
+	err = res.Scan(&suggestion.Name, &color, &suggestion.Creator, &voted, &suggestion.Votes)
 	if err != nil {
 		return Suggestion{}, err
 	}
+
+	colors := strings.Split(color, "_")
+	sat, err := strconv.ParseFloat(colors[1], 32)
+	if err != nil {
+		return Suggestion{}, err
+	}
+	light, err := strconv.ParseFloat(colors[2], 32)
+	if err != nil {
+		return Suggestion{}, err
+	}
+	suggestion.Color = Color{
+		Base:       colors[0],
+		Saturation: float32(sat),
+		Lightness:  float32(light),
+	}
+
+	var votedData []string
+	err = json.Unmarshal([]byte(voted), &votedData)
+	if err != nil {
+		return Suggestion{}, err
+	}
+	suggestion.Voted = votedData
+
 	return suggestion, nil
 }
 
@@ -55,16 +80,11 @@ func (e *Elemental) getSuggestionCombos(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	comboData, err := e.db.Get("suggestionMap/" + url.PathEscape(elem1) + "/" + url.PathEscape(elem2))
+	data, err := e.getSuggestions(elem1)
 	if err != nil {
 		return err
 	}
-	var data []string
-	err = json.Unmarshal(comboData, &data)
-	if err != nil {
-		return err
-	}
-	return c.JSON(data)
+	return c.JSON(data[elem2])
 }
 
 func (e *Elemental) downVoteSuggestion(c *fiber.Ctx) error {
@@ -86,10 +106,14 @@ func (e *Elemental) downVoteSuggestion(c *fiber.Ctx) error {
 	}
 	existing.Votes--
 	if existing.Votes < minVotes {
-		e.db.SetData("suggestions/"+url.PathEscape(id), nil)
+		e.db.Exec("DELETE FROM suggestions WHERE name=\"?\"", id)
 	}
 	existing.Voted = append(existing.Voted, uid)
-	err = e.db.SetData("suggestions/"+url.PathEscape(id), existing)
+	data, err := json.Marshal(existing.Voted)
+	if err != nil {
+		return err
+	}
+	_, err = e.db.Exec("UPDATE suggestions SET voted=\"?\" votes=\"?\" WHERE name=\"?\"", data, existing.Votes, existing.Name)
 	if err != nil {
 		return err
 	}
@@ -117,7 +141,11 @@ func (e *Elemental) upVoteSuggestion(c *fiber.Ctx) error {
 	// ANARCHY
 	existing.Votes++
 	existing.Voted = append(existing.Voted, uid)
-	err = e.db.SetData("suggestions/"+url.PathEscape(id), existing)
+	data, err := json.Marshal(existing.Voted)
+	if err != nil {
+		return err
+	}
+	_, err = e.db.Exec("UPDATE suggestions SET voted=\"?\" votes=\"?\" WHERE name=\"?\"", data, existing.Votes, existing.Name)
 	if err != nil {
 		return err
 	}
@@ -149,21 +177,25 @@ func (e *Elemental) newSuggestion(c *fiber.Ctx) error {
 		return err
 	}
 
-	err = e.db.SetData("suggestions/"+url.PathEscape(suggestion.Name), suggestion)
+	voted, _ := json.Marshal(suggestion.Voted)
+	color := fmt.Sprintf("%s_%f_%f", suggestion.Color.Base, suggestion.Color.Saturation, suggestion.Color.Lightness)
+	_, err = e.db.Exec("INSERT INTO suggestions VALUES( ?, ?, ?, ? )", suggestion.Name, color, suggestion.Creator, voted, suggestion.Votes)
 	if err != nil {
 		return err
 	}
 
-	comboData, err := e.db.Get("suggestionMap/" + url.PathEscape(elem1) + "/" + url.PathEscape(elem2))
+	combos, err := e.getSuggestions(elem1)
 	if err != nil {
 		return err
 	}
-	var data []string
-	err = json.Unmarshal(comboData, &data)
+	combos[elem2] = append(combos[elem2], suggestion.Name)
+	data, err := json.Marshal(combos)
 	if err != nil {
 		return err
 	}
-	data = append(data, suggestion.Name)
-	e.db.SetData("suggestionMap/"+url.PathEscape(elem1)+"/"+url.PathEscape(elem2), data)
+	_, err = e.db.Exec("UPDATE suggestion_combos SET combos=\"?\" WHERE name=\"?\"", data, elem1)
+	if err != nil {
+		return err
+	}
 	return nil
 }

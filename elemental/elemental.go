@@ -1,17 +1,14 @@
 package elemental
 
 import (
-	"context"
+	"database/sql"
+	"os"
 
-	"cloud.google.com/go/firestore"
-	"github.com/gofiber/fiber/v2"
-	"google.golang.org/api/iterator"
-
-	firebase "firebase.google.com/go"
-	fire "github.com/Nv7-Github/firebase"
-	authentication "github.com/Nv7-Github/firebase/auth"
+	"github.com/Nv7-Github/firebase"
+	"github.com/Nv7-Github/firebase/db"
 	database "github.com/Nv7-Github/firebase/db"
-	"google.golang.org/api/option"
+	_ "github.com/go-sql-driver/mysql" // mysql
+	"github.com/gofiber/fiber/v2"
 )
 
 // CloseElemental cleans up elemental
@@ -34,11 +31,9 @@ type Recent struct {
 
 // Elemental is the "Nv7's Elemental" server at https://elemental4.net, the elemental.json is at https://nv7haven.tk/elemental
 type Elemental struct {
-	db      *database.Db
-	store   *firestore.Client
-	auth    *authentication.Auth
-	fireapp *firebase.App
-	cache   map[string]Element
+	db    *sql.DB
+	cache map[string]Element
+	fdb   *db.Db
 }
 
 func (e *Elemental) routing(app *fiber.App) {
@@ -53,69 +48,44 @@ func (e *Elemental) routing(app *fiber.App) {
 	app.Get("/up_suggestion/:id/:uid", e.upVoteSuggestion)
 	app.Get("/create_suggestion/:elem1/:elem2/:id/:mark/:pioneer", e.createSuggestion)
 	app.Get("/new_suggestion/:elem1/:elem2/:data", e.newSuggestion)
-	app.Get("/create_user/:email/:password", e.createUser)
-	app.Get("/login_user/:email/:password", e.loginUser)
+	app.Get("/create_user/:name/:password", e.createUser)
+	app.Get("/login_user/:name/:password", e.loginUser)
 	app.Get("/clear", func(c *fiber.Ctx) error {
 		e.cache = make(map[string]Element, 0)
 		return nil
 	})
 }
 
-func (e *Elemental) init() {
-	iter := e.store.Collection("elements").Documents(context.Background())
-	for {
-		doc, err := iter.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			panic(err)
-		}
-		var data Element
-		doc.DataTo(&data)
-		e.cache[data.Name] = data
-	}
-}
+const (
+	dbUser     = "u29_c99qmCcqZ3"
+	dbPassword = "j8@tJ1vv5d@^xMixUqUl+NmA"
+	dbName     = "s29_nv7haven"
+)
 
 // InitElemental initializes all of Elemental's handlers on the app.
-func InitElemental(app *fiber.App) error {
-	opt := option.WithCredentialsJSON([]byte(serviceAccount))
-	config := &firebase.Config{
-		DatabaseURL:   "https://elementalserver-8c6d0.firebaseio.com",
-		ProjectID:     "elementalserver-8c6d0",
-		StorageBucket: "elementalserver-8c6d0.appspot.com",
-	}
-	var err error
-	fireapp, err := firebase.NewApp(context.Background(), config, opt)
+func InitElemental(app *fiber.App) (Elemental, error) {
+	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
 	if err != nil {
-		return err
+		panic(err)
 	}
 
-	firebaseapp, err := fire.CreateAppWithServiceAccount("https://elementalserver-8c6d0.firebaseio.com", "AIzaSyCsqvV3clnwDTTgPHDVO2Yatv5JImSUJvU", []byte(serviceAccount))
+	firebaseapp, err := firebase.CreateAppWithServiceAccount("https://elementalserver-8c6d0.firebaseio.com", "AIzaSyCsqvV3clnwDTTgPHDVO2Yatv5JImSUJvU", []byte(serviceAccount))
 	if err != nil {
-		return err
+		return Elemental{}, err
 	}
-	auth := authentication.CreateAuth(firebaseapp)
 
-	db := database.CreateDatabase(firebaseapp)
-
-	store, err := fireapp.Firestore(context.Background())
-	if err != nil {
-		return err
-	}
+	fdb := database.CreateDatabase(firebaseapp)
 
 	e := Elemental{
-		db:      db,
-		auth:    auth,
-		store:   store,
-		fireapp: fireapp,
-		cache:   make(map[string]Element, 0),
+		db:    db,
+		cache: make(map[string]Element),
+		fdb:   fdb,
 	}
 
-	e.routing(app)
-	e.init()
+	return e, nil
+}
 
-	CloseElemental = func() { e.store.Close() }
-
-	return nil
+// Close cleans up elemental
+func (e *Elemental) Close() {
+	e.db.Close()
 }

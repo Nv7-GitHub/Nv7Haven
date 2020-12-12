@@ -9,7 +9,7 @@ import (
 func (e *Elemental) createUser(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
-	email, err := url.PathUnescape(c.Params("email"))
+	name, err := url.PathUnescape(c.Params("name"))
 	if err != nil {
 		return c.JSON(map[string]interface{}{
 			"success": false,
@@ -23,30 +23,32 @@ func (e *Elemental) createUser(c *fiber.Ctx) error {
 			"data":    err.Error(),
 		})
 	}
-	user, err := e.auth.SignUpWithEmailAndPassword(email, password)
+
+	uid, err := GenerateRandomStringURLSafe(16)
 	if err != nil {
 		return c.JSON(map[string]interface{}{
 			"success": false,
 			"data":    err.Error(),
 		})
 	}
-	err = e.checkUser(user.OtherData.LocalID)
+	_, err = e.db.Exec("INSERT INTO users VALUES( ?, ?, ?, ? )", name, uid, password, `["Air", "Earth", "Fire", "Water"]`)
 	if err != nil {
 		return c.JSON(map[string]interface{}{
 			"success": false,
 			"data":    err.Error(),
 		})
 	}
+
 	return c.JSON(map[string]interface{}{
 		"success": true,
-		"data":    user.OtherData.LocalID,
+		"data":    uid,
 	})
 }
 
 func (e *Elemental) loginUser(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
-	email, err := url.PathUnescape(c.Params("email"))
+	name, err := url.PathUnescape(c.Params("name"))
 	if err != nil {
 		return c.JSON(map[string]interface{}{
 			"success": false,
@@ -60,47 +62,47 @@ func (e *Elemental) loginUser(c *fiber.Ctx) error {
 			"data":    err.Error(),
 		})
 	}
-	user, err := e.auth.SignInWithEmailAndPassword(email, password)
+
+	// Check if user exists
+	res, err := e.db.Query("SELECT COUNT(1) FROM users WHERE name=\"?\" AND password=\"?\" LIMIT 1", name, password)
+	if err != nil {
+		return err
+	}
+	defer res.Close()
+	var count int
+	err = res.Scan(&count)
 	if err != nil {
 		return c.JSON(map[string]interface{}{
 			"success": false,
 			"data":    err.Error(),
 		})
 	}
-	err = e.checkUser(user.OtherData.LocalID)
+	if count == 0 {
+		return c.JSON(map[string]interface{}{
+			"success": false,
+			"data":    "Invalid username or password",
+		})
+	}
+
+	res, err = e.db.Query("SELECT uid FROM users WHERE name=\"?\" AND password=\"?\" LIMIT 1", name, password)
 	if err != nil {
 		return c.JSON(map[string]interface{}{
 			"success": false,
 			"data":    err.Error(),
 		})
 	}
+	defer res.Close()
+	var uid string
+	err = res.Scan(&uid)
+	if err != nil {
+		return c.JSON(map[string]interface{}{
+			"success": false,
+			"data":    err.Error(),
+		})
+	}
+
 	return c.JSON(map[string]interface{}{
 		"success": true,
-		"data":    user.OtherData.LocalID,
+		"data":    uid,
 	})
-}
-
-func (e *Elemental) checkUser(uid string) error {
-	data, err := e.db.Get("users/" + uid)
-	if err != nil {
-		return err
-	}
-	if string(data) == "null" {
-		e.db.SetData("users/"+uid+"/found", []string{"Air", "Earth", "Fire", "Water"})
-	}
-	return nil
-}
-
-func (e *Elemental) resetPassword(c *fiber.Ctx) error {
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Headers", "*")
-	email, err := url.PathUnescape(c.Params("email"))
-	if err != nil {
-		return err
-	}
-	err = e.auth.ResetPassword(email)
-	if err != nil {
-		return err
-	}
-	return nil
 }

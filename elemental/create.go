@@ -1,7 +1,6 @@
 package elemental
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/url"
@@ -13,7 +12,6 @@ import (
 func (e *Elemental) createSuggestion(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
-	ctx := context.Background()
 
 	id, err := url.PathUnescape(c.Params("id"))
 	if err != nil {
@@ -44,33 +42,34 @@ func (e *Elemental) createSuggestion(c *fiber.Ctx) error {
 	}
 
 	// Get combos
-	comboData, err := e.db.Get("suggestionMap/" + elem1 + "/" + elem2)
+	comboData, err := e.getSuggestions(elem1)
 	if err != nil {
 		return err
 	}
-	var combos []string
-	err = json.Unmarshal(comboData, &combos)
-	if err != nil {
-		return err
-	}
+	combos := comboData[elem2]
 
 	// Delete hanging elements
 	for _, val := range combos {
-		err = e.db.SetData("suggestions/"+val, nil)
+		_, err = e.db.Exec("DELETE FROM suggestions WHERE name=\"?\"", val)
 		if err != nil {
 			return err
 		}
 	}
 
 	// Delete combos
-	err = e.db.SetData("suggestionMap/"+elem1+"/"+elem2, nil)
+	delete(comboData, elem2)
+	data, err := json.Marshal(comboData)
+	if err != nil {
+		return err
+	}
+	_, err = e.db.Exec("UPDATE suggestion_combos SET combos=\"?\" WHERE name=\"?\"", data, elem1)
 	if err != nil {
 		return err
 	}
 
 	// New Recent Combo
 	var recents []RecentCombination
-	data, err := e.db.Get("recent")
+	data, err = e.fdb.Get("recent")
 	if err != nil {
 		return err
 	}
@@ -86,56 +85,27 @@ func (e *Elemental) createSuggestion(c *fiber.Ctx) error {
 	if len(recents) > recentsLength {
 		recents = recents[:recentsLength-1]
 	}
-	fdb, err := e.fireapp.Database(ctx)
+	e.fdb.SetData("recent", recents)
+
+	res, err := e.db.Query("SELECT COUNT(1) FROM elements WHERE name=\"?\"", existing.Name)
+	defer res.Close()
 	if err != nil {
 		return err
 	}
-	ref := fdb.NewRef("recent")
-	err = ref.Set(ctx, recents)
-	if err != nil {
-		return err
-	}
-
-	// Create Element
-	newElement := Element{
-		Name:      existing.Name,
-		Color:     fmt.Sprintf("%s_%f_%f", existing.Color.Base, existing.Color.Saturation, existing.Color.Lightness),
-		Creator:   existing.Creator,
-		Pioneer:   pioneer,
-		Parents:   []string{elem1, elem2},
-		Comment:   mark,
-		CreatedOn: int(time.Now().Unix()) * 1000,
-	}
-
-	elementExists, _ := e.store.Collection("elements").Doc(newElement.Name).Get(ctx)
-	if !elementExists.Exists() {
-		_, err = e.store.Collection("elements").Doc(newElement.Name).Set(ctx, newElement)
+	var count int
+	res.Scan(&count)
+	if count == 0 {
+		color := fmt.Sprintf("%s_%f_%f", existing.Color.Base, existing.Color.Saturation, existing.Color.Lightness)
+		_, err = e.db.Exec("INSERT INTO elements VALUES( ?, ?, ?, ?, ?, ?, ?, ? )", existing.Name, color, mark, elem1, elem2, existing.Creator, pioneer, int(time.Now().Unix())*1000)
 		if err != nil {
 			return err
 		}
 	}
 
 	// Create combo
-	existingCombos, err := e.store.Collection("combos").Doc(elem1).Get(ctx)
-	if !(existingCombos == nil || !existingCombos.Exists()) && err != nil {
+	err = e.addCombo(elem1, elem2, existing.Name)
+	if err != nil {
 		return err
-	}
-	if existingCombos == nil || !existingCombos.Exists() {
-		_, err = e.store.Collection("combos").Doc(elem1).Set(ctx, map[string]string{elem2: newElement.Name})
-		if err != nil {
-			return err
-		}
-	} else {
-		var elemCombos map[string]string
-		err = existingCombos.DataTo(&elemCombos)
-		if err != nil {
-			return err
-		}
-		elemCombos[elem2] = newElement.Name
-		_, err = e.store.Collection("combos").Doc(elem1).Set(ctx, elemCombos)
-		if err != nil {
-			return err
-		}
 	}
 	return nil
 }
