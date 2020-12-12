@@ -43,7 +43,7 @@ func (n *Nv7Haven) initBestEver() error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(rawData)
+	fmt.Println(string(rawData))
 	var rawMarshaled map[string][]Suggestion
 	err = json.Unmarshal(rawData, &rawMarshaled)
 	if err != nil {
