@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
+	"strings"
 )
 
 // https://gist.github.com/dopey/c69559607800d2f2f90b1b1ed4e550fb
@@ -46,6 +47,14 @@ func GenerateRandomString(n int) (string, error) {
 // case the caller should not continue.
 func GenerateRandomStringURLSafe(n int) (string, error) {
 	b, err := GenerateRandomBytes(n)
+	if err != nil {
+		return "", err
+	}
+	out, err := base64.URLEncoding.EncodeToString(b), err
+	if err != nil {
+		return "", err
+	}
+	out = strings.Replace(out, "=", "7", -1)
 	return base64.URLEncoding.EncodeToString(b), err
 }
 
