@@ -1,7 +1,6 @@
 package elemental
 
 import (
-	"log"
 	"net/url"
 
 	"github.com/gofiber/fiber/v2"
@@ -137,7 +136,6 @@ func (e *Elemental) newAnonymousUser(c *fiber.Ctx) error {
 	for count != 0 {
 		name, err = GenerateRandomStringURLSafe(8)
 		if err != nil {
-			log.Println(139)
 			return c.JSON(map[string]interface{}{
 				"success": false,
 				"data":    err.Error(),
@@ -147,7 +145,7 @@ func (e *Elemental) newAnonymousUser(c *fiber.Ctx) error {
 		// Check if name taken
 		res, err := e.db.Query("SELECT COUNT(1) FROM users WHERE name=\"?\" LIMIT 1", name)
 		if err != nil {
-			log.Println(149)
+			// ERROR
 			return c.JSON(map[string]interface{}{
 				"success": false,
 				"data":    err.Error(),
@@ -156,7 +154,6 @@ func (e *Elemental) newAnonymousUser(c *fiber.Ctx) error {
 		defer res.Close()
 		err = res.Scan(&count)
 		if err != nil {
-			log.Println(158)
 			return c.JSON(map[string]interface{}{
 				"success": false,
 				"data":    err.Error(),
