@@ -61,7 +61,7 @@ func (e *Elemental) getSuggestions(elem1 string) (map[string][]string, error) {
 	res.Next()
 	err = res.Scan(&data)
 	if err != nil {
-		return nil, err
+		return map[string][]string{elem1: make([]string, 0)}, nil
 	}
 	var out map[string][]string
 	err = json.Unmarshal([]byte(data), &out)
