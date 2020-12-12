@@ -182,7 +182,7 @@ func (e *Elemental) newSuggestion(c *fiber.Ctx) error {
 
 	voted, _ := json.Marshal(suggestion.Voted)
 	color := fmt.Sprintf("%s_%f_%f", suggestion.Color.Base, suggestion.Color.Saturation, suggestion.Color.Lightness)
-	_, err = e.db.Exec("INSERT INTO suggestions VALUES( ?, ?, ?, ? )", suggestion.Name, color, suggestion.Creator, voted, suggestion.Votes)
+	_, err = e.db.Exec("INSERT INTO suggestions VALUES( ?, ?, ?, ?, ? )", suggestion.Name, color, suggestion.Creator, voted, suggestion.Votes)
 	if err != nil {
 		return err
 	}
