@@ -7,7 +7,7 @@ import (
 	"os/signal"
 
 	"github.com/Nv7-Github/Nv7Haven/elemental"
-	//"github.com/Nv7-Github/Nv7Haven/mysqlsetup"
+	"github.com/Nv7-Github/Nv7Haven/mysqlsetup"
 	"github.com/Nv7-Github/Nv7Haven/nv7haven"
 
 	"github.com/gofiber/fiber/v2"
@@ -18,7 +18,7 @@ func main() {
 
 	app.Static("/", "./index.html")
 
-	// mysqlsetup.Mysqlsetup()
+	mysqlsetup.Mysqlsetup()
 
 	e, err := elemental.InitElemental(app)
 	if err != nil {

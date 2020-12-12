@@ -1,6 +1,6 @@
 package mysqlsetup
 
-/*import (
+import (
 	"context"
 	"database/sql"
 	"os"
@@ -82,9 +82,12 @@ func Mysqlsetup() {
 	}
 	defer insElem.Close()
 	for _, val := range foundElems {
+		if len(val.Parents) == 0 {
+			val.Parents = []string{"", ""}
+		}
 		_, err = insElem.Exec(val.Name, val.Color, val.Comment, val.Parents[0], val.Parents[1], val.Creator, val.Pioneer, val.CreatedOn)
 		if err != nil {
 			panic(err)
 		}
 	}
-}*/
+}
