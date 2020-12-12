@@ -24,12 +24,34 @@ func (e *Elemental) createUser(c *fiber.Ctx) error {
 		})
 	}
 
-	uid, err := GenerateRandomStringURLSafe(16)
-	if err != nil {
-		return c.JSON(map[string]interface{}{
-			"success": false,
-			"data":    err.Error(),
-		})
+	var uid string
+	count := 1
+	for count != 0 {
+		uid, err = GenerateRandomStringURLSafe(16)
+		if err != nil {
+			return c.JSON(map[string]interface{}{
+				"success": false,
+				"data":    err.Error(),
+			})
+		}
+
+		// Check if name taken
+		res, err := e.db.Query("SELECT COUNT(1) FROM users WHERE uid=? LIMIT 1", name)
+		if err != nil {
+			return c.JSON(map[string]interface{}{
+				"success": false,
+				"data":    err.Error(),
+			})
+		}
+		defer res.Close()
+		res.Next()
+		err = res.Scan(&count)
+		if err != nil {
+			return c.JSON(map[string]interface{}{
+				"success": false,
+				"data":    err.Error(),
+			})
+		}
 	}
 
 	// Check if name taken
@@ -38,7 +60,6 @@ func (e *Elemental) createUser(c *fiber.Ctx) error {
 		return err
 	}
 	defer res.Close()
-	var count int
 	res.Next()
 	err = res.Scan(&count)
 	if err != nil {
