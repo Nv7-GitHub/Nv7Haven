@@ -33,7 +33,7 @@ func (e *Elemental) createUser(c *fiber.Ctx) error {
 	}
 
 	// Check if name taken
-	res, err := e.db.Query("SELECT COUNT(1) FROM users WHERE name=? LIMIT 1", name, password)
+	res, err := e.db.Query("SELECT COUNT(1) FROM users WHERE name=? LIMIT 1", name)
 	if err != nil {
 		return err
 	}
