@@ -50,6 +50,7 @@ func (e *Elemental) routing(app *fiber.App) {
 	app.Get("/new_suggestion/:elem1/:elem2/:data", e.newSuggestion)
 	app.Get("/create_user/:name/:password", e.createUser)
 	app.Get("/login_user/:name/:password", e.loginUser)
+	app.Get("/new_anonymous_user", e.newAnonymousUser)
 	app.Get("/clear", func(c *fiber.Ctx) error {
 		e.cache = make(map[string]Element, 0)
 		return nil

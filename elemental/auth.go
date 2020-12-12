@@ -32,7 +32,8 @@ func (e *Elemental) createUser(c *fiber.Ctx) error {
 		})
 	}
 
-	res, err := e.db.Query("SELECT COUNT(1) FROM users WHERE name=\"?\" AND password=\"?\" LIMIT 1", name, password)
+	// Check if name taken
+	res, err := e.db.Query("SELECT COUNT(1) FROM users WHERE name=\"?\" LIMIT 1", name, password)
 	if err != nil {
 		return err
 	}
@@ -125,5 +126,41 @@ func (e *Elemental) loginUser(c *fiber.Ctx) error {
 	return c.JSON(map[string]interface{}{
 		"success": true,
 		"data":    uid,
+	})
+}
+
+func (e *Elemental) newAnonymousUser(c *fiber.Ctx) error {
+	count := 1
+	var name string
+	var err error
+	for count != 0 {
+		name, err = GenerateRandomStringURLSafe(8)
+		if err != nil {
+			return c.JSON(map[string]interface{}{
+				"success": false,
+				"data":    err.Error(),
+			})
+		}
+
+		// Check if name taken
+		res, err := e.db.Query("SELECT COUNT(1) FROM users WHERE name=\"?\" LIMIT 1", name)
+		if err != nil {
+			return c.JSON(map[string]interface{}{
+				"success": false,
+				"data":    err.Error(),
+			})
+		}
+		defer res.Close()
+		err = res.Scan(&count)
+		if err != nil {
+			return c.JSON(map[string]interface{}{
+				"success": false,
+				"data":    err.Error(),
+			})
+		}
+	}
+	return c.JSON(map[string]interface{}{
+		"success": true,
+		"data":    name,
 	})
 }
