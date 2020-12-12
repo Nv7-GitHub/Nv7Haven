@@ -38,6 +38,7 @@ func (e *Elemental) newFound(c *fiber.Ctx) error {
 	}
 	defer res.Close()
 	var data string
+	res.Next()
 	res.Scan(&data)
 	err = json.Unmarshal([]byte(data), &found)
 	if err != nil {

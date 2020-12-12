@@ -77,6 +77,7 @@ func (e *Elemental) getCombo(c *fiber.Ctx) error {
 	}
 	defer res.Close()
 	var count int
+	res.Next()
 	res.Scan(&count)
 	if count == 0 {
 		return c.JSON(map[string]bool{

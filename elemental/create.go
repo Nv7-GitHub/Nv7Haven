@@ -93,6 +93,7 @@ func (e *Elemental) createSuggestion(c *fiber.Ctx) error {
 		return err
 	}
 	var count int
+	res.Next()
 	res.Scan(&count)
 	if count == 0 {
 		color := fmt.Sprintf("%s_%f_%f", existing.Color.Base, existing.Color.Saturation, existing.Color.Lightness)
