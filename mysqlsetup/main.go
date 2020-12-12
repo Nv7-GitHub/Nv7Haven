@@ -1,6 +1,6 @@
 package mysqlsetup
 
-import (
+/*import (
 	"context"
 	"database/sql"
 	"os"
@@ -87,4 +87,4 @@ func Mysqlsetup() {
 			panic(err)
 		}
 	}
-}
+}*/

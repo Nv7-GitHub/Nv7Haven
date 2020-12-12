@@ -1,6 +1,6 @@
 package mysqlsetup
 
-/*import (
+import (
 	"database/sql"
 	"fmt"
 	"os"
@@ -54,8 +54,8 @@ func Mysqlsetup() {
 
 	firedb := database.CreateDatabase(firebaseapp)
 
-	var suggs map[string]Suggestion
-	data, err := firedb.Get("suggestions")
+	var suggs map[string][]string
+	data, err := firedb.Get("suggestionMap")
 	if err != nil {
 		panic(err)
 	}
@@ -66,20 +66,20 @@ func Mysqlsetup() {
 
 	fmt.Println("Got suggs")
 
-	insElem, err := db.Prepare("INSERT INTO suggestions VALUES( ?, ?, ?, ?, ? )")
+	insElem, err := db.Prepare("INSERT INTO suggestion_combos VALUES( ?, ? )")
 	if err != nil {
 		panic(err)
 	}
 	defer insElem.Close()
 	fmt.Println("Prepared command")
-	for _, val := range suggs {
-		a, _ := json.Marshal(val.Voted)
-		b := fmt.Sprintf("%s_%f_%f", val.Color.Base, val.Color.Saturation, val.Color.Lightness)
+
+	for k, val := range suggs {
+		a, _ := json.Marshal(val)
 		fmt.Println("ready to exec")
-		_, err = insElem.Exec(val.Name, b, val.Creator, a, val.Votes)
+		_, err = insElem.Exec(k, a)
 		if err != nil {
 			panic(err)
 		}
 		fmt.Println("execed!")
 	}
-}*/
+}
