@@ -6,7 +6,7 @@ import (
 	"os"
 	"os/signal"
 
-	//"github.com/Nv7-Github/Nv7Haven/elemental"
+	"github.com/Nv7-Github/Nv7Haven/elemental"
 	//"github.com/Nv7-Github/Nv7Haven/mysqlsetup"
 	"github.com/Nv7-Github/Nv7Haven/nv7haven"
 
@@ -20,12 +20,12 @@ func main() {
 
 	// mysqlsetup.Mysqlsetup()
 
-	/*err := elemental.InitElemental(app)
+	e, err := elemental.InitElemental(app)
 	if err != nil {
 		panic(err)
-	}*/
+	}
 
-	err := nv7haven.InitNv7Haven(app)
+	err = nv7haven.InitNv7Haven(app)
 	if err != nil {
 		panic(err)
 	}
@@ -42,5 +42,5 @@ func main() {
 		log.Panic(err)
 	}
 
-	//elemental.CloseElemental()
+	e.Close()
 }
