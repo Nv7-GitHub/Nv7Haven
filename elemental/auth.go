@@ -145,13 +145,13 @@ func (e *Elemental) newAnonymousUser(c *fiber.Ctx) error {
 		// Check if name taken
 		res, err := e.db.Query("SELECT COUNT(1) FROM users WHERE name=? LIMIT 1", name)
 		if err != nil {
-			// ERROR
 			return c.JSON(map[string]interface{}{
 				"success": false,
 				"data":    err.Error(),
 			})
 		}
 		defer res.Close()
+		res.Next()
 		err = res.Scan(&count)
 		if err != nil {
 			return c.JSON(map[string]interface{}{
