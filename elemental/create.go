@@ -50,7 +50,7 @@ func (e *Elemental) createSuggestion(c *fiber.Ctx) error {
 
 	// Delete hanging elements
 	for _, val := range combos {
-		_, err = e.db.Exec("DELETE FROM suggestions WHERE name=\"?\"", val)
+		_, err = e.db.Exec("DELETE FROM suggestions WHERE name=?", val)
 		if err != nil {
 			return err
 		}
@@ -62,7 +62,7 @@ func (e *Elemental) createSuggestion(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	_, err = e.db.Exec("UPDATE suggestion_combos SET combos=\"?\" WHERE name=\"?\"", data, elem1)
+	_, err = e.db.Exec("UPDATE suggestion_combos SET combos=? WHERE name=?", data, elem1)
 	if err != nil {
 		return err
 	}
@@ -87,7 +87,7 @@ func (e *Elemental) createSuggestion(c *fiber.Ctx) error {
 	}
 	e.fdb.SetData("recent", recents)
 
-	res, err := e.db.Query("SELECT COUNT(1) FROM elements WHERE name=\"?\"", existing.Name)
+	res, err := e.db.Query("SELECT COUNT(1) FROM elements WHERE name=?", existing.Name)
 	defer res.Close()
 	if err != nil {
 		return err

@@ -52,7 +52,7 @@ func GenerateRandomStringURLSafe(n int) (string, error) {
 // MY FUNCTIONS BELOW
 
 func (e *Elemental) getSuggestions(elem1 string) (map[string][]string, error) {
-	res, err := e.db.Query("SELECT combos FROM suggestion_combos WHERE name=\"?\"", elem1)
+	res, err := e.db.Query("SELECT combos FROM suggestion_combos WHERE name=?", elem1)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (e *Elemental) getSuggestions(elem1 string) (map[string][]string, error) {
 }
 
 func (e *Elemental) addCombo(elem1 string, elem2 string, out string) error {
-	res, err := e.db.Query("SELECT combos FROM element_combos WHERE name=\"?\"", elem1)
+	res, err := e.db.Query("SELECT combos FROM element_combos WHERE name=?", elem1)
 	if err != nil {
 		return err
 	}
@@ -95,7 +95,7 @@ func (e *Elemental) addCombo(elem1 string, elem2 string, out string) error {
 	if err != nil {
 		return err
 	}
-	_, err = e.db.Exec("UPDATE selement_combos SET combos=\"?\" WHERE name=\"?\"", string(dat), elem1)
+	_, err = e.db.Exec("UPDATE selement_combos SET combos=? WHERE name=?", string(dat), elem1)
 	if err != nil {
 		return err
 	}

@@ -33,7 +33,7 @@ func (e *Elemental) createUser(c *fiber.Ctx) error {
 	}
 
 	// Check if name taken
-	res, err := e.db.Query("SELECT COUNT(1) FROM users WHERE name=\"?\" LIMIT 1", name, password)
+	res, err := e.db.Query("SELECT COUNT(1) FROM users WHERE name=? LIMIT 1", name, password)
 	if err != nil {
 		return err
 	}
@@ -86,7 +86,7 @@ func (e *Elemental) loginUser(c *fiber.Ctx) error {
 	}
 
 	// Check if user exists
-	res, err := e.db.Query("SELECT COUNT(1) FROM users WHERE name=\"?\" AND password=\"?\" LIMIT 1", name, password)
+	res, err := e.db.Query("SELECT COUNT(1) FROM users WHERE name=? AND password=? LIMIT 1", name, password)
 	if err != nil {
 		return err
 	}
@@ -106,7 +106,7 @@ func (e *Elemental) loginUser(c *fiber.Ctx) error {
 		})
 	}
 
-	res, err = e.db.Query("SELECT uid FROM users WHERE name=\"?\" AND password=\"?\" LIMIT 1", name, password)
+	res, err = e.db.Query("SELECT uid FROM users WHERE name=? AND password=? LIMIT 1", name, password)
 	if err != nil {
 		return c.JSON(map[string]interface{}{
 			"success": false,

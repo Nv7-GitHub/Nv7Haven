@@ -174,7 +174,7 @@ func (n *Nv7Haven) deleteBad(c *fiber.Ctx) error {
 		needsDeletes = false
 		for i, val := range data {
 			if val.Votes < 0 {
-				c.Write([]byte(fmt.Sprintf("Deleted \"%s\"\n", val.Name)))
+				c.Write([]byte(fmt.Sprintf("Deleted %s\n", val.Name)))
 				data = append(data[:i], data[i+1:]...)
 				needsDeletes = true
 				break
