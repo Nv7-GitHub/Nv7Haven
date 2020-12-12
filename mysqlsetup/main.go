@@ -3,8 +3,8 @@ package mysqlsetup
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"os"
-	"sort"
 
 	firebase "firebase.google.com/go"
 	_ "github.com/go-sql-driver/mysql" // mysql
@@ -56,8 +56,9 @@ func Mysqlsetup() {
 		panic(err)
 	}
 
-	foundElems := make([]Element, 0)
-	iter := store.Collection("elements").Documents(context.Background())
+	foundElems := make([]string, 0)
+	names := make([]string, 0)
+	iter := store.Collection("combos").Documents(context.Background())
 	for {
 		doc, err := iter.Next()
 		if err == iterator.Done {
@@ -66,26 +67,20 @@ func Mysqlsetup() {
 		if err != nil {
 			panic(err)
 		}
-		var data Element
+		var data map[string]string
 		doc.DataTo(&data)
-		foundElems = append(foundElems, data)
-	}
-	sort.Slice(foundElems, func(i, j int) bool { return foundElems[i].CreatedOn < foundElems[j].CreatedOn })
-	found := make([]string, len(foundElems))
-	for i, val := range foundElems {
-		found[i] = val.Name
+		dat, _ := json.Marshal(data)
+		foundElems = append(foundElems, string(dat))
+		names = append(names, doc.Ref.ID)
 	}
 
-	insElem, err := db.Prepare("INSERT INTO elements VALUES( ?, ?, ?, ?, ?, ?, ?, ? )")
+	insElem, err := db.Prepare("INSERT INTO element_combos VALUES( ?, ? )")
 	if err != nil {
 		panic(err)
 	}
 	defer insElem.Close()
-	for _, val := range foundElems {
-		if len(val.Parents) == 0 {
-			val.Parents = []string{"", ""}
-		}
-		_, err = insElem.Exec(val.Name, val.Color, val.Comment, val.Parents[0], val.Parents[1], val.Creator, val.Pioneer, val.CreatedOn)
+	for i, val := range foundElems {
+		_, err = insElem.Exec(names[i], val)
 		if err != nil {
 			panic(err)
 		}
