@@ -20,7 +20,11 @@ func (e *Elemental) getFound(c *fiber.Ctx) error {
 	}
 	defer res.Close()
 	var data string
-	res.Scan(&data)
+	res.Next()
+	err = res.Scan(&data)
+	if err != nil {
+		return err
+	}
 	return c.SendString(data)
 }
 
