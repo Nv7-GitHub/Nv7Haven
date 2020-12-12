@@ -36,7 +36,7 @@ func (e *Elemental) getElem(c *fiber.Ctx) error {
 	val, exists := e.cache[elemName]
 	if !exists {
 		var elem Element
-		res, err := e.db.Query("SELECT * FROM elements WHERE name=\"?\"", elemName)
+		res, err := e.db.Query("SELECT * FROM elements WHERE name=?", elemName)
 		if err != nil {
 			return err
 		}
@@ -71,7 +71,7 @@ func (e *Elemental) getCombo(c *fiber.Ctx) error {
 		return err
 	}
 
-	res, err := e.db.Query("SELECT COUNT(1) FROM element_combos WHERE name=\"?\" LIMIT 1", elem1)
+	res, err := e.db.Query("SELECT COUNT(1) FROM element_combos WHERE name=? LIMIT 1", elem1)
 	if err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func (e *Elemental) getCombo(c *fiber.Ctx) error {
 	}
 
 	var data map[string]string
-	res, err = e.db.Query("SELECT combos FROM element_combos WHERE name=\"?\" LIMIT 1", elem1)
+	res, err = e.db.Query("SELECT combos FROM element_combos WHERE name=? LIMIT 1", elem1)
 	if err != nil {
 		return err
 	}

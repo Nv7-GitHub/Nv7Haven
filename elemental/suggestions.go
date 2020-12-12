@@ -14,7 +14,7 @@ const minVotes = -1
 const maxVotes = 3 // ANARCHY: 0, ORIGINAL: 3
 
 func (e *Elemental) getSugg(id string) (Suggestion, error) {
-	res, err := e.db.Query("SELECT * FROM suggestions WHERE name=\"?\"", id)
+	res, err := e.db.Query("SELECT * FROM suggestions WHERE name=?", id)
 	if err != nil {
 		return Suggestion{}, err
 	}
@@ -107,14 +107,14 @@ func (e *Elemental) downVoteSuggestion(c *fiber.Ctx) error {
 	}
 	existing.Votes--
 	if existing.Votes < minVotes {
-		e.db.Exec("DELETE FROM suggestions WHERE name=\"?\"", id)
+		e.db.Exec("DELETE FROM suggestions WHERE name=?", id)
 	}
 	existing.Voted = append(existing.Voted, uid)
 	data, err := json.Marshal(existing.Voted)
 	if err != nil {
 		return err
 	}
-	_, err = e.db.Exec("UPDATE suggestions SET voted=\"?\" votes=\"?\" WHERE name=\"?\"", data, existing.Votes, existing.Name)
+	_, err = e.db.Exec("UPDATE suggestions SET voted=? votes=? WHERE name=?", data, existing.Votes, existing.Name)
 	if err != nil {
 		return err
 	}
@@ -146,7 +146,7 @@ func (e *Elemental) upVoteSuggestion(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	_, err = e.db.Exec("UPDATE suggestions SET voted=\"?\" votes=\"?\" WHERE name=\"?\"", data, existing.Votes, existing.Name)
+	_, err = e.db.Exec("UPDATE suggestions SET voted=? votes=? WHERE name=?", data, existing.Votes, existing.Name)
 	if err != nil {
 		return err
 	}
@@ -194,7 +194,7 @@ func (e *Elemental) newSuggestion(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	_, err = e.db.Exec("UPDATE suggestion_combos SET combos=\"?\" WHERE name=\"?\"", data, elem1)
+	_, err = e.db.Exec("UPDATE suggestion_combos SET combos=? WHERE name=?", data, elem1)
 	if err != nil {
 		return err
 	}
