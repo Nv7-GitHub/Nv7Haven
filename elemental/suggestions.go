@@ -115,7 +115,7 @@ func (e *Elemental) downVoteSuggestion(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	_, err = e.db.Exec("UPDATE suggestions SET voted=? votes=? WHERE name=?", data, existing.Votes, existing.Name)
+	_, err = e.db.Exec("UPDATE suggestions SET voted=?, votes=? WHERE name=?", data, existing.Votes, existing.Name)
 	if err != nil {
 		return err
 	}
@@ -148,7 +148,7 @@ func (e *Elemental) upVoteSuggestion(c *fiber.Ctx) error {
 		return err
 	}
 	log.Println(string(data))
-	_, err = e.db.Exec("UPDATE suggestions SET votes=? voted=? WHERE name=?", existing.Votes, data, existing.Name)
+	_, err = e.db.Exec("UPDATE suggestions SET votes=?, voted=? WHERE name=?", existing.Votes, data, existing.Name)
 	if err != nil {
 		return err
 	}
