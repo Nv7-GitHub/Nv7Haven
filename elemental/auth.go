@@ -154,6 +154,8 @@ func (e *Elemental) loginUser(c *fiber.Ctx) error {
 }
 
 func (e *Elemental) newAnonymousUser(c *fiber.Ctx) error {
+	c.Set("Access-Control-Allow-Origin", "*")
+	c.Set("Access-Control-Allow-Headers", "*")
 	count := 1
 	var name string
 	var err error
