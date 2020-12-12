@@ -42,6 +42,7 @@ func (e *Elemental) getElem(c *fiber.Ctx) error {
 		}
 		defer res.Close()
 		elem.Parents = make([]string, 2)
+		res.Next()
 		err = res.Scan(&elem.Name, &elem.Color, &elem.Comment, &elem.Parents[0], &elem.Parents[1], &elem.Creator, &elem.Pioneer, &elem.CreatedOn)
 		if err != nil {
 			return err
@@ -90,6 +91,7 @@ func (e *Elemental) getCombo(c *fiber.Ctx) error {
 	}
 	defer res.Close()
 	var comboData string
+	res.Next()
 	err = res.Scan(&comboData)
 	if err != nil {
 		return err

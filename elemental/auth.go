@@ -39,6 +39,7 @@ func (e *Elemental) createUser(c *fiber.Ctx) error {
 	}
 	defer res.Close()
 	var count int
+	res.Next()
 	err = res.Scan(&count)
 	if err != nil {
 		return c.JSON(map[string]interface{}{
@@ -92,6 +93,7 @@ func (e *Elemental) loginUser(c *fiber.Ctx) error {
 	}
 	defer res.Close()
 	var count int
+	res.Next()
 	err = res.Scan(&count)
 	if err != nil {
 		return c.JSON(map[string]interface{}{
@@ -115,6 +117,7 @@ func (e *Elemental) loginUser(c *fiber.Ctx) error {
 	}
 	defer res.Close()
 	var uid string
+	res.Next()
 	err = res.Scan(&uid)
 	if err != nil {
 		return c.JSON(map[string]interface{}{

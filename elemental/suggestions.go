@@ -22,6 +22,7 @@ func (e *Elemental) getSugg(id string) (Suggestion, error) {
 	var suggestion Suggestion
 	var color string
 	var voted string
+	res.Next()
 	err = res.Scan(&suggestion.Name, &color, &suggestion.Creator, &voted, &suggestion.Votes)
 	if err != nil {
 		return Suggestion{}, err

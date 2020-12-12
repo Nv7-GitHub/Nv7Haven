@@ -58,6 +58,7 @@ func (e *Elemental) getSuggestions(elem1 string) (map[string][]string, error) {
 	}
 	defer res.Close()
 	var data string
+	res.Next()
 	err = res.Scan(&data)
 	if err != nil {
 		return nil, err
@@ -77,6 +78,7 @@ func (e *Elemental) addCombo(elem1 string, elem2 string, out string) error {
 	}
 	defer res.Close()
 	var data string
+	res.Next()
 	err = res.Scan(&data)
 	if err != nil {
 		return err
