@@ -61,7 +61,16 @@ func (e *Elemental) getSuggestions(elem1 string) (map[string][]string, error) {
 	res.Next()
 	err = res.Scan(&data)
 	if err != nil {
-		return map[string][]string{elem1: make([]string, 0)}, nil
+		dat := map[string][]string{elem1: make([]string, 0)}
+		data, err := json.Marshal(dat)
+		if err != nil {
+			return nil, err
+		}
+		_, err = e.db.Exec("INSERT INTO suggestion_combos VALUES (?, ?)", elem1, data)
+		if err != nil {
+			return nil, err
+		}
+		return dat, nil
 	}
 	var out map[string][]string
 	err = json.Unmarshal([]byte(data), &out)
