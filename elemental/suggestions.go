@@ -147,7 +147,7 @@ func (e *Elemental) upVoteSuggestion(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	log.Println(data)
+	log.Println(string(data))
 	_, err = e.db.Exec("UPDATE suggestions SET voted=? votes=? WHERE name=?", data, existing.Votes, existing.Name)
 	if err != nil {
 		return err
