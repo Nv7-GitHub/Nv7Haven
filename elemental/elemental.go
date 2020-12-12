@@ -82,6 +82,7 @@ func InitElemental(app *fiber.App) (Elemental, error) {
 		cache: make(map[string]Element),
 		fdb:   fdb,
 	}
+	e.routing(app)
 
 	return e, nil
 }
