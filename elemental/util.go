@@ -81,7 +81,11 @@ func (e *Elemental) addCombo(elem1 string, elem2 string, out string) error {
 	res.Next()
 	err = res.Scan(&data)
 	if err != nil {
-		return err
+		data = ""
+		_, err = e.db.Exec("INSERT INTO element_combos VALUES (?, ?)", elem1, "{}")
+		if err != nil {
+			return err
+		}
 	}
 	var combos map[string]string
 	if data == "" {
@@ -97,7 +101,7 @@ func (e *Elemental) addCombo(elem1 string, elem2 string, out string) error {
 	if err != nil {
 		return err
 	}
-	_, err = e.db.Exec("UPDATE selement_combos SET combos=? WHERE name=?", string(dat), elem1)
+	_, err = e.db.Exec("UPDATE element_combos SET combos=? WHERE name=?", string(dat), elem1)
 	if err != nil {
 		return err
 	}
