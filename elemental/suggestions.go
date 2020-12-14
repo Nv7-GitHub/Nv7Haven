@@ -3,7 +3,6 @@ package elemental
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/url"
 	"strconv"
 	"strings"
@@ -147,7 +146,6 @@ func (e *Elemental) upVoteSuggestion(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	log.Println(string(data))
 	_, err = e.db.Exec("UPDATE suggestions SET votes=?, voted=? WHERE name=?", existing.Votes, data, existing.Name)
 	if err != nil {
 		return err
