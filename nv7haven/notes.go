@@ -69,3 +69,30 @@ func (n *Nv7Haven) changeNote(c *fiber.Ctx) error {
 
 	return nil
 }
+
+func (n *Nv7Haven) getNote(c *fiber.Ctx) error {
+	c.Set("Access-Control-Allow-Origin", "*")
+	c.Set("Access-Control-Allow-Headers", "*")
+
+	name, err := url.PathUnescape(c.Params("name"))
+	if err != nil {
+		return err
+	}
+	password, err := url.PathUnescape(c.Params("password"))
+	if err != nil {
+		return err
+	}
+	ip := c.IPs()[0]
+
+	res, err := n.sql.Query("SELECT note FROM notes WHERE ip=? AND name=? AND password=?", ip, name, password)
+	if err != nil {
+		return err
+	}
+	res.Next()
+	var data string
+	err = res.Scan(&data)
+	if err != nil {
+		return err
+	}
+	return c.SendString(data)
+}

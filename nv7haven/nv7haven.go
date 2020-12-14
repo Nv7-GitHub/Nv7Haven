@@ -27,6 +27,7 @@ func (c *Nv7Haven) routing(app *fiber.App) {
 	app.Get("/getmyip", c.getIP)
 	app.Get("/new_note/:name/:password", c.newNote)
 	app.Get("/change_note/:name/:password", c.changeNote)
+	app.Get("/get_note/:name/:password", c.getNote)
 }
 
 const (
