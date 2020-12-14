@@ -2,7 +2,7 @@ package discord
 
 import "github.com/bwmarrin/discordgo"
 
-const token = "dyYVObmSDIBpaBUFwLBsMSR-SFUPbC-r"
+const token = "Nzg4MTg1MzY1NTMzNTU2NzM2.X9f00g.krA6cjfFWYdzbqOPXq8NvRjxb3k"
 
 // Bot is a discord bot
 type Bot struct {
