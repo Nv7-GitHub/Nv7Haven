@@ -1,15 +1,19 @@
 package nv7haven
 
 import (
-	"github.com/Nv7-Github/firebase"
-	"github.com/gofiber/fiber/v2"
+	"database/sql"
+	"os"
 
+	"github.com/Nv7-Github/firebase"
 	database "github.com/Nv7-Github/firebase/db"
+	_ "github.com/go-sql-driver/mysql" // mysql
+	"github.com/gofiber/fiber/v2"
 )
 
 // Nv7Haven is the backend for https://nv7haven.tk
 type Nv7Haven struct {
-	db *database.Db
+	db  *database.Db
+	sql *sql.DB
 }
 
 func (c *Nv7Haven) routing(app *fiber.App) {
@@ -23,16 +27,31 @@ func (c *Nv7Haven) routing(app *fiber.App) {
 	app.Get("/getmyip", c.getIP)
 }
 
+const (
+	dbUser     = "u29_c99qmCcqZ3"
+	dbPassword = "j8@tJ1vv5d@^xMixUqUl+NmA"
+	dbName     = "s29_nv7haven"
+)
+
 // InitNv7Haven initializes the handlers for Nv7Haven
 func InitNv7Haven(app *fiber.App) error {
+	// Firebase DB
 	fireapp, err := firebase.CreateAppWithServiceAccount("https://nv7haven.firebaseio.com", "AIzaSyA8ySJ5bATo7OADU75TMfbtnvKmx_g5rSs", []byte(serviceAccount))
 	if err != nil {
 		return err
 	}
 	db := database.CreateDatabase(fireapp)
-	nv7haven := Nv7Haven{
-		db: db,
+
+	// SQL Db
+	sql, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
+	if err != nil {
+		panic(err)
 	}
+	nv7haven := Nv7Haven{
+		db:  db,
+		sql: sql,
+	}
+
 	err = nv7haven.initBestEver()
 	if err != nil {
 		return err
