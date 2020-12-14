@@ -8,6 +8,7 @@ import (
 
 	"github.com/Nv7-Github/Nv7Haven/elemental"
 	// "github.com/Nv7-Github/Nv7Haven/mysqlsetup"
+	"github.com/Nv7-Github/Nv7Haven/discord"
 	"github.com/Nv7-Github/Nv7Haven/nv7haven"
 
 	"github.com/gofiber/fiber/v2"
@@ -30,6 +31,8 @@ func main() {
 		panic(err)
 	}
 
+	b := discord.InitDiscord()
+
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	go func() {
@@ -43,4 +46,5 @@ func main() {
 	}
 
 	e.Close()
+	b.Close()
 }
