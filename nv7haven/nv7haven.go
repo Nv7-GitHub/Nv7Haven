@@ -25,6 +25,7 @@ func (c *Nv7Haven) routing(app *fiber.App) {
 	app.Get("/bestever_refresh", c.refresh)
 	app.Get("/bestever_mod", c.deleteBad)
 	app.Get("/getmyip", c.getIP)
+	app.Get("/new_note", c.newNote)
 }
 
 const (
