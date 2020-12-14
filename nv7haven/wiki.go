@@ -14,9 +14,8 @@ func (n *Nv7Haven) searchElems(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	ip := c.IPs()[0]
 
-	res, err := n.sql.Query("SELECT name FROM elements WHERE name LIKE ? LIMIT 100", ip, query)
+	res, err := n.sql.Query("SELECT name FROM elements WHERE name LIKE ? LIMIT 100", query)
 	if err != nil {
 		return err
 	}
