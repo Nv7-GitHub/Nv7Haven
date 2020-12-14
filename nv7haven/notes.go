@@ -122,3 +122,30 @@ func (n *Nv7Haven) hasPassword(c *fiber.Ctx) error {
 	}
 	return c.SendString("0")
 }
+
+func (n *Nv7Haven) searchNotes(c *fiber.Ctx) error {
+	c.Set("Access-Control-Allow-Origin", "*")
+	c.Set("Access-Control-Allow-Headers", "*")
+
+	query, err := url.PathUnescape(c.Params("query"))
+	if err != nil {
+		return err
+	}
+	ip := c.IPs()[0]
+
+	res, err := n.sql.Query("SELECT name FROM notes WHERE ip=? AND name LIKE ?", ip, query)
+	if err != nil {
+		return err
+	}
+	out := make([]string, 0)
+	for res.Next() {
+		var data string
+		err = res.Scan(&data)
+		if err != nil {
+			return err
+		}
+		out = append(out, data)
+	}
+
+	return c.JSON(out)
+}
