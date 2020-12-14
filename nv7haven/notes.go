@@ -117,7 +117,7 @@ func (n *Nv7Haven) hasPassword(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	if data == "" {
+	if data != "" {
 		return c.SendString("1")
 	}
 	return c.SendString("0")
