@@ -5,5 +5,5 @@ import (
 )
 
 func (d *Nv7Haven) getIP(c *fiber.Ctx) error {
-	return c.JSON(c.IPs())
+	return c.SendString(c.IPs()[0])
 }
