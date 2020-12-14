@@ -44,3 +44,28 @@ func (n *Nv7Haven) newNote(c *fiber.Ctx) error {
 
 	return nil
 }
+
+func (n *Nv7Haven) changeNote(c *fiber.Ctx) error {
+	c.Set("Access-Control-Allow-Origin", "*")
+	c.Set("Access-Control-Allow-Headers", "*")
+
+	name, err := url.PathUnescape(c.Params("name"))
+	if err != nil {
+		return err
+	}
+	password, err := url.PathUnescape(c.Params("password"))
+	if err != nil {
+		return err
+	}
+	ip := c.IPs()[0]
+
+	body := string(c.Body())
+
+	// Create note
+	_, err = n.sql.Exec("UPDATE notes SET note=? WHERE name=? AND password=? AND ip=?", body, name, password, ip)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
