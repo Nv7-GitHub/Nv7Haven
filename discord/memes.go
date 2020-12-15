@@ -60,6 +60,7 @@ func (b *Bot) memes(s *discordgo.Session, m *discordgo.MessageCreate) {
 			unique = true
 			_, exists := b.memecache[m.GuildID]
 			if !exists {
+				fmt.Println("noexist")
 				b.memecache[m.GuildID] = make([]int, 0)
 				unique = true
 				break
@@ -90,6 +91,7 @@ func (b *Bot) memes(s *discordgo.Session, m *discordgo.MessageCreate) {
 func (b *Bot) loadMemes(m *discordgo.MessageCreate) bool {
 	b.memerefreshtime = time.Now().UnixNano()
 	b.memecache = make(map[string][]int, 0)
+	fmt.Println("reset")
 
 	// Download
 	client := &http.Client{}
