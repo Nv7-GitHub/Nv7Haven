@@ -48,6 +48,23 @@ func (b *Bot) giveNum(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+	// getnum command
+	if strings.HasPrefix(m.Content, "getnum") {
+		res, err := b.db.Query("SELECT number FROM givenum WHERE guild=? AND member=? LIMIT 1", m.GuildID, m.Author.ID)
+		defer res.Close()
+		if b.handle(err, m) {
+			return
+		}
+		res.Next()
+		var num int
+		err = res.Scan(&num)
+		if b.handle(err, m) {
+			return
+		}
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Your number is %d.", num))
+		return
+	}
+
 	// roles command
 	if strings.HasPrefix(m.Content, "roles") {
 		mem, err := s.GuildMember(m.GuildID, m.Mentions[0].ID)
