@@ -32,19 +32,26 @@ func (b *Bot) handlers() {
 
 // InitDiscord creates a discord bot
 func InitDiscord() Bot {
+	// MySQL DB
 	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
 	if err != nil {
 		panic(err)
 	}
+
+	// Discord bot
 	dg, err := discordgo.New("Bot " + token)
 	if err != nil {
 		panic(err)
 	}
+
+	// Help message
 	data, err := ioutil.ReadFile("discord/help.txt")
 	if err != nil {
 		panic(err)
 	}
 	helpText = string(data)
+
+	// Set up bot
 	b := Bot{
 		dg: dg,
 		db: db,
