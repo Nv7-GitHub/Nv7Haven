@@ -57,8 +57,9 @@ func InitDiscord() Bot {
 
 	// Set up bot
 	b := Bot{
-		dg: dg,
-		db: db,
+		dg:        dg,
+		db:        db,
+		memecache: make(map[string][]int, 0),
 	}
 	b.handlers()
 	dg.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsAll)

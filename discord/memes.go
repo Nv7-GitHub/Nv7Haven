@@ -84,6 +84,7 @@ func (b *Bot) memes(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 func (b *Bot) loadMemes(m *discordgo.MessageCreate) bool {
 	b.memerefreshtime = time.Now().UnixNano()
+	b.memecache = make(map[string][]int, 0)
 
 	// Download
 	client := &http.Client{}
