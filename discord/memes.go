@@ -49,7 +49,25 @@ func (b *Bot) memes(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		// send message
-		meme := b.memedat[rand.Intn(len(b.memedat))]
+		unique := false
+		var randnum int
+		for !unique {
+			randnum = rand.Intn(len(b.memedat))
+			unique = true
+			_, exists := b.memecache[m.GuildID]
+			if !exists {
+				b.memecache[m.GuildID] = make([]int, 0)
+				unique = true
+				break
+			}
+			for _, val := range b.memecache[m.GuildID] {
+				if val == randnum {
+					unique = false
+				}
+			}
+		}
+		b.memecache[m.GuildID] = append(b.memecache[m.GuildID], randnum)
+		meme := b.memedat[randnum]
 		_, err := s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
 			URL:   meme.Permalink,
 			Type:  discordgo.EmbedTypeImage,

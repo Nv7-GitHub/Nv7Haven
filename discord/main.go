@@ -25,6 +25,7 @@ type Bot struct {
 	db              *sql.DB
 	memedat         []meme
 	memerefreshtime int64
+	memecache       map[string][]int
 }
 
 func (b *Bot) handlers() {
