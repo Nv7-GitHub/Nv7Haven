@@ -3,6 +3,7 @@ package discord
 import (
 	"database/sql"
 	"os"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	_ "github.com/go-sql-driver/mysql" // mysql
@@ -13,6 +14,10 @@ const (
 	dbPassword = "j8@tJ1vv5d@^xMixUqUl+NmA"
 	dbName     = "s29_nv7haven"
 	token      = "Nzg4MTg1MzY1NTMzNTU2NzM2.X9f00g.krA6cjfFWYdzbqOPXq8NvRjxb3k"
+	help       = `Hi! I'm the Nv7 bot! I am a bot made by Nv7! Here are my commands:
+	givenum - Give yourself a number! This will be useful later
+	getnum - Find what your number is, in case you forget
+	randselect - You need to have a role called "admin" to run this (capitalization doesn't matter). Run this command to select a random number out of all the numbers people have submitted and congratulate them!`
 )
 
 // Bot is a discord bot
@@ -23,6 +28,7 @@ type Bot struct {
 
 func (b *Bot) handlers() {
 	b.dg.AddHandler(b.giveNum)
+	b.dg.AddHandler(b.help)
 }
 
 // InitDiscord creates a discord bot
@@ -59,4 +65,14 @@ func (b *Bot) handle(err error, m *discordgo.MessageCreate) bool {
 // Close cleans up
 func (b *Bot) Close() {
 	b.dg.Close()
+}
+
+func (b *Bot) help(s *discordgo.Session, m *discordgo.MessageCreate) {
+	if m.Author.ID == s.State.User.ID {
+		return
+	}
+
+	if strings.HasPrefix(m.Content, "7help") {
+		s.ChannelMessageSend(m.ChannelID, help)
+	}
 }
