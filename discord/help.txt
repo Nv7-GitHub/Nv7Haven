@@ -1,4 +1,4 @@
 Hi! I'm the Nv7 bot! I am a bot made by Nv7! Here are my commands:
-	givenum - Give yourself a number! This will be useful later
-	getnum - Find what your number is, in case you forget
-	randselect - Run this command to select a random number out of all the numbers people have and congratulate them!
+	`givenum` - Give yourself a number! This will be useful later
+	`getnum` - Find what your number is, in case you forget
+	`randselect` - Run this command to select a random number out of all the numbers people have and congratulate them!
