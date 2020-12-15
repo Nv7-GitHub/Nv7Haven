@@ -44,6 +44,7 @@ func (e *Elemental) init() {
 	defer res.Close()
 	for res.Next() {
 		var elem Element
+		elem.Parents = make([]string, 2)
 		err = res.Scan(&elem.Name, &elem.Color, &elem.Comment, &elem.Parents[0], &elem.Parents[1], &elem.Creator, &elem.Pioneer, &elem.CreatedOn)
 		if err != nil {
 			panic(err)
