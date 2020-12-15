@@ -21,13 +21,16 @@ var helpText string
 
 // Bot is a discord bot
 type Bot struct {
-	dg *discordgo.Session
-	db *sql.DB
+	dg              *discordgo.Session
+	db              *sql.DB
+	memedat         []meme
+	memerefreshtime int64
 }
 
 func (b *Bot) handlers() {
 	b.dg.AddHandler(b.giveNum)
 	b.dg.AddHandler(b.help)
+	b.dg.AddHandler(b.memes)
 }
 
 // InitDiscord creates a discord bot
