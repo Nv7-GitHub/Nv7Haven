@@ -39,7 +39,10 @@ func (b *Bot) memes(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if strings.HasPrefix(m.Content, "meme") {
 		if b.memerefreshtime == 0 { // first time since startup
 			s.ChannelMessageSend(m.ChannelID, "Sorry, this is the first time someone has asked for a meme since the server started. It may take a moment for us to download the memes from reddit.")
-			b.loadMemes(m)
+			success := b.loadMemes(m)
+			if !success {
+				b.dg.ChannelMessageSend(m.ChannelID, "Failed to lead memes")
+			}
 		}
 		if (time.Now().UnixNano() - b.memerefreshtime) > 3600 { // its been an hour
 			go b.loadMemes(m)
@@ -62,6 +65,7 @@ func (b *Bot) loadMemes(m *discordgo.MessageCreate) bool {
 	b.memerefreshtime = time.Now().UnixNano()
 
 	// Download
+	b.dg.ChannelMessageSend(m.ChannelID, "We are going to refresh our copy of reddit's memes...")
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "https://reddit.com/r/"+subreddit+"/hot.json", nil)
 	if b.handle(err, m) {
@@ -77,6 +81,7 @@ func (b *Bot) loadMemes(m *discordgo.MessageCreate) bool {
 	if b.handle(err, m) {
 		return false
 	}
+	b.dg.ChannelMessageSend(m.ChannelID, "Downloaded memes from reddit!")
 
 	// Process
 	var dat redditResp
@@ -89,5 +94,6 @@ func (b *Bot) loadMemes(m *discordgo.MessageCreate) bool {
 	for i, val := range dat.Data.Children {
 		b.memedat[i] = val.Data
 	}
+	b.dg.ChannelMessageSend(m.ChannelID, "Processed the memes!")
 	return true
 }
