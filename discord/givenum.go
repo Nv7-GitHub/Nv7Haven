@@ -26,7 +26,7 @@ func (b *Bot) giveNum(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 		var count int
-		if (count > 100) || (count < 0) {
+		if (num > 100) || (num < 0) {
 			s.ChannelMessageSend(m.ChannelID, "You need to choose a number from 0-100.")
 			return
 		}
