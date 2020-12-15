@@ -2,6 +2,7 @@ package discord
 
 import (
 	"database/sql"
+	"io/ioutil"
 	"os"
 	"strings"
 
@@ -14,11 +15,9 @@ const (
 	dbPassword = "j8@tJ1vv5d@^xMixUqUl+NmA"
 	dbName     = "s29_nv7haven"
 	token      = "Nzg4MTg1MzY1NTMzNTU2NzM2.X9f00g.krA6cjfFWYdzbqOPXq8NvRjxb3k"
-	help       = `Hi! I'm the Nv7 bot! I am a bot made by Nv7! Here are my commands:
-	givenum - Give yourself a number! This will be useful later
-	getnum - Find what your number is, in case you forget
-	randselect - You need to have a role called "admin" to run this (capitalization doesn't matter). Run this command to select a random number out of all the numbers people have submitted and congratulate them!`
 )
+
+var helpText string
 
 // Bot is a discord bot
 type Bot struct {
@@ -41,6 +40,11 @@ func InitDiscord() Bot {
 	if err != nil {
 		panic(err)
 	}
+	data, err := ioutil.ReadFile("discord/help.txt")
+	if err != nil {
+		panic(err)
+	}
+	helpText = string(data)
 	b := Bot{
 		dg: dg,
 		db: db,
@@ -73,6 +77,6 @@ func (b *Bot) help(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if strings.HasPrefix(m.Content, "7help") {
-		s.ChannelMessageSend(m.ChannelID, help)
+		s.ChannelMessageSend(m.ChannelID, helpText)
 	}
 }
