@@ -2,6 +2,7 @@ package discord
 
 import (
 	"fmt"
+	"math/rand"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -91,8 +92,7 @@ func (b *Bot) giveNum(s *discordgo.Session, m *discordgo.MessageCreate) {
 							}
 							nums = append(nums, data)
 						}
-						//num := nums[rand.Intn(len(nums))]
-						num := 7
+						num := nums[rand.Intn(len(nums))]
 						s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("The number was %d.", num))
 						res, err = b.db.Query("SELECT member FROM givenum WHERE guild=? AND number=?", m.GuildID, num)
 						if b.handle(err, m) {
