@@ -57,7 +57,7 @@ func InitDiscord() Bot {
 		db: db,
 	}
 	b.handlers()
-	dg.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsGuildMessages)
+	dg.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsAll)
 	err = dg.Open()
 	if err != nil {
 		panic(err)
