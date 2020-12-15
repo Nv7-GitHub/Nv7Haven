@@ -83,6 +83,7 @@ func (b *Bot) giveNum(s *discordgo.Session, m *discordgo.MessageCreate) {
 						if b.handle(err, m) {
 							return
 						}
+						defer res.Close()
 						nums := make([]int, 0)
 						for res.Next() {
 							var data int
@@ -98,6 +99,7 @@ func (b *Bot) giveNum(s *discordgo.Session, m *discordgo.MessageCreate) {
 						if b.handle(err, m) {
 							return
 						}
+						defer res.Close()
 						for res.Next() {
 							var memberid string
 							err = res.Scan(&memberid)

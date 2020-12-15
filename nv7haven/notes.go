@@ -88,6 +88,7 @@ func (n *Nv7Haven) getNote(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	defer res.Close()
 	res.Next()
 	var data string
 	err = res.Scan(&data)
@@ -111,6 +112,7 @@ func (n *Nv7Haven) hasPassword(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	defer res.Close()
 	res.Next()
 	var data string
 	err = res.Scan(&data)
@@ -137,6 +139,7 @@ func (n *Nv7Haven) searchNotes(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	defer res.Close()
 	out := make([]string, 0)
 	for res.Next() {
 		var data string
