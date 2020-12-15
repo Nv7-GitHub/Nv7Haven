@@ -45,6 +45,7 @@ func (b *Bot) memes(s *discordgo.Session, m *discordgo.MessageCreate) {
 				b.dg.ChannelMessageSend(m.ChannelID, "Failed to lead memes")
 			}
 		}
+		fmt.Println(time.Now().UnixNano() - b.memerefreshtime)
 		if (time.Now().UnixNano() - b.memerefreshtime) > 3600 { // its been an hour
 			go b.loadMemes(m)
 		}
@@ -60,7 +61,6 @@ func (b *Bot) memes(s *discordgo.Session, m *discordgo.MessageCreate) {
 			unique = true
 			_, exists := b.memecache[m.GuildID]
 			if !exists {
-				fmt.Println("noexist")
 				b.memecache[m.GuildID] = make([]int, 0)
 				unique = true
 				break
@@ -72,7 +72,6 @@ func (b *Bot) memes(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 		}
 		b.memecache[m.GuildID] = append(b.memecache[m.GuildID], randnum)
-		fmt.Println(b.memecache[m.GuildID])
 		meme := b.memedat[randnum]
 		_, err := s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
 			URL:   meme.Permalink,
@@ -91,7 +90,6 @@ func (b *Bot) memes(s *discordgo.Session, m *discordgo.MessageCreate) {
 func (b *Bot) loadMemes(m *discordgo.MessageCreate) bool {
 	b.memerefreshtime = time.Now().UnixNano()
 	b.memecache = make(map[string][]int, 0)
-	fmt.Println("reset")
 
 	// Download
 	client := &http.Client{}
