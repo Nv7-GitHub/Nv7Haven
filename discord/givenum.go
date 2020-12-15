@@ -67,7 +67,7 @@ func (b *Bot) giveNum(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// roles command
 	if strings.HasPrefix(m.Content, "roles") {
-		mem, err := s.GuildMember(m.GuildID, m.Mentions[0].ID)
+		mem, err := s.GuildMember(m.GuildID, m.Author.ID)
 		if b.handle(err, m) {
 			return
 		}
