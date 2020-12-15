@@ -59,7 +59,19 @@ func (b *Bot) messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if b.handle(err, m) {
 			return
 		}
-		dat, err := json.Marshal(mem.Roles)
+		roleNames := make([]string, len(mem.Roles))
+		guildRoles, err := s.GuildRoles(m.GuildID)
+		if b.handle(err, m) {
+			return
+		}
+		for i, role := range mem.Roles {
+			for _, grole := range guildRoles {
+				if grole.ID == role {
+					roleNames[i] = grole.Name
+				}
+			}
+		}
+		dat, err := json.Marshal(roleNames)
 		if b.handle(err, m) {
 			return
 		}
