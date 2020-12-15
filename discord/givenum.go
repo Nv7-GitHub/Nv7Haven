@@ -104,7 +104,7 @@ func (b *Bot) giveNum(s *discordgo.Session, m *discordgo.MessageCreate) {
 							if b.handle(err, m) {
 								return
 							}
-							s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("@%s got it right!", memberid))
+							s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(`@"%s" got it right!`, memberid))
 						}
 						return
 					}
