@@ -1,7 +1,6 @@
 package discord
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -66,27 +65,26 @@ func (b *Bot) giveNum(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// roles command
-	if strings.HasPrefix(m.Content, "roles") {
+	if strings.HasPrefix(m.Content, "randselect") {
 		mem, err := s.GuildMember(m.GuildID, m.Author.ID)
 		if b.handle(err, m) {
 			return
 		}
-		roleNames := make([]string, len(mem.Roles))
 		guildRoles, err := s.GuildRoles(m.GuildID)
 		if b.handle(err, m) {
 			return
 		}
-		for i, role := range mem.Roles {
+		for _, role := range mem.Roles {
 			for _, grole := range guildRoles {
 				if grole.ID == role {
-					roleNames[i] = grole.Name
+					if strings.ToLower(grole.Name) == "admin" {
+						s.ChannelMessageSend(m.ChannelID, "This has not been implemented yet.")
+						return
+					}
 				}
 			}
 		}
-		dat, err := json.Marshal(roleNames)
-		if b.handle(err, m) {
-			return
-		}
-		s.ChannelMessageSend(m.ChannelID, string(dat))
+		s.ChannelMessageSend(m.ChannelID, `You need to have a role called "admin".`)
+		return
 	}
 }
