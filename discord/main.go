@@ -15,7 +15,7 @@ type Bot struct {
 }
 
 func (b *Bot) handlers() {
-	b.dg.AddHandler(messageCreate)
+	b.dg.AddHandler(b.messageCreate)
 }
 
 // InitDiscord creates a discord bot
@@ -36,18 +36,33 @@ func InitDiscord() Bot {
 	return b
 }
 
+func (b *Bot) handle(err error, m *discordgo.MessageCreate) bool {
+	if err != nil {
+		b.dg.ChannelMessageSend(m.ChannelID, err.Error())
+		return true
+	}
+	return false
+}
+
 // Close cleans up
 func (b *Bot) Close() {
 	b.dg.Close()
 }
 
-func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
+func (b *Bot) messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
 
 	if strings.HasPrefix(m.Content, "roles") {
-		dat, _ := json.Marshal(m.Member.Roles)
+		mem, err := s.GuildMember(m.GuildID, m.Mentions[0].ID)
+		if b.handle(err, m) {
+			return
+		}
+		dat, err := json.Marshal(mem.Roles)
+		if b.handle(err, m) {
+			return
+		}
 		s.ChannelMessageSend(m.ChannelID, string(dat))
 	}
 }
