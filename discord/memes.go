@@ -19,6 +19,7 @@ type redditResp struct {
 
 type redditData struct {
 	Children []previewData
+	After    string
 }
 
 type previewData struct {
@@ -52,7 +53,7 @@ func (b *Bot) memes(s *discordgo.Session, m *discordgo.MessageCreate) {
 		unique := false
 		var randnum int
 		if len(b.memecache[m.GuildID]) == len(b.memedat) {
-			unique = true
+			b.memecache[m.GuildID] = make([]int, 0)
 		}
 		for !unique {
 			randnum = rand.Intn(len(b.memedat))
@@ -89,32 +90,38 @@ func (b *Bot) loadMemes(m *discordgo.MessageCreate) bool {
 	b.memerefreshtime = time.Now()
 	b.memecache = make(map[string][]int, 0)
 
-	// Download
-	client := &http.Client{}
-	req, err := http.NewRequest("GET", "https://reddit.com/r/"+subreddit+"/hot.json", nil)
-	if b.handle(err, m) {
-		return false
-	}
-	req.Header.Set("User-Agent", "Nv7 Bot")
-	res, err := client.Do(req)
-	if b.handle(err, m) {
-		return false
-	}
-	defer res.Body.Close()
-	data, err := ioutil.ReadAll(res.Body)
-	if b.handle(err, m) {
-		return false
+	children := make([]previewData, 0)
+	after := ""
+	for len(children) < 200 {
+		// Download
+		client := &http.Client{}
+		req, err := http.NewRequest("GET", "https://reddit.com/r/"+subreddit+"/hot.json?after="+after, nil)
+		if b.handle(err, m) {
+			return false
+		}
+		req.Header.Set("User-Agent", "Nv7 Bot")
+		res, err := client.Do(req)
+		if b.handle(err, m) {
+			return false
+		}
+		defer res.Body.Close()
+		data, err := ioutil.ReadAll(res.Body)
+		if b.handle(err, m) {
+			return false
+		}
+
+		// Process
+		var dat redditResp
+		err = json.Unmarshal(data, &dat)
+		if b.handle(err, m) {
+			return false
+		}
+		children = append(children, dat.Data.Children...)
+		after = dat.Data.After
 	}
 
-	// Process
-	var dat redditResp
-	err = json.Unmarshal(data, &dat)
-	if b.handle(err, m) {
-		return false
-	}
-
-	b.memedat = make([]meme, len(dat.Data.Children))
-	for i, val := range dat.Data.Children {
+	b.memedat = make([]meme, len(children))
+	for i, val := range children {
 		b.memedat[i] = val.Data
 		b.memedat[i].Permalink = "https://reddit.com" + b.memedat[i].Permalink
 	}
