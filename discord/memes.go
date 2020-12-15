@@ -50,7 +50,8 @@ func (b *Bot) memes(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		// send message
 		meme := b.memedat[rand.Intn(len(b.memedat))]
-		s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
+		b.dg.ChannelMessageSend(m.ChannelID, "Sending meme")
+		_, err := s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
 			URL:   meme.Permalink,
 			Type:  discordgo.EmbedTypeImage,
 			Title: meme.Title,
@@ -58,6 +59,9 @@ func (b *Bot) memes(s *discordgo.Session, m *discordgo.MessageCreate) {
 				URL: meme.URL,
 			},
 		})
+		if b.handle(err, m) {
+			return
+		}
 	}
 }
 
@@ -65,7 +69,6 @@ func (b *Bot) loadMemes(m *discordgo.MessageCreate) bool {
 	b.memerefreshtime = time.Now().UnixNano()
 
 	// Download
-	b.dg.ChannelMessageSend(m.ChannelID, "We are going to refresh our copy of reddit's memes...")
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "https://reddit.com/r/"+subreddit+"/hot.json", nil)
 	if b.handle(err, m) {
@@ -81,7 +84,6 @@ func (b *Bot) loadMemes(m *discordgo.MessageCreate) bool {
 	if b.handle(err, m) {
 		return false
 	}
-	b.dg.ChannelMessageSend(m.ChannelID, "Downloaded memes from reddit!")
 
 	// Process
 	var dat redditResp
