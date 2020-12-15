@@ -78,7 +78,34 @@ func (b *Bot) giveNum(s *discordgo.Session, m *discordgo.MessageCreate) {
 			for _, grole := range guildRoles {
 				if grole.ID == role {
 					if strings.ToLower(grole.Name) == "admin" {
-						s.ChannelMessageSend(m.ChannelID, "This has not been implemented yet.")
+						res, err := b.db.Query("SELECT number FROM givenum WHERE guild=?", m.GuildID)
+						if b.handle(err, m) {
+							return
+						}
+						nums := make([]int, 0)
+						for res.Next() {
+							var data int
+							err = res.Scan(&data)
+							if b.handle(err, m) {
+								return
+							}
+							nums = append(nums, data)
+						}
+						//num := nums[rand.Intn(len(nums))]
+						num := 7
+						s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("The number was %d.", num))
+						res, err = b.db.Query("SELECT member FROM givenum WHERE guild=? AND number=?", m.GuildID, num)
+						if b.handle(err, m) {
+							return
+						}
+						for res.Next() {
+							var memberid string
+							err = res.Scan(&memberid)
+							if b.handle(err, m) {
+								return
+							}
+							s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("@%s got it right!", memberid))
+						}
 						return
 					}
 				}
