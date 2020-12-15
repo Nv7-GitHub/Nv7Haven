@@ -31,7 +31,10 @@ func (b *Bot) giveNum(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 		res.Next()
-		res.Scan(&count)
+		err = res.Scan(&count)
+		if b.handle(err, m) {
+			return
+		}
 		if count == 0 {
 			_, err = b.db.Exec("INSERT INTO givenum VALUES ( ?, ?, ? )", m.GuildID, m.Author.ID, num)
 			if b.handle(err, m) {
@@ -50,18 +53,16 @@ func (b *Bot) giveNum(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// getnum command
 	if strings.HasPrefix(m.Content, "getnum") {
-		res, err := b.db.Query("SELECT number FROM givenum WHERE guild=? AND member=? LIMIT 1", m.GuildID, m.Author.ID)
-		defer res.Close()
-		if b.handle(err, m) {
-			return
+		success, num := b.getNum(m, m.Author.ID)
+		if success {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Your number is %d.", num))
 		}
-		res.Next()
-		var num int
-		err = res.Scan(&num)
-		if b.handle(err, m) {
-			return
+		for _, user := range m.Mentions {
+			success, num = b.getNum(m, user.ID)
+			if success {
+				s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("<@%s>'s number is %d.", user.ID, num))
+			}
 		}
-		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Your number is %d.", num))
 		return
 	}
 
@@ -116,4 +117,35 @@ func (b *Bot) giveNum(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, `You need to have a role called "admin".`)
 		return
 	}
+}
+
+func (b *Bot) getNum(m *discordgo.MessageCreate, user string) (bool, int) {
+	res, err := b.db.Query("SELECT COUNT(1) FROM givenum WHERE guild=? AND member=? LIMIT 1", m.GuildID, user)
+	defer res.Close()
+	if b.handle(err, m) {
+		return false, 0
+	}
+	var count int
+	res.Next()
+	err = res.Scan(&count)
+	if b.handle(err, m) {
+		return false, 0
+	}
+	if count == 0 {
+		b.dg.ChannelMessageSend(m.ChannelID, "User <@"+user+"> has not chosen a number.")
+		return false, 0
+	}
+
+	res, err = b.db.Query("SELECT number FROM givenum WHERE guild=? AND member=? LIMIT 1", m.GuildID, user)
+	defer res.Close()
+	if b.handle(err, m) {
+		return false, 0
+	}
+	res.Next()
+	var num int
+	err = res.Scan(&num)
+	if b.handle(err, m) {
+		return false, 0
+	}
+	return true, num
 }
