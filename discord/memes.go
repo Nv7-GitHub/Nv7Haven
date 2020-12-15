@@ -3,7 +3,6 @@ package discord
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"math/rand"
 	"net/http"
 	"strings"
@@ -59,14 +58,6 @@ func (b *Bot) memes(s *discordgo.Session, m *discordgo.MessageCreate) {
 				URL: meme.URL,
 			},
 		})
-		log.Println(discordgo.MessageEmbed{
-			URL:   meme.Permalink,
-			Type:  discordgo.EmbedTypeImage,
-			Title: meme.Title,
-			Image: &discordgo.MessageEmbedImage{
-				URL: meme.URL,
-			},
-		})
 		if b.handle(err, m) {
 			return
 		}
@@ -103,6 +94,7 @@ func (b *Bot) loadMemes(m *discordgo.MessageCreate) bool {
 	b.memedat = make([]meme, len(dat.Data.Children))
 	for i, val := range dat.Data.Children {
 		b.memedat[i] = val.Data
+		b.memedat[i].Permalink = "https://reddit.com" + b.memedat[i].Permalink
 	}
 	return true
 }
