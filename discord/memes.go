@@ -3,6 +3,7 @@ package discord
 import (
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"math/rand"
 	"net/http"
 	"strings"
@@ -50,8 +51,15 @@ func (b *Bot) memes(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		// send message
 		meme := b.memedat[rand.Intn(len(b.memedat))]
-		b.dg.ChannelMessageSend(m.ChannelID, "Sending meme")
 		_, err := s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
+			URL:   meme.Permalink,
+			Type:  discordgo.EmbedTypeImage,
+			Title: meme.Title,
+			Image: &discordgo.MessageEmbedImage{
+				URL: meme.URL,
+			},
+		})
+		log.Println(discordgo.MessageEmbed{
 			URL:   meme.Permalink,
 			Type:  discordgo.EmbedTypeImage,
 			Title: meme.Title,
@@ -96,6 +104,5 @@ func (b *Bot) loadMemes(m *discordgo.MessageCreate) bool {
 	for i, val := range dat.Data.Children {
 		b.memedat[i] = val.Data
 	}
-	b.dg.ChannelMessageSend(m.ChannelID, "Processed the memes!")
 	return true
 }
