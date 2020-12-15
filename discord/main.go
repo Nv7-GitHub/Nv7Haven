@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	_ "github.com/go-sql-driver/mysql" // mysql
@@ -24,7 +25,7 @@ type Bot struct {
 	dg              *discordgo.Session
 	db              *sql.DB
 	memedat         []meme
-	memerefreshtime int64
+	memerefreshtime time.Time
 	memecache       map[string][]int
 }
 

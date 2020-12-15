@@ -2,7 +2,6 @@ package discord
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
@@ -38,15 +37,14 @@ func (b *Bot) memes(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if strings.HasPrefix(m.Content, "meme") {
-		if b.memerefreshtime == 0 { // first time since startup
+		if len(b.memedat) == 0 { // first time since startup
 			s.ChannelMessageSend(m.ChannelID, "Sorry, this is the first time someone has asked for a meme since the server started. It may take a moment for us to download the memes from reddit.")
 			success := b.loadMemes(m)
 			if !success {
 				b.dg.ChannelMessageSend(m.ChannelID, "Failed to lead memes")
 			}
 		}
-		fmt.Println(time.Now().UnixNano() - b.memerefreshtime)
-		if (time.Now().UnixNano() - b.memerefreshtime) > 3600 { // its been an hour
+		if (time.Now().Sub(b.memerefreshtime)).Hours() >= 1 { // its been an hour
 			go b.loadMemes(m)
 		}
 
@@ -88,7 +86,7 @@ func (b *Bot) memes(s *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func (b *Bot) loadMemes(m *discordgo.MessageCreate) bool {
-	b.memerefreshtime = time.Now().UnixNano()
+	b.memerefreshtime = time.Now()
 	b.memecache = make(map[string][]int, 0)
 
 	// Download
