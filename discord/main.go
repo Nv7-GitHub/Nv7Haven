@@ -58,6 +58,7 @@ func InitDiscord() Bot {
 	}
 	b.handlers()
 	dg.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsGuildMessages)
+	dg.UpdateStatus(0, "Run 7help to get help on this bot's commands!")
 	err = dg.Open()
 	if err != nil {
 		panic(err)
