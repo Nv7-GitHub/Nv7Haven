@@ -2,6 +2,7 @@ package discord
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
@@ -51,6 +52,9 @@ func (b *Bot) memes(s *discordgo.Session, m *discordgo.MessageCreate) {
 		// send message
 		unique := false
 		var randnum int
+		if len(b.memecache[m.GuildID]) == len(b.memedat) {
+			unique = true
+		}
 		for !unique {
 			randnum = rand.Intn(len(b.memedat))
 			unique = true
@@ -67,6 +71,7 @@ func (b *Bot) memes(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 		}
 		b.memecache[m.GuildID] = append(b.memecache[m.GuildID], randnum)
+		fmt.Println(b.memecache[m.GuildID])
 		meme := b.memedat[randnum]
 		_, err := s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
 			URL:   meme.Permalink,
