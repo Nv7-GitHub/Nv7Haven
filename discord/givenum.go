@@ -65,7 +65,7 @@ func (b *Bot) giveNum(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	// roles command
+	// randselect command
 	if strings.HasPrefix(m.Content, "randselect") {
 		mem, err := s.GuildMember(m.GuildID, m.Author.ID)
 		if b.handle(err, m) {
