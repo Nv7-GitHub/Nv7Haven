@@ -139,6 +139,13 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 			ldb += fmt.Sprintf("%s#%s - %d\n", usr.Username, usr.Discriminator, wallet)
 		}
 
-		s.ChannelMessageSend(m.ChannelID, ldb)
+		gld, err := s.Guild(m.GuildID)
+		if b.handle(err, m) {
+			return
+		}
+		s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
+			Title:       fmt.Sprintf("Richest users in %s", gld.Name),
+			Description: ldb,
+		})
 	}
 }
