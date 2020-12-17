@@ -95,7 +95,7 @@ func (n *Nv7Haven) like(c *fiber.Ctx) error {
 		return err
 	}
 	likes++
-	_, err = n.sql.Exec("UPDATE tf SET likedby=? likes=? WHERE name=?", dat, likes, name)
+	_, err = n.sql.Exec("UPDATE tf SET likedby=?, likes=? WHERE name=?", dat, likes, name)
 	if err != nil {
 		return err
 	}
