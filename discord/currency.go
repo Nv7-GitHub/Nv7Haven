@@ -37,6 +37,7 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 		s.ChannelMessageSend(m.ChannelID, "Congrats on the 2,500 coins! Come back in 24 hours to get more!")
+		return
 	}
 
 	if strings.HasPrefix(m.Content, "bal") {
@@ -46,6 +47,7 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("You have %d coins in your wallet and %d coins in the bank.", user.Wallet, user.Bank))
+		return
 	}
 
 	if strings.HasPrefix(m.Content, "dep") {
@@ -80,6 +82,7 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Deposited %d coins.", num))
+		return
 	}
 
 	if strings.HasPrefix(m.Content, "with") {
@@ -114,6 +117,7 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Withdrew %d coins.", num))
+		return
 	}
 
 	if strings.HasPrefix(m.Content, "ldb") {
@@ -147,5 +151,6 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 			Title:       fmt.Sprintf("Richest users in %s", gld.Name),
 			Description: ldb,
 		})
+		return
 	}
 }
