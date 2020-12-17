@@ -36,6 +36,10 @@ func (c *Nv7Haven) routing(app *fiber.App) {
 	app.Get("/has_password/:name", c.hasPassword)
 	app.Get("/note_search/:query", c.searchNotes)
 	app.Get("/search_elems/:query", c.searchElems)
+	app.Get("/search_tf/:query/:prder", c.searchTf)
+	app.Post("/new_tf/:name", c.newTf)
+	app.Get("/tf_like/:name", c.like)
+	app.Post("/tf_comment/:name", c.comment)
 }
 
 const (

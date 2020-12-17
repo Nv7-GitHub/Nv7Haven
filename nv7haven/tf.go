@@ -1,0 +1,138 @@
+package nv7haven
+
+import (
+	"encoding/json"
+	"net/url"
+	"time"
+
+	"github.com/gofiber/fiber/v2"
+)
+
+func (n *Nv7Haven) searchTf(c *fiber.Ctx) error {
+	c.Set("Access-Control-Allow-Origin", "*")
+	c.Set("Access-Control-Allow-Headers", "*")
+
+	query, err := url.PathUnescape(c.Params("query"))
+	if err != nil {
+		return err
+	}
+
+	order, err := url.PathUnescape(c.Params("order"))
+	if err != nil {
+		return err
+	}
+
+	res, err := n.sql.Query("SELECT name FROM tf WHERE createdon>?  AND name LIKE ? ORDER BY ?", time.Now().Add(-24*time.Hour).UnixNano(), query, order)
+	if err != nil {
+		return err
+	}
+	defer res.Close()
+	out := make([]string, 0)
+	for res.Next() {
+		var data string
+		err = res.Scan(&data)
+		if err != nil {
+			return err
+		}
+		out = append(out, data)
+	}
+
+	return c.JSON(out)
+}
+
+func (n *Nv7Haven) newTf(c *fiber.Ctx) error {
+	c.Set("Access-Control-Allow-Origin", "*")
+	c.Set("Access-Control-Allow-Headers", "*")
+
+	_, err := n.sql.Exec("DELETE FROM tf WHERE createdon<?", time.Now().Add(-24*time.Hour).UnixNano())
+	if err != nil {
+		return err
+	}
+
+	name, err := url.PathUnescape(c.Params("name"))
+	if err != nil {
+		return err
+	}
+	body := string(c.Body())
+
+	_, err = n.sql.Exec("INSERT INTO tf VALUES (?, ?, ?, ?, ?, ?)", name, body, 0, "[]", "[]", time.Now().UnixNano())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (n *Nv7Haven) like(c *fiber.Ctx) error {
+	c.Set("Access-Control-Allow-Origin", "*")
+	c.Set("Access-Control-Allow-Headers", "*")
+
+	name, err := url.PathUnescape(c.Params("name"))
+	if err != nil {
+		return err
+	}
+
+	var likeddat string
+	var likes int
+	err = n.query("SELECT likedby, likes FROM tf WHERE name=?", []interface{}{name}, &likes, &likeddat)
+	if err != nil {
+		return err
+	}
+	var likedby []string
+	err = json.Unmarshal([]byte(likeddat), &likedby)
+	if err != nil {
+		return err
+	}
+	ip := c.IPs()[0]
+	for _, val := range likedby {
+		if val == ip {
+			return c.SendString("You already liked it!")
+		}
+	}
+	likedby = append(likedby, ip)
+	dat, err := json.Marshal(likedby)
+	if err != nil {
+		return err
+	}
+	likes++
+	_, err = n.sql.Exec("UPDATE tf SET likedby=? likes=? WHERE name=?", dat, likes, name)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (n *Nv7Haven) comment(c *fiber.Ctx) error {
+	c.Set("Access-Control-Allow-Origin", "*")
+	c.Set("Access-Control-Allow-Headers", "*")
+
+	name, err := url.PathUnescape(c.Params("name"))
+	if err != nil {
+		return err
+	}
+
+	body := string(c.Body())
+
+	var commentDat string
+	err = n.query("SELECT comments FROM tf WHERE name=?", []interface{}{name}, &commentDat)
+	if err != nil {
+		return err
+	}
+
+	var comments []string
+	err = json.Unmarshal([]byte(commentDat), &comments)
+	if err != nil {
+		return err
+	}
+	comments = append(comments, body)
+
+	dat, err := json.Marshal(comments)
+	if err != nil {
+		return err
+	}
+	_, err = n.sql.Exec("UPDATE tf SET comments=? WHERE name=?", dat, name)
+	if err != nil {
+		return err
+	}
+	return nil
+}
