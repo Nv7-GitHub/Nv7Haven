@@ -55,9 +55,17 @@ func (n *Nv7Haven) newTf(c *fiber.Ctx) error {
 	}
 	body := string(c.Body())
 
-	_, err = n.sql.Exec("INSERT INTO tf VALUES (?, ?, ?, ?, ?, ?)", name, body, 0, "[]", "[]", time.Now().Unix())
+	var count int
+	err = n.query("SELECT COUNT(1) FROM tf WHERE name=? LIMIT 1", []interface{}{name}, &count)
 	if err != nil {
 		return err
+	}
+
+	if count == 0 {
+		_, err = n.sql.Exec("INSERT INTO tf VALUES (?, ?, ?, ?, ?, ?)", name, body, 0, "[]", "[]", time.Now().Unix())
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
