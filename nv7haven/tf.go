@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"sync"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -142,15 +143,16 @@ func (n *Nv7Haven) comment(c *fiber.Ctx) error {
 	}
 
 	_, exists := tfchan[name]
-	log.Println(exists)
 	if !exists {
-		log.Println("start")
+		mutex := &sync.RWMutex{}
+		mutex.Lock()
 		tfchan[name] = make(chan string)
-		log.Println("finish")
+		mutex.Unlock()
 	}
-	log.Println("start1")
-	tfchan[name] <- body
-	log.Println("finish2")
+	go func() {
+		tfchan[name] <- body
+		log.Println("didit")
+	}()
 
 	return nil
 }
@@ -207,7 +209,10 @@ func postUpdates(w http.ResponseWriter, r *http.Request) {
 	name := names[0]
 	_, exists := tfchan[name]
 	if !exists {
+		mutex := &sync.RWMutex{}
+		mutex.Lock()
 		tfchan[name] = make(chan string)
+		mutex.Unlock()
 	}
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
