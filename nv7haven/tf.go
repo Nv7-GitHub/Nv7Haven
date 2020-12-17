@@ -2,11 +2,15 @@ package nv7haven
 
 import (
 	"encoding/json"
+	"log"
 	"net/url"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/websocket/v2"
 )
+
+var tfchan map[string]chan string
 
 func (n *Nv7Haven) searchTf(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
@@ -134,6 +138,7 @@ func (n *Nv7Haven) comment(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	tfchan[name] <- body
 	return nil
 }
 
@@ -176,4 +181,26 @@ func (n *Nv7Haven) getPost(c *fiber.Ctx) error {
 		Comments:  comments,
 		CreatedOn: createdon,
 	})
+}
+
+func (n *Nv7Haven) chatUpdates(c *websocket.Conn) {
+	name, err := url.PathUnescape(c.Params("name"))
+	if err != nil {
+		log.Println(err)
+	}
+	var mt int
+	var val string
+	for {
+		if mt, _, err = c.ReadMessage(); err != nil {
+			log.Println(err)
+			break
+		}
+
+		val = <-tfchan[name]
+
+		if err = c.WriteMessage(mt, []byte(val)); err != nil {
+			log.Println(err)
+			break
+		}
+	}
 }
