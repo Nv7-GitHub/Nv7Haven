@@ -66,10 +66,7 @@ func (n *Nv7Haven) newTf(c *fiber.Ctx) error {
 		if err != nil {
 			return err
 		}
-		err = n.db.SetData("tf_post", name)
-		if err != nil {
-			return err
-		}
+		n.db.SetData("tf_post", name)
 	}
 
 	return nil
@@ -111,10 +108,7 @@ func (n *Nv7Haven) like(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	err = n.db.SetData("tf_posts/"+url.PathEscape(name), "like")
-	if err != nil {
-		return err
-	}
+	n.db.SetData("tf_posts/"+url.PathEscape(name), "like")
 	return nil
 }
 
