@@ -153,4 +153,33 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 		})
 		return
 	}
+
+	if strings.HasPrefix(m.Content, "credup") {
+		user, suc := b.getuser(m, m.Author.ID)
+		if !suc {
+			return
+		}
+
+		var num int
+		_, err := fmt.Sscanf(m.Content, "credup %d", &num)
+		if b.handle(err, m) {
+			return
+		}
+
+		price := (num * num) - (user.Credit * user.Credit)
+		if user.Wallet < price {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("You need %d more coins to upgrade your credit %d levels.", price-user.Wallet, num))
+			return
+		}
+
+		user.Wallet -= price
+		user.Credit += price
+		suc = b.updateuser(m, user)
+		if !suc {
+			return
+		}
+
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("You upgraded your credit by %d levels!", num))
+		return
+	}
 }
