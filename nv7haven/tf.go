@@ -1,11 +1,8 @@
 package nv7haven
 
 import (
-	"bufio"
 	"encoding/json"
-	"log"
 	"net/url"
-	"sync"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -139,10 +136,6 @@ func (n *Nv7Haven) comment(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	_, exists := tfchan[name]
-	log.Println(exists)
-	tfchan[name] <- body
-	log.Println("Sending", body)
 	return nil
 }
 
@@ -185,40 +178,4 @@ func (n *Nv7Haven) getPost(c *fiber.Ctx) error {
 		Comments:  comments,
 		CreatedOn: createdon,
 	})
-}
-
-func (n *Nv7Haven) postUpdates(c *fiber.Ctx) error {
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Headers", "*")
-	c.Set("Content-Type", "text/event-stream")
-	c.Set("Cache-Control", "no-cache")
-	c.Set("Connection", "keep-alive")
-
-	c.Set(fiber.HeaderContentType, fiber.MIMEApplicationJSONCharsetUTF8)
-
-	name, err := url.PathUnescape(c.Params("name"))
-	if err != nil {
-		log.Println(err)
-	}
-	log.Println(name)
-	_, exists := tfchan[name]
-	log.Println("Does it exist?", exists)
-	if !exists {
-		var mutex = &sync.RWMutex{}
-		mutex.Lock()
-		tfchan[name] = make(chan string)
-		mutex.Unlock()
-		_, exists = tfchan[name]
-		log.Println("Does it exist now?", exists)
-	}
-	c.Context().SetBodyStreamWriter(func(w *bufio.Writer) {
-		enc := json.NewEncoder(w)
-		val := <-tfchan[name]
-		log.Println("Received", val)
-		if err = enc.Encode(val); err != nil {
-			return
-		}
-		w.Flush()
-	})
-	return nil
 }

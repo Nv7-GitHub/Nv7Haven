@@ -17,13 +17,6 @@ type Nv7Haven struct {
 }
 
 func (c *Nv7Haven) routing(app *fiber.App) {
-	/*app.Use("/ws", func(c *fiber.Ctx) error {
-		log.Println("upgrade")
-		if websocket.IsWebSocketUpgrade(c) {
-			return c.Next()
-		}
-		return fiber.ErrUpgradeRequired
-	})*/
 	app.Get("/hella/:input", c.calcHella)
 	app.Get("/bestever_new_suggest/:suggestion", c.newSuggestion)
 	app.Get("/bestever_get_suggest", c.getSuggestion)
@@ -48,8 +41,6 @@ func (c *Nv7Haven) routing(app *fiber.App) {
 	app.Get("/tf_like/:name", c.like)
 	app.Post("/tf_comment/:name", c.comment)
 	app.Get("/tf_get/:name", c.getPost)
-	//app.Get("/ws/tf_post/:name", websocket.New(c.chatUpdates))
-	app.Get("/tf_post/:name", c.postUpdates)
 }
 
 const (
