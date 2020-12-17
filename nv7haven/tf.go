@@ -22,7 +22,7 @@ func (n *Nv7Haven) searchTf(c *fiber.Ctx) error {
 		return err
 	}
 
-	res, err := n.sql.Query("SELECT name FROM tf WHERE createdon>?  AND name LIKE ? ORDER BY ?", time.Now().Add(-24*time.Hour).UnixNano(), query, order)
+	res, err := n.sql.Query("SELECT name FROM tf WHERE createdon>?  AND name LIKE ? ORDER BY ?", time.Now().Add(-24*time.Hour).Unix(), query, order)
 	if err != nil {
 		return err
 	}
@@ -55,7 +55,7 @@ func (n *Nv7Haven) newTf(c *fiber.Ctx) error {
 	}
 	body := string(c.Body())
 
-	_, err = n.sql.Exec("INSERT INTO tf VALUES (?, ?, ?, ?, ?, ?)", name, body, 0, "[]", "[]", time.Now().UnixNano())
+	_, err = n.sql.Exec("INSERT INTO tf VALUES (?, ?, ?, ?, ?, ?)", name, body, 0, "[]", "[]", time.Now().Unix())
 	if err != nil {
 		return err
 	}
