@@ -1,6 +1,7 @@
 package nv7haven
 
 import (
+	"bufio"
 	"encoding/json"
 	"log"
 	"net/url"
@@ -213,4 +214,29 @@ func (n *Nv7Haven) chatUpdates(c *websocket.Conn) {
 			break
 		}
 	}
+}
+
+func (n *Nv7Haven) postUpdates(c *fiber.Ctx) error {
+	c.Set("Access-Control-Allow-Origin", "*")
+	c.Set("Access-Control-Allow-Headers", "*")
+	c.Set(fiber.HeaderContentType, fiber.MIMEApplicationJSONCharsetUTF8)
+
+	name, err := url.PathUnescape(c.Params("name"))
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(name)
+	_, exists := tfchan[name]
+	if !exists {
+		tfchan[name] = make(chan string)
+	}
+	c.Context().SetBodyStreamWriter(func(w *bufio.Writer) {
+		enc := json.NewEncoder(w)
+		val := <-tfchan[name]
+		if err = enc.Encode(val); err != nil {
+			return
+		}
+		w.Flush()
+	})
+	return nil
 }
