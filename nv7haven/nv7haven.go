@@ -76,7 +76,7 @@ func InitNv7Haven(app *fiber.App) error {
 		db:  db,
 		sql: sql,
 	}
-	tfchan = make(map[string]chan string, 0)
+	tfchan = make(map[string](chan string), 0)
 
 	err = nv7haven.initBestEver()
 	if err != nil {

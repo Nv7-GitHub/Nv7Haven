@@ -10,7 +10,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-var tfchan map[string]chan string
+var tfchan map[string](chan string)
 
 func (n *Nv7Haven) searchTf(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
@@ -203,10 +203,11 @@ func (n *Nv7Haven) postUpdates(c *fiber.Ctx) error {
 	}
 	log.Println(name)
 	_, exists := tfchan[name]
-	log.Println("It doesnt exist!")
+	log.Println("Does it exist?", exists)
 	if !exists {
 		tfchan[name] = make(chan string)
-		log.Println("Now it does!")
+		_, exists = tfchan[name]
+		log.Println("Does it exist now?", exists)
 	}
 	c.Context().SetBodyStreamWriter(func(w *bufio.Writer) {
 		enc := json.NewEncoder(w)
