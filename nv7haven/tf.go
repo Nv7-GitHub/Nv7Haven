@@ -1,19 +1,14 @@
 package nv7haven
 
 import (
-	"bytes"
 	"encoding/json"
-	"fmt"
-	"log"
 	"net/http"
 	"net/url"
-	"sync"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/r3labs/sse/v2"
 )
-
-var tfchan map[string](chan string)
 
 func (n *Nv7Haven) searchTf(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
@@ -142,17 +137,20 @@ func (n *Nv7Haven) comment(c *fiber.Ctx) error {
 		return err
 	}
 
-	_, exists := tfchan[name]
-	if !exists {
-		mutex := &sync.RWMutex{}
-		mutex.Lock()
-		tfchan[name] = make(chan string)
-		mutex.Unlock()
+	data := struct {
+		Post    string
+		Comment string
+	}{
+		Post:    name,
+		Comment: body,
 	}
-	go func() {
-		tfchan[name] <- body
-		log.Println("didit")
-	}()
+	dat, err = json.Marshal(data)
+	if err != nil {
+		return err
+	}
+	n.sse.Publish("tf_post", &sse.Event{
+		Data: dat,
+	})
 
 	return nil
 }
@@ -200,37 +198,4 @@ func (n *Nv7Haven) getPost(c *fiber.Ctx) error {
 
 func handler(f http.HandlerFunc) http.Handler {
 	return http.HandlerFunc(f)
-}
-func postUpdates(w http.ResponseWriter, r *http.Request) {
-	names := r.URL.Query()["post"]
-	if len(names) < 0 {
-		return
-	}
-	name := names[0]
-	_, exists := tfchan[name]
-	if !exists {
-		mutex := &sync.RWMutex{}
-		mutex.Lock()
-		tfchan[name] = make(chan string)
-		mutex.Unlock()
-	}
-
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-	w.Header().Set("Content-Type", "text/event-stream")
-	w.Header().Set("Cache-Control", "no-cache")
-	w.Header().Set("Connection", "keep-alive")
-
-	select {
-	case ev := <-tfchan[name]:
-		var buf bytes.Buffer
-		enc := json.NewEncoder(&buf)
-		enc.Encode(ev)
-		fmt.Fprintf(w, "data: %v\n\n", buf.String())
-		fmt.Printf("data: %v\n", buf.String())
-	}
-
-	if f, ok := w.(http.Flusher); ok {
-		f.Flush()
-	}
 }

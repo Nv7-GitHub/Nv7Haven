@@ -9,12 +9,14 @@ import (
 	_ "github.com/go-sql-driver/mysql" // mysql
 	"github.com/gofiber/adaptor/v2"
 	"github.com/gofiber/fiber/v2"
+	"github.com/r3labs/sse/v2"
 )
 
 // Nv7Haven is the backend for https://nv7haven.tk
 type Nv7Haven struct {
 	db  *database.Db
 	sql *sql.DB
+	sse *sse.Server
 }
 
 func (c *Nv7Haven) routing(app *fiber.App) {
@@ -42,7 +44,7 @@ func (c *Nv7Haven) routing(app *fiber.App) {
 	app.Get("/tf_like/:name", c.like)
 	app.Post("/tf_comment/:name", c.comment)
 	app.Get("/tf_get/:name", c.getPost)
-	app.Get("/tf_post", adaptor.HTTPHandler(handler(postUpdates)))
+	app.Get("/sse", adaptor.HTTPHandler(handler(c.sse.HTTPHandler)))
 }
 
 const (
@@ -65,11 +67,13 @@ func InitNv7Haven(app *fiber.App) error {
 	if err != nil {
 		panic(err)
 	}
+	server := sse.New()
+	server.CreateStream("tf_post")
 	nv7haven := Nv7Haven{
 		db:  db,
 		sql: sql,
+		sse: server,
 	}
-	tfchan = make(map[string](chan string), 0)
 
 	err = nv7haven.initBestEver()
 	if err != nil {
