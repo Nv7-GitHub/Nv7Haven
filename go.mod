@@ -7,6 +7,8 @@ require (
 	github.com/bwmarrin/discordgo v0.22.0
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gofiber/fiber/v2 v2.3.0
+	github.com/gofiber/websocket v0.5.1
+	github.com/gofiber/websocket/v2 v2.0.2
 	github.com/jdkato/prose/v2 v2.0.0
 	github.com/jmcvetta/randutil v0.0.0-20150817122601-2bb1b664bcff
 )
