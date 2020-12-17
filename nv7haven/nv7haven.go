@@ -2,6 +2,7 @@ package nv7haven
 
 import (
 	"database/sql"
+	"log"
 	"os"
 
 	"github.com/Nv7-Github/firebase"
@@ -19,6 +20,7 @@ type Nv7Haven struct {
 
 func (c *Nv7Haven) routing(app *fiber.App) {
 	app.Use("/ws", func(c *fiber.Ctx) error {
+		log.Println("upgrade")
 		if websocket.IsWebSocketUpgrade(c) {
 			return c.Next()
 		}

@@ -184,6 +184,7 @@ func (n *Nv7Haven) getPost(c *fiber.Ctx) error {
 }
 
 func (n *Nv7Haven) chatUpdates(c *websocket.Conn) {
+	log.Println("chatUpdates")
 	name, err := url.PathUnescape(c.Params("name"))
 	if err != nil {
 		log.Println(err)
