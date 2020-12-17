@@ -72,14 +72,6 @@ func InitDiscord() Bot {
 	return b
 }
 
-func (b *Bot) handle(err error, m *discordgo.MessageCreate) bool {
-	if err != nil {
-		b.dg.ChannelMessageSend(m.ChannelID, "Error: "+err.Error())
-		return true
-	}
-	return false
-}
-
 // Close cleans up
 func (b *Bot) Close() {
 	b.dg.Close()
