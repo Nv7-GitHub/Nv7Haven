@@ -74,7 +74,7 @@ func (n *Nv7Haven) like(c *fiber.Ctx) error {
 
 	var likeddat string
 	var likes int
-	err = n.query("SELECT likedby, likes FROM tf WHERE name=?", []interface{}{name}, &likes, &likeddat)
+	err = n.query("SELECT likes, likedby FROM tf WHERE name=?", []interface{}{name}, &likes, &likeddat)
 	if err != nil {
 		return err
 	}
