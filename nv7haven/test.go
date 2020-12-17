@@ -24,7 +24,6 @@ func dashbaordHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
 
-	timeout := time.After(1 * time.Second)
 	select {
 	case ev := <-chn:
 		var buf bytes.Buffer
@@ -32,8 +31,6 @@ func dashbaordHandler(w http.ResponseWriter, r *http.Request) {
 		enc.Encode(ev)
 		fmt.Fprintf(w, "data: %v\n\n", buf.String())
 		fmt.Printf("data: %v\n", buf.String())
-	case <-timeout:
-		fmt.Fprintf(w, ": nothing to sent\n\n")
 	}
 
 	if f, ok := w.(http.Flusher); ok {
