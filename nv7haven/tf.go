@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/websocket/v2"
 )
 
 var tfchan map[string]chan string
@@ -140,8 +139,10 @@ func (n *Nv7Haven) comment(c *fiber.Ctx) error {
 		return err
 	}
 	_, exists := tfchan[name]
+	log.Println(exists)
 	if exists {
 		tfchan[name] <- body
+		log.Println("Sending", body)
 	}
 	return nil
 }
@@ -187,35 +188,6 @@ func (n *Nv7Haven) getPost(c *fiber.Ctx) error {
 	})
 }
 
-func (n *Nv7Haven) chatUpdates(c *websocket.Conn) {
-	log.Println("chatUpdates")
-	name, err := url.PathUnescape(c.Params("name"))
-	if err != nil {
-		log.Println(err)
-	}
-	log.Println(name)
-	_, exists := tfchan[name]
-	if !exists {
-		tfchan[name] = make(chan string)
-	}
-	var mt int
-	var val string
-	for {
-		if mt, _, err = c.ReadMessage(); err != nil {
-			log.Println(err)
-			break
-		}
-
-		//val = <-tfchan[name]
-		val = "test"
-
-		if err = c.WriteMessage(mt, []byte(val)); err != nil {
-			log.Println(err)
-			break
-		}
-	}
-}
-
 func (n *Nv7Haven) postUpdates(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
@@ -237,6 +209,7 @@ func (n *Nv7Haven) postUpdates(c *fiber.Ctx) error {
 	c.Context().SetBodyStreamWriter(func(w *bufio.Writer) {
 		enc := json.NewEncoder(w)
 		val := <-tfchan[name]
+		log.Println("Received", val)
 		if err = enc.Encode(val); err != nil {
 			return
 		}
