@@ -203,8 +203,10 @@ func (n *Nv7Haven) postUpdates(c *fiber.Ctx) error {
 	}
 	log.Println(name)
 	_, exists := tfchan[name]
+	log.Println("It doesnt exist!")
 	if !exists {
 		tfchan[name] = make(chan string)
+		log.Println("Now it does!")
 	}
 	c.Context().SetBodyStreamWriter(func(w *bufio.Writer) {
 		enc := json.NewEncoder(w)
