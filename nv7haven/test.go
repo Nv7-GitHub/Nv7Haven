@@ -14,7 +14,7 @@ func handler(f http.HandlerFunc) http.Handler {
 func dashbaordHandler(w http.ResponseWriter, r *http.Request) {
 	chn := make(chan bool)
 	go func() {
-		time.Sleep(1)
+		time.Sleep(5 * time.Second)
 		chn <- true
 	}()
 
