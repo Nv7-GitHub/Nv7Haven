@@ -69,7 +69,7 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 				return
 			}
 		}
-		if user.Wallet > num {
+		if user.Wallet < num {
 			num = user.Wallet
 		}
 		user.Bank += num
@@ -80,5 +80,39 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Deposited %d coins.", num))
+	}
+
+	if strings.HasPrefix(m.Content, "with") {
+		b.checkuser(m)
+		user, success := b.getuser(m, m.Author.ID)
+		if !success {
+			return
+		}
+
+		var with string
+		_, err := fmt.Sscanf(m.Content, "dep %s", &with)
+		if b.handle(err, m) {
+			return
+		}
+		var num int
+		if with == "all" {
+			num = user.Bank
+		} else {
+			num, err = strconv.Atoi(with)
+			if b.handle(err, m) {
+				return
+			}
+		}
+		if user.Bank < num {
+			num = user.Bank
+		}
+		user.Bank -= num
+		user.Wallet += num
+		success = b.updateuser(m, user)
+		if !success {
+			return
+		}
+
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Withdrew %d coins.", num))
 	}
 }
