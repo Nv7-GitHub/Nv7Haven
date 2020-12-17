@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/url"
+	"sync"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -205,7 +206,10 @@ func (n *Nv7Haven) postUpdates(c *fiber.Ctx) error {
 	_, exists := tfchan[name]
 	log.Println("Does it exist?", exists)
 	if !exists {
+		var mutex = &sync.RWMutex{}
+		mutex.Lock()
 		tfchan[name] = make(chan string)
+		mutex.Unlock()
 		_, exists = tfchan[name]
 		log.Println("Does it exist now?", exists)
 	}
