@@ -22,7 +22,7 @@ func (n *Nv7Haven) searchTf(c *fiber.Ctx) error {
 		return err
 	}
 
-	res, err := n.sql.Query("SELECT name FROM tf WHERE createdon>?  AND name LIKE ? ORDER BY"+order+" DESC", time.Now().Add(-24*time.Hour).Unix(), query)
+	res, err := n.sql.Query("SELECT name FROM tf WHERE createdon>?  AND name LIKE ? ORDER BY "+order+" DESC", time.Now().Add(-24*time.Hour).Unix(), query)
 	if err != nil {
 		return err
 	}
