@@ -40,6 +40,7 @@ func (b *Bot) unmarshal(m *discordgo.MessageCreate, data string, out interface{}
 
 type user struct {
 	User        string
+	Guilds      []string
 	Wallet      int
 	Bank        int
 	Credit      int
@@ -56,13 +57,19 @@ func (b *Bot) getuser(m *discordgo.MessageCreate, usr string) (user, bool) {
 	defer res.Close()
 	res.Next()
 	var name string
+	var glds string
 	var wallet int
 	var bank int
 	var credit int
 	var props string
 	var lastvisited int64
 	var met string
-	err = res.Scan(&name, &wallet, &bank, &credit, &props, &lastvisited, &met)
+	err = res.Scan(&name, &glds, &wallet, &bank, &credit, &props, &lastvisited, &met)
+	if b.handle(err, m) {
+		return user{}, false
+	}
+	var guilds []string
+	err = json.Unmarshal([]byte(glds), &guilds)
 	if b.handle(err, m) {
 		return user{}, false
 	}
@@ -78,6 +85,7 @@ func (b *Bot) getuser(m *discordgo.MessageCreate, usr string) (user, bool) {
 	}
 	return user{
 		User:        name,
+		Guilds:      guilds,
 		Wallet:      wallet,
 		Bank:        bank,
 		Credit:      credit,
@@ -88,6 +96,10 @@ func (b *Bot) getuser(m *discordgo.MessageCreate, usr string) (user, bool) {
 }
 
 func (b *Bot) updateuser(m *discordgo.MessageCreate, u user) bool {
+	glds, err := json.Marshal(u.Guilds)
+	if b.handle(err, m) {
+		return false
+	}
 	met, err := json.Marshal(u.Metadata)
 	if b.handle(err, m) {
 		return false
@@ -96,7 +108,7 @@ func (b *Bot) updateuser(m *discordgo.MessageCreate, u user) bool {
 	if b.handle(err, m) {
 		return false
 	}
-	_, err = b.db.Exec("UPDATE currency SET wallet=?, bank=?, credit=?, properties=?, lastvisited=?, metadata=? WHERE user=?", u.Wallet, u.Bank, u.Credit, props, u.LastVisited, met, u.User)
+	_, err = b.db.Exec("UPDATE currency SET guilds=?, wallet=?, bank=?, credit=?, properties=?, lastvisited=?, metadata=? WHERE user=?", glds, u.Wallet, u.Bank, u.Credit, props, u.LastVisited, met, u.User)
 	if b.handle(err, m) {
 		return false
 	}
@@ -109,9 +121,24 @@ func (b *Bot) checkuser(m *discordgo.MessageCreate) {
 		return
 	}
 	if !exists {
-		_, err := b.db.Exec("INSERT INTO currency VALUES ( ?, ?, ?, ?, ?, ?, ? )", m.Author.ID, 0, 0, 0, "[]", time.Now().Unix()-86400, "{}")
+		_, err := b.db.Exec("INSERT INTO currency VALUES ( ?, ?, ?, ?, ?, ?, ?, ? )", m.Author.ID, "", 0, 0, 0, "["+m.GuildID+"]", time.Now().Unix()-86400, "{}")
 		if b.handle(err, m) {
 			return
+		}
+	} else {
+		user, success := b.getuser(m, m.Author.ID)
+		if !success {
+			return
+		}
+		isInGuild := false
+		for _, guild := range user.Guilds {
+			if guild == m.GuildID {
+				isInGuild = true
+			}
+		}
+		if !isInGuild {
+			user.Guilds = append(user.Guilds, m.GuildID)
+			b.updateuser(m, user)
 		}
 	}
 }
