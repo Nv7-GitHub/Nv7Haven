@@ -90,7 +90,7 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		var with string
-		_, err := fmt.Sscanf(m.Content, "dep %s", &with)
+		_, err := fmt.Sscanf(m.Content, "with %s", &with)
 		if b.handle(err, m) {
 			return
 		}
