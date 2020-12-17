@@ -146,7 +146,8 @@ func (n *Nv7Haven) comment(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	// REALTIME UPDATES HERE
+
+	n.db.SetData("tf_posts/"+url.PathEscape(name), body)
 
 	return nil
 }
