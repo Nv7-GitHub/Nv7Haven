@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -141,10 +142,15 @@ func (n *Nv7Haven) comment(c *fiber.Ctx) error {
 	}
 
 	_, exists := tfchan[name]
+	log.Println(exists)
 	if !exists {
+		log.Println("start")
 		tfchan[name] = make(chan string)
+		log.Println("finish")
 	}
+	log.Println("start1")
 	tfchan[name] <- body
+	log.Println("finish2")
 
 	return nil
 }
