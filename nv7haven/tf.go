@@ -138,7 +138,10 @@ func (n *Nv7Haven) comment(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	tfchan[name] <- body
+	_, exists := tfchan[name]
+	if exists {
+		tfchan[name] <- body
+	}
 	return nil
 }
 
@@ -190,6 +193,10 @@ func (n *Nv7Haven) chatUpdates(c *websocket.Conn) {
 		log.Println(err)
 	}
 	log.Println(name)
+	_, exists := tfchan[name]
+	if !exists {
+		tfchan[name] = make(chan string)
+	}
 	var mt int
 	var val string
 	for {
