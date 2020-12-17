@@ -96,7 +96,7 @@ func (b *Bot) updateuser(m *discordgo.MessageCreate, u user) bool {
 	if b.handle(err, m) {
 		return false
 	}
-	_, err = b.db.Exec("UPDATE currency SET wallet=?, bank=?, credit=?, properties=?, lastvisited=?, metadata=? WHERE name=?", u.Wallet, u.Bank, u.Credit, props, u.LastVisited, met, u.User)
+	_, err = b.db.Exec("UPDATE currency SET wallet=?, bank=?, credit=?, properties=?, lastvisited=?, metadata=? WHERE user=?", u.Wallet, u.Bank, u.Credit, props, u.LastVisited, met, u.User)
 	if b.handle(err, m) {
 		return false
 	}
