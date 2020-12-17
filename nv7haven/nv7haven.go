@@ -83,7 +83,7 @@ func InitNv7Haven(app *fiber.App) error {
 	// SSE server
 	mux := http.NewServeMux()
 	mux.HandleFunc("/sse", server.HTTPHandler)
-	http.ListenAndServe(":"+os.Getenv("PORT"), mux)
+	go http.ListenAndServe(":"+os.Getenv("PORT"), mux)
 
 	return nil
 }
