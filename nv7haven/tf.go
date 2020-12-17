@@ -205,7 +205,8 @@ func (n *Nv7Haven) chatUpdates(c *websocket.Conn) {
 			break
 		}
 
-		val = <-tfchan[name]
+		//val = <-tfchan[name]
+		val = "test"
 
 		if err = c.WriteMessage(mt, []byte(val)); err != nil {
 			log.Println(err)
