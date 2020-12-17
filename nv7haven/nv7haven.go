@@ -2,7 +2,6 @@ package nv7haven
 
 import (
 	"database/sql"
-	"log"
 	"os"
 
 	"github.com/Nv7-Github/firebase"
@@ -78,7 +77,6 @@ func InitNv7Haven(app *fiber.App) error {
 		sql: sql,
 	}
 	tfchan = make(map[string](chan string), 0)
-	log.Println("reset")
 
 	err = nv7haven.initBestEver()
 	if err != nil {

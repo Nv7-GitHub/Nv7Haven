@@ -141,10 +141,8 @@ func (n *Nv7Haven) comment(c *fiber.Ctx) error {
 	}
 	_, exists := tfchan[name]
 	log.Println(exists)
-	if exists {
-		tfchan[name] <- body
-		log.Println("Sending", body)
-	}
+	tfchan[name] <- body
+	log.Println("Sending", body)
 	return nil
 }
 
