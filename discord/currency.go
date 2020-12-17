@@ -47,4 +47,38 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("You have %d coins in your wallet and %d coins in the bank.", user.Wallet, user.Bank))
 	}
+
+	if strings.HasPrefix(m.Content, "dep") {
+		b.checkuser(m)
+		user, success := b.getuser(m, m.Author.ID)
+		if !success {
+			return
+		}
+
+		var dep string
+		_, err := fmt.Sscanf(m.Content, "dep %s", &dep)
+		if b.handle(err, m) {
+			return
+		}
+		var num int
+		if dep == "all" {
+			num = user.Wallet
+		} else {
+			num, err = strconv.Atoi(dep)
+			if b.handle(err, m) {
+				return
+			}
+		}
+		if user.Wallet > num {
+			num = user.Wallet
+		}
+		user.Bank += num
+		user.Wallet -= num
+		success = b.updateuser(m, user)
+		if !success {
+			return
+		}
+
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Deposited %d coins.", num))
+	}
 }
