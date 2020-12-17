@@ -19,13 +19,13 @@ type Nv7Haven struct {
 }
 
 func (c *Nv7Haven) routing(app *fiber.App) {
-	app.Use("/ws", func(c *fiber.Ctx) error {
+	/*app.Use("/ws", func(c *fiber.Ctx) error {
 		log.Println("upgrade")
 		if websocket.IsWebSocketUpgrade(c) {
 			return c.Next()
 		}
 		return fiber.ErrUpgradeRequired
-	})
+	})*/
 	app.Get("/hella/:input", c.calcHella)
 	app.Get("/bestever_new_suggest/:suggestion", c.newSuggestion)
 	app.Get("/bestever_get_suggest", c.getSuggestion)
@@ -50,7 +50,45 @@ func (c *Nv7Haven) routing(app *fiber.App) {
 	app.Get("/tf_like/:name", c.like)
 	app.Post("/tf_comment/:name", c.comment)
 	app.Get("/tf_get/:name", c.getPost)
-	app.Get("/ws/tf_post/:name", websocket.New(c.chatUpdates))
+	//app.Get("/ws/tf_post/:name", websocket.New(c.chatUpdates))
+
+	app.Use("/ws", func(c *fiber.Ctx) error {
+		// IsWebSocketUpgrade returns true if the client
+		// requested upgrade to the WebSocket protocol.
+		if websocket.IsWebSocketUpgrade(c) {
+			c.Locals("allowed", true)
+			return c.Next()
+		}
+		return fiber.ErrUpgradeRequired
+	})
+
+	app.Get("/ws/:id", websocket.New(func(c *websocket.Conn) {
+		// c.Locals is added to the *websocket.Conn
+		log.Println(c.Locals("allowed"))  // true
+		log.Println(c.Params("id"))       // 123
+		log.Println(c.Query("v"))         // 1.0
+		log.Println(c.Cookies("session")) // ""
+
+		// websocket.Conn bindings https://pkg.go.dev/github.com/fasthttp/websocket?tab=doc#pkg-index
+		var (
+			mt  int
+			msg []byte
+			err error
+		)
+		for {
+			if mt, msg, err = c.ReadMessage(); err != nil {
+				log.Println("read:", err)
+				break
+			}
+			log.Printf("recv: %s", msg)
+
+			if err = c.WriteMessage(mt, msg); err != nil {
+				log.Println("write:", err)
+				break
+			}
+		}
+
+	}))
 }
 
 const (
