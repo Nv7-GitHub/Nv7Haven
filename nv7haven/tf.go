@@ -2,12 +2,10 @@ package nv7haven
 
 import (
 	"encoding/json"
-	"net/http"
 	"net/url"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/r3labs/sse/v2"
 )
 
 func (n *Nv7Haven) searchTf(c *fiber.Ctx) error {
@@ -148,9 +146,7 @@ func (n *Nv7Haven) comment(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	n.sse.Publish("tf_post", &sse.Event{
-		Data: dat,
-	})
+	// REALTIME UPDATES HERE
 
 	return nil
 }
@@ -194,8 +190,4 @@ func (n *Nv7Haven) getPost(c *fiber.Ctx) error {
 		Comments:  comments,
 		CreatedOn: createdon,
 	})
-}
-
-func handler(f http.HandlerFunc) http.Handler {
-	return http.HandlerFunc(f)
 }
