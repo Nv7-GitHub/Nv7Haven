@@ -136,3 +136,44 @@ func (n *Nv7Haven) comment(c *fiber.Ctx) error {
 	}
 	return nil
 }
+
+type post struct {
+	Name      string
+	Content   string
+	Likes     int
+	Comments  []string
+	CreatedOn int
+}
+
+func (n *Nv7Haven) getPost(c *fiber.Ctx) error {
+	c.Set("Access-Control-Allow-Origin", "*")
+	c.Set("Access-Control-Allow-Headers", "*")
+
+	name, err := url.PathUnescape(c.Params("name"))
+	if err != nil {
+		return err
+	}
+
+	var content string
+	var likes int
+	var commentdat string
+	var createdon int
+	err = n.query("SELECT content, likes, comments, createdon FROM tf WHERE name=?", []interface{}{name}, &content, &likes, &commentdat, &createdon)
+	if err != nil {
+		return err
+	}
+
+	var comments []string
+	err = json.Unmarshal([]byte(commentdat), &comments)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(post{
+		Name:      name,
+		Content:   content,
+		Likes:     likes,
+		Comments:  comments,
+		CreatedOn: createdon,
+	})
+}
