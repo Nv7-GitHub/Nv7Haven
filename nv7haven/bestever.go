@@ -39,16 +39,14 @@ func (n *Nv7Haven) changed() error {
 
 func (n *Nv7Haven) initBestEver() error {
 	rand.Seed(time.Now().UnixNano())
-	rawData, err := n.db.Get("")
+	rawData, err := n.db.Get("data")
 	if err != nil {
 		return err
 	}
-	var rawMarshaled map[string]interface{}
-	err = json.Unmarshal(rawData, &rawMarshaled)
+	err = json.Unmarshal(rawData, &data)
 	if err != nil {
 		return err
 	}
-	data = rawMarshaled["data"].([]Suggestion)
 	return nil
 }
 
