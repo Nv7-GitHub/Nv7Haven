@@ -99,6 +99,7 @@ func (n *Nv7Haven) like(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	n.db.SetData("tf_posts/"+url.PathEscape(name), "like")
 	return nil
 }
 
