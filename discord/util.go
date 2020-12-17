@@ -121,7 +121,7 @@ func (b *Bot) checkuser(m *discordgo.MessageCreate) {
 		return
 	}
 	if !exists {
-		_, err := b.db.Exec("INSERT INTO currency VALUES ( ?, ?, ?, ?, ?, ?, ?, ? )", m.Author.ID, "[\""+m.GuildID+"\"]", 0, 0, 0, time.Now().Unix()-86400, "[]", "{}")
+		_, err := b.db.Exec("INSERT INTO currency VALUES ( ?, ?, ?, ?, ?, ?, ?, ? )", m.Author.ID, "[\""+m.GuildID+"\"]", 0, 0, 0, "[]", time.Now().Unix(), "{}")
 		if b.handle(err, m) {
 			return
 		}
