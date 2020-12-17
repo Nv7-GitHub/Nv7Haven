@@ -188,6 +188,7 @@ func (n *Nv7Haven) chatUpdates(c *websocket.Conn) {
 	if err != nil {
 		log.Println(err)
 	}
+	log.Println(name)
 	var mt int
 	var val string
 	for {
