@@ -1,6 +1,7 @@
 package nv7haven
 
 import (
+	"bufio"
 	"encoding/json"
 	"log"
 	"net/url"
@@ -233,6 +234,13 @@ func (n *Nv7Haven) postUpdates(c *fiber.Ctx) error {
 	if !exists {
 		tfchan[name] = make(chan string)
 	}
-	val := <-tfchan[name]
-	return c.SendString(val)
+	c.Context().SetBodyStreamWriter(func(w *bufio.Writer) {
+		enc := json.NewEncoder(w)
+		val := <-tfchan[name]
+		if err = enc.Encode(val); err != nil {
+			return
+		}
+		w.Flush()
+	})
+	return nil
 }
