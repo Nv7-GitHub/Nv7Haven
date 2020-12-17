@@ -219,6 +219,10 @@ func (n *Nv7Haven) chatUpdates(c *websocket.Conn) {
 func (n *Nv7Haven) postUpdates(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
+	c.Set("Content-Type", "text/event-stream")
+	c.Set("Cache-Control", "no-cache")
+	c.Set("Connection", "keep-alive")
+
 	c.Set(fiber.HeaderContentType, fiber.MIMEApplicationJSONCharsetUTF8)
 
 	name, err := url.PathUnescape(c.Params("name"))
