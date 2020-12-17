@@ -44,7 +44,7 @@ func (n *Nv7Haven) newTf(c *fiber.Ctx) error {
 	c.Set("Access-Control-Allow-Origin", "*")
 	c.Set("Access-Control-Allow-Headers", "*")
 
-	_, err := n.sql.Exec("DELETE FROM tf WHERE createdon<?", time.Now().Add(-24*time.Hour).UnixNano())
+	_, err := n.sql.Exec("DELETE FROM tf WHERE createdon<?", time.Now().Add(-24*time.Hour).Unix())
 	if err != nil {
 		return err
 	}
