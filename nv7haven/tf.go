@@ -1,7 +1,10 @@
 package nv7haven
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
+	"net/http"
 	"net/url"
 	"time"
 
@@ -136,6 +139,13 @@ func (n *Nv7Haven) comment(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+
+	_, exists := tfchan[name]
+	if !exists {
+		tfchan[name] = make(chan string)
+	}
+	tfchan[name] <- body
+
 	return nil
 }
 
@@ -178,4 +188,38 @@ func (n *Nv7Haven) getPost(c *fiber.Ctx) error {
 		Comments:  comments,
 		CreatedOn: createdon,
 	})
+}
+
+func handler(f http.HandlerFunc) http.Handler {
+	return http.HandlerFunc(f)
+}
+func postUpdates(w http.ResponseWriter, r *http.Request) {
+	names := r.URL.Query()["post"]
+	if len(names) < 0 {
+		return
+	}
+	name := names[0]
+	_, exists := tfchan[name]
+	if !exists {
+		tfchan[name] = make(chan string)
+	}
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("Connection", "keep-alive")
+
+	select {
+	case ev := <-tfchan[name]:
+		var buf bytes.Buffer
+		enc := json.NewEncoder(&buf)
+		enc.Encode(ev)
+		fmt.Fprintf(w, "data: %v\n\n", buf.String())
+		fmt.Printf("data: %v\n", buf.String())
+	}
+
+	if f, ok := w.(http.Flusher); ok {
+		f.Flush()
+	}
 }
