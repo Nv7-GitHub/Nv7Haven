@@ -22,7 +22,6 @@ func (c *Nv7Haven) routing(app *fiber.App) {
 	app.Use("/ws", func(c *fiber.Ctx) error {
 		log.Println("upgrade")
 		if websocket.IsWebSocketUpgrade(c) {
-			c.Locals("allowed", true)
 			return c.Next()
 		}
 		return fiber.ErrUpgradeRequired
