@@ -115,4 +115,30 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Withdrew %d coins.", num))
 	}
+
+	if strings.HasPrefix(m.Content, "ldb") {
+		res, err := b.db.Query("SELECT user, wallet FROM currency WHERE guilds LIKE ? ORDER BY wallet DESC LIMIT 10", "%"+m.GuildID+"%")
+		if b.handle(err, m) {
+			return
+		}
+
+		var ldb string
+		var user string
+		var wallet int
+		var usr *discordgo.User
+		for res.Next() {
+			err = res.Scan(&user, &wallet)
+			if b.handle(err, m) {
+				return
+			}
+			usr, err = s.User(user)
+			if b.handle(err, m) {
+				return
+			}
+
+			ldb += fmt.Sprintf("%s#%s - %d\n", usr.Username, usr.Discriminator, wallet)
+		}
+
+		s.ChannelMessageSend(m.ChannelID, ldb)
+	}
 }
