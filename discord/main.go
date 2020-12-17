@@ -33,6 +33,7 @@ func (b *Bot) handlers() {
 	b.dg.AddHandler(b.giveNum)
 	b.dg.AddHandler(b.help)
 	b.dg.AddHandler(b.memes)
+	b.dg.AddHandler(b.currencyBasics)
 }
 
 // InitDiscord creates a discord bot
