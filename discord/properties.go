@@ -249,10 +249,11 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 				}
 			}
 
-			coll := float32(val*prop.Upgrades) * (float32(user.LastVisited) / 3600)
+			coll := float32(val*prop.Upgrades) * (float32(time.Now().Unix()-user.LastVisited) / 3600)
 			moneyCollected += int(coll)
 		}
 		user.Wallet += moneyCollected
+		user.LastVisited = time.Now().Unix()
 		suc = b.updateuser(m, user)
 		if !suc {
 			return
