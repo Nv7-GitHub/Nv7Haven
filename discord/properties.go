@@ -99,6 +99,23 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+	if strings.HasPrefix(m.Content, "inv") {
+		user, suc := b.getuser(m, m.Author.ID)
+		if !suc {
+			return
+		}
+
+		var text string
+		for _, prop := range user.Properties {
+			text += fmt.Sprintf("`%s` - %d upgrades\n\n", prop.ID, prop.Upgrades)
+		}
+		s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
+			Title:       fmt.Sprintf("<@%s>'s Properties", m.Author.ID),
+			Description: text,
+		})
+		return
+	}
+
 	if strings.HasPrefix(m.Content, "purchase") {
 		var plc string
 		_, err := fmt.Sscanf(m.Content, "purchase %s", &plc)
