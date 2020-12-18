@@ -89,7 +89,7 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if strings.HasPrefix(m.Content, "props") {
 		var text string
 		for _, prop := range upgrades {
-			text += fmt.Sprintf("%s - id %s - %d coins\n\n", prop.Name, prop.ID, prop.Cost)
+			text += fmt.Sprintf("**%s** - id `%s` - %d coins\n\n", prop.Name, prop.ID, prop.Cost)
 		}
 		s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
 			Title:       "Available Properties",
