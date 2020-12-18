@@ -165,6 +165,7 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if b.handle(err, m) {
 			return
 		}
+		num += user.Credit
 
 		price := (num * num) - (user.Credit * user.Credit)
 		if user.Wallet < price {
