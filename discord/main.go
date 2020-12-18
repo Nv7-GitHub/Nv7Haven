@@ -19,6 +19,7 @@ const (
 )
 
 var helpText string
+var currHelp string
 
 // Bot is a discord bot
 type Bot struct {
@@ -57,6 +58,11 @@ func InitDiscord() Bot {
 		panic(err)
 	}
 	helpText = string(data)
+	data, err = ioutil.ReadFile("discord/currency.txt")
+	if err != nil {
+		panic(err)
+	}
+	currHelp = string(data)
 
 	// Set up bot
 	b := Bot{
@@ -85,6 +91,11 @@ func (b *Bot) help(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if strings.HasPrefix(m.Content, "7help") {
+		if strings.HasPrefix(m.Content, "7help currency") {
+			s.ChannelMessageSend(m.ChannelID, currHelp)
+			return
+		}
 		s.ChannelMessageSend(m.ChannelID, helpText)
+		return
 	}
 }
