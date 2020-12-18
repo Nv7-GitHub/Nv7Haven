@@ -42,11 +42,27 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if strings.HasPrefix(m.Content, "bal") {
 		b.checkuser(m)
-		user, success := b.getuser(m, m.Author.ID)
+		id := m.Author.ID
+		person := "You have"
+		describer := "your"
+		if len(m.Mentions) > 0 {
+			id = m.Mentions[0].ID
+			exists, suc := b.exists(m, "currency", "user=?", id)
+			if !suc {
+				return
+			}
+			if !exists {
+				s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("User <@%s> has never used this bot's currency commands.", id))
+				return
+			}
+			person = "<@" + id + "> has"
+			describer = "their"
+		}
+		user, success := b.getuser(m, id)
 		if !success {
 			return
 		}
-		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("You have %d coins in your wallet and %d coins in the bank. Your credit is %d.", user.Wallet, user.Bank, user.Credit))
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s %d coins in %s wallet and %d coins in the bank. %s credit is %d.", person, user.Wallet, describer, user.Bank, describer, user.Credit))
 		return
 	}
 

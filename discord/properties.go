@@ -113,6 +113,7 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 				return
 			}
 		}
+
 		user, suc := b.getuser(m, id)
 		if !suc {
 			return
