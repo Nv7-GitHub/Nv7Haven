@@ -105,12 +105,17 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
+		mem, err := s.GuildMember(m.GuildID, m.Author.ID)
+		if b.handle(err, m) {
+			return
+		}
+
 		var text string
 		for _, prop := range user.Properties {
 			text += fmt.Sprintf("`%s` - %d upgrades\n\n", prop.ID, prop.Upgrades)
 		}
 		s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
-			Title:       fmt.Sprintf("<@%s>'s Properties", m.Author.ID),
+			Title:       fmt.Sprintf("%s's Properties", mem.Nick),
 			Description: text,
 		})
 		return
