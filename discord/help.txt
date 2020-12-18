@@ -9,3 +9,4 @@ Hi! I'm the Nv7 bot! I am a bot made by Nv7! Here are my commands:
 	`credup` - Upgrade your credit score!
 	`props` - Get a list of all available properties!
 	`purchase` - Buy a property!
+	`inv` - See what properties you own!
