@@ -26,7 +26,7 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 		} else {
 			diff := time.Now().Unix() - int64(user.Metadata["lastdaily"].(float64))
 			if (diff) < 86400 { // less than a day
-				s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("You still need to wait %0.2f hours.", float32(diff)/3600))
+				s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("You still need to wait %0.2f hours.", 24-(float32(diff)/3600)))
 				return
 			}
 		}
