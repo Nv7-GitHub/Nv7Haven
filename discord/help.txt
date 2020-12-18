@@ -1,14 +1,34 @@
-Hi! I'm the Nv7 bot! I am a bot made by Nv7! Here are my commands:
-	`givenum` - Give yourself a number! This will be useful later
-	`getnum` - Find what your number is, in case you forget
+Hi! I'm the Nv7 bot! I am a bot made by Nv7!
+
+**Givenum**
+In givenum, you give yourself a number. Then, and admin will run a command that will choose a random number out of all of the submitted numbers. The admin decides what to do with the results!
+	`givenum <number>` - Give yourself a number! This will be useful later
+	`getnum` - Find what your number is, in case you forget. Mention people in this message to get their numbers!
 	`randselect` - Run this command to select a random number out of all the numbers people have and congratulate them!
-	`meme` - Get a meme fresh off of reddit!
+
+**Currency**
+The Nv7 Bot offers a whole new take on currency! You have 3 values:
+	`wallet` - This is your wallet! To spend money, your money needs to be in your wallet. People can rob your wallet though.
+	`bank` - This is safe from robbers, but you can't spend money that is in the bank. 
+	`credit` - To buy properties (get to that later), you need to have a different amount of credit. Your credit score can never go down.
+
+Use the following commands to change these values - for `with` and `dep` you can use `all` to do the maximum value possible.
+	`with <input>` - Withdraw money from the bank and put it in your wallet.
+	`dep <input>` - Deposit money from your wallet into the bank.
+	`credup <number>` - Upgrade your credit score!
+
+You can use `daily` to make 2500 coins every day.
+
+Use these commands to get information. If you don't mention anyone, it will get your information. Otherwise, you will get information on the first person you mention.
 	`bal` - Get your wallet, bank, and credit score.
+	`inv` - See what properties someone owns!
 	`ldb` - Get a leaderboard of the richest people in your server.
-	`daily` - Get 2,500 coins every day!
-	`credup` - Upgrade your credit score!
 	`props` - Get a list of all available properties!
+
+Properties are companies you own. Properties you own make a certain amount of money every hour. Some properties cost more, but make more every hour. You can upgrade a property to make it make more money too.
 	`purchase` - Buy a property!
-	`inv` - See what properties you own!
 	`upgrade` - Upgrade a property!
 	`collect` - Collect money from your businesses!
+
+**Other Commands**
+	`meme` - Get a meme fresh off of reddit!
