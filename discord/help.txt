@@ -7,3 +7,5 @@ Hi! I'm the Nv7 bot! I am a bot made by Nv7! Here are my commands:
 	`ldb` - Get a leaderboard of the richest people in your server.
 	`daily` - Get 2,500 coins every day!
 	`credup` - Upgrade your credit score!
+	`props` - Get a list of all available properties!
+	`purchase` - Buy a property!

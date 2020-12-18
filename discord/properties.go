@@ -86,6 +86,18 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+	if strings.HasPrefix(m.Content, "props") {
+		var text string
+		for _, prop := range upgrades {
+			text += fmt.Sprintf("%s - id %s - %d coins\n\n", prop.Name, prop.ID, prop.Cost)
+		}
+		s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
+			Title:       "Available Properties",
+			Description: text,
+		})
+		return
+	}
+
 	if strings.HasPrefix(m.Content, "purchase") {
 		var plc string
 		_, err := fmt.Sscanf(m.Content, "purchase %s", &plc)
