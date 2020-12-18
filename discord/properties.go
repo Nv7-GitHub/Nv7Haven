@@ -101,12 +101,16 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if strings.HasPrefix(m.Content, "inv") {
-		user, suc := b.getuser(m, m.Author.ID)
+		id := m.Author.ID
+		if len(m.Mentions) > 0 {
+			id = m.Mentions[0].ID
+		}
+		user, suc := b.getuser(m, id)
 		if !suc {
 			return
 		}
 
-		usr, err := s.User(m.Author.ID)
+		usr, err := s.User(id)
 		if b.handle(err, m) {
 			return
 		}
