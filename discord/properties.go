@@ -2,6 +2,7 @@ package discord
 
 import (
 	"fmt"
+	"math"
 	"strings"
 	"time"
 
@@ -13,7 +14,7 @@ type property struct {
 	Value       int // Money: Value*Upgrades* Hours since last visited
 	Upgrades    int
 	Cost        int // Initial Price
-	UpgradeCost int // Upgrade^1.5 * UpgradeCost + Cost
+	UpgradeCost int // Upgrade^1.5 * UpgradeCost
 	ID          string
 	Credit      int
 }
@@ -170,6 +171,64 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 		user.LastVisited = time.Now().Unix()
 		b.updateuser(m, user)
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("You bought %s for %d coins!", plc, prp.Cost))
+		return
+	}
+
+	if strings.HasPrefix(m.Content, "upgrade") {
+		var plc string
+		_, err := fmt.Sscanf(m.Content, "upgrade %s", &plc)
+		if b.handle(err, m) {
+			return
+		}
+
+		var info property
+		suc := false
+		for _, property := range upgrades {
+			if property.ID == plc {
+				suc = true
+				info = property
+				break
+			}
+		}
+		if !suc {
+			s.ChannelMessageSend(m.ChannelID, "That property doesn't exist!")
+			return
+		}
+
+		user, suc := b.getuser(m, m.Author.ID)
+		if !suc {
+			return
+		}
+
+		var place prop
+		index := -1
+		for i, plac := range user.Properties {
+			if plac.ID == plc {
+				index = i
+				place = plac
+				break
+			}
+		}
+		if index < 0 {
+			s.ChannelMessageSend(m.ChannelID, "You don't have that property!")
+			return
+		}
+
+		upgradeCost := int(math.Pow(float64(place.Upgrades), 1.5) * float64(info.UpgradeCost))
+		if user.Wallet < upgradeCost {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("You need %d more coins to upgrade property %s!!", upgradeCost-user.Wallet, info.Name))
+			return
+		}
+
+		user.Properties[index].Upgrades++
+		user.Wallet -= upgradeCost
+
+		suc = b.updateuser(m, user)
+		if !suc {
+			return
+		}
+
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Upgraded %s to Level %d!", info.Name, user.Properties[index].Upgrades))
 		return
 	}
 }
