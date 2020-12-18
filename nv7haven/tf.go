@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gomarkdown/markdown"
 )
 
 func (n *Nv7Haven) searchTf(c *fiber.Ctx) error {
@@ -54,6 +55,7 @@ func (n *Nv7Haven) newTf(c *fiber.Ctx) error {
 		return err
 	}
 	body := string(c.Body())
+	bodyHTML := string(markdown.ToHTML([]byte(body), nil, nil))
 
 	var count int
 	err = n.query("SELECT COUNT(1) FROM tf WHERE name=? LIMIT 1", []interface{}{name}, &count)
@@ -62,7 +64,7 @@ func (n *Nv7Haven) newTf(c *fiber.Ctx) error {
 	}
 
 	if count == 0 {
-		_, err = n.sql.Exec("INSERT INTO tf VALUES (?, ?, ?, ?, ?, ?)", name, body, 0, "[]", "[]", time.Now().Unix())
+		_, err = n.sql.Exec("INSERT INTO tf VALUES (?, ?, ?, ?, ?, ?)", name, bodyHTML, 0, "[]", "[]", time.Now().Unix())
 		if err != nil {
 			return err
 		}
