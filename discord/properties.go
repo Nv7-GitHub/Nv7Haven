@@ -3,6 +3,7 @@ package discord
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -144,6 +145,7 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 			Upgrades: 0,
 		}
 		user.Properties = append(user.Properties, place)
+		user.LastVisited = time.Now().Unix()
 		b.updateuser(m, user)
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("You bought %s for %d coins!", plc, prp.Cost))
 		return
