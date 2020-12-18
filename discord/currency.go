@@ -62,7 +62,8 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if !success {
 			return
 		}
-		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s %d coins in %s wallet and %d coins in the bank. %s credit is %d.", person, user.Wallet, describer, user.Bank, describer, user.Credit))
+
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s %d coins in %s wallet and %d coins in the bank. %s credit is %d.", person, user.Wallet, describer, user.Bank, strings.Title(describer), user.Credit))
 		return
 	}
 
