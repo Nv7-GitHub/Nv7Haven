@@ -12,7 +12,6 @@ import (
 type property struct {
 	Name        string
 	Value       int // Money: Value*Upgrades* Hours since last visited
-	Upgrades    int
 	Cost        int // Initial Price
 	UpgradeCost int // Upgrade^1.5 * UpgradeCost
 	ID          string
@@ -89,6 +88,7 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if strings.HasPrefix(m.Content, "props") {
+		b.checkuser(m)
 		var text string
 		for _, prop := range upgrades {
 			text += fmt.Sprintf("**%s** - id `%s` - %d coins\n\n", prop.Name, prop.ID, prop.Cost)
@@ -123,6 +123,7 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if strings.HasPrefix(m.Content, "purchase") {
+		b.checkuser(m)
 		var plc string
 		_, err := fmt.Sscanf(m.Content, "purchase %s", &plc)
 		if b.handle(err, m) {
@@ -175,6 +176,7 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if strings.HasPrefix(m.Content, "upgrade") {
+		b.checkuser(m)
 		var plc string
 		_, err := fmt.Sscanf(m.Content, "upgrade %s", &plc)
 		if b.handle(err, m) {
@@ -229,6 +231,33 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Upgraded %s to Level %d!", info.Name, user.Properties[index].Upgrades))
+		return
+	}
+
+	if strings.HasPrefix(m.Content, "collect") {
+		b.checkuser(m)
+		user, suc := b.getuser(m, m.Author.ID)
+		if !suc {
+			return
+		}
+		moneyCollected := 0
+		for _, prop := range user.Properties {
+			var val int
+			for _, upgrd := range upgrades {
+				if upgrd.ID == prop.ID {
+					val = upgrd.Value
+				}
+			}
+
+			coll := float32(val*prop.Upgrades) * (float32(user.LastVisited) / 3600)
+			moneyCollected += int(coll)
+		}
+		user.Wallet += moneyCollected
+		suc = b.updateuser(m, user)
+		if !suc {
+			return
+		}
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("You collected %d coins!", moneyCollected))
 		return
 	}
 }

@@ -11,3 +11,4 @@ Hi! I'm the Nv7 bot! I am a bot made by Nv7! Here are my commands:
 	`purchase` - Buy a property!
 	`inv` - See what properties you own!
 	`upgrade` - Upgrade a property!
+	`collect` - Collect money from your businesses!
