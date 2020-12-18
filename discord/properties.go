@@ -7,6 +7,7 @@ type property struct {
 	Cost        int // Initial Price
 	UpgradeCost int // Upgrade^1.5 * UpgradeCost + Cost
 	ID          string
+	Credit      int
 }
 
 var upgrades = []property{
@@ -16,6 +17,7 @@ var upgrades = []property{
 		Cost:        1000,
 		UpgradeCost: 200,
 		ID:          "snack",
+		Credit:      50,
 	},
 	property{
 		Name:        "Homemade Cookie Business",
@@ -23,6 +25,7 @@ var upgrades = []property{
 		Cost:        10000,
 		UpgradeCost: 600,
 		ID:          "cookie",
+		Credit:      100,
 	},
 	property{
 		Name:        "Li'l Jon'z Fudge Store",
@@ -30,6 +33,7 @@ var upgrades = []property{
 		UpgradeCost: 960,
 		Cost:        50000,
 		ID:          "fudge",
+		Credit:      150,
 	},
 	property{
 		Name:        `|\\/|cDonaIds`,
@@ -37,6 +41,7 @@ var upgrades = []property{
 		Value:       100,
 		UpgradeCost: 1400,
 		ID:          "mcd",
+		Credit:      200,
 	},
 	property{
 		Name:        "Village Bank",
@@ -44,6 +49,7 @@ var upgrades = []property{
 		Cost:        200000,
 		UpgradeCost: 1500,
 		ID:          "village",
+		Credit:      250,
 	},
 	property{
 		Name:        "Vanilla JS Coders",
@@ -51,6 +57,7 @@ var upgrades = []property{
 		Cost:        400000,
 		UpgradeCost: 1750,
 		ID:          "jspain",
+		Credit:      350,
 	},
 	property{
 		Name:        "We Use Hacks In Creative",
@@ -58,5 +65,6 @@ var upgrades = []property{
 		Cost:        400000,
 		UpgradeCost: 2500,
 		ID:          "rich",
+		Credit:      400,
 	},
 }
