@@ -200,4 +200,48 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("You upgraded your credit by %d levels!", num))
 		return
 	}
+
+	if strings.HasPrefix(m.Content, "donate") {
+		b.checkuser(m)
+		if !(len(m.Mentions) > 0) {
+			s.ChannelMessageSend(m.ChannelID, "You need to mention the person you are going to donate to!")
+			return
+		}
+		exists, suc := b.exists(m, "currency", "user=?", m.Mentions[0].ID)
+		if !suc {
+			return
+		}
+		if !exists {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("User <@%s> has never used this bot's currency commands.", m.Mentions[0].ID))
+			return
+		}
+
+		user1, suc := b.getuser(m, m.Author.ID)
+		if !suc {
+			return
+		}
+
+		var num int
+		_, err := fmt.Sscanf(m.Content, "donate %d", &num)
+		if b.handle(err, m) {
+			return
+		}
+
+		if user1.Wallet < num {
+			s.ChannelMessageSend(m.ChannelID, "You don't have that much money to give!")
+			return
+		}
+
+		user2, suc := b.getuser(m, m.Mentions[0].ID)
+		if !suc {
+			return
+		}
+
+		user1.Wallet -= num
+		user2.Wallet += num
+
+		b.updateuser(m, user1)
+		b.updateuser(m, user2)
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Successfully donated %d coins to <@%s>!", num, m.Mentions[0].ID))
+	}
 }
