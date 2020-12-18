@@ -173,7 +173,7 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		user.Wallet -= price
-		user.Credit += price
+		user.Credit += num
 		suc = b.updateuser(m, user)
 		if !suc {
 			return
