@@ -105,7 +105,7 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		mem, err := s.GuildMember(m.GuildID, m.Author.ID)
+		usr, err := s.User(m.Author.ID)
 		if b.handle(err, m) {
 			return
 		}
@@ -115,7 +115,7 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 			text += fmt.Sprintf("`%s` - %d upgrades\n\n", prop.ID, prop.Upgrades)
 		}
 		s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
-			Title:       fmt.Sprintf("%s's Properties", mem.Nick),
+			Title:       fmt.Sprintf("%s's Properties", usr.Username),
 			Description: text,
 		})
 		return
