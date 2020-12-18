@@ -165,9 +165,9 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if b.handle(err, m) {
 			return
 		}
-		num += user.Credit
 
-		price := (num * num) - (user.Credit * user.Credit)
+		numoff := num + user.Credit
+		price := (numoff * numoff) - (user.Credit * user.Credit)
 		if user.Wallet < price {
 			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("You need %d more coins to upgrade your credit %d levels.", price-user.Wallet, num))
 			return
