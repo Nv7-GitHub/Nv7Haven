@@ -32,6 +32,7 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		user.Wallet += 2500
+		user.Metadata["lastdaily"] = time.Now().Unix()
 		success = b.updateuser(m, user)
 		if !success {
 			return
