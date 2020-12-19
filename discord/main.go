@@ -71,7 +71,7 @@ func InitDiscord() Bot {
 		memecache: make(map[string][]int, 0),
 	}
 	b.handlers()
-	dg.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsAll)
+	dg.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsGuildMessages)
 	err = dg.Open()
 	if err != nil {
 		panic(err)
