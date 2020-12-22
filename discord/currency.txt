@@ -21,3 +21,6 @@ Properties are companies you own. Properties you own make a certain amount of mo
 	`purchase` - Buy a property!
 	`upgrade` - Upgrade a property!
 	`collect` - Collect money from your businesses!
+
+Other commands
+	`donate <int> <@>` - Donate some money to a person of your choice!

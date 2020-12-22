@@ -13,4 +13,3 @@ In givenum, you give yourself a number. Then, and admin will run a command that 
 **Up and Coming!**
 These commands haven't been implemented yet.
 	`rob` - Rob someone's wallet! It may backfire though.
-	`donate` - Give someone some of your money! 
