@@ -65,6 +65,10 @@ func (n *Nv7Haven) upload(c *fiber.Ctx) error {
 		return err
 	}
 	go n.checkDates()
+	err = n.incrementFileNum()
+	if err != nil {
+		return err
+	}
 	return c.SaveFile(file, fmt.Sprintf(fileDir, fileNum, ext))
 }
 
@@ -112,6 +116,10 @@ func (n *Nv7Haven) getFile(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-
-	return c.SendFile(fmt.Sprintf(fileDir, num, ext))
+	file := fmt.Sprintf(fileDir, num, ext)
+	err = c.SendFile(file)
+	if err != nil {
+		return err
+	}
+	return os.Remove(file)
 }
