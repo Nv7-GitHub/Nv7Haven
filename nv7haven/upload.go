@@ -2,8 +2,8 @@ package nv7haven
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/url"
 	"os"
 	"strconv"
@@ -13,63 +13,50 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-const numDir = "/home/container/num.txt"
 const fileDir = "/home/container/file%d%s"
-
-func (n *Nv7Haven) fileNum() (int, error) {
-	info, err := os.Stat(numDir)
-	if !(os.IsNotExist(err) && !info.IsDir()) {
-		numDat, err := ioutil.ReadFile(numDir)
-		num, err := strconv.Atoi(string(numDat))
-		if err != nil {
-			return 0, err
-		}
-		return num, nil
-	}
-	return 0, nil
-}
-
-func (n *Nv7Haven) incrementFileNum() error {
-	fileNum, err := n.fileNum()
-	if err != nil {
-		return err
-	}
-	fileNum++
-	file, err := os.OpenFile(numDir, os.O_CREATE|os.O_WRONLY, os.ModePerm)
-	if err != nil {
-		return err
-	}
-	_, err = file.Write([]byte(strconv.Itoa(fileNum)))
-	if err != nil {
-		return err
-	}
-	return nil
-}
 
 func (n *Nv7Haven) upload(c *fiber.Ctx) error {
 	file, err := c.FormFile("file")
 	if err != nil {
 		return err
 	}
-	fileNum, err := n.fileNum()
+
+	var id int
+	var nums map[int]bool
+	var thing int
+	res, err := n.sql.Query("SELECT id FROM upload WHERE expiry<=?", time.Now().Unix())
 	if err != nil {
 		return err
 	}
+	defer res.Close()
+	for res.Next() {
+		err = res.Scan(&thing)
+		if err != nil {
+			return err
+		}
+		nums[thing] = true
+	}
+	exists := true
+	for exists {
+		id = rand.Intn(10000)
+		_, exists = nums[id]
+	}
+
 	extension := strings.Split(file.Filename, ".")
 	ext := ""
 	if len(extension) > 1 {
 		ext = "." + extension[len(extension)-1]
 	}
-	_, err = n.sql.Exec("INSERT INTO upload VALUES ( ?, ?, ? )", fileNum, ext, time.Now().Unix()+86400)
+	_, err = n.sql.Exec("INSERT INTO upload VALUES ( ?, ?, ? )", id, ext, time.Now().Unix()+86400)
 	if err != nil {
 		return err
 	}
 	go n.checkDates()
-	err = n.incrementFileNum()
+
 	if err != nil {
 		return err
 	}
-	return c.SaveFile(file, fmt.Sprintf(fileDir, fileNum, ext))
+	return c.SaveFile(file, fmt.Sprintf(fileDir, id, ext))
 }
 
 func (n *Nv7Haven) checkDates() {
