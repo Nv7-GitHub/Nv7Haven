@@ -7,8 +7,8 @@ import (
 )
 
 func (e *Elemental) createUser(c *fiber.Ctx) error {
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Headers", "*")
+	
+	
 	name, err := url.PathUnescape(c.Params("name"))
 	if err != nil {
 		return c.JSON(map[string]interface{}{
@@ -90,8 +90,8 @@ func (e *Elemental) createUser(c *fiber.Ctx) error {
 }
 
 func (e *Elemental) loginUser(c *fiber.Ctx) error {
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Headers", "*")
+	
+	
 	name, err := url.PathUnescape(c.Params("name"))
 	if err != nil {
 		return c.JSON(map[string]interface{}{
@@ -154,8 +154,8 @@ func (e *Elemental) loginUser(c *fiber.Ctx) error {
 }
 
 func (e *Elemental) newAnonymousUser(c *fiber.Ctx) error {
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Headers", "*")
+	
+	
 	count := 1
 	var name string
 	var err error

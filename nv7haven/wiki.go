@@ -7,8 +7,8 @@ import (
 )
 
 func (n *Nv7Haven) searchElems(c *fiber.Ctx) error {
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Headers", "*")
+	
+	
 
 	query, err := url.PathUnescape(c.Params("query"))
 	if err != nil {

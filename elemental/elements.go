@@ -27,8 +27,8 @@ type Color struct {
 }
 
 func (e *Elemental) getElem(c *fiber.Ctx) error {
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Headers", "*")
+	
+	
 	elemName, err := url.PathUnescape(c.Params("elem"))
 	if err != nil {
 		return err
@@ -60,8 +60,8 @@ func (e *Elemental) getElem(c *fiber.Ctx) error {
 }
 
 func (e *Elemental) getCombo(c *fiber.Ctx) error {
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Headers", "*")
+	
+	
 	elem1, err := url.PathUnescape(c.Params("elem1"))
 	if err != nil {
 		return err

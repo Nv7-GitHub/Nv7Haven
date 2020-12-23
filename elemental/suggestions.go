@@ -54,8 +54,8 @@ func (e *Elemental) getSugg(id string) (Suggestion, error) {
 }
 
 func (e *Elemental) getSuggestion(c *fiber.Ctx) error {
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Headers", "*")
+	
+	
 	id, err := url.PathUnescape(c.Params("id"))
 	if err != nil {
 		return err
@@ -71,8 +71,8 @@ func (e *Elemental) getSuggestion(c *fiber.Ctx) error {
 }
 
 func (e *Elemental) getSuggestionCombos(c *fiber.Ctx) error {
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Headers", "*")
+	
+	
 	elem1, err := url.PathUnescape(c.Params("elem1"))
 	if err != nil {
 		return err
@@ -89,8 +89,8 @@ func (e *Elemental) getSuggestionCombos(c *fiber.Ctx) error {
 }
 
 func (e *Elemental) downVoteSuggestion(c *fiber.Ctx) error {
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Headers", "*")
+	
+	
 	id, err := url.PathUnescape(c.Params("id"))
 	if err != nil {
 		return err
@@ -122,8 +122,8 @@ func (e *Elemental) downVoteSuggestion(c *fiber.Ctx) error {
 }
 
 func (e *Elemental) upVoteSuggestion(c *fiber.Ctx) error {
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Headers", "*")
+	
+	
 	id, err := url.PathUnescape(c.Params("id"))
 	if err != nil {
 		return err
@@ -157,8 +157,8 @@ func (e *Elemental) upVoteSuggestion(c *fiber.Ctx) error {
 }
 
 func (e *Elemental) newSuggestion(c *fiber.Ctx) error {
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Headers", "*")
+	
+	
 	elem1, err := url.PathUnescape(c.Params("elem1"))
 	if err != nil {
 		return err

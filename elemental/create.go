@@ -10,8 +10,8 @@ import (
 )
 
 func (e *Elemental) createSuggestion(c *fiber.Ctx) error {
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Headers", "*")
+	
+	
 
 	id, err := url.PathUnescape(c.Params("id"))
 	if err != nil {

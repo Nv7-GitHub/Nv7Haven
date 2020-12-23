@@ -10,8 +10,8 @@ import (
 )
 
 func (n *Nv7Haven) searchTf(c *fiber.Ctx) error {
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Headers", "*")
+	
+	
 
 	query, err := url.PathUnescape(c.Params("query"))
 	if err != nil {
@@ -42,8 +42,8 @@ func (n *Nv7Haven) searchTf(c *fiber.Ctx) error {
 }
 
 func (n *Nv7Haven) newTf(c *fiber.Ctx) error {
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Headers", "*")
+	
+	
 
 	_, err := n.sql.Exec("DELETE FROM tf WHERE createdon<?", time.Now().Add(-24*time.Hour).Unix())
 	if err != nil {
@@ -75,8 +75,8 @@ func (n *Nv7Haven) newTf(c *fiber.Ctx) error {
 }
 
 func (n *Nv7Haven) like(c *fiber.Ctx) error {
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Headers", "*")
+	
+	
 
 	name, err := url.PathUnescape(c.Params("name"))
 	if err != nil {
@@ -115,8 +115,8 @@ func (n *Nv7Haven) like(c *fiber.Ctx) error {
 }
 
 func (n *Nv7Haven) comment(c *fiber.Ctx) error {
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Headers", "*")
+	
+	
 
 	name, err := url.PathUnescape(c.Params("name"))
 	if err != nil {
@@ -173,8 +173,8 @@ type post struct {
 }
 
 func (n *Nv7Haven) getPost(c *fiber.Ctx) error {
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Headers", "*")
+	
+	
 
 	name, err := url.PathUnescape(c.Params("name"))
 	if err != nil {

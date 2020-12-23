@@ -7,8 +7,8 @@ import (
 )
 
 func (n *Nv7Haven) newNote(c *fiber.Ctx) error {
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Headers", "*")
+	
+	
 
 	name, err := url.PathUnescape(c.Params("name"))
 	if err != nil {
@@ -46,8 +46,8 @@ func (n *Nv7Haven) newNote(c *fiber.Ctx) error {
 }
 
 func (n *Nv7Haven) changeNote(c *fiber.Ctx) error {
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Headers", "*")
+	
+	
 
 	name, err := url.PathUnescape(c.Params("name"))
 	if err != nil {
@@ -71,8 +71,8 @@ func (n *Nv7Haven) changeNote(c *fiber.Ctx) error {
 }
 
 func (n *Nv7Haven) getNote(c *fiber.Ctx) error {
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Headers", "*")
+	
+	
 
 	name, err := url.PathUnescape(c.Params("name"))
 	if err != nil {
@@ -99,8 +99,8 @@ func (n *Nv7Haven) getNote(c *fiber.Ctx) error {
 }
 
 func (n *Nv7Haven) hasPassword(c *fiber.Ctx) error {
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Headers", "*")
+	
+	
 
 	name, err := url.PathUnescape(c.Params("name"))
 	if err != nil {
@@ -126,8 +126,8 @@ func (n *Nv7Haven) hasPassword(c *fiber.Ctx) error {
 }
 
 func (n *Nv7Haven) searchNotes(c *fiber.Ctx) error {
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Headers", "*")
+	
+	
 
 	query, err := url.PathUnescape(c.Params("query"))
 	if err != nil {
@@ -154,8 +154,8 @@ func (n *Nv7Haven) searchNotes(c *fiber.Ctx) error {
 }
 
 func (n *Nv7Haven) deleteNote(c *fiber.Ctx) error {
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Headers", "*")
+	
+	
 
 	name, err := url.PathUnescape(c.Params("name"))
 	if err != nil {

@@ -15,8 +15,8 @@ type RecentCombination struct {
 }
 
 func (e *Elemental) getRecents(c *fiber.Ctx) error {
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Headers", "*")
+	
+	
 	var recents []RecentCombination
 	data, err := e.fdb.Get("recent")
 	if err != nil {

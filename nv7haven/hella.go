@@ -9,8 +9,8 @@ import (
 )
 
 func (d *Nv7Haven) calcHella(c *fiber.Ctx) error {
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Headers", "*")
+	
+	
 	input, err := url.PathUnescape(c.Params("input"))
 	if err != nil {
 		return err
