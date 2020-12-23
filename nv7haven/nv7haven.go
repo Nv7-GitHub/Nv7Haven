@@ -41,6 +41,8 @@ func (c *Nv7Haven) routing(app *fiber.App) {
 	app.Get("/tf_like/:name", c.like)
 	app.Post("/tf_comment/:name", c.comment)
 	app.Get("/tf_get/:name", c.getPost)
+	app.Post("/upload", c.upload)
+	app.Get("/get_file", c.getFile)
 }
 
 const (
