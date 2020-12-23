@@ -16,7 +16,9 @@ import (
 )
 
 func main() {
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		BodyLimit: 1000000000,
+	})
 	app.Use(cors.New())
 
 	app.Static("/", "./index.html")
