@@ -108,15 +108,9 @@ func (n *Nv7Haven) getFile(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	file := fmt.Sprintf(fileDir, num, ext)
-	err = c.SendFile(file)
+	err = c.SendFile(fmt.Sprintf(fileDir, num, ext))
 	if err != nil {
 		return err
 	}
-	err = os.Remove(file)
-	if err != nil {
-		return err
-	}
-	_, err = n.sql.Exec("DELETE FROM upload WHERE id=? LIMIT 1", num)
 	return err
 }
