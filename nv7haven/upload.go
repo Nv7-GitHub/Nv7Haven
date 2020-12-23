@@ -105,6 +105,7 @@ func (n *Nv7Haven) getFile(c *fiber.Ctx) error {
 	}
 	defer res.Close()
 	var ext string
+	res.Next()
 	err = res.Scan(&ext)
 	if err != nil {
 		return err
