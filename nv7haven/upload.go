@@ -16,14 +16,13 @@ import (
 const fileDir = "/home/container/file%d%s"
 
 func (n *Nv7Haven) upload(c *fiber.Ctx) error {
-
 	file, err := c.FormFile("file")
 	if err != nil {
 		return err
 	}
 
 	var id int
-	var nums map[int]bool
+	nums := make(map[int]bool, 0)
 	var thing int
 	res, err := n.sql.Query("SELECT id FROM upload WHERE expiry<=?", time.Now().Unix())
 	if err != nil {
@@ -89,7 +88,6 @@ func (n *Nv7Haven) checkDates() {
 }
 
 func (n *Nv7Haven) getFile(c *fiber.Ctx) error {
-
 	id, err := url.PathUnescape(c.Params("id"))
 	if err != nil {
 		return err
