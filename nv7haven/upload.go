@@ -16,6 +16,7 @@ import (
 const fileDir = "/home/container/file%d%s"
 
 func (n *Nv7Haven) upload(c *fiber.Ctx) error {
+	log.Println("upload")
 	file, err := c.FormFile("file")
 	if err != nil {
 		return err
@@ -60,6 +61,7 @@ func (n *Nv7Haven) upload(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	log.Println(id)
 	return c.SendString(strconv.Itoa(id))
 }
 
