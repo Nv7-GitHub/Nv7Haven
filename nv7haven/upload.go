@@ -56,7 +56,11 @@ func (n *Nv7Haven) upload(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	return c.SaveFile(file, fmt.Sprintf(fileDir, id, ext))
+	err = c.SaveFile(file, fmt.Sprintf(fileDir, id, ext))
+	if err != nil {
+		return err
+	}
+	return c.SendString(strconv.Itoa(id))
 }
 
 func (n *Nv7Haven) checkDates() {
