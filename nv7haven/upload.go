@@ -16,6 +16,9 @@ import (
 const fileDir = "/home/container/file%d%s"
 
 func (n *Nv7Haven) upload(c *fiber.Ctx) error {
+	c.Set("Access-Control-Allow-Origin", "*")
+	c.Set("Access-Control-Allow-Headers", "*")
+
 	file, err := c.FormFile("file")
 	if err != nil {
 		return err
@@ -88,6 +91,9 @@ func (n *Nv7Haven) checkDates() {
 }
 
 func (n *Nv7Haven) getFile(c *fiber.Ctx) error {
+	c.Set("Access-Control-Allow-Origin", "*")
+	c.Set("Access-Control-Allow-Headers", "*")
+
 	id, err := url.PathUnescape(c.Params("id"))
 	if err != nil {
 		return err
