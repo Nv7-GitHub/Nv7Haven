@@ -92,6 +92,7 @@ func (n *Nv7Haven) getFile(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	id = strings.Split(id, ".")[0]
 	num, err := strconv.Atoi(id)
 	if err != nil {
 		return err
@@ -107,6 +108,9 @@ func (n *Nv7Haven) getFile(c *fiber.Ctx) error {
 	err = res.Scan(&ext)
 	if err != nil {
 		return err
+	}
+	if (len(strings.Split(id, ".")) < 1) && (strings.Contains(ext, ".")) {
+		return c.Redirect(c.Path() + ext)
 	}
 	err = c.SendFile(fmt.Sprintf(fileDir, num, ext))
 	if err != nil {
