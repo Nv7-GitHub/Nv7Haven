@@ -12,7 +12,7 @@ import (
 )
 
 const minVotes = -1
-const maxVotes = 3 // ANARCHY: 0, ORIGINAL: 3
+const maxVotes = 3
 const anarchyDay = 5
 
 func (e *Elemental) getSugg(id string) (Suggestion, error) {
