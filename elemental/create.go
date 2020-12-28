@@ -35,7 +35,7 @@ func (e *Elemental) createSuggestion(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	if !(existing.Votes >= maxVotes) && (int(time.Now().Weekday()) != 5) {
+	if !(existing.Votes >= maxVotes) && (int(time.Now().Weekday()) != anarchyDay) {
 		return c.SendString("This element still needs more votes!")
 	}
 

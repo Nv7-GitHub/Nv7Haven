@@ -13,6 +13,7 @@ import (
 
 const minVotes = -1
 const maxVotes = 3 // ANARCHY: 0, ORIGINAL: 3
+const anarchyDay = 5
 
 func (e *Elemental) getSugg(id string) (Suggestion, error) {
 	res, err := e.db.Query("SELECT * FROM suggestions WHERE name=?", id)
@@ -128,7 +129,7 @@ func (e *Elemental) upVoteSuggestion(c *fiber.Ctx) error {
 		return err
 	}
 
-	isAnarchy := int(time.Now().Weekday()) == 5
+	isAnarchy := int(time.Now().Weekday()) == anarchyDay
 	if !(isAnarchy) {
 		for _, voted := range existing.Voted {
 			if voted == uid {
@@ -193,7 +194,7 @@ func (e *Elemental) newSuggestion(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	if int(time.Now().Weekday()) == 5 {
+	if int(time.Now().Weekday()) == anarchyDay {
 		return c.SendString("create")
 	}
 	return nil
