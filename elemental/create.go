@@ -10,8 +10,6 @@ import (
 )
 
 func (e *Elemental) createSuggestion(c *fiber.Ctx) error {
-	
-	
 
 	id, err := url.PathUnescape(c.Params("id"))
 	if err != nil {
@@ -37,7 +35,7 @@ func (e *Elemental) createSuggestion(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	if !(existing.Votes >= maxVotes) {
+	if !(existing.Votes >= maxVotes) && (int(time.Now().Weekday()) != 5) {
 		return c.SendString("This element still needs more votes!")
 	}
 

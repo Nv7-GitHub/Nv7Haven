@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -54,8 +55,6 @@ func (e *Elemental) getSugg(id string) (Suggestion, error) {
 }
 
 func (e *Elemental) getSuggestion(c *fiber.Ctx) error {
-	
-	
 	id, err := url.PathUnescape(c.Params("id"))
 	if err != nil {
 		return err
@@ -71,8 +70,6 @@ func (e *Elemental) getSuggestion(c *fiber.Ctx) error {
 }
 
 func (e *Elemental) getSuggestionCombos(c *fiber.Ctx) error {
-	
-	
 	elem1, err := url.PathUnescape(c.Params("elem1"))
 	if err != nil {
 		return err
@@ -89,8 +86,7 @@ func (e *Elemental) getSuggestionCombos(c *fiber.Ctx) error {
 }
 
 func (e *Elemental) downVoteSuggestion(c *fiber.Ctx) error {
-	
-	
+
 	id, err := url.PathUnescape(c.Params("id"))
 	if err != nil {
 		return err
@@ -122,8 +118,6 @@ func (e *Elemental) downVoteSuggestion(c *fiber.Ctx) error {
 }
 
 func (e *Elemental) upVoteSuggestion(c *fiber.Ctx) error {
-	
-	
 	id, err := url.PathUnescape(c.Params("id"))
 	if err != nil {
 		return err
@@ -133,13 +127,16 @@ func (e *Elemental) upVoteSuggestion(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	// ANARCHY: Comment out this section
-	for _, voted := range existing.Voted {
-		if voted == uid {
-			return c.SendString("You already voted!")
+
+	isAnarchy := int(time.Now().Weekday()) == 5
+	if !(isAnarchy) {
+		for _, voted := range existing.Voted {
+			if voted == uid {
+				return c.SendString("You already voted!")
+			}
 		}
 	}
-	// ANARCHY
+
 	existing.Votes++
 	existing.Voted = append(existing.Voted, uid)
 	data, err := json.Marshal(existing.Voted)
@@ -150,15 +147,13 @@ func (e *Elemental) upVoteSuggestion(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	if existing.Votes >= maxVotes {
+	if (existing.Votes >= maxVotes) || isAnarchy {
 		return c.SendString("create")
 	}
 	return nil
 }
 
 func (e *Elemental) newSuggestion(c *fiber.Ctx) error {
-	
-	
 	elem1, err := url.PathUnescape(c.Params("elem1"))
 	if err != nil {
 		return err
@@ -197,6 +192,9 @@ func (e *Elemental) newSuggestion(c *fiber.Ctx) error {
 	_, err = e.db.Exec("UPDATE suggestion_combos SET combos=? WHERE name=?", data, elem1)
 	if err != nil {
 		return err
+	}
+	if int(time.Now().Weekday()) == 5 {
+		return c.SendString("create")
 	}
 	return nil
 }
