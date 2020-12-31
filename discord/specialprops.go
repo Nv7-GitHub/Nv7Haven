@@ -18,7 +18,7 @@ func (b *Bot) specials(s *discordgo.Session, m *discordgo.MessageCreate) {
 		b.checkuser(m)
 
 		if !(len(m.Mentions) > 0) {
-			s.ChannelMessageSend(m.ChannelID, "You need to mention the person you are going to donate to!")
+			s.ChannelMessageSend(m.ChannelID, "You need to mention the person you are going to rob!")
 			return
 		}
 
@@ -39,6 +39,7 @@ func (b *Bot) specials(s *discordgo.Session, m *discordgo.MessageCreate) {
 		ups, exists := user1.Properties["rob"]
 		if !exists {
 			s.ChannelMessageSend(m.ChannelID, "You need property `rob` to Rob people!")
+			return
 		}
 
 		user2, suc := b.getuser(m, m.Mentions[0].ID)
