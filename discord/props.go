@@ -69,7 +69,7 @@ var upgrades = []property{
 	property{
 		Name:        "Scammers Inc.",
 		Value:       0,
-		Cost:        100000,
+		Cost:        10000,
 		UpgradeCost: 600,
 		ID:          "rob",
 		Credit:      100,
