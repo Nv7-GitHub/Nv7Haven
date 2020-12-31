@@ -2,6 +2,7 @@ package discord
 
 import (
 	"database/sql"
+	"encoding/json"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -69,6 +70,41 @@ func InitDiscord() Bot {
 	props := make(map[string]property, 0)
 	for _, prop := range upgrades {
 		props[prop.ID] = prop
+	}
+
+	// Convert users
+	res, err := db.Query(`SELECT user, properties FROM currency WHERE properties != "[]"`)
+	if err != nil {
+		panic(err)
+	}
+	defer res.Close()
+	var user string
+	var properties string
+	var propDat []struct {
+		ID       string
+		Upgrades int
+	}
+	for res.Next() {
+		err = res.Scan(&user, &properties)
+		if err != nil {
+			panic(err)
+		}
+		err = json.Unmarshal([]byte(properties), &propDat)
+		if err != nil {
+			panic(err)
+		}
+		newData := make(map[string]int, 0)
+		for _, val := range propDat {
+			newData[val.ID] = val.Upgrades
+		}
+		dat, err := json.Marshal(newData)
+		if err != nil {
+			panic(err)
+		}
+		_, err = db.Exec("UPDATE currency SET properties=? WHERE user=?", string(dat), user)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	// Set up bot
