@@ -24,3 +24,4 @@ Properties are companies you own. Properties you own make a certain amount of mo
 
 Other commands
 	`donate <int> <@>` - Donate some money to a person of your choice!
+	`rob <int> <@>` - Rob someone! It may backfire, but the more you upgrade Scammers Inc, the less that happens
