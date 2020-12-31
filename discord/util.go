@@ -44,7 +44,7 @@ type user struct {
 	Wallet      int
 	Bank        int
 	Credit      int
-	Properties  []prop // Places they own
+	Properties  map[string]int // Places they own
 	LastVisited int64
 	Metadata    map[string]interface{}
 }
@@ -73,7 +73,7 @@ func (b *Bot) getuser(m *discordgo.MessageCreate, usr string) (user, bool) {
 	if b.handle(err, m) {
 		return user{}, false
 	}
-	var properties []prop
+	var properties map[string]int
 	var metadata map[string]interface{}
 	err = json.Unmarshal([]byte(props), &properties)
 	if b.handle(err, m) {

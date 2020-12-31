@@ -28,6 +28,7 @@ type Bot struct {
 	memedat         []meme
 	memerefreshtime time.Time
 	memecache       map[string][]int
+	props           map[string]property
 }
 
 func (b *Bot) handlers() {
@@ -64,11 +65,18 @@ func InitDiscord() Bot {
 	}
 	currHelp = string(data)
 
+	// Init properties
+	props := make(map[string]property, 0)
+	for _, prop := range upgrades {
+		props[prop.ID] = prop
+	}
+
 	// Set up bot
 	b := Bot{
 		dg:        dg,
 		db:        db,
 		memecache: make(map[string][]int, 0),
+		props:     props,
 	}
 	b.handlers()
 	dg.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsGuildMessages)

@@ -18,11 +18,6 @@ type property struct {
 	Credit      int
 }
 
-type prop struct {
-	ID       string
-	Upgrades int
-}
-
 var upgrades = []property{
 	property{
 		Name:        "Snack Booth",
@@ -125,8 +120,8 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		var text string
-		for _, prop := range user.Properties {
-			text += fmt.Sprintf("`%s` - %d upgrades\n\n", prop.ID, prop.Upgrades)
+		for id, ups := range user.Properties {
+			text += fmt.Sprintf("`%s` - %d upgrades\n\n", id, ups)
 		}
 		s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
 			Title:       fmt.Sprintf("%s's Properties", usr.Username),
@@ -143,16 +138,9 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		isInProperties := false
-		var prp property
-		for _, property := range upgrades {
-			if property.ID == plc {
-				isInProperties = true
-				prp = property
-			}
-		}
+		prp, exists := b.props[plc]
 
-		if !isInProperties {
+		if !exists {
 			s.ChannelMessageSend(m.ChannelID, "You need to specify a property that exists. Rememeber to use the id and not the name!")
 			return
 		}
@@ -161,11 +149,10 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if !suc {
 			return
 		}
-		for _, property := range user.Properties {
-			if property.ID == plc {
-				s.ChannelMessageSend(m.ChannelID, "You already have this property! Use the upgrade command to upgrade it.")
-				return
-			}
+		_, exists = user.Properties[plc]
+		if exists {
+			s.ChannelMessageSend(m.ChannelID, "You already have this property! Use the upgrade command to upgrade it.")
+			return
 		}
 
 		if user.Wallet < prp.Cost {
@@ -177,11 +164,7 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 		user.Wallet -= prp.Cost
-		place := prop{
-			ID:       prp.ID,
-			Upgrades: 0,
-		}
-		user.Properties = append(user.Properties, place)
+		user.Properties[prp.ID] = 0
 		user.LastVisited = time.Now().Unix()
 		b.updateuser(m, user)
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("You bought %s for %d coins!", plc, prp.Cost))
@@ -196,16 +179,8 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		var info property
-		suc := false
-		for _, property := range upgrades {
-			if property.ID == plc {
-				suc = true
-				info = property
-				break
-			}
-		}
-		if !suc {
+		info, exists := b.props[plc]
+		if !exists {
 			s.ChannelMessageSend(m.ChannelID, "That property doesn't exist!")
 			return
 		}
@@ -215,27 +190,19 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		var place prop
-		index := -1
-		for i, plac := range user.Properties {
-			if plac.ID == plc {
-				index = i
-				place = plac
-				break
-			}
-		}
-		if index < 0 {
+		ups, exists := user.Properties[plc]
+		if !exists {
 			s.ChannelMessageSend(m.ChannelID, "You don't have that property!")
 			return
 		}
 
-		upgradeCost := int(math.Pow(float64(place.Upgrades), 1.5) * float64(info.UpgradeCost))
+		upgradeCost := int(math.Pow(float64(ups), 1.5) * float64(info.UpgradeCost))
 		if user.Wallet < upgradeCost {
 			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("You need %d more coins to upgrade property %s!!", upgradeCost-user.Wallet, info.Name))
 			return
 		}
 
-		user.Properties[index].Upgrades++
+		user.Properties[plc]++
 		user.Wallet -= upgradeCost
 
 		suc = b.updateuser(m, user)
@@ -243,7 +210,7 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Upgraded %s to Level %d!", info.Name, user.Properties[index].Upgrades))
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Upgraded %s to Level %d!", info.Name, user.Properties[plc]))
 		return
 	}
 
@@ -254,15 +221,10 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 		moneyCollected := 0
-		for _, prop := range user.Properties {
-			var val int
-			for _, upgrd := range upgrades {
-				if upgrd.ID == prop.ID {
-					val = upgrd.Value
-				}
-			}
+		for id, ups := range user.Properties {
+			val := b.props[id].Value
 
-			coll := float32(val*prop.Upgrades) * (float32(time.Now().Unix()-user.LastVisited) / 3600)
+			coll := float32(val*ups) * (float32(time.Now().Unix()-user.LastVisited) / 3600)
 			moneyCollected += int(coll)
 		}
 		user.Wallet += moneyCollected
