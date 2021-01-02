@@ -63,7 +63,7 @@ func (b *Bot) specials(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		num -= rand.Intn(num / 10) // loss
+		num -= rand.Intn(int(num / 10)) // loss
 
 		backNum := rand.Intn(int(math.Pow(float64(ups), 1.5))) - ups - 2 // backfiring
 		if backNum < 0 {
