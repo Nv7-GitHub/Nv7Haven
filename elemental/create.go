@@ -32,6 +32,7 @@ func (e *Elemental) createSuggestion(c *fiber.Ctx) error {
 		return err
 	}
 	existing, err := e.getSugg(id)
+	fmt.Println(err)
 	if err != nil {
 		return err
 	}
@@ -72,8 +73,6 @@ func (e *Elemental) createSuggestion(c *fiber.Ctx) error {
 		return err
 	}
 	err = json.Unmarshal(data, &recents)
-	fmt.Println(err)
-	fmt.Println(data)
 	if err != nil {
 		return err
 	}
