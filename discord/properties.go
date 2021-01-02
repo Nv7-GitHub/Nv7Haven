@@ -3,6 +3,7 @@ package discord
 import (
 	"fmt"
 	"math"
+	"strconv"
 	"strings"
 	"time"
 
@@ -106,7 +107,8 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if strings.HasPrefix(m.Content, "upgrade") {
 		b.checkuser(m)
 		var plc string
-		_, err := fmt.Sscanf(m.Content, "upgrade %s", &plc)
+		var numVal string
+		_, err := fmt.Sscanf(m.Content, "upgrade %s %s", &plc, &numVal)
 		if b.handle(err, m) {
 			return
 		}
@@ -128,13 +130,30 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		upgradeCost := int(math.Pow(float64(ups), 1.5) * float64(info.UpgradeCost))
+		upgradeCost := 0
+		numUpgrades := 0
+		if numVal == "max" {
+			for upgradeCost+int(math.Pow(float64(ups+numUpgrades), 1.5)*float64(info.UpgradeCost)) < user.Wallet {
+				upgradeCost += int(math.Pow(float64(ups+numUpgrades), 1.5) * float64(info.UpgradeCost))
+				numUpgrades++
+			}
+		} else {
+			num, err := strconv.Atoi(numVal)
+			if b.handle(err, m) {
+				return
+			}
+			numUpgrades = num
+			for i := 0; i < num; i++ {
+				upgradeCost += int(math.Pow(float64(ups+i), 1.5) * float64(info.UpgradeCost))
+			}
+		}
+
 		if user.Wallet < upgradeCost {
 			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("You need %d more coins to upgrade property %s!!", upgradeCost-user.Wallet, info.Name))
 			return
 		}
 
-		user.Properties[plc]++
+		user.Properties[plc] += numUpgrades
 		user.Wallet -= upgradeCost
 
 		suc = b.updateuser(m, user)
