@@ -32,7 +32,6 @@ func (e *Elemental) createSuggestion(c *fiber.Ctx) error {
 		return err
 	}
 	existing, err := e.getSugg(id)
-	fmt.Println(err)
 	if err != nil {
 		return err
 	}
@@ -42,7 +41,6 @@ func (e *Elemental) createSuggestion(c *fiber.Ctx) error {
 
 	// Get combos
 	comboData, err := e.getSuggestions(elem1)
-	fmt.Println(err)
 	if err != nil {
 		return err
 	}
@@ -70,12 +68,10 @@ func (e *Elemental) createSuggestion(c *fiber.Ctx) error {
 	// New Recent Combo
 	var recents []RecentCombination
 	data, err = e.fdb.Get("recent")
-	fmt.Println(err)
 	if err != nil {
 		return err
 	}
 	err = json.Unmarshal(data, &recents)
-	fmt.Println(err)
 	if err != nil {
 		return err
 	}
