@@ -192,10 +192,14 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 				price = (numoff * numoff) - (user.Credit * user.Credit)
 				num++
 			}
-			num--
+			if num > 0 {
+				num--
+			}
 		} else {
 			num, err = strconv.Atoi(numVal)
-			b.handle(err, m)
+			if b.handle(err, m) {
+				return
+			}
 		}
 
 		numoff := num + user.Credit
