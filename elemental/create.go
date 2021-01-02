@@ -72,6 +72,8 @@ func (e *Elemental) createSuggestion(c *fiber.Ctx) error {
 		return err
 	}
 	err = json.Unmarshal(data, &recents)
+	fmt.Println(err)
+	fmt.Println(data)
 	if err != nil {
 		return err
 	}
