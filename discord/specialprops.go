@@ -63,9 +63,15 @@ func (b *Bot) specials(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		num -= rand.Intn(int(num / 10)) // loss
+		num -= rand.Intn(num / 10) // loss
 
-		backNum := rand.Intn(int(math.Pow(float64(ups), 1.5))) - ups - 2 // backfiring
+		// backfiring
+		backNum := ups - 2
+		randChance := int(math.Pow(float64(ups), 1.5))
+		if randChance != 0 {
+			backNum += rand.Intn(randChance)
+		}
+
 		if backNum < 0 {
 			user1.Wallet -= num
 			user2.Wallet += num
