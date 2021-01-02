@@ -129,6 +129,7 @@ func (e *Elemental) upVoteSuggestion(c *fiber.Ctx) error {
 		return err
 	}
 
+	fmt.Println(int(time.Now().Weekday()), anarchyDay)
 	isAnarchy := int(time.Now().Weekday()) == anarchyDay
 	if !(isAnarchy) {
 		for _, voted := range existing.Voted {
