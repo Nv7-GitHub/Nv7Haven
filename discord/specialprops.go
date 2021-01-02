@@ -48,7 +48,7 @@ func (b *Bot) specials(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		var num int
-		_, err := fmt.Sscanf(m.Content, "donate %d", &num)
+		_, err := fmt.Sscanf(m.Content, "rob %d", &num)
 		if b.handle(err, m) {
 			return
 		}
