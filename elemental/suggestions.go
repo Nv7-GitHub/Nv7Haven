@@ -13,7 +13,7 @@ import (
 
 const minVotes = -1
 const maxVotes = 3
-const anarchyDay = 5
+const anarchyDay = 6
 
 func (e *Elemental) getSugg(id string) (Suggestion, error) {
 	res, err := e.db.Query("SELECT * FROM suggestions WHERE name=?", id)
