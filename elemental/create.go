@@ -103,7 +103,6 @@ func (e *Elemental) createSuggestion(c *fiber.Ctx) error {
 
 	// Create combo
 	err = e.addCombo(elem1, elem2, existing.Name)
-	fmt.Println(err)
 	if err != nil {
 		return err
 	}

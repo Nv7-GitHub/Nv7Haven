@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 )
 
 // https://gist.github.com/dopey/c69559607800d2f2f90b1b1ed4e550fb
@@ -101,7 +100,6 @@ func (e *Elemental) addCombo(elem1 string, elem2 string, out string) error {
 	if data == "" {
 		combos = make(map[string]string, 0)
 	} else {
-		fmt.Println(data)
 		err = json.Unmarshal([]byte(data), &combos)
 		if err != nil {
 			return err
