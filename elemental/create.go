@@ -42,6 +42,7 @@ func (e *Elemental) createSuggestion(c *fiber.Ctx) error {
 
 	// Get combos
 	comboData, err := e.getSuggestions(elem1)
+	fmt.Println(err)
 	if err != nil {
 		return err
 	}
