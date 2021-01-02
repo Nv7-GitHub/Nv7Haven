@@ -96,14 +96,13 @@ func (e *Elemental) addCombo(elem1 string, elem2 string, out string) error {
 		if err != nil {
 			return err
 		}
-		return nil
 	}
 	var combos map[string]string
 	if data == "" {
 		combos = make(map[string]string, 0)
 	} else {
 		fmt.Println(data)
-		err = json.Unmarshal([]byte(data), &out)
+		err = json.Unmarshal([]byte(data), &combos)
 		if err != nil {
 			return err
 		}
