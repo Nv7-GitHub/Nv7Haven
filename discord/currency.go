@@ -178,10 +178,24 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		var num int
-		_, err := fmt.Sscanf(m.Content, "credup %d", &num)
+		var numVal string
+		_, err := fmt.Sscanf(m.Content, "credup %s", &numVal)
 		if b.handle(err, m) {
 			return
+		}
+
+		var num int
+		if numVal == "max" {
+			price := 0
+			for price < user.Wallet {
+				numoff := num + user.Credit
+				price = (numoff * numoff) - (user.Credit * user.Credit)
+				num++
+			}
+			num--
+		} else {
+			num, err = strconv.Atoi(numVal)
+			b.handle(err, m)
 		}
 
 		numoff := num + user.Credit
