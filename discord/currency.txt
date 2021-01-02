@@ -17,9 +17,9 @@ Use these commands to get information. If you don't mention anyone, it will get 
 	`ldb` - Get a leaderboard of the richest people in your server.
 	`props` - Get a list of all available properties!
 
-Properties are companies you own. Properties you own make a certain amount of money every hour. Some properties cost more, but make more every hour. You can upgrade a property to make it make more money too.
-	`purchase` - Buy a property!
-	`upgrade` - Upgrade a property!
+Properties are companies you own. Properties you own make a certain amount of money every hour. Some properties cost more, but make more every hour. You can upgrade a property to make it make more money too. You can use "max" in the upgrade amount to upgrade it as much as you can afford to.
+	`purchase <property>` - Buy a property!
+	`upgrade <property> <upgrade amount>` - Upgrade a property!
 	`collect` - Collect money from your businesses!
 
 Other commands
