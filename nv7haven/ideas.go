@@ -47,6 +47,7 @@ func (n *Nv7Haven) getIdeas(c *fiber.Ctx) error {
 			return err
 		}
 		_, val.HasVoted = votes[ip]
+		val.HasVoted = !val.HasVoted
 
 		out = append(out, val)
 	}
