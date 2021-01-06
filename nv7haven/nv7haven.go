@@ -45,7 +45,7 @@ func (c *Nv7Haven) routing(app *fiber.App) {
 	app.Get("/get_file/:id", c.getFile)
 	app.Get("/get_ideas/:sort", c.getIdeas)
 	app.Get("/new_idea/:title", c.newIdea)
-	app.Get("/update_idea/:id/:vote")
+	app.Get("/update_idea/:id/:vote", c.updateIdea)
 }
 
 const (
