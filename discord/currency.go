@@ -88,6 +88,7 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 			if b.handle(err, m) {
 				return
 			}
+			num = b.abs(num)
 		}
 		if user.Wallet < num {
 			num = user.Wallet
@@ -123,6 +124,7 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 			if b.handle(err, m) {
 				return
 			}
+			num = b.abs(num)
 		}
 		if user.Bank < num {
 			num = user.Bank
@@ -200,6 +202,7 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 			if b.handle(err, m) {
 				return
 			}
+			num = b.abs(num)
 		}
 
 		numoff := num + user.Credit
@@ -245,6 +248,7 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if b.handle(err, m) {
 			return
 		}
+		num = b.abs(num)
 
 		if user1.Wallet < num {
 			s.ChannelMessageSend(m.ChannelID, "You don't have that much money to give!")

@@ -2,6 +2,7 @@ package discord
 
 import (
 	"encoding/json"
+	"math"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -141,4 +142,8 @@ func (b *Bot) checkuser(m *discordgo.MessageCreate) {
 			b.updateuser(m, user)
 		}
 	}
+}
+
+func (b *Bot) abs(val int) int {
+	return int(math.Abs(float64(val)))
 }

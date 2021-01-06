@@ -142,6 +142,7 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 			if b.handle(err, m) {
 				return
 			}
+			num = b.abs(num)
 			numUpgrades = num
 			for i := 0; i < num; i++ {
 				upgradeCost += int(math.Pow(float64(ups+i), 1.5) * float64(info.UpgradeCost))
