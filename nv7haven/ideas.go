@@ -76,7 +76,7 @@ func (n *Nv7Haven) updateIdea(c *fiber.Ctx) error {
 	var yes int
 	var no int
 	var voted string
-	err := res.Scan(&yes, &no)
+	err := res.Scan(&yes, &no, &voted)
 	if err != nil {
 		return err
 	}
