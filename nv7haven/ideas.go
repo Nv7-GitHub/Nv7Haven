@@ -2,7 +2,6 @@ package nv7haven
 
 import (
 	"encoding/json"
-	"log"
 	"math/rand"
 	"net/url"
 	"strconv"
@@ -48,7 +47,6 @@ func (n *Nv7Haven) getIdeas(c *fiber.Ctx) error {
 		if err != nil {
 			return err
 		}
-		log.Println(votes, ip)
 		_, val.HasVoted = votes[ip]
 
 		out = append(out, val)
