@@ -43,13 +43,13 @@ func (n *Nv7Haven) getIdeas(c *fiber.Ctx) error {
 	for res.Next() {
 		val := idea{}
 		res.Scan(&val.ID, &val.CreatedOn, &val.Yes, &val.No, &val.Title, &voted)
+		votes = make(map[string]empty)
 		err = json.Unmarshal([]byte(voted), &votes)
 		if err != nil {
 			return err
 		}
 		log.Println(votes, ip)
 		_, val.HasVoted = votes[ip]
-		val.HasVoted = !val.HasVoted
 
 		out = append(out, val)
 	}
