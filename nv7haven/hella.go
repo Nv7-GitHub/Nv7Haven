@@ -9,8 +9,7 @@ import (
 )
 
 func (d *Nv7Haven) calcHella(c *fiber.Ctx) error {
-	
-	
+
 	input, err := url.PathUnescape(c.Params("input"))
 	if err != nil {
 		return err
@@ -21,7 +20,7 @@ func (d *Nv7Haven) calcHella(c *fiber.Ctx) error {
 
 	// Iterate over the doc's tokens:
 	for _, tok := range doc.Tokens() {
-		if tok.Tag == "JJ" {
+		if tok.Tag == "JJ" || tok.Tag == "JJR" || tok.Tag == "JJS" {
 			if !(isIn(tok.Tag, done)) {
 				done = append(done, tok.Tag)
 				input = strings.Replace(input, tok.Text, "hella-"+tok.Text, -1)
