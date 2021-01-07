@@ -229,6 +229,10 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, "You need to mention the person you are going to donate to!")
 			return
 		}
+		if m.Mentions[0].ID == m.Author.ID {
+			s.ChannelMessageSend(m.ChannelID, "You can't donate to yourself!")
+			return
+		}
 		exists, suc := b.exists(m, "currency", "user=?", m.Mentions[0].ID)
 		if !suc {
 			return
