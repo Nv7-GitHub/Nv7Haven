@@ -38,6 +38,7 @@ func (b *Bot) handlers() {
 	b.dg.AddHandler(b.currencyBasics)
 	b.dg.AddHandler(b.properties)
 	b.dg.AddHandler(b.specials)
+	b.dg.AddHandler(b.mod)
 }
 
 // InitDiscord creates a discord bot
