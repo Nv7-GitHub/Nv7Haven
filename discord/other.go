@@ -36,14 +36,12 @@ func (b *Bot) other(s *discordgo.Session, m *discordgo.MessageCreate) {
 				}
 			}
 			if !isOver {
+				argS = argS[indexes[len(indexes)-1] : indexes[len(indexes)-1]+2]
+				log.Println(argS)
 				sort.Ints(indexes)
-				for i, val := range indexes {
+				for _, val := range indexes {
 					if val > -1 {
 						argTypes = append(argTypes, argS[val:val+2])
-						if i == len(indexes)-1 {
-							argS = argS[val : val+2]
-						}
-						log.Println(argTypes)
 					}
 				}
 			}
