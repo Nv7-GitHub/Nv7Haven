@@ -2,7 +2,6 @@ package discord
 
 import (
 	"fmt"
-	"log"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -21,7 +20,6 @@ func (b *Bot) other(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if strings.HasPrefix(m.Content, "insult") {
 		start := starters[rand.Intn(len(starters))]
-		log.Println(start)
 
 		for _, val := range replaces {
 			for strings.Contains(start, val) {
