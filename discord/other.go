@@ -3,7 +3,6 @@ package discord
 import (
 	"log"
 	"math/rand"
-	"sort"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -19,34 +18,15 @@ func (b *Bot) other(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if strings.HasPrefix(m.Content, "insult") {
-		log.Println("insult")
 		start := starters[rand.Intn(len(starters))]
 		log.Println(start)
 
-		argTypes := make([]string, 0)
-		argS := start
-		indexes := make([]int, len(replaces))
-		isOver := false
-		for !isOver {
-			isOver = true
-			for i, val := range replaces {
-				indexes[i] = strings.Index(argS, val)
-				if isOver && indexes[i] > -1 {
-					isOver = false
-				}
-			}
-			if !isOver {
-				argS = argS[indexes[len(indexes)-1] : indexes[len(indexes)-1]+2]
-				log.Println(argS)
-				sort.Ints(indexes)
-				for _, val := range indexes {
-					if val > -1 {
-						argTypes = append(argTypes, argS[val:val+2])
-					}
-				}
+		for _, val := range replaces {
+			for strings.Contains(start, val) {
+				start = strings.Replace(start, val, "yeet", 1)
 			}
 		}
 
-		log.Println(start, argTypes)
+		s.ChannelMessageSend(m.ChannelID, start)
 	}
 }
