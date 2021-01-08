@@ -48,14 +48,7 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 		describer := "your"
 		if len(m.Mentions) > 0 {
 			id = m.Mentions[0].ID
-			exists, suc := b.exists(m, "currency", "user=?", id)
-			if !suc {
-				return
-			}
-			if !exists {
-				s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("User <@%s> has never used this bot's currency commands.", id))
-				return
-			}
+			b.checkuserwithid(m, id)
 			person = "<@" + id + "> has"
 			describer = "their"
 		}
@@ -233,14 +226,7 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, "You can't donate to yourself!")
 			return
 		}
-		exists, suc := b.exists(m, "currency", "user=?", m.Mentions[0].ID)
-		if !suc {
-			return
-		}
-		if !exists {
-			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("User <@%s> has never used this bot's currency commands.", m.Mentions[0].ID))
-			return
-		}
+		b.checkuserwithid(m, m.Mentions[0].ID)
 
 		user1, suc := b.getuser(m, m.Author.ID)
 		if !suc {

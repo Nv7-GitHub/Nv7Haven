@@ -32,14 +32,7 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 		id := m.Author.ID
 		if len(m.Mentions) > 0 {
 			id = m.Mentions[0].ID
-			exists, suc := b.exists(m, "currency", "user=?", id)
-			if !suc {
-				return
-			}
-			if !exists {
-				s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("User <@%s> has never used this bot's currency commands.", id))
-				return
-			}
+			b.checkuserwithid(m, id)
 		}
 
 		user, suc := b.getuser(m, id)

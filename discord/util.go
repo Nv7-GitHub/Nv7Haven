@@ -144,6 +144,34 @@ func (b *Bot) checkuser(m *discordgo.MessageCreate) {
 	}
 }
 
+func (b *Bot) checkuserwithid(m *discordgo.MessageCreate, id string) {
+	exists, success := b.exists(m, "currency", "user=?", id)
+	if !success {
+		return
+	}
+	if !exists {
+		_, err := b.db.Exec("INSERT INTO currency VALUES ( ?, ?, ?, ?, ?, ?, ?, ? )", id, "[\""+m.GuildID+"\"]", 0, 0, 0, "[]", time.Now().Unix(), "{}")
+		if b.handle(err, m) {
+			return
+		}
+	} else {
+		user, success := b.getuser(m, id)
+		if !success {
+			return
+		}
+		isInGuild := false
+		for _, guild := range user.Guilds {
+			if guild == m.GuildID {
+				isInGuild = true
+			}
+		}
+		if !isInGuild {
+			user.Guilds = append(user.Guilds, m.GuildID)
+			b.updateuser(m, user)
+		}
+	}
+}
+
 func (b *Bot) abs(val int) int {
 	return int(math.Abs(float64(val)))
 }
