@@ -2,6 +2,7 @@ package discord
 
 import (
 	"encoding/json"
+	"fmt"
 	"math"
 	"time"
 
@@ -122,7 +123,7 @@ func (b *Bot) checkuser(m *discordgo.MessageCreate) {
 		return
 	}
 	if !exists {
-		_, err := b.db.Exec("INSERT INTO currency VALUES ( ?, ?, ?, ?, ?, ?, ?, ? )", m.Author.ID, "[\""+m.GuildID+"\"]", 0, 0, 0, "[]", time.Now().Unix(), "{}")
+		_, err := b.db.Exec("INSERT INTO currency VALUES ( ?, ?, ?, ?, ?, ?, ?, ? )", m.Author.ID, "[\""+m.GuildID+"\"]", 0, 0, 0, "{}", time.Now().Unix(), "{}")
 		if b.handle(err, m) {
 			return
 		}
@@ -146,11 +147,12 @@ func (b *Bot) checkuser(m *discordgo.MessageCreate) {
 
 func (b *Bot) checkuserwithid(m *discordgo.MessageCreate, id string) {
 	exists, success := b.exists(m, "currency", "user=?", id)
+	fmt.Println(success)
 	if !success {
 		return
 	}
 	if !exists {
-		_, err := b.db.Exec("INSERT INTO currency VALUES ( ?, ?, ?, ?, ?, ?, ?, ? )", id, "[\""+m.GuildID+"\"]", 0, 0, 0, "[]", time.Now().Unix(), "{}")
+		_, err := b.db.Exec("INSERT INTO currency VALUES ( ?, ?, ?, ?, ?, ?, ?, ? )", id, "[\""+m.GuildID+"\"]", 0, 0, 0, "{}", time.Now().Unix(), "{}")
 		if b.handle(err, m) {
 			return
 		}
