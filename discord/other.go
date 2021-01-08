@@ -19,7 +19,9 @@ func (b *Bot) other(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if strings.HasPrefix(m.Content, "insult") {
+		log.Println("insult")
 		start := starters[rand.Intn(len(starters))]
+		log.Println(start)
 
 		argTypes := make([]string, 0)
 		argS := start
@@ -41,6 +43,7 @@ func (b *Bot) other(s *discordgo.Session, m *discordgo.MessageCreate) {
 						if i == len(indexes)-1 {
 							argS = argS[val : val+2]
 						}
+						log.Println(argTypes)
 					}
 				}
 			}
