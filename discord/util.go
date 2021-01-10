@@ -2,6 +2,7 @@ package discord
 
 import (
 	"encoding/json"
+	"log"
 	"math"
 	"time"
 
@@ -189,6 +190,9 @@ func (b *Bot) isMod(m *discordgo.MessageCreate, ID string) bool {
 		for _, role := range roles {
 			if role.ID == roleID && role.Permissions == discordgo.PermissionAdministrator {
 				return true
+			}
+			if role.ID == roleID {
+				log.Println(role.Permissions)
 			}
 		}
 	}
