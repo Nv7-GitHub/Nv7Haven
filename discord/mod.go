@@ -27,13 +27,17 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		matched := warnMatch.MatchString(m.Content)
-		if !matched {
-			s.ChannelMessageSend(m.ChannelID, "Does not match format `warn @user <warning text>`")
-			//return
-		}
 		groups := warnMatch.FindAllStringSubmatch(m.Content, -1)
-		log.Println(groups)
+		if len(groups) < 1 {
+			s.ChannelMessageSend(m.ChannelID, "Does not match format `warn @user <warning text>`")
+			return
+		}
+		messageCont := groups[0]
+		if len(messageCont) < 2 {
+			s.ChannelMessageSend(m.ChannelID, "Does not match format `warn @user <warning text>`")
+			return
+		}
+		log.Println(messageCont[1])
 
 		b.checkuserwithid(m, m.Mentions[0].ID)
 	}
