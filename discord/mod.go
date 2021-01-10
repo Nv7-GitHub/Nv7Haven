@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/mitchellh/mapstructure"
 )
 
 var warnMatch = regexp.MustCompile(`warn <@!?\d+> (.+)`)
@@ -92,13 +93,14 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		text := ""
+		var warn warning
 		for _, warnVal := range existing {
-			warn := warnVal.(warning)
+			mapstructure.Decode(warnVal, &warn)
 			mem, err := s.GuildMember(m.GuildID, warn.Mod)
 			if b.handle(err, m) {
 				return
 			}
-			text += fmt.Sprintf("Warned by **%s** on **%s**\nWarning: **%s**\n\n", mem.Nick+"#"+mem.User.Discriminator, time.Unix(warn.Date, 0).Format("Aug 7 7777"), warn.Text)
+			text += fmt.Sprintf("Warned by **%s** on **%s**\nWarning: **%s**\n\n", mem.Nick+"#"+mem.User.Discriminator, time.Unix(warn.Date, 0).Format("Jan 2 2006"), warn.Text)
 		}
 		mem, err := s.GuildMember(m.GuildID, m.Mentions[0].ID)
 		if b.handle(err, m) {
