@@ -175,3 +175,22 @@ func (b *Bot) checkuserwithid(m *discordgo.MessageCreate, id string) {
 func (b *Bot) abs(val int) int {
 	return int(math.Abs(float64(val)))
 }
+
+func (b *Bot) isMod(m *discordgo.MessageCreate, ID string) bool {
+	mem, err := b.dg.GuildMember(m.GuildID, ID)
+	if b.handle(err, m) {
+		return false
+	}
+	roles, err := b.dg.GuildRoles(m.GuildID)
+	if b.handle(err, m) {
+		return false
+	}
+	for _, roleID := range mem.Roles {
+		for _, role := range roles {
+			if role.ID == roleID && role.Permissions == discordgo.PermissionAdministrator {
+				return true
+			}
+		}
+	}
+	return false
+}

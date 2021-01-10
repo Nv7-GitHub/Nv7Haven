@@ -69,53 +69,39 @@ func (b *Bot) giveNum(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// randselect command
 	if strings.HasPrefix(m.Content, "randselect") {
-		mem, err := s.GuildMember(m.GuildID, m.Author.ID)
-		if b.handle(err, m) {
-			return
-		}
-		guildRoles, err := s.GuildRoles(m.GuildID)
-		if b.handle(err, m) {
-			return
-		}
-		for _, role := range mem.Roles {
-			for _, grole := range guildRoles {
-				if grole.ID == role {
-					if strings.ToLower(grole.Name) == "admin" {
-						res, err := b.db.Query("SELECT number FROM givenum WHERE guild=?", m.GuildID)
-						if b.handle(err, m) {
-							return
-						}
-						defer res.Close()
-						nums := make([]int, 0)
-						for res.Next() {
-							var data int
-							err = res.Scan(&data)
-							if b.handle(err, m) {
-								return
-							}
-							nums = append(nums, data)
-						}
-						num := nums[rand.Intn(len(nums))]
-						s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("The number was %d.", num))
-						res, err = b.db.Query("SELECT member FROM givenum WHERE guild=? AND number=?", m.GuildID, num)
-						if b.handle(err, m) {
-							return
-						}
-						defer res.Close()
-						for res.Next() {
-							var memberid string
-							err = res.Scan(&memberid)
-							if b.handle(err, m) {
-								return
-							}
-							s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("<@%s> got it right!", memberid))
-						}
-						return
-					}
-				}
+		if b.isMod(m, m.Author.ID) {
+			res, err := b.db.Query("SELECT number FROM givenum WHERE guild=?", m.GuildID)
+			if b.handle(err, m) {
+				return
 			}
+			defer res.Close()
+			nums := make([]int, 0)
+			for res.Next() {
+				var data int
+				err = res.Scan(&data)
+				if b.handle(err, m) {
+					return
+				}
+				nums = append(nums, data)
+			}
+			num := nums[rand.Intn(len(nums))]
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("The number was %d.", num))
+			res, err = b.db.Query("SELECT member FROM givenum WHERE guild=? AND number=?", m.GuildID, num)
+			if b.handle(err, m) {
+				return
+			}
+			defer res.Close()
+			for res.Next() {
+				var memberid string
+				err = res.Scan(&memberid)
+				if b.handle(err, m) {
+					return
+				}
+				s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("<@%s> got it right!", memberid))
+			}
+			return
 		}
-		s.ChannelMessageSend(m.ChannelID, `You need to have a role called "admin".`)
+		s.ChannelMessageSend(m.ChannelID, `You need to have permission "Administrator" to use this command.`)
 		return
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"log"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -37,8 +38,16 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, "Does not match format `warn @user <warning text>`")
 			return
 		}
-		log.Println(messageCont[1])
+		message := messageCont[1]
 
 		b.checkuserwithid(m, m.Mentions[0].ID)
+
+		warning := warning{
+			Mod:  m.Author.ID,
+			Text: message,
+			Date: time.Now().Unix(),
+		}
+		log.Println(warning)
+		log.Println(b.isMod(m, m.Author.ID))
 	}
 }
