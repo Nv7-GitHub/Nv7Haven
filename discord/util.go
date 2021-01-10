@@ -188,7 +188,7 @@ func (b *Bot) isMod(m *discordgo.MessageCreate, ID string) bool {
 	}
 	for _, roleID := range mem.Roles {
 		for _, role := range roles {
-			if role.ID == roleID && role.Permissions == discordgo.PermissionAdministrator {
+			if role.ID == roleID && ((role.Permissions & discordgo.PermissionAdministrator) == discordgo.PermissionAdministrator) {
 				return true
 			}
 			if role.ID == roleID {
