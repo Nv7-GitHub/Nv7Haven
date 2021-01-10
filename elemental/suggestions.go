@@ -3,6 +3,7 @@ package elemental
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/url"
 	"strconv"
 	"strings"
@@ -125,6 +126,7 @@ func (e *Elemental) upVoteSuggestion(c *fiber.Ctx) error {
 	}
 	uid := c.Params("uid")
 	existing, err := e.getSugg(id)
+	log.Println("err1", err)
 	if err != nil {
 		return err
 	}
@@ -141,10 +143,12 @@ func (e *Elemental) upVoteSuggestion(c *fiber.Ctx) error {
 	existing.Votes++
 	existing.Voted = append(existing.Voted, uid)
 	data, err := json.Marshal(existing.Voted)
+	log.Println("err2", err)
 	if err != nil {
 		return err
 	}
 	_, err = e.db.Exec("UPDATE suggestions SET votes=?, voted=? WHERE name=?", existing.Votes, data, existing.Name)
+	log.Println("err3", err)
 	if err != nil {
 		return err
 	}
