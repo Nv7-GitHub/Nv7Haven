@@ -83,10 +83,11 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		users := make([]string, 0)
 		if !(len(m.Mentions) > 0) {
-			res, err := b.db.Query("SELECT user FROM currency WHERE guilds LIKE ?", m.GuildID)
+			res, err := b.db.Query("SELECT user FROM currency WHERE guilds LIKE ?", "%"+m.GuildID+"%")
 			if b.handle(err, m) {
 				return
 			}
+			defer res.Close()
 			for res.Next() {
 				var user string
 				err = res.Scan(&user)
@@ -102,12 +103,13 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		text := ""
 		for _, userID := range users {
+			text = ""
 			user, suc := b.getuser(m, userID)
 			if !suc {
 				return
 			}
 
-			var existing []interface{}
+			var existing = make([]interface{}, 0)
 			_, exists := user.Metadata["warns"]
 			if !exists {
 				existing = make([]interface{}, 0)
@@ -116,9 +118,11 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 
 			var warn warning
+			warnCount := 0
 			for _, warnVal := range existing {
 				mapstructure.Decode(warnVal, &warn)
 				if warn.Guild == m.GuildID {
+					warnCount++
 					user, err := s.User(warn.Mod)
 					if b.handle(err, m) {
 						return
@@ -130,7 +134,7 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 			if b.handle(err, m) {
 				return
 			}
-			if !(len(users) > 1 && len(existing) == 0) {
+			if !(len(users) > 1 && warnCount == 0) {
 				s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
 					Title:       fmt.Sprintf("Warnings for **%s**", usr.Username+"#"+usr.Discriminator),
 					Description: text,
