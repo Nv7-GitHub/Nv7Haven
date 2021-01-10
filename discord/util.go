@@ -2,7 +2,6 @@ package discord
 
 import (
 	"encoding/json"
-	"fmt"
 	"math"
 	"time"
 
@@ -147,7 +146,6 @@ func (b *Bot) checkuser(m *discordgo.MessageCreate) {
 
 func (b *Bot) checkuserwithid(m *discordgo.MessageCreate, id string) {
 	exists, success := b.exists(m, "currency", "user=?", id)
-	fmt.Println(success)
 	if !success {
 		return
 	}
