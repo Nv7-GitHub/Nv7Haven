@@ -22,7 +22,7 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "warn") {
+	if strings.HasPrefix(m.Content, "warn ") {
 		if !(len(m.Mentions) > 0) {
 			s.ChannelMessageSend(m.ChannelID, "You need to mention the person you are going to warn!")
 			return
