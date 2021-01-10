@@ -76,40 +76,67 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if strings.HasPrefix(m.Content, "warns") {
+		if !b.isMod(m, m.Author.ID) {
+			s.ChannelMessageSend(m.ChannelID, `You need to have permission "Administrator" to use this command.`)
+			return
+		}
+
+		users := make([]string, 0)
 		if !(len(m.Mentions) > 0) {
-			s.ChannelMessageSend(m.ChannelID, "You need to mention the person you are going to warn!")
-			return
-		}
-
-		user, suc := b.getuser(m, m.Mentions[0].ID)
-		if !suc {
-			return
-		}
-
-		var existing []interface{}
-		_, exists := user.Metadata["warns"]
-		if !exists {
-			existing = make([]interface{}, 0)
-		} else {
-			existing = user.Metadata["warns"].([]interface{})
-		}
-
-		text := ""
-		var warn warning
-		for _, warnVal := range existing {
-			mapstructure.Decode(warnVal, &warn)
-			if warn.Guild == m.GuildID {
-				user, err := s.User(warn.Mod)
+			res, err := b.db.Query("SELECT user FROM currency WHERE guilds LIKE ?", m.GuildID)
+			if b.handle(err, m) {
+				return
+			}
+			for res.Next() {
+				var user string
+				err = res.Scan(&user)
 				if b.handle(err, m) {
 					return
 				}
-				text += fmt.Sprintf("Warned by **%s** on **%s**\nWarning: **%s**\n\n", user.Username+"#"+user.Discriminator, time.Unix(warn.Date, 0).Format("Jan 2 2006"), warn.Text)
+				users = append(users, user)
+			}
+		} else {
+			users = []string{m.Mentions[0].ID}
+		}
+
+		b.checkuserwithid(m, m.Mentions[0].ID)
+		text := ""
+		for _, userID := range users {
+			user, suc := b.getuser(m, userID)
+			if !suc {
+				return
+			}
+
+			var existing []interface{}
+			_, exists := user.Metadata["warns"]
+			if !exists {
+				existing = make([]interface{}, 0)
+			} else {
+				existing = user.Metadata["warns"].([]interface{})
+			}
+
+			var warn warning
+			for _, warnVal := range existing {
+				mapstructure.Decode(warnVal, &warn)
+				if warn.Guild == m.GuildID {
+					user, err := s.User(warn.Mod)
+					if b.handle(err, m) {
+						return
+					}
+					text += fmt.Sprintf("Warned by **%s** on **%s**\nWarning: **%s**\n\n", user.Username+"#"+user.Discriminator, time.Unix(warn.Date, 0).Format("Jan 2 2006"), warn.Text)
+				}
+			}
+			usr, err := s.User(userID)
+			if b.handle(err, m) {
+				return
+			}
+			if !(len(users) > 1 && len(existing) == 0) {
+				s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
+					Title:       fmt.Sprintf("Warnings for **%s**", usr.Username+"#"+usr.Discriminator),
+					Description: text,
+				})
 			}
 		}
-		s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
-			Title:       fmt.Sprintf("Warnings for **%s**", m.Mentions[0].Username+"#"+m.Mentions[0].Discriminator),
-			Description: text,
-		})
 		return
 	}
 }
