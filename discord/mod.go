@@ -97,9 +97,9 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 		} else {
 			users = []string{m.Mentions[0].ID}
+			b.checkuserwithid(m, m.Mentions[0].ID)
 		}
 
-		b.checkuserwithid(m, m.Mentions[0].ID)
 		text := ""
 		for _, userID := range users {
 			user, suc := b.getuser(m, userID)
