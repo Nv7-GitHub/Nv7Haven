@@ -13,9 +13,10 @@ import (
 var warnMatch = regexp.MustCompile(`warn <@!?\d+> (.+)`)
 
 type warning struct {
-	Mod  string //ID
-	Text string
-	Date int64
+	Mod   string //ID
+	Text  string
+	Date  int64
+	Guild string //ID
 }
 
 func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -45,9 +46,10 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		if b.isMod(m, m.Author.ID) {
 			warn := warning{
-				Mod:  m.Author.ID,
-				Text: message,
-				Date: time.Now().Unix(),
+				Mod:   m.Author.ID,
+				Text:  message,
+				Date:  time.Now().Unix(),
+				Guild: m.GuildID,
 			}
 			user, suc := b.getuser(m, m.Mentions[0].ID)
 			if !suc {
@@ -96,11 +98,13 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 		var warn warning
 		for _, warnVal := range existing {
 			mapstructure.Decode(warnVal, &warn)
-			user, err := s.User(warn.Mod)
-			if b.handle(err, m) {
-				return
+			if warn.Guild == m.GuildID {
+				user, err := s.User(warn.Mod)
+				if b.handle(err, m) {
+					return
+				}
+				text += fmt.Sprintf("Warned by **%s** on **%s**\nWarning: **%s**\n\n", user.Username+"#"+user.Discriminator, time.Unix(warn.Date, 0).Format("Jan 2 2006"), warn.Text)
 			}
-			text += fmt.Sprintf("Warned by **%s** on **%s**\nWarning: **%s**\n\n", user.Username+"#"+user.Discriminator, time.Unix(warn.Date, 0).Format("Jan 2 2006"), warn.Text)
 		}
 		s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
 			Title:       fmt.Sprintf("Warnings for **%s**", m.Mentions[0].Username+"#"+m.Mentions[0].Discriminator),
