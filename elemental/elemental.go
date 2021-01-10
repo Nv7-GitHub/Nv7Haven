@@ -78,9 +78,9 @@ func (e *Elemental) routing(app *fiber.App) {
 }
 
 const (
-	dbUser     = "u29_c99qmCcqZ3"
-	dbPassword = "j8@tJ1vv5d@^xMixUqUl+NmA"
-	dbName     = "s29_nv7haven"
+	dbUser     = "u51_iYXt7TBZ0e"
+	dbPassword = "W!QnD2u896yo.J4fww9X.h+J"
+	dbName     = "s51_nv7haven"
 )
 
 // InitElemental initializes all of Elemental's handlers on the app.
