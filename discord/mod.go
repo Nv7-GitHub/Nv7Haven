@@ -51,12 +51,12 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 			if !suc {
 				return
 			}
-			var existing []warning
+			var existing []interface{}
 			_, exists := user.Metadata["warns"]
 			if !exists {
-				existing = make([]warning, 0)
+				existing = make([]interface{}, 0)
 			} else {
-				existing = user.Metadata["warns"].([]warning)
+				existing = user.Metadata["warns"].([]interface{})
 			}
 			existing = append(existing, warn)
 			user.Metadata["warns"] = existing
