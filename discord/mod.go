@@ -1,6 +1,7 @@
 package discord
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 	"time"
@@ -68,6 +69,45 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 		s.ChannelMessageSend(m.ChannelID, `You need to have permission "Administrator" to use this command.`)
+		return
+	}
+
+	if strings.HasPrefix(m.Content, "warns") {
+		if !(len(m.Mentions) > 0) {
+			s.ChannelMessageSend(m.ChannelID, "You need to mention the person you are going to warn!")
+			return
+		}
+
+		user, suc := b.getuser(m, m.Mentions[0].ID)
+		if !suc {
+			return
+		}
+
+		var existing []interface{}
+		_, exists := user.Metadata["warns"]
+		if !exists {
+			existing = make([]interface{}, 0)
+		} else {
+			existing = user.Metadata["warns"].([]interface{})
+		}
+
+		text := ""
+		for _, warnVal := range existing {
+			warn := warnVal.(warning)
+			mem, err := s.GuildMember(m.GuildID, warn.Mod)
+			if b.handle(err, m) {
+				return
+			}
+			text += fmt.Sprintf("Warned by **%s** on **%s**\nWarning: **%s**\n\n", mem.Nick+"#"+mem.User.Discriminator, time.Unix(warn.Date, 0).Format("Aug 7 7777"), warn.Text)
+		}
+		mem, err := s.GuildMember(m.GuildID, m.Mentions[0].ID)
+		if b.handle(err, m) {
+			return
+		}
+		s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
+			Title:       fmt.Sprintf("Warnings for **%s**", mem.Nick+"#"+mem.User.Discriminator),
+			Description: text,
+		})
 		return
 	}
 }
