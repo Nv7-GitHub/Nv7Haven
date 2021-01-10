@@ -3,7 +3,6 @@ package elemental
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/url"
 	"strconv"
 	"strings"
@@ -17,16 +16,11 @@ const maxVotes = 3
 const anarchyDay = 6
 
 func (e *Elemental) getSugg(id string) (Suggestion, error) {
-	res, err := e.db.Query("SELECT * FROM suggestions WHERE name=?", id)
-	if err != nil {
-		return Suggestion{}, err
-	}
-	defer res.Close()
+	row := e.db.QueryRow("SELECT * FROM suggestions WHERE name=?", id)
 	var suggestion Suggestion
 	var color string
 	var voted string
-	res.Next()
-	err = res.Scan(&suggestion.Name, &color, &suggestion.Creator, &voted, &suggestion.Votes)
+	err := row.Scan(&suggestion.Name, &color, &suggestion.Creator, &voted, &suggestion.Votes)
 	if err != nil {
 		return Suggestion{}, err
 	}
@@ -126,7 +120,6 @@ func (e *Elemental) upVoteSuggestion(c *fiber.Ctx) error {
 	}
 	uid := c.Params("uid")
 	existing, err := e.getSugg(id)
-	log.Println("err1", err)
 	if err != nil {
 		return err
 	}
@@ -143,12 +136,10 @@ func (e *Elemental) upVoteSuggestion(c *fiber.Ctx) error {
 	existing.Votes++
 	existing.Voted = append(existing.Voted, uid)
 	data, err := json.Marshal(existing.Voted)
-	log.Println("err2", err)
 	if err != nil {
 		return err
 	}
 	_, err = e.db.Exec("UPDATE suggestions SET votes=?, voted=? WHERE name=?", existing.Votes, data, existing.Name)
-	log.Println("err3", err)
 	if err != nil {
 		return err
 	}
