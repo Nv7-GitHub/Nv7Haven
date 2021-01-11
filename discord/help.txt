@@ -8,7 +8,7 @@ In givenum, you give yourself a number. Then, and admin will run a command that 
 	`randselect` - Run this command to select a random number out of all the numbers people have and congratulate them!
 
 **Moderation**
-	`warn <@user> <Warning message` - Warn someone
+	`warn <@user> <warning message>` - Warn someone
 	`warns <@user>` - Get warnings for a user
 	`warns` - Get all warnings in this server.
 
