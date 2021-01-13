@@ -2,7 +2,6 @@ package discord
 
 import (
 	"fmt"
-	"log"
 	"regexp"
 	"strings"
 	"time"
@@ -145,9 +144,9 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "addrank") {
-		var rank string
-		_, err := fmt.Sscanf(m.Content, "addrank %s", &rank)
+	if strings.HasPrefix(m.Content, "addrole") {
+		var name string
+		_, err := fmt.Sscanf(m.Content, "addrole %s", &name)
 		if b.handle(err, m) {
 			return
 		}
@@ -157,6 +156,11 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		log.Println(s.GuildRoleCreate(m.GuildID))
+		role, err := s.GuildRoleCreate(m.GuildID)
+		if b.handle(err, m) {
+			return
+		}
+		s.GuildRoleEdit(m.GuildID, role.ID, name, role.Color, role.Hoist, role.Permissions, true)
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Successfully created role %s", name))
 	}
 }
