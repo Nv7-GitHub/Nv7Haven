@@ -163,7 +163,14 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if !exists {
 			dat["roles"] = make(map[string]empty)
 		}
-		dat["roles"].(map[string]interface{})[name] = empty{}
+		roles, ok := dat["roles"].(map[string]interface{})
+		roles[name] = empty{}
+		dat["roles"] = roles
+		if !ok {
+			roleDat := dat["roles"].(map[string]empty)
+			roleDat[name] = empty{}
+			dat["roles"] = roleDat
+		}
 		b.updateServerData(m, m.GuildID, dat)
 
 		role, err := s.GuildRoleCreate(m.GuildID)
