@@ -227,10 +227,6 @@ func (b *Bot) updateServerData(m *discordgo.MessageCreate, id string, data map[s
 	if b.handle(err, m) {
 		return
 	}
-	_, err = b.db.Exec("INSERT INTO serverdata VALUES ( ?, ? )", id, "{}")
-	if b.handle(err, m) {
-		return
-	}
 	_, err = b.db.Exec("UPDATE serverdata SET data=? WHERE id=?", string(dat), id)
 	if b.handle(err, m) {
 		return
