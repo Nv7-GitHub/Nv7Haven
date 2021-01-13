@@ -2,6 +2,7 @@ package discord
 
 import (
 	"fmt"
+	"log"
 	"regexp"
 	"strings"
 	"time"
@@ -142,5 +143,20 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 		}
 		return
+	}
+
+	if strings.HasPrefix(m.Content, "addrank") {
+		var rank string
+		_, err := fmt.Sscanf(m.Content, "addrank %s", &rank)
+		if b.handle(err, m) {
+			return
+		}
+
+		if !b.isMod(m, m.Author.ID) {
+			s.ChannelMessageSend(m.ChannelID, "You need to have permission `Administrator` to use this command!")
+			return
+		}
+
+		log.Println(s.GuildRoleCreate(m.GuildID))
 	}
 }
