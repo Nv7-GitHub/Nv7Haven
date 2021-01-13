@@ -163,4 +163,40 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.GuildRoleEdit(m.GuildID, role.ID, name, role.Color, role.Hoist, role.Permissions, true)
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Successfully created role `%s`", name))
 	}
+
+	if strings.HasPrefix(m.Content, "rmrole") {
+		var name string
+		_, err := fmt.Sscanf(m.Content, "rmrole %s", &name)
+		if b.handle(err, m) {
+			return
+		}
+
+		if !b.isMod(m, m.Author.ID) {
+			s.ChannelMessageSend(m.ChannelID, "You need to have permission `Administrator` to use this command!")
+			return
+		}
+
+		roles, err := s.GuildRoles(m.GuildID)
+		if b.handle(err, m) {
+			return
+		}
+
+		id := ""
+		for _, role := range roles {
+			if role.Name == name {
+				id = role.ID
+			}
+		}
+		if id == "" {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Role `%s` doesn't exist!", name))
+			return
+		}
+
+		err = s.GuildRoleDelete(m.GuildID, id)
+		if b.handle(err, m) {
+			return
+		}
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Successfully removed role `%s`", name))
+		return
+	}
 }
