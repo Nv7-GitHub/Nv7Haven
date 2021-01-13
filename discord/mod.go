@@ -199,4 +199,35 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Successfully removed role `%s`", name))
 		return
 	}
+
+	if strings.HasPrefix(m.Content, "giverole") {
+		var name string
+		_, err := fmt.Sscanf(m.Content, "giverole %s", &name)
+		if b.handle(err, m) {
+			return
+		}
+
+		var role *discordgo.Role
+		roles, err := s.GuildRoles(m.GuildID)
+		if b.handle(err, m) {
+			return
+		}
+		for _, rol := range roles {
+			if rol.Name == name {
+				role = rol
+			}
+		}
+		if role == new(discordgo.Role) {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Role `%s` doesn't exist!", name))
+			return
+		}
+
+		impPerms := []int{discordgo.PermissionAdministrator, discordgo.PermissionManageServer, discordgo.PermissionManageRoles, discordgo.PermissionManageChannels, discordgo.PermissionBanMembers, discordgo.PermissionKickMembers, discordgo.PermissionManageWebhooks, discordgo.PermissionManageMessages}
+		for _, perm := range impPerms {
+			if (role.Permissions & perm) == perm {
+				s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Role `%s` is high priority, have a Mod give it to you!", name))
+				return
+			}
+		}
+	}
 }

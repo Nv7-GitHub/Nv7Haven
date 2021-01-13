@@ -194,3 +194,45 @@ func (b *Bot) isMod(m *discordgo.MessageCreate, ID string) bool {
 	}
 	return false
 }
+
+func (b *Bot) getServerData(m *discordgo.MessageCreate, id string) map[string]interface{} {
+	exists, success := b.exists(m, "serverdata", "id=?", id)
+	if !success {
+		return map[string]interface{}{}
+	}
+	if !exists {
+		_, err := b.db.Exec("INSERT INTO serverdata VALUES ( ?, ? )", id, "{}")
+		if b.handle(err, m) {
+			return map[string]interface{}{}
+		}
+	} else {
+		row := b.db.QueryRow("SELECT data FROM serverdata WHERE id=?", id)
+		var data string
+		err := row.Scan(&data)
+		if b.handle(err, m) {
+			return map[string]interface{}{}
+		}
+		var out map[string]interface{}
+		err = json.Unmarshal([]byte(data), &out)
+		if b.handle(err, m) {
+			return map[string]interface{}{}
+		}
+		return out
+	}
+	return map[string]interface{}{}
+}
+
+func (b *Bot) updateServerData(m *discordgo.MessageCreate, id string, data map[string]interface{}) {
+	dat, err := json.Marshal(data)
+	if b.handle(err, m) {
+		return
+	}
+	_, err = b.db.Exec("INSERT INTO serverdata VALUES ( ?, ? )", id, "{}")
+	if b.handle(err, m) {
+		return
+	}
+	_, err = b.db.Exec("UPDATE serverdata SET data=? WHERE id=?", string(dat), id)
+	if b.handle(err, m) {
+		return
+	}
+}
