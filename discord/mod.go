@@ -12,6 +12,8 @@ import (
 
 var warnMatch = regexp.MustCompile(`warn <@!?\d+> (.+)`)
 
+type empty struct{}
+
 type warning struct {
 	Mod   string //ID
 	Text  string
@@ -156,6 +158,14 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
+		dat := b.getServerData(m, m.GuildID)
+		_, exists := dat["roles"]
+		if !exists {
+			dat["roles"] = make(map[string]empty)
+		}
+		dat["roles"].(map[string]empty)[name] = empty{}
+		b.updateServerData(m, m.GuildID, dat)
+
 		role, err := s.GuildRoleCreate(m.GuildID)
 		if b.handle(err, m) {
 			return
@@ -192,6 +202,13 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
+		dat := b.getServerData(m, m.GuildID)
+		_, exists := dat["roles"]
+		if exists {
+			delete(dat["roles"].(map[string]empty), name)
+		}
+		b.updateServerData(m, m.GuildID, dat)
+
 		err = s.GuildRoleDelete(m.GuildID, id)
 		if b.handle(err, m) {
 			return
@@ -222,12 +239,21 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		impPerms := []int{discordgo.PermissionAdministrator, discordgo.PermissionManageServer, discordgo.PermissionManageRoles, discordgo.PermissionManageChannels, discordgo.PermissionBanMembers, discordgo.PermissionKickMembers, discordgo.PermissionManageWebhooks, discordgo.PermissionManageMessages}
-		for _, perm := range impPerms {
-			if (role.Permissions & perm) == perm {
-				s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Role `%s` is high priority, have a Mod give it to you!", name))
-				return
-			}
+		dat := b.getServerData(m, m.GuildID)
+		_, exists := dat["roles"]
+		if !exists {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Role `%s` hasn't been created by this bot!", name))
+			return
 		}
+		_, exists = dat["roles"].(map[string]empty)[name]
+		if !exists {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Role `%s` hasn't been created by this bot!", name))
+			return
+		}
+
+		s.GuildMemberRoleAdd(m.GuildID, m.Author.ID, role.ID)
+
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Successfully gave role `%s`", name))
+		return
 	}
 }
