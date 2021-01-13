@@ -163,7 +163,7 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if !exists {
 			dat["roles"] = make(map[string]empty)
 		}
-		dat["roles"].(map[string]empty)[name] = empty{}
+		dat["roles"].(map[string]interface{})[name] = empty{}
 		b.updateServerData(m, m.GuildID, dat)
 
 		role, err := s.GuildRoleCreate(m.GuildID)
@@ -205,7 +205,7 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 		dat := b.getServerData(m, m.GuildID)
 		_, exists := dat["roles"]
 		if exists {
-			delete(dat["roles"].(map[string]empty), name)
+			delete(dat["roles"].(map[string]interface{}), name)
 		}
 		b.updateServerData(m, m.GuildID, dat)
 
@@ -245,7 +245,7 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Role `%s` hasn't been created by this bot!", name))
 			return
 		}
-		_, exists = dat["roles"].(map[string]empty)[name]
+		_, exists = dat["roles"].(map[string]interface{})[name]
 		if !exists {
 			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Role `%s` hasn't been created by this bot!", name))
 			return
