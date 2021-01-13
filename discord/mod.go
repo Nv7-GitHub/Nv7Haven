@@ -161,6 +161,6 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 		s.GuildRoleEdit(m.GuildID, role.ID, name, role.Color, role.Hoist, role.Permissions, true)
-		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Successfully created role %s", name))
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Successfully created role `%s`", name))
 	}
 }
