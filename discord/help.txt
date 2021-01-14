@@ -18,3 +18,4 @@ In givenum, you give yourself a number. Then, and admin will run a command that 
 **Other Commands**
 	`meme` - Get a meme fresh off of reddit!
 	`insult` - Generate a random weird insult!
+	`gh <query>` - Get info on a github repository

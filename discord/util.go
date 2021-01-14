@@ -3,6 +3,7 @@ package discord
 import (
 	"encoding/json"
 	"math"
+	"net/http"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -231,4 +232,17 @@ func (b *Bot) updateServerData(m *discordgo.MessageCreate, id string, data map[s
 	if b.handle(err, m) {
 		return
 	}
+}
+
+func (b *Bot) req(m *discordgo.MessageCreate, url string, out interface{}) bool {
+	res, err := http.Get(url)
+	if b.handle(err, m) {
+		return false
+	}
+	defer res.Body.Close()
+	err = json.NewDecoder(res.Body).Decode(&out)
+	if b.handle(err, m) {
+		return false
+	}
+	return true
 }
