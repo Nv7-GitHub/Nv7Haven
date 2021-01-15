@@ -44,8 +44,6 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 		message := messageCont[1]
 
-		b.checkuserwithid(m, m.Mentions[0].ID)
-
 		if b.isMod(m, m.Author.ID) {
 			warn := warning{
 				Mod:   m.Author.ID,
@@ -53,23 +51,22 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 				Date:  time.Now().Unix(),
 				Guild: m.GuildID,
 			}
-			user, suc := b.getuser(m, m.Mentions[0].ID)
-			if !suc {
-				return
+
+			serverData := b.getServerData(m, m.GuildID)
+			_, exists := serverData["warns"]
+			if !exists {
+				serverData["warns"] = make(map[string]interface{})
 			}
 			var existing []interface{}
-			_, exists := user.Metadata["warns"]
+			_, exists = serverData["warns"].(map[string]interface{})[m.Mentions[0].ID]
 			if !exists {
 				existing = make([]interface{}, 0)
 			} else {
-				existing = user.Metadata["warns"].([]interface{})
+				existing = serverData["warns"].(map[string]interface{})[m.Mentions[0].ID].([]interface{})
 			}
 			existing = append(existing, warn)
-			user.Metadata["warns"] = existing
-			suc = b.updateuser(m, user)
-			if !suc {
-				return
-			}
+			serverData["warns"].(map[string]interface{})[m.Mentions[0].ID] = existing
+			b.updateServerData(m, m.GuildID, serverData)
 			s.ChannelMessageSend(m.ChannelID, `Successfully warned user.`)
 			return
 		}
