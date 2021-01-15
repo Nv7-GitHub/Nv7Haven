@@ -80,67 +80,48 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		users := make([]string, 0)
-		if !(len(m.Mentions) > 0) {
-			res, err := b.db.Query("SELECT user FROM currency WHERE guilds LIKE ?", "%"+m.GuildID+"%")
-			if b.handle(err, m) {
+		users := make(map[string]interface{}, 0)
+		serverData := b.getServerData(m, m.GuildID)
+		_, exists := serverData["warns"]
+		if !exists {
+			serverData["warns"] = make(map[string]interface{})
+		}
+		warns := serverData["warns"].(map[string]interface{})
+		if len(m.Mentions) > 0 {
+			_, exists := warns[m.Mentions[0].ID]
+			if exists {
+				users[m.Mentions[0].ID] = warns[m.Mentions[0].ID]
+			} else {
+				s.ChannelMessageSend(m.ChannelID, "That user does not have any warnings.")
 				return
 			}
-			defer res.Close()
-			for res.Next() {
-				var user string
-				err = res.Scan(&user)
+		} else {
+			users = warns
+		}
+
+		for userID, warnVals := range warns {
+			var warn warning
+			var text string
+			for _, warning := range warnVals.([]interface{}) {
+				err := mapstructure.Decode(warning, &warn)
 				if b.handle(err, m) {
 					return
 				}
-				users = append(users, user)
-			}
-		} else {
-			users = []string{m.Mentions[0].ID}
-			b.checkuserwithid(m, m.Mentions[0].ID)
-		}
-
-		text := ""
-		for _, userID := range users {
-			text = ""
-			user, suc := b.getuser(m, userID)
-			if !suc {
-				return
-			}
-
-			var existing = make([]interface{}, 0)
-			_, exists := user.Metadata["warns"]
-			if !exists {
-				existing = make([]interface{}, 0)
-			} else {
-				existing = user.Metadata["warns"].([]interface{})
-			}
-
-			var warn warning
-			warnCount := 0
-			for _, warnVal := range existing {
-				mapstructure.Decode(warnVal, &warn)
-				if warn.Guild == m.GuildID {
-					warnCount++
-					user, err := s.User(warn.Mod)
-					if b.handle(err, m) {
-						return
-					}
-					text += fmt.Sprintf("Warned by **%s** on **%s**\nWarning: **%s**\n\n", user.Username+"#"+user.Discriminator, time.Unix(warn.Date, 0).Format("Jan 2 2006"), warn.Text)
+				user, err := s.User(warn.Mod)
+				if b.handle(err, m) {
+					return
 				}
+				text += fmt.Sprintf("Warned by **%s** on **%s**\nWarning: **%s**\n\n", user.Username+"#"+user.Discriminator, time.Unix(warn.Date, 0).Format("Jan 2 2006"), warn.Text)
 			}
 			usr, err := s.User(userID)
 			if b.handle(err, m) {
 				return
 			}
-			if !(len(users) > 1 && warnCount == 0) {
-				s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
-					Title:       fmt.Sprintf("Warnings for **%s**", usr.Username+"#"+usr.Discriminator),
-					Description: text,
-				})
-			}
+			s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
+				Title:       fmt.Sprintf("Warnings for **%s**", usr.Username+"#"+usr.Discriminator),
+				Description: text,
+			})
 		}
-		return
 	}
 
 	if strings.HasPrefix(m.Content, "addrole") {
