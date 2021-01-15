@@ -3,6 +3,7 @@ package elemental
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/url"
 	"strconv"
 	"strings"
@@ -124,6 +125,7 @@ func (e *Elemental) upVoteSuggestion(c *fiber.Ctx) error {
 		return err
 	}
 
+	log.Println(int(time.Now().Weekday()))
 	isAnarchy := int(time.Now().Weekday()) == anarchyDay
 	if !(isAnarchy) {
 		for _, voted := range existing.Voted {
