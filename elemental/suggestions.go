@@ -3,7 +3,6 @@ package elemental
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/url"
 	"strconv"
 	"strings"
@@ -14,7 +13,7 @@ import (
 
 const minVotes = -1
 const maxVotes = 3
-const anarchyDay = 6
+const anarchyDay = 5
 
 func (e *Elemental) getSugg(id string) (Suggestion, error) {
 	row := e.db.QueryRow("SELECT * FROM suggestions WHERE name=?", id)
@@ -125,7 +124,6 @@ func (e *Elemental) upVoteSuggestion(c *fiber.Ctx) error {
 		return err
 	}
 
-	log.Println(int(time.Now().Weekday()))
 	isAnarchy := int(time.Now().Weekday()) == anarchyDay
 	if !(isAnarchy) {
 		for _, voted := range existing.Voted {
