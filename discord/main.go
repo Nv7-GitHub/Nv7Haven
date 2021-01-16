@@ -24,12 +24,17 @@ var currHelp string
 
 // Bot is a discord bot
 type Bot struct {
-	dg              *discordgo.Session
-	db              *sql.DB
-	memedat         []meme
+	dg    *discordgo.Session
+	db    *sql.DB
+	props map[string]property
+
 	memerefreshtime time.Time
-	memecache       map[string][]int
-	props           map[string]property
+	memedat         []meme
+	memecache       map[string]map[int]empty
+	cmemedat        []meme
+	cmemecache      map[string]map[int]empty
+	pmemedat        []meme
+	pmemecache      map[string]map[int]empty
 }
 
 func (b *Bot) handlers() {
@@ -80,10 +85,9 @@ func InitDiscord() Bot {
 
 	// Set up bot
 	b := Bot{
-		dg:        dg,
-		db:        db,
-		memecache: make(map[string][]int, 0),
-		props:     props,
+		dg:    dg,
+		db:    db,
+		props: props,
 	}
 	b.handlers()
 	dg.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsGuildMessages)
