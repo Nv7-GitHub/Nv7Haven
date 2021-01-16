@@ -185,7 +185,7 @@ func (b *Bot) loadMemes(m *discordgo.MessageCreate) bool {
 	if !suc {
 		return false
 	}
-	b.memedat, suc = b.downloadMeme(m, "ProgrammerHumor")
+	b.pmemedat, suc = b.downloadMeme(m, "ProgrammerHumor")
 	if !suc {
 		return false
 	}
