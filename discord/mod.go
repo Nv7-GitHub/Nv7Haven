@@ -229,6 +229,10 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
+		if role == nil {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Role `%s` doesn't exist!", name))
+			return
+		}
 		s.GuildMemberRoleAdd(m.GuildID, m.Author.ID, role.ID)
 
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Successfully gave role `%s`", name))
