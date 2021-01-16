@@ -226,7 +226,7 @@ func (b *Bot) downloadMeme(m *discordgo.MessageCreate, subreddit string) ([]meme
 	memedat := make([]meme, len(children))
 	for i, val := range children {
 		memedat[i] = val.Data
-		memedat[i].Permalink = "https://reddit.com" + b.memedat[i].Permalink
+		memedat[i].Permalink = "https://reddit.com" + memedat[i].Permalink
 	}
 	return memedat, true
 }
