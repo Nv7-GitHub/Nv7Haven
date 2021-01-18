@@ -30,7 +30,7 @@ func (s *Single) upload(c *fiber.Ctx) error {
 		return err
 	}
 	if num == 0 {
-		_, err = s.db.Exec("INSERT INTO single VALUES ( ?, ?, ?, ?, ?, ? )", dat.ID, dat.Description, dat.UID, time.Now().Unix(), 0, "{}")
+		_, err = s.db.Exec("INSERT INTO single VALUES ( ?, ?, ?, ?, ?, ?, ? )", dat.ID, dat.Title, dat.Description, dat.UID, time.Now().Unix(), 0, "{}")
 		if err != nil {
 			return err
 		}
