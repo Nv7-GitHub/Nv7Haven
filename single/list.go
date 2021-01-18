@@ -7,10 +7,10 @@ import (
 )
 
 type listItem struct {
-	Title       string
-	Description string
-	UID         string
-	ID          string
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	UID         string `json:"uid"`
+	ID          string `json:"id"`
 }
 
 func (s *Single) list(c *fiber.Ctx) error {
