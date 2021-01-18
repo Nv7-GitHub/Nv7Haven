@@ -6,10 +6,10 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/Nv7-Github/Nv7Haven/elemental"
-	// "github.com/Nv7-Github/Nv7Haven/mysqlsetup"
 	"github.com/Nv7-Github/Nv7Haven/discord"
+	"github.com/Nv7-Github/Nv7Haven/elemental"
 	"github.com/Nv7-Github/Nv7Haven/nv7haven"
+	"github.com/Nv7-Github/Nv7Haven/single"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -34,6 +34,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	single.InitSingle(app)
 
 	b := discord.InitDiscord()
 
