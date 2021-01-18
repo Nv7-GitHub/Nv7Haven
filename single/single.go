@@ -17,7 +17,7 @@ const (
 func (s *Single) routing(app *fiber.App) {
 	app.Post("/single_upload", s.upload)
 	app.Get("/single_like/:id/:uid", s.like)
-	app.Get("/single_list/:kind/:search", s.list)
+	app.Get("/single_list/:kind/:query", s.list)
 	app.Get("/single_list/:kind", s.list)
 	app.Get("/single_download/:id/:uid", s.download)
 }
