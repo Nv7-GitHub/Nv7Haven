@@ -28,7 +28,7 @@ type Single struct {
 // InitSingle initializes all of Nv7 Single's handlers on the app.
 func InitSingle(app *fiber.App) {
 	if _, err := os.Stat("/home/container/packs"); os.IsNotExist(err) {
-		err = os.Mkdir("/home/container/packs", os.ModeDir)
+		err = os.Mkdir("/home/container/packs", 0777)
 		if err != nil {
 			panic(err)
 		}
