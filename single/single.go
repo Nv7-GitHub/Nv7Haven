@@ -17,6 +17,7 @@ const (
 func (s *Single) routing(app *fiber.App) {
 	app.Post("/single_upload", s.upload)
 	app.Get("/single_like/:id/:uid", s.like)
+	app.Get("/single_list", s.list)
 }
 
 // Single is the Nv7 Singleplayer server for elemental 4 (https://elemental4.net)
