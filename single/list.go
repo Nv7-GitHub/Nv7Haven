@@ -29,7 +29,7 @@ func (s *Single) list(c *fiber.Ctx) error {
 	if !exists {
 		return errors.New("invalid kind")
 	}
-	res, err := s.db.Query("SELECT title, description, uid, id FROM single WHERE title LIKE ? ORDER BY "+kind, query+"%")
+	res, err := s.db.Query("SELECT title, description, uid, id FROM single WHERE title LIKE \"" + query + "%\" ORDER BY " + kind)
 	if err != nil {
 		return err
 	}
