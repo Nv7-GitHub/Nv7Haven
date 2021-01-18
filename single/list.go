@@ -24,7 +24,7 @@ func (s *Single) list(c *fiber.Ctx) error {
 	if !exists {
 		return errors.New("invalid kind")
 	}
-	res, err := s.db.Query("SELECT title, description, uid, id FROM single ORDER BY " + kind + " WHERE 1")
+	res, err := s.db.Query("SELECT title, description, uid, id FROM single ORDER BY " + kind)
 	if err != nil {
 		return err
 	}
