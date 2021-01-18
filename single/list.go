@@ -30,7 +30,7 @@ func (s *Single) list(c *fiber.Ctx) error {
 	}
 	defer res.Close()
 	var list []listItem
-	for res.Next() {
+	for res.Next() && len(list) < 11 {
 		item := listItem{}
 		err = res.Scan(&item.Title, &item.Description, &item.UID, &item.ID)
 		if err != nil {
