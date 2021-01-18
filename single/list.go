@@ -2,6 +2,7 @@ package single
 
 import (
 	"errors"
+	"net/url"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -20,11 +21,15 @@ func (s *Single) list(c *fiber.Ctx) error {
 		"likes": "likes DESC",
 		"za":    "title DESC",
 	}
+	query, err := url.PathUnescape(c.Params("query"))
+	if err != nil {
+		return err
+	}
 	kind, exists := kinds[c.Params("kind")]
 	if !exists {
 		return errors.New("invalid kind")
 	}
-	res, err := s.db.Query("SELECT title, description, uid, id FROM single ORDER BY " + kind)
+	res, err := s.db.Query("SELECT title, description, uid, id FROM single WHERE title LIKE ? ORDER BY "+kind, query+"%")
 	if err != nil {
 		return err
 	}
