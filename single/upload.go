@@ -34,6 +34,11 @@ func (s *Single) upload(c *fiber.Ctx) error {
 		if err != nil {
 			return err
 		}
+	} else {
+		_, err = s.db.Exec("UPDATE single SET createdOn=? WHERE id=? AND uid=?", time.Now().Unix(), dat.ID, dat.UID)
+		if err != nil {
+			return err
+		}
 	}
 	file, err := os.OpenFile(fmt.Sprintf("/home/container/packs/%s_%s.pack", dat.UID, dat.ID), os.O_WRONLY|os.O_CREATE, os.ModePerm)
 	if err != nil {
