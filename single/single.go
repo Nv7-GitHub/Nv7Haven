@@ -28,7 +28,10 @@ type Single struct {
 // InitSingle initializes all of Nv7 Single's handlers on the app.
 func InitSingle(app *fiber.App) {
 	if _, err := os.Stat("packs"); os.IsNotExist(err) {
-		os.Mkdir("packs", os.ModeDir)
+		err = os.Mkdir("packs", os.ModeDir)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
