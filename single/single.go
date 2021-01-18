@@ -15,7 +15,7 @@ const (
 )
 
 func (s *Single) routing(app *fiber.App) {
-
+	app.Post("/single_upload", s.upload)
 }
 
 // Single is the Nv7 Singleplayer server for elemental 4 (https://elemental4.net)
@@ -25,6 +25,10 @@ type Single struct {
 
 // InitSingle initializes all of Nv7 Single's handlers on the app.
 func InitSingle(app *fiber.App) {
+	if _, err := os.Stat("packs"); os.IsNotExist(err) {
+		os.Mkdir("packs", os.ModeDir)
+	}
+
 	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
 	if err != nil {
 		panic(err)
