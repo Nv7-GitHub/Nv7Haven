@@ -2,6 +2,7 @@ package single
 
 import (
 	"fmt"
+	"io/ioutil"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -9,5 +10,9 @@ import (
 func (s *Single) download(c *fiber.Ctx) error {
 	id := c.Params("id")
 	uid := c.Params("uid")
-	return c.SendFile(fmt.Sprintf("/home/container/packs/%s_%s.pack", uid, id))
+	dat, err := ioutil.ReadFile(fmt.Sprintf("/home/container/packs/%s_%s.pack", uid, id))
+	if err != nil {
+		return err
+	}
+	return c.SendString(string(dat))
 }
