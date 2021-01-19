@@ -35,7 +35,7 @@ func (s *Single) upload(c *fiber.Ctx) error {
 			return err
 		}
 	} else {
-		_, err = s.db.Exec("UPDATE single SET createdOn=? WHERE id=? AND uid=?", time.Now().Unix(), dat.ID, dat.UID)
+		_, err = s.db.Exec("UPDATE single SET createdOn=?, title=?, description=? WHERE id=? AND uid=?", time.Now().Unix(), dat.Title, dat.Description, dat.ID, dat.UID)
 		if err != nil {
 			return err
 		}
