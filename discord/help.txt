@@ -20,4 +20,6 @@ In givenum, you give yourself a number. Then, and admin will run a command that 
 	`cmeme` - Get a clean meme fresh off of reddit! (r/cleanmemes)
 	`pmeme` - Get a programming meme fresh off of reddit! (r/ProgrammerHumor)
 	`insult` - Generate a random weird insult!
-	`gh <query>` - Get info on a github repository
+	`gh <query>` - Get info on a github repository!
+	`listmemes` - Get a list of meme templates that the bot can generate memes with!
+	`genmeme <meme template name> <meme text>` - Generate a meme!
