@@ -13,13 +13,12 @@ import (
 	"github.com/golang/freetype"
 )
 
-const size = 12
 const fontFile = "discord/memes/Arial.ttf"
 const dpi = 100
 
 var reg = regexp.MustCompile(`genmeme ([A-Za-z1-9]+) (.+)`)
 
-func drawMeme(fileName, text string, x, y int) (image.Image, error) {
+func drawMeme(fileName, text string, x, y int, size float64) (image.Image, error) {
 	file, err := os.Open(fileName)
 	if err != nil {
 		return nil, err
@@ -62,6 +61,7 @@ type memeGen struct {
 	File string
 	X    int
 	Y    int
+	Size float64
 }
 
 var memes = map[string]memeGen{
@@ -69,6 +69,13 @@ var memes = map[string]memeGen{
 		File: "discord/memes/stroke.png",
 		X:    355,
 		Y:    380,
+		Size: 12,
+	},
+	"violence": memeGen{
+		File: "discord/memes/violence.png",
+		X:    700,
+		Y:    10,
+		Size: 24,
 	},
 }
 
@@ -105,7 +112,7 @@ func (b *Bot) memeGen(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		out, err := drawMeme(template.File, text, template.X, template.Y)
+		out, err := drawMeme(template.File, text, template.X, template.Y, template.Size)
 		if b.handle(err, m) {
 			return
 		}
