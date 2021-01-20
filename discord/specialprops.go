@@ -48,7 +48,7 @@ func (b *Bot) specials(s *discordgo.Session, m *discordgo.MessageCreate) {
 		num = b.abs(num)
 
 		if user2.Wallet < num {
-			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("User <@!%s> doesn't even have %d coins!", m.Mentions[0], num))
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("User <!@%s> doesn't even have %d coins!", m.Mentions[0], num))
 			return
 		}
 
