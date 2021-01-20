@@ -46,6 +46,7 @@ func (b *Bot) handlers() {
 	b.dg.AddHandler(b.specials)
 	b.dg.AddHandler(b.mod)
 	b.dg.AddHandler(b.other)
+	b.dg.AddHandler(b.memeGen)
 }
 
 // InitDiscord creates a discord bot
