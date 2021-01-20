@@ -13,7 +13,7 @@ import (
 	"github.com/golang/freetype"
 )
 
-const size = 10
+const size = 12
 const fontFile = "discord/memes/Arial.ttf"
 const dpi = 100
 
