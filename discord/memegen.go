@@ -5,6 +5,7 @@ import (
 	"image"
 	"image/png"
 	"io/ioutil"
+	"log"
 	"os"
 	"regexp"
 	"strings"
@@ -91,6 +92,7 @@ func (b *Bot) memeGen(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if strings.HasPrefix(m.Content, "genmeme") {
 		match := reg.FindAllStringSubmatch(m.Content, -1)
+		log.Println(match)
 		if (len(match) == 0) || (len(match[0]) < 3) {
 			s.ChannelMessageSend(m.ChannelID, "Does not fit format `genmeme <name> <text>`")
 			return
