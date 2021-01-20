@@ -5,7 +5,6 @@ import (
 	"image"
 	"image/png"
 	"io/ioutil"
-	"log"
 	"os"
 	"regexp"
 	"strings"
@@ -18,7 +17,7 @@ const size = 10
 const fontFile = "discord/memes/Arial.ttf"
 const dpi = 100
 
-var reg = regexp.MustCompile(`memegen ([A-Za-z1-9]+) (.+)`)
+var reg = regexp.MustCompile(`genmeme ([A-Za-z1-9]+) (.+)`)
 
 func drawMeme(fileName, text string, x, y int) (image.Image, error) {
 	file, err := os.Open(fileName)
@@ -92,7 +91,6 @@ func (b *Bot) memeGen(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if strings.HasPrefix(m.Content, "genmeme") {
 		match := reg.FindAllStringSubmatch(m.Content, -1)
-		log.Println(match)
 		if (len(match) == 0) || (len(match[0]) < 3) {
 			s.ChannelMessageSend(m.ChannelID, "Does not fit format `genmeme <name> <text>`")
 			return
