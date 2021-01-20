@@ -1,10 +1,12 @@
 package discord
 
 import (
+	"bytes"
 	"image"
 	"image/png"
 	"io/ioutil"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -14,6 +16,8 @@ import (
 const size = 10
 const fontFile = "discord/memes/Arial.ttf"
 const dpi = 100
+
+var reg = regexp.MustCompile(`memegen ([A-Za-z1-9]+) (.+)`)
 
 func drawMeme(fileName, text string, x, y int) (image.Image, error) {
 	file, err := os.Open(fileName)
@@ -73,7 +77,7 @@ func (b *Bot) memeGen(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "memelist") {
+	if strings.HasPrefix(m.Content, "listmemes") {
 		var text string
 		for k := range memes {
 			text += k + "\n"
@@ -82,5 +86,45 @@ func (b *Bot) memeGen(s *discordgo.Session, m *discordgo.MessageCreate) {
 			Title:       "Nv7 Bot's Memes",
 			Description: text,
 		})
+		return
+	}
+
+	if strings.HasPrefix(m.Content, "genmeme") {
+		match := reg.FindAllStringSubmatch(m.Content, -1)
+		if (len(match) == 0) || (len(match[0]) < 3) {
+			s.ChannelMessageSend(m.ChannelID, "Does not fit format `genmeme <name> <text>`")
+			return
+		}
+
+		name := match[0][1]
+		text := match[0][2]
+
+		template, exists := memes[name]
+		if !exists {
+			s.ChannelMessageSend(m.ChannelID, "That meme template doesn't exist!")
+			return
+		}
+
+		out, err := drawMeme(template.File, text, template.X, template.Y)
+		if b.handle(err, m) {
+			return
+		}
+
+		final := bytes.NewBuffer([]byte{})
+		err = png.Encode(final, out)
+		if b.handle(err, m) {
+			return
+		}
+
+		s.ChannelMessageSendComplex(m.ChannelID, &discordgo.MessageSend{
+			Files: []*discordgo.File{
+				&discordgo.File{
+					Name:        "meme.png",
+					ContentType: "image/png",
+					Reader:      final,
+				},
+			},
+		})
+		return
 	}
 }
