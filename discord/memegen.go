@@ -3,6 +3,7 @@ package discord
 import (
 	"bytes"
 	"image"
+	"image/draw"
 	"image/png"
 	"io/ioutil"
 	"os"
@@ -43,11 +44,18 @@ func drawMeme(fileName, text string, x, y int, size float64) (image.Image, error
 
 	pt := freetype.Pt(x, y+int(c.PointToFixed(size)>>6))
 
+	var rgba draw.Image
+	var ok bool
+	rgba, ok = meme.(*image.RGBA)
+	if !ok {
+		rgba = meme.(*image.NRGBA)
+	}
+
 	c.SetDPI(dpi)
 	c.SetFont(f)
 	c.SetFontSize(size)
 	c.SetClip(meme.Bounds())
-	c.SetDst(meme.(*image.RGBA))
+	c.SetDst(rgba)
 	c.SetSrc(image.Black)
 
 	_, err = c.DrawString(text, pt)
