@@ -83,6 +83,12 @@ var memes = map[string]memeGen{
 		Y:    600,
 		Size: 18,
 	},
+	"abandon": memeGen{
+		File: "discord/memes/abandon.png",
+		X:    50,
+		Y:    285,
+		Size: 10,
+	},
 }
 
 func (b *Bot) memeGen(s *discordgo.Session, m *discordgo.MessageCreate) {
