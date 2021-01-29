@@ -73,25 +73,25 @@ type memeGen struct {
 }
 
 var memes = map[string]memeGen{
-	"stroke": memeGen{
+	"stroke": {
 		File: "discord/memes/stroke.png",
 		X:    355,
 		Y:    380,
 		Size: 12,
 	},
-	"violence": memeGen{
+	"violence": {
 		File: "discord/memes/violence.png",
 		X:    700,
 		Y:    10,
 		Size: 24,
 	},
-	"humanity": memeGen{
+	"humanity": {
 		File: "discord/memes/humanity.png",
 		X:    630,
 		Y:    600,
 		Size: 18,
 	},
-	"abandon": memeGen{
+	"abandon": {
 		File: "discord/memes/abandon.png",
 		X:    50,
 		Y:    285,
@@ -145,7 +145,7 @@ func (b *Bot) memeGen(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		s.ChannelMessageSendComplex(m.ChannelID, &discordgo.MessageSend{
 			Files: []*discordgo.File{
-				&discordgo.File{
+				{
 					Name:        "meme.png",
 					ContentType: "image/png",
 					Reader:      final,

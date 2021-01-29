@@ -10,7 +10,7 @@ type property struct {
 }
 
 var upgrades = []property{
-	property{
+	{
 		Name:        "Snack Booth",
 		Value:       20,
 		Cost:        1000,
@@ -18,7 +18,7 @@ var upgrades = []property{
 		ID:          "snack",
 		Credit:      50,
 	},
-	property{
+	{
 		Name:        "Homemade Cookie Business",
 		Value:       50,
 		Cost:        10000,
@@ -26,7 +26,7 @@ var upgrades = []property{
 		ID:          "cookie",
 		Credit:      100,
 	},
-	property{
+	{
 		Name:        "Li'l Jon'z Fudge Store",
 		Value:       80,
 		UpgradeCost: 960,
@@ -34,7 +34,7 @@ var upgrades = []property{
 		ID:          "fudge",
 		Credit:      200,
 	},
-	property{
+	{
 		Name:        `|\\/|cDonaIds`,
 		Cost:        100000,
 		Value:       100,
@@ -42,7 +42,7 @@ var upgrades = []property{
 		ID:          "mcd",
 		Credit:      250,
 	},
-	property{
+	{
 		Name:        "Village Bank",
 		Value:       120,
 		Cost:        150000,
@@ -50,7 +50,7 @@ var upgrades = []property{
 		ID:          "village",
 		Credit:      300,
 	},
-	property{
+	{
 		Name:        "Vanilla JS Coders",
 		Value:       140,
 		Cost:        200000,
@@ -58,7 +58,7 @@ var upgrades = []property{
 		ID:          "jspain",
 		Credit:      350,
 	},
-	property{
+	{
 		Name:        "We Use Hacks In Creative",
 		Value:       300,
 		Cost:        400000,
@@ -66,7 +66,7 @@ var upgrades = []property{
 		ID:          "rich",
 		Credit:      400,
 	},
-	property{
+	{
 		Name:        "Scammers Inc.",
 		Value:       0,
 		Cost:        10000,

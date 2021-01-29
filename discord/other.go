@@ -69,27 +69,27 @@ func (b *Bot) other(s *discordgo.Session, m *discordgo.MessageCreate) {
 				IconURL: item.Owner.AvatarURL,
 			},
 			Fields: []*discordgo.MessageEmbedField{
-				&discordgo.MessageEmbedField{
+				{
 					Name:   "Repository",
 					Value:  fmt.Sprintf("[%s](%s)", item.Name, item.HTMLURL),
 					Inline: true,
 				},
-				&discordgo.MessageEmbedField{
+				{
 					Name:   "Language",
 					Value:  item.Language,
 					Inline: true,
 				},
-				&discordgo.MessageEmbedField{
+				{
 					Name:   "Forks",
 					Value:  strconv.Itoa(item.Forks),
 					Inline: true,
 				},
-				&discordgo.MessageEmbedField{
+				{
 					Name:   "Watchers",
 					Value:  strconv.Itoa(item.Watchers),
 					Inline: true,
 				},
-				&discordgo.MessageEmbedField{
+				{
 					Name:   "Open Issues",
 					Value:  strconv.Itoa(item.OpenIssuesCount),
 					Inline: true,
