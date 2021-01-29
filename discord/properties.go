@@ -29,6 +29,7 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if strings.HasPrefix(m.Content, "inv") {
+		b.checkuser(m)
 		id := m.Author.ID
 		if len(m.Mentions) > 0 {
 			id = m.Mentions[0].ID
