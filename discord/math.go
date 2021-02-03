@@ -1,7 +1,9 @@
 package discord
 
 import (
+	"errors"
 	"fmt"
+	"math"
 	"regexp"
 	"strconv"
 	"strings"
@@ -39,7 +41,24 @@ func (b *Bot) math(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if strings.HasPrefix(m.Content, "=") {
-		gexp, err := govaluate.NewEvaluableExpression(m.Content[1:])
+		functions := map[string]govaluate.ExpressionFunction{
+			"sqrt": func(args ...interface{}) (interface{}, error) {
+				if len(args) < 1 {
+					return nil, errors.New("Not enough arguments")
+				}
+				val, ok := args[0].(float64)
+				if !ok {
+					intval, ok := args[0].(int)
+					if !ok {
+						return nil, errors.New("Argument is not number")
+					}
+					val = float64(intval)
+				}
+				return math.Sqrt(val), nil
+			},
+		}
+
+		gexp, err := govaluate.NewEvaluableExpressionWithFunctions(m.Content[1:], functions)
 		if b.handle(err, m) {
 			return
 		}
@@ -58,7 +77,10 @@ func (b *Bot) math(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if b.handle(err, m) {
 			return
 		}
-		b.mathvars[m.GuildID]["ans"] = result
+		_, ok := result.(float64)
+		if ok {
+			b.mathvars[m.GuildID]["ans"] = result
+		}
 
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%v", result))
 		return
