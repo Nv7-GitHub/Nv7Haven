@@ -21,6 +21,7 @@ func (b *Bot) math(s *discordgo.Session, m *discordgo.MessageCreate) {
 		out := varput.FindAllStringSubmatch(m.Content, -1)
 		if len(out) < 1 || len(out[0]) < 3 {
 			s.ChannelMessageSend(m.ChannelID, "Invalid format. You need to use `var <name>=<value>`.")
+			return
 		}
 		name := out[0][1]
 		val, err := strconv.ParseFloat(out[0][2], 64)
