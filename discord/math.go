@@ -50,6 +50,10 @@ func (b *Bot) math(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 		}()
 
+		_, exists := b.mathvars[m.GuildID]
+		if !exists {
+			b.mathvars[m.GuildID] = make(map[string]interface{})
+		}
 		result, err := gexp.Evaluate(b.mathvars[m.GuildID])
 		if b.handle(err, m) {
 			return
