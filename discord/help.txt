@@ -1,5 +1,10 @@
-Hi! I'm the Nv7 bot! I am a bot made by Nv7!
+Hi! I'm the Nv7 bot! I am a bot made by Nv7! For support about the bot, to talk about the bot, or to suggest features head over to the Nv7 Bot community! - https://discord.gg/X9vJGSxj2z
 Currency was a little wordy so run `7help currency` to get help on currency. Sorry!
+
+**Math**
+Do math!
+	`var <name>=<value>` - Set a value. You can use this in your equations.
+	`=<expression` - Evaluate an expression. You can use variables and math functions. Check out Nv7 Bot server to suggest more functions!
 
 **Givenum**
 In givenum, you give yourself a number. Then, and admin will run a command that will choose a random number out of all of the submitted numbers. The admin decides what to do with the results!
