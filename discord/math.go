@@ -2,11 +2,15 @@ package discord
 
 import (
 	"fmt"
+	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/Knetic/govaluate"
 	"github.com/bwmarrin/discordgo"
 )
+
+var varput = regexp.MustCompile(`var (.+)=([0-9.,]+)`)
 
 func (b *Bot) math(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
@@ -14,9 +18,12 @@ func (b *Bot) math(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if strings.HasPrefix(m.Content, "var") {
-		var name string
-		var val float64
-		_, err := fmt.Sscanf(m.Content, "var %s=%f", &name, &val)
+		out := varput.FindAllStringSubmatch(m.Content, -1)
+		if len(out) < 1 || len(out[0]) < 3 {
+			s.ChannelMessageSend(m.ChannelID, "Invalid format. You need to use `var <name>=<value>`.")
+		}
+		name := out[0][1]
+		val, err := strconv.ParseFloat(out[0][2], 64)
 		if b.handle(err, m) {
 			return
 		}
@@ -27,13 +34,7 @@ func (b *Bot) math(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if strings.HasPrefix(m.Content, "=") {
-		var expression string
-		_, err := fmt.Sscanf(m.Content, "=%s", &expression)
-		if b.handle(err, m) {
-			return
-		}
-
-		gexp, err := govaluate.NewEvaluableExpression(expression)
+		gexp, err := govaluate.NewEvaluableExpression(m.Content[1:])
 		if b.handle(err, m) {
 			return
 		}
