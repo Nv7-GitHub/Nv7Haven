@@ -35,6 +35,8 @@ type Bot struct {
 	cmemecache      map[string]map[int]empty
 	pmemedat        []meme
 	pmemecache      map[string]map[int]empty
+
+	mathvars map[string]map[string]interface{} // should be map[string]map[string]float64 but govaluate wants interface{}
 }
 
 func (b *Bot) handlers() {
@@ -47,6 +49,7 @@ func (b *Bot) handlers() {
 	b.dg.AddHandler(b.mod)
 	b.dg.AddHandler(b.other)
 	b.dg.AddHandler(b.memeGen)
+	b.dg.AddHandler(b.math)
 }
 
 // InitDiscord creates a discord bot

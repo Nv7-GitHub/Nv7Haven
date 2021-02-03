@@ -3,6 +3,7 @@ module github.com/Nv7-Github/Nv7Haven
 go 1.15
 
 require (
+	github.com/Knetic/govaluate v3.0.0+incompatible
 	github.com/Nv7-Github/firebase v0.0.0-20201012033747-47c56e1d869d
 	github.com/bwmarrin/discordgo v0.22.0
 	github.com/go-sql-driver/mysql v1.5.0
