@@ -28,6 +28,10 @@ func (b *Bot) math(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
+		_, exists := b.mathvars[m.GuildID]
+		if !exists {
+			b.mathvars[m.GuildID] = make(map[string]interface{})
+		}
 		b.mathvars[m.GuildID][name] = val
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Successfuly set variable %s to %f", name, val))
 		return
@@ -38,6 +42,12 @@ func (b *Bot) math(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if b.handle(err, m) {
 			return
 		}
+
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Println(r)
+			}
+		}()
 
 		result, err := gexp.Evaluate(b.mathvars[m.GuildID])
 		if b.handle(err, m) {

@@ -92,6 +92,8 @@ func InitDiscord() Bot {
 		dg:    dg,
 		db:    db,
 		props: props,
+
+		mathvars: make(map[string]map[string]interface{}),
 	}
 	b.handlers()
 	dg.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsGuildMessages)
