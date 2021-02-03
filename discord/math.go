@@ -58,6 +58,7 @@ func (b *Bot) math(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if b.handle(err, m) {
 			return
 		}
+		b.mathvars[m.GuildID]["ans"] = result
 
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%v", result))
 		return
