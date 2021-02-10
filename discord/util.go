@@ -19,13 +19,12 @@ func (b *Bot) exists(m *discordgo.MessageCreate, table string, where string, arg
 	defer res.Close()
 	res.Next()
 
-	fmt.Println("SELECT COUNT(1) FROM "+table+" WHERE "+where+" LIMIT 1", args)
-
 	var count int
 	err = res.Scan(&count)
 	if b.handle(err, m) {
 		return false, false
 	}
+	fmt.Println(count)
 	return count != 0, true
 }
 
