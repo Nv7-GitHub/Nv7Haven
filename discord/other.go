@@ -113,7 +113,7 @@ func (b *Bot) other(s *discordgo.Session, m *discordgo.MessageCreate) {
 		var prefix string
 		_, err := fmt.Sscanf(m.Content, "setprefix %s", &prefix)
 		if b.handle(err, m) {
-			return
+			prefix = ""
 		}
 		_, err = b.db.Exec("UPDATE prefixes SET prefix=? WHERE guild=?", prefix, m.GuildID)
 		if b.handle(err, m) {
