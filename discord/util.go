@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"math"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -245,4 +246,41 @@ func (b *Bot) req(m *discordgo.MessageCreate, url string, out interface{}) bool 
 		return false
 	}
 	return true
+}
+
+func (b *Bot) checkprefix(m *discordgo.MessageCreate) {
+	_, exists := b.prefixcache[m.GuildID]
+	if !exists {
+		exists, suc := b.exists(m, "prefixes", "guild=?", m.GuildID)
+		if !suc {
+			return
+		}
+		if !exists {
+			_, err := b.db.Exec("INSERT INTO prefixes VALUES ( ?, ? )", m.GuildID, "")
+			if b.handle(err, m) {
+				return
+			}
+			b.prefixcache[m.GuildID] = ""
+		} else {
+			row := b.db.QueryRow("SELECT prefix FROM prefixes WHERE guild=?", m.GuildID)
+			var prefix string
+			err := row.Scan(&prefix)
+			if b.handle(err, m) {
+				return
+			}
+			b.prefixcache[m.GuildID] = prefix
+		}
+	}
+}
+
+func (b *Bot) startsWith(m *discordgo.MessageCreate, cmd string) bool {
+	prefix, exists := b.prefixcache[m.GuildID]
+	if !exists {
+		b.checkprefix(m)
+	}
+	if strings.HasPrefix(m.Content, prefix+cmd) {
+		m.Content = m.Content[len(prefix):]
+		return true
+	}
+	return false
 }

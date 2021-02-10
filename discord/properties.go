@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -15,7 +14,7 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "props") {
+	if b.startsWith(m, "props") {
 		b.checkuser(m)
 		var text string
 		for _, prop := range upgrades {
@@ -28,7 +27,7 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "inv") {
+	if b.startsWith(m, "inv") {
 		b.checkuser(m)
 		id := m.Author.ID
 		if len(m.Mentions) > 0 {
@@ -57,7 +56,7 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "purchase") {
+	if b.startsWith(m, "purchase") {
 		b.checkuser(m)
 		var plc string
 		_, err := fmt.Sscanf(m.Content, "purchase %s", &plc)
@@ -98,7 +97,7 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "upgrade") {
+	if b.startsWith(m, "upgrade") {
 		b.checkuser(m)
 		var plc string
 		var numVal string
@@ -160,7 +159,7 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "collect") {
+	if b.startsWith(m, "collect") {
 		b.checkuser(m)
 		user, suc := b.getuser(m, m.Author.ID)
 		if !suc {

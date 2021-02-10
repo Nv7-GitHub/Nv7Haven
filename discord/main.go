@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -37,6 +36,8 @@ type Bot struct {
 	pmemecache      map[string]map[int]empty
 
 	mathvars map[string]map[string]interface{} // should be map[string]map[string]float64 but govaluate wants interface{}
+
+	prefixcache map[string]string
 }
 
 func (b *Bot) handlers() {
@@ -94,6 +95,8 @@ func InitDiscord() Bot {
 		props: props,
 
 		mathvars: make(map[string]map[string]interface{}),
+
+		prefixcache: make(map[string]string, 0),
 	}
 	b.handlers()
 	dg.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsGuildMessages)
@@ -115,8 +118,8 @@ func (b *Bot) help(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "7help") {
-		if strings.HasPrefix(m.Content, "7help currency") {
+	if b.startsWith(m, "7help") {
+		if b.startsWith(m, "7help currency") {
 			s.ChannelMessageSend(m.ChannelID, currHelp)
 			return
 		}

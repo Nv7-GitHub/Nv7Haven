@@ -19,7 +19,7 @@ func (b *Bot) other(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "insult") {
+	if b.startsWith(m, "insult") {
 		start := starters[rand.Intn(len(starters))]
 
 		for _, val := range replaces {
@@ -43,7 +43,7 @@ func (b *Bot) other(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, start)
 	}
 
-	if strings.HasPrefix(m.Content, "gh") {
+	if b.startsWith(m, "gh") {
 		var query string
 		_, err := fmt.Sscanf(m.Content, "gh %s", &query)
 		if b.handle(err, m) {
@@ -107,6 +107,16 @@ func (b *Bot) other(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		s.ChannelMessageSendEmbed(m.ChannelID, embed)
 		return
+	}
+
+	if b.startsWith(m, "setprefix") {
+		var prefix string
+		_, err := fmt.Sscanf(m.Content, "setprefix %s", &prefix)
+		if b.handle(err, m) {
+			return
+		}
+		_, err = b.db.Exec("UPDATE prefixes SET prefix=? WHERE guild=?")
+		b.handle(err, m)
 	}
 }
 

@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -35,7 +34,7 @@ func (b *Bot) memes(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "meme") {
+	if b.startsWith(m, "meme") {
 		if len(b.memedat) == 0 { // first time since startup
 			s.ChannelMessageSend(m.ChannelID, "Sorry, this is the first time someone has asked for a meme since the server started. It may take a moment for us to download the memes from reddit.")
 			success := b.loadMemes(m)
@@ -80,7 +79,7 @@ func (b *Bot) memes(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 	}
 
-	if strings.HasPrefix(m.Content, "cmeme") {
+	if b.startsWith(m, "cmeme") {
 		if len(b.memedat) == 0 { // first time since startup
 			s.ChannelMessageSend(m.ChannelID, "Sorry, this is the first time someone has asked for a meme since the server started. It may take a moment for us to download the memes from reddit.")
 			success := b.loadMemes(m)
@@ -125,7 +124,7 @@ func (b *Bot) memes(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 	}
 
-	if strings.HasPrefix(m.Content, "pmeme") {
+	if b.startsWith(m, "pmeme") {
 		if len(b.memedat) == 0 { // first time since startup
 			s.ChannelMessageSend(m.ChannelID, "Sorry, this is the first time someone has asked for a meme since the server started. It may take a moment for us to download the memes from reddit.")
 			success := b.loadMemes(m)

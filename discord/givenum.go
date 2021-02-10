@@ -3,7 +3,6 @@ package discord
 import (
 	"fmt"
 	"math/rand"
-	"strings"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -14,7 +13,7 @@ func (b *Bot) giveNum(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// givenum command
-	if strings.HasPrefix(m.Content, "givenum") {
+	if b.startsWith(m, "givenum") {
 		var num int
 		_, err := fmt.Sscanf(m.Content, "givenum %d", &num)
 		if b.handle(err, m) {
@@ -53,7 +52,7 @@ func (b *Bot) giveNum(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// getnum command
-	if strings.HasPrefix(m.Content, "getnum") {
+	if b.startsWith(m, "getnum") {
 		success, num := b.getNum(m, m.Author.ID)
 		if success {
 			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Your number is %d.", num))
@@ -68,7 +67,7 @@ func (b *Bot) giveNum(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// randselect command
-	if strings.HasPrefix(m.Content, "randselect") {
+	if b.startsWith(m, "randselect") {
 		if b.isMod(m, m.Author.ID) {
 			res, err := b.db.Query("SELECT number FROM givenum WHERE guild=?", m.GuildID)
 			if b.handle(err, m) {

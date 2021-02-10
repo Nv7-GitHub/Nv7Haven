@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
-	"strings"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -14,7 +13,7 @@ func (b *Bot) specials(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "rob") {
+	if b.startsWith(m, "rob") {
 		b.checkuser(m)
 
 		if !(len(m.Mentions) > 0) {

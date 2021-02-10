@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"os"
 	"regexp"
-	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/golang/freetype"
@@ -104,7 +103,7 @@ func (b *Bot) memeGen(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "listmemes") {
+	if b.startsWith(m, "listmemes") {
 		var text string
 		for k := range memes {
 			text += k + "\n"
@@ -116,7 +115,7 @@ func (b *Bot) memeGen(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "genmeme") {
+	if b.startsWith(m, "genmeme") {
 		match := reg.FindAllStringSubmatch(m.Content, -1)
 		if (len(match) == 0) || (len(match[0]) < 3) {
 			s.ChannelMessageSend(m.ChannelID, "Does not fit format `genmeme <name> <text>`")

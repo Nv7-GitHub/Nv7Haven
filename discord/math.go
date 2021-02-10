@@ -6,7 +6,6 @@ import (
 	"math"
 	"regexp"
 	"strconv"
-	"strings"
 
 	"github.com/Knetic/govaluate"
 	"github.com/bwmarrin/discordgo"
@@ -36,7 +35,7 @@ func (b *Bot) math(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "var") {
+	if b.startsWith(m, "var") {
 		out := varput.FindAllStringSubmatch(m.Content, -1)
 		if len(out) < 1 || len(out[0]) < 3 {
 			s.ChannelMessageSend(m.ChannelID, "Invalid format. You need to use `var <name>=<value>`.")
@@ -57,7 +56,7 @@ func (b *Bot) math(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "=") {
+	if b.startsWith(m, "=") {
 		functions := map[string]govaluate.ExpressionFunction{
 			"sqrt": newFunc(math.Sqrt),
 			"cos":  newFunc(math.Cos),

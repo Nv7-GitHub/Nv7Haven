@@ -3,7 +3,6 @@ package discord
 import (
 	"fmt"
 	"regexp"
-	"strings"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -26,7 +25,7 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "warn ") {
+	if b.startsWith(m, "warn ") {
 		if !(len(m.Mentions) > 0) {
 			s.ChannelMessageSend(m.ChannelID, "You need to mention the person you are going to warn!")
 			return
@@ -74,7 +73,7 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "warns") {
+	if b.startsWith(m, "warns") {
 		if !b.isMod(m, m.Author.ID) {
 			s.ChannelMessageSend(m.ChannelID, `You need to have permission "Administrator" to use this command.`)
 			return
@@ -124,7 +123,7 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 	}
 
-	if strings.HasPrefix(m.Content, "addrole") {
+	if b.startsWith(m, "addrole") {
 		var name string
 		_, err := fmt.Sscanf(m.Content, "addrole %s", &name)
 		if b.handle(err, m) {
@@ -152,7 +151,7 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Successfully created role `%s`", name))
 	}
 
-	if strings.HasPrefix(m.Content, "rmrole") {
+	if b.startsWith(m, "rmrole") {
 		var name string
 		_, err := fmt.Sscanf(m.Content, "rmrole %s", &name)
 		if b.handle(err, m) {
@@ -195,7 +194,7 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "giverole") {
+	if b.startsWith(m, "giverole") {
 		var name string
 		_, err := fmt.Sscanf(m.Content, "giverole %s", &name)
 		if b.handle(err, m) {

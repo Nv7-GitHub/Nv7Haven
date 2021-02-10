@@ -14,7 +14,7 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "daily") {
+	if b.startsWith(m, "daily") {
 		b.checkuser(m)
 		user, success := b.getuser(m, m.Author.ID)
 		if !success {
@@ -41,7 +41,7 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "bal") {
+	if b.startsWith(m, "bal") {
 		b.checkuser(m)
 		id := m.Author.ID
 		person := "You have"
@@ -61,7 +61,7 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "dep") {
+	if b.startsWith(m, "dep") {
 		b.checkuser(m)
 		user, success := b.getuser(m, m.Author.ID)
 		if !success {
@@ -97,7 +97,7 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "with") {
+	if b.startsWith(m, "with") {
 		b.checkuser(m)
 		user, success := b.getuser(m, m.Author.ID)
 		if !success {
@@ -133,7 +133,7 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "ldb") {
+	if b.startsWith(m, "ldb") {
 		res, err := b.db.Query("SELECT user, wallet FROM currency WHERE guilds LIKE ? ORDER BY wallet DESC LIMIT 10", "%"+m.GuildID+"%")
 		if b.handle(err, m) {
 			return
@@ -167,7 +167,7 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "credup") {
+	if b.startsWith(m, "credup") {
 		user, suc := b.getuser(m, m.Author.ID)
 		if !suc {
 			return
@@ -216,7 +216,7 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "donate") {
+	if b.startsWith(m, "donate") {
 		b.checkuser(m)
 		if !(len(m.Mentions) > 0) {
 			s.ChannelMessageSend(m.ChannelID, "You need to mention the person you are going to donate to!")
