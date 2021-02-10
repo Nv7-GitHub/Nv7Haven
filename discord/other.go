@@ -119,6 +119,7 @@ func (b *Bot) other(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if b.handle(err, m) {
 			return
 		}
+		b.prefixcache[m.GuildID] = prefix
 		s.ChannelMessageSend(m.ChannelID, "Successfully update prefix!")
 	}
 }
