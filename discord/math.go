@@ -6,6 +6,7 @@ import (
 	"math"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/Knetic/govaluate"
 	"github.com/bwmarrin/discordgo"
@@ -56,7 +57,7 @@ func (b *Bot) math(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if b.startsWith(m, "=") {
+	if strings.HasPrefix(m.Content, "=") {
 		functions := map[string]govaluate.ExpressionFunction{
 			"sqrt": newFunc(math.Sqrt),
 			"cos":  newFunc(math.Cos),

@@ -109,7 +109,7 @@ func (b *Bot) other(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if b.startsWith(m, "setprefix") {
+	if strings.HasPrefix(m.Content, "setprefix") {
 		var prefix string
 		_, err := fmt.Sscanf(m.Content, "setprefix %s", &prefix)
 		if err != nil {
