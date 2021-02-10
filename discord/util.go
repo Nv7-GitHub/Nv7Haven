@@ -19,6 +19,8 @@ func (b *Bot) exists(m *discordgo.MessageCreate, table string, where string, arg
 	defer res.Close()
 	res.Next()
 
+	fmt.Println("SELECT COUNT(1) FROM "+table+" WHERE "+where+" LIMIT 1", args)
+
 	var count int
 	err = res.Scan(&count)
 	if b.handle(err, m) {
@@ -265,7 +267,6 @@ func (b *Bot) checkprefix(m *discordgo.MessageCreate) {
 		if !exists {
 			_, err := b.db.Exec("INSERT INTO prefixes VALUES ( ?, ? )", m.GuildID, "")
 			if b.handle(err, m) {
-				fmt.Println("reet")
 				return
 			}
 			b.prefixcache[m.GuildID] = ""
@@ -274,7 +275,6 @@ func (b *Bot) checkprefix(m *discordgo.MessageCreate) {
 			var prefix string
 			err := row.Scan(&prefix)
 			if b.handle(err, m) {
-				fmt.Println("yeet")
 				return
 			}
 			b.prefixcache[m.GuildID] = prefix
