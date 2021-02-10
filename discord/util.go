@@ -263,6 +263,7 @@ func (b *Bot) checkprefix(m *discordgo.MessageCreate) {
 			return
 		}
 		if !exists {
+			fmt.Println(exists, m.GuildID)
 			_, err := b.db.Exec("INSERT INTO prefixes VALUES ( ?, ? )", m.GuildID, "")
 			if b.handle(err, m) {
 				fmt.Println("reet")
@@ -274,7 +275,6 @@ func (b *Bot) checkprefix(m *discordgo.MessageCreate) {
 			var prefix string
 			err := row.Scan(&prefix)
 			if b.handle(err, m) {
-				fmt.Println("yeet")
 				return
 			}
 			b.prefixcache[m.GuildID] = prefix
