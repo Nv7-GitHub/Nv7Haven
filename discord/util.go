@@ -274,7 +274,7 @@ func (b *Bot) checkprefix(m *discordgo.MessageCreate) {
 			var prefix string
 			err := row.Scan(&prefix)
 			if b.handle(err, m) {
-				fmt.Println("reet")
+				fmt.Println("yeet")
 				return
 			}
 			b.prefixcache[m.GuildID] = prefix
