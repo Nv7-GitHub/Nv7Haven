@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"os"
@@ -13,6 +14,14 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+
+	_ "github.com/go-sql-driver/mysql" // mysql
+)
+
+const (
+	dbUser     = "u51_iYXt7TBZ0e"
+	dbPassword = "W!QnD2u896yo.J4fww9X.h+J"
+	dbName     = "s51_nv7haven"
 )
 
 func main() {
@@ -23,21 +32,26 @@ func main() {
 
 	app.Static("/", "./index.html")
 
+	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
+	if err != nil {
+		panic(err)
+	}
+
 	//mysqlsetup.Mysqlsetup()
 
-	e, err := elemental.InitElemental(app)
+	e, err := elemental.InitElemental(app, db)
 	if err != nil {
 		panic(err)
 	}
 
-	err = nv7haven.InitNv7Haven(app)
+	err = nv7haven.InitNv7Haven(app, db)
 	if err != nil {
 		panic(err)
 	}
 
-	single.InitSingle(app)
+	single.InitSingle(app, db)
 
-	b := discord.InitDiscord()
+	b := discord.InitDiscord(db)
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)

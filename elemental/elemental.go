@@ -2,12 +2,10 @@ package elemental
 
 import (
 	"database/sql"
-	"os"
 
 	"github.com/Nv7-Github/firebase"
 	"github.com/Nv7-Github/firebase/db"
 	database "github.com/Nv7-Github/firebase/db"
-	_ "github.com/go-sql-driver/mysql" // mysql
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -77,19 +75,8 @@ func (e *Elemental) routing(app *fiber.App) {
 	})
 }
 
-const (
-	dbUser     = "u51_iYXt7TBZ0e"
-	dbPassword = "W!QnD2u896yo.J4fww9X.h+J"
-	dbName     = "s51_nv7haven"
-)
-
 // InitElemental initializes all of Elemental's handlers on the app.
-func InitElemental(app *fiber.App) (Elemental, error) {
-	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
-	if err != nil {
-		panic(err)
-	}
-
+func InitElemental(app *fiber.App, db *sql.DB) (Elemental, error) {
 	firebaseapp, err := firebase.CreateAppWithServiceAccount("https://elementalserver-8c6d0.firebaseio.com", "AIzaSyCsqvV3clnwDTTgPHDVO2Yatv5JImSUJvU", []byte(serviceAccount))
 	if err != nil {
 		return Elemental{}, err

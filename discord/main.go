@@ -4,11 +4,9 @@ import (
 	"database/sql"
 	"io/ioutil"
 	"math/rand"
-	"os"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
-	_ "github.com/go-sql-driver/mysql" // mysql
 )
 
 const (
@@ -54,15 +52,9 @@ func (b *Bot) handlers() {
 }
 
 // InitDiscord creates a discord bot
-func InitDiscord() Bot {
+func InitDiscord(db *sql.DB) Bot {
 	// Init
 	rand.Seed(time.Now().UnixNano())
-
-	// MySQL DB
-	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
-	if err != nil {
-		panic(err)
-	}
 
 	// Discord bot
 	dg, err := discordgo.New("Bot " + token)
