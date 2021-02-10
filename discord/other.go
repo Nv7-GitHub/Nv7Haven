@@ -110,6 +110,10 @@ func (b *Bot) other(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if strings.HasPrefix(m.Content, "setprefix") {
+		if !b.isMod(m, m.Author.ID) {
+			s.ChannelMessageSend(m.ChannelID, "You need permission `Administrator` to use this command!")
+			return
+		}
 		var prefix string
 		_, err := fmt.Sscanf(m.Content, "setprefix %s", &prefix)
 		if err != nil {
