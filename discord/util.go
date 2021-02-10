@@ -256,8 +256,8 @@ func (b *Bot) req(m *discordgo.MessageCreate, url string, out interface{}) bool 
 }
 
 func (b *Bot) checkprefix(m *discordgo.MessageCreate) {
-	_, exists := b.prefixcache[m.GuildID]
-	if !exists {
+	_, ex := b.prefixcache[m.GuildID]
+	if !ex {
 		exists, suc := b.exists(m, "prefixes", "guild=?", m.GuildID)
 		if !suc {
 			return
