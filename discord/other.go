@@ -115,7 +115,6 @@ func (b *Bot) other(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if b.handle(err, m) {
 			return
 		}
-		fmt.Println(prefix, m.GuildID)
 		_, err = b.db.Exec("UPDATE prefixes SET prefix=? WHERE guild=?", prefix, m.GuildID)
 		b.handle(err, m)
 	}
