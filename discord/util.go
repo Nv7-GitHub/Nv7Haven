@@ -2,7 +2,6 @@ package discord
 
 import (
 	"encoding/json"
-	"fmt"
 	"math"
 	"net/http"
 	"strings"
@@ -263,12 +262,7 @@ func (b *Bot) checkprefix(m *discordgo.MessageCreate) {
 			return
 		}
 		if !exists {
-			fmt.Println(exists, m.GuildID)
-			_, err := b.db.Exec("INSERT INTO prefixes VALUES ( ?, ? )", m.GuildID, "")
-			if b.handle(err, m) {
-				fmt.Println("reet")
-				return
-			}
+			b.db.Exec("INSERT INTO prefixes VALUES ( ?, ? )", m.GuildID, "")
 			b.prefixcache[m.GuildID] = ""
 		} else {
 			row := b.db.QueryRow("SELECT prefix FROM prefixes WHERE guild=?", m.GuildID)
