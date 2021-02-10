@@ -2,7 +2,6 @@ package discord
 
 import (
 	"encoding/json"
-	"fmt"
 	"math"
 	"net/http"
 	"strings"
@@ -24,7 +23,6 @@ func (b *Bot) exists(m *discordgo.MessageCreate, table string, where string, arg
 	if b.handle(err, m) {
 		return false, false
 	}
-	fmt.Println(count)
 	return count != 0, true
 }
 
