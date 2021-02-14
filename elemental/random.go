@@ -8,7 +8,7 @@ import (
 )
 
 func (e *Elemental) upAndComingSuggestion(c *fiber.Ctx) error {
-	res, err := e.db.Query("SELECT name FROM suggestions WHERE votes=? LIMIT 100 AND NOT voted LIKE ?", maxVotes, "%\""+c.Params("uid")+"\"%")
+	res, err := e.db.Query("SELECT name FROM suggestions WHERE votes=? AND voted NOT LIKE ? LIMIT 100", maxVotes, "%\""+c.Params("uid")+"\"%")
 	if err != nil {
 		return err
 	}
@@ -54,7 +54,7 @@ func (e *Elemental) upAndComingSuggestion(c *fiber.Ctx) error {
 
 // Pretty much the same, just different first line
 func (e *Elemental) randomLonelySuggestion(c *fiber.Ctx) error {
-	res, err := e.db.Query("SELECT name FROM suggestions WHERE votes<? LIMIT 100 AND NOT voted LIKE ?", maxVotes-1, "%\""+c.Params("uid")+"\"%")
+	res, err := e.db.Query("SELECT name FROM suggestions WHERE votes<? AND voted NOT LIKE ? LIMIT 100", maxVotes-1, "%\""+c.Params("uid")+"\"%")
 	if err != nil {
 		return err
 	}
