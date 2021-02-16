@@ -23,3 +23,6 @@
 /Godeps/
 
 # End of https://www.gitignore.io/api/go
+
+# For gource
+movie.mp4
