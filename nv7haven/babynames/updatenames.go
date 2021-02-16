@@ -18,6 +18,8 @@ import (
 	_ "github.com/go-sql-driver/mysql" // mysql
 )
 
+const yearsBack = 78
+
 func handle(err error) {
 	if err != nil {
 		panic(err)
@@ -47,7 +49,9 @@ func main() {
 	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp(c.filipk.in:3306)/"+dbName)
 	handle(err)
 	defer db.Close()
-	endTimer("Connected to SQL database")
+	_, err = db.Exec("DELETE FROM names WHERE 1")
+	handle(err)
+	endTimer("Connected to SQL database and cleared data")
 
 	// Download
 	resp, err := http.Get(url)
@@ -82,28 +86,51 @@ func main() {
 	endTimer("Processed file names")
 
 	// Convert file to CSV
-	fl, err := files[0].file.Open()
-	handle(err)
-	defer fl.Close()
-	csv := csv.NewReader(fl)
-	endTimer("Read ZIP")
+	names := make(map[string]dat)
+	for i := 0; i <= yearsBack; i++ {
+		fl, err := files[0].file.Open()
+		handle(err)
+		defer fl.Close()
+		csv := csv.NewReader(fl)
+		for true {
+			vals, err := csv.Read()
+			if vals == nil {
+				break
+			}
+			handle(err)
+
+			count, err := strconv.Atoi(vals[2])
+			handle(err)
+			_, exists := names[vals[0]]
+			isMale := vals[1] == "M"
+			if exists {
+				val := names[vals[0]]
+				if val.isMale == isMale {
+					val.count += count
+				} else {
+					if val.count < count {
+						val.isMale = isMale
+						val.count = count
+					}
+				}
+				names[vals[0]] = val
+			} else {
+				names[vals[0]] = dat{
+					count:  count,
+					isMale: isMale,
+				}
+			}
+		}
+	}
+	endTimer("Read and processed all data")
 
 	// Read CSV
 	times := 0
 	query := "INSERT INTO names VALUES "
 	args := make([]interface{}, 0)
-	for true {
-		vals, err := csv.Read()
-		if vals == nil {
-			break
-		}
-		handle(err)
-
-		// Write vals
-		count, err := strconv.Atoi(vals[2])
-		handle(err)
+	for k, v := range names {
 		query += "(?,?,?),"
-		args = append(args, vals[0], vals[1] == "M", count)
+		args = append(args, k, v.isMale, v.count)
 		handle(err)
 
 		if (times % 10000) == 0 {
@@ -126,4 +153,9 @@ func main() {
 type file struct {
 	file *zip.File
 	year int
+}
+
+type dat struct {
+	count  int
+	isMale bool
 }
