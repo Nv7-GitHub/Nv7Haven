@@ -18,7 +18,7 @@ func (n *Nv7Haven) searchNames(c *fiber.Ctx) error {
 		return err
 	}
 
-	res, err := n.sql.Query("SELECT name FROM names WHERE name LIKE ? LIMIT 100", query)
+	res, err := n.sql.Query("SELECT name FROM names WHERE name LIKE ? ORDER BY count DESC LIMIT 100", query)
 	if err != nil {
 		return err
 	}
@@ -41,7 +41,7 @@ func (n *Nv7Haven) getName(c *fiber.Ctx) error {
 		return err
 	}
 
-	row := n.sql.QueryRow("SELECT * FROM names WHERE name=? LIMIT 1", name)
+	row := n.sql.QueryRow("SELECT * FROM names WHERE name=? ORDER BY count DESC LIMIT 1", name)
 	var nm nameData
 	row.Scan(&nm.Name, &nm.IsMale, &nm.Population)
 	return c.JSON(nm)
