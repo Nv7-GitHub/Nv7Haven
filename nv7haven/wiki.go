@@ -7,9 +7,6 @@ import (
 )
 
 func (n *Nv7Haven) searchElems(c *fiber.Ctx) error {
-	
-	
-
 	query, err := url.PathUnescape(c.Params("query"))
 	if err != nil {
 		return err
