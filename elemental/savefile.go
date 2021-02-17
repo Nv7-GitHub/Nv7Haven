@@ -12,8 +12,6 @@ func (e *Elemental) foundElement(c *fiber.Ctx) error {
 }
 
 func (e *Elemental) getFound(c *fiber.Ctx) error {
-	
-	
 	res, err := e.db.Query("SELECT found FROM users WHERE uid=?", c.Params("uid"))
 	if err != nil {
 		return err
@@ -29,8 +27,6 @@ func (e *Elemental) getFound(c *fiber.Ctx) error {
 }
 
 func (e *Elemental) newFound(c *fiber.Ctx) error {
-	
-	
 	var found []string
 	res, err := e.db.Query("SELECT found FROM users WHERE uid=?", c.Params("uid"))
 	if err != nil {

@@ -15,8 +15,6 @@ type RecentCombination struct {
 }
 
 func (e *Elemental) getRecents(c *fiber.Ctx) error {
-	
-	
 	var recents []RecentCombination
 	data, err := e.fdb.Get("recent")
 	if err != nil {
