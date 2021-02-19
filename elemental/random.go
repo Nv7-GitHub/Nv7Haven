@@ -3,12 +3,20 @@ package elemental
 import (
 	"encoding/json"
 	"math/rand"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func (e *Elemental) upAndComingSuggestion(c *fiber.Ctx) error {
-	res, err := e.db.Query("SELECT name FROM suggestions WHERE votes=? AND voted NOT LIKE ? LIMIT 100", maxVotes, "%\""+c.Params("uid")+"\"%")
+	isAnarchy := int(time.Now().Weekday()) == anarchyDay
+
+	where := "votes=? AND voted NOT LIKE ?"
+	if isAnarchy {
+		where = "1"
+	}
+
+	res, err := e.db.Query("SELECT name FROM suggestions WHERE "+where+" LIMIT 100", maxVotes, "%\""+c.Params("uid")+"\"%")
 	if err != nil {
 		return err
 	}
@@ -24,29 +32,38 @@ func (e *Elemental) upAndComingSuggestion(c *fiber.Ctx) error {
 	if len(comings) == 0 {
 		return c.JSON([]string{})
 	}
-	item := comings[rand.Intn(len(comings))]
 
-	res, err = e.db.Query("SELECT * FROM suggestion_combos WHERE combos LIKE ?", "%\""+item+"\"%")
-	if err != nil {
-		return err
-	}
-	var combos string
-	var comboDat map[string][]string
-	for res.Next() {
-		err = res.Scan(&name, &combos)
+	for tries := 0; tries < 10; tries++ {
+		item := comings[rand.Intn(len(comings))]
+		parents, err := e.getSuggParents(item)
 		if err != nil {
 			return err
 		}
-		err = json.Unmarshal([]byte(combos), &comboDat)
-		if err != nil {
-			return err
-		}
-		for k, v := range comboDat {
-			for _, val := range v {
-				if val == item {
-					return c.JSON([]string{name, k})
+
+		if len(parents) == 2 {
+			if isAnarchy {
+				return c.JSON(parents)
+			}
+
+			data, err := e.getSuggestions(parents[0])
+			if err != nil {
+				return err
+			}
+			combos := data[parents[1]]
+
+			for _, sugg := range combos {
+				sugg, err := e.getSugg(sugg)
+				if err != nil {
+					return err
+				}
+				for _, val := range sugg.Voted {
+					if val == c.Params("uid") {
+						continue
+					}
 				}
 			}
+
+			return c.JSON(parents)
 		}
 	}
 	return c.JSON([]string{})
@@ -54,7 +71,14 @@ func (e *Elemental) upAndComingSuggestion(c *fiber.Ctx) error {
 
 // Pretty much the same, just different first line
 func (e *Elemental) randomLonelySuggestion(c *fiber.Ctx) error {
-	res, err := e.db.Query("SELECT name FROM suggestions WHERE votes<? AND voted NOT LIKE ? LIMIT 100", maxVotes-1, "%\""+c.Params("uid")+"\"%")
+	isAnarchy := int(time.Now().Weekday()) == anarchyDay
+
+	where := "votes<? AND voted NOT LIKE ?"
+	if isAnarchy {
+		where = "1"
+	}
+
+	res, err := e.db.Query("SELECT name FROM suggestions WHERE "+where+" LIMIT 100", maxVotes-1, "%\""+c.Params("uid")+"\"%")
 	if err != nil {
 		return err
 	}
@@ -70,30 +94,67 @@ func (e *Elemental) randomLonelySuggestion(c *fiber.Ctx) error {
 	if len(comings) == 0 {
 		return c.JSON([]string{})
 	}
-	item := comings[rand.Intn(len(comings))]
 
-	res, err = e.db.Query("SELECT * FROM suggestion_combos WHERE combos LIKE ?", "%\""+item+"\"%")
-	if err != nil {
-		return err
+	for tries := 0; tries < 10; tries++ {
+		item := comings[rand.Intn(len(comings))]
+		parents, err := e.getSuggParents(item)
+		if err != nil {
+			return err
+		}
+
+		if len(parents) == 2 {
+			if isAnarchy {
+				return c.JSON(parents)
+			}
+
+			data, err := e.getSuggestions(parents[0])
+			if err != nil {
+				return err
+			}
+			combos := data[parents[1]]
+
+			for _, sugg := range combos {
+				sugg, err := e.getSugg(sugg)
+				if err != nil {
+					return err
+				}
+				for _, val := range sugg.Voted {
+					if val == c.Params("uid") {
+						continue
+					}
+				}
+			}
+
+			return c.JSON(parents)
+		}
 	}
+	return c.JSON([]string{})
+}
+
+func (e *Elemental) getSuggParents(item string) ([]string, error) {
+	res, err := e.db.Query("SELECT * FROM suggestion_combos WHERE combos LIKE ?", "%\""+item+"\"%")
+	if err != nil {
+		return nil, err
+	}
+	var name string
 	var combos string
 	var comboDat map[string][]string
 	for res.Next() {
 		err = res.Scan(&name, &combos)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		err = json.Unmarshal([]byte(combos), &comboDat)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		for k, v := range comboDat {
 			for _, val := range v {
 				if val == item {
-					return c.JSON([]string{name, k})
+					return []string{name, k}, nil
 				}
 			}
 		}
 	}
-	return c.JSON([]string{})
+	return []string{}, nil
 }
