@@ -12,11 +12,13 @@ func (e *Elemental) upAndComingSuggestion(c *fiber.Ctx) error {
 	isAnarchy := int(time.Now().Weekday()) == anarchyDay
 
 	where := "votes=? AND voted NOT LIKE ?"
+	params := []interface{}{maxVotes, "%\"" + c.Params("uid") + "\"%"}
 	if isAnarchy {
 		where = "1"
+		params = []interface{}{}
 	}
 
-	res, err := e.db.Query("SELECT name FROM suggestions WHERE "+where+" LIMIT 100", maxVotes, "%\""+c.Params("uid")+"\"%")
+	res, err := e.db.Query("SELECT name FROM suggestions WHERE "+where+" LIMIT 100", params...)
 	if err != nil {
 		return err
 	}
@@ -74,11 +76,13 @@ func (e *Elemental) randomLonelySuggestion(c *fiber.Ctx) error {
 	isAnarchy := int(time.Now().Weekday()) == anarchyDay
 
 	where := "votes<? AND voted NOT LIKE ?"
+	params := []interface{}{maxVotes - 1, "%\"" + c.Params("uid") + "\"%"}
 	if isAnarchy {
 		where = "1"
+		params = []interface{}{}
 	}
 
-	res, err := e.db.Query("SELECT name FROM suggestions WHERE "+where+" LIMIT 100", maxVotes-1, "%\""+c.Params("uid")+"\"%")
+	res, err := e.db.Query("SELECT name FROM suggestions WHERE "+where+" LIMIT 100", params...)
 	if err != nil {
 		return err
 	}
