@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/Nv7-Github/Nv7Haven/discord"
 	"github.com/Nv7-Github/Nv7Haven/elemental"
 	"github.com/Nv7-Github/Nv7Haven/nv7haven"
 	"github.com/Nv7-Github/Nv7Haven/single"
@@ -54,7 +53,7 @@ func main() {
 
 	single.InitSingle(app, db)
 
-	b := discord.InitDiscord(db)
+	//b := discord.InitDiscord(db)
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
@@ -69,5 +68,5 @@ func main() {
 	}
 
 	e.Close()
-	b.Close()
+	//b.Close()
 }

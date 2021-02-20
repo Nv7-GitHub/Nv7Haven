@@ -96,7 +96,7 @@ func InitDiscord(db *sql.DB) Bot {
 	if err != nil {
 		panic(err)
 	}
-	dg.UpdateStatus(0, "Run 7help to get help on this bot's commands!")
+	dg.UpdateGameStatus(0, "Run 7help to get help on this bot's commands!")
 	return b
 }
 
