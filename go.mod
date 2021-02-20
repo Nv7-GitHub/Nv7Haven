@@ -8,6 +8,7 @@ require (
 	github.com/bwmarrin/discordgo v0.22.0
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gofiber/fiber/v2 v2.3.0
+	github.com/gofiber/websocket/v2 v2.0.2
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/gomarkdown/markdown v0.0.0-20201113031856-722100d81a8e
 	github.com/jdkato/prose/v2 v2.0.0

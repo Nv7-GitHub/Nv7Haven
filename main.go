@@ -30,6 +30,9 @@ func main() {
 	})
 	app.Use(cors.New())
 
+	/* Testing*/
+	websockets(app)
+
 	app.Static("/", "./index.html")
 
 	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
