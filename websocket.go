@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -15,6 +16,7 @@ func websockets(app *fiber.App) {
 			c.Locals("allowed", true)
 			return c.Next()
 		}
+		fmt.Println("upgrade required")
 		return fiber.ErrUpgradeRequired
 	})
 
