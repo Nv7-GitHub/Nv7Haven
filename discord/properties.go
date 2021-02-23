@@ -27,6 +27,34 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+	if b.startsWith(m, "prop") {
+		b.checkuser(m)
+		var id string
+		fmt.Sscanf(m.Content, "prop %s", &id)
+		prop, exists := b.props[id]
+		if !exists {
+			s.ChannelMessageSendReply(m.ChannelID, "BAD", m.MessageReference)
+		}
+		s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
+			Title: fmt.Sprintf("Property %s", prop.Name),
+			Fields: []*discordgo.MessageEmbedField{
+				{
+					Name:  "Price",
+					Value: strconv.Itoa(prop.Cost),
+				},
+				{
+					Name:  "Credit Required",
+					Value: strconv.Itoa(prop.Credit),
+				},
+				{
+					Name:  "Money/Upgrade",
+					Value: strconv.Itoa(prop.Value),
+				},
+			},
+		})
+		return
+	}
+
 	if b.startsWith(m, "inv") {
 		b.checkuser(m)
 		id := m.Author.ID
