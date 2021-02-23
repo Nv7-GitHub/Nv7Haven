@@ -18,6 +18,7 @@ In givenum, you give yourself a number. Then, and admin will run a command that 
 	`warns` - Get all warnings in this server.
 	`addrole <role name>` - Add a role!
 	`giverole <role name>` - Give yourself a role that has been added with the `addrole` command!
+	`norole <role name` - Un-give yourself a role given with the `giverole` command!
 	`rmrole <role name>` - Remove a role!
 
 **Other Commands**
