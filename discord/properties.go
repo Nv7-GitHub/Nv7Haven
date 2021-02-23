@@ -33,10 +33,11 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 		fmt.Sscanf(m.Content, "prop %s", &id)
 		prop, exists := b.props[id]
 		if !exists {
-			s.ChannelMessageSendReply(m.ChannelID, "BAD", m.MessageReference)
+			s.ChannelMessageSendReply(m.ChannelID, fmt.Sprintf("There aren't any properties with id %s!", id), m.MessageReference)
+			return
 		}
 		s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
-			Title: fmt.Sprintf("Property %s", prop.Name),
+			Title: fmt.Sprintf("Property Info: %s", prop.Name),
 			Fields: []*discordgo.MessageEmbedField{
 				{
 					Name:  "Price",
