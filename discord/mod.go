@@ -291,7 +291,7 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("You don't have role `%s`!", name))
 			return
 		}
-		err = s.GuildMemberRoleRemove(m.GuildID, m.ID, role.ID)
+		err = s.GuildMemberRoleRemove(m.GuildID, m.Author.ID, role.ID)
 		if b.handle(err, m) {
 			return
 		}
