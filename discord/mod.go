@@ -237,4 +237,60 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Successfully gave role `%s`", name))
 		return
 	}
+
+	if b.startsWith(m, "norole") {
+		var name string
+		_, err := fmt.Sscanf(m.Content, "norole %s", &name)
+		if b.handle(err, m) {
+			return
+		}
+
+		var role *discordgo.Role
+		roles, err := s.GuildRoles(m.GuildID)
+		if b.handle(err, m) {
+			return
+		}
+		for _, rol := range roles {
+			if rol.Name == name {
+				role = rol
+			}
+		}
+		if role == new(discordgo.Role) {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Role `%s` doesn't exist!", name))
+			return
+		}
+
+		dat := b.getServerData(m, m.GuildID)
+		_, exists := dat["roles"]
+		if !exists {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Role `%s` hasn't been created by this bot!", name))
+			return
+		}
+		_, exists = dat["roles"].(map[string]interface{})[name]
+		if !exists {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Role `%s` hasn't been created by this bot!", name))
+			return
+		}
+
+		if role == nil {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Role `%s` doesn't exist!", name))
+			return
+		}
+
+		hasRole := false
+		for _, rl := range m.Member.Roles {
+			if rl == role.ID {
+				hasRole = true
+				break
+			}
+		}
+		if !hasRole {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("You don't have role `%s`!", name))
+			return
+		}
+		s.GuildMemberRoleRemove(m.GuildID, m.ID, role.ID)
+
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Successfully gave role `%s`", name))
+		return
+	}
 }
