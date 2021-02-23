@@ -290,7 +290,7 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 		s.GuildMemberRoleRemove(m.GuildID, m.ID, role.ID)
 
-		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Successfully gave role `%s`", name))
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Successfully removed role `%s`", name))
 		return
 	}
 }
