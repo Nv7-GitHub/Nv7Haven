@@ -3,7 +3,6 @@ package elemental
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"sort"
 
 	"github.com/Nv7-Github/firebase"
@@ -91,7 +90,7 @@ func InitElemental(app *fiber.App, db *sql.DB) (Elemental, error) {
 	fdb := database.CreateDatabase(firebaseapp)
 
 	// DELETE THIS NEXT TIME
-	res, err := db.Query("SELECT * FROM element_combos WHERE name=?", "Air")
+	res, err := db.Query("SELECT * FROM element_combos WHERE 1")
 	if err != nil {
 		return Elemental{}, err
 	}
@@ -112,7 +111,6 @@ func InitElemental(app *fiber.App, db *sql.DB) (Elemental, error) {
 		for k, v := range combos {
 			thing := []string{name, k}
 			sort.Strings(thing)
-			fmt.Println(thing, v)
 			_, exists := combs[thing[0]]
 			if exists {
 				_, exists = combs[thing[0]][thing[1]]
@@ -127,10 +125,8 @@ func InitElemental(app *fiber.App, db *sql.DB) (Elemental, error) {
 	}
 	for k, v := range combs {
 		for key, val := range v {
-			fmt.Println("SQL INSERT", k, key, val)
 			_, err = db.Exec("INSERT INTO elem_combos VALUES ( ?, ?, ? )", k, key, val)
 			if err != nil {
-				fmt.Println(k, key, val)
 				return Elemental{}, err
 			}
 		}
