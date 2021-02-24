@@ -110,11 +110,12 @@ func (b *Bot) help(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+	if b.startsWith(m, "7help currency") {
+		s.ChannelMessageSend(m.ChannelID, currHelp)
+		return
+	}
+
 	if b.startsWith(m, "7help") {
-		if b.startsWith(m, "7help currency") {
-			s.ChannelMessageSend(m.ChannelID, currHelp)
-			return
-		}
 		s.ChannelMessageSend(m.ChannelID, helpText)
 		return
 	}
