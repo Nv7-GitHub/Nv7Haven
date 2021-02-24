@@ -74,7 +74,7 @@ func (b *Bot) math(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 		name := out[0][1]
 
-		gexp, err := govaluate.NewEvaluableExpressionWithFunctions(m.Content[1:], functions)
+		gexp, err := govaluate.NewEvaluableExpressionWithFunctions(out[0][2], functions)
 		if b.handle(err, m) {
 			return
 		}
