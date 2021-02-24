@@ -2,8 +2,6 @@ package elemental
 
 import (
 	"database/sql"
-	"encoding/json"
-	"sort"
 
 	"github.com/Nv7-Github/firebase"
 	"github.com/Nv7-Github/firebase/db"
@@ -88,49 +86,6 @@ func InitElemental(app *fiber.App, db *sql.DB) (Elemental, error) {
 	}
 
 	fdb := database.CreateDatabase(firebaseapp)
-
-	// DELETE THIS NEXT TIME
-	res, err := db.Query("SELECT * FROM element_combos WHERE name=?", "Geyser")
-	if err != nil {
-		return Elemental{}, err
-	}
-	defer res.Close()
-	var name string
-	var combodat string
-	var combos map[string]string
-	var combs map[string]map[string]string = make(map[string]map[string]string)
-	for res.Next() {
-		err = res.Scan(&name, &combodat)
-		if err != nil {
-			return Elemental{}, err
-		}
-		err = json.Unmarshal([]byte(combodat), &combos)
-		if err != nil {
-			return Elemental{}, err
-		}
-		for k, v := range combos {
-			thing := []string{name, k}
-			sort.Strings(thing)
-			_, exists := combs[thing[0]]
-			if exists {
-				_, exists = combs[thing[0]][thing[1]]
-				if !exists {
-					combs[thing[0]][thing[1]] = v
-				}
-			} else {
-				combs[thing[0]] = make(map[string]string)
-				combs[thing[0]][thing[1]] = v
-			}
-		}
-	}
-	for k, v := range combs {
-		for key, val := range v {
-			_, err = db.Exec("INSERT INTO elem_combos VALUES ( ?, ?, ? )", k, key, val)
-			if err != nil {
-				return Elemental{}, err
-			}
-		}
-	}
 
 	e := Elemental{
 		db:    db,
