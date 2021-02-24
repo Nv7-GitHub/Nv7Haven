@@ -113,7 +113,7 @@ func InitElemental(app *fiber.App, db *sql.DB) (Elemental, error) {
 			thing := []string{name, k}
 			sort.Strings(thing)
 			_, exists := combs[thing[0]]
-			if !exists {
+			if exists {
 				_, exists = combs[thing[0]][thing[1]]
 				if !exists {
 					combs[thing[0]][thing[1]] = v
