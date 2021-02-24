@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"sort"
 
 	"github.com/Nv7-Github/firebase"
 	"github.com/Nv7-Github/firebase/db"
@@ -109,12 +110,17 @@ func InitElemental(app *fiber.App, db *sql.DB) (Elemental, error) {
 			return Elemental{}, err
 		}
 		for k, v := range combos {
-			_, exists := combs[name]
+			thing := []string{name, k}
+			sort.Strings(thing)
+			_, exists := combs[thing[0]]
 			if !exists {
-				_, exists = combs[k]
+				_, exists = combs[thing[0]][thing[1]]
 				if !exists {
-					combs[name][k] = v
+					combs[thing[0]][thing[1]] = v
 				}
+			} else {
+				combs[thing[0]] = make(map[string]string)
+				combs[thing[0]][thing[1]] = v
 			}
 		}
 	}
