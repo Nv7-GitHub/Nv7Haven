@@ -127,6 +127,7 @@ func InitElemental(app *fiber.App, db *sql.DB) (Elemental, error) {
 	}
 	for k, v := range combs {
 		for key, val := range v {
+			fmt.Println("SQL INSERT", k, key, val)
 			_, err = db.Exec("INSERT INTO elem_combos VALUES ( ?, ?, ? )", k, key, val)
 			if err != nil {
 				fmt.Println(k, key, val)
