@@ -112,6 +112,7 @@ func InitElemental(app *fiber.App, db *sql.DB) (Elemental, error) {
 		for k, v := range combos {
 			thing := []string{name, k}
 			sort.Strings(thing)
+			fmt.Println(thing)
 			_, exists := combs[thing[0]]
 			if exists {
 				_, exists = combs[thing[0]][thing[1]]
