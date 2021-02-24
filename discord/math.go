@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math"
 	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/Knetic/govaluate"
@@ -74,10 +73,6 @@ func (b *Bot) math(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 		name := out[0][1]
-		val, err := strconv.ParseFloat(out[0][2], 64)
-		if b.handle(err, m) {
-			return
-		}
 
 		gexp, err := govaluate.NewEvaluableExpressionWithFunctions(m.Content[1:], functions)
 		if b.handle(err, m) {
@@ -92,7 +87,7 @@ func (b *Bot) math(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 		b.mathvars[m.GuildID][name] = result
-		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Successfuly set variable %s to %f", name, val))
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Successfuly set variable %s to %v", name, result))
 		return
 	}
 
