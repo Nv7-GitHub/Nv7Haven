@@ -91,7 +91,7 @@ func InitElemental(app *fiber.App, db *sql.DB) (Elemental, error) {
 	fdb := database.CreateDatabase(firebaseapp)
 
 	// DELETE THIS NEXT TIME
-	res, err := db.Query("SELECT * FROM element_combos WHERE 1")
+	res, err := db.Query("SELECT * FROM element_combos WHERE name=?", "Air")
 	if err != nil {
 		return Elemental{}, err
 	}
