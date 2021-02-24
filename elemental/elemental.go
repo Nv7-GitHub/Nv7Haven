@@ -2,6 +2,7 @@ package elemental
 
 import (
 	"database/sql"
+	"encoding/json"
 
 	"github.com/Nv7-Github/firebase"
 	"github.com/Nv7-Github/firebase/db"
@@ -86,6 +87,32 @@ func InitElemental(app *fiber.App, db *sql.DB) (Elemental, error) {
 	}
 
 	fdb := database.CreateDatabase(firebaseapp)
+
+	// DELETE THIS NEXT TIME
+	res, err := db.Query("SELECT * FROM element_combos WHERE 1")
+	if err != nil {
+		return Elemental{}, err
+	}
+	defer res.Close()
+	var name string
+	var combodat string
+	var combos map[string]string
+	for res.Next() {
+		err = res.Scan(&name, &combodat)
+		if err != nil {
+			return Elemental{}, err
+		}
+		err = json.Unmarshal([]byte(combodat), &combos)
+		if err != nil {
+			return Elemental{}, err
+		}
+		for k, v := range combos {
+			_, err = db.Exec("INSERT INTO elem_combos VALUES ( ?, ?, ? )", name, k, v)
+			if err != nil {
+				return Elemental{}, err
+			}
+		}
+	}
 
 	e := Elemental{
 		db:    db,
