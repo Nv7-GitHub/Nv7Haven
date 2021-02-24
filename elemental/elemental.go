@@ -98,7 +98,7 @@ func InitElemental(app *fiber.App, db *sql.DB) (Elemental, error) {
 	var name string
 	var combodat string
 	var combos map[string]string
-	var combs map[string]map[string]string
+	var combs map[string]map[string]string = make(map[string]map[string]string)
 	for res.Next() {
 		err = res.Scan(&name, &combodat)
 		if err != nil {
