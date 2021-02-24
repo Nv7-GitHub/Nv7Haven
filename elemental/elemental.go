@@ -3,6 +3,7 @@ package elemental
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 
 	"github.com/Nv7-Github/firebase"
 	"github.com/Nv7-Github/firebase/db"
@@ -109,6 +110,7 @@ func InitElemental(app *fiber.App, db *sql.DB) (Elemental, error) {
 		for k, v := range combos {
 			_, err = db.Exec("INSERT INTO elem_combos VALUES ( ?, ?, ? )", name, k, v)
 			if err != nil {
+				fmt.Println(name, k, v)
 				return Elemental{}, err
 			}
 		}
