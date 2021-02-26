@@ -4,11 +4,10 @@ import (
 	"net/url"
 
 	"github.com/gofiber/fiber/v2"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func (e *Elemental) createUser(c *fiber.Ctx) error {
-	
-	
 	name, err := url.PathUnescape(c.Params("name"))
 	if err != nil {
 		return c.JSON(map[string]interface{}{
@@ -17,6 +16,13 @@ func (e *Elemental) createUser(c *fiber.Ctx) error {
 		})
 	}
 	password, err := url.PathUnescape(c.Params("password"))
+	if err != nil {
+		return c.JSON(map[string]interface{}{
+			"success": false,
+			"data":    err.Error(),
+		})
+	}
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 8)
 	if err != nil {
 		return c.JSON(map[string]interface{}{
 			"success": false,
@@ -75,7 +81,7 @@ func (e *Elemental) createUser(c *fiber.Ctx) error {
 		})
 	}
 
-	_, err = e.db.Exec("INSERT INTO users VALUES( ?, ?, ?, ? )", name, uid, password, `["Air", "Earth", "Fire", "Water"]`)
+	_, err = e.db.Exec("INSERT INTO users VALUES( ?, ?, ?, ? )", name, uid, string(hashedPassword), `["Air", "Earth", "Fire", "Water"]`)
 	if err != nil {
 		return c.JSON(map[string]interface{}{
 			"success": false,
@@ -90,8 +96,6 @@ func (e *Elemental) createUser(c *fiber.Ctx) error {
 }
 
 func (e *Elemental) loginUser(c *fiber.Ctx) error {
-	
-	
 	name, err := url.PathUnescape(c.Params("name"))
 	if err != nil {
 		return c.JSON(map[string]interface{}{
@@ -108,7 +112,7 @@ func (e *Elemental) loginUser(c *fiber.Ctx) error {
 	}
 
 	// Check if user exists
-	res, err := e.db.Query("SELECT COUNT(1) FROM users WHERE name=? AND password=? LIMIT 1", name, password)
+	res, err := e.db.Query("SELECT COUNT(1) FROM users WHERE name=?", name, password)
 	if err != nil {
 		return err
 	}
@@ -129,7 +133,7 @@ func (e *Elemental) loginUser(c *fiber.Ctx) error {
 		})
 	}
 
-	res, err = e.db.Query("SELECT uid FROM users WHERE name=? AND password=? LIMIT 1", name, password)
+	res, err = e.db.Query("SELECT uid, password FROM users WHERE name=? LIMIT 1", name)
 	if err != nil {
 		return c.JSON(map[string]interface{}{
 			"success": false,
@@ -138,8 +142,17 @@ func (e *Elemental) loginUser(c *fiber.Ctx) error {
 	}
 	defer res.Close()
 	var uid string
+	var pwd string
 	res.Next()
-	err = res.Scan(&uid)
+	err = res.Scan(&uid, &pwd)
+	if err != nil {
+		return c.JSON(map[string]interface{}{
+			"success": false,
+			"data":    err.Error(),
+		})
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(pwd), []byte(password))
 	if err != nil {
 		return c.JSON(map[string]interface{}{
 			"success": false,
@@ -154,8 +167,6 @@ func (e *Elemental) loginUser(c *fiber.Ctx) error {
 }
 
 func (e *Elemental) newAnonymousUser(c *fiber.Ctx) error {
-	
-	
 	count := 1
 	var name string
 	var err error

@@ -14,4 +14,5 @@ require (
 	github.com/jdkato/prose/v2 v2.0.0
 	github.com/jmcvetta/randutil v0.0.0-20150817122601-2bb1b664bcff
 	github.com/mitchellh/mapstructure v1.4.1
+	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83
 )
