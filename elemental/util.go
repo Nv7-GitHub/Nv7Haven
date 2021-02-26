@@ -3,7 +3,6 @@ package elemental
 import (
 	"crypto/rand"
 	"encoding/base64"
-	"encoding/json"
 )
 
 // https://gist.github.com/dopey/c69559607800d2f2f90b1b1ed4e550fb
@@ -51,66 +50,26 @@ func GenerateRandomStringURLSafe(n int) (string, error) {
 
 // MY FUNCTIONS BELOW
 
-func (e *Elemental) getSuggestions(elem1 string) (map[string][]string, error) {
-	res, err := e.db.Query("SELECT combos FROM suggestion_combos WHERE name=?", elem1)
+func (e *Elemental) getSuggestions(elem1 string, elem2 string) ([]string, error) {
+	res, err := e.db.Query("SELECT combos FROM sugg_combos WHERE (elem1=? AND elem2=?) OR (elem1=? AND elem2=?)", elem1, elem2, elem2, elem1)
 	if err != nil {
 		return nil, err
 	}
 	defer res.Close()
-	var data string
-	res.Next()
-	err = res.Scan(&data)
-	if err != nil {
-		dat := map[string][]string{elem1: make([]string, 0)}
-		data, err := json.Marshal(dat)
+	var item string
+	var out []string
+	for res.Next() {
+		err = res.Scan(&item)
 		if err != nil {
 			return nil, err
 		}
-		_, err = e.db.Exec("INSERT INTO suggestion_combos VALUES (?, ?)", elem1, data)
-		if err != nil {
-			return nil, err
-		}
-		return dat, nil
-	}
-	var out map[string][]string
-	err = json.Unmarshal([]byte(data), &out)
-	if err != nil {
-		return nil, err
+		out = append(out, item)
 	}
 	return out, nil
 }
 
 func (e *Elemental) addCombo(elem1 string, elem2 string, out string) error {
-	res, err := e.db.Query("SELECT combos FROM element_combos WHERE name=?", elem1)
-	if err != nil {
-		return err
-	}
-	defer res.Close()
-	var data string
-	res.Next()
-	err = res.Scan(&data)
-	if err != nil {
-		data = ""
-		_, err = e.db.Exec("INSERT INTO element_combos VALUES (?, ?)", elem1, "{}")
-		if err != nil {
-			return err
-		}
-	}
-	var combos map[string]string
-	if data == "" {
-		combos = make(map[string]string, 0)
-	} else {
-		err = json.Unmarshal([]byte(data), &combos)
-		if err != nil {
-			return err
-		}
-	}
-	combos[elem2] = out
-	dat, err := json.Marshal(combos)
-	if err != nil {
-		return err
-	}
-	_, err = e.db.Exec("UPDATE element_combos SET combos=? WHERE name=?", string(dat), elem1)
+	_, err := e.db.Exec("INSERT INTO elem_combos VALUES ( ?, ?, ? )", elem1, elem2, out)
 	if err != nil {
 		return err
 	}

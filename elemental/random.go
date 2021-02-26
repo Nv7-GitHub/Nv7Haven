@@ -1,7 +1,6 @@
 package elemental
 
 import (
-	"encoding/json"
 	"math/rand"
 	"time"
 
@@ -47,11 +46,10 @@ func (e *Elemental) upAndComingSuggestion(c *fiber.Ctx) error {
 				return c.JSON(parents)
 			}
 
-			data, err := e.getSuggestions(parents[0])
+			combos, err := e.getSuggNeighbors(parents[1])
 			if err != nil {
 				return err
 			}
-			combos := data[parents[1]]
 
 			for _, sugg := range combos {
 				sugg, err := e.getSugg(sugg)
@@ -111,11 +109,10 @@ func (e *Elemental) randomLonelySuggestion(c *fiber.Ctx) error {
 				return c.JSON(parents)
 			}
 
-			data, err := e.getSuggestions(parents[0])
+			combos, err := e.getSuggNeighbors(parents[1])
 			if err != nil {
 				return err
 			}
-			combos := data[parents[1]]
 
 			for _, sugg := range combos {
 				sugg, err := e.getSugg(sugg)
@@ -136,29 +133,30 @@ func (e *Elemental) randomLonelySuggestion(c *fiber.Ctx) error {
 }
 
 func (e *Elemental) getSuggParents(item string) ([]string, error) {
-	res, err := e.db.Query("SELECT * FROM suggestion_combos WHERE combos LIKE ?", "%\""+item+"\"%")
+	row := e.db.QueryRow("SELECT elem1, elem2 FROM sugg_combos WHERE elem3=?", item)
+	var elem1 string
+	var elem2 string
+	err := row.Scan(&elem1, &elem2)
 	if err != nil {
 		return nil, err
 	}
-	var name string
-	var combos string
-	var comboDat map[string][]string
-	for res.Next() {
-		err = res.Scan(&name, &combos)
-		if err != nil {
-			return nil, err
-		}
-		err = json.Unmarshal([]byte(combos), &comboDat)
-		if err != nil {
-			return nil, err
-		}
-		for k, v := range comboDat {
-			for _, val := range v {
-				if val == item {
-					return []string{name, k}, nil
-				}
-			}
-		}
+	return []string{elem1, elem2}, nil
+}
+
+func (e *Elemental) getSuggNeighbors(elem1 string) ([]string, error) {
+	res, err := e.db.Query("SELECT elem3 FROM sugg_combos WHERE elem1=? OR elem2=?", elem1)
+	if err != nil {
+		return nil, err
 	}
-	return []string{}, nil
+	defer res.Close()
+	var dat string
+	var out []string
+	for res.Next() {
+		err = res.Scan(&dat)
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, dat)
+	}
+	return out, nil
 }

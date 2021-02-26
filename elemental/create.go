@@ -40,11 +40,10 @@ func (e *Elemental) createSuggestion(c *fiber.Ctx) error {
 	}
 
 	// Get combos
-	comboData, err := e.getSuggestions(elem1)
+	combos, err := e.getSuggestions(elem1, elem2)
 	if err != nil {
 		return err
 	}
-	combos := comboData[elem2]
 
 	// Delete hanging elements
 	for _, val := range combos {
@@ -55,19 +54,14 @@ func (e *Elemental) createSuggestion(c *fiber.Ctx) error {
 	}
 
 	// Delete combos
-	delete(comboData, elem2)
-	data, err := json.Marshal(comboData)
-	if err != nil {
-		return err
-	}
-	_, err = e.db.Exec("UPDATE suggestion_combos SET combos=? WHERE name=?", data, elem1)
+	_, err = e.db.Exec("DELETE FROM sugg_combos WHERE (elem1=? AND elem2=?) OR (elem1=? AND elem2=?)", elem1, elem2, elem2, elem1)
 	if err != nil {
 		return err
 	}
 
 	// New Recent Combo
 	var recents []RecentCombination
-	data, err = e.fdb.Get("recent")
+	data, err := e.fdb.Get("recent")
 	if err != nil {
 		return err
 	}

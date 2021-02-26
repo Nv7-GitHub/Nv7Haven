@@ -74,11 +74,11 @@ func (e *Elemental) getSuggestionCombos(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	data, err := e.getSuggestions(elem1)
+	data, err := e.getSuggestions(elem1, elem2)
 	if err != nil {
 		return err
 	}
-	return c.JSON(data[elem2])
+	return c.JSON(data)
 }
 
 func (e *Elemental) downVoteSuggestion(c *fiber.Ctx) error {
@@ -176,16 +176,7 @@ func (e *Elemental) newSuggestion(c *fiber.Ctx) error {
 		return err
 	}
 
-	combos, err := e.getSuggestions(elem1)
-	if err != nil {
-		return err
-	}
-	combos[elem2] = append(combos[elem2], suggestion.Name)
-	data, err := json.Marshal(combos)
-	if err != nil {
-		return err
-	}
-	_, err = e.db.Exec("UPDATE suggestion_combos SET combos=? WHERE name=?", data, elem1)
+	_, err = e.db.Exec("INSERT INTO sugg_combos VALUES ( ?, ?, ? )", elem1, elem2, suggestion.Name)
 	if err != nil {
 		return err
 	}
