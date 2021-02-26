@@ -89,7 +89,7 @@ func (e *Elemental) getCombo(c *fiber.Ctx) error {
 		})
 	}
 
-	res, err = e.db.Query("SELECT elem3 FROM FROM elem_combos WHERE (elem1=? AND elem2=?) OR (elem1=? AND elem2=?) LIMIT 1", elem1, elem2, elem2, elem1)
+	res, err = e.db.Query("SELECT elem3 FROM elem_combos WHERE (elem1=? AND elem2=?) OR (elem1=? AND elem2=?) LIMIT 1", elem1, elem2, elem2, elem1)
 	if err != nil {
 		return err
 	}
