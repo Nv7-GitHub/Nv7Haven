@@ -144,7 +144,7 @@ func (e *Elemental) getSuggParents(item string) ([]string, error) {
 }
 
 func (e *Elemental) getSuggNeighbors(elem1 string) ([]string, error) {
-	res, err := e.db.Query("SELECT elem3 FROM sugg_combos WHERE elem1=? OR elem2=?", elem1)
+	res, err := e.db.Query("SELECT elem3 FROM sugg_combos WHERE elem1=? OR elem2=?", elem1, elem1)
 	if err != nil {
 		return nil, err
 	}
