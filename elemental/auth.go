@@ -112,7 +112,7 @@ func (e *Elemental) loginUser(c *fiber.Ctx) error {
 	}
 
 	// Check if user exists
-	res, err := e.db.Query("SELECT COUNT(1) FROM users WHERE name=?", name, password)
+	res, err := e.db.Query("SELECT COUNT(1) FROM users WHERE name=?", name)
 	if err != nil {
 		return err
 	}
