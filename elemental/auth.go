@@ -129,7 +129,7 @@ func (e *Elemental) loginUser(c *fiber.Ctx) error {
 	if count == 0 {
 		return c.JSON(map[string]interface{}{
 			"success": false,
-			"data":    "Invalid username or password",
+			"data":    "Invalid username",
 		})
 	}
 
@@ -156,7 +156,7 @@ func (e *Elemental) loginUser(c *fiber.Ctx) error {
 	if err != nil {
 		return c.JSON(map[string]interface{}{
 			"success": false,
-			"data":    err.Error(),
+			"data":    "Invalid password",
 		})
 	}
 
