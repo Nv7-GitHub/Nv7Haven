@@ -75,7 +75,7 @@ func (e *Elemental) getCombo(c *fiber.Ctx) error {
 		return err
 	}
 
-	res, err := e.db.Query("SELECT COUNT(1) FROM element_combos WHERE name=? LIMIT 1", elem1)
+	res, err := e.db.Query("SELECT COUNT(1) FROM elem_combos WHERE (elem1=? AND elem2=?) OR (elem1=? AND elem2=?) LIMIT 1", elem1, elem2, elem2, elem1)
 	if err != nil {
 		return err
 	}
@@ -89,33 +89,21 @@ func (e *Elemental) getCombo(c *fiber.Ctx) error {
 		})
 	}
 
-	var data map[string]string
-	res, err = e.db.Query("SELECT combos FROM element_combos WHERE name=? LIMIT 1", elem1)
+	res, err = e.db.Query("SELECT elem3 FROM FROM elem_combos WHERE (elem1=? AND elem2=?) OR (elem1=? AND elem2=?) LIMIT 1", elem1, elem2, elem2, elem1)
 	if err != nil {
 		return err
 	}
 	defer res.Close()
-	var comboData string
+	var elem3 string
 	res.Next()
-	err = res.Scan(&comboData)
+	err = res.Scan(&elem3)
 	if err != nil {
 		return err
-	}
-	err = json.Unmarshal([]byte(comboData), &data)
-	if err != nil {
-		return err
-	}
-
-	output, exists := data[elem2]
-	if !exists {
-		return c.JSON(map[string]bool{
-			"exists": false,
-		})
 	}
 
 	return c.JSON(map[string]interface{}{
 		"exists": true,
-		"combo":  output,
+		"combo":  elem3,
 	})
 }
 
