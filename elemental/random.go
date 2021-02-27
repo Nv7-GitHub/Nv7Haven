@@ -21,6 +21,7 @@ func (e *Elemental) upAndComingSuggestion(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	defer res.Close()
 	comings := make([]string, 0)
 	var name string
 	for res.Next() {
@@ -84,6 +85,7 @@ func (e *Elemental) randomLonelySuggestion(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	defer res.Close()
 	comings := make([]string, 0)
 	var name string
 	for res.Next() {

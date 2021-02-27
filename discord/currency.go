@@ -138,6 +138,7 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if b.handle(err, m) {
 			return
 		}
+		defer res.Close()
 
 		var ldb string
 		var user string
