@@ -18,6 +18,7 @@ type Element struct {
 	Parents   []string `json:"parents"`
 	Pioneer   string   `json:"pioneer"`
 	Uses      int      `json:"uses"`
+	FoundBy   int      `json:"foundby"`
 	hasLoaded bool
 }
 
@@ -47,16 +48,6 @@ func (e *Elemental) getElement(elemName string) (Element, error) {
 			elem.Parents = make([]string, 0)
 		}
 
-		uses, err := e.db.Query("SELECT COUNT(1) FROM elem_combos WHERE elem1=? OR elem2=?", elem.Name, elem.Name)
-		if err != nil {
-			return Element{}, err
-		}
-		uses.Next()
-		err = uses.Scan(&elem.Uses)
-		if err != nil {
-			return Element{}, err
-		}
-
 		var mutex = &sync.RWMutex{}
 		mutex.Lock()
 		e.cache[elemName] = elem
@@ -68,12 +59,24 @@ func (e *Elemental) getElement(elemName string) (Element, error) {
 		if err != nil {
 			return Element{}, err
 		}
-		uses.Next()
 		defer uses.Close()
+		uses.Next()
 		err = uses.Scan(&val.Uses)
 		if err != nil {
 			return Element{}, err
 		}
+
+		foundby, err := e.db.Query("SELECT COUNT(1) FROM users WHERE inventory LIKE ?", `%`+val.Name+`%`)
+		if err != nil {
+			return Element{}, err
+		}
+		defer foundby.Close()
+		foundby.Next()
+		err = foundby.Scan(&val.FoundBy)
+		if err != nil {
+			return Element{}, err
+		}
+
 		var mutex = &sync.RWMutex{}
 		mutex.Lock()
 		e.cache[elemName] = val
