@@ -2,6 +2,7 @@ package elemental
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/Nv7-Github/firebase"
 	"github.com/Nv7-Github/firebase/db"
@@ -52,12 +53,12 @@ func (e *Elemental) init() {
 		}
 		uses, err := e.db.Query("SELECT COUNT(1) FROM elem_combos WHERE elem1=? OR elem2=?", elem.Name, elem.Name)
 		if err != nil {
-			panic(err)
+			fmt.Println(err)
 		}
 		uses.Next()
 		err = uses.Scan(&elem.Uses)
 		if err != nil {
-			panic(err)
+			fmt.Println(err)
 		}
 		e.cache[elem.Name] = elem
 	}
