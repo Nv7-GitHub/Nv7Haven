@@ -34,6 +34,35 @@ type Elemental struct {
 	fdb   *db.Db
 }
 
+func (e *Elemental) init() {
+	res, err := e.db.Query("SELECT * FROM elements WHERE 1")
+	if err != nil {
+		panic(err)
+	}
+	defer res.Close()
+	for res.Next() {
+		var elem Element
+		elem.Parents = make([]string, 2)
+		err = res.Scan(&elem.Name, &elem.Color, &elem.Comment, &elem.Parents[0], &elem.Parents[1], &elem.Creator, &elem.Pioneer, &elem.CreatedOn)
+		if err != nil {
+			panic(err)
+		}
+		if (elem.Parents[0] == "") && (elem.Parents[1] == "") {
+			elem.Parents = make([]string, 0)
+		}
+		uses, err := e.db.Query("SELECT COUNT(1) FROM elem_combos WHERE elem1=? OR elem2=?", elem.Name, elem.Name)
+		if err != nil {
+			panic(err)
+		}
+		uses.Next()
+		err = uses.Scan(&elem.Uses)
+		if err != nil {
+			panic(err)
+		}
+		e.cache[elem.Name] = elem
+	}
+}
+
 func (e *Elemental) routing(app *fiber.App) {
 	app.Get("/get_combo/:elem1/:elem2", e.getCombo)
 	app.Get("/get_elem/:elem", e.getElem)
@@ -72,6 +101,7 @@ func InitElemental(app *fiber.App, db *sql.DB) (Elemental, error) {
 		cache: make(map[string]Element),
 		fdb:   fdb,
 	}
+	e.init()
 	e.routing(app)
 
 	return e, nil
