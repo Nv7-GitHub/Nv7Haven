@@ -50,15 +50,6 @@ func (e *Elemental) init() {
 		if (elem.Parents[0] == "") && (elem.Parents[1] == "") {
 			elem.Parents = make([]string, 0)
 		}
-		uses, err := e.db.Query("SELECT COUNT(1) FROM elem_combos WHERE elem1=? OR elem2=?", elem.Name, elem.Name)
-		if err != nil {
-			panic(err)
-		}
-		uses.Next()
-		err = uses.Scan(&elem.Uses)
-		if err != nil {
-			panic(err)
-		}
 		e.cache[elem.Name] = elem
 	}
 }
