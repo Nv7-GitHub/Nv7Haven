@@ -66,7 +66,7 @@ func (e *Elemental) getElement(elemName string) (Element, error) {
 			return Element{}, err
 		}
 
-		foundby, err := e.db.Query("SELECT COUNT(1) FROM users WHERE inventory LIKE ?", `%`+val.Name+`%`)
+		foundby, err := e.db.Query("SELECT COUNT(1) FROM users WHERE found LIKE ?", `%`+val.Name+`%`)
 		if err != nil {
 			return Element{}, err
 		}
