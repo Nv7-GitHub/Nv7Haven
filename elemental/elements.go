@@ -76,6 +76,7 @@ func (e *Elemental) getElement(elemName string) (Element, error) {
 		if err != nil {
 			return Element{}, err
 		}
+		val.hasLoaded = true
 
 		var mutex = &sync.RWMutex{}
 		mutex.Lock()
