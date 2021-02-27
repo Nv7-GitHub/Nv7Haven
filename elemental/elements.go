@@ -29,6 +29,7 @@ type Color struct {
 }
 
 func (e *Elemental) getElement(elemName string) (Element, error) {
+	fmt.Println(elemName)
 	val, exists := e.cache[elemName]
 	if !exists {
 		var elem Element
