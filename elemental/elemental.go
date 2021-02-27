@@ -35,22 +35,18 @@ type Elemental struct {
 }
 
 func (e *Elemental) init() {
-	res, err := e.db.Query("SELECT * FROM elements WHERE 1")
+	res, err := e.db.Query("SELECT name FROM elements WHERE 1")
 	if err != nil {
 		panic(err)
 	}
 	defer res.Close()
 	for res.Next() {
-		var elem Element
-		elem.Parents = make([]string, 2)
-		err = res.Scan(&elem.Name, &elem.Color, &elem.Comment, &elem.Parents[0], &elem.Parents[1], &elem.Creator, &elem.Pioneer, &elem.CreatedOn)
+		var name string
+		err = res.Scan(&name)
 		if err != nil {
 			panic(err)
 		}
-		if (elem.Parents[0] == "") && (elem.Parents[1] == "") {
-			elem.Parents = make([]string, 0)
-		}
-		e.cache[elem.Name] = elem
+		go e.getElement(name)
 	}
 }
 

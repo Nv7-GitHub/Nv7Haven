@@ -2,7 +2,6 @@ package elemental
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/url"
 	"sync"
 
@@ -29,7 +28,6 @@ type Color struct {
 }
 
 func (e *Elemental) getElement(elemName string) (Element, error) {
-	fmt.Println(elemName)
 	val, exists := e.cache[elemName]
 	if !exists {
 		var elem Element
@@ -48,7 +46,6 @@ func (e *Elemental) getElement(elemName string) (Element, error) {
 			elem.Parents = make([]string, 0)
 		}
 
-		fmt.Println(elem.Name)
 		uses, err := e.db.Query("SELECT COUNT(1) FROM elem_combos WHERE elem1=? OR elem2=?", elem.Name, elem.Name)
 		if err != nil {
 			return Element{}, err
