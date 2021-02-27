@@ -17,6 +17,7 @@ type Element struct {
 	Name      string   `json:"name"`
 	Parents   []string `json:"parents"`
 	Pioneer   string   `json:"pioneer"`
+	Uses      int      `json:"uses"`
 }
 
 // Color has the data for a suggestion's color
@@ -44,6 +45,13 @@ func (e *Elemental) getElement(elemName string) (Element, error) {
 		if (elem.Parents[0] == "") && (elem.Parents[1] == "") {
 			elem.Parents = make([]string, 0)
 		}
+
+		uses := e.db.QueryRow("SELECT COUNT(1) FROM elem_combos WHERE elem1=? OR elem2=?", elem.Name, elem.Name)
+		err = uses.Scan(&elem.Uses)
+		if err != nil {
+			return Element{}, err
+		}
+
 		var mutex = &sync.RWMutex{}
 		mutex.Lock()
 		e.cache[elemName] = elem
