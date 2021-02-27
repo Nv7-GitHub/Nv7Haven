@@ -69,6 +69,7 @@ func (e *Elemental) getElement(elemName string) (Element, error) {
 			return Element{}, err
 		}
 		uses.Next()
+		defer uses.Close()
 		err = uses.Scan(&val.Uses)
 		if err != nil {
 			return Element{}, err
