@@ -46,7 +46,11 @@ func (e *Elemental) getElement(elemName string) (Element, error) {
 			elem.Parents = make([]string, 0)
 		}
 
-		uses := e.db.QueryRow("SELECT COUNT(1) FROM elem_combos WHERE elem1=? OR elem2=?", elem.Name, elem.Name)
+		uses, err := e.db.Query("SELECT COUNT(1) FROM elem_combos WHERE elem1=? OR elem2=?", elem.Name, elem.Name)
+		if err != nil {
+			return Element{}, err
+		}
+		uses.Next()
 		err = uses.Scan(&elem.Uses)
 		if err != nil {
 			return Element{}, err
