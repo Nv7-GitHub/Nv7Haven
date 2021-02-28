@@ -30,20 +30,18 @@ type meme struct {
 	Permalink string
 }
 
-func makeMemeEmbed(m meme) *discordgo.MessageEmbed {
+func (b *Bot) makeMemeEmbed(m meme, msg *discordgo.MessageCreate) *discordgo.MessageEmbed {
 	mE := &discordgo.MessageEmbed{
 		URL:   m.Permalink,
 		Type:  discordgo.EmbedTypeImage,
 		Title: m.Title,
 	}
-	if strings.Contains(m.URL, "youtu") {
-		mE.Video = &discordgo.MessageEmbedVideo{
-			URL: m.URL,
-		}
-	} else {
+	if !strings.Contains(m.URL, "youtu") {
 		mE.Image = &discordgo.MessageEmbedImage{
 			URL: m.URL,
 		}
+	} else {
+		b.dg.ChannelMessageSend(msg.ChannelID, m.URL)
 	}
 	return mE
 }
@@ -85,7 +83,7 @@ func (b *Bot) memes(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 		b.memecache[m.GuildID][randnum] = empty{}
 		meme := b.memedat[randnum]
-		_, err := s.ChannelMessageSendEmbed(m.ChannelID, makeMemeEmbed(meme))
+		_, err := s.ChannelMessageSendEmbed(m.ChannelID, b.makeMemeEmbed(meme, m))
 		if b.handle(err, m) {
 			return
 		}
@@ -123,7 +121,7 @@ func (b *Bot) memes(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 		b.cmemecache[m.GuildID][randnum] = empty{}
 		meme := b.cmemedat[randnum]
-		_, err := s.ChannelMessageSendEmbed(m.ChannelID, makeMemeEmbed(meme))
+		_, err := s.ChannelMessageSendEmbed(m.ChannelID, b.makeMemeEmbed(meme, m))
 		if b.handle(err, m) {
 			return
 		}
@@ -161,7 +159,7 @@ func (b *Bot) memes(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 		b.pmemecache[m.GuildID][randnum] = empty{}
 		meme := b.pmemedat[randnum]
-		_, err := s.ChannelMessageSendEmbed(m.ChannelID, makeMemeEmbed(meme))
+		_, err := s.ChannelMessageSendEmbed(m.ChannelID, b.makeMemeEmbed(meme, m))
 		if b.handle(err, m) {
 			return
 		}
