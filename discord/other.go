@@ -132,7 +132,7 @@ func (b *Bot) other(s *discordgo.Session, m *discordgo.MessageCreate) {
 		toRate := []byte(m.Content[5:])
 		var seed int64 = 0
 		for i, val := range toRate {
-			seed += int64(math.Pow(10, float64(i))) * int64(val)
+			seed += int64(math.Pow(10, float64(i+1))) * int64(val)
 		}
 		rand.Seed(seed)
 		rating := rand.Intn(12)
