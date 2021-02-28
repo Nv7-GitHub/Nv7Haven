@@ -126,6 +126,21 @@ func (b *Bot) other(s *discordgo.Session, m *discordgo.MessageCreate) {
 		b.prefixcache[m.GuildID] = prefix
 		s.ChannelMessageSend(m.ChannelID, "Successfully update prefix!")
 	}
+
+	if strings.HasPrefix(m.Content, "rate") {
+		toRate := []byte(m.Content[5:])
+		text := ""
+		for _, val := range toRate {
+			text += strconv.Itoa(int(val))
+		}
+		num, err := strconv.Atoi(text)
+		if b.handle(err, m) {
+			return
+		}
+		rand.Seed(int64(num))
+		rating := rand.Intn(12)
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s is a %d / 10!", toRate, rating))
+	}
 }
 
 type ghSearch struct {
