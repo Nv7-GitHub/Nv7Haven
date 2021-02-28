@@ -2,6 +2,7 @@ package discord
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"net/url"
 	"strconv"
@@ -127,17 +128,13 @@ func (b *Bot) other(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, "Successfully update prefix!")
 	}
 
-	if strings.HasPrefix(m.Content, "rate") {
+	if b.startsWith(m, "rate") {
 		toRate := []byte(m.Content[5:])
-		text := ""
-		for _, val := range toRate {
-			text += strconv.Itoa(int(val))
+		var seed int64 = 0
+		for i, val := range toRate {
+			seed += int64(math.Pow(10, float64(i))) * int64(val)
 		}
-		num, err := strconv.Atoi(text)
-		if b.handle(err, m) {
-			return
-		}
-		rand.Seed(int64(num))
+		rand.Seed(seed)
 		rating := rand.Intn(12)
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s is a %d / 10!", toRate, rating))
 	}
