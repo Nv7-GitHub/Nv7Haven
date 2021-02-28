@@ -29,3 +29,4 @@ In givenum, you give yourself a number. Then, and admin will run a command that 
 	`gh <query>` - Get info on a github repository!
 	`listmemes` - Get a list of meme templates that the bot can generate memes with!
 	`genmeme <meme template name> <meme text>` - Generate a meme!
+	`rate <anything>` - Get the bot's opinion on something!
