@@ -15,6 +15,7 @@ const (
 	dbPassword = "C7HgI6!GF0NaHCrdUi^tEMGy"
 	dbName     = "s57_nv7haven"
 	token      = "Nzg4MTg1MzY1NTMzNTU2NzM2.X9f00g.krA6cjfFWYdzbqOPXq8NvRjxb3k"
+	clientID   = "788185365533556736"
 )
 
 var helpText string
@@ -51,7 +52,7 @@ func (b *Bot) handlers() {
 	b.dg.AddHandler(b.memeGen)
 	b.dg.AddHandler(b.math)
 	for _, v := range commands {
-		_, err := b.dg.ApplicationCommandCreate("", "806258286043070545", v)
+		_, err := b.dg.ApplicationCommandCreate(clientID, "806258286043070545", v)
 		if err != nil {
 			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
 		}
