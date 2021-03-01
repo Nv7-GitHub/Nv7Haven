@@ -5,6 +5,7 @@ import (
 	"math"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -271,13 +272,19 @@ func (b *Bot) checkprefix(m *discordgo.MessageCreate) {
 			if b.handle(err, m) {
 				return
 			}
+			var mutex = &sync.RWMutex{}
+			mutex.Lock()
 			b.prefixcache[m.GuildID] = prefix
+			mutex.Unlock()
 		}
 	}
 }
 
 func (b *Bot) startsWith(m *discordgo.MessageCreate, cmd string) bool {
+	var mutex = &sync.RWMutex{}
+	mutex.Lock()
 	prefix, exists := b.prefixcache[m.GuildID]
+	mutex.Unlock()
 	if !exists {
 		b.checkprefix(m)
 	}
