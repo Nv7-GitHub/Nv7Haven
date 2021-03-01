@@ -36,7 +36,11 @@ func (b *Bot) makeMemeEmbed(m meme, msg msg) *discordgo.MessageEmbed {
 		Type:  discordgo.EmbedTypeImage,
 		Title: m.Title,
 	}
-	if !strings.Contains(m.URL, "youtu") {
+	if strings.Contains(m.URL, "v.redd.it") {
+		mE.Video = &discordgo.MessageEmbedVideo{
+			URL: m.URL,
+		}
+	} else if !strings.Contains(m.URL, "youtu") {
 		mE.Image = &discordgo.MessageEmbedImage{
 			URL: m.URL,
 		}
@@ -72,13 +76,13 @@ func (b *Bot) startMemes(m msg, rsp rsp) (bool, bool) {
 		success := b.loadMemes(rsp)
 		if !success {
 			b.dg.ChannelMessageSend(m.ChannelID, "Failed to load memes")
-			return false, true
+			return false, false
 		}
 	}
 	if (time.Now().Sub(b.memerefreshtime)).Hours() >= 1 { // its been an hour
 		go b.loadMemes(rsp)
 	}
-	return hasResponded, false
+	return hasResponded, true
 }
 
 func (b *Bot) pmemeCommand(m msg, rsp rsp) {
