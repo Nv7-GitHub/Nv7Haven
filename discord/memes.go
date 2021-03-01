@@ -24,10 +24,20 @@ type previewData struct {
 	Data meme
 }
 
+type redditVideo struct {
+	Media media `json:"reddit_video"`
+}
+
 type meme struct {
 	URL       string
 	Title     string
 	Permalink string
+	IsVideo   bool        `json:"is_video"`
+	Media     redditVideo `json:"media"`
+}
+
+type media struct {
+	FallbackURL string `json:"fallback_url"`
 }
 
 func (b *Bot) makeMemeEmbed(m meme, msg msg) *discordgo.MessageEmbed {
@@ -36,9 +46,9 @@ func (b *Bot) makeMemeEmbed(m meme, msg msg) *discordgo.MessageEmbed {
 		Type:  discordgo.EmbedTypeImage,
 		Title: m.Title,
 	}
-	if strings.Contains(m.URL, "v.redd.it") {
+	if m.IsVideo {
 		mE.Video = &discordgo.MessageEmbedVideo{
-			URL: m.URL,
+			URL: m.Media.Media.FallbackURL,
 		}
 	} else if !strings.Contains(m.URL, "youtu") {
 		mE.Image = &discordgo.MessageEmbedImage{
