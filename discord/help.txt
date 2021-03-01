@@ -21,12 +21,14 @@ In givenum, you give yourself a number. Then, and admin will run a command that 
 	`norole <role name` - Un-give yourself a role given with the `giverole` command!
 	`rmrole <role name>` - Remove a role!
 
-**Other Commands**
+**Meme Commands**
 	`meme` - Get a meme fresh off of reddit! (r/memes)
 	`cmeme` - Get a clean meme fresh off of reddit! (r/cleanmemes)
 	`pmeme` - Get a programming meme fresh off of reddit! (r/ProgrammerHumor)
-	`insult` - Generate a random weird insult!
-	`gh <query>` - Get info on a github repository!
 	`listmemes` - Get a list of meme templates that the bot can generate memes with!
 	`genmeme <meme template name> <meme text>` - Generate a meme!
+
+**Other Commands**
+	`insult` - Generate a random weird insult!
+	`gh <query>` - Get info on a github repository!
 	`rate <anything>` - Get the bot's opinion on something!

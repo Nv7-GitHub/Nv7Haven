@@ -34,6 +34,18 @@ var (
 			Name:        "randselect",
 			Description: "Select a random number out of all the numbers people have and congratulate them!",
 		},
+		{
+			Name:        "meme",
+			Description: "Get a meme fresh off of reddit! (r/memes)",
+		},
+		{
+			Name:        "cmeme",
+			Description: "Get a clean meme fresh off of reddit! (r/cleanmemes)",
+		},
+		{
+			Name:        "pmeme",
+			Description: "Get a programming meme fresh off of reddit! (r/ProgrammerHumor)",
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"givenum": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -48,6 +60,15 @@ var (
 		},
 		"randselect": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.randselectCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"meme": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.memeCommand(bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"cmeme": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.cmemeCommand(bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"pmeme": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.pmemeCommand(bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )
