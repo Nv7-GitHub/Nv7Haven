@@ -2,7 +2,6 @@ package discord
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
@@ -48,10 +47,10 @@ func (b *Bot) makeMemeEmbed(m meme, msg msg) *discordgo.MessageEmbed {
 		Title: m.Title,
 	}
 	if m.IsVideo {
-		fmt.Println(m.Media.Media.FallbackURL)
 		mE.Video = &discordgo.MessageEmbedVideo{
 			URL: m.Media.Media.FallbackURL,
 		}
+		b.dg.ChannelMessageSend(msg.ChannelID, m.Media.Media.FallbackURL)
 	} else if !strings.Contains(m.URL, "youtu") {
 		mE.Image = &discordgo.MessageEmbedImage{
 			URL: m.URL,
