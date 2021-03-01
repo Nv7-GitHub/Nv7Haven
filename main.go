@@ -19,9 +19,9 @@ import (
 )
 
 const (
-	dbUser     = "u51_iYXt7TBZ0e"
-	dbPassword = "W!QnD2u896yo.J4fww9X.h+J"
-	dbName     = "s51_nv7haven"
+	dbUser     = "u57_fypTHIW9t8"
+	dbPassword = "C7HgI6!GF0NaHCrdUi^tEMGy"
+	dbName     = "s57_nv7haven"
 )
 
 func main() {
