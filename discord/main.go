@@ -51,7 +51,7 @@ func (b *Bot) handlers() {
 	b.dg.AddHandler(b.memeGen)
 	b.dg.AddHandler(b.math)
 	for _, v := range commands {
-		_, err := b.dg.ApplicationCommandCreate("", "", v)
+		_, err := b.dg.ApplicationCommandCreate("", "806258286043070545", v)
 		if err != nil {
 			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
 		}
