@@ -3,6 +3,7 @@ package discord
 import (
 	"database/sql"
 	"io/ioutil"
+	"log"
 	"math/rand"
 	"time"
 
@@ -49,6 +50,12 @@ func (b *Bot) handlers() {
 	b.dg.AddHandler(b.other)
 	b.dg.AddHandler(b.memeGen)
 	b.dg.AddHandler(b.math)
+	for _, v := range commands {
+		_, err := b.dg.ApplicationCommandCreate("", "", v)
+		if err != nil {
+			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
+		}
+	}
 }
 
 // InitDiscord creates a discord bot
