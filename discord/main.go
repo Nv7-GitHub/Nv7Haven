@@ -3,7 +3,6 @@ package discord
 import (
 	"database/sql"
 	"io/ioutil"
-	"log"
 	"math/rand"
 	"time"
 
@@ -20,6 +19,7 @@ const (
 
 var helpText string
 var currHelp string
+var bot Bot
 
 // Bot is a discord bot
 type Bot struct {
@@ -54,7 +54,7 @@ func (b *Bot) handlers() {
 	for _, v := range commands {
 		_, err := b.dg.ApplicationCommandCreate(clientID, "806258286043070545", v)
 		if err != nil {
-			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
+			panic(err)
 		}
 	}
 	b.dg.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -110,6 +110,7 @@ func InitDiscord(db *sql.DB) Bot {
 		panic(err)
 	}
 	dg.UpdateGameStatus(0, "Run 7help to get help on this bot's commands!")
+	bot = b
 	return b
 }
 
@@ -132,4 +133,18 @@ func (b *Bot) help(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, helpText)
 		return
 	}
+}
+
+type msg struct {
+	Author    *discordgo.User
+	ChannelID string
+	GuildID   string
+}
+
+type rsp interface {
+	Error(err error) bool
+	ErrorMessage(msg string)
+	Message(msg string)
+	Embed(emb *discordgo.MessageEmbed)
+	Resp(msg string)
 }

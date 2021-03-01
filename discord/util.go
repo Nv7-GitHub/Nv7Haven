@@ -11,6 +11,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+var lock = sync.RWMutex{}
+
 func (b *Bot) exists(m *discordgo.MessageCreate, table string, where string, args ...interface{}) (bool, bool) {
 	res, err := b.db.Query("SELECT COUNT(1) FROM "+table+" WHERE "+where+" LIMIT 1", args...)
 	if b.handle(err, m) {
@@ -204,6 +206,31 @@ func (b *Bot) isMod(m *discordgo.MessageCreate, ID string) bool {
 	return false
 }
 
+func (b *Bot) isUserMod(m msg, rsp rsp, ID string) bool {
+	mem, err := b.dg.GuildMember(m.GuildID, ID)
+	if rsp.Error(err) {
+		return false
+	}
+
+	// Nv7#0582
+	if mem.User.ID == "567132457820749842" {
+		return true
+	}
+
+	roles, err := b.dg.GuildRoles(m.GuildID)
+	if rsp.Error(err) {
+		return false
+	}
+	for _, roleID := range mem.Roles {
+		for _, role := range roles {
+			if role.ID == roleID && ((role.Permissions & discordgo.PermissionAdministrator) == discordgo.PermissionAdministrator) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func (b *Bot) getServerData(m *discordgo.MessageCreate, id string) map[string]interface{} {
 	exists, success := b.exists(m, "serverdata", "id=?", id)
 	if !success {
@@ -256,7 +283,9 @@ func (b *Bot) req(m *discordgo.MessageCreate, url string, out interface{}) bool 
 }
 
 func (b *Bot) checkprefix(m *discordgo.MessageCreate) {
+	lock.RLock()
 	_, ex := b.prefixcache[m.GuildID]
+	lock.RUnlock()
 	if !ex {
 		exists, suc := b.exists(m, "prefixes", "guild=?", m.GuildID)
 		if !suc {
@@ -264,7 +293,9 @@ func (b *Bot) checkprefix(m *discordgo.MessageCreate) {
 		}
 		if !exists {
 			b.db.Exec("INSERT INTO prefixes VALUES ( ?, ? )", m.GuildID, "")
+			lock.Lock()
 			b.prefixcache[m.GuildID] = ""
+			lock.Unlock()
 		} else {
 			row := b.db.QueryRow("SELECT prefix FROM prefixes WHERE guild=?", m.GuildID)
 			var prefix string
@@ -272,19 +303,17 @@ func (b *Bot) checkprefix(m *discordgo.MessageCreate) {
 			if b.handle(err, m) {
 				return
 			}
-			var mutex = &sync.RWMutex{}
-			mutex.Lock()
+			lock.Lock()
 			b.prefixcache[m.GuildID] = prefix
-			mutex.Unlock()
+			lock.Unlock()
 		}
 	}
 }
 
 func (b *Bot) startsWith(m *discordgo.MessageCreate, cmd string) bool {
-	var mutex = &sync.RWMutex{}
-	mutex.Lock()
+	lock.RLock()
 	prefix, exists := b.prefixcache[m.GuildID]
-	mutex.Unlock()
+	lock.RUnlock()
 	if !exists {
 		b.checkprefix(m)
 	}

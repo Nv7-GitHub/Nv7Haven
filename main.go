@@ -53,7 +53,6 @@ func main() {
 	}
 
 	single.InitSingle(app, db)
-
 	b := discord.InitDiscord(db)
 
 	c := make(chan os.Signal, 1)
