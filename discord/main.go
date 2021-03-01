@@ -35,7 +35,7 @@ type Bot struct {
 	pmemedat        []meme
 	pmemecache      map[string]map[int]empty
 
-	mathvars map[string]map[string]interface{} // should be map[string]map[string]float64 but govaluate wants interface{}
+	mathvars map[string]map[string]interface{}
 
 	prefixcache map[string]string
 }

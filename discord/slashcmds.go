@@ -30,6 +30,10 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "randselect",
+			Description: "Select a random number out of all the numbers people have and congratulate them!",
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"givenum": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -41,6 +45,9 @@ var (
 				mention = i.Data.Options[0].UserValue(bot.dg).ID
 			}
 			bot.getNumCmd(len(i.Data.Options) > 0, mention, bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"randselect": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.randselectCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )
