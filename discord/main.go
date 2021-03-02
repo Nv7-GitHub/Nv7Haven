@@ -53,10 +53,12 @@ func (b *Bot) handlers() {
 	b.dg.AddHandler(b.math)
 	go func() {
 		for _, v := range commands {
-			_, err := b.dg.ApplicationCommandCreate(clientID, "806258286043070545", v)
-			if err != nil {
-				panic(err)
-			}
+			go func(val *discordgo.ApplicationCommand) {
+				_, err := b.dg.ApplicationCommandCreate(clientID, "806258286043070545", val)
+				if err != nil {
+					panic(err)
+				}
+			}(v)
 		}
 	}()
 	b.dg.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {

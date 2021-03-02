@@ -58,8 +58,8 @@ var (
 				},
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "user",
-					Description: "The warning description",
+					Name:        "message",
+					Description: "The warning's description",
 					Required:    true,
 				},
 			},
