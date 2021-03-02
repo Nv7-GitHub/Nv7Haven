@@ -20,6 +20,37 @@ type warning struct {
 	Guild string //ID
 }
 
+func (b *Bot) warnCmd(user string, mod string, text string, m msg, rsp rsp) {
+	if b.isUserMod(m, rsp, mod) {
+		warn := warning{
+			Mod:   m.Author.ID,
+			Text:  text,
+			Date:  time.Now().Unix(),
+			Guild: m.GuildID,
+		}
+
+		serverData := b.readServerData(rsp, m.GuildID)
+		_, exists := serverData["warns"]
+		if !exists {
+			serverData["warns"] = make(map[string]interface{})
+		}
+		var existing []interface{}
+		_, exists = serverData["warns"].(map[string]interface{})[user]
+		if !exists {
+			existing = make([]interface{}, 0)
+		} else {
+			existing = serverData["warns"].(map[string]interface{})[user].([]interface{})
+		}
+		existing = append(existing, warn)
+		serverData["warns"].(map[string]interface{})[user] = existing
+		b.changeServerData(rsp, m.GuildID, serverData)
+		rsp.Resp(`Successfully warned user.`)
+		return
+	}
+	rsp.Resp(`You need to have permission "Administrator" to use this command.`)
+	return
+}
+
 func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
@@ -42,34 +73,7 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 		message := messageCont[1]
-
-		if b.isMod(m, m.Author.ID) {
-			warn := warning{
-				Mod:   m.Author.ID,
-				Text:  message,
-				Date:  time.Now().Unix(),
-				Guild: m.GuildID,
-			}
-
-			serverData := b.getServerData(m, m.GuildID)
-			_, exists := serverData["warns"]
-			if !exists {
-				serverData["warns"] = make(map[string]interface{})
-			}
-			var existing []interface{}
-			_, exists = serverData["warns"].(map[string]interface{})[m.Mentions[0].ID]
-			if !exists {
-				existing = make([]interface{}, 0)
-			} else {
-				existing = serverData["warns"].(map[string]interface{})[m.Mentions[0].ID].([]interface{})
-			}
-			existing = append(existing, warn)
-			serverData["warns"].(map[string]interface{})[m.Mentions[0].ID] = existing
-			b.updateServerData(m, m.GuildID, serverData)
-			s.ChannelMessageSend(m.ChannelID, `Successfully warned user.`)
-			return
-		}
-		s.ChannelMessageSend(m.ChannelID, `You need to have permission "Administrator" to use this command.`)
+		b.warnCmd(m.Mentions[0].ID, m.Author.ID, message, b.newMsgNormal(m), b.newRespNormal(m))
 		return
 	}
 

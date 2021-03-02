@@ -29,6 +29,22 @@ func (b *Bot) exists(m *discordgo.MessageCreate, table string, where string, arg
 	return count != 0, true
 }
 
+func (b *Bot) exts(rsp rsp, table string, where string, args ...interface{}) (bool, bool) {
+	res, err := b.db.Query("SELECT COUNT(1) FROM "+table+" WHERE "+where+" LIMIT 1", args...)
+	if rsp.Error(err) {
+		return false, false
+	}
+	defer res.Close()
+	res.Next()
+
+	var count int
+	err = res.Scan(&count)
+	if rsp.Error(err) {
+		return false, false
+	}
+	return count != 0, true
+}
+
 func (b *Bot) handle(err error, m *discordgo.MessageCreate) bool {
 	if err != nil {
 		b.dg.ChannelMessageSend(m.ChannelID, "Error: "+err.Error())
@@ -258,6 +274,33 @@ func (b *Bot) getServerData(m *discordgo.MessageCreate, id string) map[string]in
 	return map[string]interface{}{}
 }
 
+func (b *Bot) readServerData(rsp rsp, id string) map[string]interface{} {
+	exists, success := b.exts(rsp, "serverdata", "id=?", id)
+	if !success {
+		return map[string]interface{}{}
+	}
+	if !exists {
+		_, err := b.db.Exec("INSERT INTO serverdata VALUES ( ?, ? )", id, "{}")
+		if rsp.Error(err) {
+			return map[string]interface{}{}
+		}
+	} else {
+		row := b.db.QueryRow("SELECT data FROM serverdata WHERE id=?", id)
+		var data string
+		err := row.Scan(&data)
+		if rsp.Error(err) {
+			return map[string]interface{}{}
+		}
+		var out map[string]interface{}
+		err = json.Unmarshal([]byte(data), &out)
+		if rsp.Error(err) {
+			return map[string]interface{}{}
+		}
+		return out
+	}
+	return map[string]interface{}{}
+}
+
 func (b *Bot) updateServerData(m *discordgo.MessageCreate, id string, data map[string]interface{}) {
 	dat, err := json.Marshal(data)
 	if b.handle(err, m) {
@@ -265,6 +308,17 @@ func (b *Bot) updateServerData(m *discordgo.MessageCreate, id string, data map[s
 	}
 	_, err = b.db.Exec("UPDATE serverdata SET data=? WHERE id=?", string(dat), id)
 	if b.handle(err, m) {
+		return
+	}
+}
+
+func (b *Bot) changeServerData(rsp rsp, id string, data map[string]interface{}) {
+	dat, err := json.Marshal(data)
+	if rsp.Error(err) {
+		return
+	}
+	_, err = b.db.Exec("UPDATE serverdata SET data=? WHERE id=?", string(dat), id)
+	if rsp.Error(err) {
 		return
 	}
 }
