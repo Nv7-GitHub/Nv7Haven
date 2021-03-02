@@ -46,6 +46,24 @@ var (
 			Name:        "pmeme",
 			Description: "Get a programming meme fresh off of reddit! (r/ProgrammerHumor)",
 		},
+		{
+			Name:        "warn",
+			Description: "Warn a user",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionUser,
+					Name:        "user",
+					Description: "The user to warn",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "user",
+					Description: "The warning description",
+					Required:    true,
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"givenum": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -69,6 +87,9 @@ var (
 		},
 		"pmeme": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.pmemeCommand(bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"warn": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.warnCmd(i.Data.Options[0].UserValue(s).ID, i.Member.User.ID, i.Data.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )
