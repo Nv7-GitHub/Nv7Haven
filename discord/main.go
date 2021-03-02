@@ -51,16 +51,14 @@ func (b *Bot) handlers() {
 	b.dg.AddHandler(b.other)
 	b.dg.AddHandler(b.memeGen)
 	b.dg.AddHandler(b.math)
-	go func() {
-		for _, v := range commands {
-			go func(val *discordgo.ApplicationCommand) {
-				_, err := b.dg.ApplicationCommandCreate(clientID, "806258286043070545", val)
-				if err != nil {
-					panic(err)
-				}
-			}(v)
-		}
-	}()
+	for _, v := range commands {
+		go func(val *discordgo.ApplicationCommand) {
+			_, err := b.dg.ApplicationCommandCreate(clientID, "806258286043070545", val)
+			if err != nil {
+				panic(err)
+			}
+		}(v)
+	}
 	b.dg.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		if h, ok := commandHandlers[i.Data.Name]; ok {
 			h(s, i)
