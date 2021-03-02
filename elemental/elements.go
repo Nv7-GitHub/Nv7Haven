@@ -29,6 +29,8 @@ type Color struct {
 	Saturation float32 `json:"saturation"`
 }
 
+var lock = &sync.RWMutex{}
+
 func (e *Elemental) getElement(elemName string) (Element, error) {
 	val, exists := e.cache[elemName]
 	if !exists {
@@ -48,10 +50,9 @@ func (e *Elemental) getElement(elemName string) (Element, error) {
 			elem.Parents = make([]string, 0)
 		}
 
-		var mutex = &sync.RWMutex{}
-		mutex.Lock()
+		lock.Lock()
 		e.cache[elemName] = elem
-		mutex.Unlock()
+		lock.Unlock()
 		return elem, nil
 	}
 	if !val.hasLoaded {
@@ -78,10 +79,9 @@ func (e *Elemental) getElement(elemName string) (Element, error) {
 		}
 		val.hasLoaded = true
 
-		var mutex = &sync.RWMutex{}
-		mutex.Lock()
+		lock.Lock()
 		e.cache[elemName] = val
-		mutex.Unlock()
+		lock.Unlock()
 	}
 	return val, nil
 }
