@@ -82,7 +82,7 @@ func (b *Bot) randselectCmd(m msg, rsp rsp) {
 			if rsp.Error(err) {
 				return
 			}
-			b.dg.ChannelMessageSend(m.ChannelID, fmt.Sprintf("<@%s> got it right!", memberid))
+			rsp.Message(fmt.Sprintf("<@%s> got it right!", memberid))
 		}
 		return
 	}

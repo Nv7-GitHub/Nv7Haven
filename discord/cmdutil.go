@@ -47,8 +47,9 @@ func (b *Bot) newRespNormal(m *discordgo.MessageCreate) rsp {
 }
 
 type slashResp struct {
-	i *discordgo.InteractionCreate
-	b *Bot
+	i          *discordgo.InteractionCreate
+	b          *Bot
+	hasReplied bool
 }
 
 func (s *slashResp) Error(err error) bool {
@@ -86,21 +87,31 @@ func (s *slashResp) Resp(msg string) {
 }
 
 func (s *slashResp) Message(msg string) {
-	s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionApplicationCommandResponseData{
-			Content: msg,
-		},
-	})
+	if !s.hasReplied {
+		s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionApplicationCommandResponseData{
+				Content: msg,
+			},
+		})
+		s.hasReplied = true
+		return
+	}
+	s.b.dg.ChannelMessageSend(s.i.ChannelID, msg)
 }
 
 func (s *slashResp) Embed(emb *discordgo.MessageEmbed) {
-	s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionApplicationCommandResponseData{
-			Embeds: []*discordgo.MessageEmbed{emb},
-		},
-	})
+	if !s.hasReplied {
+		s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionApplicationCommandResponseData{
+				Embeds: []*discordgo.MessageEmbed{emb},
+			},
+		})
+		s.hasReplied = true
+		return
+	}
+	s.b.dg.ChannelMessageSendEmbed(s.i.ChannelID, emb)
 }
 
 func (b *Bot) newMsgSlash(i *discordgo.InteractionCreate) msg {

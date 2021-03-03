@@ -51,6 +51,56 @@ func (b *Bot) warnCmd(user string, mod string, text string, m msg, rsp rsp) {
 	return
 }
 
+func (b *Bot) warnsCmd(hasMention bool, mentionID string, m msg, rsp rsp) {
+	if !b.isUserMod(m, rsp, m.Author.ID) {
+		rsp.ErrorMessage(`You need to have permission "Administrator" to use this command.`)
+		return
+	}
+
+	users := make(map[string]interface{}, 0)
+	serverData := b.readServerData(rsp, m.GuildID)
+	_, exists := serverData["warns"]
+	if !exists {
+		serverData["warns"] = make(map[string]interface{})
+	}
+	warns := serverData["warns"].(map[string]interface{})
+	if hasMention {
+		_, exists := warns[mentionID]
+		if exists {
+			users[mentionID] = warns[mentionID]
+		} else {
+			rsp.ErrorMessage("That user does not have any warnings.")
+			return
+		}
+	} else {
+		users = warns
+	}
+
+	for userID, warnVals := range warns {
+		var warn warning
+		var text string
+		for _, warning := range warnVals.([]interface{}) {
+			err := mapstructure.Decode(warning, &warn)
+			if rsp.Error(err) {
+				return
+			}
+			user, err := b.dg.User(warn.Mod)
+			if rsp.Error(err) {
+				return
+			}
+			text += fmt.Sprintf("Warned by **%s** on **%s**\nWarning: **%s**\n\n", user.Username+"#"+user.Discriminator, time.Unix(warn.Date, 0).Format("Jan 2 2006"), warn.Text)
+		}
+		usr, err := b.dg.User(userID)
+		if rsp.Error(err) {
+			return
+		}
+		rsp.Embed(&discordgo.MessageEmbed{
+			Title:       fmt.Sprintf("Warnings for **%s**", usr.Username+"#"+usr.Discriminator),
+			Description: text,
+		})
+	}
+}
+
 func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
@@ -78,53 +128,12 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if b.startsWith(m, "warns") {
-		if !b.isMod(m, m.Author.ID) {
-			s.ChannelMessageSend(m.ChannelID, `You need to have permission "Administrator" to use this command.`)
-			return
+		hasMention := len(m.Mentions) > 0
+		mention := ""
+		if hasMention {
+			mention = m.Mentions[0].ID
 		}
-
-		users := make(map[string]interface{}, 0)
-		serverData := b.getServerData(m, m.GuildID)
-		_, exists := serverData["warns"]
-		if !exists {
-			serverData["warns"] = make(map[string]interface{})
-		}
-		warns := serverData["warns"].(map[string]interface{})
-		if len(m.Mentions) > 0 {
-			_, exists := warns[m.Mentions[0].ID]
-			if exists {
-				users[m.Mentions[0].ID] = warns[m.Mentions[0].ID]
-			} else {
-				s.ChannelMessageSend(m.ChannelID, "That user does not have any warnings.")
-				return
-			}
-		} else {
-			users = warns
-		}
-
-		for userID, warnVals := range warns {
-			var warn warning
-			var text string
-			for _, warning := range warnVals.([]interface{}) {
-				err := mapstructure.Decode(warning, &warn)
-				if b.handle(err, m) {
-					return
-				}
-				user, err := s.User(warn.Mod)
-				if b.handle(err, m) {
-					return
-				}
-				text += fmt.Sprintf("Warned by **%s** on **%s**\nWarning: **%s**\n\n", user.Username+"#"+user.Discriminator, time.Unix(warn.Date, 0).Format("Jan 2 2006"), warn.Text)
-			}
-			usr, err := s.User(userID)
-			if b.handle(err, m) {
-				return
-			}
-			s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
-				Title:       fmt.Sprintf("Warnings for **%s**", usr.Username+"#"+usr.Discriminator),
-				Description: text,
-			})
-		}
+		b.warnsCmd(hasMention, mention, b.newMsgNormal(m), b.newRespNormal(m))
 	}
 
 	if b.startsWith(m, "addrole") {

@@ -64,6 +64,18 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "warns",
+			Description: "Get a user's warnings, or if no user is given, every warning in the server!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionUser,
+					Name:        "user",
+					Description: "The user to get the warnings of",
+					Required:    false,
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"givenum": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -90,6 +102,14 @@ var (
 		},
 		"warn": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.warnCmd(i.Data.Options[0].UserValue(s).ID, i.Member.User.ID, i.Data.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"warns": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			hasMention := len(i.Data.Options) > 0
+			mention := ""
+			if hasMention {
+				mention = i.Data.Options[0].UserValue(bot.dg).ID
+			}
+			bot.warnsCmd(hasMention, mention, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )

@@ -40,7 +40,7 @@ type media struct {
 	FallbackURL string `json:"fallback_url"`
 }
 
-func (b *Bot) makeMemeEmbed(m meme, msg msg) *discordgo.MessageEmbed {
+func (b *Bot) makeMemeEmbed(m meme, rsp rsp) *discordgo.MessageEmbed {
 	mE := &discordgo.MessageEmbed{
 		URL:   m.Permalink,
 		Type:  discordgo.EmbedTypeImage,
@@ -50,13 +50,13 @@ func (b *Bot) makeMemeEmbed(m meme, msg msg) *discordgo.MessageEmbed {
 		mE.Video = &discordgo.MessageEmbedVideo{
 			URL: m.Media.Media.FallbackURL,
 		}
-		b.dg.ChannelMessageSend(msg.ChannelID, m.Media.Media.FallbackURL)
+		rsp.Message(m.Media.Media.FallbackURL)
 	} else if !strings.Contains(m.URL, "youtu") {
 		mE.Image = &discordgo.MessageEmbedImage{
 			URL: m.URL,
 		}
 	} else {
-		b.dg.ChannelMessageSend(msg.ChannelID, m.URL)
+		rsp.Message(m.URL)
 	}
 	return mE
 }
@@ -79,26 +79,23 @@ func (b *Bot) memes(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 }
 
-func (b *Bot) startMemes(m msg, rsp rsp) (bool, bool) {
-	hasResponded := false
+func (b *Bot) startMemes(m msg, rsp rsp) bool {
 	if len(b.memedat) == 0 { // first time since startup
 		rsp.Message("Sorry, this is the first time someone has asked for a meme since the server started. It may take a moment for us to download the memes from reddit.")
-		hasResponded = true
 		success := b.loadMemes(rsp)
 		if !success {
 			b.dg.ChannelMessageSend(m.ChannelID, "Failed to load memes")
-			return false, false
+			return false
 		}
 	}
 	if (time.Now().Sub(b.memerefreshtime)).Hours() >= 1 { // its been an hour
 		go b.loadMemes(rsp)
 	}
-	return hasResponded, true
+	return true
 }
 
 func (b *Bot) pmemeCommand(m msg, rsp rsp) {
-	hasResponded, suc := b.startMemes(m, rsp)
-	if !suc {
+	if !b.startMemes(m, rsp) {
 		return
 	}
 
@@ -122,17 +119,12 @@ func (b *Bot) pmemeCommand(m msg, rsp rsp) {
 	}
 	b.pmemecache[m.GuildID][randnum] = empty{}
 	meme := b.pmemedat[randnum]
-	emb := b.makeMemeEmbed(meme, m)
-	if hasResponded {
-		b.dg.ChannelMessageSendEmbed(m.ChannelID, emb)
-		return
-	}
+	emb := b.makeMemeEmbed(meme, rsp)
 	rsp.Embed(emb)
 }
 
 func (b *Bot) memeCommand(m msg, rsp rsp) {
-	hasResponded, suc := b.startMemes(m, rsp)
-	if !suc {
+	if !b.startMemes(m, rsp) {
 		return
 	}
 
@@ -156,17 +148,12 @@ func (b *Bot) memeCommand(m msg, rsp rsp) {
 	}
 	b.memecache[m.GuildID][randnum] = empty{}
 	meme := b.memedat[randnum]
-	emb := b.makeMemeEmbed(meme, m)
-	if hasResponded {
-		b.dg.ChannelMessageSendEmbed(m.ChannelID, emb)
-		return
-	}
+	emb := b.makeMemeEmbed(meme, rsp)
 	rsp.Embed(emb)
 }
 
 func (b *Bot) cmemeCommand(m msg, rsp rsp) {
-	hasResponded, suc := b.startMemes(m, rsp)
-	if !suc {
+	if !b.startMemes(m, rsp) {
 		return
 	}
 
@@ -190,11 +177,7 @@ func (b *Bot) cmemeCommand(m msg, rsp rsp) {
 	}
 	b.cmemecache[m.GuildID][randnum] = empty{}
 	meme := b.cmemedat[randnum]
-	emb := b.makeMemeEmbed(meme, m)
-	if hasResponded {
-		b.dg.ChannelMessageSendEmbed(m.ChannelID, emb)
-		return
-	}
+	emb := b.makeMemeEmbed(meme, rsp)
 	rsp.Embed(emb)
 }
 
