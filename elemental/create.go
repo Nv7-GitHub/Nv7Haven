@@ -84,12 +84,40 @@ func (e *Elemental) createSuggestion(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+
+	parent1, err := e.GetElement(elem1)
+	if err != nil {
+		return err
+	}
+	parent2, err := e.GetElement(elem2)
+	if err != nil {
+		return err
+	}
+	comp1, err := e.calcComplexity(parent1)
+	if err != nil {
+		return err
+	}
+	comp2, err := e.calcComplexity(parent2)
+	if err != nil {
+		return err
+	}
+	complexity := max(comp1, comp2) + 1
+
+	err = e.incrementUses(elem1)
+	if err != nil {
+		return err
+	}
+	err = e.incrementUses(elem2)
+	if err != nil {
+		return err
+	}
+
 	var count int
 	res.Next()
 	res.Scan(&count)
 	if count == 0 {
 		color := fmt.Sprintf("%s_%f_%f", existing.Color.Base, existing.Color.Saturation, existing.Color.Lightness)
-		_, err = e.db.Exec("INSERT INTO elements VALUES( ?, ?, ?, ?, ?, ?, ?, ? )", existing.Name, color, mark, elem1, elem2, existing.Creator, pioneer, int(time.Now().Unix())*1000)
+		_, err = e.db.Exec("INSERT INTO elements VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", existing.Name, color, mark, elem1, elem2, existing.Creator, pioneer, int(time.Now().Unix())*1000, complexity, 0, 1)
 		if err != nil {
 			return err
 		}
@@ -97,6 +125,22 @@ func (e *Elemental) createSuggestion(c *fiber.Ctx) error {
 
 	// Create combo
 	err = e.addCombo(elem1, elem2, existing.Name)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (e *Elemental) incrementUses(id string) error {
+	elem, err := e.GetElement(id)
+	if err != nil {
+		return err
+	}
+	elem.Uses++
+	lock.Lock()
+	e.cache[elem.Name] = elem
+	lock.Unlock()
+	_, err = e.db.Exec("UPDATE elements SET uses=? WHERE name=?", elem.Uses, elem.Name)
 	if err != nil {
 		return err
 	}

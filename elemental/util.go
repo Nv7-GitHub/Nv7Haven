@@ -75,3 +75,10 @@ func (e *Elemental) addCombo(elem1 string, elem2 string, out string) error {
 	}
 	return nil
 }
+
+func max(val1 int, val2 int) int {
+	if val1 > val2 {
+		return val1
+	}
+	return val2
+}

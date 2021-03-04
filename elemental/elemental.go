@@ -3,6 +3,7 @@ package elemental
 import (
 	"database/sql"
 
+	"github.com/Nv7-Github/Nv7Haven/elemental/fixelems"
 	"github.com/Nv7-Github/firebase"
 	"github.com/Nv7-Github/firebase/db"
 	database "github.com/Nv7-Github/firebase/db"
@@ -43,7 +44,7 @@ func (e *Elemental) init() {
 	for res.Next() {
 		var elem Element
 		elem.Parents = make([]string, 2)
-		err = res.Scan(&elem.Name, &elem.Color, &elem.Comment, &elem.Parents[0], &elem.Parents[1], &elem.Creator, &elem.Pioneer, &elem.CreatedOn)
+		err = res.Scan(&elem.Name, &elem.Color, &elem.Comment, &elem.Parents[0], &elem.Parents[1], &elem.Creator, &elem.Pioneer, &elem.CreatedOn, &elem.Complexity, &elem.Uses, &elem.FoundBy)
 		if err != nil {
 			panic(err)
 		}
@@ -93,6 +94,7 @@ func InitElemental(app *fiber.App, db *sql.DB) (Elemental, error) {
 		cache: make(map[string]Element),
 		fdb:   fdb,
 	}
+	fixelems.Fixelems()
 	e.init()
 	e.routing(app)
 

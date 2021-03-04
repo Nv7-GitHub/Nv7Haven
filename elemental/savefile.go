@@ -67,5 +67,19 @@ func (e *Elemental) NewFound(elem string, uid string) error {
 	if err != nil {
 		return err
 	}
+
+	// increment foundby
+	el, err := e.GetElement(elem)
+	if err != nil {
+		return err
+	}
+	el.FoundBy++
+	lock.Lock()
+	e.cache[el.Name] = el
+	lock.Unlock()
+	_, err = e.db.Exec("UPDATE elements SET foundby=? WHERE name=?", el.FoundBy, el.Name)
+	if err != nil {
+		return err
+	}
 	return nil
 }

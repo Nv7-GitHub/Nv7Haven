@@ -10,16 +10,16 @@ import (
 
 // Element has the data for a created element
 type Element struct {
-	Color     string   `json:"color"`
-	Comment   string   `json:"comment"`
-	CreatedOn int      `json:"createdOn"`
-	Creator   string   `json:"creator"`
-	Name      string   `json:"name"`
-	Parents   []string `json:"parents"`
-	Pioneer   string   `json:"pioneer"`
-	Uses      int      `json:"uses"`
-	FoundBy   int      `json:"foundby"`
-	hasLoaded bool
+	Color      string   `json:"color"`
+	Comment    string   `json:"comment"`
+	CreatedOn  int      `json:"createdOn"`
+	Creator    string   `json:"creator"`
+	Name       string   `json:"name"`
+	Parents    []string `json:"parents"`
+	Pioneer    string   `json:"pioneer"`
+	Uses       int      `json:"uses"`
+	FoundBy    int      `json:"foundby"`
+	Complexity int      `json:"complexity"`
 }
 
 // Color has the data for a suggestion's color
@@ -30,6 +30,29 @@ type Color struct {
 }
 
 var lock = &sync.RWMutex{}
+
+func (e *Elemental) calcComplexity(elem Element) (int, error) {
+	if len(elem.Parents) == 0 {
+		return 0, nil
+	}
+	parent1, err := e.GetElement(elem.Parents[0])
+	if err != nil {
+		return 0, err
+	}
+	parent2, err := e.GetElement(elem.Parents[1])
+	if err != nil {
+		return 0, err
+	}
+	comp1, err := e.calcComplexity(parent1)
+	if err != nil {
+		return 0, err
+	}
+	comp2, err := e.calcComplexity(parent2)
+	if err != nil {
+		return 0, err
+	}
+	return max(comp1, comp2) + 1, nil
+}
 
 // GetElement gets an element from the database
 func (e *Elemental) GetElement(elemName string) (Element, error) {
@@ -45,7 +68,7 @@ func (e *Elemental) GetElement(elemName string) (Element, error) {
 		defer res.Close()
 		elem.Parents = make([]string, 2)
 		res.Next()
-		err = res.Scan(&elem.Name, &elem.Color, &elem.Comment, &elem.Parents[0], &elem.Parents[1], &elem.Creator, &elem.Pioneer, &elem.CreatedOn)
+		err = res.Scan(&elem.Name, &elem.Color, &elem.Comment, &elem.Parents[0], &elem.Parents[1], &elem.Creator, &elem.Pioneer, &elem.CreatedOn, &elem.Complexity, &elem.Uses, &elem.FoundBy)
 		if err != nil {
 			return Element{}, err
 		}
@@ -57,34 +80,6 @@ func (e *Elemental) GetElement(elemName string) (Element, error) {
 		e.cache[elemName] = elem
 		lock.Unlock()
 		return elem, nil
-	}
-	if !val.hasLoaded {
-		uses, err := e.db.Query("SELECT COUNT(1) FROM elem_combos WHERE elem1=? OR elem2=?", val.Name, val.Name)
-		if err != nil {
-			return Element{}, err
-		}
-		defer uses.Close()
-		uses.Next()
-		err = uses.Scan(&val.Uses)
-		if err != nil {
-			return Element{}, err
-		}
-
-		foundby, err := e.db.Query("SELECT COUNT(1) FROM users WHERE found LIKE ?", `%`+val.Name+`%`)
-		if err != nil {
-			return Element{}, err
-		}
-		defer foundby.Close()
-		foundby.Next()
-		err = foundby.Scan(&val.FoundBy)
-		if err != nil {
-			return Element{}, err
-		}
-		val.hasLoaded = true
-
-		lock.Lock()
-		e.cache[elemName] = val
-		lock.Unlock()
 	}
 	return val, nil
 }
