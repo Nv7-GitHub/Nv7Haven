@@ -116,7 +116,7 @@ func (e *Elemental) getCombo(c *fiber.Ctx) error {
 		return err
 	}
 	if !suc {
-		c.JSON(map[string]interface{}{
+		return c.JSON(map[string]interface{}{
 			"exists": false,
 		})
 	}

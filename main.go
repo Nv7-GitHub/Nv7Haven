@@ -61,7 +61,7 @@ func main() {
 	}
 
 	single.InitSingle(app, db)
-	b := discord.InitDiscord(db)
+	b := discord.InitDiscord(db, e)
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)

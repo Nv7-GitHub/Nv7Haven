@@ -117,6 +117,52 @@ func (b *Bot) getuser(m *discordgo.MessageCreate, usr string) (user, bool) {
 	}, true
 }
 
+func (b *Bot) getUser(m msg, rsp rsp, usr string) (user, bool) {
+	res, err := b.db.Query("SELECT * FROM currency WHERE user=?", usr)
+	if rsp.Error(err) {
+		return user{}, false
+	}
+	defer res.Close()
+	res.Next()
+	var name string
+	var glds string
+	var wallet int
+	var bank int
+	var credit int
+	var props string
+	var lastvisited int64
+	var met string
+	err = res.Scan(&name, &glds, &wallet, &bank, &credit, &props, &lastvisited, &met)
+	if rsp.Error(err) {
+		return user{}, false
+	}
+	var guilds []string
+	err = json.Unmarshal([]byte(glds), &guilds)
+	if rsp.Error(err) {
+		return user{}, false
+	}
+	var properties map[string]int
+	var metadata map[string]interface{}
+	err = json.Unmarshal([]byte(props), &properties)
+	if rsp.Error(err) {
+		return user{}, false
+	}
+	err = json.Unmarshal([]byte(met), &metadata)
+	if rsp.Error(err) {
+		return user{}, false
+	}
+	return user{
+		User:        name,
+		Guilds:      guilds,
+		Wallet:      wallet,
+		Bank:        bank,
+		Credit:      credit,
+		Properties:  properties,
+		LastVisited: lastvisited,
+		Metadata:    metadata,
+	}, true
+}
+
 func (b *Bot) updateuser(m *discordgo.MessageCreate, u user) bool {
 	glds, err := json.Marshal(u.Guilds)
 	if b.handle(err, m) {
@@ -132,6 +178,26 @@ func (b *Bot) updateuser(m *discordgo.MessageCreate, u user) bool {
 	}
 	_, err = b.db.Exec("UPDATE currency SET guilds=?, wallet=?, bank=?, credit=?, properties=?, lastvisited=?, metadata=? WHERE user=?", glds, u.Wallet, u.Bank, u.Credit, props, u.LastVisited, met, u.User)
 	if b.handle(err, m) {
+		return false
+	}
+	return true
+}
+
+func (b *Bot) updateUser(rsp rsp, u user) bool {
+	glds, err := json.Marshal(u.Guilds)
+	if rsp.Error(err) {
+		return false
+	}
+	met, err := json.Marshal(u.Metadata)
+	if rsp.Error(err) {
+		return false
+	}
+	props, err := json.Marshal(u.Properties)
+	if rsp.Error(err) {
+		return false
+	}
+	_, err = b.db.Exec("UPDATE currency SET guilds=?, wallet=?, bank=?, credit=?, properties=?, lastvisited=?, metadata=? WHERE user=?", glds, u.Wallet, u.Bank, u.Credit, props, u.LastVisited, met, u.User)
+	if rsp.Error(err) {
 		return false
 	}
 	return true
@@ -161,6 +227,34 @@ func (b *Bot) checkuser(m *discordgo.MessageCreate) {
 		if !isInGuild {
 			user.Guilds = append(user.Guilds, m.GuildID)
 			b.updateuser(m, user)
+		}
+	}
+}
+
+func (b *Bot) checkUser(m msg, rsp rsp) {
+	exists, success := b.exts(rsp, "currency", "user=?", m.Author.ID)
+	if !success {
+		return
+	}
+	if !exists {
+		_, err := b.db.Exec("INSERT INTO currency VALUES ( ?, ?, ?, ?, ?, ?, ?, ? )", m.Author.ID, "[\""+m.GuildID+"\"]", 0, 0, 0, "{}", time.Now().Unix(), "{}")
+		if rsp.Error(err) {
+			return
+		}
+	} else {
+		user, success := b.getUser(m, rsp, m.Author.ID)
+		if !success {
+			return
+		}
+		isInGuild := false
+		for _, guild := range user.Guilds {
+			if guild == m.GuildID {
+				isInGuild = true
+			}
+		}
+		if !isInGuild {
+			user.Guilds = append(user.Guilds, m.GuildID)
+			b.updateUser(rsp, user)
 		}
 	}
 }

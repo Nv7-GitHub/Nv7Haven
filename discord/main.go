@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/Nv7-Github/Nv7Haven/elemental"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -38,6 +39,8 @@ type Bot struct {
 	mathvars map[string]map[string]interface{}
 
 	prefixcache map[string]string
+
+	e elemental.Elemental
 }
 
 func (b *Bot) handlers() {
@@ -67,7 +70,7 @@ func (b *Bot) handlers() {
 }
 
 // InitDiscord creates a discord bot
-func InitDiscord(db *sql.DB) Bot {
+func InitDiscord(db *sql.DB, e elemental.Elemental) Bot {
 	// Init
 	rand.Seed(time.Now().UnixNano())
 
@@ -99,6 +102,7 @@ func InitDiscord(db *sql.DB) Bot {
 	b := Bot{
 		dg:    dg,
 		db:    db,
+		e:     e,
 		props: props,
 
 		mathvars: make(map[string]map[string]interface{}),

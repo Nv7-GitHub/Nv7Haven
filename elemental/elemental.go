@@ -74,6 +74,7 @@ func (e *Elemental) routing(app *fiber.App) {
 	app.Get("/get_all/:uid", e.getAll)
 	app.Get("/clear", func(c *fiber.Ctx) error {
 		e.cache = make(map[string]Element, 0)
+		e.init()
 		return nil
 	})
 }

@@ -67,6 +67,7 @@ func (s *slashResp) Error(err error) bool {
 }
 
 func (s *slashResp) ErrorMessage(msg string) {
+	s.hasReplied = true
 	s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionApplicationCommandResponseData{
@@ -77,6 +78,7 @@ func (s *slashResp) ErrorMessage(msg string) {
 }
 
 func (s *slashResp) Resp(msg string) {
+	s.hasReplied = true
 	s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionApplicationCommandResponseData{
