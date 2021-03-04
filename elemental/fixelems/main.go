@@ -77,13 +77,17 @@ func Fixelems() {
 		elems[elem.Name] = elem
 		foundby.Close()
 	}
+	query := ""
+	args := make([]interface{}, 0)
 	for k, v := range elems {
 		v.Complexity = calcComplexity(v, elems)
 		elems[k] = v
 		fmt.Println(v.Name, v.Complexity, v.FoundBy, v.Uses)
-		_, err = db.Exec("UPDATE elements SET complexity=?, foundby=?, uses=? WHERE name=?", v.Complexity, v.FoundBy, v.Uses, v.Name)
-		handle(err)
+		args = append(args, v.Complexity, v.FoundBy, v.Uses, v.Name)
+		query += "UPDATE elements SET complexity=?, foundby=?, uses=? WHERE name=?\n"
 	}
+	_, err = db.Exec(query, args...)
+	handle(err)
 }
 
 func calcComplexity(elem Element, elems map[string]Element) int {
