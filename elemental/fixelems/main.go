@@ -41,6 +41,7 @@ func handle(err error) {
 	}
 }
 
+// Fixelems fixes the elements
 func Fixelems() {
 	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
 	handle(err)
@@ -80,6 +81,8 @@ func Fixelems() {
 		v.Complexity = calcComplexity(v, elems)
 		elems[k] = v
 		fmt.Println(v.Name, v.Complexity, v.FoundBy, v.Uses)
+		_, err = db.Exec("UPDATE elements SET complexity=?, foundby=?, uses=? WHERE name=?", v.Complexity, v.FoundBy, v.Uses)
+		handle(err)
 	}
 }
 
