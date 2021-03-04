@@ -31,7 +31,8 @@ type Color struct {
 
 var lock = &sync.RWMutex{}
 
-func (e *Elemental) getElement(elemName string) (Element, error) {
+// GetElement gets an element from the database
+func (e *Elemental) GetElement(elemName string) (Element, error) {
 	lock.RLock()
 	val, exists := e.cache[elemName]
 	lock.RUnlock()
@@ -93,7 +94,7 @@ func (e *Elemental) getElem(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	elem, err := e.getElement(elemName)
+	elem, err := e.GetElement(elemName)
 	if err != nil {
 		return err
 	}
@@ -110,36 +111,49 @@ func (e *Elemental) getCombo(c *fiber.Ctx) error {
 		return err
 	}
 
-	res, err := e.db.Query("SELECT COUNT(1) FROM elem_combos WHERE (elem1=? AND elem2=?) OR (elem1=? AND elem2=?) LIMIT 1", elem1, elem2, elem2, elem1)
+	comb, suc, err := e.GetCombo(elem1, elem2)
 	if err != nil {
 		return err
+	}
+	if !suc {
+		c.JSON(map[string]interface{}{
+			"exists": false,
+		})
+	}
+
+	return c.JSON(map[string]interface{}{
+		"exists": true,
+		"combo":  comb,
+	})
+}
+
+// GetCombo gets a combination
+func (e *Elemental) GetCombo(elem1, elem2 string) (string, bool, error) {
+	res, err := e.db.Query("SELECT COUNT(1) FROM elem_combos WHERE (elem1=? AND elem2=?) OR (elem1=? AND elem2=?) LIMIT 1", elem1, elem2, elem2, elem1)
+	if err != nil {
+		return "", false, err
 	}
 	defer res.Close()
 	var count int
 	res.Next()
 	res.Scan(&count)
 	if count == 0 {
-		return c.JSON(map[string]bool{
-			"exists": false,
-		})
+		return "", false, nil
 	}
 
 	res, err = e.db.Query("SELECT elem3 FROM elem_combos WHERE (elem1=? AND elem2=?) OR (elem1=? AND elem2=?) LIMIT 1", elem1, elem2, elem2, elem1)
 	if err != nil {
-		return err
+		return "", false, err
 	}
 	defer res.Close()
 	var elem3 string
 	res.Next()
 	err = res.Scan(&elem3)
 	if err != nil {
-		return err
+		return "", false, err
 	}
 
-	return c.JSON(map[string]interface{}{
-		"exists": true,
-		"combo":  elem3,
-	})
+	return elem3, true, nil
 }
 
 func (e *Elemental) getAll(c *fiber.Ctx) error {
@@ -183,7 +197,7 @@ func (e *Elemental) getAll(c *fiber.Ctx) error {
 	final := make([]Element, len(req))
 	i := 0
 	for k := range req {
-		final[i], err = e.getElement(k)
+		final[i], err = e.GetElement(k)
 		if err != nil {
 			return err
 		}

@@ -27,8 +27,18 @@ func (e *Elemental) getFound(c *fiber.Ctx) error {
 }
 
 func (e *Elemental) newFound(c *fiber.Ctx) error {
+	elem, err := url.PathUnescape(c.Params("elem"))
+	if err != nil {
+		return err
+	}
+
+	return e.NewFound(elem, c.Params("uid"))
+}
+
+// NewFound adds an element to a user's savefile
+func (e *Elemental) NewFound(elem string, uid string) error {
 	var found []string
-	res, err := e.db.Query("SELECT found FROM users WHERE uid=?", c.Params("uid"))
+	res, err := e.db.Query("SELECT found FROM users WHERE uid=?", uid)
 	if err != nil {
 		return err
 	}
@@ -41,10 +51,6 @@ func (e *Elemental) newFound(c *fiber.Ctx) error {
 		return err
 	}
 
-	elem, err := url.PathUnescape(c.Params("elem"))
-	if err != nil {
-		return err
-	}
 	for _, val := range found {
 		if val == elem {
 			return nil
@@ -57,7 +63,7 @@ func (e *Elemental) newFound(c *fiber.Ctx) error {
 		return err
 	}
 	data = string(dat)
-	_, err = e.db.Exec("UPDATE users SET found=? WHERE uid=?", data, c.Params("uid"))
+	_, err = e.db.Exec("UPDATE users SET found=? WHERE uid=?", data, uid)
 	if err != nil {
 		return err
 	}
