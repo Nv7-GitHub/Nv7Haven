@@ -32,7 +32,9 @@ type Color struct {
 var lock = &sync.RWMutex{}
 
 func (e *Elemental) getElement(elemName string) (Element, error) {
+	lock.RLock()
 	val, exists := e.cache[elemName]
+	lock.RUnlock()
 	if !exists {
 		var elem Element
 		res, err := e.db.Query("SELECT * FROM elements WHERE name=?", elemName)
