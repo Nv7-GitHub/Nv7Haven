@@ -3,6 +3,7 @@ package fixelems
 import (
 	"database/sql"
 	"fmt"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql" // mysql
 )
@@ -41,7 +42,7 @@ func handle(err error) {
 }
 
 func Fixelems() {
-	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp(c.filipk.in:3306)/"+dbName)
+	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
 	handle(err)
 	defer db.Close()
 
