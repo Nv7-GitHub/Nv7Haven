@@ -63,23 +63,23 @@ func Fixelems() {
 
 		uses, err := db.Query("SELECT COUNT(1) FROM elem_combos WHERE elem1=? OR elem2=?", elem.Name, elem.Name)
 		handle(err)
-		defer uses.Close()
 		uses.Next()
 		err = uses.Scan(&elem.Uses)
 		handle(err)
+		uses.Close()
 
 		foundby, err := db.Query("SELECT COUNT(1) FROM users WHERE found LIKE ?", `%`+elem.Name+`%`)
 		handle(err)
-		defer foundby.Close()
 		foundby.Next()
 		err = foundby.Scan(&elem.FoundBy)
 		handle(err)
 		elems[elem.Name] = elem
+		foundby.Close()
 	}
 	for k, v := range elems {
 		v.Complexity = calcComplexity(v, elems)
 		elems[k] = v
-		fmt.Println(v.Name, v.Complexity)
+		fmt.Println(v.Name, v.Complexity, v.FoundBy, v.Uses)
 	}
 }
 
