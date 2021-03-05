@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"sync"
 
 	_ "github.com/go-sql-driver/mysql" // mysql
 )
@@ -41,6 +42,9 @@ func handle(err error) {
 	}
 }
 
+var lock = &sync.RWMutex{}
+var wg = &sync.WaitGroup{}
+
 // Fixelems fixes the elements
 func Fixelems() {
 	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
@@ -62,21 +66,24 @@ func Fixelems() {
 			elem.Parents = make([]string, 0)
 		}
 
-		uses, err := db.Query("SELECT COUNT(1) FROM elem_combos WHERE elem1=? OR elem2=?", elem.Name, elem.Name)
-		handle(err)
-		uses.Next()
-		err = uses.Scan(&elem.Uses)
-		handle(err)
-		uses.Close()
+		wg.Add(1)
+		go func(elem Element) {
+			uses := db.QueryRow("SELECT COUNT(1) FROM elem_combos WHERE elem1=? OR elem2=?", elem.Name, elem.Name)
+			err = uses.Scan(&elem.Uses)
+			handle(err)
 
-		foundby, err := db.Query("SELECT COUNT(1) FROM users WHERE found LIKE ?", `%`+elem.Name+`%`)
-		handle(err)
-		foundby.Next()
-		err = foundby.Scan(&elem.FoundBy)
-		handle(err)
-		elems[elem.Name] = elem
-		foundby.Close()
+			foundby := db.QueryRow("SELECT COUNT(1) FROM users WHERE found LIKE ?", `%`+elem.Name+`%`)
+			err = foundby.Scan(&elem.FoundBy)
+			handle(err)
+
+			lock.Lock()
+			elems[elem.Name] = elem
+			lock.Unlock()
+
+			wg.Done()
+		}(elem)
 	}
+	wg.Wait()
 	query := ""
 	args := make([]interface{}, 0)
 	for k, v := range elems {
