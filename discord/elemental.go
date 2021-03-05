@@ -8,9 +8,7 @@ import (
 )
 
 var combs = []string{
-	" + ",
 	"+",
-	" , ",
 	",",
 }
 
@@ -39,11 +37,23 @@ func (b *Bot) eloginCmd(username string, m msg, rsp rsp) {
 }
 
 func (b *Bot) comboCmd(elem1 string, elem2 string, m msg, rsp rsp) {
+	elem1 = strings.TrimSpace(elem1)
+	elem2 = strings.TrimSpace(elem2)
+
 	b.checkUser(m, rsp)
 	if !b.isLoggedIn(m, rsp) {
 		return
 	}
 
+	elem3, exists, err := b.e.GetCombo(elem1, elem2)
+	if rsp.Error(err) {
+		return
+	}
+	if !exists {
+		rsp.ErrorMessage("Combo doesn't exist!")
+	}
+
+	rsp.Message("this combo makes " + elem3)
 }
 
 func (b *Bot) elementalHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
