@@ -53,7 +53,6 @@ func (b *Bot) einvPageHandler(r *discordgo.MessageReactionAdd) {
 	pg.TimeSince = time.Now().Unix()
 	b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, leftArrow)
 	b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, rightArrow)
-	b.pages[r.MessageID] = pg
 }
 
 func (b *Bot) einvCmd(m msg, rsp rsp) {

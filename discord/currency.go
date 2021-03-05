@@ -77,7 +77,6 @@ func (b *Bot) ldbPageSwitcher(r *discordgo.MessageReactionAdd) {
 	pg.TimeSince = time.Now().Unix()
 	b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, leftArrow)
 	b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, rightArrow)
-	b.pages[r.MessageID] = pg
 }
 
 func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
