@@ -39,6 +39,9 @@ func (b *Bot) eloginCmd(username string, m msg, rsp rsp) {
 func (b *Bot) comboCmd(elem1 string, elem2 string, m msg, rsp rsp) {
 	elem1 = strings.TrimSpace(elem1)
 	elem2 = strings.TrimSpace(elem2)
+	if elem1 == "" || elem2 == "" {
+		return
+	}
 
 	b.checkUser(m, rsp)
 	if !b.isLoggedIn(m, rsp) {
