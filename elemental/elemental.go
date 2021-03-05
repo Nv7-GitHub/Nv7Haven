@@ -3,7 +3,6 @@ package elemental
 import (
 	"database/sql"
 
-	"github.com/Nv7-Github/Nv7Haven/elemental/fixelems"
 	"github.com/Nv7-Github/firebase"
 	"github.com/Nv7-Github/firebase/db"
 	database "github.com/Nv7-Github/firebase/db"
@@ -94,7 +93,6 @@ func InitElemental(app *fiber.App, db *sql.DB) (Elemental, error) {
 		cache: make(map[string]Element),
 		fdb:   fdb,
 	}
-	fixelems.Fixelems()
 	e.init()
 	e.routing(app)
 
