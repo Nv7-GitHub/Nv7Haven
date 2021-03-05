@@ -7,6 +7,10 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+type reactionMsgType int
+
+const invPageSwitcher = 1
+
 var combs = []string{
 	"+",
 	",",
