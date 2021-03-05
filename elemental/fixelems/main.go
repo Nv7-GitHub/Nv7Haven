@@ -89,6 +89,7 @@ func Fixelems() {
 	query := ""
 	args := make([]interface{}, 0)
 	for k, v := range elems {
+		fmt.Println("doing", v.Name, v.Complexity, v.FoundBy, v.Uses)
 		v.Complexity = calcComplexity(v, elems)
 		elems[k] = v
 		args = append(args, v.Complexity, v.FoundBy, v.Uses, v.Name)
