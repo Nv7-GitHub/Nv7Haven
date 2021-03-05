@@ -45,6 +45,8 @@ func handle(err error) {
 var lock = &sync.RWMutex{}
 var wg = &sync.WaitGroup{}
 
+var complcache = make(map[string]int)
+
 // Fixelems fixes the elements
 func Fixelems() {
 	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
@@ -89,7 +91,7 @@ func Fixelems() {
 	query := ""
 	args := make([]interface{}, 0)
 	for k, v := range elems {
-		fmt.Println("doing", v.Name, v.Complexity, v.FoundBy, v.Uses)
+		fmt.Println("doing", v.Name, v.FoundBy, v.Uses)
 		v.Complexity = calcComplexity(v, elems)
 		elems[k] = v
 		args = append(args, v.Complexity, v.FoundBy, v.Uses, v.Name)
@@ -100,6 +102,11 @@ func Fixelems() {
 }
 
 func calcComplexity(elem Element, elems map[string]Element) int {
+	fmt.Println(elem.Name)
+	scr, exists := complcache[elem.Name]
+	if exists {
+		return scr
+	}
 	if len(elem.Parents) == 0 {
 		return 0
 	}
@@ -109,7 +116,9 @@ func calcComplexity(elem Element, elems map[string]Element) int {
 	comp2 := calcComplexity(parent2, elems)
 
 	if comp1 > comp2 {
-		return comp1 + 1
+		scr = comp1 + 1
 	}
-	return comp2 + 1
+	scr = comp2 + 1
+	complcache[elem.Name] = scr
+	return scr
 }
