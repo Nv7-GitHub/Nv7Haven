@@ -54,6 +54,7 @@ func (b *Bot) handlers() {
 	b.dg.AddHandler(b.other)
 	b.dg.AddHandler(b.memeGen)
 	b.dg.AddHandler(b.math)
+	b.dg.AddHandler(b.elementalHandler)
 	for _, v := range commands {
 		go func(val *discordgo.ApplicationCommand) {
 			_, err := b.dg.ApplicationCommandCreate(clientID, "806258286043070545", val)
