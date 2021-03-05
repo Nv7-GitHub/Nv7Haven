@@ -128,7 +128,7 @@ func (b *Bot) comboCmd(elem1 string, elem2 string, m msg, rsp rsp) {
 		return
 	}
 
-	elem3, exists, err := b.e.GetCombo(elem1, elem2)
+	elem3, comboExists, err := b.e.GetCombo(elem1, elem2)
 	if rsp.Error(err) {
 		return
 	}
@@ -198,7 +198,7 @@ func (b *Bot) comboCmd(elem1 string, elem2 string, m msg, rsp rsp) {
 		return
 	}
 
-	if !exists {
+	if !comboExists {
 		rsp.Resp("Combo doesn't exist, gotta suggest something")
 		return
 	}
