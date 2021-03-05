@@ -9,7 +9,9 @@ import (
 
 type reactionMsgType int
 
+const ldbPageSwitcher = 0
 const invPageSwitcher = 1
+const suggestionReaction = 2
 
 var combs = []string{
 	"+",
