@@ -124,7 +124,7 @@ func (e *Elemental) getCombo(c *fiber.Ctx) error {
 
 // GetCombo gets a combination
 func (e *Elemental) GetCombo(elem1, elem2 string) (string, bool, error) {
-	res, err := e.db.Query("SELECT COUNT(1) FROM elem_combos WHERE (UPPER(elem1)=UPPER(?) AND UPPER(elem2)=UPPER(?)) OR (UPPER(elem1)=UPPER(?) AND UPPER(elem2)=UPPER(?)) LIMIT 1", elem1, elem2, elem2, elem1)
+	res, err := e.db.Query("SELECT COUNT(1) FROM elem_combos WHERE (elem1=? AND elem2=?) OR (elem1=? AND elem2=?) LIMIT 1", elem1, elem2, elem2, elem1)
 	if err != nil {
 		return "", false, err
 	}
