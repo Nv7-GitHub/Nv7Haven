@@ -88,21 +88,21 @@ func Fixelems() {
 		}(elem)
 	}
 	wg.Wait()
-	query := ""
-	args := make([]interface{}, 0)
 	for k, v := range elems {
-		fmt.Println("doing", v.Name, v.FoundBy, v.Uses)
 		v.Complexity = calcComplexity(v, elems)
 		elems[k] = v
-		args = append(args, v.Complexity, v.FoundBy, v.Uses, v.Name)
-		query += "UPDATE elements SET complexity=?, foundby=?, uses=? WHERE name=?\n"
+		wg.Add(1)
+		go func(v Element) {
+			_, err = db.Exec("UPDATE elements SET complexity=?, foundby=?, uses=? WHERE name=?", v.Complexity, v.FoundBy, v.Uses, v.Name)
+			handle(err)
+			wg.Done()
+			fmt.Println(v.Name, v.Complexity, v.FoundBy, v.Uses, v.Name)
+		}(v)
 	}
-	_, err = db.Exec(query, args...)
-	handle(err)
+	wg.Wait()
 }
 
 func calcComplexity(elem Element, elems map[string]Element) int {
-	fmt.Println(elem.Name)
 	scr, exists := complcache[elem.Name]
 	if exists {
 		return scr
