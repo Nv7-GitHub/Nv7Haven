@@ -11,6 +11,24 @@ func (e *Elemental) foundElement(c *fiber.Ctx) error {
 	return nil
 }
 
+// GetFound gets a user's found elements, based on their UID
+func (e *Elemental) GetFound(uid string) ([]string, error) {
+	var found []string
+	res, err := e.db.Query("SELECT found FROM users WHERE uid=?", uid)
+	if err != nil {
+		return []string{}, err
+	}
+	defer res.Close()
+	var data string
+	res.Next()
+	res.Scan(&data)
+	err = json.Unmarshal([]byte(data), &found)
+	if err != nil {
+		return []string{}, err
+	}
+	return found, nil
+}
+
 func (e *Elemental) getFound(c *fiber.Ctx) error {
 	res, err := e.db.Query("SELECT found FROM users WHERE uid=?", c.Params("uid"))
 	if err != nil {

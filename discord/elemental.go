@@ -67,6 +67,51 @@ func (b *Bot) comboCmd(elem1 string, elem2 string, m msg, rsp rsp) {
 		return
 	}
 
+	u, suc := b.getUser(m, rsp, m.Author.ID)
+	if !suc {
+		return
+	}
+	uidRaw, exists := u.Metadata["uid"]
+	if !exists {
+		rsp.ErrorMessage("Not logged in!")
+		return
+	}
+	uid, ok := uidRaw.(string)
+	if !ok {
+		rsp.ErrorMessage("Invalid UID!")
+		return
+	}
+
+	hasElem1 := false
+	hasElem2 := false
+	found, err := b.e.GetFound(uid)
+	if rsp.Error(err) {
+		return
+	}
+	for _, val := range found {
+		if val == elem1 {
+			hasElem1 = true
+			if hasElem1 && hasElem2 {
+				break
+			}
+		}
+		if val == elem2 {
+			hasElem2 = true
+			if hasElem1 && hasElem2 {
+				break
+			}
+		}
+	}
+
+	if !hasElem1 {
+		rsp.Resp(fmt.Sprintf("You haven't found element %s yet!", elem1))
+		return
+	}
+	if !hasElem2 {
+		rsp.Resp(fmt.Sprintf("You haven't found element %s yet!", elem2))
+		return
+	}
+
 	if !exists {
 		rsp.Resp("Combo doesn't exist, gotta suggest something")
 		return
