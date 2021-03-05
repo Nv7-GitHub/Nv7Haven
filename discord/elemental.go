@@ -51,6 +51,22 @@ func (b *Bot) comboCmd(elem1 string, elem2 string, m msg, rsp rsp) {
 	}
 	if !exists {
 		rsp.ErrorMessage("Combo doesn't exist!")
+		return
+	}
+
+	exts, suc := b.exts(rsp, "elements", "name=?", elem1)
+	if !suc {
+		return
+	}
+	if !exts {
+		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", elem1))
+	}
+	exts, suc = b.exts(rsp, "elements", "name=?", elem2)
+	if !suc {
+		return
+	}
+	if !exts {
+		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", elem2))
 	}
 
 	rsp.Message("this combo makes " + elem3)
