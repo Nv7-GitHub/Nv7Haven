@@ -80,6 +80,7 @@ func Fixelems() {
 			lock.Lock()
 			elems[elem.Name] = elem
 			lock.Unlock()
+			fmt.Println(elem.Name, elem.FoundBy, elem.Uses)
 
 			wg.Done()
 		}(elem)
@@ -90,7 +91,6 @@ func Fixelems() {
 	for k, v := range elems {
 		v.Complexity = calcComplexity(v, elems)
 		elems[k] = v
-		fmt.Println(v.Name, v.Complexity, v.FoundBy, v.Uses)
 		args = append(args, v.Complexity, v.FoundBy, v.Uses, v.Name)
 		query += "UPDATE elements SET complexity=?, foundby=?, uses=? WHERE name=?\n"
 	}
