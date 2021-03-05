@@ -1,9 +1,6 @@
 package discord
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -143,8 +140,7 @@ func (b *Bot) newRespSlash(i *discordgo.InteractionCreate) rsp {
 func (b *Bot) pageSwitchHandler(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	handler, exists := b.pages[r.MessageID]
 	if exists {
-		fmt.Println(r.Emoji, time.Now().Unix()-handler.TimeSince)
-		if (time.Now().Unix() - handler.TimeSince) < 3 {
+		if r.UserID == b.dg.State.User.ID {
 			return
 		}
 		handler.Handler(r)

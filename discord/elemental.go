@@ -3,7 +3,6 @@ package discord
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -30,8 +29,6 @@ func (b *Bot) einvPageHandler(r *discordgo.MessageReactionAdd) {
 	inv := pg.Metadata["found"].([]string)
 	if ((page * 20) > len(inv)) || (page < 0) {
 		b.dg.MessageReactionsRemoveAll(r.ChannelID, r.MessageID)
-		pg.TimeSince = time.Now().Unix()
-		b.pages[r.MessageID] = pg
 		b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, leftArrow)
 		b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, rightArrow)
 		return
@@ -51,8 +48,6 @@ func (b *Bot) einvPageHandler(r *discordgo.MessageReactionAdd) {
 		Description: text,
 	})
 	b.dg.MessageReactionsRemoveAll(r.ChannelID, r.MessageID)
-	pg.TimeSince = time.Now().Unix()
-	b.pages[r.MessageID] = pg
 	b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, leftArrow)
 	b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, rightArrow)
 }
@@ -93,8 +88,7 @@ func (b *Bot) einvCmd(m msg, rsp rsp) {
 			"found": inv,
 			"name":  m.Author.Username,
 		},
-		TimeSince: time.Now().Unix(),
-		Handler:   b.einvPageHandler,
+		Handler: b.einvPageHandler,
 	}
 }
 
