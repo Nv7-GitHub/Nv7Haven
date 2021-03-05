@@ -42,7 +42,14 @@ type Bot struct {
 
 	pages map[string]reactionMsg
 
-	e elemental.Elemental
+	e      elemental.Elemental
+	combos map[string]comb
+}
+
+type comb struct {
+	elem1 string
+	elem2 string
+	elem3 string
 }
 
 func (b *Bot) handlers() {

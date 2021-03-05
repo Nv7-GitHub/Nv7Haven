@@ -208,6 +208,11 @@ func (b *Bot) comboCmd(elem1 string, elem2 string, m msg, rsp rsp) {
 		return
 	}
 	rsp.Resp(fmt.Sprintf("You made %s!", elem3))
+	b.combos[m.Author.ID] = comb{
+		elem1: elem1,
+		elem2: elem2,
+		elem3: elem3,
+	}
 }
 
 func (b *Bot) elementalHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -240,6 +245,15 @@ func (b *Bot) elementalHandler(s *discordgo.Session, m *discordgo.MessageCreate)
 			rsp := b.newRespNormal(m)
 			b.comboCmd(parts[0], parts[1], msg, rsp)
 			return
+		}
+	}
+
+	if strings.HasPrefix(m.Content, "*2") {
+		comb, exists := b.combos[m.Author.ID]
+		if exists {
+			msg := b.newMsgNormal(m)
+			rsp := b.newRespNormal(m)
+			b.comboCmd(comb.elem3, comb.elem3, msg, rsp)
 		}
 	}
 
