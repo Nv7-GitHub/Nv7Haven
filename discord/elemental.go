@@ -123,7 +123,11 @@ func (b *Bot) comboCmd(elem1 string, elem2 string, m msg, rsp rsp) {
 		return
 	}
 
-	rsp.Message("this combo makes " + elem3)
+	err = b.e.NewFound(elem3, uid)
+	if rsp.Error(err) {
+		return
+	}
+	rsp.Resp(fmt.Sprintf("You made %s!", elem3))
 }
 
 func (b *Bot) elementalHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
