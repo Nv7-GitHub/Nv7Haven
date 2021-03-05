@@ -13,16 +13,14 @@ const leftArrow = "⬅️"
 const rightArrow = "➡️"
 
 type reactionMsg struct {
-	Type     reactionMsgType
-	Metadata map[string]interface{}
-	Handler  func(*discordgo.MessageReactionAdd)
+	Type      reactionMsgType
+	Metadata  map[string]interface{}
+	Handler   func(*discordgo.MessageReactionAdd)
+	TimeSince int64
 }
 
 func (b *Bot) ldbPageSwitcher(r *discordgo.MessageReactionAdd) {
 	pg := b.pages[r.MessageID]
-	if (time.Now().Unix() - pg.Metadata["timeSince"].(int64)) < 2 {
-		return
-	}
 	var page int
 	if r.Emoji.Name == leftArrow {
 		page = pg.Metadata["page"].(int) - 1
@@ -31,7 +29,7 @@ func (b *Bot) ldbPageSwitcher(r *discordgo.MessageReactionAdd) {
 	}
 	if ((page * 10) > pg.Metadata["count"].(int)) || (page < 0) {
 		b.dg.MessageReactionsRemoveAll(r.ChannelID, r.MessageID)
-		pg.Metadata["timeSince"] = time.Now().Unix()
+		pg.TimeSince = time.Now().Unix()
 		b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, leftArrow)
 		b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, rightArrow)
 		return
@@ -76,9 +74,10 @@ func (b *Bot) ldbPageSwitcher(r *discordgo.MessageReactionAdd) {
 		Description: ldb,
 	})
 	b.dg.MessageReactionsRemoveAll(r.ChannelID, r.MessageID)
-	pg.Metadata["timeSince"] = time.Now().Unix()
+	pg.TimeSince = time.Now().Unix()
 	b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, leftArrow)
 	b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, rightArrow)
+	b.pages[r.MessageID] = pg
 }
 
 func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -251,11 +250,11 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 		b.pages[msg.ID] = reactionMsg{
 			Type: ldbPageSwitcher,
 			Metadata: map[string]interface{}{
-				"page":      0,
-				"count":     num,
-				"timeSince": time.Now().Unix(),
+				"page":  0,
+				"count": num,
 			},
-			Handler: b.ldbPageSwitcher,
+			Handler:   b.ldbPageSwitcher,
+			TimeSince: time.Now().Unix(),
 		}
 		return
 	}

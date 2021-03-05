@@ -3,6 +3,7 @@ package discord
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -16,6 +17,84 @@ const suggestionReaction = 2
 var combs = []string{
 	"+",
 	",",
+}
+
+func (b *Bot) einvPageHandler(r *discordgo.MessageReactionAdd) {
+	pg := b.pages[r.MessageID]
+	var page int
+	if r.Emoji.Name == leftArrow {
+		page = pg.Metadata["page"].(int) - 1
+	} else {
+		page = pg.Metadata["page"].(int) + 1
+	}
+	inv := pg.Metadata["found"].([]string)
+	if ((page * 20) > len(inv)) || (page < 0) {
+		b.dg.MessageReactionsRemoveAll(r.ChannelID, r.MessageID)
+		pg.TimeSince = time.Now().Unix()
+		b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, leftArrow)
+		b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, rightArrow)
+		return
+	}
+	pg.Metadata["page"] = page
+
+	text := ""
+	for i := page * 20; i < len(inv); i++ {
+		text += inv[i] + "\n"
+		if i > 20+(page*20) {
+			break
+		}
+	}
+
+	b.dg.ChannelMessageEditEmbed(r.ChannelID, r.MessageID, &discordgo.MessageEmbed{
+		Title:       fmt.Sprintf("%s's Elemental Inventory", pg.Metadata["name"].(string)),
+		Description: text,
+	})
+	b.dg.MessageReactionsRemoveAll(r.ChannelID, r.MessageID)
+	pg.TimeSince = time.Now().Unix()
+	b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, leftArrow)
+	b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, rightArrow)
+	b.pages[r.MessageID] = pg
+}
+
+func (b *Bot) einvCmd(m msg, rsp rsp) {
+	b.checkUser(m, rsp)
+	if !b.isLoggedIn(m, rsp) {
+		return
+	}
+
+	u, suc := b.getUser(m, rsp, m.Author.ID)
+	if !suc {
+		return
+	}
+
+	inv, err := b.e.GetFound(u.Metadata["uid"].(string))
+	if rsp.Error(err) {
+		return
+	}
+
+	text := ""
+	for i := 0; i < len(inv); i++ {
+		text += inv[i] + "\n"
+		if i > 20 {
+			break
+		}
+	}
+	id := rsp.Embed(&discordgo.MessageEmbed{
+		Title:       fmt.Sprintf("%s's Elemental Inventory", m.Author.Username),
+		Description: text,
+	})
+	b.dg.MessageReactionAdd(m.ChannelID, id, leftArrow)
+	b.dg.MessageReactionAdd(m.ChannelID, id, rightArrow)
+	b.pages[id] = reactionMsg{
+		Type: invPageSwitcher,
+		Metadata: map[string]interface{}{
+			"page":  0,
+			"found": inv,
+			"name":  m.Author.Username,
+		},
+		TimeSince: time.Now().Unix(),
+		Handler:   b.einvPageHandler,
+	}
 }
 
 func (b *Bot) eloginCmd(username string, m msg, rsp rsp) {
@@ -167,6 +246,10 @@ func (b *Bot) elementalHandler(s *discordgo.Session, m *discordgo.MessageCreate)
 			b.comboCmd(parts[0], parts[1], msg, rsp)
 			return
 		}
+	}
+
+	if b.startsWith(m, "einv") {
+		b.einvCmd(b.newMsgNormal(m), b.newRespNormal(m))
 	}
 }
 

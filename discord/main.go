@@ -154,7 +154,7 @@ type msg struct {
 type rsp interface {
 	Error(err error) bool
 	ErrorMessage(msg string)
-	Message(msg string)
-	Embed(emb *discordgo.MessageEmbed)
+	Message(msg string) string
+	Embed(emb *discordgo.MessageEmbed) string
 	Resp(msg string)
 }

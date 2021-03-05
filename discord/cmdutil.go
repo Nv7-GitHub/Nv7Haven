@@ -1,6 +1,8 @@
 package discord
 
 import (
+	"time"
+
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -25,12 +27,14 @@ func (n *normalResp) Resp(msg string) {
 	n.b.dg.ChannelMessageSend(n.msg.ChannelID, msg)
 }
 
-func (n *normalResp) Message(msg string) {
-	n.b.dg.ChannelMessageSend(n.msg.ChannelID, msg)
+func (n *normalResp) Message(msg string) string {
+	m, _ := n.b.dg.ChannelMessageSend(n.msg.ChannelID, msg)
+	return m.ID
 }
 
-func (n *normalResp) Embed(emb *discordgo.MessageEmbed) {
-	n.b.dg.ChannelMessageSendEmbed(n.msg.ChannelID, emb)
+func (n *normalResp) Embed(emb *discordgo.MessageEmbed) string {
+	msg, _ := n.b.dg.ChannelMessageSendEmbed(n.msg.ChannelID, emb)
+	return msg.ID
 }
 
 func (b *Bot) newMsgNormal(m *discordgo.MessageCreate) msg {
@@ -90,7 +94,7 @@ func (s *slashResp) Resp(msg string) {
 	})
 }
 
-func (s *slashResp) Message(msg string) {
+func (s *slashResp) Message(msg string) string {
 	if !s.hasReplied {
 		s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -99,12 +103,13 @@ func (s *slashResp) Message(msg string) {
 			},
 		})
 		s.hasReplied = true
-		return
+		return ""
 	}
-	s.b.dg.ChannelMessageSend(s.i.ChannelID, msg)
+	m, _ := s.b.dg.ChannelMessageSend(s.i.ChannelID, msg)
+	return m.ID
 }
 
-func (s *slashResp) Embed(emb *discordgo.MessageEmbed) {
+func (s *slashResp) Embed(emb *discordgo.MessageEmbed) string {
 	if !s.hasReplied {
 		s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -113,9 +118,10 @@ func (s *slashResp) Embed(emb *discordgo.MessageEmbed) {
 			},
 		})
 		s.hasReplied = true
-		return
+		return ""
 	}
-	s.b.dg.ChannelMessageSendEmbed(s.i.ChannelID, emb)
+	m, _ := s.b.dg.ChannelMessageSendEmbed(s.i.ChannelID, emb)
+	return m.ID
 }
 
 func (b *Bot) newMsgSlash(i *discordgo.InteractionCreate) msg {
@@ -136,6 +142,9 @@ func (b *Bot) newRespSlash(i *discordgo.InteractionCreate) rsp {
 func (b *Bot) pageSwitchHandler(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	handler, exists := b.pages[r.MessageID]
 	if exists {
+		if (time.Now().Unix() - handler.TimeSince) < 2 {
+			return
+		}
 		handler.Handler(r)
 	}
 }
