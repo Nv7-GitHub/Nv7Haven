@@ -31,6 +31,7 @@ func (b *Bot) einvPageHandler(r *discordgo.MessageReactionAdd) {
 	if ((page * 20) > len(inv)) || (page < 0) {
 		b.dg.MessageReactionsRemoveAll(r.ChannelID, r.MessageID)
 		pg.TimeSince = time.Now().Unix()
+		b.pages[r.MessageID] = pg
 		b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, leftArrow)
 		b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, rightArrow)
 		return
@@ -51,6 +52,7 @@ func (b *Bot) einvPageHandler(r *discordgo.MessageReactionAdd) {
 	})
 	b.dg.MessageReactionsRemoveAll(r.ChannelID, r.MessageID)
 	pg.TimeSince = time.Now().Unix()
+	b.pages[r.MessageID] = pg
 	b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, leftArrow)
 	b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, rightArrow)
 }
