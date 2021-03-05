@@ -1,6 +1,8 @@
 package discord
 
-import "github.com/bwmarrin/discordgo"
+import (
+	"github.com/bwmarrin/discordgo"
+)
 
 type normalResp struct {
 	msg *discordgo.MessageCreate
@@ -128,5 +130,12 @@ func (b *Bot) newRespSlash(i *discordgo.InteractionCreate) rsp {
 	return &slashResp{
 		i: i,
 		b: b,
+	}
+}
+
+func (b *Bot) pageSwitchHandler(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+	handler, exists := b.pages[r.MessageID]
+	if exists {
+		handler.Handler(r)
 	}
 }

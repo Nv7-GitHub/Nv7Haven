@@ -9,6 +9,78 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+const leftArrow = "⬅️"
+const rightArrow = "➡️"
+
+type reactionMsg struct {
+	Type     reactionMsgType
+	Metadata map[string]interface{}
+	Handler  func(*discordgo.MessageReactionAdd)
+}
+
+func (b *Bot) ldbPageSwitcher(r *discordgo.MessageReactionAdd) {
+	pg := b.pages[r.MessageID]
+	if (time.Now().Unix() - pg.Metadata["timeSince"].(int64)) < 2 {
+		return
+	}
+	var page int
+	if r.Emoji.Name == leftArrow {
+		page = pg.Metadata["page"].(int) - 1
+	} else {
+		page = pg.Metadata["page"].(int) + 1
+	}
+	if ((page * 10) > pg.Metadata["count"].(int)) || (page < 0) {
+		b.dg.MessageReactionsRemoveAll(r.ChannelID, r.MessageID)
+		pg.Metadata["timeSince"] = time.Now().Unix()
+		b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, leftArrow)
+		b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, rightArrow)
+		return
+	}
+	pg.Metadata["page"] = page
+
+	res, err := b.db.Query("SELECT user, wallet FROM currency WHERE guilds LIKE ? ORDER BY wallet DESC LIMIT 10 OFFSET ?", "%"+r.GuildID+"%", page*10)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer res.Close()
+
+	var ldb string
+	var user string
+	var wallet int
+	var usr *discordgo.User
+	i := 1 + (page * 10)
+	for res.Next() {
+		err = res.Scan(&user, &wallet)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		usr, err = b.dg.User(user)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		ldb += fmt.Sprintf("%d. %s#%s - %d\n", i, usr.Username, usr.Discriminator, wallet)
+		i++
+	}
+
+	gld, err := b.dg.Guild(r.GuildID)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	b.dg.ChannelMessageEditEmbed(r.ChannelID, r.MessageID, &discordgo.MessageEmbed{
+		Title:       fmt.Sprintf("Richest users in %s", gld.Name),
+		Description: ldb,
+	})
+	b.dg.MessageReactionsRemoveAll(r.ChannelID, r.MessageID)
+	pg.Metadata["timeSince"] = time.Now().Unix()
+	b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, leftArrow)
+	b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, rightArrow)
+}
+
 func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
@@ -134,6 +206,13 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if b.startsWith(m, "ldb") {
+		count := b.db.QueryRow("SELECT COUNT(1) FROM currency WHERE guilds LIKE ?", "%"+m.GuildID+"%")
+		var num int
+		err := count.Scan(&num)
+		if b.handle(err, m) {
+			return
+		}
+
 		res, err := b.db.Query("SELECT user, wallet FROM currency WHERE guilds LIKE ? ORDER BY wallet DESC LIMIT 10", "%"+m.GuildID+"%")
 		if b.handle(err, m) {
 			return
@@ -144,6 +223,7 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 		var user string
 		var wallet int
 		var usr *discordgo.User
+		i := 1
 		for res.Next() {
 			err = res.Scan(&user, &wallet)
 			if b.handle(err, m) {
@@ -154,17 +234,29 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 				return
 			}
 
-			ldb += fmt.Sprintf("%s#%s - %d\n", usr.Username, usr.Discriminator, wallet)
+			ldb += fmt.Sprintf("%d. %s#%s - %d\n", i, usr.Username, usr.Discriminator, wallet)
+			i++
 		}
 
 		gld, err := s.Guild(m.GuildID)
 		if b.handle(err, m) {
 			return
 		}
-		s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
+		msg, _ := s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
 			Title:       fmt.Sprintf("Richest users in %s", gld.Name),
 			Description: ldb,
 		})
+		s.MessageReactionAdd(m.ChannelID, msg.ID, leftArrow)
+		s.MessageReactionAdd(m.ChannelID, msg.ID, rightArrow)
+		b.pages[msg.ID] = reactionMsg{
+			Type: ldbPageSwitcher,
+			Metadata: map[string]interface{}{
+				"page":      0,
+				"count":     num,
+				"timeSince": time.Now().Unix(),
+			},
+			Handler: b.ldbPageSwitcher,
+		}
 		return
 	}
 

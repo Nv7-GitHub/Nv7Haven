@@ -40,6 +40,8 @@ type Bot struct {
 
 	prefixcache map[string]string
 
+	pages map[string]reactionMsg
+
 	e elemental.Elemental
 }
 
@@ -55,6 +57,7 @@ func (b *Bot) handlers() {
 	b.dg.AddHandler(b.memeGen)
 	b.dg.AddHandler(b.math)
 	b.dg.AddHandler(b.elementalHandler)
+	b.dg.AddHandler(b.pageSwitchHandler)
 	for _, v := range commands {
 		go func(val *discordgo.ApplicationCommand) {
 			_, err := b.dg.ApplicationCommandCreate(clientID, "806258286043070545", val)
@@ -106,12 +109,12 @@ func InitDiscord(db *sql.DB, e elemental.Elemental) Bot {
 		e:     e,
 		props: props,
 
-		mathvars: make(map[string]map[string]interface{}),
-
+		mathvars:    make(map[string]map[string]interface{}),
+		pages:       make(map[string]reactionMsg),
 		prefixcache: make(map[string]string, 0),
 	}
 	b.handlers()
-	dg.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsGuildMessages)
+	dg.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsGuildMessages | discordgo.IntentsGuildMessageReactions)
 	err = dg.Open()
 	if err != nil {
 		panic(err)
