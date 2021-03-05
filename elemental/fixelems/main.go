@@ -50,6 +50,7 @@ func Fixelems() {
 	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
 	handle(err)
 	defer db.Close()
+	db.SetMaxOpenConns(10)
 
 	fmt.Println("Connected")
 
