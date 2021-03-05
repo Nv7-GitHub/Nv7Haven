@@ -119,6 +119,7 @@ func InitDiscord(db *sql.DB, e elemental.Elemental) Bot {
 		mathvars:    make(map[string]map[string]interface{}),
 		pages:       make(map[string]reactionMsg),
 		prefixcache: make(map[string]string, 0),
+		combos:      make(map[string]comb),
 	}
 	b.handlers()
 	dg.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsGuildMessages | discordgo.IntentsGuildMessageReactions)
