@@ -3,7 +3,6 @@ package elemental
 import (
 	"encoding/json"
 	"net/url"
-	"strings"
 	"sync"
 
 	"github.com/gofiber/fiber/v2"
@@ -125,9 +124,7 @@ func (e *Elemental) getCombo(c *fiber.Ctx) error {
 
 // GetCombo gets a combination
 func (e *Elemental) GetCombo(elem1, elem2 string) (string, bool, error) {
-	el1 := strings.ToUpper(elem1)
-	el2 := strings.ToUpper(elem2)
-	res, err := e.db.Query("SELECT COUNT(1) FROM elem_combos WHERE (UPPER(elem1)=? AND UPPER(elem2)=?) OR (UPPER(elem1)=? AND UPPER(elem2)=?) LIMIT 1", el1, el2, el2, el1)
+	res, err := e.db.Query("SELECT COUNT(1) FROM elem_combos WHERE (UPPER(elem1)=UPPER(?) AND UPPER(elem2)=UPPER(?)) OR (UPPER(elem1)=UPPER(?) AND UPPER(elem2)=UPPER(?)) LIMIT 1", elem1, elem2, elem2, elem1)
 	if err != nil {
 		return "", false, err
 	}
