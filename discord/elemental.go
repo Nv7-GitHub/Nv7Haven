@@ -217,7 +217,7 @@ func (b *Bot) comboCmd(elem1 string, elem2 string, m msg, rsp rsp) {
 }
 
 func (b *Bot) elementalHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if m.Author.ID == s.State.User.ID {
+	if m.Author.ID == s.State.User.ID || m.Author.Bot {
 		return
 	}
 

@@ -62,7 +62,7 @@ func newFunc(fu func(float64) float64) func(...interface{}) (interface{}, error)
 }
 
 func (b *Bot) math(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if m.Author.ID == s.State.User.ID {
+	if m.Author.ID == s.State.User.ID || m.Author.Bot {
 		return
 	}
 
