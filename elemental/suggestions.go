@@ -2,6 +2,7 @@ package elemental
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 	"strconv"
@@ -74,7 +75,7 @@ func (e *Elemental) getSuggestionCombos(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	data, err := e.getSuggestions(elem1, elem2)
+	data, err := e.GetSuggestions(elem1, elem2)
 	if err != nil {
 		return err
 	}
@@ -82,35 +83,45 @@ func (e *Elemental) getSuggestionCombos(c *fiber.Ctx) error {
 }
 
 func (e *Elemental) downVoteSuggestion(c *fiber.Ctx) error {
-
 	id, err := url.PathUnescape(c.Params("id"))
 	if err != nil {
 		return err
 	}
 	uid := c.Params("uid")
+	suc, msg := e.DownvoteSuggestion(id, uid)
+	if !suc {
+		return errors.New(msg)
+	}
+
+	return nil
+}
+
+// DownvoteSuggestion downvotes a suggestion
+func (e *Elemental) DownvoteSuggestion(id, uid string) (bool, string) {
 	existing, err := e.getSugg(id)
 	if err != nil {
-		return err
+		return false, err.Error()
 	}
 	for _, voted := range existing.Voted {
 		if voted == uid {
-			return c.SendString("You already voted!")
+			return false, "You already voted!"
 		}
 	}
 	existing.Votes--
 	if existing.Votes < minVotes {
 		e.db.Exec("DELETE FROM suggestions WHERE name=?", id)
+		return true, ""
 	}
 	existing.Voted = append(existing.Voted, uid)
 	data, err := json.Marshal(existing.Voted)
 	if err != nil {
-		return err
+		return false, err.Error()
 	}
 	_, err = e.db.Exec("UPDATE suggestions SET voted=?, votes=? WHERE name=?", data, existing.Votes, existing.Name)
 	if err != nil {
-		return err
+		return false, err.Error()
 	}
-	return nil
+	return true, ""
 }
 
 func (e *Elemental) upVoteSuggestion(c *fiber.Ctx) error {
@@ -119,16 +130,30 @@ func (e *Elemental) upVoteSuggestion(c *fiber.Ctx) error {
 		return err
 	}
 	uid := c.Params("uid")
+	create, suc, msg := e.UpvoteSuggestion(id, uid)
+	if !suc {
+		return errors.New(msg)
+	}
+
+	if create {
+		return c.SendString("create")
+	}
+
+	return nil
+}
+
+// UpvoteSuggestion upvotes a suggestion
+func (e *Elemental) UpvoteSuggestion(id, uid string) (bool, bool, string) {
 	existing, err := e.getSugg(id)
 	if err != nil {
-		return err
+		return false, false, err.Error()
 	}
 
 	isAnarchy := int(time.Now().Weekday()) == anarchyDay
 	if !(isAnarchy) {
 		for _, voted := range existing.Voted {
 			if voted == uid {
-				return c.SendString("You already voted!")
+				return false, false, "You already voted!"
 			}
 		}
 	}
@@ -137,16 +162,16 @@ func (e *Elemental) upVoteSuggestion(c *fiber.Ctx) error {
 	existing.Voted = append(existing.Voted, uid)
 	data, err := json.Marshal(existing.Voted)
 	if err != nil {
-		return err
+		return false, false, err.Error()
 	}
 	_, err = e.db.Exec("UPDATE suggestions SET votes=?, voted=? WHERE name=?", existing.Votes, data, existing.Name)
 	if err != nil {
-		return err
+		return false, false, err.Error()
 	}
 	if (existing.Votes >= maxVotes) || isAnarchy {
-		return c.SendString("create")
+		return true, true, ""
 	}
-	return nil
+	return false, true, ""
 }
 
 func (e *Elemental) newSuggestion(c *fiber.Ctx) error {
@@ -169,19 +194,33 @@ func (e *Elemental) newSuggestion(c *fiber.Ctx) error {
 		return err
 	}
 
-	voted, _ := json.Marshal(suggestion.Voted)
-	color := fmt.Sprintf("%s_%f_%f", suggestion.Color.Base, suggestion.Color.Saturation, suggestion.Color.Lightness)
-	_, err = e.db.Exec("INSERT INTO suggestions VALUES( ?, ?, ?, ?, ? )", suggestion.Name, color, suggestion.Creator, voted, suggestion.Votes)
+	create, err := e.NewSuggestion(elem1, elem2, suggestion)
 	if err != nil {
 		return err
 	}
 
-	_, err = e.db.Exec("INSERT INTO sugg_combos VALUES ( ?, ?, ? )", elem1, elem2, suggestion.Name)
-	if err != nil {
-		return err
-	}
-	if int(time.Now().Weekday()) == anarchyDay {
+	if create {
 		return c.SendString("create")
 	}
+
 	return nil
+}
+
+// NewSuggestion makes a new suggestion
+func (e *Elemental) NewSuggestion(elem1, elem2 string, suggestion Suggestion) (bool, error) {
+	voted, _ := json.Marshal(suggestion.Voted)
+	color := fmt.Sprintf("%s_%f_%f", suggestion.Color.Base, suggestion.Color.Saturation, suggestion.Color.Lightness)
+	_, err := e.db.Exec("INSERT INTO suggestions VALUES( ?, ?, ?, ?, ? )", suggestion.Name, color, suggestion.Creator, voted, suggestion.Votes)
+	if err != nil {
+		return false, err
+	}
+
+	_, err = e.db.Exec("INSERT INTO sugg_combos VALUES ( ?, ?, ? )", elem1, elem2, suggestion.Name)
+	if err != nil {
+		return false, err
+	}
+	if int(time.Now().Weekday()) == anarchyDay {
+		return true, nil
+	}
+	return false, nil
 }

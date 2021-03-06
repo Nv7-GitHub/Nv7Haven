@@ -50,7 +50,8 @@ func GenerateRandomStringURLSafe(n int) (string, error) {
 
 // MY FUNCTIONS BELOW
 
-func (e *Elemental) getSuggestions(elem1 string, elem2 string) ([]string, error) {
+// GetSuggestions gets all of the suggestions for a given combo
+func (e *Elemental) GetSuggestions(elem1 string, elem2 string) ([]string, error) {
 	res, err := e.db.Query("SELECT elem3 FROM sugg_combos WHERE (elem1=? AND elem2=?) OR (elem1=? AND elem2=?)", elem1, elem2, elem2, elem1)
 	if err != nil {
 		return nil, err

@@ -40,7 +40,7 @@ func (e *Elemental) createSuggestion(c *fiber.Ctx) error {
 	}
 
 	// Get combos
-	combos, err := e.getSuggestions(elem1, elem2)
+	combos, err := e.GetSuggestions(elem1, elem2)
 	if err != nil {
 		return err
 	}

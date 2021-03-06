@@ -198,6 +198,12 @@ func (b *Bot) comboCmd(elem1 string, elem2 string, m msg, rsp rsp) {
 		return
 	}
 
+	b.combos[m.Author.ID] = comb{
+		elem1: elem1,
+		elem2: elem2,
+		elem3: elem3,
+	}
+
 	if !comboExists {
 		rsp.Resp("Combo doesn't exist, gotta suggest something")
 		return
@@ -208,11 +214,6 @@ func (b *Bot) comboCmd(elem1 string, elem2 string, m msg, rsp rsp) {
 		return
 	}
 	rsp.Resp(fmt.Sprintf("You made %s!", elem3))
-	b.combos[m.Author.ID] = comb{
-		elem1: elem1,
-		elem2: elem2,
-		elem3: elem3,
-	}
 }
 
 func (b *Bot) elementalHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
