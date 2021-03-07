@@ -8,7 +8,6 @@ import (
 )
 
 func (b *Bot) markCmd(mark string, id string, m msg, rsp rsp) {
-	fmt.Println(mark, id)
 	b.checkUser(m, rsp)
 	if !b.isLoggedIn(m, rsp) {
 		return
@@ -42,7 +41,7 @@ func (b *Bot) markCmd(mark string, id string, m msg, rsp rsp) {
 		return
 	}
 
-	_, err = b.db.Exec("UPDATE elemnts SET comment=? WHERE name=?", id)
+	_, err = b.db.Exec("UPDATE elements SET comment=? WHERE name=?", mark, id)
 	if rsp.Error(err) {
 		return
 	}
