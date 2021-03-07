@@ -476,6 +476,7 @@ func (b *Bot) elementalHandler(s *discordgo.Session, m *discordgo.MessageCreate)
 			b.comboCmd(parts[0], parts[1], msg, rsp)
 			return
 		}
+		return
 	}
 
 	if strings.HasPrefix(m.Content, "*2") {
@@ -485,10 +486,12 @@ func (b *Bot) elementalHandler(s *discordgo.Session, m *discordgo.MessageCreate)
 			rsp := b.newRespNormal(m)
 			b.comboCmd(comb.elem3, comb.elem3, msg, rsp)
 		}
+		return
 	}
 
 	if b.startsWith(m, "einv") {
 		b.einvCmd(b.newMsgNormal(m), b.newRespNormal(m))
+		return
 	}
 
 	if b.startsWith(m, "suggest") {
@@ -500,8 +503,28 @@ func (b *Bot) elementalHandler(s *discordgo.Session, m *discordgo.MessageCreate)
 			return
 		}
 		b.suggestCmd(string(matches[0][1]), string(matches[0][2]), msg, rsp)
+		return
 	}
 
+	if b.startsWith(m, "upvote") {
+		msg := b.newMsgNormal(m)
+		rsp := b.newRespNormal(m)
+		if len(m.Content) < 7 {
+			rsp.ErrorMessage("Invalid input!")
+		}
+		name := m.Content[6:]
+		b.upvoteCmd(name, msg, rsp)
+	}
+
+	if b.startsWith(m, "downvote") {
+		msg := b.newMsgNormal(m)
+		rsp := b.newRespNormal(m)
+		if len(m.Content) < 10 {
+			rsp.ErrorMessage("Invalid input!")
+		}
+		name := m.Content[9:]
+		b.downvoteCmd(name, msg, rsp)
+	}
 }
 
 func (b *Bot) isLoggedIn(m msg, rsp rsp) bool {
