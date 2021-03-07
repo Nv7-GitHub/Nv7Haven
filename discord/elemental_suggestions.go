@@ -159,6 +159,7 @@ func (b *Bot) upvoteCmd(name string, m msg, rsp rsp) {
 	if create {
 		b.createCmd(comb.elem1, comb.elem2, u.Metadata["eusername"].(string), u.Metadata["uid"].(string), name, m, rsp)
 	}
+	rsp.Resp("Succesfully upvoted suggestion!")
 }
 
 func (b *Bot) downvoteCmd(name string, m msg, rsp rsp) {
@@ -211,6 +212,7 @@ func (b *Bot) downvoteCmd(name string, m msg, rsp rsp) {
 		rsp.ErrorMessage(msg)
 		return
 	}
+	rsp.Resp("Succesfully downvoted suggestion!")
 }
 
 func (b *Bot) createCmd(elem1 string, elem2 string, username string, id string, uid string, m msg, rsp rsp) {
