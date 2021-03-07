@@ -312,7 +312,7 @@ func (b *Bot) elementalHandler(s *discordgo.Session, m *discordgo.MessageCreate)
 	if b.startsWith(m, "mark") {
 		msg := b.newMsgNormal(m)
 		rsp := b.newRespNormal(m)
-		matches := suggestionInput.FindAllSubmatch([]byte(m.Content), -1)
+		matches := markInput.FindAllSubmatch([]byte(m.Content), -1)
 		if len(matches) < 1 || len(matches[0]) < 3 {
 			rsp.ErrorMessage("Message does not fit format `mark <element>|<creator mark>`!")
 			return
