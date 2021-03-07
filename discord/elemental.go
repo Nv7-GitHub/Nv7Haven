@@ -317,7 +317,7 @@ func (b *Bot) elementalHandler(s *discordgo.Session, m *discordgo.MessageCreate)
 			rsp.ErrorMessage("Message does not fit format `mark <element>|<creator mark>`!")
 			return
 		}
-		b.markCmd(string(matches[0][2]), string(matches[0][1]), msg, rsp)
+		b.markCmd(strings.TrimSpace(string(matches[0][2])), strings.TrimSpace(string(matches[0][1])), msg, rsp)
 		return
 	}
 }
