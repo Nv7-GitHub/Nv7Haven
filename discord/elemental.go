@@ -15,6 +15,7 @@ const invPageSwitcher = 1
 const suggestionReaction = 2
 
 var suggestionInput = regexp.MustCompile(`suggest (.+) (white|black|grey|brown|red|orange|yellow|green|aqua|blue|dark-blue|yellow-green|purple|magenta|hot-pink)`)
+var markInput = regexp.MustCompile(`mark (.+)\|(.+)`)
 
 var combs = []string{
 	"+",
@@ -305,6 +306,18 @@ func (b *Bot) elementalHandler(s *discordgo.Session, m *discordgo.MessageCreate)
 		}
 		name := m.Content[9:]
 		b.downvoteCmd(name, msg, rsp)
+		return
+	}
+
+	if b.startsWith(m, "mark") {
+		msg := b.newMsgNormal(m)
+		rsp := b.newRespNormal(m)
+		matches := suggestionInput.FindAllSubmatch([]byte(m.Content), -1)
+		if len(matches) < 1 || len(matches[0]) < 3 {
+			rsp.ErrorMessage("Message does not fit format `mark <element>|<creator mark>`!")
+			return
+		}
+		b.markCmd(string(matches[0][2]), string(matches[0][1]), msg, rsp)
 		return
 	}
 }
