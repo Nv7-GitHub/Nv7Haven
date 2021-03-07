@@ -8,6 +8,7 @@ import (
 )
 
 func (b *Bot) markCmd(mark string, id string, m msg, rsp rsp) {
+	fmt.Println(mark, id)
 	b.checkUser(m, rsp)
 	if !b.isLoggedIn(m, rsp) {
 		return
@@ -59,6 +60,7 @@ func (b *Bot) suggestCmd(name string, color string, m msg, rsp rsp) {
 	comb, exists := b.combos[m.Author.ID]
 	if !exists {
 		rsp.ErrorMessage("You haven't combined any elements!")
+		return
 	}
 
 	_, comboExists, err := b.e.GetCombo(comb.elem1, comb.elem2)
