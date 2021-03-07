@@ -384,7 +384,14 @@ func (b *Bot) comboCmd(elem1 string, elem2 string, m msg, rsp rsp) {
 	}
 
 	if !comboExists {
-		rsp.Resp("Combo doesn't exist, gotta suggest something")
+		combs, err := b.e.GetSuggestions(elem1, elem2)
+		if rsp.Error(err) {
+			return
+		}
+		rsp.Embed(&discordgo.MessageEmbed{
+			Title:       fmt.Sprintf("Suggestions for %s+%s", elem1, elem2),
+			Description: strings.Join(combs, "\n"),
+		})
 		return
 	}
 
