@@ -2,8 +2,10 @@ package discord
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/elemental"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -12,6 +14,8 @@ type reactionMsgType int
 const ldbPageSwitcher = 0
 const invPageSwitcher = 1
 const suggestionReaction = 2
+
+var suggestionInput = regexp.MustCompile(`suggest (.+) (white|black|grey|brown|red|orange|yellow|green|aqua|blue|dark-blue|yellow-green|purple|magenta|hot-pink)`)
 
 var combs = []string{
 	"+",
@@ -50,6 +54,181 @@ func (b *Bot) einvPageHandler(r *discordgo.MessageReactionAdd) {
 	b.dg.MessageReactionsRemoveAll(r.ChannelID, r.MessageID)
 	b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, leftArrow)
 	b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, rightArrow)
+}
+
+func (b *Bot) suggestCmd(name string, color string, m msg, rsp rsp) {
+	b.checkUser(m, rsp)
+	if !b.isLoggedIn(m, rsp) {
+		return
+	}
+
+	name = strings.TrimSpace(name)
+	comb, exists := b.combos[m.Author.ID]
+	if !exists {
+		rsp.ErrorMessage("You haven't combined any elements!")
+	}
+
+	_, comboExists, err := b.e.GetCombo(comb.elem1, comb.elem2)
+	if rsp.Error(err) {
+		return
+	}
+
+	if comboExists {
+		rsp.ErrorMessage("Combo already exists!")
+		return
+	}
+
+	combs, err := b.e.GetSuggestions(comb.elem1, comb.elem2)
+	if rsp.Error(err) {
+		return
+	}
+
+	for _, val := range combs {
+		if val == name {
+			rsp.ErrorMessage("Someone's already suggested that! Use the `upvote` command to upvote a suggestion!")
+			return
+		}
+	}
+
+	u, suc := b.getUser(m, rsp, m.Author.ID)
+	if !suc {
+		return
+	}
+
+	create, err := b.e.NewSuggestion(comb.elem1, comb.elem2, elemental.Suggestion{
+		Name:    name,
+		Creator: u.Metadata["eusername"].(string),
+		Color: elemental.Color{
+			Base: color,
+		},
+		Votes: 0,
+		Voted: []string{u.Metadata["uid"].(string)},
+	})
+	if rsp.Error(err) {
+		return
+	}
+	if create {
+		b.createCmd(comb.elem1, comb.elem2, u.Metadata["eusername"].(string), u.Metadata["uid"].(string), name, m, rsp)
+	}
+}
+
+func (b *Bot) upvoteCmd(name string, m msg, rsp rsp) {
+	b.checkUser(m, rsp)
+	if !b.isLoggedIn(m, rsp) {
+		return
+	}
+
+	name = strings.TrimSpace(name)
+	comb, exists := b.combos[m.Author.ID]
+	if !exists {
+		rsp.ErrorMessage("You haven't combined any elements!")
+	}
+
+	_, comboExists, err := b.e.GetCombo(comb.elem1, comb.elem2)
+	if rsp.Error(err) {
+		return
+	}
+
+	if comboExists {
+		rsp.ErrorMessage("Combo already exists!")
+		return
+	}
+
+	combs, err := b.e.GetSuggestions(comb.elem1, comb.elem2)
+	if rsp.Error(err) {
+		return
+	}
+
+	isIn := false
+	for _, val := range combs {
+		if val == name {
+			isIn = true
+			break
+		}
+	}
+	if !isIn {
+		rsp.ErrorMessage("Suggestion doesn't exist! Use the `suggest` command to suggest something!")
+		return
+	}
+
+	u, suc := b.getUser(m, rsp, m.Author.ID)
+	if !suc {
+		return
+	}
+
+	create, suc, msg := b.e.UpvoteSuggestion(name, u.Metadata["uid"].(string))
+	if !suc {
+		rsp.ErrorMessage(msg)
+		return
+	}
+	if create {
+		b.createCmd(comb.elem1, comb.elem2, u.Metadata["eusername"].(string), u.Metadata["uid"].(string), name, m, rsp)
+	}
+}
+
+func (b *Bot) downvoteCmd(name string, m msg, rsp rsp) {
+	b.checkUser(m, rsp)
+	if !b.isLoggedIn(m, rsp) {
+		return
+	}
+
+	name = strings.TrimSpace(name)
+	comb, exists := b.combos[m.Author.ID]
+	if !exists {
+		rsp.ErrorMessage("You haven't combined any elements!")
+	}
+
+	_, comboExists, err := b.e.GetCombo(comb.elem1, comb.elem2)
+	if rsp.Error(err) {
+		return
+	}
+
+	if comboExists {
+		rsp.ErrorMessage("Combo already exists!")
+		return
+	}
+
+	combs, err := b.e.GetSuggestions(comb.elem1, comb.elem2)
+	if rsp.Error(err) {
+		return
+	}
+
+	isIn := false
+	for _, val := range combs {
+		if val == name {
+			isIn = true
+			break
+		}
+	}
+	if !isIn {
+		rsp.ErrorMessage("Suggestion doesn't exist! Use the `suggest` command to suggest something!")
+		return
+	}
+
+	u, suc := b.getUser(m, rsp, m.Author.ID)
+	if !suc {
+		return
+	}
+
+	suc, msg := b.e.DownvoteSuggestion(name, u.Metadata["uid"].(string))
+	if !suc {
+		rsp.ErrorMessage(msg)
+		return
+	}
+}
+
+func (b *Bot) createCmd(elem1 string, elem2 string, username string, id string, uid string, m msg, rsp rsp) {
+	suc, msg := b.e.CreateSuggestion("None", username, elem1, elem2, id)
+	if !suc {
+		rsp.ErrorMessage(msg)
+	}
+
+	err := b.e.NewFound(id, uid)
+	if rsp.Error(err) {
+		return
+	}
+
+	rsp.Resp(fmt.Sprintf("Succesfully created element %s! You can use the `mark` command to add a creator mark!", id))
 }
 
 func (b *Bot) einvCmd(m msg, rsp rsp) {
@@ -216,6 +395,48 @@ func (b *Bot) comboCmd(elem1 string, elem2 string, m msg, rsp rsp) {
 	rsp.Resp(fmt.Sprintf("You made %s!", elem3))
 }
 
+func (b *Bot) markCmd(mark string, id string, m msg, rsp rsp) {
+	b.checkUser(m, rsp)
+	if !b.isLoggedIn(m, rsp) {
+		return
+	}
+
+	exts, suc := b.exts(rsp, "elements", "name=?", id)
+	if !suc {
+		return
+	}
+	if !exts {
+		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", id))
+		return
+	}
+
+	elem, err := b.e.GetElement(id)
+	if rsp.Error(err) {
+		return
+	}
+
+	u, suc := b.getUser(m, rsp, m.Author.ID)
+	if !suc {
+		return
+	}
+
+	if elem.Comment != "None" {
+		rsp.ErrorMessage("The element already has a creator mark!")
+		return
+	}
+	if elem.Pioneer != u.Metadata["eusername"].(string) {
+		rsp.ErrorMessage("You didn't make this element!")
+		return
+	}
+
+	_, err = b.db.Exec("UPDATE elemnts SET comment=? WHERE name=?", id)
+	if rsp.Error(err) {
+		return
+	}
+
+	rsp.Resp("Succesfully added creator mark!")
+}
+
 func (b *Bot) elementalHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID || m.Author.Bot {
 		return
@@ -261,6 +482,18 @@ func (b *Bot) elementalHandler(s *discordgo.Session, m *discordgo.MessageCreate)
 	if b.startsWith(m, "einv") {
 		b.einvCmd(b.newMsgNormal(m), b.newRespNormal(m))
 	}
+
+	if b.startsWith(m, "suggest") {
+		msg := b.newMsgNormal(m)
+		rsp := b.newRespNormal(m)
+		matches := suggestionInput.FindAllSubmatch([]byte(m.Content), -1)
+		if len(matches) < 1 || len(matches[0]) < 3 {
+			rsp.ErrorMessage("Message does not fit format `suggest <element name> <color>`! Valid colors: white, black, grey, brown, red, orange, yellow, green, aqua, blue, dark-blue, yellow-green, purple, magenta, hot-pink.")
+			return
+		}
+		b.suggestCmd(string(matches[0][1]), string(matches[0][2]), msg, rsp)
+	}
+
 }
 
 func (b *Bot) isLoggedIn(m msg, rsp rsp) bool {
