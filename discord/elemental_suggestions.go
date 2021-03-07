@@ -101,7 +101,8 @@ func (b *Bot) suggestCmd(name string, color string, m msg, rsp rsp) {
 		return
 	}
 	if create {
-		b.createCmd(comb.elem1, comb.elem2, u.Metadata["eusername"].(string), u.Metadata["uid"].(string), name, m, rsp)
+		b.createCmd(comb.elem1, comb.elem2, u.Metadata["eusername"].(string), name, u.Metadata["uid"].(string), m, rsp)
+		return
 	}
 	rsp.Resp("Succesfully created suggestion!")
 }
@@ -157,7 +158,8 @@ func (b *Bot) upvoteCmd(name string, m msg, rsp rsp) {
 		return
 	}
 	if create {
-		b.createCmd(comb.elem1, comb.elem2, u.Metadata["eusername"].(string), u.Metadata["uid"].(string), name, m, rsp)
+		b.createCmd(comb.elem1, comb.elem2, u.Metadata["eusername"].(string), name, u.Metadata["uid"].(string), m, rsp)
+		return
 	}
 	rsp.Resp("Succesfully upvoted suggestion!")
 }
@@ -219,6 +221,7 @@ func (b *Bot) createCmd(elem1 string, elem2 string, username string, id string, 
 	suc, msg := b.e.CreateSuggestion("None", username, elem1, elem2, id)
 	if !suc {
 		rsp.ErrorMessage(msg)
+		return
 	}
 
 	err := b.e.NewFound(id, uid)
