@@ -110,6 +110,7 @@ func (b *Bot) suggestCmd(name string, color string, m msg, rsp rsp) {
 	if create {
 		b.createCmd(comb.elem1, comb.elem2, u.Metadata["eusername"].(string), u.Metadata["uid"].(string), name, m, rsp)
 	}
+	rsp.Resp("Succesfully created suggestion!")
 }
 
 func (b *Bot) upvoteCmd(name string, m msg, rsp rsp) {
