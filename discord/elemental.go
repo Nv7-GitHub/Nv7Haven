@@ -14,7 +14,7 @@ const ldbPageSwitcher = 0
 const invPageSwitcher = 1
 const suggestionReaction = 2
 
-var suggestionInput = regexp.MustCompile(`suggest (.+) (white|black|grey|brown|red|orange|yellow|green|aqua|blue|dark-blue|yellow-green|purple|magenta|hot-pink)`)
+var suggestionInput = regexp.MustCompile(`suggest (.+) (white|black|grey|brown|red|orange|yellow|green|aqua|blue|dark-blue|yellow-green|purple|magenta|hot-pink|pink)`)
 var markInput = regexp.MustCompile(`mark (.+)\|(.+)`)
 
 var combs = []string{
@@ -280,7 +280,7 @@ func (b *Bot) elementalHandler(s *discordgo.Session, m *discordgo.MessageCreate)
 		rsp := b.newRespNormal(m)
 		matches := suggestionInput.FindAllSubmatch([]byte(m.Content), -1)
 		if len(matches) < 1 || len(matches[0]) < 3 {
-			rsp.ErrorMessage("Message does not fit format `suggest <element name> <color>`! Valid colors: white, black, grey, brown, red, orange, yellow, green, aqua, blue, dark-blue, yellow-green, purple, magenta, hot-pink.")
+			rsp.ErrorMessage("Message does not fit format `suggest <element name> <color>`! Valid colors: white, black, grey, brown, red, orange, yellow, green, aqua, blue, dark-blue, yellow-green, purple, magenta, hot-pink, and pink.")
 			return
 		}
 		b.suggestCmd(string(matches[0][1]), string(matches[0][2]), msg, rsp)
