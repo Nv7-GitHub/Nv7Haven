@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/elemental"
+	"github.com/bwmarrin/discordgo"
 )
 
 func (b *Bot) markCmd(mark string, id string, m msg, rsp rsp) {
@@ -233,4 +234,39 @@ func (b *Bot) createCmd(elem1 string, elem2 string, username string, id string, 
 	}
 
 	rsp.Resp(fmt.Sprintf("Succesfully created element %s! You can use the `mark` command to add a creator mark!", id))
+}
+
+func (b *Bot) randomCmd(getter func(uid string) ([]string, error), m msg, rsp rsp) {
+	u, suc := b.getUser(m, rsp, m.Author.ID)
+	if !suc {
+		return
+	}
+	uid := u.Metadata["uid"].(string)
+	for i := 0; i < 10; i++ {
+		combs, err := getter(uid)
+		if err != nil {
+			return
+		}
+		if len(combs) == 2 {
+			elem1 := combs[0]
+			elem2 := combs[1]
+
+			b.combos[m.Author.ID] = comb{
+				elem1: elem1,
+				elem2: elem2,
+				elem3: "",
+			}
+
+			combs, err := b.e.GetSuggestions(elem1, elem2)
+			if rsp.Error(err) {
+				return
+			}
+			rsp.Embed(&discordgo.MessageEmbed{
+				Title:       fmt.Sprintf("Suggestions for %s+%s", elem1, elem2),
+				Description: strings.Join(combs, "\n"),
+			})
+			return
+		}
+	}
+	rsp.ErrorMessage("No available random lonely suggestions right now! Check back later!")
 }

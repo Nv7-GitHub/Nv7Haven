@@ -228,6 +228,9 @@ func (b *Bot) comboCmd(elem1 string, elem2 string, m msg, rsp rsp) {
 }
 
 func (b *Bot) elementalHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
+	msg := b.newMsgNormal(m)
+	rsp := b.newRespNormal(m)
+
 	if m.Author.ID == s.State.User.ID || m.Author.Bot {
 		return
 	}
@@ -253,8 +256,6 @@ func (b *Bot) elementalHandler(s *discordgo.Session, m *discordgo.MessageCreate)
 				return
 			}
 
-			msg := b.newMsgNormal(m)
-			rsp := b.newRespNormal(m)
 			b.comboCmd(parts[0], parts[1], msg, rsp)
 			return
 		}
@@ -263,8 +264,6 @@ func (b *Bot) elementalHandler(s *discordgo.Session, m *discordgo.MessageCreate)
 	if strings.HasPrefix(m.Content, "*2") {
 		comb, exists := b.combos[m.Author.ID]
 		if exists {
-			msg := b.newMsgNormal(m)
-			rsp := b.newRespNormal(m)
 			b.comboCmd(comb.elem3, comb.elem3, msg, rsp)
 		}
 		return
@@ -276,8 +275,6 @@ func (b *Bot) elementalHandler(s *discordgo.Session, m *discordgo.MessageCreate)
 	}
 
 	if b.startsWith(m, "suggest") {
-		msg := b.newMsgNormal(m)
-		rsp := b.newRespNormal(m)
 		matches := suggestionInput.FindAllSubmatch([]byte(m.Content), -1)
 		if len(matches) < 1 || len(matches[0]) < 3 {
 			rsp.ErrorMessage("Message does not fit format `suggest <element name> <color>`! Valid colors: white, black, grey, brown, red, orange, yellow, green, aqua, blue, dark-blue, yellow-green, purple, magenta, hot-pink, and pink.")
@@ -288,8 +285,6 @@ func (b *Bot) elementalHandler(s *discordgo.Session, m *discordgo.MessageCreate)
 	}
 
 	if b.startsWith(m, "upvote") {
-		msg := b.newMsgNormal(m)
-		rsp := b.newRespNormal(m)
 		if len(m.Content) < 7 {
 			rsp.ErrorMessage("Invalid input!")
 		}
@@ -299,8 +294,6 @@ func (b *Bot) elementalHandler(s *discordgo.Session, m *discordgo.MessageCreate)
 	}
 
 	if b.startsWith(m, "downvote") {
-		msg := b.newMsgNormal(m)
-		rsp := b.newRespNormal(m)
 		if len(m.Content) < 10 {
 			rsp.ErrorMessage("Invalid input!")
 		}
@@ -310,8 +303,6 @@ func (b *Bot) elementalHandler(s *discordgo.Session, m *discordgo.MessageCreate)
 	}
 
 	if b.startsWith(m, "mark") {
-		msg := b.newMsgNormal(m)
-		rsp := b.newRespNormal(m)
 		matches := markInput.FindAllSubmatch([]byte(m.Content), -1)
 		if len(matches) < 1 || len(matches[0]) < 3 {
 			rsp.ErrorMessage("Message does not fit format `mark <element>|<creator mark>`!")
@@ -319,6 +310,14 @@ func (b *Bot) elementalHandler(s *discordgo.Session, m *discordgo.MessageCreate)
 		}
 		b.markCmd(strings.TrimSpace(string(matches[0][2])), strings.TrimSpace(string(matches[0][1])), msg, rsp)
 		return
+	}
+
+	if b.startsWith(m, "rls") {
+		b.randomCmd(b.e.RandomLonelySuggestion, msg, rsp)
+	}
+
+	if b.startsWith(m, "upc") {
+		b.randomCmd(b.e.UpAndComingSuggestion, msg, rsp)
 	}
 }
 
