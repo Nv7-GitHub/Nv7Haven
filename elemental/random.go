@@ -7,11 +7,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func (e *Elemental) upAndComingSuggestion(c *fiber.Ctx) error {
+func (e *Elemental) randomSuggestion(where string, uid string, param1 int) ([]string, error) {
 	isAnarchy := int(time.Now().Weekday()) == anarchyDay
-
-	where := "votes=? AND voted NOT LIKE ?"
-	params := []interface{}{maxVotes, "%\"" + c.Params("uid") + "\"%"}
+	params := []interface{}{param1, "%\"" + uid + "\"%"}
 	if isAnarchy {
 		where = "1"
 		params = []interface{}{}
@@ -19,7 +17,7 @@ func (e *Elemental) upAndComingSuggestion(c *fiber.Ctx) error {
 
 	res, err := e.db.Query("SELECT name FROM suggestions WHERE "+where+" LIMIT 100", params...)
 	if err != nil {
-		return err
+		return []string{}, err
 	}
 	defer res.Close()
 	comings := make([]string, 0)
@@ -27,111 +25,74 @@ func (e *Elemental) upAndComingSuggestion(c *fiber.Ctx) error {
 	for res.Next() {
 		err = res.Scan(&name)
 		if err != nil {
-			return err
+			return []string{}, err
 		}
 		comings = append(comings, name)
 	}
 	if len(comings) == 0 {
-		return c.JSON([]string{})
+		return []string{}, nil
 	}
 
 	for tries := 0; tries < 10; tries++ {
 		item := comings[rand.Intn(len(comings))]
 		parents, err := e.getSuggParents(item)
 		if err != nil {
-			return err
+			return []string{}, err
 		}
 
 		if len(parents) == 2 {
 			if isAnarchy {
-				return c.JSON(parents)
+				return parents, nil
 			}
 
 			combos, err := e.getSuggNeighbors(parents[1])
 			if err != nil {
-				return err
+				return []string{}, err
 			}
 
 			for _, sugg := range combos {
 				sugg, err := e.getSugg(sugg)
 				if err != nil {
-					return err
+					return []string{}, err
 				}
 				for _, val := range sugg.Voted {
-					if val == c.Params("uid") {
+					if val == uid {
 						continue
 					}
 				}
 			}
 
-			return c.JSON(parents)
+			return parents, nil
 		}
 	}
-	return c.JSON([]string{})
+	return []string{}, nil
+}
+
+func (e *Elemental) upAndComingSuggestion(c *fiber.Ctx) error {
+	ans, err := e.UpAndComingSuggestion(c.Params("uid"))
+	if err != nil {
+		return err
+	}
+	return c.JSON(ans)
 }
 
 // Pretty much the same, just different first line
 func (e *Elemental) randomLonelySuggestion(c *fiber.Ctx) error {
-	isAnarchy := int(time.Now().Weekday()) == anarchyDay
-
-	where := "votes<? AND voted NOT LIKE ?"
-	params := []interface{}{maxVotes - 1, "%\"" + c.Params("uid") + "\"%"}
-	if isAnarchy {
-		where = "1"
-		params = []interface{}{}
-	}
-
-	res, err := e.db.Query("SELECT name FROM suggestions WHERE "+where+" LIMIT 100", params...)
+	ans, err := e.RandomLonelySuggestion(c.Params("uid"))
 	if err != nil {
 		return err
 	}
-	defer res.Close()
-	comings := make([]string, 0)
-	var name string
-	for res.Next() {
-		err = res.Scan(&name)
-		if err != nil {
-			return err
-		}
-		comings = append(comings, name)
-	}
-	if len(comings) == 0 {
-		return c.JSON([]string{})
-	}
+	return c.JSON(ans)
+}
 
-	for tries := 0; tries < 10; tries++ {
-		item := comings[rand.Intn(len(comings))]
-		parents, err := e.getSuggParents(item)
-		if err != nil {
-			return err
-		}
+// RandomLonelySuggestion gets a random lonely suggestion
+func (e *Elemental) RandomLonelySuggestion(uid string) ([]string, error) {
+	return e.randomSuggestion("votes<? AND voted NOT LIKE ?", uid, maxVotes-1)
+}
 
-		if len(parents) == 2 {
-			if isAnarchy {
-				return c.JSON(parents)
-			}
-
-			combos, err := e.getSuggNeighbors(parents[1])
-			if err != nil {
-				return err
-			}
-
-			for _, sugg := range combos {
-				sugg, err := e.getSugg(sugg)
-				if err != nil {
-					return err
-				}
-				for _, val := range sugg.Voted {
-					if val == c.Params("uid") {
-						continue
-					}
-				}
-			}
-
-			return c.JSON(parents)
-		}
-	}
-	return c.JSON([]string{})
+// UpAndComingSuggestion suggestion gets a suggestion that needs one vote
+func (e *Elemental) UpAndComingSuggestion(uid string) ([]string, error) {
+	return e.randomSuggestion("votes<? AND voted NOT LIKE ?", uid, maxVotes)
 }
 
 func (e *Elemental) getSuggParents(item string) ([]string, error) {
