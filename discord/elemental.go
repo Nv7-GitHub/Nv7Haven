@@ -250,7 +250,7 @@ func (b *Bot) elementalHandler(s *discordgo.Session, m *discordgo.MessageCreate)
 	}
 
 	for _, comb := range combs {
-		if strings.Contains(m.Content, comb) {
+		if strings.Contains(m.Content, comb) && b.startsWith(m, "") {
 			parts := strings.Split(m.Content, comb)
 			if len(parts) != 2 {
 				return
