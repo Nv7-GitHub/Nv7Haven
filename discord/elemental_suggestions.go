@@ -137,8 +137,9 @@ func (b *Bot) upvoteCmd(name string, m msg, rsp rsp) {
 	}
 
 	isIn := false
+	upperName := strings.ToUpper(name)
 	for _, val := range combs {
-		if val == name {
+		if strings.ToUpper(val) == upperName {
 			isIn = true
 			break
 		}
@@ -194,8 +195,9 @@ func (b *Bot) downvoteCmd(name string, m msg, rsp rsp) {
 	}
 
 	isIn := false
+	upperName := strings.ToUpper(name)
 	for _, val := range combs {
-		if val == name {
+		if strings.ToUpper(val) == upperName {
 			isIn = true
 			break
 		}
