@@ -1,4 +1,4 @@
-package fixelems
+package main
 
 import (
 	"database/sql"
@@ -48,7 +48,7 @@ var wg = &sync.WaitGroup{}
 var complcache = make(map[string]int)
 
 // Fixelems fixes the elements
-func Fixelems() {
+func main() {
 	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
 	handle(err)
 	defer db.Close()
@@ -117,8 +117,9 @@ func calcComplexity(elem Element, elems map[string]Element) int {
 
 	if comp1 > comp2 {
 		scr = comp1 + 1
+	} else {
+		scr = comp2 + 1
 	}
-	scr = comp2 + 1
 	complcache[elem.Name] = scr
 	return scr
 }
