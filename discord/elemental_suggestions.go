@@ -245,7 +245,7 @@ func (b *Bot) randomCmd(getter func(uid string) ([]string, error), m msg, rsp rs
 	for i := 0; i < 10; i++ {
 		combs, err := getter(uid)
 		if err != nil {
-			return
+			continue
 		}
 		if len(combs) == 2 {
 			elem1 := combs[0]
