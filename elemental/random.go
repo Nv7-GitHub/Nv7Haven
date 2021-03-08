@@ -7,9 +7,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func (e *Elemental) randomSuggestion(where string, uid string, param1 int) ([]string, error) {
+func (e *Elemental) randomSuggestion(where string, uid string) ([]string, error) {
 	isAnarchy := int(time.Now().Weekday()) == anarchyDay
-	params := []interface{}{param1, "%\"" + uid + "\"%"}
+	params := []interface{}{maxVotes, "%\"" + uid + "\"%"}
 	if isAnarchy {
 		where = "1"
 		params = []interface{}{}
@@ -87,12 +87,12 @@ func (e *Elemental) randomLonelySuggestion(c *fiber.Ctx) error {
 
 // RandomLonelySuggestion gets a random lonely suggestion
 func (e *Elemental) RandomLonelySuggestion(uid string) ([]string, error) {
-	return e.randomSuggestion("votes<? AND voted NOT LIKE ?", uid, maxVotes-1)
+	return e.randomSuggestion("votes<? AND voted NOT LIKE ?", uid)
 }
 
 // UpAndComingSuggestion suggestion gets a suggestion that needs one vote
 func (e *Elemental) UpAndComingSuggestion(uid string) ([]string, error) {
-	return e.randomSuggestion("votes<? AND voted NOT LIKE ?", uid, maxVotes)
+	return e.randomSuggestion("votes<? AND voted NOT LIKE ?", uid)
 }
 
 func (e *Elemental) getSuggParents(item string) ([]string, error) {
