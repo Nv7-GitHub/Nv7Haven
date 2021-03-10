@@ -11,11 +11,8 @@ import (
 )
 
 const (
-	dbUser     = "u57_fypTHIW9t8"
-	dbPassword = "C7HgI6!GF0NaHCrdUi^tEMGy"
-	dbName     = "s57_nv7haven"
-	token      = "Nzg4MTg1MzY1NTMzNTU2NzM2.X9f00g.krA6cjfFWYdzbqOPXq8NvRjxb3k"
-	clientID   = "788185365533556736"
+	token    = "Nzg4MTg1MzY1NTMzNTU2NzM2.X9f00g.krA6cjfFWYdzbqOPXq8NvRjxb3k"
+	clientID = "788185365533556736"
 )
 
 var helpText string

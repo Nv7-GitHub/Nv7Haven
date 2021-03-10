@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"runtime"
@@ -11,6 +10,7 @@ import (
 
 	"github.com/Nv7-Github/Nv7Haven/discord"
 	"github.com/Nv7-Github/Nv7Haven/elemental"
+	"github.com/Nv7-Github/Nv7Haven/eod"
 	"github.com/Nv7-Github/Nv7Haven/nv7haven"
 	"github.com/Nv7-Github/Nv7Haven/single"
 
@@ -67,6 +67,7 @@ func main() {
 
 	single.InitSingle(app, db)
 	b := discord.InitDiscord(db, e)
+	eod := eod.InitEoD(db)
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
@@ -77,9 +78,10 @@ func main() {
 	}()
 
 	if err := app.Listen(":" + os.Getenv("PORT")); err != nil {
-		log.Panic(err)
+		panic(err)
 	}
 
 	e.Close()
 	b.Close()
+	eod.Close()
 }
