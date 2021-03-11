@@ -56,6 +56,9 @@ func (b *EoD) checkServer(m msg, rsp rsp) bool {
 		rsp.ErrorMessage("No news channel has been set!")
 		return false
 	}
+	if dat.elemCache == nil {
+		dat.elemCache = make(map[string]element)
+	}
 	if len(dat.elemCache) < 4 {
 		for _, elem := range starterElements {
 			elem.Guild = m.GuildID
@@ -69,6 +72,9 @@ func (b *EoD) checkServer(m msg, rsp rsp) bool {
 		lock.Unlock()
 	}
 
+	if dat.invCache == nil {
+		dat.invCache = make(map[string]map[string]empty)
+	}
 	_, exists = dat.invCache[m.Author.ID]
 	if !exists {
 		dat.invCache[m.Author.ID] = make(map[string]empty)
