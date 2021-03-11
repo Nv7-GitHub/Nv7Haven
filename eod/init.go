@@ -3,9 +3,25 @@ package eod
 import (
 	"encoding/json"
 	"time"
+
+	"github.com/bwmarrin/discordgo"
 )
 
 func (b *EoD) init() {
+	for _, v := range commands {
+		go func(val *discordgo.ApplicationCommand) {
+			_, err := b.dg.ApplicationCommandCreate(clientID, "819077688371314718", val)
+			if err != nil {
+				panic(err)
+			}
+		}(v)
+	}
+	b.dg.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		if h, ok := commandHandlers[i.Data.Name]; ok {
+			h(s, i)
+		}
+	})
+
 	res, err := b.db.Query("SELECT * FROM eod_serverdata WHERE 1")
 	if err != nil {
 		panic(err)
