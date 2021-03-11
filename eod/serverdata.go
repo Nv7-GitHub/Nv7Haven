@@ -14,7 +14,7 @@ func (b *EoD) setNewsChannel(channelID string, msg msg, rsp rsp) {
 			return
 		}
 	} else {
-		_, err = b.db.Exec("INSERT INTO eod_serverdata (guild, type, value1) VALUES ( ?, ?, ? )", msg.GuildID, newsChannel, channelID)
+		_, err = b.db.Exec("INSERT INTO eod_serverdata VALUES ( ?, ?, ?, ? )", msg.GuildID, newsChannel, channelID, 0)
 		if rsp.Error(err) {
 			return
 		}
@@ -48,7 +48,7 @@ func (b *EoD) setVotingChannel(channelID string, msg msg, rsp rsp) {
 			return
 		}
 	} else {
-		_, err = b.db.Exec("INSERT INTO eod_serverdata (guild, type, value1) VALUES ( ?, ?, ? )", msg.GuildID, votingChannel, channelID)
+		_, err = b.db.Exec("INSERT INTO eod_serverdata VALUES ( ?, ?, ?, ? )", msg.GuildID, votingChannel, channelID, 0)
 		if rsp.Error(err) {
 			return
 		}
@@ -85,7 +85,7 @@ func (b *EoD) setVoteCount(count int, msg msg, rsp rsp) {
 			return
 		}
 	} else {
-		_, err = b.db.Exec("INSERT INTO eod_serverdata (guild, type, intval) VALUES ( ?, ?, ? )", msg.GuildID, voteCount, count)
+		_, err = b.db.Exec("INSERT INTO eod_serverdata VALUES ( ?, ?, ?, ? )", msg.GuildID, voteCount, "", count)
 		if rsp.Error(err) {
 			return
 		}
@@ -139,7 +139,7 @@ func (b *EoD) setPlayChannel(channelID string, isPlayChannel bool, msg msg, rsp 
 		return
 	}
 
-	_, err = b.db.Exec("INSERT INTO eod_serverdata (guild, type, value1) VALUES ( ?, ?, ? )", msg.GuildID, playChannel, channelID)
+	_, err = b.db.Exec("INSERT INTO eod_serverdata VALUES ( ?, ?, ?, ? )", msg.GuildID, playChannel, channelID, 0)
 	if rsp.Error(err) {
 		return
 	}
