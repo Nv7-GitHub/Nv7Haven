@@ -85,5 +85,7 @@ func (b *EoD) checkServer(m msg, rsp rsp) bool {
 		b.dat[m.GuildID] = dat
 		lock.Unlock()
 	}
-	return true
+
+	_, exists = dat.playChannels[m.ChannelID]
+	return exists
 }
