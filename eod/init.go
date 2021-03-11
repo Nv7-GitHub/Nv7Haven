@@ -156,6 +156,9 @@ func (b *EoD) init() {
 		lock.RLock()
 		dat := b.dat[guild]
 		lock.RUnlock()
+		if dat.invCache == nil {
+			dat.invCache = make(map[string]map[string]empty)
+		}
 		dat.invCache[user] = inv
 		lock.Lock()
 		b.dat[guild] = dat
