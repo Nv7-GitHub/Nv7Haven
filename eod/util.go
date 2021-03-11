@@ -1,6 +1,10 @@
 package eod
 
-import "github.com/bwmarrin/discordgo"
+import (
+	"encoding/json"
+
+	"github.com/bwmarrin/discordgo"
+)
 
 func (b *EoD) isMod(userID string, m msg) (bool, error) {
 	user, err := b.dg.GuildMember(m.GuildID, userID)
@@ -20,4 +24,20 @@ func (b *EoD) isMod(userID string, m msg) (bool, error) {
 		}
 	}
 	return false, nil
+}
+
+func (b *EoD) saveInv(guild string, user string) {
+	lock.RLock()
+	dat, exists := b.dat[guild]
+	lock.RUnlock()
+	if !exists {
+		return
+	}
+
+	data, err := json.Marshal(dat.invCache[user])
+	if err != nil {
+		return
+	}
+
+	b.db.Exec("UPDATE eod_inv SET inv=? WHERE guild=? AND user=?", data, guild, user)
 }

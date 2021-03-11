@@ -78,7 +78,7 @@ func (b *EoD) reactionHandler(s *discordgo.Session, r *discordgo.MessageReaction
 		}
 	} else if r.Emoji.Name == downArrow {
 		p.Downvotes++
-		if (p.Downvotes - p.Upvotes) >= dat.voteCount {
+		if ((p.Downvotes - p.Upvotes) >= dat.voteCount) || (r.UserID == p.Value4) {
 			delete(dat.polls, r.MessageID)
 			b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", p.Guild, p.Channel, p.Message)
 			b.dg.ChannelMessageDelete(p.Channel, p.Message)

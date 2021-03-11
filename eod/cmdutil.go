@@ -4,6 +4,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+const redCircle = "🔴"
+
 type normalResp struct {
 	msg *discordgo.MessageCreate
 	b   *EoD
@@ -18,11 +20,11 @@ func (n *normalResp) Error(err error) bool {
 }
 
 func (n *normalResp) ErrorMessage(msg string) {
-	n.b.dg.ChannelMessageSend(n.msg.ChannelID, "Error: "+msg)
+	n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" "+msg+redCircle)
 }
 
 func (n *normalResp) Resp(msg string) {
-	n.b.dg.ChannelMessageSend(n.msg.ChannelID, msg)
+	n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" "+msg)
 }
 
 func (n *normalResp) Message(msg string) string {
