@@ -80,12 +80,12 @@ func (b *EoD) setVoteCount(count int, msg msg, rsp rsp) {
 	}
 
 	if cnt == 1 {
-		_, err = b.db.Exec("UPDATE eod_serverdata SET value1=? WHERE guild=? AND type=?", count, msg.GuildID, voteCount)
+		_, err = b.db.Exec("UPDATE eod_serverdata SET intval=? WHERE guild=? AND type=?", count, msg.GuildID, voteCount)
 		if rsp.Error(err) {
 			return
 		}
 	} else {
-		_, err = b.db.Exec("INSERT INTO eod_serverdata (guild, type, intval) VALUES ( ?, ?, ? )", msg.GuildID, newsChannel, voteCount)
+		_, err = b.db.Exec("INSERT INTO eod_serverdata (guild, type, intval) VALUES ( ?, ?, ? )", msg.GuildID, voteCount, count)
 		if rsp.Error(err) {
 			return
 		}
