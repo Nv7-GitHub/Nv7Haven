@@ -31,6 +31,7 @@ func (b *EoD) init() {
 		}
 	})
 	b.dg.AddHandler(b.cmdHandler)
+	b.dg.AddHandler(b.reactionHandler)
 
 	res, err := b.db.Query("SELECT * FROM eod_serverdata WHERE 1")
 	if err != nil {
@@ -60,6 +61,7 @@ func (b *EoD) init() {
 			lock.Lock()
 			b.dat[guild] = dat
 			lock.Unlock()
+			break
 
 		case playChannel:
 			lock.RLock()
@@ -75,6 +77,7 @@ func (b *EoD) init() {
 			lock.Lock()
 			b.dat[guild] = dat
 			lock.Unlock()
+			break
 
 		case votingChannel:
 			lock.RLock()
@@ -87,6 +90,7 @@ func (b *EoD) init() {
 			lock.Lock()
 			b.dat[guild] = dat
 			lock.Unlock()
+			break
 
 		case voteCount:
 			lock.RLock()
@@ -99,6 +103,7 @@ func (b *EoD) init() {
 			lock.Lock()
 			b.dat[guild] = dat
 			lock.Unlock()
+			break
 		}
 	}
 
@@ -176,17 +181,23 @@ func (b *EoD) init() {
 		if err != nil {
 			panic(err)
 		}
+		po.Guild = guild
 
 		lock.RLock()
 		dat := b.dat[guild]
 		lock.RUnlock()
 		if dat.polls == nil {
-			dat.polls = make([]poll, 0)
+			dat.polls = make(map[string]poll, 0)
 		}
-		dat.polls = append(dat.polls, po)
+		dat.polls[po.Message] = po
 		lock.Lock()
 		b.dat[guild] = dat
 		lock.Unlock()
+
+		_, err = b.db.Exec("DELETE FROM polls WHERE guild=? AND channel=? AND message=?", po.Guild, po.Channel, po.Message)
+		if err != nil {
+			panic(err)
+		}
 
 		b.dg.ChannelMessageDelete(po.Channel, po.Message)
 		err = b.createPoll(po)

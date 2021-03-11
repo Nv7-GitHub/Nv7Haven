@@ -17,8 +17,7 @@ const (
 
 	pollCombo      = 0
 	pollCategorize = 1
-	pollElemCreate = 2
-	pollSign       = 3
+	pollSign       = 2
 )
 
 type empty struct{}
@@ -31,7 +30,7 @@ type serverData struct {
 	combCache     map[string]comb             // map[userID]comb
 	invCache      map[string]map[string]empty // map[userID]map[elementName]empty
 	elemCache     map[string]element          //map[elementName]element
-	polls         []poll
+	polls         map[string]poll             // map[messageid]poll
 }
 
 type comb struct {
@@ -54,12 +53,16 @@ type element struct {
 type poll struct {
 	Channel string
 	Message string
+	Guild   string
 	Kind    pollType
 	Value1  string
 	Value2  string
 	Value3  string
 	Value4  string
 	Data    map[string]interface{}
+
+	Upvotes   int
+	Downvotes int
 }
 
 type msg struct {
