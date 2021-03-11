@@ -17,6 +17,15 @@ func (b *EoD) init() {
 		}(v)
 	}
 	b.dg.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		isMod, err := b.isMod(i.Member.User.ID, b.newMsgSlash(i))
+		rsp := b.newRespSlash(i)
+		if rsp.Error(err) {
+			return
+		}
+		if !isMod {
+			rsp.ErrorMessage("You need to have permission `Administrator`!")
+			return
+		}
 		if h, ok := commandHandlers[i.Data.Name]; ok {
 			h(s, i)
 		}
