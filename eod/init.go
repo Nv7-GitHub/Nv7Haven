@@ -30,6 +30,7 @@ func (b *EoD) init() {
 			h(s, i)
 		}
 	})
+	b.dg.AddHandler(b.cmdHandler)
 
 	res, err := b.db.Query("SELECT * FROM eod_serverdata WHERE 1")
 	if err != nil {
