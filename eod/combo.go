@@ -14,7 +14,7 @@ func (b *EoD) combine(elem1 string, elem2 string, m msg, rsp rsp) {
 	if !exists {
 		return
 	}
-	fmt.Println(dat.elemCache)
+	fmt.Println(dat.elemCache, elem1, elem2)
 	_, exists = dat.elemCache[strings.ToLower(elem1)]
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", elem1))
