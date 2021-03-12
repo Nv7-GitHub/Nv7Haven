@@ -87,24 +87,26 @@ func (e *Elemental) CreateSuggestion(mark string, pioneer string, elem1 string, 
 	}
 
 	// New Recent Combo
-	var recents []RecentCombination
-	data, err := e.fdb.Get("recent")
-	if err != nil {
-		return false, err.Error()
-	}
-	err = json.Unmarshal(data, &recents)
-	if err != nil {
-		return false, err.Error()
-	}
-	combo := RecentCombination{
-		Recipe: [2]string{elem1, elem2},
-		Result: id,
-	}
-	recents = append([]RecentCombination{combo}, recents...)
-	if len(recents) > recentsLength {
-		recents = recents[:recentsLength-1]
-	}
-	e.fdb.SetData("recent", recents)
+	go func() {
+		var recents []RecentCombination
+		data, err := e.fdb.Get("recent")
+		if err != nil {
+			return
+		}
+		err = json.Unmarshal(data, &recents)
+		if err != nil {
+			return
+		}
+		combo := RecentCombination{
+			Recipe: [2]string{elem1, elem2},
+			Result: id,
+		}
+		recents = append([]RecentCombination{combo}, recents...)
+		if len(recents) > recentsLength {
+			recents = recents[:recentsLength-1]
+		}
+		e.fdb.SetData("recent", recents)
+	}()
 
 	res, err := e.db.Query("SELECT COUNT(1) FROM elements WHERE name=?", existing.Name)
 	defer res.Close()
