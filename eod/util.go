@@ -41,7 +41,7 @@ func (b *EoD) saveInv(guild string, user string) {
 		return
 	}
 
-	b.db.Exec("UPDATE eod_inv SET inv=? WHERE guild=? AND user=?", data, guild, user)
+	b.db.Exec("UPDATE eod_inv SET inv=?, count=? WHERE guild=? AND user=?", data, len(dat.invCache[user]), guild, user)
 }
 
 func (b *EoD) mark(guild string, elem string, mark string, creator string) {
