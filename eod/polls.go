@@ -21,7 +21,8 @@ func (b *EoD) createPoll(p poll) error {
 		b.handlePollSuccess(p)
 		return nil
 	}
-	if p.Kind == pollCombo {
+	switch p.Kind {
+	case pollCombo:
 		m, err := b.dg.ChannelMessageSendEmbed(dat.votingChannel, &discordgo.MessageEmbed{
 			Title:       "Combination",
 			Description: p.Value1 + " + " + p.Value2 + " = " + p.Value3 + "\n\n" + "Suggested by <@" + p.Value4 + ">",
@@ -33,14 +34,29 @@ func (b *EoD) createPoll(p poll) error {
 			return err
 		}
 		p.Message = m.ID
-		err = b.dg.MessageReactionAdd(p.Channel, p.Message, upArrow)
+		break
+
+	case pollSign:
+		m, err := b.dg.ChannelMessageSendEmbed(dat.votingChannel, &discordgo.MessageEmbed{
+			Title:       "Sign Note",
+			Description: fmt.Sprintf("**%s**\nNew Note: %s\n\nOld Note: %s\n\nSuggested by <@%s>", p.Value1, p.Value2, p.Value3, p.Value4),
+			Footer: &discordgo.MessageEmbedFooter{
+				Text: "You can change your vote",
+			},
+		})
 		if err != nil {
 			return err
 		}
-		err = b.dg.MessageReactionAdd(p.Channel, p.Message, downArrow)
-		if err != nil {
-			return err
-		}
+		p.Message = m.ID
+		break
+	}
+	err := b.dg.MessageReactionAdd(p.Channel, p.Message, upArrow)
+	if err != nil {
+		return err
+	}
+	err = b.dg.MessageReactionAdd(p.Channel, p.Message, downArrow)
+	if err != nil {
+		return err
 	}
 	cnt, err := json.Marshal(p.Data)
 	if err != nil {
@@ -109,5 +125,7 @@ func (b *EoD) handlePollSuccess(p poll) {
 	case pollCombo:
 		b.elemCreate(p.Value3, p.Value1, p.Value2, p.Value4, p.Guild)
 		break
+	case pollSign:
+		b.mark(p.Guild, p.Value1, p.Value2)
 	}
 }

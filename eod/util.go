@@ -2,6 +2,7 @@ package eod
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -40,4 +41,26 @@ func (b *EoD) saveInv(guild string, user string) {
 	}
 
 	b.db.Exec("UPDATE eod_inv SET inv=? WHERE guild=? AND user=?", data, guild, user)
+}
+
+func (b *EoD) mark(guild string, elem string, mark string) {
+	lock.RLock()
+	dat, exists := b.dat[guild]
+	lock.RUnlock()
+	if !exists {
+		return
+	}
+	el, exists := dat.elemCache[strings.ToLower(elem)]
+	if !exists {
+		return
+	}
+
+	el.Comment = mark
+	dat.elemCache[strings.ToLower(elem)] = el
+
+	lock.Lock()
+	b.dat[guild] = dat
+	lock.Unlock()
+
+	b.db.Exec("UPDATE eod_elements SET comment=? WHERE guild=? AND name=?", mark, guild, el.Name)
 }
