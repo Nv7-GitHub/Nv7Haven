@@ -20,7 +20,9 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if strings.HasPrefix(m.Content, "*2") {
-		b.checkServer(msg, rsp)
+		if !b.checkServer(msg, rsp) {
+			return
+		}
 		lock.RLock()
 		dat, exists := b.dat[msg.GuildID]
 		lock.RUnlock()
@@ -44,7 +46,9 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	for _, comb := range combs {
 		if strings.Contains(m.Content, comb) {
-			b.checkServer(msg, rsp)
+			if !b.checkServer(msg, rsp) {
+				return
+			}
 			parts := strings.Split(m.Content, comb)
 			if len(parts) < 2 {
 				return
