@@ -64,7 +64,9 @@ func (b *EoD) mark(guild string, elem string, mark string, creator string) {
 	lock.Unlock()
 
 	b.db.Exec("UPDATE eod_elements SET comment=? WHERE guild=? AND name=?", mark, guild, el.Name)
-	b.dg.ChannelMessageSend(dat.newsChannel, "📝 Signed - **"+el.Name+"** (By <@"+creator+">)")
+	if creator != "" {
+		b.dg.ChannelMessageSend(dat.newsChannel, "📝 Signed - **"+el.Name+"** (By <@"+creator+">)")
+	}
 }
 
 func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {

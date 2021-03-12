@@ -55,7 +55,7 @@ func (b *EoD) markCmd(elem string, mark string, m msg, rsp rsp) {
 	}
 
 	if el.Creator == m.Author.ID {
-		b.mark(m.GuildID, elem, mark, m.Author.ID)
+		b.mark(m.GuildID, elem, mark, "")
 		rsp.Resp(fmt.Sprintf("You have signed **%s**! 🖋️", el.Name))
 		return
 	}
