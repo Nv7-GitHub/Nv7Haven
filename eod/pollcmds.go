@@ -100,7 +100,7 @@ func (b *EoD) imageCmd(elem string, image string, m msg, rsp rsp) {
 		Kind:    pollImage,
 		Value1:  el.Name,
 		Value2:  image,
-		Value3:  el.Comment,
+		Value3:  el.Image,
 		Value4:  m.Author.ID,
 	})
 	if rsp.Error(err) {
