@@ -24,6 +24,7 @@ func (b *EoD) combine(elem1 string, elem2 string, m msg, rsp rsp) {
 		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", elem2))
 		return
 	}
+	fmt.Println(dat.invCache, elem1, elem2)
 	_, exists = dat.invCache[m.Author.ID][strings.ToLower(elem1)]
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("You don't have %s!", elem1))
