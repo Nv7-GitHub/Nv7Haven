@@ -38,7 +38,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			if len(parts) < 2 {
 				return
 			}
-			b.combine(parts[0], parts[1], msg, rsp)
+			b.combine(strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1]), msg, rsp)
 			return
 		}
 	}
