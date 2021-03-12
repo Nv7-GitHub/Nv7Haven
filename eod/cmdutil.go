@@ -20,11 +20,11 @@ func (n *normalResp) Error(err error) bool {
 }
 
 func (n *normalResp) ErrorMessage(msg string) {
-	n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" "+msg+redCircle)
+	n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" "+msg+" "+redCircle)
 }
 
 func (n *normalResp) Resp(msg string) {
-	n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" "+msg)
+	n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" "+" "+msg)
 }
 
 func (n *normalResp) Message(msg string) string {
