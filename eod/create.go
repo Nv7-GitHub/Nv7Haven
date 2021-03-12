@@ -37,7 +37,7 @@ func (b *EoD) elemCreate(name string, parent1 string, parent2 string, creator st
 		lock.Lock()
 		b.dat[guild] = dat
 		lock.Unlock()
-		b.db.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, elem.Category, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), elem.Parents[0], elem.Parents[1], elem.Complexity)
+		b.db.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, elem.Category, elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), elem.Parents[0], elem.Parents[1], elem.Complexity)
 		if err != nil {
 			return
 		}

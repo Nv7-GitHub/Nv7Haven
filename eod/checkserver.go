@@ -65,7 +65,7 @@ func (b *EoD) checkServer(m msg, rsp rsp) bool {
 			elem.Guild = m.GuildID
 			elem.CreatedOn = time.Now()
 			dat.elemCache[strings.ToLower(elem.Name)] = elem
-			_, err := b.db.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, elem.Category, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), "", "", elem.Complexity)
+			_, err := b.db.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, elem.Category, elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), "", "", elem.Complexity)
 			rsp.Error(err)
 		}
 		lock.Lock()

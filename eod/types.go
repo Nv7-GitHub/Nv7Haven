@@ -42,6 +42,7 @@ type comb struct {
 type element struct {
 	Name       string
 	Category   string
+	Image      string
 	Guild      string
 	Comment    string
 	Creator    string
