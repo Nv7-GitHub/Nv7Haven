@@ -72,6 +72,24 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "mark",
+			Description: "Suggest a creator mark, or add a creator mark to an element you created!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "element",
+					Description: "The name of the element to add a creator mark to!",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "mark",
+					Description: "What the new creator mark should be!",
+					Required:    true,
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -92,6 +110,9 @@ var (
 		},
 		"suggest": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.suggestCmd(i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"mark": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.markCmd(i.Data.Options[0].StringValue(), i.Data.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )

@@ -18,7 +18,7 @@ func (b *EoD) init() {
 		}(v)
 	}
 	b.dg.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		if i.Data.Name != "suggest" {
+		if (i.Data.Name != "suggest") && (i.Data.Name != "mark") {
 			isMod, err := b.isMod(i.Member.User.ID, b.newMsgSlash(i))
 			rsp := b.newRespSlash(i)
 			if rsp.Error(err) {
