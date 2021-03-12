@@ -126,6 +126,6 @@ func (b *EoD) handlePollSuccess(p poll) {
 		b.elemCreate(p.Value3, p.Value1, p.Value2, p.Value4, p.Guild)
 		break
 	case pollSign:
-		b.mark(p.Guild, p.Value1, p.Value2)
+		b.mark(p.Guild, p.Value1, p.Value2, p.Value4)
 	}
 }
