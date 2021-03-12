@@ -2,6 +2,7 @@ package eod
 
 import (
 	"encoding/json"
+	"strings"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -136,7 +137,7 @@ func (b *EoD) init() {
 		if dat.elemCache == nil {
 			dat.elemCache = make(map[string]element)
 		}
-		dat.elemCache[elem.Name] = elem
+		dat.elemCache[strings.ToLower(elem.Name)] = elem
 		lock.Lock()
 		b.dat[elem.Guild] = dat
 		lock.Unlock()

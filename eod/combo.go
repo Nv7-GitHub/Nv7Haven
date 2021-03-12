@@ -1,6 +1,9 @@
 package eod
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 const blueCircle = "🔵"
 
@@ -11,22 +14,22 @@ func (b *EoD) combine(elem1 string, elem2 string, m msg, rsp rsp) {
 	if !exists {
 		return
 	}
-	_, exists = dat.elemCache[elem1]
+	_, exists = dat.elemCache[strings.ToLower(elem1)]
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", elem1))
 		return
 	}
-	_, exists = dat.elemCache[elem2]
+	_, exists = dat.elemCache[strings.ToLower(elem2)]
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", elem2))
 		return
 	}
-	_, exists = dat.invCache[elem1]
+	_, exists = dat.invCache[m.Author.ID][strings.ToLower(elem1)]
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("You don't have %s!", elem1))
 		return
 	}
-	_, exists = dat.invCache[elem2]
+	_, exists = dat.invCache[m.Author.ID][strings.ToLower(elem2)]
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("You don't have %s!", elem2))
 		return
@@ -50,9 +53,9 @@ func (b *EoD) combine(elem1 string, elem2 string, m msg, rsp rsp) {
 			elem2: elem2,
 			elem3: elem3,
 		}
-		_, exists := dat.invCache[m.Author.ID][elem3]
+		_, exists := dat.invCache[m.Author.ID][strings.ToLower(elem3)]
 		if !exists {
-			dat.invCache[m.Author.ID][elem3] = empty{}
+			dat.invCache[m.Author.ID][strings.ToLower(elem3)] = empty{}
 			b.saveInv(m.GuildID, m.Author.ID)
 
 			rsp.Resp(fmt.Sprintf("You made **%s** "+newText, elem3))

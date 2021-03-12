@@ -2,6 +2,7 @@ package eod
 
 import (
 	"encoding/json"
+	"strings"
 	"time"
 )
 
@@ -63,7 +64,7 @@ func (b *EoD) checkServer(m msg, rsp rsp) bool {
 		for _, elem := range starterElements {
 			elem.Guild = m.GuildID
 			elem.CreatedOn = time.Now()
-			dat.elemCache[elem.Name] = elem
+			dat.elemCache[strings.ToLower(elem.Name)] = elem
 			_, err := b.db.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, elem.Category, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), "", "", elem.Complexity)
 			rsp.Error(err)
 		}
@@ -79,7 +80,7 @@ func (b *EoD) checkServer(m msg, rsp rsp) bool {
 	if !exists {
 		dat.invCache[m.Author.ID] = make(map[string]empty)
 		for _, val := range starterElements {
-			dat.invCache[m.Author.ID][val.Name] = empty{}
+			dat.invCache[m.Author.ID][strings.ToLower(val.Name)] = empty{}
 		}
 		data, err := json.Marshal(dat.invCache[m.Author.ID])
 		if rsp.Error(err) {

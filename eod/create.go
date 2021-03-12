@@ -1,6 +1,9 @@
 package eod
 
-import "time"
+import (
+	"strings"
+	"time"
+)
 
 const newText = "🆕"
 
@@ -27,10 +30,10 @@ func (b *EoD) elemCreate(name string, parent1 string, parent2 string, creator st
 			Creator:    creator,
 			CreatedOn:  time.Now(),
 			Parents:    []string{parent1, parent2},
-			Complexity: max(dat.elemCache[parent1].Complexity, dat.elemCache[parent2].Complexity) + 1,
+			Complexity: max(dat.elemCache[strings.ToLower(parent1)].Complexity, dat.elemCache[strings.ToLower(parent2)].Complexity) + 1,
 		}
-		dat.elemCache[elem.Name] = elem
-		dat.invCache[creator][elem.Name] = empty{}
+		dat.elemCache[strings.ToLower(elem.Name)] = elem
+		dat.invCache[creator][strings.ToLower(elem.Name)] = empty{}
 		lock.Lock()
 		b.dat[guild] = dat
 		lock.Unlock()
