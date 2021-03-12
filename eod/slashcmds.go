@@ -90,6 +90,24 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "image",
+			Description: "Suggest an image for an element, or add an image to an element you created!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "element",
+					Description: "The name of the element to add the image to!",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "imageurl",
+					Description: "URL of an image to add to the element! You can also upload an image and then put the link here.",
+					Required:    true,
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -113,6 +131,9 @@ var (
 		},
 		"mark": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.markCmd(i.Data.Options[0].StringValue(), i.Data.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"image": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.imageCmd(i.Data.Options[0].StringValue(), i.Data.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )

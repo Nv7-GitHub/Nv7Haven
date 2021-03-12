@@ -18,6 +18,7 @@ const (
 	pollCombo      = 0
 	pollCategorize = 1
 	pollSign       = 2
+	pollImage      = 3
 )
 
 type empty struct{}

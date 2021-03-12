@@ -49,6 +49,20 @@ func (b *EoD) createPoll(p poll) error {
 		}
 		p.Message = m.ID
 		break
+
+	case pollImage:
+		m, err := b.dg.ChannelMessageSendEmbed(dat.votingChannel, &discordgo.MessageEmbed{
+			Title:       "Add Image",
+			Description: fmt.Sprintf("**%s**\nNew Note: %s\n\nOld Note: %s\n\nSuggested by <@%s>", p.Value1, p.Value2, p.Value3, p.Value4),
+			Footer: &discordgo.MessageEmbedFooter{
+				Text: "You can change your vote",
+			},
+		})
+		if err != nil {
+			return err
+		}
+		p.Message = m.ID
+		break
 	}
 	err := b.dg.MessageReactionAdd(p.Channel, p.Message, upArrow)
 	if err != nil {
@@ -134,5 +148,7 @@ func (b *EoD) handlePollSuccess(p poll) {
 		break
 	case pollSign:
 		b.mark(p.Guild, p.Value1, p.Value2, p.Value4)
+	case pollImage:
+		b.image(p.Guild, p.Value1, p.Value2, p.Value4)
 	}
 }

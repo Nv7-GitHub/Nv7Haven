@@ -69,6 +69,31 @@ func (b *EoD) mark(guild string, elem string, mark string, creator string) {
 	}
 }
 
+func (b *EoD) image(guild string, elem string, image string, creator string) {
+	lock.RLock()
+	dat, exists := b.dat[guild]
+	lock.RUnlock()
+	if !exists {
+		return
+	}
+	el, exists := dat.elemCache[strings.ToLower(elem)]
+	if !exists {
+		return
+	}
+
+	el.Image = image
+	dat.elemCache[strings.ToLower(elem)] = el
+
+	lock.Lock()
+	b.dat[guild] = dat
+	lock.Unlock()
+
+	b.db.Exec("UPDATE eod_elements SET image=? WHERE guild=? AND name=?", image, guild, el.Name)
+	if creator != "" {
+		b.dg.ChannelMessageSend(dat.newsChannel, "📸 Added Image - **"+el.Name+"** (By <@"+creator+">)")
+	}
+}
+
 func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
@@ -97,5 +122,8 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 	rsp.Embed(&discordgo.MessageEmbed{
 		Title:       el.Name + " Info",
 		Description: fmt.Sprintf("Created by <@%s>\nCreated on %s\nComplexity: %d\n<@%s> **You %shave this.**\n\n%s", el.Creator, el.CreatedOn.Format("January 2, 2006, 3:04 PM"), el.Complexity, m.Author.ID, has, el.Comment),
+		Thumbnail: &discordgo.MessageEmbedThumbnail{
+			URL: el.Image,
+		},
 	})
 }
