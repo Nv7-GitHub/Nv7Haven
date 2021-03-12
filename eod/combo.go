@@ -14,12 +14,12 @@ func (b *EoD) combine(elem1 string, elem2 string, m msg, rsp rsp) {
 	if !exists {
 		return
 	}
-	_, exists = dat.elemCache[strings.ToLower(elem1)]
+	elem1dat, exists := dat.elemCache[strings.ToLower(elem1)]
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", elem1))
 		return
 	}
-	_, exists = dat.elemCache[strings.ToLower(elem2)]
+	elem2dat, exists := dat.elemCache[strings.ToLower(elem2)]
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", elem2))
 		return
@@ -54,8 +54,8 @@ func (b *EoD) combine(elem1 string, elem2 string, m msg, rsp rsp) {
 		}
 
 		dat.combCache[m.Author.ID] = comb{
-			elem1: elem1,
-			elem2: elem2,
+			elem1: elem1dat.Name,
+			elem2: elem2dat.Name,
 			elem3: elem3,
 		}
 		_, exists := dat.invCache[m.Author.ID][strings.ToLower(elem3)]
@@ -80,8 +80,8 @@ func (b *EoD) combine(elem1 string, elem2 string, m msg, rsp rsp) {
 	}
 
 	dat.combCache[m.Author.ID] = comb{
-		elem1: elem1,
-		elem2: elem2,
+		elem1: elem1dat.Name,
+		elem2: elem2dat.Name,
 		elem3: "",
 	}
 	lock.Lock()

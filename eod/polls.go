@@ -2,6 +2,7 @@ package eod
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -23,13 +24,10 @@ func (b *EoD) createPoll(p poll) error {
 	if p.Kind == pollCombo {
 		m, err := b.dg.ChannelMessageSendEmbed(dat.votingChannel, &discordgo.MessageEmbed{
 			Title:       "Combination",
-			Description: p.Value1 + " + " + p.Value2 + " = " + p.Value3,
+			Description: p.Value1 + " + " + p.Value2 + " = " + p.Value3 + "\n\n" + "Suggested by <@" + p.Value4 + ">",
 			Footer: &discordgo.MessageEmbedFooter{
 				Text: "You can change your vote",
 			},
-			Fields: []*discordgo.MessageEmbedField{{
-				Value: "Suggested by <@" + p.Value4 + ">",
-			}},
 		})
 		if err != nil {
 			return err
@@ -48,7 +46,15 @@ func (b *EoD) createPoll(p poll) error {
 	if err != nil {
 		return err
 	}
-	_, err = b.db.Exec("INSERT INTO polls VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ? )", p.Guild, p.Channel, p.Message, p.Kind, p.Value1, p.Value2, p.Value3, p.Value4, string(cnt))
+	_, err = b.db.Exec("INSERT INTO eod_polls VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ? )", p.Guild, p.Channel, p.Message, p.Kind, p.Value1, p.Value2, p.Value3, p.Value4, string(cnt))
+	if dat.polls == nil {
+		dat.polls = make(map[string]poll)
+	}
+	dat.polls[p.Message] = p
+
+	lock.Lock()
+	b.dat[p.Guild] = dat
+	lock.Unlock()
 	return err
 }
 
@@ -64,6 +70,7 @@ func (b *EoD) reactionHandler(s *discordgo.Session, r *discordgo.MessageReaction
 	}
 	p, exists := dat.polls[r.MessageID]
 	if !exists {
+		fmt.Println("2")
 		return
 	}
 	if r.Emoji.Name == upArrow {

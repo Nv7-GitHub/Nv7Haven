@@ -18,7 +18,7 @@ func (b *EoD) suggestCmd(suggestion string, m msg, rsp rsp) {
 		return
 	}
 
-	b.createPoll(poll{
+	err := b.createPoll(poll{
 		Channel:   dat.votingChannel,
 		Guild:     m.GuildID,
 		Kind:      pollCombo,
@@ -30,5 +30,8 @@ func (b *EoD) suggestCmd(suggestion string, m msg, rsp rsp) {
 		Upvotes:   0,
 		Downvotes: 0,
 	})
+	if rsp.Error(err) {
+		return
+	}
 	rsp.Resp("Suggested " + comb.elem1 + " + " + comb.elem2 + " = " + suggestion)
 }

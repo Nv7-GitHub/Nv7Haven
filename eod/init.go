@@ -180,24 +180,18 @@ func (b *EoD) init() {
 	defer polls.Close()
 	var po poll
 	for polls.Next() {
-		err = polls.Scan(guild, &po.Channel, &po.Message, &po.Kind, &po.Value1, &po.Value2, &po.Value3, &po.Value4)
+		var jsondat string
+		err = polls.Scan(&guild, &po.Channel, &po.Message, &po.Kind, &po.Value1, &po.Value2, &po.Value3, &po.Value4, &jsondat)
 		if err != nil {
 			panic(err)
 		}
 		po.Guild = guild
-
-		lock.RLock()
-		dat := b.dat[guild]
-		lock.RUnlock()
-		if dat.polls == nil {
-			dat.polls = make(map[string]poll, 0)
+		err = json.Unmarshal([]byte(jsondat), &po.Data)
+		if err != nil {
+			panic(err)
 		}
-		dat.polls[po.Message] = po
-		lock.Lock()
-		b.dat[guild] = dat
-		lock.Unlock()
 
-		_, err = b.db.Exec("DELETE FROM polls WHERE guild=? AND channel=? AND message=?", po.Guild, po.Channel, po.Message)
+		_, err = b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", po.Guild, po.Channel, po.Message)
 		if err != nil {
 			panic(err)
 		}

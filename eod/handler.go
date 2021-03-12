@@ -15,6 +15,10 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	msg := b.newMsgNormal(m)
 	rsp := b.newRespNormal(m)
 
+	if m.Author.ID == s.State.User.ID || m.Author.Bot {
+		return
+	}
+
 	if strings.HasPrefix(m.Content, "*2") {
 		b.checkServer(msg, rsp)
 		lock.RLock()
