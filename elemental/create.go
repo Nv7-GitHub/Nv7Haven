@@ -100,15 +100,7 @@ func (e *Elemental) CreateSuggestion(mark string, pioneer string, elem1 string, 
 	if err != nil {
 		panic(err)
 	}
-	comp1, err := e.calcComplexity(parent1)
-	if err != nil {
-		panic(err)
-	}
-	comp2, err := e.calcComplexity(parent2)
-	if err != nil {
-		panic(err)
-	}
-	complexity := max(comp1, comp2) + 1
+	complexity := max(parent1.Complexity, parent2.Complexity) + 1
 
 	err = e.incrementUses(elem1)
 	if err != nil {
