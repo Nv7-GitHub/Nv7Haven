@@ -249,18 +249,6 @@ func (b *Bot) elementalHandler(s *discordgo.Session, m *discordgo.MessageCreate)
 		return
 	}
 
-	for _, comb := range combs {
-		if strings.Contains(m.Content, comb) && b.startsWith(m, "") {
-			parts := strings.Split(m.Content, comb)
-			if len(parts) != 2 {
-				return
-			}
-
-			b.comboCmd(parts[0], parts[1], msg, rsp)
-			return
-		}
-	}
-
 	if strings.HasPrefix(m.Content, "*2") {
 		comb, exists := b.combos[m.Author.ID]
 		if exists {
@@ -318,6 +306,18 @@ func (b *Bot) elementalHandler(s *discordgo.Session, m *discordgo.MessageCreate)
 
 	if b.startsWith(m, "upc") {
 		b.randomCmd(b.e.UpAndComingSuggestion, msg, rsp)
+	}
+
+	for _, comb := range combs {
+		if strings.Contains(m.Content, comb) && b.startsWith(m, "") {
+			parts := strings.Split(m.Content, comb)
+			if len(parts) != 2 {
+				return
+			}
+
+			b.comboCmd(parts[0], parts[1], msg, rsp)
+			return
+		}
 	}
 }
 
