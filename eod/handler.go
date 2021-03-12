@@ -23,6 +23,9 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if !exists {
 			return
 		}
+		if dat.combCache == nil {
+			dat.combCache = make(map[string]comb)
+		}
 		comb, exists := dat.combCache[msg.Author.ID]
 		if !exists {
 			return

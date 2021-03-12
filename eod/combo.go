@@ -24,7 +24,6 @@ func (b *EoD) combine(elem1 string, elem2 string, m msg, rsp rsp) {
 		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", elem2))
 		return
 	}
-	fmt.Println(dat.invCache, elem1, elem2)
 	_, exists = dat.invCache[m.Author.ID][strings.ToLower(elem1)]
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("You don't have %s!", elem1))
@@ -49,6 +48,11 @@ func (b *EoD) combine(elem1 string, elem2 string, m msg, rsp rsp) {
 		if rsp.Error(err) {
 			return
 		}
+
+		if dat.combCache == nil {
+			dat.combCache = make(map[string]comb)
+		}
+
 		dat.combCache[m.Author.ID] = comb{
 			elem1: elem1,
 			elem2: elem2,
@@ -69,6 +73,10 @@ func (b *EoD) combine(elem1 string, elem2 string, m msg, rsp rsp) {
 		b.dat[m.GuildID] = dat
 		lock.Unlock()
 		return
+	}
+
+	if dat.combCache == nil {
+		dat.combCache = make(map[string]comb)
 	}
 
 	dat.combCache[m.Author.ID] = comb{

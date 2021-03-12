@@ -7,6 +7,9 @@ func (b *EoD) suggestCmd(suggestion string, m msg, rsp rsp) {
 	if !exists {
 		return
 	}
+	if dat.combCache == nil {
+		dat.combCache = make(map[string]comb)
+	}
 	comb, exists := dat.combCache[m.Author.ID]
 	if !exists {
 		rsp.ErrorMessage("You haven't combined anything!")
