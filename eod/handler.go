@@ -34,6 +34,10 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if !exists {
 			return
 		}
+		if comb.elem3 != "" {
+			b.combine(comb.elem3, comb.elem3, msg, rsp)
+			return
+		}
 		b.combine(comb.elem1, comb.elem2, msg, rsp)
 		return
 	}
