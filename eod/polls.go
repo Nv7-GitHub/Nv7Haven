@@ -53,6 +53,9 @@ func (b *EoD) createPoll(p poll) error {
 }
 
 func (b *EoD) reactionHandler(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+	if r.UserID == b.dg.State.User.ID {
+		return
+	}
 	lock.RLock()
 	dat, exists := b.dat[r.GuildID]
 	lock.RUnlock()

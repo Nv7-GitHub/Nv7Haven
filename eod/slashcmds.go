@@ -60,6 +60,18 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "suggest",
+			Description: "Create a suggestion!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "result",
+					Description: "What the result for a combo should be",
+					Required:    true,
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -77,6 +89,9 @@ var (
 				isPlayChannel = i.Data.Options[1].BoolValue()
 			}
 			bot.setPlayChannel(i.Data.Options[0].RoleValue(bot.dg, i.GuildID).ID, isPlayChannel, bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"suggest": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.suggestCmd(i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )
