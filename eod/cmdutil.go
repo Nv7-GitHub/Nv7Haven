@@ -37,6 +37,10 @@ func (n *normalResp) Embed(emb *discordgo.MessageEmbed) string {
 	return msg.ID
 }
 
+func (n *normalResp) BlankReply() {
+	return
+}
+
 func (b *EoD) newMsgNormal(m *discordgo.MessageCreate) msg {
 	return msg{
 		Author:    m.Author,
@@ -122,6 +126,12 @@ func (s *slashResp) Embed(emb *discordgo.MessageEmbed) string {
 	}
 	m, _ := s.b.dg.ChannelMessageSendEmbed(s.i.ChannelID, emb)
 	return m.ID
+}
+
+func (s *slashResp) BlankReply() {
+	s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseAcknowledge,
+	})
 }
 
 func (b *EoD) newMsgSlash(i *discordgo.InteractionCreate) msg {

@@ -103,7 +103,6 @@ func (b *EoD) reactionHandler(s *discordgo.Session, r *discordgo.MessageReaction
 	}
 	p, exists := dat.polls[r.MessageID]
 	if !exists {
-		fmt.Println("2")
 		return
 	}
 	if r.Emoji.Name == upArrow {

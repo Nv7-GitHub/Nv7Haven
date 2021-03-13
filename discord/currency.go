@@ -27,9 +27,7 @@ func (b *Bot) ldbPageSwitcher(r *discordgo.MessageReactionAdd) {
 		page = pg.Metadata["page"].(int) + 1
 	}
 	if ((page * 10) > pg.Metadata["count"].(int)) || (page < 0) {
-		b.dg.MessageReactionsRemoveAll(r.ChannelID, r.MessageID)
-		b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, leftArrow)
-		b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, rightArrow)
+		b.dg.MessageReactionRemove(r.ChannelID, r.MessageID, r.Emoji.Name, r.UserID)
 		b.pages[r.MessageID] = pg
 		return
 	}
@@ -72,9 +70,7 @@ func (b *Bot) ldbPageSwitcher(r *discordgo.MessageReactionAdd) {
 		Title:       fmt.Sprintf("Richest users in %s", gld.Name),
 		Description: ldb,
 	})
-	b.dg.MessageReactionsRemoveAll(r.ChannelID, r.MessageID)
-	b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, leftArrow)
-	b.dg.MessageReactionAdd(r.ChannelID, r.MessageID, rightArrow)
+	b.dg.MessageReactionRemove(r.ChannelID, r.MessageID, r.Emoji.Name, r.UserID)
 	b.pages[r.MessageID] = pg
 }
 

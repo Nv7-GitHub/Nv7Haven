@@ -2,7 +2,6 @@ package eod
 
 import (
 	"fmt"
-	"math"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -30,7 +29,7 @@ func (b *EoD) invPageGetter(p pageSwitcher) (string, int, int, error) {
 	}
 
 	if p.Page < 0 {
-		return "", int(math.Floor(float64(p.Page*pageLength) / float64(len(p.Items)))), length, nil
+		return "", length, length, nil
 	}
 
 	items := p.Items[pageLength*p.Page:]
@@ -52,18 +51,23 @@ func (b *EoD) newPageSwitcher(ps pageSwitcher, m msg, rsp rsp) {
 	if rsp.Error(err) {
 		return
 	}
-	id := rsp.Embed(&discordgo.MessageEmbed{
+	rsp.BlankReply()
+	msg, _ := b.dg.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
 		Title:       ps.Title,
 		Description: cont,
 		Footer: &discordgo.MessageEmbedFooter{
-			Text: fmt.Sprintf("Page %d/%d", ps.Page, length),
+			Text: fmt.Sprintf("Page %d/%d", ps.Page+1, length+1),
 		},
 	})
+	id := msg.ID
 	b.dg.MessageReactionAdd(m.ChannelID, id, leftArrow)
 	b.dg.MessageReactionAdd(m.ChannelID, id, rightArrow)
 	ps.Channel = m.ChannelID
 	ps.Guild = m.GuildID
 	ps.Page = 0
+	if dat.pageSwitchers == nil {
+		dat.pageSwitchers = make(map[string]pageSwitcher)
+	}
 	dat.pageSwitchers[id] = ps
 
 	lock.Lock()
@@ -72,6 +76,10 @@ func (b *EoD) newPageSwitcher(ps pageSwitcher, m msg, rsp rsp) {
 }
 
 func (b *EoD) pageSwitchHandler(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+	if r.UserID == b.dg.State.User.ID {
+		return
+	}
+
 	lock.RLock()
 	dat, exists := b.dat[r.GuildID]
 	lock.RUnlock()
@@ -107,10 +115,10 @@ func (b *EoD) pageSwitchHandler(s *discordgo.Session, r *discordgo.MessageReacti
 		Title:       ps.Title,
 		Description: cont,
 		Footer: &discordgo.MessageEmbedFooter{
-			Text: fmt.Sprintf("Page %d/%d", ps.Page, length),
+			Text: fmt.Sprintf("Page %d/%d", ps.Page+1, length+1),
 		},
 	})
-	b.dg.MessageReactionsRemoveEmoji(ps.Channel, r.MessageID, r.Emoji.Name)
+	b.dg.MessageReactionRemove(ps.Channel, r.MessageID, r.Emoji.Name, r.UserID)
 	dat.pageSwitchers[r.MessageID] = ps
 
 	lock.Lock()
@@ -133,7 +141,7 @@ func (b *EoD) invCmd(m msg, rsp rsp) {
 	items := make([]string, len(inv))
 	i := 0
 	for k := range inv {
-		items[i] = k
+		items[i] = dat.elemCache[k].Name
 		i++
 	}
 
