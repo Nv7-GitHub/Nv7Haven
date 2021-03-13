@@ -116,6 +116,48 @@ var (
 			Name:        "ldb",
 			Description: "See the leaderboard!",
 		},
+		{
+			Name:        "addcat",
+			Description: "Suggest or add an element to a category!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "category",
+					Description: "The name of the category to add the element to!",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "elem",
+					Description: "What element to add!",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "elem2",
+					Description: "Another element to add to the category!",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "elem3",
+					Description: "Another element to add to the category!",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "elem4",
+					Description: "Another element to add to the category!",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "elem5",
+					Description: "Another element to add to the category!",
+					Required:    true,
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -148,6 +190,15 @@ var (
 		},
 		"ldb": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.ldbCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"addcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			suggestAdd := []string{i.Data.Options[1].StringValue()}
+			if len(i.Data.Options) > 2 {
+				for _, val := range i.Data.Options[2:] {
+					suggestAdd = append(suggestAdd, val.StringValue())
+				}
+			}
+			bot.categoryCmd(suggestAdd, i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )
