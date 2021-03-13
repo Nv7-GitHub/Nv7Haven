@@ -3,6 +3,7 @@ package eod
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -66,6 +67,19 @@ func (b *EoD) createPoll(p poll) error {
 		}
 		p.Message = m.ID
 		break
+
+	case pollCategorize:
+		m, err := b.dg.ChannelMessageSendEmbed(dat.votingChannel, &discordgo.MessageEmbed{
+			Title:       "Categorize",
+			Description: fmt.Sprintf("Elements: **%s**\n\nCategory: **%s**\n\nSuggested By <@%s>", strings.Join(p.Data["elems"].([]string), "\n"), p.Value1, p.Value4),
+			Footer: &discordgo.MessageEmbedFooter{
+				Text: "You can change your vote",
+			},
+		})
+		if err != nil {
+			return err
+		}
+		p.Message = m.ID
 	}
 	err := b.dg.MessageReactionAdd(p.Channel, p.Message, upArrow)
 	if err != nil {
@@ -152,5 +166,9 @@ func (b *EoD) handlePollSuccess(p poll) {
 		b.mark(p.Guild, p.Value1, p.Value2, p.Value4)
 	case pollImage:
 		b.image(p.Guild, p.Value1, p.Value2, p.Value4)
+	case pollCategorize:
+		for _, val := range p.Data["elems"].([]string) {
+			b.categorize(val, p.Value1, p.Guild)
+		}
 	}
 }

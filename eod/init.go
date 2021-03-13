@@ -120,10 +120,15 @@ func (b *EoD) init() {
 	var createdon int64
 	var parent1 string
 	var parent2 string
+	var catDat string
 	for elems.Next() {
-		err = elems.Scan(&elem.Name, &elem.Category, &elem.Image, &elem.Guild, &elem.Comment, &elem.Creator, &createdon, &parent1, &parent2, &elem.Complexity)
+		err = elems.Scan(&elem.Name, &catDat, &elem.Image, &elem.Guild, &elem.Comment, &elem.Creator, &createdon, &parent1, &parent2, &elem.Complexity)
 		if err != nil {
 			return
+		}
+		err = json.Unmarshal([]byte(catDat), &elem.Categories)
+		if err != nil {
+			panic(err)
 		}
 		elem.CreatedOn = time.Unix(createdon, 0)
 		if parent1 != "" && parent2 != "" {

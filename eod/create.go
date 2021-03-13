@@ -1,6 +1,7 @@
 package eod
 
 import (
+	"encoding/json"
 	"strings"
 	"time"
 )
@@ -24,7 +25,7 @@ func (b *EoD) elemCreate(name string, parent1 string, parent2 string, creator st
 	if count == 0 {
 		elem := element{
 			Name:       name,
-			Category:   "",
+			Categories: make(map[string]empty),
 			Guild:      guild,
 			Comment:    "None",
 			Creator:    creator,
@@ -37,7 +38,11 @@ func (b *EoD) elemCreate(name string, parent1 string, parent2 string, creator st
 		lock.Lock()
 		b.dat[guild] = dat
 		lock.Unlock()
-		b.db.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, elem.Category, elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), elem.Parents[0], elem.Parents[1], elem.Complexity)
+		cats, err := json.Marshal(elem.Categories)
+		if err != nil {
+			return
+		}
+		b.db.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, string(cats), elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), elem.Parents[0], elem.Parents[1], elem.Complexity)
 		if err != nil {
 			return
 		}

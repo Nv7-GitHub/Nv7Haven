@@ -65,7 +65,7 @@ type comb struct {
 
 type element struct {
 	Name       string
-	Category   string
+	Categories map[string]empty
 	Image      string
 	Guild      string
 	Comment    string

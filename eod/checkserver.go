@@ -9,7 +9,7 @@ import (
 var starterElements = []element{
 	{
 		Name:       "Air",
-		Category:   "",
+		Categories: make(map[string]empty),
 		Comment:    "The invisible gaseous substance surrounding the earth, a mixture mainly of oxygen and nitrogen.",
 		Creator:    "",
 		Complexity: 0,
@@ -17,7 +17,7 @@ var starterElements = []element{
 	},
 	{
 		Name:       "Earth",
-		Category:   "",
+		Categories: make(map[string]empty),
 		Comment:    "The substance of the land surface; soil.",
 		Creator:    "",
 		Complexity: 0,
@@ -25,7 +25,7 @@ var starterElements = []element{
 	},
 	{
 		Name:       "Fire",
-		Category:   "",
+		Categories: make(map[string]empty),
 		Comment:    "Combustion or burning, in which substances combine chemically with oxygen from the air and typically give out bright light, heat, and smoke.",
 		Creator:    "",
 		Complexity: 0,
@@ -33,7 +33,7 @@ var starterElements = []element{
 	},
 	{
 		Name:       "Water",
-		Category:   "",
+		Categories: make(map[string]empty),
 		Comment:    "A colorless, transparent, odorless liquid that forms the seas, lakes, rivers, and rain and is the basis of the fluids of living organisms.",
 		Creator:    "",
 		Complexity: 0,
@@ -65,7 +65,7 @@ func (b *EoD) checkServer(m msg, rsp rsp) bool {
 			elem.Guild = m.GuildID
 			elem.CreatedOn = time.Now()
 			dat.elemCache[strings.ToLower(elem.Name)] = elem
-			_, err := b.db.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, elem.Category, elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), "", "", elem.Complexity)
+			_, err := b.db.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, "{}", elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), "", "", elem.Complexity)
 			rsp.Error(err)
 		}
 		lock.Lock()
