@@ -80,6 +80,7 @@ func (b *EoD) createPoll(p poll) error {
 			return err
 		}
 		p.Message = m.ID
+		break
 	}
 	err := b.dg.MessageReactionAdd(p.Channel, p.Message, upArrow)
 	if err != nil {
@@ -158,6 +159,12 @@ func (b *EoD) reactionHandler(s *discordgo.Session, r *discordgo.MessageReaction
 }
 
 func (b *EoD) handlePollSuccess(p poll) {
+	lock.RLock()
+	dat, exists := b.dat[p.Guild]
+	lock.RUnlock()
+	if !exists {
+		return
+	}
 	switch p.Kind {
 	case pollCombo:
 		b.elemCreate(p.Value3, p.Value1, p.Value2, p.Value4, p.Guild)
@@ -167,8 +174,14 @@ func (b *EoD) handlePollSuccess(p poll) {
 	case pollImage:
 		b.image(p.Guild, p.Value1, p.Value2, p.Value4)
 	case pollCategorize:
-		for _, val := range p.Data["elems"].([]string) {
+		els := p.Data["elems"].([]string)
+		for _, val := range els {
 			b.categorize(val, p.Value1, p.Guild)
+		}
+		if len(els) == 1 {
+			b.dg.ChannelMessageSend(dat.newsChannel, fmt.Sprintf("🗃️ Added **%s** to **%s** (By <@%s>)", els[0], p.Value1, p.Value4))
+		} else {
+			b.dg.ChannelMessageSend(dat.newsChannel, fmt.Sprintf("🗃️ Added **%d elements** to **%s** (By <@%s>)", len(els), p.Value1, p.Value4))
 		}
 	}
 }

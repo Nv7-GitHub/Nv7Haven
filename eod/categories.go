@@ -35,7 +35,7 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 	}
 	if len(suggestAdd) > 0 {
 		err := b.createPoll(poll{
-			Channel: m.ChannelID,
+			Channel: dat.votingChannel,
 			Guild:   m.GuildID,
 			Kind:    pollCategorize,
 			Value1:  category,
@@ -80,5 +80,8 @@ func (b *EoD) categorize(elem string, category string, guild string) error {
 		return err
 	}
 	_, err = b.db.Exec("UPDATE eod_elements SET categories=? WHERE guild=? AND name=?", string(data), el.Guild, el.Name)
-	return err
+	if err != nil {
+		return err
+	}
+	return nil
 }
