@@ -12,11 +12,11 @@ const leftArrow = "⬅️"
 const rightArrow = "➡️"
 
 const ldbQuery = `
-SELECT rw
+SELECT rw, ` + "user" + `, ` + "count" + `
 FROM (
     SELECT 
          ROW_NUMBER() OVER (ORDER BY ` + "count" + ` DESC) AS rw,
-         ` + "user" + `
+         ` + "user" + `, ` + "count" + `
     FROM eod_inv WHERE guild=?
 ) sub
 WHERE sub.user=?
@@ -37,6 +37,53 @@ func (b *EoD) invPageGetter(p pageSwitcher) (string, int, int, error) {
 		items = items[:pageLength]
 	}
 	return strings.Join(items, "\n"), p.Page, length, nil
+}
+
+func (b *EoD) ldbPageGetter(p pageSwitcher) (string, int, int, error) {
+	cnt := b.db.QueryRow("SELECT COUNT(1) FROM eod_inv WHERE guild=?", p.Guild)
+	pos := b.db.QueryRow(ldbQuery, p.Guild, p.User)
+	var count int
+	var ps int
+	var u string
+	var ucnt int
+	err := pos.Scan(&ps, &u, &ucnt)
+	if err != nil {
+		return "", 0, 0, err
+	}
+	cnt.Scan(&count)
+	length := count / pageLength
+	if err != nil {
+		return "", 0, 0, err
+	}
+	if pageLength*p.Page > count {
+		return "", 0, length, nil
+	}
+
+	if p.Page < 0 {
+		return "", length, length, nil
+	}
+
+	text := ""
+	res, err := b.db.Query("SELECT `count`, `user` FROM eod_inv WHERE guild=? ORDER BY `count` DESC LIMIT ? OFFSET ?", p.Guild, pageLength, p.Page*pageLength)
+	if err != nil {
+		return "", 0, 0, err
+	}
+	defer res.Close()
+	i := pageLength*p.Page + 1
+	var user string
+	var ct int
+	for res.Next() {
+		err = res.Scan(&ct, &user)
+		if err != nil {
+			return "", 0, 0, err
+		}
+		text += fmt.Sprintf("%d. <@%s> - %d", i, user, ct)
+		i++
+	}
+	if !((pageLength*p.Page < ps) && (ps < (pageLength+1)*p.Page)) {
+		text += fmt.Sprintf("%d. <@%s> - %d", ps, u, ucnt)
+	}
+	return text, p.Page, length, nil
 }
 
 func (b *EoD) newPageSwitcher(ps pageSwitcher, m msg, rsp rsp) {
@@ -150,5 +197,26 @@ func (b *EoD) invCmd(m msg, rsp rsp) {
 		Title:      m.Author.Username + "'s Inventory",
 		PageGetter: b.invPageGetter,
 		Items:      items,
+	}, m, rsp)
+}
+
+func (b *EoD) ldbCmd(m msg, rsp rsp) {
+	lock.RLock()
+	dat, exists := b.dat[m.GuildID]
+	lock.RUnlock()
+	if !exists {
+		return
+	}
+	_, exists = dat.invCache[m.Author.ID]
+	if !exists {
+		rsp.ErrorMessage("You don't have an inventory!")
+		return
+	}
+
+	b.newPageSwitcher(pageSwitcher{
+		Kind:       pageSwitchInv,
+		Title:      m.Author.Username + "'s Inventory",
+		PageGetter: b.invPageGetter,
+		User:       m.Author.ID,
 	}, m, rsp)
 }

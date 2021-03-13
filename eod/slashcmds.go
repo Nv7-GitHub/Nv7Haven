@@ -112,6 +112,10 @@ var (
 			Name:        "inv",
 			Description: "See your elements!",
 		},
+		{
+			Name:        "ldb",
+			Description: "See the leaderboard!",
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -141,6 +145,9 @@ var (
 		},
 		"inv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.invCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"ldb": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.ldbCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )
