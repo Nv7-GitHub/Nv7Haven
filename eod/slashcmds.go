@@ -108,6 +108,10 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "inv",
+			Description: "See your elements!",
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -134,6 +138,9 @@ var (
 		},
 		"image": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.imageCmd(i.Data.Options[0].StringValue(), i.Data.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"inv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.invCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )

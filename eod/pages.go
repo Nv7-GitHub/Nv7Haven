@@ -1,6 +1,7 @@
 package eod
 
 import (
+	"fmt"
 	"math"
 	"strings"
 
@@ -22,20 +23,21 @@ FROM (
 WHERE sub.user=?
 `
 
-func (b *EoD) invPageGetter(p pageSwitcher) (string, int, error) {
+func (b *EoD) invPageGetter(p pageSwitcher) (string, int, int, error) {
+	length := len(p.Items) / pageLength
 	if pageLength*p.Page > len(p.Items) {
-		return "", 0, nil
+		return "", 0, length, nil
 	}
 
 	if p.Page < 0 {
-		return "", int(math.Floor(float64(p.Page*pageLength) / float64(len(p.Items)))), nil
+		return "", int(math.Floor(float64(p.Page*pageLength) / float64(len(p.Items)))), length, nil
 	}
 
 	items := p.Items[pageLength*p.Page:]
 	if len(items) > pageLength {
 		items = items[:pageLength]
 	}
-	return strings.Join(items, "\n"), p.Page, nil
+	return strings.Join(items, "\n"), p.Page, length, nil
 }
 
 func (b *EoD) newPageSwitcher(ps pageSwitcher, m msg, rsp rsp) {
@@ -46,13 +48,16 @@ func (b *EoD) newPageSwitcher(ps pageSwitcher, m msg, rsp rsp) {
 		return
 	}
 
-	cont, _, err := ps.PageGetter(ps)
+	cont, _, length, err := ps.PageGetter(ps)
 	if rsp.Error(err) {
 		return
 	}
 	id := rsp.Embed(&discordgo.MessageEmbed{
 		Title:       ps.Title,
 		Description: cont,
+		Footer: &discordgo.MessageEmbedFooter{
+			Text: fmt.Sprintf("Page %d/%d", ps.Page, length),
+		},
 	})
 	b.dg.MessageReactionAdd(m.ChannelID, id, leftArrow)
 	b.dg.MessageReactionAdd(m.ChannelID, id, rightArrow)
@@ -86,13 +91,13 @@ func (b *EoD) pageSwitchHandler(s *discordgo.Session, r *discordgo.MessageReacti
 		return
 	}
 
-	cont, page, err := ps.PageGetter(ps)
+	cont, page, length, err := ps.PageGetter(ps)
 	if err != nil {
 		return
 	}
 	if page != ps.Page {
 		ps.Page = page
-		cont, _, err = ps.PageGetter(ps)
+		cont, _, length, err = ps.PageGetter(ps)
 		if err != nil {
 			return
 		}
@@ -101,6 +106,9 @@ func (b *EoD) pageSwitchHandler(s *discordgo.Session, r *discordgo.MessageReacti
 	b.dg.ChannelMessageEditEmbed(ps.Channel, r.MessageID, &discordgo.MessageEmbed{
 		Title:       ps.Title,
 		Description: cont,
+		Footer: &discordgo.MessageEmbedFooter{
+			Text: fmt.Sprintf("Page %d/%d", ps.Page, length),
+		},
 	})
 	b.dg.MessageReactionsRemoveEmoji(ps.Channel, r.MessageID, r.Emoji.Name)
 	dat.pageSwitchers[r.MessageID] = ps
@@ -108,4 +116,31 @@ func (b *EoD) pageSwitchHandler(s *discordgo.Session, r *discordgo.MessageReacti
 	lock.Lock()
 	b.dat[r.GuildID] = dat
 	lock.Unlock()
+}
+
+func (b *EoD) invCmd(m msg, rsp rsp) {
+	lock.RLock()
+	dat, exists := b.dat[m.GuildID]
+	lock.RUnlock()
+	if !exists {
+		return
+	}
+	inv, exists := dat.invCache[m.Author.ID]
+	if !exists {
+		rsp.ErrorMessage("You don't have an inventory!")
+		return
+	}
+	items := make([]string, len(inv))
+	i := 0
+	for k := range inv {
+		items[i] = k
+		i++
+	}
+
+	b.newPageSwitcher(pageSwitcher{
+		Kind:       pageSwitchInv,
+		Title:      m.Author.Username + "'s Inventory",
+		PageGetter: b.invPageGetter,
+		Items:      items,
+	}, m, rsp)
 }

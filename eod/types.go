@@ -9,7 +9,7 @@ import (
 type serverDataType int
 type pollType int
 type pageSwitchType int
-type pageSwitchGetter func(pageSwitcher) (string, int, error) // text, newPage, err
+type pageSwitchGetter func(pageSwitcher) (string, int, int, error) // text, newPage, maxPages, err
 
 const (
 	playChannel   = 0
