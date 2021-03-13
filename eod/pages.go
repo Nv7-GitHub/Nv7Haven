@@ -77,11 +77,11 @@ func (b *EoD) ldbPageGetter(p pageSwitcher) (string, int, int, error) {
 		if err != nil {
 			return "", 0, 0, err
 		}
-		text += fmt.Sprintf("%d. <@%s> - %d", i, user, ct)
+		text += fmt.Sprintf("%d. <@%s> - %d\n", i, user, ct)
 		i++
 	}
-	if !((pageLength*p.Page < ps) && (ps < (pageLength+1)*p.Page)) {
-		text += fmt.Sprintf("%d. <@%s> - %d", ps, u, ucnt)
+	if !((pageLength*p.Page <= (ps - 1)) && ((ps - 1) <= (pageLength+1)*p.Page)) {
+		text += fmt.Sprintf("%d. <@%s> - %d\n", ps, u, ucnt)
 	}
 	return text, p.Page, length, nil
 }
@@ -93,6 +93,10 @@ func (b *EoD) newPageSwitcher(ps pageSwitcher, m msg, rsp rsp) {
 	if !exists {
 		return
 	}
+
+	ps.Channel = m.ChannelID
+	ps.Guild = m.GuildID
+	ps.Page = 0
 
 	cont, _, length, err := ps.PageGetter(ps)
 	if rsp.Error(err) {
@@ -109,9 +113,6 @@ func (b *EoD) newPageSwitcher(ps pageSwitcher, m msg, rsp rsp) {
 	id := msg.ID
 	b.dg.MessageReactionAdd(m.ChannelID, id, leftArrow)
 	b.dg.MessageReactionAdd(m.ChannelID, id, rightArrow)
-	ps.Channel = m.ChannelID
-	ps.Guild = m.GuildID
-	ps.Page = 0
 	if dat.pageSwitchers == nil {
 		dat.pageSwitchers = make(map[string]pageSwitcher)
 	}
@@ -215,8 +216,8 @@ func (b *EoD) ldbCmd(m msg, rsp rsp) {
 
 	b.newPageSwitcher(pageSwitcher{
 		Kind:       pageSwitchInv,
-		Title:      m.Author.Username + "'s Inventory",
-		PageGetter: b.invPageGetter,
+		Title:      "Top Most Elements",
+		PageGetter: b.ldbPageGetter,
 		User:       m.Author.ID,
 	}, m, rsp)
 }
