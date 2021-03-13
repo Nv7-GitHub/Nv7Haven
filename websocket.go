@@ -13,6 +13,7 @@ func websockets(app *fiber.App) {
 		// IsWebSocketUpgrade returns true if the client
 		// requested upgrade to the WebSocket protocol.
 		if websocket.IsWebSocketUpgrade(c) {
+			fmt.Println(c.Get("Connection"))
 			c.Locals("allowed", true)
 			return c.Next()
 		}
