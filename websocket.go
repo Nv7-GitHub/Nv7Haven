@@ -13,6 +13,7 @@ func websockets(app *fiber.App) {
 		fmt.Println(c.Get("Connection"))
 		fmt.Println(c.Get("Upgrade"))
 		c.Set("Connection", "Upgrade")
+		fmt.Println(c.Get("Connection"))
 		// IsWebSocketUpgrade returns true if the client
 		// requested upgrade to the WebSocket protocol.
 		if websocket.IsWebSocketUpgrade(c) {
