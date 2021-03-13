@@ -12,7 +12,7 @@ func websockets(app *fiber.App) {
 	app.Use("/ws", func(c *fiber.Ctx) error {
 		fmt.Println(c.Get("Connection"))
 		fmt.Println(c.Get("Upgrade"))
-		c.Set("Connection", "Upgrade")
+		c.Context().Request.Header.Set("Connection", "Upgrade")
 		fmt.Println(c.Get("Connection"))
 		// IsWebSocketUpgrade returns true if the client
 		// requested upgrade to the WebSocket protocol.
