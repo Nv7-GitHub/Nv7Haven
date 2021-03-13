@@ -71,7 +71,7 @@ func (b *EoD) createPoll(p poll) error {
 	case pollCategorize:
 		m, err := b.dg.ChannelMessageSendEmbed(dat.votingChannel, &discordgo.MessageEmbed{
 			Title:       "Categorize",
-			Description: fmt.Sprintf("Elements: **%s**\n\nCategory: **%s**\n\nSuggested By <@%s>", strings.Join(p.Data["elems"].([]string), "\n"), p.Value1, p.Value4),
+			Description: fmt.Sprintf("Elements:\n**%s**\n\nCategory: **%s**\n\nSuggested By <@%s>", strings.Join(p.Data["elems"].([]string), "\n"), p.Value1, p.Value4),
 			Footer: &discordgo.MessageEmbedFooter{
 				Text: "You can change your vote",
 			},
