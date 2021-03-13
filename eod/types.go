@@ -8,6 +8,8 @@ import (
 
 type serverDataType int
 type pollType int
+type pageSwitchType int
+type pageSwitchGetter func(pageSwitcher) (string, int, error) // text, newPage, err
 
 const (
 	playChannel   = 0
@@ -19,6 +21,9 @@ const (
 	pollCategorize = 1
 	pollSign       = 2
 	pollImage      = 3
+
+	pageSwitchLdb = 0
+	pageSwitchInv = 1
 )
 
 type empty struct{}
@@ -32,6 +37,24 @@ type serverData struct {
 	invCache      map[string]map[string]empty // map[userID]map[elementName]empty
 	elemCache     map[string]element          //map[elementName]element
 	polls         map[string]poll             // map[messageid]poll
+	pageSwitchers map[string]pageSwitcher     // map[messageid]pageswitcher
+}
+
+type pageSwitcher struct {
+	Kind       pageSwitchType
+	Title      string
+	PageGetter pageSwitchGetter
+
+	// Inv
+	Items []string
+
+	// Ldb
+	User string
+
+	// Don't need to set these
+	Guild   string
+	Channel string
+	Page    int
 }
 
 type comb struct {
