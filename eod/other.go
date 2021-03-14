@@ -13,6 +13,15 @@ type hintCombo struct {
 	text   string
 }
 
+func obscure(val string) string {
+	question := []byte("?")[0]
+	out := make([]byte, len(val))
+	for i := range out {
+		out[i] = question
+	}
+	return string(out)
+}
+
 func (b *EoD) hintCmd(elem string, m msg, rsp rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
@@ -52,7 +61,7 @@ func (b *EoD) hintCmd(elem string, m msg, rsp rsp) {
 			pref = check
 			ex = 1
 		}
-		txt := fmt.Sprintf("%s %s + %s", pref, elem1, elem2)
+		txt := fmt.Sprintf("%s %s + %s", pref, elem1, obscure(elem2))
 		out = append(out, hintCombo{
 			exists: ex,
 			text:   txt,
