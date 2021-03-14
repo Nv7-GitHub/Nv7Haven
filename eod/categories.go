@@ -65,7 +65,6 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 }
 
 func (b *EoD) categorize(elem string, category string, guild string) error {
-	fmt.Println(elem, category)
 	lock.RLock()
 	dat, exists := b.dat[guild]
 	lock.RUnlock()
@@ -76,7 +75,6 @@ func (b *EoD) categorize(elem string, category string, guild string) error {
 	if !exists {
 		return nil
 	}
-	fmt.Println(el.Categories)
 	el.Categories[category] = empty{}
 	dat.elemCache[strings.ToLower(elem)] = el
 
