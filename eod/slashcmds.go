@@ -178,7 +178,7 @@ var (
 					Type:        discordgo.ApplicationCommandOptionString,
 					Name:        "element",
 					Description: "Name of the element!",
-					Required:    false,
+					Required:    true,
 				},
 			},
 		},
