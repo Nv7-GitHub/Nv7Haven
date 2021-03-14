@@ -5,8 +5,6 @@ import (
 	"strings"
 )
 
-const sparkles = "✨"
-
 func (b *EoD) suggestCmd(suggestion string, m msg, rsp rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
@@ -38,7 +36,7 @@ func (b *EoD) suggestCmd(suggestion string, m msg, rsp rsp) {
 	if rsp.Error(err) {
 		return
 	}
-	rsp.Resp("Suggested " + comb.elem1 + " + " + comb.elem2 + " = " + suggestion)
+	rsp.Resp("Suggested " + comb.elem1 + " + " + comb.elem2 + " = " + suggestion + " ✨")
 }
 
 func (b *EoD) markCmd(elem string, mark string, m msg, rsp rsp) {

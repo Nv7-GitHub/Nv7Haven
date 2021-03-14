@@ -35,7 +35,6 @@ func (b *EoD) createPoll(p poll) error {
 			return err
 		}
 		p.Message = m.ID
-		break
 
 	case pollSign:
 		m, err := b.dg.ChannelMessageSendEmbed(dat.votingChannel, &discordgo.MessageEmbed{
@@ -49,7 +48,6 @@ func (b *EoD) createPoll(p poll) error {
 			return err
 		}
 		p.Message = m.ID
-		break
 
 	case pollImage:
 		m, err := b.dg.ChannelMessageSendEmbed(dat.votingChannel, &discordgo.MessageEmbed{
@@ -66,7 +64,6 @@ func (b *EoD) createPoll(p poll) error {
 			return err
 		}
 		p.Message = m.ID
-		break
 
 	case pollCategorize:
 		m, err := b.dg.ChannelMessageSendEmbed(dat.votingChannel, &discordgo.MessageEmbed{
@@ -80,7 +77,6 @@ func (b *EoD) createPoll(p poll) error {
 			return err
 		}
 		p.Message = m.ID
-		break
 	}
 	err := b.dg.MessageReactionAdd(p.Channel, p.Message, upArrow)
 	if err != nil {
@@ -168,7 +164,6 @@ func (b *EoD) handlePollSuccess(p poll) {
 	switch p.Kind {
 	case pollCombo:
 		b.elemCreate(p.Value3, p.Value1, p.Value2, p.Value4, p.Guild)
-		break
 	case pollSign:
 		b.mark(p.Guild, p.Value1, p.Value2, p.Value4)
 	case pollImage:

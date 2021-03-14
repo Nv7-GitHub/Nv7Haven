@@ -88,5 +88,4 @@ func (b *EoD) combine(elem1 string, elem2 string, m msg, rsp rsp) {
 	b.dat[m.GuildID] = dat
 	lock.Unlock()
 	rsp.Resp("That combination doesn't exist! " + redCircle + "\n 	Suggest it by typing **/suggest**")
-	return
 }

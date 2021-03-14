@@ -38,7 +38,6 @@ func (n *normalResp) Embed(emb *discordgo.MessageEmbed) string {
 }
 
 func (n *normalResp) BlankReply() {
-	return
 }
 
 func (b *EoD) newMsgNormal(m *discordgo.MessageCreate) msg {

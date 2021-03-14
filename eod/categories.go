@@ -6,6 +6,9 @@ import (
 	"strings"
 )
 
+const x = "❌"
+const check = "✅"
+
 func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
@@ -84,4 +87,78 @@ func (b *EoD) categorize(elem string, category string, guild string) error {
 		return err
 	}
 	return nil
+}
+
+func (b *EoD) catCmd(category string, m msg, rsp rsp) {
+	lock.RLock()
+	dat, exists := b.dat[m.GuildID]
+	lock.RUnlock()
+	if !exists {
+		return
+	}
+	inv, exists := dat.invCache[m.Author.ID]
+	if !exists {
+		rsp.ErrorMessage("You don't have an inventory!")
+		return
+	}
+
+	elems, err := b.db.Query("SELECT name FROM eod_elements WHERE guild=? AND JSON_EXTRACT(categories, ?) IS NOT NULL", m.GuildID, `$."`+category+`"`)
+	if rsp.Error(err) {
+		return
+	}
+	defer elems.Close()
+	out := make([]string, 9)
+	var name string
+	for elems.Next() {
+		err = elems.Scan(&name)
+		if rsp.Error(err) {
+			return
+		}
+		_, exists := inv[name]
+		if exists {
+			name += " " + check
+		} else {
+			name += " " + x
+		}
+		out = append(out, name)
+	}
+	if len(out) == 0 {
+		res, err := b.db.Query("SELECT DISTINCT categories FROM eod_elements WHERE guild=?", m.GuildID)
+		if rsp.Error(err) {
+			return
+		}
+		defer res.Close()
+		cats := make(map[string]empty)
+		var dt string
+		var data map[string]empty
+		for res.Next() {
+			err = res.Scan(&dt)
+			if rsp.Error(err) {
+				return
+			}
+			err = json.Unmarshal([]byte(dt), &data)
+			if rsp.Error(err) {
+				return
+			}
+			for k := range data {
+				cats[k] = empty{}
+			}
+		}
+		for k := range cats {
+			out = append(out, k)
+		}
+		b.newPageSwitcher(pageSwitcher{
+			Kind:       pageSwitchInv,
+			Title:      fmt.Sprintf("All Categories (%d)", len(out)),
+			PageGetter: b.invPageGetter,
+			Items:      out,
+		}, m, rsp)
+		return
+	}
+	b.newPageSwitcher(pageSwitcher{
+		Kind:       pageSwitchInv,
+		Title:      fmt.Sprintf("%s (%d)", category, len(out)),
+		PageGetter: b.invPageGetter,
+		Items:      out,
+	}, m, rsp)
 }

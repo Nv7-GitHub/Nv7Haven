@@ -215,7 +215,7 @@ func (b *EoD) ldbCmd(m msg, rsp rsp) {
 	}
 
 	b.newPageSwitcher(pageSwitcher{
-		Kind:       pageSwitchInv,
+		Kind:       pageSwitchLdb,
 		Title:      "Top Most Elements",
 		PageGetter: b.ldbPageGetter,
 		User:       m.Author.ID,

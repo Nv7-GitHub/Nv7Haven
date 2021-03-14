@@ -18,7 +18,7 @@ func (b *EoD) init() {
 		}(v)
 	}
 	b.dg.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		if (i.Data.Name != "suggest") && (i.Data.Name != "mark") && (i.Data.Name != "image") && (i.Data.Name != "inv") && (i.Data.Name != "ldb") && (i.Data.Name != "addcat") {
+		if (i.Data.Name != "suggest") && (i.Data.Name != "mark") && (i.Data.Name != "image") && (i.Data.Name != "inv") && (i.Data.Name != "ldb") && (i.Data.Name != "addcat") && (i.Data.Name != "cat") {
 			isMod, err := b.isMod(i.Member.User.ID, b.newMsgSlash(i))
 			rsp := b.newRespSlash(i)
 			if rsp.Error(err) {
@@ -65,7 +65,6 @@ func (b *EoD) init() {
 			lock.Lock()
 			b.dat[guild] = dat
 			lock.Unlock()
-			break
 
 		case playChannel:
 			lock.RLock()
@@ -81,7 +80,6 @@ func (b *EoD) init() {
 			lock.Lock()
 			b.dat[guild] = dat
 			lock.Unlock()
-			break
 
 		case votingChannel:
 			lock.RLock()
@@ -94,7 +92,6 @@ func (b *EoD) init() {
 			lock.Lock()
 			b.dat[guild] = dat
 			lock.Unlock()
-			break
 
 		case voteCount:
 			lock.RLock()
@@ -107,7 +104,6 @@ func (b *EoD) init() {
 			lock.Lock()
 			b.dat[guild] = dat
 			lock.Unlock()
-			break
 		}
 	}
 
@@ -158,7 +154,7 @@ func (b *EoD) init() {
 	var user string
 	var inv map[string]empty
 	for invs.Next() {
-		inv = make(map[string]empty, 0)
+		inv = make(map[string]empty)
 		err = invs.Scan(&guild, &user, &invDat)
 		if err != nil {
 			panic(err)

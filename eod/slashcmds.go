@@ -158,6 +158,18 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "cat",
+			Description: "Get info on a category!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "category",
+					Description: "Name of the category",
+					Required:    true,
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -199,6 +211,9 @@ var (
 				}
 			}
 			bot.categoryCmd(suggestAdd, i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"cat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.catCmd(i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )
