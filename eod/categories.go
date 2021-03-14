@@ -107,14 +107,14 @@ func (b *EoD) catCmd(category string, m msg, rsp rsp) {
 		return
 	}
 	defer elems.Close()
-	out := make([]string, 9)
+	out := make([]string, 0)
 	var name string
 	for elems.Next() {
 		err = elems.Scan(&name)
 		if rsp.Error(err) {
 			return
 		}
-		_, exists := inv[name]
+		_, exists := inv[strings.ToLower(name)]
 		if exists {
 			name += " " + check
 		} else {

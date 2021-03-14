@@ -166,7 +166,7 @@ var (
 					Type:        discordgo.ApplicationCommandOptionString,
 					Name:        "category",
 					Description: "Name of the category",
-					Required:    true,
+					Required:    false,
 				},
 			},
 		},
@@ -213,6 +213,10 @@ var (
 			bot.categoryCmd(suggestAdd, i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"cat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			if len(i.Data.Options) == 0 {
+				bot.catCmd("", bot.newMsgSlash(i), bot.newRespSlash(i))
+				return
+			}
 			bot.catCmd(i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
