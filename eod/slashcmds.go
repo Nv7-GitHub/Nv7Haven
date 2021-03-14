@@ -170,6 +170,18 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "hint",
+			Description: "Get a hint on an element!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "element",
+					Description: "Name of the element!",
+					Required:    false,
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -218,6 +230,9 @@ var (
 				return
 			}
 			bot.catCmd(i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"hint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.hintCmd(i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )
