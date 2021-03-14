@@ -76,6 +76,7 @@ func (b *EoD) categorize(elem string, category string, guild string) error {
 	if !exists {
 		return nil
 	}
+	fmt.Println(el.Categories)
 	el.Categories[category] = empty{}
 	dat.elemCache[strings.ToLower(elem)] = el
 
