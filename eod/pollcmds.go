@@ -5,12 +5,15 @@ import (
 	"strings"
 )
 
-func (b *EoD) suggestCmd(suggestion string, m msg, rsp rsp) {
+func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
 	if !exists {
 		return
+	}
+	if autocapitalize {
+		suggestion = strings.Title(suggestion)
 	}
 	if dat.combCache == nil {
 		dat.combCache = make(map[string]comb)

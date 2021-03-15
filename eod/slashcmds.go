@@ -70,6 +70,12 @@ var (
 					Description: "What the result for a combo should be",
 					Required:    true,
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionBoolean,
+					Name:        "autocapitalize",
+					Description: "Should the bot autocapitalize? Default: true",
+					Required:    false,
+				},
 			},
 		},
 		{
@@ -229,7 +235,11 @@ var (
 			bot.setPlayChannel(i.Data.Options[0].RoleValue(bot.dg, i.GuildID).ID, isPlayChannel, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"suggest": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.suggestCmd(i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			autocapitalize := true
+			if len(i.Data.Options) > 1 {
+				autocapitalize = i.Data.Options[1].BoolValue()
+			}
+			bot.suggestCmd(i.Data.Options[0].StringValue(), autocapitalize, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"mark": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.markCmd(i.Data.Options[0].StringValue(), i.Data.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
