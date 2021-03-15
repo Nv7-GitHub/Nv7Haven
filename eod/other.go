@@ -113,7 +113,7 @@ func (b *EoD) giveAllCmd(user string, m msg, rsp rsp) {
 	if !exists {
 		return
 	}
-	inv, exists := dat.invCache[m.Author.ID]
+	inv, exists := dat.invCache[user]
 	if !exists {
 		rsp.ErrorMessage("You don't have an inventory!")
 		return
@@ -121,13 +121,13 @@ func (b *EoD) giveAllCmd(user string, m msg, rsp rsp) {
 	for k := range dat.elemCache {
 		inv[k] = empty{}
 	}
-	dat.invCache[m.Author.ID] = inv
+	dat.invCache[user] = inv
 
 	lock.Lock()
 	b.dat[m.GuildID] = dat
 	lock.Unlock()
-	b.saveInv(m.GuildID, m.Author.ID)
-	rsp.Resp("Successfully gave every element to <@" + m.Author.ID + ">!")
+	b.saveInv(m.GuildID, user)
+	rsp.Resp("Successfully gave every element to <@" + user + ">!")
 }
 
 func (b *EoD) resetInvCmd(user string, m msg, rsp rsp) {
@@ -141,11 +141,11 @@ func (b *EoD) resetInvCmd(user string, m msg, rsp rsp) {
 	for _, v := range starterElements {
 		inv[strings.ToLower(v.Name)] = empty{}
 	}
-	dat.invCache[m.Author.ID] = inv
+	dat.invCache[user] = inv
 
 	lock.Lock()
 	b.dat[m.GuildID] = dat
 	lock.Unlock()
-	b.saveInv(m.GuildID, m.Author.ID)
-	rsp.Resp("Successfully reseet <@" + m.Author.ID + ">'s inventory!")
+	b.saveInv(m.GuildID, user)
+	rsp.Resp("Successfully reseet <@" + user + ">'s inventory!")
 }
