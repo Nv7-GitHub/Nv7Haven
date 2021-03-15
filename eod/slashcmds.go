@@ -186,6 +186,18 @@ var (
 			Name:        "stats",
 			Description: "Get your server's stats!",
 		},
+		{
+			Name:        "giveall",
+			Description: "Give a user every element!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionUser,
+					Name:        "user",
+					Description: "The user to give every element to!",
+					Required:    true,
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -240,6 +252,9 @@ var (
 		},
 		"stats": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.statsCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"giveall": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.giveAllCmd(i.Data.Options[0].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )

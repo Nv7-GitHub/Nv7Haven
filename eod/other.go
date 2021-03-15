@@ -105,3 +105,27 @@ func (b *EoD) statsCmd(m msg, rsp rsp) {
 	}
 	rsp.Resp(fmt.Sprintf("Element Count: %d\nCombination Count: %d\nMember Count: %d", len(dat.elemCache), cnt, gd.ApproximateMemberCount))
 }
+
+func (b *EoD) giveAllCmd(user string, m msg, rsp rsp) {
+	lock.RLock()
+	dat, exists := b.dat[m.GuildID]
+	lock.RUnlock()
+	if !exists {
+		return
+	}
+	inv, exists := dat.invCache[m.Author.ID]
+	if !exists {
+		rsp.ErrorMessage("You don't have an inventory!")
+		return
+	}
+	for k := range dat.elemCache {
+		inv[k] = empty{}
+	}
+	dat.invCache[m.Author.ID] = inv
+
+	lock.Lock()
+	b.dat[m.GuildID] = dat
+	lock.Unlock()
+	b.saveInv(m.GuildID, m.Author.ID)
+	rsp.Resp("Successfully gave every element to <@" + m.Author.ID + ">!")
+}
