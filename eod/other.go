@@ -93,7 +93,7 @@ func (b *EoD) statsCmd(m msg, rsp rsp) {
 	if !exists {
 		return
 	}
-	gd, err := b.dg.Guild(m.GuildID)
+	gd, err := b.dg.State.Guild(m.GuildID)
 	if rsp.Error(err) {
 		return
 	}
