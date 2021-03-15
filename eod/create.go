@@ -62,7 +62,14 @@ func (b *EoD) elemCreate(name string, parent1 string, parent2 string, creator st
 		lock.Unlock()
 		b.saveInv(guild, creator)
 	}
-	b.db.Exec("INSERT INTO eod_combos VALUES ( ?, ?, ?, ? )", guild, parent1, parent2, name)
+	row = b.db.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE guild=? AND (elem1=? AND elem2=?) OR (elem1=? AND elem2=?)", guild, parent1, parent2, parent2, parent1)
+	err = row.Scan(&count)
+	if err != nil {
+		return
+	}
+	if count == 0 {
+		b.db.Exec("INSERT INTO eod_combos VALUES ( ?, ?, ?, ? )", guild, parent1, parent2, name)
+	}
 	b.dg.ChannelMessageSend(dat.newsChannel, newText+" "+text+" - **"+name+"** (By <@"+creator+">)")
 }
 

@@ -41,7 +41,7 @@ func (b *EoD) combine(elem1 string, elem2 string, m msg, rsp rsp) {
 		return
 	}
 
-	if count == 1 {
+	if count > 0 {
 		var elem3 string
 		row = b.db.QueryRow("SELECT elem3 FROM eod_combos WHERE guild=? AND (elem1=? AND elem2=?) OR (elem1=? AND elem2=?)", m.GuildID, elem1, elem2, elem2, elem1)
 		err = row.Scan(&elem3)
