@@ -129,3 +129,23 @@ func (b *EoD) giveAllCmd(user string, m msg, rsp rsp) {
 	b.saveInv(m.GuildID, m.Author.ID)
 	rsp.Resp("Successfully gave every element to <@" + m.Author.ID + ">!")
 }
+
+func (b *EoD) resetInvCmd(user string, m msg, rsp rsp) {
+	lock.RLock()
+	dat, exists := b.dat[m.GuildID]
+	lock.RUnlock()
+	if !exists {
+		return
+	}
+	inv := make(map[string]empty)
+	for _, v := range starterElements {
+		inv[strings.ToLower(v.Name)] = empty{}
+	}
+	dat.invCache[m.Author.ID] = inv
+
+	lock.Lock()
+	b.dat[m.GuildID] = dat
+	lock.Unlock()
+	b.saveInv(m.GuildID, m.Author.ID)
+	rsp.Resp("Successfully reseet <@" + m.Author.ID + ">'s inventory!")
+}

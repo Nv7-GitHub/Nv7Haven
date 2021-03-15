@@ -198,6 +198,18 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "resetinv",
+			Description: "Reset a user's inventory!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionUser,
+					Name:        "user",
+					Description: "The user to reset the inventory of!",
+					Required:    true,
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -255,6 +267,9 @@ var (
 		},
 		"giveall": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.giveAllCmd(i.Data.Options[0].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"resetinv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.resetInvCmd(i.Data.Options[0].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )
