@@ -109,6 +109,7 @@ func (b *EoD) catCmd(category string, m msg, rsp rsp) {
 	defer elems.Close()
 	out := make([]string, 0)
 	var name string
+	found := 0
 	for elems.Next() {
 		err = elems.Scan(&name)
 		if rsp.Error(err) {
@@ -117,6 +118,7 @@ func (b *EoD) catCmd(category string, m msg, rsp rsp) {
 		_, exists := inv[strings.ToLower(name)]
 		if exists {
 			name += " " + check
+			found++
 		} else {
 			name += " " + x
 		}
@@ -157,7 +159,7 @@ func (b *EoD) catCmd(category string, m msg, rsp rsp) {
 	}
 	b.newPageSwitcher(pageSwitcher{
 		Kind:       pageSwitchInv,
-		Title:      fmt.Sprintf("%s (%d)", category, len(out)),
+		Title:      fmt.Sprintf("%s (%d, %.1f)", category, len(out), float32(found)/float32(len(out))*100),
 		PageGetter: b.invPageGetter,
 		Items:      out,
 	}, m, rsp)

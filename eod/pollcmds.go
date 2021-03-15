@@ -20,6 +20,10 @@ func (b *EoD) suggestCmd(suggestion string, m msg, rsp rsp) {
 		rsp.ErrorMessage("You haven't combined anything!")
 		return
 	}
+	if comb.elem3 != "" {
+		rsp.ErrorMessage("That combo already has an element!")
+		return
+	}
 
 	err := b.createPoll(poll{
 		Channel:   dat.votingChannel,
