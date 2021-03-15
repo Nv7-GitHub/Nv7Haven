@@ -182,6 +182,10 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "stats",
+			Description: "Get your server's stats!",
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -233,6 +237,9 @@ var (
 		},
 		"hint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.hintCmd(i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"stats": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.statsCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )

@@ -18,7 +18,7 @@ func (b *EoD) init() {
 		}(v)
 	}
 	b.dg.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		if (i.Data.Name != "suggest") && (i.Data.Name != "mark") && (i.Data.Name != "image") && (i.Data.Name != "inv") && (i.Data.Name != "ldb") && (i.Data.Name != "addcat") && (i.Data.Name != "cat") && (i.Data.Name != "hint") {
+		if (i.Data.Name != "suggest") && (i.Data.Name != "mark") && (i.Data.Name != "image") && (i.Data.Name != "inv") && (i.Data.Name != "ldb") && (i.Data.Name != "addcat") && (i.Data.Name != "cat") && (i.Data.Name != "hint") && (i.Data.Name != "stats") {
 			isMod, err := b.isMod(i.Member.User.ID, b.newMsgSlash(i))
 			rsp := b.newRespSlash(i)
 			if rsp.Error(err) {
@@ -28,6 +28,9 @@ func (b *EoD) init() {
 				rsp.ErrorMessage("You need to have permission `Administrator`!")
 				return
 			}
+		}
+		if !b.checkServer(b.newMsgSlash(i), b.newRespSlash(i)) {
+			return
 		}
 		if h, ok := commandHandlers[i.Data.Name]; ok {
 			h(s, i)

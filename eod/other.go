@@ -85,3 +85,23 @@ func (b *EoD) hintCmd(elem string, m msg, rsp rsp) {
 		},
 	})
 }
+
+func (b *EoD) statsCmd(m msg, rsp rsp) {
+	lock.RLock()
+	dat, exists := b.dat[m.GuildID]
+	lock.RUnlock()
+	if !exists {
+		return
+	}
+	gd, err := b.dg.Guild(m.GuildID)
+	if rsp.Error(err) {
+		return
+	}
+	var cnt int
+	row := b.db.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE guild=?", m.GuildID)
+	err = row.Scan(&cnt)
+	if rsp.Error(err) {
+		return
+	}
+	rsp.Resp(fmt.Sprintf("\nElement Count: %d\nCombination Count: %d\nMember Count: %d", len(dat.elemCache), cnt, gd.MemberCount))
+}
