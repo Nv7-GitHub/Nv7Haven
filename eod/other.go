@@ -147,5 +147,5 @@ func (b *EoD) resetInvCmd(user string, m msg, rsp rsp) {
 	b.dat[m.GuildID] = dat
 	lock.Unlock()
 	b.saveInv(m.GuildID, user)
-	rsp.Resp("Successfully reseet <@" + user + ">'s inventory!")
+	rsp.Resp("Successfully reset <@" + user + ">'s inventory!")
 }
