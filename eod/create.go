@@ -55,6 +55,12 @@ func (b *EoD) elemCreate(name string, parent1 string, parent2 string, creator st
 		if err != nil {
 			return
 		}
+
+		dat.invCache[creator][strings.ToLower(name)] = empty{}
+		lock.Lock()
+		b.dat[guild] = dat
+		lock.Unlock()
+		b.saveInv(guild, creator)
 	}
 	b.db.Exec("INSERT INTO eod_combos VALUES ( ?, ?, ?, ? )", guild, parent1, parent2, name)
 	b.dg.ChannelMessageSend(dat.newsChannel, newText+" "+text+" - **"+name+"** (By <@"+creator+">)")
