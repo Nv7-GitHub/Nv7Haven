@@ -29,9 +29,7 @@ func (b *EoD) init() {
 				return
 			}
 		}
-		if !b.checkServer(b.newMsgSlash(i), b.newRespSlash(i)) {
-			return
-		}
+		b.checkServer(b.newMsgSlash(i), b.newRespSlash(i))
 		if h, ok := commandHandlers[i.Data.Name]; ok {
 			h(s, i)
 		}
