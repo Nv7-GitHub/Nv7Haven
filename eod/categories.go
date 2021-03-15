@@ -159,7 +159,7 @@ func (b *EoD) catCmd(category string, m msg, rsp rsp) {
 	}
 	b.newPageSwitcher(pageSwitcher{
 		Kind:       pageSwitchInv,
-		Title:      fmt.Sprintf("%s (%d, %.1f%%)", category, len(out), float32(found)/float32(len(out))*100),
+		Title:      fmt.Sprintf("%s (%d, %.1g%%)", category, len(out), float32(found)/float32(len(out))*100),
 		PageGetter: b.invPageGetter,
 		Items:      out,
 	}, m, rsp)
