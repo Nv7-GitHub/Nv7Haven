@@ -32,6 +32,7 @@ func (b *EoD) hintCmd(elem string, m msg, rsp rsp) {
 	el, exists := dat.elemCache[strings.ToLower(elem)]
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", elem))
+		return
 	}
 	inv, exists := dat.invCache[m.Author.ID]
 	if !exists {
