@@ -94,7 +94,7 @@ func (b *EoD) statsCmd(m msg, rsp rsp) {
 	if !exists {
 		return
 	}
-	gd, err := b.dg.State.Guild(m.GuildID)
+	gd, err := b.dg.Guild(m.GuildID)
 	if rsp.Error(err) {
 		return
 	}
@@ -104,7 +104,7 @@ func (b *EoD) statsCmd(m msg, rsp rsp) {
 	if rsp.Error(err) {
 		return
 	}
-	rsp.Resp(fmt.Sprintf("Element Count: %d\nCombination Count: %d\nMember Count: %d", len(dat.elemCache), cnt, gd.ApproximateMemberCount))
+	rsp.Resp(fmt.Sprintf("Element Count: %d\nCombination Count: %d\nMember Count: %d", len(dat.elemCache), cnt, gd.MemberCount))
 }
 
 func (b *EoD) giveAllCmd(user string, m msg, rsp rsp) {
