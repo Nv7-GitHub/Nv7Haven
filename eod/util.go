@@ -3,6 +3,7 @@ package eod
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -126,4 +127,14 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 			URL: el.Image,
 		},
 	})
+}
+
+func formatFloat(num float32, prc int) string {
+	var (
+		zero, dot = "0", "."
+
+		str = fmt.Sprintf("%."+strconv.Itoa(prc)+"f", num)
+	)
+
+	return strings.TrimRight(strings.TrimRight(str, zero), dot)
 }
