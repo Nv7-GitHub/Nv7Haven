@@ -103,5 +103,5 @@ func (b *EoD) statsCmd(m msg, rsp rsp) {
 	if rsp.Error(err) {
 		return
 	}
-	rsp.Resp(fmt.Sprintf("\nElement Count: %d\nCombination Count: %d\nMember Count: %d", len(dat.elemCache), cnt, gd.MemberCount))
+	rsp.Resp(fmt.Sprintf("Element Count: %d\nCombination Count: %d\nMember Count: %d", len(dat.elemCache), cnt, gd.ApproximateMemberCount))
 }
