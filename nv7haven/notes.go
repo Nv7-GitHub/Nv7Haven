@@ -7,9 +7,6 @@ import (
 )
 
 func (n *Nv7Haven) newNote(c *fiber.Ctx) error {
-	
-	
-
 	name, err := url.PathUnescape(c.Params("name"))
 	if err != nil {
 		return err
@@ -22,10 +19,10 @@ func (n *Nv7Haven) newNote(c *fiber.Ctx) error {
 
 	// Does it exist?
 	res, err := n.sql.Query("SELECT COUNT(1) FROM notes WHERE ip=? AND name=?", ip, name)
-	defer res.Close()
 	if err != nil {
 		return err
 	}
+	defer res.Close()
 	var count int
 	res.Next()
 	err = res.Scan(&count)
@@ -46,9 +43,6 @@ func (n *Nv7Haven) newNote(c *fiber.Ctx) error {
 }
 
 func (n *Nv7Haven) changeNote(c *fiber.Ctx) error {
-	
-	
-
 	name, err := url.PathUnescape(c.Params("name"))
 	if err != nil {
 		return err
@@ -71,9 +65,6 @@ func (n *Nv7Haven) changeNote(c *fiber.Ctx) error {
 }
 
 func (n *Nv7Haven) getNote(c *fiber.Ctx) error {
-	
-	
-
 	name, err := url.PathUnescape(c.Params("name"))
 	if err != nil {
 		return err
@@ -99,9 +90,6 @@ func (n *Nv7Haven) getNote(c *fiber.Ctx) error {
 }
 
 func (n *Nv7Haven) hasPassword(c *fiber.Ctx) error {
-	
-	
-
 	name, err := url.PathUnescape(c.Params("name"))
 	if err != nil {
 		return err
@@ -126,9 +114,6 @@ func (n *Nv7Haven) hasPassword(c *fiber.Ctx) error {
 }
 
 func (n *Nv7Haven) searchNotes(c *fiber.Ctx) error {
-	
-	
-
 	query, err := url.PathUnescape(c.Params("query"))
 	if err != nil {
 		return err
@@ -154,9 +139,6 @@ func (n *Nv7Haven) searchNotes(c *fiber.Ctx) error {
 }
 
 func (n *Nv7Haven) deleteNote(c *fiber.Ctx) error {
-	
-	
-
 	name, err := url.PathUnescape(c.Params("name"))
 	if err != nil {
 		return err

@@ -10,8 +10,6 @@ import (
 )
 
 func (n *Nv7Haven) searchTf(c *fiber.Ctx) error {
-	
-	
 
 	query, err := url.PathUnescape(c.Params("query"))
 	if err != nil {
@@ -42,8 +40,6 @@ func (n *Nv7Haven) searchTf(c *fiber.Ctx) error {
 }
 
 func (n *Nv7Haven) newTf(c *fiber.Ctx) error {
-	
-	
 
 	_, err := n.sql.Exec("DELETE FROM tf WHERE createdon<?", time.Now().Add(-24*time.Hour).Unix())
 	if err != nil {
@@ -75,8 +71,6 @@ func (n *Nv7Haven) newTf(c *fiber.Ctx) error {
 }
 
 func (n *Nv7Haven) like(c *fiber.Ctx) error {
-	
-	
 
 	name, err := url.PathUnescape(c.Params("name"))
 	if err != nil {
@@ -115,8 +109,6 @@ func (n *Nv7Haven) like(c *fiber.Ctx) error {
 }
 
 func (n *Nv7Haven) comment(c *fiber.Ctx) error {
-	
-	
 
 	name, err := url.PathUnescape(c.Params("name"))
 	if err != nil {
@@ -147,7 +139,8 @@ func (n *Nv7Haven) comment(c *fiber.Ctx) error {
 		return err
 	}
 
-	data := struct {
+	// Not sure what I was thinking when I made this, maybe it was important
+	/*data := struct {
 		Post    string
 		Comment string
 	}{
@@ -157,7 +150,7 @@ func (n *Nv7Haven) comment(c *fiber.Ctx) error {
 	dat, err = json.Marshal(data)
 	if err != nil {
 		return err
-	}
+	}*/
 
 	n.db.SetData("tf_posts/"+url.PathEscape(name), body)
 
@@ -173,8 +166,6 @@ type post struct {
 }
 
 func (n *Nv7Haven) getPost(c *fiber.Ctx) error {
-	
-	
 
 	name, err := url.PathUnescape(c.Params("name"))
 	if err != nil {

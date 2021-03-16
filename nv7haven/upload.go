@@ -22,7 +22,7 @@ func (n *Nv7Haven) upload(c *fiber.Ctx) error {
 	}
 
 	var id int
-	nums := make(map[int]bool, 0)
+	nums := make(map[int]bool)
 	var thing int
 	res, err := n.sql.Query("SELECT id FROM upload WHERE expiry<=?", time.Now().Unix())
 	if err != nil {
