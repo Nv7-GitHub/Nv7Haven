@@ -29,13 +29,10 @@ func (b *Bot) other(s *discordgo.Session, m *discordgo.MessageCreate) {
 				switch val {
 				case "%s":
 					replace = words[rand.Intn(len(words))]
-					break
 				case "%d":
 					replace = strconv.Itoa(rand.Intn(100000))
-					break
 				case "%f":
 					replace = fmt.Sprintf("%0.4f", float32(rand.Intn(100000))+rand.Float32())
-					break
 				}
 				start = strings.Replace(start, val, replace, 1)
 			}

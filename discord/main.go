@@ -101,7 +101,7 @@ func InitDiscord(db *sql.DB, e elemental.Elemental) Bot {
 	currHelp = string(data)
 
 	// Init properties
-	props := make(map[string]property, 0)
+	props := make(map[string]property)
 	for _, prop := range upgrades {
 		props[prop.ID] = prop
 	}
@@ -115,7 +115,7 @@ func InitDiscord(db *sql.DB, e elemental.Elemental) Bot {
 
 		mathvars:    make(map[string]map[string]interface{}),
 		pages:       make(map[string]reactionMsg),
-		prefixcache: make(map[string]string, 0),
+		prefixcache: make(map[string]string),
 		combos:      make(map[string]comb),
 	}
 	b.handlers()

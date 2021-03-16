@@ -53,13 +53,6 @@ func (b *Bot) handle(err error, m *discordgo.MessageCreate) bool {
 	return false
 }
 
-func (b *Bot) unmarshal(m *discordgo.MessageCreate, data string, out interface{}) {
-	err := json.Unmarshal([]byte(data), &out)
-	if b.handle(err, m) {
-		return
-	}
-}
-
 type user struct {
 	User        string
 	Guilds      []string
@@ -177,10 +170,7 @@ func (b *Bot) updateuser(m *discordgo.MessageCreate, u user) bool {
 		return false
 	}
 	_, err = b.db.Exec("UPDATE currency SET guilds=?, wallet=?, bank=?, credit=?, properties=?, lastvisited=?, metadata=? WHERE user=?", glds, u.Wallet, u.Bank, u.Credit, props, u.LastVisited, met, u.User)
-	if b.handle(err, m) {
-		return false
-	}
-	return true
+	return b.handle(err, m)
 }
 
 func (b *Bot) updateUser(rsp rsp, u user) bool {
@@ -197,10 +187,7 @@ func (b *Bot) updateUser(rsp rsp, u user) bool {
 		return false
 	}
 	_, err = b.db.Exec("UPDATE currency SET guilds=?, wallet=?, bank=?, credit=?, properties=?, lastvisited=?, metadata=? WHERE user=?", glds, u.Wallet, u.Bank, u.Credit, props, u.LastVisited, met, u.User)
-	if rsp.Error(err) {
-		return false
-	}
-	return true
+	return rsp.Error(err)
 }
 
 func (b *Bot) checkuser(m *discordgo.MessageCreate) {
@@ -424,10 +411,7 @@ func (b *Bot) req(m *discordgo.MessageCreate, url string, out interface{}) bool 
 	}
 	defer res.Body.Close()
 	err = json.NewDecoder(res.Body).Decode(&out)
-	if b.handle(err, m) {
-		return false
-	}
-	return true
+	return b.handle(err, m)
 }
 
 func (b *Bot) checkprefix(m *discordgo.MessageCreate) {

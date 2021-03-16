@@ -12,7 +12,6 @@ type reactionMsgType int
 
 const ldbPageSwitcher = 0
 const invPageSwitcher = 1
-const suggestionReaction = 2
 
 var suggestionInput = regexp.MustCompile(`suggest (.+) (white|black|grey|brown|red|orange|yellow|green|aqua|blue|dark-blue|yellow-green|purple|magenta|hot-pink|pink)`)
 var markInput = regexp.MustCompile(`mark (.+)\|(.+)`)

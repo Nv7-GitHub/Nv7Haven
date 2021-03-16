@@ -48,7 +48,6 @@ func (b *Bot) warnCmd(user string, mod string, text string, m msg, rsp rsp) {
 		return
 	}
 	rsp.Resp(`You need to have permission "Administrator" to use this command.`)
-	return
 }
 
 func (b *Bot) warnsCmd(hasMention bool, mentionID string, m msg, rsp rsp) {
@@ -57,7 +56,7 @@ func (b *Bot) warnsCmd(hasMention bool, mentionID string, m msg, rsp rsp) {
 		return
 	}
 
-	users := make(map[string]interface{}, 0)
+	users := make(map[string]interface{})
 	serverData := b.readServerData(rsp, m.GuildID)
 	_, exists := serverData["warns"]
 	if !exists {

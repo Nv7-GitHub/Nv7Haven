@@ -88,7 +88,7 @@ func (b *Bot) startMemes(m msg, rsp rsp) bool {
 			return false
 		}
 	}
-	if (time.Now().Sub(b.memerefreshtime)).Hours() >= 1 { // its been an hour
+	if (time.Since(b.memerefreshtime)).Hours() >= 1 { // its been an hour
 		go b.loadMemes(rsp)
 	}
 	return true
@@ -103,14 +103,14 @@ func (b *Bot) pmemeCommand(m msg, rsp rsp) {
 	unique := false
 	var randnum int
 	if len(b.pmemecache[m.GuildID]) == len(b.pmemedat) {
-		b.pmemecache[m.GuildID] = make(map[int]empty, 0)
+		b.pmemecache[m.GuildID] = make(map[int]empty)
 	}
 	for !unique {
 		randnum = rand.Intn(len(b.pmemedat))
 		unique = true
 		_, exists := b.pmemecache[m.GuildID]
 		if !exists {
-			b.pmemecache[m.GuildID] = make(map[int]empty, 0)
+			b.pmemecache[m.GuildID] = make(map[int]empty)
 			unique = true
 			break
 		}
@@ -132,14 +132,14 @@ func (b *Bot) memeCommand(m msg, rsp rsp) {
 	unique := false
 	var randnum int
 	if len(b.memecache[m.GuildID]) == len(b.memedat) {
-		b.memecache[m.GuildID] = make(map[int]empty, 0)
+		b.memecache[m.GuildID] = make(map[int]empty)
 	}
 	for !unique {
 		randnum = rand.Intn(len(b.memedat))
 		unique = true
 		_, exists := b.memecache[m.GuildID]
 		if !exists {
-			b.memecache[m.GuildID] = make(map[int]empty, 0)
+			b.memecache[m.GuildID] = make(map[int]empty)
 			unique = true
 			break
 		}
@@ -161,14 +161,14 @@ func (b *Bot) cmemeCommand(m msg, rsp rsp) {
 	unique := false
 	var randnum int
 	if len(b.cmemecache[m.GuildID]) == len(b.cmemedat) {
-		b.cmemecache[m.GuildID] = make(map[int]empty, 0)
+		b.cmemecache[m.GuildID] = make(map[int]empty)
 	}
 	for !unique {
 		randnum = rand.Intn(len(b.cmemedat))
 		unique = true
 		_, exists := b.cmemecache[m.GuildID]
 		if !exists {
-			b.cmemecache[m.GuildID] = make(map[int]empty, 0)
+			b.cmemecache[m.GuildID] = make(map[int]empty)
 			unique = true
 			break
 		}
@@ -183,9 +183,9 @@ func (b *Bot) cmemeCommand(m msg, rsp rsp) {
 
 func (b *Bot) loadMemes(rsp rsp) bool {
 	b.memerefreshtime = time.Now()
-	b.memecache = make(map[string]map[int]empty, 0)
-	b.cmemecache = make(map[string]map[int]empty, 0)
-	b.pmemecache = make(map[string]map[int]empty, 0)
+	b.memecache = make(map[string]map[int]empty)
+	b.cmemecache = make(map[string]map[int]empty)
+	b.pmemecache = make(map[string]map[int]empty)
 	var suc bool
 	b.memedat, suc = b.downloadMeme(rsp, "memes")
 	if !suc {
@@ -196,10 +196,7 @@ func (b *Bot) loadMemes(rsp rsp) bool {
 		return false
 	}
 	b.pmemedat, suc = b.downloadMeme(rsp, "ProgrammerHumor")
-	if !suc {
-		return false
-	}
-	return true
+	return suc
 }
 
 func (b *Bot) downloadMeme(rsp rsp, subreddit string) ([]meme, bool) {

@@ -22,13 +22,13 @@ var functions = map[string]govaluate.ExpressionFunction{
 	"atan": newFunc(math.Atan),
 	"exp": func(args ...interface{}) (interface{}, error) {
 		if len(args) < 2 {
-			return nil, errors.New("Not enough arguments")
+			return nil, errors.New("not enough arguments")
 		}
 		val1, ok := args[0].(float64)
 		if !ok {
 			intval, ok := args[0].(int)
 			if !ok {
-				return nil, errors.New("Argument is not number")
+				return nil, errors.New("argument is not number")
 			}
 			val1 = float64(intval)
 		}
@@ -36,7 +36,7 @@ var functions = map[string]govaluate.ExpressionFunction{
 		if !ok {
 			intval, ok := args[1].(int)
 			if !ok {
-				return nil, errors.New("Argument is not number")
+				return nil, errors.New("argument is not number")
 			}
 			val2 = float64(intval)
 		}
@@ -47,13 +47,13 @@ var functions = map[string]govaluate.ExpressionFunction{
 func newFunc(fu func(float64) float64) func(...interface{}) (interface{}, error) {
 	return func(args ...interface{}) (interface{}, error) {
 		if len(args) < 1 {
-			return nil, errors.New("Not enough arguments")
+			return nil, errors.New("not enough arguments")
 		}
 		val, ok := args[0].(float64)
 		if !ok {
 			intval, ok := args[0].(int)
 			if !ok {
-				return nil, errors.New("Argument is not number")
+				return nil, errors.New("argument is not number")
 			}
 			val = float64(intval)
 		}

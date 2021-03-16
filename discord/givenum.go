@@ -10,10 +10,10 @@ import (
 func (b *Bot) giveNumCmd(num int, m msg, rsp rsp) {
 	num = b.abs(num)
 	res, err := b.db.Query("SELECT COUNT(1) FROM givenum WHERE guild=? AND member=? LIMIT 1", m.GuildID, m.Author.ID)
-	defer res.Close()
 	if rsp.Error(err) {
 		return
 	}
+	defer res.Close()
 	var count int
 	if (num > 100) || (num < 0) {
 		rsp.ErrorMessage("You need to choose a number from 0-100.")
@@ -124,10 +124,10 @@ func (b *Bot) giveNum(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 func (b *Bot) getNum(m msg, rsp rsp, user string) (bool, int) {
 	res, err := b.db.Query("SELECT COUNT(1) FROM givenum WHERE guild=? AND member=? LIMIT 1", m.GuildID, user)
-	defer res.Close()
 	if rsp.Error(err) {
 		return false, 0
 	}
+	defer res.Close()
 	var count int
 	res.Next()
 	err = res.Scan(&count)
@@ -140,10 +140,10 @@ func (b *Bot) getNum(m msg, rsp rsp, user string) (bool, int) {
 	}
 
 	res, err = b.db.Query("SELECT number FROM givenum WHERE guild=? AND member=? LIMIT 1", m.GuildID, user)
-	defer res.Close()
 	if rsp.Error(err) {
 		return false, 0
 	}
+	defer res.Close()
 	res.Next()
 	var num int
 	err = res.Scan(&num)
