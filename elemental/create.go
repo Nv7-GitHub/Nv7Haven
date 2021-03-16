@@ -87,10 +87,10 @@ func (e *Elemental) CreateSuggestion(mark string, pioneer string, elem1 string, 
 	}
 
 	res, err := e.db.Query("SELECT COUNT(1) FROM elements WHERE name=?", existing.Name)
-	defer res.Close()
 	if err != nil {
 		return false, err.Error()
 	}
+	defer res.Close()
 
 	parent1, err := e.GetElement(elem1)
 	if err != nil {

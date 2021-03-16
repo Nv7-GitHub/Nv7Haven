@@ -7,10 +7,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func (e *Elemental) foundElement(c *fiber.Ctx) error {
-	return nil
-}
-
 // GetFound gets a user's found elements, based on their UID
 func (e *Elemental) GetFound(uid string) ([]string, error) {
 	var found []string

@@ -31,29 +31,6 @@ type Color struct {
 
 var lock = &sync.RWMutex{}
 
-func (e *Elemental) calcComplexity(elem Element) (int, error) {
-	if len(elem.Parents) == 0 {
-		return 0, nil
-	}
-	parent1, err := e.GetElement(elem.Parents[0])
-	if err != nil {
-		return 0, err
-	}
-	parent2, err := e.GetElement(elem.Parents[1])
-	if err != nil {
-		return 0, err
-	}
-	comp1, err := e.calcComplexity(parent1)
-	if err != nil {
-		return 0, err
-	}
-	comp2, err := e.calcComplexity(parent2)
-	if err != nil {
-		return 0, err
-	}
-	return max(comp1, comp2) + 1, nil
-}
-
 // GetElement gets an element from the database
 func (e *Elemental) GetElement(elemName string) (Element, error) {
 	lock.RLock()

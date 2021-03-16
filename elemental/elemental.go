@@ -73,7 +73,7 @@ func (e *Elemental) routing(app *fiber.App) {
 	app.Get("/random_lonely/:uid", e.randomLonelySuggestion)
 	app.Get("/get_all/:uid", e.getAll)
 	app.Get("/clear", func(c *fiber.Ctx) error {
-		e.cache = make(map[string]Element, 0)
+		e.cache = make(map[string]Element)
 		e.init()
 		return nil
 	})
