@@ -25,7 +25,7 @@ WHERE sub.user=?
 
 func (b *EoD) invPageGetter(p pageSwitcher) (string, int, int, error) {
 	length := int(math.Floor(float64(len(p.Items)-1) / float64(pageLength)))
-	if pageLength*p.Page > len(p.Items) {
+	if pageLength*p.Page > (len(p.Items) - 1) {
 		return "", 0, length, nil
 	}
 
