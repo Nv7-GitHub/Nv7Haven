@@ -205,6 +205,7 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 		user.LastVisited = time.Now().Unix()
 		suc = b.updateuser(m, user)
 		if !suc {
+			fmt.Println("Come on! (bal)")
 			return
 		}
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("You collected %d coins!", moneyCollected))
