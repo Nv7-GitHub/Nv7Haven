@@ -8,6 +8,9 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+// guild, guild, user, guild
+const ideaQuery = `SELECT ` + "eod_elements" + `.name, nm2.name, inv.inv FROM ` + "eod_elements" + `, (SELECT name FROM eod_elements WHERE guild=? ORDER BY RAND() LIMIT 1) nm2, (SELECT inv FROM eod_inv WHERE guild=? AND ` + "user" + `=?) inv WHERE (SELECT COUNT(1) FROM eod_combos WHERE (elem1=` + "eod_elements" + `.name AND elem2=nm2.name) OR (elem1=nm2.name AND elem2=` + "eod_elements" + `.name))=0 AND guild=? AND (JSON_EXTRACT(inv.inv, CONCAT('$."', LOWER(nm2.name), '"')) IS NOT NULL) AND (JSON_EXTRACT(inv.inv, CONCAT('$."', LOWER(` + "eod_elements" + `.name), '"')) IS NOT NULL) ORDER BY RAND() LIMIT 1`
+
 type hintCombo struct {
 	exists int
 	text   string
@@ -94,7 +97,7 @@ func (b *EoD) statsCmd(m msg, rsp rsp) {
 	if !exists {
 		return
 	}
-	gd, err := b.dg.Guild(m.GuildID)
+	gd, err := b.dg.State.Guild(m.GuildID)
 	if rsp.Error(err) {
 		return
 	}
