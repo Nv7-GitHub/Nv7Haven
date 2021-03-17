@@ -202,7 +202,7 @@ func (b *EoD) invCmd(m msg, rsp rsp) {
 	}, m, rsp)
 }
 
-func (b *EoD) ldbCmd(m msg, rsp rsp) {
+func (b *EoD) lbCmd(m msg, rsp rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()

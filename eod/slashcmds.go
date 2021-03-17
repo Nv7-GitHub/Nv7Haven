@@ -119,7 +119,7 @@ var (
 			Description: "See your elements!",
 		},
 		{
-			Name:        "ldb",
+			Name:        "lb",
 			Description: "See the leaderboard!",
 		},
 		{
@@ -250,8 +250,8 @@ var (
 		"inv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.invCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
-		"ldb": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.ldbCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
+		"lb": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.lbCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"addcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			suggestAdd := []string{i.Data.Options[1].StringValue()}
