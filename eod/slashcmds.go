@@ -184,7 +184,7 @@ var (
 					Type:        discordgo.ApplicationCommandOptionString,
 					Name:        "element",
 					Description: "Name of the element!",
-					Required:    true,
+					Required:    false,
 				},
 			},
 		},
@@ -270,7 +270,11 @@ var (
 			bot.catCmd(i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"hint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.hintCmd(i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			if len(i.Data.Options) == 0 {
+				bot.hintCmd("", false, bot.newMsgSlash(i), bot.newRespSlash(i))
+				return
+			}
+			bot.hintCmd(i.Data.Options[0].StringValue(), true, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"stats": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.statsCmd(bot.newMsgSlash(i), bot.newRespSlash(i))

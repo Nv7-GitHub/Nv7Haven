@@ -1,6 +1,7 @@
 package eod
 
 import (
+	"database/sql"
 	"fmt"
 	"sort"
 	"strings"
@@ -25,16 +26,11 @@ func obscure(val string) string {
 	return string(out)
 }
 
-func (b *EoD) hintCmd(elem string, m msg, rsp rsp) {
+func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
 	if !exists {
-		return
-	}
-	el, exists := dat.elemCache[strings.ToLower(elem)]
-	if !exists {
-		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", elem))
 		return
 	}
 	inv, exists := dat.invCache[m.Author.ID]
@@ -42,8 +38,23 @@ func (b *EoD) hintCmd(elem string, m msg, rsp rsp) {
 		rsp.ErrorMessage("You don't have an inventory!")
 		return
 	}
+	var el element
+	if hasElem {
+		el, exists = dat.elemCache[strings.ToLower(elem)]
+		if !exists {
+			hasElem = false
+		}
+	}
+	if !hasElem {
+		for _, v := range dat.elemCache {
+			el = v
+			break
+		}
+	}
 
-	combs, err := b.db.Query("SELECT elem1, elem2 FROM eod_combos WHERE elem3=? AND guild=?", elem, m.GuildID)
+	var combs *sql.Rows
+	var err error
+	combs, err = b.db.Query("SELECT elem1, elem2 FROM eod_combos WHERE elem3=? AND guild=?", elem, m.GuildID)
 	if rsp.Error(err) {
 		return
 	}
@@ -81,11 +92,20 @@ func (b *EoD) hintCmd(elem string, m msg, rsp rsp) {
 		text += val.text + "\n"
 	}
 
+	txt := "Don't "
+	_, hasElem = inv[strings.ToLower(el.Name)]
+	if hasElem {
+		txt = ""
+	}
+
 	rsp.Embed(&discordgo.MessageEmbed{
 		Title:       fmt.Sprintf("Hints for %s", el.Name),
 		Description: text,
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
 			URL: el.Image,
+		},
+		Footer: &discordgo.MessageEmbedFooter{
+			Text: fmt.Sprintf("%d Hints • You %sHave This", len(out), txt),
 		},
 	})
 }
