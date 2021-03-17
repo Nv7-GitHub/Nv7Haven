@@ -2,6 +2,7 @@ package discord
 
 import (
 	"encoding/json"
+	"fmt"
 	"math"
 	"net/http"
 	"strings"
@@ -159,17 +160,21 @@ func (b *Bot) getUser(m msg, rsp rsp, usr string) (user, bool) {
 func (b *Bot) updateuser(m *discordgo.MessageCreate, u user) bool {
 	glds, err := json.Marshal(u.Guilds)
 	if b.handle(err, m) {
+		fmt.Println(err)
 		return false
 	}
 	met, err := json.Marshal(u.Metadata)
 	if b.handle(err, m) {
+		fmt.Println(err)
 		return false
 	}
 	props, err := json.Marshal(u.Properties)
 	if b.handle(err, m) {
+		fmt.Println(err)
 		return false
 	}
 	_, err = b.db.Exec("UPDATE currency SET guilds=?, wallet=?, bank=?, credit=?, properties=?, lastvisited=?, metadata=? WHERE user=?", glds, u.Wallet, u.Bank, u.Credit, props, u.LastVisited, met, u.User)
+	fmt.Println(err)
 	return b.handle(err, m)
 }
 
