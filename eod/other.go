@@ -48,6 +48,7 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 	if !hasElem {
 		for _, v := range dat.elemCache {
 			el = v
+			elem = v.Name
 			break
 		}
 	}
