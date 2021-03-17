@@ -23,7 +23,7 @@ WHERE sub.user=?
 `
 
 func (b *EoD) invPageGetter(p pageSwitcher) (string, int, int, error) {
-	length := len(p.Items) / pageLength
+	length := (len(p.Items) - 1) / pageLength
 	if pageLength*p.Page > len(p.Items) {
 		return "", 0, length, nil
 	}
@@ -51,7 +51,7 @@ func (b *EoD) ldbPageGetter(p pageSwitcher) (string, int, int, error) {
 		return "", 0, 0, err
 	}
 	cnt.Scan(&count)
-	length := count / pageLength
+	length := (count - 1) / pageLength
 	if err != nil {
 		return "", 0, 0, err
 	}
