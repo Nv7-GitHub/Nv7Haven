@@ -2,6 +2,7 @@ package eod
 
 import (
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -23,7 +24,7 @@ WHERE sub.user=?
 `
 
 func (b *EoD) invPageGetter(p pageSwitcher) (string, int, int, error) {
-	length := (len(p.Items) - 1) / pageLength
+	length := int(math.Floor(float64(len(p.Items)-1) / float64(pageLength)))
 	if pageLength*p.Page > len(p.Items) {
 		return "", 0, length, nil
 	}
@@ -51,11 +52,11 @@ func (b *EoD) ldbPageGetter(p pageSwitcher) (string, int, int, error) {
 		return "", 0, 0, err
 	}
 	cnt.Scan(&count)
-	length := (count - 1) / pageLength
+	length := int(math.Floor(float64(count-1) / float64(pageLength)))
 	if err != nil {
 		return "", 0, 0, err
 	}
-	if pageLength*p.Page > count {
+	if pageLength*p.Page > (count - 1) {
 		return "", 0, length, nil
 	}
 
