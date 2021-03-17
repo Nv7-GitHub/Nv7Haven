@@ -100,7 +100,6 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 		user.Metadata["lastdaily"] = time.Now().Unix()
 		success = b.updateuser(m, user)
 		if !success {
-			fmt.Println("Come on! (daily)")
 			return
 		}
 		s.ChannelMessageSend(m.ChannelID, "Congrats on the 2,500 coins! Come back in 24 hours to get more!")
