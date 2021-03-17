@@ -42,7 +42,8 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 	if hasElem {
 		el, exists = dat.elemCache[strings.ToLower(elem)]
 		if !exists {
-			hasElem = false
+			rsp.ErrorMessage(fmt.Sprintf("No hints were found for **%s**!", elem))
+			return
 		}
 	}
 	if !hasElem {
