@@ -228,6 +228,10 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "idea",
+			Description: "Get a random unused combo!",
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -299,6 +303,9 @@ var (
 		},
 		"resetinv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.resetInvCmd(i.Data.Options[0].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"idea": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.ideaCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )
