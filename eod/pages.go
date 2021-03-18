@@ -40,7 +40,7 @@ func (b *EoD) invPageGetter(p pageSwitcher) (string, int, int, error) {
 	return strings.Join(items, "\n"), p.Page, length, nil
 }
 
-func (b *EoD) ldbPageGetter(p pageSwitcher) (string, int, int, error) {
+func (b *EoD) lbPageGetter(p pageSwitcher) (string, int, int, error) {
 	cnt := b.db.QueryRow("SELECT COUNT(1) FROM eod_inv WHERE guild=?", p.Guild)
 	pos := b.db.QueryRow(ldbQuery, p.Guild, p.User)
 	var count int
@@ -81,6 +81,7 @@ func (b *EoD) ldbPageGetter(p pageSwitcher) (string, int, int, error) {
 		text += fmt.Sprintf("%d. <@%s> - %d\n", i, user, ct)
 		i++
 	}
+	fmt.Println(pageLength*p.Page, ps-1, (p.Page+1)*pageLength)
 	if !((pageLength*p.Page <= (ps - 1)) && ((ps - 1) <= (p.Page+1)*pageLength)) {
 		text += fmt.Sprintf("\n%d. <@%s>- %d\n", ps, u, ucnt)
 	}
@@ -218,7 +219,7 @@ func (b *EoD) lbCmd(m msg, rsp rsp) {
 	b.newPageSwitcher(pageSwitcher{
 		Kind:       pageSwitchLdb,
 		Title:      "Top Most Elements",
-		PageGetter: b.ldbPageGetter,
+		PageGetter: b.lbPageGetter,
 		User:       m.Author.ID,
 	}, m, rsp)
 }
