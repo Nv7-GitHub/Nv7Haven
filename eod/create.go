@@ -2,6 +2,7 @@ package eod
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 )
@@ -88,6 +89,8 @@ func (b *EoD) elemCreate(name string, parent1 string, parent2 string, creator st
 				comp = par2.Complexity
 			}
 			comp++
+
+			fmt.Println(comp, compl)
 
 			if comp < compl {
 				b.db.Exec("UPDATE eod_elements SET parent1=? AND parent2=? AND complexity=? WHERE name=? AND guild=?", parent1, parent2, comp, el.Name, el.Guild)
