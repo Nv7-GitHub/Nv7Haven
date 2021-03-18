@@ -82,7 +82,7 @@ func (b *EoD) ldbPageGetter(p pageSwitcher) (string, int, int, error) {
 		i++
 	}
 	if !((pageLength*p.Page <= (ps - 1)) && ((ps - 1) <= (p.Page+1)*pageLength)) {
-		text += fmt.Sprintf("%d. <@%s> - %d\n", ps, u, ucnt)
+		text += fmt.Sprintf("\n%d. <@%s>- %d\n", ps, u, ucnt)
 	}
 	return text, p.Page, length, nil
 }
@@ -196,7 +196,7 @@ func (b *EoD) invCmd(m msg, rsp rsp) {
 
 	b.newPageSwitcher(pageSwitcher{
 		Kind:       pageSwitchInv,
-		Title:      m.Author.Username + "'s Inventory",
+		Title:      fmt.Sprintf("%s's Inventory (%d, %s%%)", m.Author.Username, len(inv), formatFloat(float32(len(items))/float32(len(dat.elemCache))*100, 2)),
 		PageGetter: b.invPageGetter,
 		Items:      items,
 	}, m, rsp)
