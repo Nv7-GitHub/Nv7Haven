@@ -219,4 +219,5 @@ func (b *EoD) ideaCmd(m msg, rsp rsp) {
 
 		rsp.Resp(fmt.Sprintf("Your random unused combination is... **%s** + **%s**\n 	Suggest it by typing **/suggest**", el1.Name, el2.Name))
 	}
+	rsp.ErrorMessage("Couldn't find a random unused combo! Maybe try again?")
 }
