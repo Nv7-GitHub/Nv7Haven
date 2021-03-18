@@ -32,7 +32,7 @@ func (b *EoD) createPoll(p poll) error {
 			}
 		}
 		msg = "Too many active polls!"
-		if uPolls > dat.pollCount {
+		if uPolls >= dat.pollCount {
 			return errors.New(msg)
 		}
 	}
