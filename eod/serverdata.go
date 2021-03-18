@@ -134,12 +134,12 @@ func (b *EoD) setPollCount(count int, msg msg, rsp rsp) {
 	if !exists {
 		dat = serverData{}
 	}
-	dat.voteCount = count
+	dat.pollCount = count
 	lock.Lock()
 	b.dat[msg.GuildID] = dat
 	lock.Unlock()
 
-	rsp.Resp("Succesfully updated vote count!")
+	rsp.Resp("Succesfully updated poll count!")
 }
 
 func (b *EoD) setPlayChannel(channelID string, isPlayChannel bool, msg msg, rsp rsp) {
