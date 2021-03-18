@@ -25,16 +25,21 @@ func (b *EoD) giveCmd(elem string, giveTree bool, user string, m msg, rsp rsp) {
 		return
 	}
 
+	fmt.Println("gottogive")
 	msg, suc := giveElem(dat.elemCache, giveTree, elem, &inv)
 	if !suc {
 		rsp.Resp(fmt.Sprintf("Element %s doesn't exist!", msg))
 		return
 	}
+	fmt.Println("gave")
 
 	dat.invCache[user] = inv
 	lock.Lock()
 	b.dat[m.GuildID] = dat
 	lock.Unlock()
+	b.saveInv(m.GuildID, user)
+
+	fmt.Println("success")
 	rsp.Resp("Successfully gave element " + el.Name + "!")
 }
 
