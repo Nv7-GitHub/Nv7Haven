@@ -1,6 +1,7 @@
 package eod
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 )
@@ -65,7 +66,14 @@ func (b *EoD) calcTreeCmd(elem string, m msg, rsp rsp) {
 	if !suc {
 		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", msg))
 	}
-	rsp.Resp(txt)
+	if len(txt) <= 2000 {
+		rsp.Resp(txt)
+		return
+	}
+	rsp.BlankReply()
+
+	buf := bytes.NewBufferString(txt)
+	b.dg.ChannelFileSend(m.ChannelID, "path.txt", buf)
 }
 
 // Treecalc
@@ -74,14 +82,18 @@ func calcTree(elemCache map[string]element, elem string) (string, bool, string) 
 		text:      "",
 		elemCache: elemCache,
 		calced:    make(map[string]empty),
-		num:       0,
+		num:       1,
 	}
 	suc, msg := t.addElem(elem)
+	if len(t.text) > 2000 {
+		return t.rawTxt, suc, msg
+	}
 	return t.text, suc, msg
 }
 
 type tree struct {
 	text      string
+	rawTxt    string
 	elemCache map[string]element
 	calced    map[string]empty
 	num       int
@@ -102,6 +114,7 @@ func (t *tree) addElem(elem string) (bool, string) {
 		}
 		if len(el.Parents) == 2 {
 			t.text += fmt.Sprintf("%d. %s + %s = **%s**\n", t.num, el.Parents[0], el.Parents[1], el.Name)
+			t.rawTxt += fmt.Sprintf("%d. %s + %s = %s\n", t.num, el.Parents[0], el.Parents[1], el.Name)
 			t.num++
 		}
 		t.calced[strings.ToLower(elem)] = empty{}
