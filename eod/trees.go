@@ -74,6 +74,7 @@ func calcTree(elemCache map[string]element, elem string) (string, bool, string) 
 		text:      "",
 		elemCache: elemCache,
 		calced:    make(map[string]empty),
+		num:       0,
 	}
 	suc, msg := t.addElem(elem)
 	return t.text, suc, msg
@@ -83,6 +84,7 @@ type tree struct {
 	text      string
 	elemCache map[string]element
 	calced    map[string]empty
+	num       int
 }
 
 func (t *tree) addElem(elem string) (bool, string) {
@@ -99,7 +101,8 @@ func (t *tree) addElem(elem string) (bool, string) {
 			}
 		}
 		if len(el.Parents) == 2 {
-			t.text += fmt.Sprintf("%s + %s = %s\n", el.Parents[0], el.Parents[1], el.Name)
+			t.text += fmt.Sprintf("%d. %s + %s = %s\n", t.num, el.Parents[0], el.Parents[1], el.Name)
+			t.num++
 		}
 		t.calced[strings.ToLower(elem)] = empty{}
 	}
