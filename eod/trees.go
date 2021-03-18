@@ -51,6 +51,7 @@ func giveElem(elemCache map[string]element, giveTree bool, elem string, out *map
 	}
 	if giveTree {
 		for _, parent := range el.Parents {
+			fmt.Println(parent)
 			msg, suc := giveElem(elemCache, giveTree, parent, out)
 			if !suc {
 				return msg, false
