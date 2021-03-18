@@ -53,3 +53,55 @@ func giveElem(elemCache map[string]element, giveTree bool, elem string, out *map
 	(*out)[strings.ToLower(el.Name)] = empty{}
 	return "", true
 }
+
+func (b *EoD) calcTreeCmd(elem string, m msg, rsp rsp) {
+	lock.RLock()
+	dat, exists := b.dat[m.GuildID]
+	lock.RLock()
+	if !exists {
+		return
+	}
+	txt, suc, msg := calcTree(dat.elemCache, elem)
+	if !suc {
+		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", msg))
+	}
+	rsp.Resp(txt)
+}
+
+// Treecalc
+func calcTree(elemCache map[string]element, elem string) (string, bool, string) {
+	t := tree{
+		text:      "",
+		elemCache: elemCache,
+		calced:    make(map[string]empty),
+	}
+	suc, msg := t.addElem(elem)
+	return t.text, suc, msg
+}
+
+type tree struct {
+	text      string
+	elemCache map[string]element
+	calced    map[string]empty
+}
+
+func (t *tree) addElem(elem string) (bool, string) {
+	_, exists := t.calced[strings.ToLower(elem)]
+	if !exists {
+		el, exists := t.elemCache[elem]
+		if !exists {
+			return false, elem
+		}
+		for _, parent := range el.Parents {
+			suc, msg := t.addElem(parent)
+			if !suc {
+				return false, msg
+			}
+		}
+		if len(el.Parents) == 2 {
+			t.text += fmt.Sprintf("%s + %s = %s", el.Parents[0], el.Parents[1], el.Name)
+		}
+		t.calced[strings.ToLower(elem)] = empty{}
+	}
+	return true, ""
+}

@@ -256,6 +256,18 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "path",
+			Description: "Calculate the path of an element!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "element",
+					Description: "Name of the element!",
+					Required:    true,
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -333,6 +345,9 @@ var (
 		},
 		"give": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.giveCmd(i.Data.Options[0].StringValue(), i.Data.Options[1].BoolValue(), i.Data.Options[2].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"path": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.calcTreeCmd(i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )
