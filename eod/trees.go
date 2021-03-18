@@ -28,7 +28,8 @@ func (b *EoD) giveCmd(elem string, giveTree bool, user string, m msg, rsp rsp) {
 	fmt.Println("gottogive")
 	msg, suc := giveElem(dat.elemCache, giveTree, elem, &inv)
 	if !suc {
-		rsp.Resp(fmt.Sprintf("Element %s doesn't exist!", msg))
+		fmt.Println("oh no!", msg)
+		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", msg))
 		return
 	}
 	fmt.Println("gave")
