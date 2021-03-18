@@ -50,11 +50,50 @@ func (b *EoD) elemCreate(name string, parent1 string, parent2 string, creator st
 
 		b.saveInv(guild, creator)
 	} else {
-		row := b.db.QueryRow("SELECT name FROM eod_elements WHERE name=?", name)
-		err = row.Scan(&name)
-		if err != nil {
+		el, exists := dat.elemCache[strings.ToLower(name)]
+		if !exists {
 			return
 		}
+		if len(el.Parents) == 2 {
+			parnt1, exists := dat.elemCache[strings.ToLower(el.Parents[0])]
+			if !exists {
+				return
+			}
+			parnt2, exists := dat.elemCache[strings.ToLower(el.Parents[1])]
+			if !exists {
+				return
+			}
+
+			compl := 0
+			if parnt1.Complexity > parnt2.Complexity {
+				compl = parnt1.Complexity
+			} else {
+				compl = parnt2.Complexity
+			}
+			compl++
+
+			par1, exists := dat.elemCache[strings.ToLower(parent1)]
+			if !exists {
+				return
+			}
+			par2, exists := dat.elemCache[strings.ToLower(parent2)]
+			if !exists {
+				return
+			}
+
+			comp := 0
+			if par1.Complexity > par2.Complexity {
+				comp = par1.Complexity
+			} else {
+				comp = par2.Complexity
+			}
+			comp++
+
+			if comp < compl {
+				b.db.Exec("UPDATE eod_elements SET parent1=? AND parent2=? AND complexity=? WHERE name=? AND guild=?", parent1, parent2, comp, el.Name, el.Guild)
+			}
+		}
+		name = el.Name
 
 		dat.invCache[creator][strings.ToLower(name)] = empty{}
 		lock.Lock()
