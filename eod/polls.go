@@ -80,6 +80,15 @@ func (b *EoD) createPoll(p poll) error {
 		p.Message = m.ID
 
 	case pollCategorize:
+		data, ok := p.Data["elems"].([]string)
+		if !ok {
+			dat := p.Data["elems"].([]interface{})
+			data = make([]string, len(dat))
+			for i, val := range dat {
+				data[i] = val.(string)
+			}
+		}
+		p.Data["elems"] = data
 		m, err := b.dg.ChannelMessageSendEmbed(dat.votingChannel, &discordgo.MessageEmbed{
 			Title:       "Categorize",
 			Description: fmt.Sprintf("Elements:\n**%s**\n\nCategory: **%s**\n\nSuggested By <@%s>", strings.Join(p.Data["elems"].([]string), "\n"), p.Value1, p.Value4),
