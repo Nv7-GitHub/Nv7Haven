@@ -212,8 +212,8 @@ func (b *EoD) ideaCmd(m msg, rsp rsp) {
 			dat.combCache = make(map[string]comb)
 		}
 		dat.combCache[m.Author.ID] = comb{
-			elem1: elem1,
-			elem2: elem2,
+			elem1: el1.Name,
+			elem2: el2.Name,
 			elem3: "",
 		}
 		lock.Lock()
