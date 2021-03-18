@@ -211,6 +211,7 @@ func (b *EoD) ideaCmd(m msg, rsp rsp) {
 		if dat.combCache == nil {
 			dat.combCache = make(map[string]comb)
 		}
+		fmt.Println("idea", el1.Name, el2.Name)
 		dat.combCache[m.Author.ID] = comb{
 			elem1: el1.Name,
 			elem2: el2.Name,

@@ -53,6 +53,7 @@ func (b *EoD) combine(elem1 string, elem2 string, m msg, rsp rsp) {
 			dat.combCache = make(map[string]comb)
 		}
 
+		fmt.Println("combine", elem1dat.Name, elem2dat.Name, elem3)
 		dat.combCache[m.Author.ID] = comb{
 			elem1: elem1dat.Name,
 			elem2: elem2dat.Name,
@@ -79,6 +80,7 @@ func (b *EoD) combine(elem1 string, elem2 string, m msg, rsp rsp) {
 		dat.combCache = make(map[string]comb)
 	}
 
+	fmt.Println("combinesuggest", elem1dat.Name, elem2dat.Name)
 	dat.combCache[m.Author.ID] = comb{
 		elem1: elem1dat.Name,
 		elem2: elem2dat.Name,
