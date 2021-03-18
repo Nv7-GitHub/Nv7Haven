@@ -186,7 +186,7 @@ func (b *EoD) ideaCmd(m msg, rsp rsp) {
 	var elem1 string
 	var elem2 string
 	var count int
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 10; i++ {
 		row := b.db.QueryRow(ideaQuery, m.GuildID, m.GuildID, m.Author.ID, m.GuildID)
 		err := row.Scan(&elem1, &elem2)
 		if err != nil {
