@@ -101,7 +101,7 @@ func (t *tree) addElem(elem string) (bool, string) {
 			}
 		}
 		if len(el.Parents) == 2 {
-			t.text += fmt.Sprintf("%d. %s + %s = %s\n", t.num, el.Parents[0], el.Parents[1], el.Name)
+			t.text += fmt.Sprintf("%d. %s + %s = **%s**\n", t.num, el.Parents[0], el.Parents[1], el.Name)
 			t.num++
 		}
 		t.calced[strings.ToLower(elem)] = empty{}
