@@ -2,6 +2,7 @@ package eod
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -21,6 +22,19 @@ func (b *EoD) createPoll(p poll) error {
 	if dat.voteCount == 0 {
 		b.handlePollSuccess(p)
 		return nil
+	}
+	msg := ""
+	if dat.pollCount > 0 {
+		uPolls := 0
+		for _, val := range dat.polls {
+			if val.Value4 == p.Value4 {
+				uPolls++
+			}
+		}
+		msg = "Too many active polls!"
+		if uPolls > dat.pollCount {
+			return errors.New(msg)
+		}
 	}
 	switch p.Kind {
 	case pollCombo:

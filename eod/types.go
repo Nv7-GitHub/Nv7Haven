@@ -16,6 +16,7 @@ const (
 	votingChannel = 1
 	newsChannel   = 2
 	voteCount     = 3
+	pollCount     = 4
 
 	pollCombo      = 0
 	pollCategorize = 1
@@ -33,6 +34,7 @@ type serverData struct {
 	votingChannel string
 	newsChannel   string
 	voteCount     int
+	pollCount     int
 	combCache     map[string]comb             // map[userID]comb
 	invCache      map[string]map[string]empty // map[userID]map[elementName]empty
 	elemCache     map[string]element          //map[elementName]element

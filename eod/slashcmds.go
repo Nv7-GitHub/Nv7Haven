@@ -19,6 +19,18 @@ var (
 			},
 		},
 		{
+			Name:        "setpolls",
+			Description: "Sets the maximum amount of polls a user can make",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "pollcount",
+					Description: "The maximum number of polls a user can make",
+					Required:    true,
+				},
+			},
+		},
+		{
 			Name:        "setplaychannel",
 			Description: "Mark a channel as a play channel",
 			Options: []*discordgo.ApplicationCommandOption{
@@ -226,6 +238,9 @@ var (
 		},
 		"setvotes": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.setVoteCount(int(i.Data.Options[0].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"setpolls": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.setPollCount(int(i.Data.Options[0].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"setplaychannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			isPlayChannel := true

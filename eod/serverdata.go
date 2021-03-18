@@ -105,6 +105,43 @@ func (b *EoD) setVoteCount(count int, msg msg, rsp rsp) {
 	rsp.Resp("Succesfully updated vote count!")
 }
 
+func (b *EoD) setPollCount(count int, msg msg, rsp rsp) {
+	if count < 0 {
+		count *= -1
+	}
+	row := b.db.QueryRow("SELECT COUNT(1) FROM eod_serverdata WHERE guild=? AND type=?", msg.GuildID, pollCount)
+	var cnt int
+	err := row.Scan(&cnt)
+	if rsp.Error(err) {
+		return
+	}
+
+	if cnt == 1 {
+		_, err = b.db.Exec("UPDATE eod_serverdata SET intval=? WHERE guild=? AND type=?", count, msg.GuildID, pollCount)
+		if rsp.Error(err) {
+			return
+		}
+	} else {
+		_, err = b.db.Exec("INSERT INTO eod_serverdata VALUES ( ?, ?, ?, ? )", msg.GuildID, pollCount, "", count)
+		if rsp.Error(err) {
+			return
+		}
+	}
+
+	lock.RLock()
+	dat, exists := b.dat[msg.GuildID]
+	lock.RUnlock()
+	if !exists {
+		dat = serverData{}
+	}
+	dat.voteCount = count
+	lock.Lock()
+	b.dat[msg.GuildID] = dat
+	lock.Unlock()
+
+	rsp.Resp("Succesfully updated vote count!")
+}
+
 func (b *EoD) setPlayChannel(channelID string, isPlayChannel bool, msg msg, rsp rsp) {
 	row := b.db.QueryRow("SELECT COUNT(1) FROM eod_serverdata WHERE guild=? AND type=? AND value1=?", msg.GuildID, playChannel, channelID)
 	var cnt int

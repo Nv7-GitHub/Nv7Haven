@@ -105,6 +105,18 @@ func (b *EoD) init() {
 			lock.Lock()
 			b.dat[guild] = dat
 			lock.Unlock()
+
+		case pollCount:
+			lock.RLock()
+			dat, exists := b.dat[guild]
+			lock.RUnlock()
+			if !exists {
+				dat = serverData{}
+			}
+			dat.pollCount = intval
+			lock.Lock()
+			b.dat[guild] = dat
+			lock.Unlock()
 		}
 	}
 
