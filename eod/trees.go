@@ -88,7 +88,7 @@ type tree struct {
 func (t *tree) addElem(elem string) (bool, string) {
 	_, exists := t.calced[strings.ToLower(elem)]
 	if !exists {
-		el, exists := t.elemCache[elem]
+		el, exists := t.elemCache[strings.ToLower(elem)]
 		if !exists {
 			return false, elem
 		}
