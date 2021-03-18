@@ -56,23 +56,6 @@ func (b *EoD) elemCreate(name string, parent1 string, parent2 string, creator st
 			return
 		}
 		if len(el.Parents) == 2 {
-			parnt1, exists := dat.elemCache[strings.ToLower(el.Parents[0])]
-			if !exists {
-				return
-			}
-			parnt2, exists := dat.elemCache[strings.ToLower(el.Parents[1])]
-			if !exists {
-				return
-			}
-
-			compl := 0
-			if parnt1.Complexity > parnt2.Complexity {
-				compl = parnt1.Complexity
-			} else {
-				compl = parnt2.Complexity
-			}
-			compl++
-
 			par1, exists := dat.elemCache[strings.ToLower(parent1)]
 			if !exists {
 				return
@@ -90,10 +73,17 @@ func (b *EoD) elemCreate(name string, parent1 string, parent2 string, creator st
 			}
 			comp++
 
-			fmt.Println(comp, compl)
+			fmt.Println(comp, el.Complexity)
 
-			if comp < compl {
-				b.db.Exec("UPDATE eod_elements SET parent1=? AND parent2=? AND complexity=? WHERE name=? AND guild=?", parent1, parent2, comp, el.Name, el.Guild)
+			if comp < el.Complexity {
+				_, err = b.db.Exec("UPDATE eod_elements SET parent1=? AND parent2=? AND complexity=? WHERE name=? AND guild=?", par1.Name, par2.Name, comp, el.Name, el.Guild)
+				el.Complexity = comp
+				el.Parents = []string{par1.Name, par2.Name}
+				dat.elemCache[strings.ToLower(el.Name)] = el
+				lock.Lock()
+				b.dat[guild] = dat
+				lock.Unlock()
+				fmt.Println(err)
 			}
 		}
 		name = el.Name
