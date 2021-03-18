@@ -70,7 +70,7 @@ func (b *EoD) calcTreeCmd(elem string, m msg, rsp rsp) {
 		rsp.Resp(txt)
 		return
 	}
-	rsp.Resp(txt) // Get <user used command> thing to show up
+	rsp.Resp("The path was too long! Sending it as a file!")
 
 	buf := bytes.NewBufferString(txt)
 	b.dg.ChannelFileSend(m.ChannelID, "path.txt", buf)
