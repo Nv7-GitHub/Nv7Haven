@@ -76,14 +76,14 @@ func (b *EoD) elemCreate(name string, parent1 string, parent2 string, creator st
 			fmt.Println(comp, el.Complexity)
 
 			if comp < el.Complexity {
-				_, err = b.db.Exec("UPDATE eod_elements SET parent1=? AND parent2=? AND complexity=? WHERE name=? AND guild=?", par1.Name, par2.Name, comp, el.Name, el.Guild)
+				b.db.Exec("UPDATE eod_elements SET parent1=?,parent2=?,complexity=? WHERE name=? AND guild=?", par1.Name, par2.Name, comp, el.Name, el.Guild)
+
 				el.Complexity = comp
 				el.Parents = []string{par1.Name, par2.Name}
 				dat.elemCache[strings.ToLower(el.Name)] = el
 				lock.Lock()
 				b.dat[guild] = dat
 				lock.Unlock()
-				fmt.Println(err)
 			}
 		}
 		name = el.Name
