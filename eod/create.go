@@ -54,35 +54,6 @@ func (b *EoD) elemCreate(name string, parent1 string, parent2 string, creator st
 		if !exists {
 			return
 		}
-		if len(el.Parents) == 2 {
-			par1, exists := dat.elemCache[strings.ToLower(parent1)]
-			if !exists {
-				return
-			}
-			par2, exists := dat.elemCache[strings.ToLower(parent2)]
-			if !exists {
-				return
-			}
-
-			comp := 0
-			if par1.Complexity > par2.Complexity {
-				comp = par1.Complexity
-			} else {
-				comp = par2.Complexity
-			}
-			comp++
-
-			if comp < el.Complexity {
-				b.db.Exec("UPDATE eod_elements SET parent1=?,parent2=?,complexity=? WHERE name=? AND guild=?", par1.Name, par2.Name, comp, el.Name, el.Guild)
-
-				el.Complexity = comp
-				el.Parents = []string{par1.Name, par2.Name}
-				dat.elemCache[strings.ToLower(el.Name)] = el
-				lock.Lock()
-				b.dat[guild] = dat
-				lock.Unlock()
-			}
-		}
 		name = el.Name
 
 		dat.invCache[creator][strings.ToLower(name)] = empty{}
