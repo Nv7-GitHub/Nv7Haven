@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"sort"
 
 	_ "github.com/go-sql-driver/mysql" // mysql
 )
@@ -28,32 +27,18 @@ func main() {
 
 	fmt.Println("Connected")
 
-	res, err := db.Query("SELECT name, createdOn FROM elements WHERE 1")
+	res, err := db.Query("SELECT name FROM elements ORDER BY createdOn ASC")
 	handle(err)
 	defer res.Close()
 
-	elemNames := make([]struct {
-		Name      string
-		CreatedOn int
-	}, 0)
+	elemNames := make([]string, 0)
 	for res.Next() {
 		var name string
-		var createdOn int
-		err = res.Scan(&name, &createdOn)
+		err = res.Scan(&name)
 		handle(err)
-		elemNames = append(elemNames, struct {
-			Name      string
-			CreatedOn int
-		}{name, createdOn})
+		elemNames = append(elemNames, name)
 	}
-
-	sort.Slice(elemNames, func(i, j int) bool { return elemNames[i].CreatedOn < elemNames[j].CreatedOn })
-
-	elemDat := make([]string, len(elemNames))
-	for i, val := range elemNames {
-		elemDat[i] = val.Name
-	}
-	data, err := json.Marshal(elemDat)
+	data, err := json.Marshal(elemNames)
 	handle(err)
 
 	var name string
