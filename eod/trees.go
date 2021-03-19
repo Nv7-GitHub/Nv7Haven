@@ -25,14 +25,11 @@ func (b *EoD) giveCmd(elem string, giveTree bool, user string, m msg, rsp rsp) {
 		return
 	}
 
-	fmt.Println("gottogive")
 	msg, suc := giveElem(dat.elemCache, giveTree, elem, &inv)
 	if !suc {
-		fmt.Println("oh no!", msg)
 		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", msg))
 		return
 	}
-	fmt.Println("gave")
 
 	dat.invCache[user] = inv
 	lock.Lock()
@@ -51,10 +48,12 @@ func giveElem(elemCache map[string]element, giveTree bool, elem string, out *map
 	}
 	if giveTree {
 		for _, parent := range el.Parents {
-			fmt.Println(parent)
-			msg, suc := giveElem(elemCache, giveTree, parent, out)
-			if !suc {
-				return msg, false
+			_, exists := (*out)[parent]
+			if !exists {
+				msg, suc := giveElem(elemCache, giveTree, parent, out)
+				if !suc {
+					return msg, false
+				}
 			}
 		}
 	}
