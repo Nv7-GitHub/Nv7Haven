@@ -37,28 +37,33 @@ func (e *Elemental) GetElement(elemName string) (Element, error) {
 	val, exists := e.cache[elemName]
 	lock.RUnlock()
 	if !exists {
-		var elem Element
-		res, err := e.db.Query("SELECT * FROM elements WHERE name=?", elemName)
-		if err != nil {
-			return Element{}, err
-		}
-		defer res.Close()
-		elem.Parents = make([]string, 2)
-		res.Next()
-		err = res.Scan(&elem.Name, &elem.Color, &elem.Comment, &elem.Parents[0], &elem.Parents[1], &elem.Creator, &elem.Pioneer, &elem.CreatedOn, &elem.Complexity, &elem.Uses, &elem.FoundBy)
-		if err != nil {
-			return Element{}, err
-		}
-		if (elem.Parents[0] == "") && (elem.Parents[1] == "") {
-			elem.Parents = make([]string, 0)
-		}
-
-		lock.Lock()
-		e.cache[elemName] = elem
-		lock.Unlock()
-		return elem, nil
+		return e.RefreshElement(elemName)
 	}
 	return val, nil
+}
+
+// RefreshElement gets an element from the database and refreshes the local cache with that element
+func (e *Elemental) RefreshElement(elemName string) (Element, error) {
+	var elem Element
+	res, err := e.db.Query("SELECT * FROM elements WHERE name=?", elemName)
+	if err != nil {
+		return Element{}, err
+	}
+	defer res.Close()
+	elem.Parents = make([]string, 2)
+	res.Next()
+	err = res.Scan(&elem.Name, &elem.Color, &elem.Comment, &elem.Parents[0], &elem.Parents[1], &elem.Creator, &elem.Pioneer, &elem.CreatedOn, &elem.Complexity, &elem.Uses, &elem.FoundBy)
+	if err != nil {
+		return Element{}, err
+	}
+	if (elem.Parents[0] == "") && (elem.Parents[1] == "") {
+		elem.Parents = make([]string, 0)
+	}
+
+	lock.Lock()
+	e.cache[elemName] = elem
+	lock.Unlock()
+	return elem, nil
 }
 
 func (e *Elemental) getElem(c *fiber.Ctx) error {

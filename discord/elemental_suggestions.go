@@ -47,6 +47,8 @@ func (b *Bot) markCmd(mark string, id string, m msg, rsp rsp) {
 		return
 	}
 
+	b.e.RefreshElement(id)
+
 	rsp.Resp("Succesfully added creator mark!")
 }
 
