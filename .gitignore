@@ -29,3 +29,7 @@ movie.mp4
 
 # For logging
 logs.txt
+
+# Compiled stuff
+elemental/giveall/giveall
+main
