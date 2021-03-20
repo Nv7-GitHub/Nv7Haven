@@ -297,6 +297,10 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "about",
+			Description: "Get help and learn about the bot!",
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -380,6 +384,9 @@ var (
 		},
 		"elemsort": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.sortCmd(i.Data.Options[0].StringValue(), i.Data.Options[1].StringValue() == "1", bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"about": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.aboutCmd(bot.newRespSlash(i))
 		},
 	}
 )

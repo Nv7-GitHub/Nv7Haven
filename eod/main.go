@@ -15,6 +15,9 @@ const (
 var bot EoD
 var lock sync.RWMutex
 
+// go:embed about.txt
+var about string
+
 // EoD contains the data for an EoD bot
 type EoD struct {
 	dg  *discordgo.Session
@@ -45,6 +48,10 @@ func InitEoD(db *sql.DB) EoD {
 	dg.UpdateGameStatus(0, "Type / to see the bot's commands!")
 	bot.init()
 	return bot
+}
+
+func (b *EoD) aboutCmd(rsp rsp) {
+	rsp.Resp(about)
 }
 
 // Close cleans up
