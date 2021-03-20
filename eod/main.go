@@ -2,6 +2,8 @@ package eod
 
 import (
 	"database/sql"
+	_ "embed"
+	"io/ioutil"
 	"sync"
 
 	"github.com/bwmarrin/discordgo"
@@ -15,7 +17,6 @@ const (
 var bot EoD
 var lock sync.RWMutex
 
-// go:embed about.txt
 var about string
 
 // EoD contains the data for an EoD bot
@@ -27,6 +28,12 @@ type EoD struct {
 
 // InitEoD initializes the EoD bot
 func InitEoD(db *sql.DB) EoD {
+	abt, err := ioutil.ReadFile("eod/about.txt")
+	if err != nil {
+		panic(err)
+	}
+	about = string(abt)
+
 	// Discord bot
 	dg, err := discordgo.New("Bot " + token)
 	if err != nil {
