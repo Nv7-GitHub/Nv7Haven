@@ -13,6 +13,7 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
+	fmt.Println("16")
 	if !exists {
 		return
 	}
