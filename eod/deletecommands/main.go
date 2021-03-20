@@ -30,8 +30,10 @@ func main() {
 	}
 
 	for _, cmd := range cmds {
-		fmt.Println(cmd.ID)
-		dg.ApplicationCommandDelete(clientID, guild, cmd.ID)
+		fmt.Println(cmd.ID, cmd.Name)
+		if cmd.Name == "elemsort" {
+			dg.ApplicationCommandDelete(clientID, guild, cmd.ID)
+		}
 	}
 
 	dg.Close()

@@ -30,6 +30,7 @@ func (b *EoD) initInfoChoices() {
 			Name:  k,
 			Value: k,
 		}
+		i++
 	}
 }
 

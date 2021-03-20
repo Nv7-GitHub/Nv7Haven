@@ -12,6 +12,9 @@ func (b *EoD) init() {
 	b.initInfoChoices()
 	for _, v := range commands {
 		go func(val *discordgo.ApplicationCommand) {
+			if val.Name == "elemsort" {
+				val.Options[0].Choices = infoChoices
+			}
 			_, err := b.dg.ApplicationCommandCreate(clientID, "819077688371314718", val)
 			if err != nil {
 				panic(err)
