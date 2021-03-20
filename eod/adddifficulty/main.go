@@ -97,7 +97,7 @@ func calcComplexity(elem element, elems map[string]element) int {
 	} else {
 		scr = comp2
 	}
-	if strings.EqualFold(elem.Parents[0], elem.Parents[1]) {
+	if !strings.EqualFold(elem.Parents[0], elem.Parents[1]) {
 		scr++
 	}
 	complcache[elem.Name] = scr
