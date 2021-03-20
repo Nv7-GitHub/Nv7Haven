@@ -67,7 +67,7 @@ func (b *EoD) elemCreate(name string, parent1 string, parent2 string, creator st
 		lock.Unlock()
 		b.saveInv(guild, creator)
 	}
-	row = b.db.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE guild=? AND (elem1=? AND elem2=?) OR (elem1=? AND elem2=?)", guild, parent1, parent2, parent2, parent1)
+	row = b.db.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE guild=? AND ((elem1=? AND elem2=?) OR (elem1=? AND elem2=?))", guild, parent1, parent2, parent2, parent1)
 	err = row.Scan(&count)
 	if err != nil {
 		return

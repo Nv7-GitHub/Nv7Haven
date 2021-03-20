@@ -200,7 +200,7 @@ func (b *EoD) ideaCmd(m msg, rsp rsp) {
 		if !exists {
 			continue
 		}
-		row = b.db.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE guild=? AND (elem1=? AND elem2=?) OR (elem1=? AND elem2=?)", m.GuildID, elem1, elem2, elem2, elem1)
+		row = b.db.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE guild=? AND ((elem1=? AND elem2=?) OR (elem1=? AND elem2=?))", m.GuildID, elem1, elem2, elem2, elem1)
 		err = row.Scan(&count)
 		if err != nil {
 			continue
