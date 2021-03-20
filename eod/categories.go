@@ -16,6 +16,7 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 	if !exists {
 		return
 	}
+	fmt.Println("19")
 	suggestAdd := make([]string, 0)
 	added := make([]string, 0)
 	for _, val := range elems {
@@ -32,11 +33,13 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 			suggestAdd = append(suggestAdd, el.Name)
 		}
 	}
+	fmt.Println("36")
 	if len(added) > 0 {
 		lock.Lock()
 		b.dat[m.GuildID] = dat
 		lock.Unlock()
 	}
+	fmt.Println("42")
 	if len(suggestAdd) > 0 {
 		err := b.createPoll(poll{
 			Channel: dat.votingChannel,
@@ -50,6 +53,7 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 			return
 		}
 	}
+	fmt.Println("56")
 	if len(added) > 0 && len(suggestAdd) == 0 {
 		rsp.Resp("Successfully categorized! 🗃️")
 	} else if len(added) == 0 && len(suggestAdd) == 1 {
