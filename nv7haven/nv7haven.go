@@ -47,6 +47,7 @@ func (c *Nv7Haven) routing(app *fiber.App) {
 	app.Get("/breakdown/:input", c.breakdown)
 	app.Get("/search_names/:query", c.searchNames)
 	app.Get("/get_name/:name", c.getName)
+	app.Get("/ldb_query/:order/:kind", c.ldbQuery)
 }
 
 // InitNv7Haven initializes the handlers for Nv7Haven
