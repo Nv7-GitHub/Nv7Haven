@@ -33,7 +33,6 @@ func (b *EoD) init() {
 				return
 			}
 		}
-		b.checkServer(b.newMsgSlash(i), b.newRespSlash(i))
 		if h, ok := commandHandlers[i.Data.Name]; ok {
 			h(s, i)
 		}
