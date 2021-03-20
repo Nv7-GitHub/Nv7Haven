@@ -19,6 +19,7 @@ func (b *EoD) elemCreate(name string, parent1 string, parent2 string, creator st
 	var count int
 	err := row.Scan(&count)
 	if err != nil {
+		panic(err)
 		return
 	}
 	text := "Combination"
@@ -45,10 +46,12 @@ func (b *EoD) elemCreate(name string, parent1 string, parent2 string, creator st
 		lock.Unlock()
 		cats, err := json.Marshal(elem.Categories)
 		if err != nil {
+			panic(err)
 			return
 		}
 		b.db.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, string(cats), elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), elem.Parents[0], elem.Parents[1], elem.Complexity, elem.Difficulty)
 		if err != nil {
+			panic(err)
 			return
 		}
 		text = "Element"
@@ -57,6 +60,7 @@ func (b *EoD) elemCreate(name string, parent1 string, parent2 string, creator st
 	} else {
 		el, exists := dat.elemCache[strings.ToLower(name)]
 		if !exists {
+			panic(err)
 			return
 		}
 		name = el.Name
@@ -70,6 +74,7 @@ func (b *EoD) elemCreate(name string, parent1 string, parent2 string, creator st
 	row = b.db.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE guild=? AND ((elem1=? AND elem2=?) OR (elem1=? AND elem2=?))", guild, parent1, parent2, parent2, parent1)
 	err = row.Scan(&count)
 	if err != nil {
+		panic(err)
 		return
 	}
 	if count == 0 {
