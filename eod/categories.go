@@ -10,6 +10,7 @@ const x = "❌"
 const check = "✅"
 
 func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
+	fmt.Println("13")
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
