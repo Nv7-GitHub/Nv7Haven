@@ -22,6 +22,7 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 		el, exists := dat.elemCache[strings.ToLower(val)]
 		if !exists {
 			rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", val))
+			return
 		}
 		if el.Creator == m.Author.ID {
 			added = append(added, el.Name)
