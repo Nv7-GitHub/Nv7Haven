@@ -1,6 +1,6 @@
-EoD Everywhere is an Elemental game built entirely with a Discord bot. You can use slash commands to do actions such as getting hints for the combinations of elements, suggesting new combinations, adding notes and images to elements, adding elements to categories, and checking the server leaderboard. Each server has a separate element list and can be customized by server admins to have certain channels be play channels, set the voting and news channel, customize the number of votes needed for a vote to pass, change the maximum number of polls per user, or even directly modify a user's inventory.
+EoD Everywhere is an Elemental game built entirely with a Discord bot. Check out the Using the bot section to learn about the commands! Each server has a separate element list and can be customized by server admins to change channel types, vote counts, and even directly modify a user's inventory! Check out the **Useful Admin Commands** section for more info.
 
-**Using the bot**
+**Using the Bot**
 You can combine elements in any play channel using **elem1 + elem2** or **elem1, elem2**
 You can see the information on an element with **?<element name>**
 You can add an image to an element with **/image**
@@ -9,11 +9,12 @@ You can view categories with **/cat** and add elements to categories with **/add
 You can use **/lb** to view the leaderboard and **/inv** to see what elements you have
 You can use **/hint** to get a hint on how to make an element.
 
-**Setting up a server**
+**Setting up a Server**
 Information on how to use the commands will show up when you type them in.
 **/setvotes**, **/setvotingchannel**, **/setplaychannel**
 
 **Useful Admin Commands**
+Information on how to use the commands will show up when you type them in.
 **/give**, **/giveall**, **/resetinv**, **/path**, **/elemsort**
 
 **Idea from ryan's Elemental on Discord:**
