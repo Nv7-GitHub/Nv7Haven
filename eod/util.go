@@ -147,7 +147,7 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 
 	rsp.Embed(&discordgo.MessageEmbed{
 		Title:       el.Name + " Info",
-		Description: fmt.Sprintf("Created by <@%s>\nCreated on %s\nUsed in %d combo%s\nMade with %d combo%s\nFound by %d player%s\nComplexity: %d\n<@%s> **You %shave this.**\n\n%s", el.Creator, el.CreatedOn.Format("January 2, 2006, 3:04 PM"), usedby, usedbysuff, madeby, madebysuff, foundby, foundbysuff, el.Complexity, m.Author.ID, has, el.Comment),
+		Description: fmt.Sprintf("Created by <@%s>\nCreated on %s\nUsed in %d combo%s\nMade with %d combo%s\nFound by %d player%s\nComplexity: %d\nDifficulty: %d\n<@%s> **You %shave this.**\n\n%s", el.Creator, el.CreatedOn.Format("January 2, 2006, 3:04 PM"), usedby, usedbysuff, madeby, madebysuff, foundby, foundbysuff, el.Complexity, el.Difficulty, m.Author.ID, has, el.Comment),
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
 			URL: el.Image,
 		},

@@ -13,6 +13,7 @@ var starterElements = []element{
 		Comment:    "The invisible gaseous substance surrounding the earth, a mixture mainly of oxygen and nitrogen.",
 		Creator:    "",
 		Complexity: 0,
+		Difficulty: 0,
 		Parents:    []string{},
 	},
 	{
@@ -21,6 +22,7 @@ var starterElements = []element{
 		Comment:    "The substance of the land surface; soil.",
 		Creator:    "",
 		Complexity: 0,
+		Difficulty: 0,
 		Parents:    []string{},
 	},
 	{
@@ -29,6 +31,7 @@ var starterElements = []element{
 		Comment:    "Combustion or burning, in which substances combine chemically with oxygen from the air and typically give out bright light, heat, and smoke.",
 		Creator:    "",
 		Complexity: 0,
+		Difficulty: 0,
 		Parents:    []string{},
 	},
 	{
@@ -37,6 +40,7 @@ var starterElements = []element{
 		Comment:    "A colorless, transparent, odorless liquid that forms the seas, lakes, rivers, and rain and is the basis of the fluids of living organisms.",
 		Creator:    "",
 		Complexity: 0,
+		Difficulty: 0,
 		Parents:    []string{},
 	},
 }

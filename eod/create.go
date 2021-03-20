@@ -23,6 +23,10 @@ func (b *EoD) elemCreate(name string, parent1 string, parent2 string, creator st
 	}
 	text := "Combination"
 	if count == 0 {
+		diff := max(dat.elemCache[strings.ToLower(parent1)].Difficulty, dat.elemCache[strings.ToLower(parent2)].Difficulty)
+		if !strings.EqualFold(parent1, parent2) {
+			diff++
+		}
 		elem := element{
 			Name:       name,
 			Categories: make(map[string]empty),
@@ -32,6 +36,7 @@ func (b *EoD) elemCreate(name string, parent1 string, parent2 string, creator st
 			CreatedOn:  time.Now(),
 			Parents:    []string{parent1, parent2},
 			Complexity: max(dat.elemCache[strings.ToLower(parent1)].Complexity, dat.elemCache[strings.ToLower(parent2)].Complexity) + 1,
+			Difficulty: diff,
 		}
 		dat.elemCache[strings.ToLower(elem.Name)] = elem
 		dat.invCache[creator][strings.ToLower(elem.Name)] = empty{}
@@ -42,7 +47,7 @@ func (b *EoD) elemCreate(name string, parent1 string, parent2 string, creator st
 		if err != nil {
 			return
 		}
-		b.db.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, string(cats), elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), elem.Parents[0], elem.Parents[1], elem.Complexity)
+		b.db.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, string(cats), elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), elem.Parents[0], elem.Parents[1], elem.Complexity, elem.Difficulty)
 		if err != nil {
 			return
 		}

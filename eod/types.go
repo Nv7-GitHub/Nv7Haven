@@ -75,6 +75,7 @@ type element struct {
 	CreatedOn  time.Time
 	Parents    []string
 	Complexity int
+	Difficulty int
 }
 
 type poll struct {
