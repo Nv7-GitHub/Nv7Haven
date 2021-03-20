@@ -23,8 +23,9 @@ const (
 	pollSign       = 2
 	pollImage      = 3
 
-	pageSwitchLdb = 0
-	pageSwitchInv = 1
+	pageSwitchLdb      = 0
+	pageSwitchInv      = 1
+	pageSwitchElemSort = 2
 )
 
 type empty struct{}
@@ -52,6 +53,10 @@ type pageSwitcher struct {
 
 	// Ldb
 	User string
+
+	// Element sorting
+	Query  string
+	Length int
 
 	// Don't need to set these
 	Guild   string

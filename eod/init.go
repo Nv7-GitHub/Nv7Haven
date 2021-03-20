@@ -9,6 +9,7 @@ import (
 )
 
 func (b *EoD) init() {
+	b.initInfoChoices()
 	for _, v := range commands {
 		go func(val *discordgo.ApplicationCommand) {
 			_, err := b.dg.ApplicationCommandCreate(clientID, "819077688371314718", val)

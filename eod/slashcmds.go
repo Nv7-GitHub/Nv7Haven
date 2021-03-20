@@ -268,6 +268,35 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "elemsort",
+			Description: "Sort all the elements in this server!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "sortby",
+					Description: "How to sort the elements",
+					Required:    true,
+					Choices:     infoChoices,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionBoolean,
+					Name:        "order",
+					Description: "The order to sort the elements!",
+					Required:    true,
+					Choices: []*discordgo.ApplicationCommandOptionChoice{
+						{
+							Name:  "Descending",
+							Value: false,
+						},
+						{
+							Name:  "Ascending",
+							Value: true,
+						},
+					},
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -348,6 +377,9 @@ var (
 		},
 		"path": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.calcTreeCmd(i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"elemsort": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.sortCmd(i.Data.Options[0].StringValue(), i.Data.Options[1].BoolValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )

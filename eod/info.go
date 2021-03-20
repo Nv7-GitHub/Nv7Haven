@@ -2,10 +2,87 @@ package eod
 
 import (
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
 )
+
+// element, guild, element, element, guild, guild, element - returns: made by x combos, used in x combos, found by x people
+const elemInfoDataCount = `SELECT a.cnt, b.cnt, c.cnt FROM (SELECT COUNT(1) AS cnt FROM eod_combos WHERE elem3=? AND guild=?) a, (SELECT COUNT(1) AS cnt FROM eod_combos WHERE (elem1=?) OR (elem2=?) AND guild=?) b, (SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT("$.", LOWER(?))) IS NOT NULL)) c`
+
+var infoChoices []*discordgo.ApplicationCommandOptionChoice
+var infoQuerys = map[string]string{
+	"Name":         "SELECT name FROM eod_elements WHERE guild=? ORDER BY name %s LIMIT ? OFFSET ?",
+	"Date Created": "SELECT name FROM eod_elements WHERE guild=? ORDER BY createdon %s LIMIT ? OFFSET ?",
+	"Complexity":   "SELECT name FROM eod_elements WHERE guild=? ORDER BY complexity %s LIMIT ? OFFSET ?",
+	"Difficulty":   "SELECT name FROM eod_elements WHERE guild=? ORDER BY difficulty %s LIMIT ? OFFSET ?",
+	"Made By":      "SELECT name FROM `eod_elements` ORDER BY (SELECT COUNT(1) AS cnt FROM eod_combos WHERE elem3=name AND guild=?) %s LIMIT ? OFFSET ?",
+	"Used In":      "SELECT name FROM `eod_elements` ORDER BY (SELECT COUNT(1) AS cnt FROM eod_combos WHERE (elem1=name) OR (elem2=name) AND guild=?) %s LIMIT ? OFFSET ?",
+	"Found By":     `SELECT name FROM eod_elements ORDER BY (SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT("$.", LOWER(name))) IS NOT NULL)) %s LIMIT ? OFFSET ?`,
+}
+
+func (b *EoD) initInfoChoices() {
+	infoChoices = make([]*discordgo.ApplicationCommandOptionChoice, len(infoQuerys))
+	i := 0
+	for k := range infoQuerys {
+		infoChoices[i] = &discordgo.ApplicationCommandOptionChoice{
+			Name:  k,
+			Value: k,
+		}
+	}
+}
+
+func (b *EoD) sortPageGetter(p pageSwitcher) (string, int, int, error) {
+	length := int(math.Floor(float64(p.Length-1) / float64(pageLength)))
+	if pageLength*p.Page > (len(p.Items) - 1) {
+		return "", 0, length, nil
+	}
+	if p.Page < 0 {
+		return "", length, length, nil
+	}
+	res, err := b.db.Query(p.Query, p.Guild, pageLength, p.Page*pageLength)
+	if err != nil {
+		return "", length, length, err
+	}
+	defer res.Close()
+	out := ""
+	var name string
+	for res.Next() {
+		err = res.Scan(&name)
+		if err != nil {
+			return "", length, length, err
+		}
+		out += name + "\n"
+	}
+	return out, p.Page, length, nil
+}
+
+func (b *EoD) sortCmd(query string, order bool, m msg, rsp rsp) {
+	lock.RLock()
+	dat, exists := b.dat[m.GuildID]
+	lock.RUnlock()
+	if !exists {
+		return
+	}
+	quer, exists := infoQuerys[query]
+	if !exists {
+		rsp.ErrorMessage("Invalid query type!")
+		return
+	}
+	ord := "DESC"
+	if order {
+		ord = "ASC"
+	}
+	quer = fmt.Sprintf(quer, ord)
+	b.newPageSwitcher(pageSwitcher{
+		Kind:       pageSwitchElemSort,
+		Title:      "Element Sort",
+		PageGetter: b.sortPageGetter,
+		Query:      quer,
+		Length:     len(dat.elemCache),
+	}, m, rsp)
+}
 
 func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 	lock.RLock()
