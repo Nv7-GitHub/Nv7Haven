@@ -36,7 +36,7 @@ func (b *EoD) initInfoChoices() {
 
 func (b *EoD) sortPageGetter(p pageSwitcher) (string, int, int, error) {
 	length := int(math.Floor(float64(p.Length-1) / float64(pageLength)))
-	if pageLength*p.Page > (len(p.Items) - 1) {
+	if pageLength*p.Page > (p.Length - 1) {
 		return "", 0, length, nil
 	}
 	if p.Page < 0 {
