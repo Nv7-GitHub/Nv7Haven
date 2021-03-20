@@ -24,7 +24,7 @@ type Single struct {
 func InitSingle(app *fiber.App, db *sql.DB) {
 	if _, err := os.Stat("/home/container/packs"); os.IsNotExist(err) {
 		err = os.Mkdir("/home/container/packs", 0777)
-		if err != nil && os.Getenv("MYSQL_HOST") != "c.filipk.in" {
+		if err != nil && os.Getenv("MYSQL_HOST") != "host.kiwatech.net" {
 			panic(err)
 		}
 	}

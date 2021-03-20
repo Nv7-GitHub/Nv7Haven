@@ -46,7 +46,7 @@ func endTimer(print string) {
 
 func main() {
 	// SQL
-	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp(c.filipk.in:3306)/"+dbName)
+	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp(host.kiwatech.net:3306)/"+dbName)
 	handle(err)
 	defer db.Close()
 	_, err = db.Exec("DELETE FROM names WHERE 1")
