@@ -280,18 +280,18 @@ var (
 					Choices:     infoChoices,
 				},
 				{
-					Type:        discordgo.ApplicationCommandOptionBoolean,
+					Type:        discordgo.ApplicationCommandOptionString,
 					Name:        "order",
 					Description: "The order to sort the elements!",
 					Required:    true,
 					Choices: []*discordgo.ApplicationCommandOptionChoice{
 						{
 							Name:  "Descending",
-							Value: false,
+							Value: "0",
 						},
 						{
 							Name:  "Ascending",
-							Value: true,
+							Value: "1",
 						},
 					},
 				},
@@ -379,7 +379,7 @@ var (
 			bot.calcTreeCmd(i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"elemsort": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.sortCmd(i.Data.Options[0].StringValue(), i.Data.Options[1].BoolValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.sortCmd(i.Data.Options[0].StringValue(), i.Data.Options[1].StringValue() == "1", bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )
