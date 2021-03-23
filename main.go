@@ -16,6 +16,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/pprof"
 
 	_ "github.com/go-sql-driver/mysql" // mysql
 )
@@ -42,6 +43,7 @@ func main() {
 		BodyLimit: 1000000000,
 	})
 	app.Use(cors.New())
+	app.Use(pprof.New())
 
 	/* Testing*/
 	websockets(app)

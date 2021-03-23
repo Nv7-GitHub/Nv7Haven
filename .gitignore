@@ -24,6 +24,9 @@
 
 # End of https://www.gitignore.io/api/go
 
+# For pprof
+out.png
+
 # For gource
 movie.mp4
 
