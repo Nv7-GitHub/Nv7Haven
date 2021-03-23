@@ -218,7 +218,7 @@ func (b *EoD) init() {
 		b.dg.ChannelMessageDelete(po.Channel, po.Message)
 		err = b.createPoll(po)
 		if err != nil {
-			panic(err)
+			fmt.Println(err)
 		}
 	}
 }
