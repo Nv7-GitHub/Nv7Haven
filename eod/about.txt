@@ -17,8 +17,12 @@ Information on how to use the commands will show up when you type them in.
 Information on how to use the commands will show up when you type them in.
 **/give**, **/giveall**, **/resetinv**, **/path**, **/elemsort**
 
+**Official Server**
+https://discord.gg/KPmbJmNtxQ
 **Idea from ryan's Elemental on Discord:**
 https://discord.gg/jHeqgdM
 Elemental idea from carykh's Elemental 3 (carykh: https://youtube.com/user/carykh)
 **More Elemental games:**
 https://discord.gg/X9VyN42
+**Server Template**
+https://discord.new/QKrwgdtSK4jC
