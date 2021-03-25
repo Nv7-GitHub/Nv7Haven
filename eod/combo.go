@@ -36,37 +36,29 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 	for i := 0; i < len(elems); i++ {
 		where += " AND (JSON_EXTRACT(elems, ?) IS NOT NULL)"
 	}
-	row := b.db.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE "+where, inps...)
-	var count int
-	err := row.Scan(&count)
+	cont := false
+	var elem3 string
+	var elemDat string
+	res, err := b.db.Query("SELECT elems, elem3 FROM eod_combos WHERE "+where+" ORDER BY JSON_LENGTH(elems) ASC", inps...)
 	if rsp.Error(err) {
 		return
 	}
-	cont := false
-	var elem3 string
-	if count > 0 {
-		var elemDat string
-		res, err := b.db.Query("SELECT elems, elem3 FROM eod_combos WHERE "+where+" ORDER BY JSON_LENGTH(elems) ASC", inps...)
+	defer res.Close()
+	for res.Next() {
+		err = res.Scan(&elemDat, &elem3)
 		if rsp.Error(err) {
 			return
 		}
-		defer res.Close()
-		for res.Next() {
-			err = res.Scan(&elemDat, &elem3)
-			if rsp.Error(err) {
-				return
-			}
-			var comboDat map[string]empty
-			err = json.Unmarshal([]byte(elemDat), &comboDat)
-			if rsp.Error(err) {
-				return
-			}
-			if (len(comboDat) != len(elems)) && (len(comboDat) != 1) {
-				cont = false
-			} else {
-				cont = true
-				break
-			}
+		var comboDat map[string]empty
+		err = json.Unmarshal([]byte(elemDat), &comboDat)
+		if rsp.Error(err) {
+			return
+		}
+		if (len(comboDat) != len(elems)) && (len(comboDat) != 1) {
+			cont = false
+		} else {
+			cont = true
+			break
 		}
 	}
 	if cont {
