@@ -48,7 +48,7 @@ func (b *EoD) createPoll(p poll) error {
 			}
 		}
 		for _, val := range elems {
-			txt += dat.elemCache[val].Name + " + "
+			txt += dat.elemCache[strings.ToLower(val)].Name + " + "
 		}
 		txt = txt[:len(txt)-2]
 		txt += " = " + p.Value3
