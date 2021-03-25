@@ -46,20 +46,27 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 	var elem3 string
 	if count > 0 {
 		var elemDat string
-		row = b.db.QueryRow("SELECT elems, elem3 FROM eod_combos WHERE "+where, inps...)
-		err = row.Scan(&elemDat, &elem3)
+		res, err := b.db.Query("SELECT elems, elem3 FROM eod_combos WHERE "+where+" ORDER BY JSON_LENGTH(elems) DESC", inps...)
 		if rsp.Error(err) {
 			return
 		}
-		var comboDat map[string]empty
-		err = json.Unmarshal([]byte(elemDat), &comboDat)
-		if rsp.Error(err) {
-			return
-		}
-		if (len(comboDat) != len(elems)) && (!(len(comboDat) == 1)) {
-			cont = false
-		} else {
-			cont = true
+		defer res.Close()
+		for res.Next() {
+			err = res.Scan(&elemDat, &elem3)
+			if rsp.Error(err) {
+				return
+			}
+			var comboDat map[string]empty
+			err = json.Unmarshal([]byte(elemDat), &comboDat)
+			if rsp.Error(err) {
+				return
+			}
+			if (len(comboDat) != len(elems)) && (len(comboDat) != 1) {
+				cont = false
+			} else {
+				cont = true
+				break
+			}
 		}
 	}
 	if cont {
