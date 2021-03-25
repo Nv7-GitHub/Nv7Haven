@@ -56,7 +56,7 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 		if rsp.Error(err) {
 			return
 		}
-		if len(comboDat) != len(elems) {
+		if (len(comboDat) != len(elems)) && (!(len(comboDat) == 1)) {
 			cont = false
 		} else {
 			cont = true
