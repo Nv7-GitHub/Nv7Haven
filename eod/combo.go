@@ -29,7 +29,7 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 		}
 		inps[i] = interface{}("$." + strings.ToLower(val))
 	}
-	inps = append([]interface{}{m.GuildID}, inps)
+	inps = append([]interface{}{m.GuildID}, inps...)
 
 	where := "guild=?"
 	for i := 0; i < len(elems); i++ {
