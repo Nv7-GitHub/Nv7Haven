@@ -138,7 +138,7 @@ func (t *tree) addElem(elem string) (bool, string) {
 		}
 		params = append([]interface{}{t.num}, params...)
 		params = append(params, el.Name)
-		if len(el.Parents) == 2 {
+		if len(el.Parents) >= 2 {
 			t.text += fmt.Sprintf(perf+" = **%s**\n", params...)
 			t.rawTxt += fmt.Sprintf(perf+" = %s\n", params...)
 			t.num++

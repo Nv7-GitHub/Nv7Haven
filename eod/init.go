@@ -153,6 +153,7 @@ func (b *EoD) init() {
 		i := 0
 		for k := range parentMap {
 			parents[i] = k
+			i++
 		}
 		elem.Parents = parents
 

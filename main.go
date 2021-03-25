@@ -74,9 +74,9 @@ func main() {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	go func() {
-		_ = <-c
+		<-c
 		fmt.Println("Gracefully shutting down...")
-		_ = app.Shutdown()
+		app.Shutdown()
 	}()
 
 	if err := app.Listen(":" + os.Getenv("PORT")); err != nil {
@@ -86,4 +86,5 @@ func main() {
 	e.Close()
 	b.Close()
 	eod.Close()
+	db.Close()
 }
