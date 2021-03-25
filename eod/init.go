@@ -131,11 +131,10 @@ func (b *EoD) init() {
 	defer elems.Close()
 	elem := element{}
 	var createdon int64
-	var parent1 string
-	var parent2 string
 	var catDat string
+	var parentDat string
 	for elems.Next() {
-		err = elems.Scan(&elem.Name, &catDat, &elem.Image, &elem.Guild, &elem.Comment, &elem.Creator, &createdon, &parent1, &parent2, &elem.Complexity, &elem.Difficulty)
+		err = elems.Scan(&elem.Name, &catDat, &elem.Image, &elem.Guild, &elem.Comment, &elem.Creator, &createdon, &parentDat, &elem.Complexity, &elem.Difficulty)
 		if err != nil {
 			return
 		}
@@ -145,11 +144,17 @@ func (b *EoD) init() {
 			panic(err)
 		}
 		elem.CreatedOn = time.Unix(createdon, 0)
-		if parent1 != "" && parent2 != "" {
-			elem.Parents = []string{parent1, parent2}
-		} else {
-			elem.Parents = make([]string, 0)
+		parentMap := make(map[string]empty)
+		err = json.Unmarshal([]byte(parentDat), &parentMap)
+		if err != nil {
+			return
 		}
+		parents := make([]string, len(parentMap))
+		i := 0
+		for k := range parentMap {
+			parents[i] = k
+		}
+		elem.Parents = parents
 
 		lock.RLock()
 		dat := b.dat[elem.Guild]

@@ -65,8 +65,7 @@ type pageSwitcher struct {
 }
 
 type comb struct {
-	elem1 string
-	elem2 string
+	elems []string
 	elem3 string
 }
 

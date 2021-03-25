@@ -37,10 +37,10 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 		if comb.elem3 != "" {
-			b.combine(comb.elem3, comb.elem3, msg, rsp)
+			b.combine([]string{comb.elem3, comb.elem3}, msg, rsp)
 			return
 		}
-		b.combine(comb.elem1, comb.elem2, msg, rsp)
+		b.combine(comb.elems, msg, rsp)
 		return
 	}
 
@@ -53,7 +53,10 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			if len(parts) < 2 {
 				return
 			}
-			b.combine(strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1]), msg, rsp)
+			for i, part := range parts {
+				parts[i] = strings.TrimSpace(part)
+			}
+			b.combine(parts, msg, rsp)
 			return
 		}
 	}

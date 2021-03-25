@@ -229,10 +229,6 @@ var (
 			},
 		},
 		{
-			Name:        "idea",
-			Description: "Get a random unused combo!",
-		},
-		{
 			Name:        "give",
 			Description: "Give a user an element, and choose whether to give all the elements required to make that element!",
 			Options: []*discordgo.ApplicationCommandOption{
@@ -372,9 +368,6 @@ var (
 		},
 		"resetinv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.resetInvCmd(i.Data.Options[0].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
-		},
-		"idea": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.ideaCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"give": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.giveCmd(i.Data.Options[0].StringValue(), i.Data.Options[1].BoolValue(), i.Data.Options[2].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))

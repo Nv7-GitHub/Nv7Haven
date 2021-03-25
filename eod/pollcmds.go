@@ -32,18 +32,22 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 		Channel:   dat.votingChannel,
 		Guild:     m.GuildID,
 		Kind:      pollCombo,
-		Value1:    comb.elem1,
-		Value2:    comb.elem2,
 		Value3:    suggestion,
 		Value4:    m.Author.ID,
-		Data:      make(map[string]interface{}),
+		Data:      map[string]interface{}{"elems": comb.elems},
 		Upvotes:   0,
 		Downvotes: 0,
 	})
 	if rsp.Error(err) {
 		return
 	}
-	rsp.Resp("Suggested " + comb.elem1 + " + " + comb.elem2 + " = " + suggestion + " ✨")
+	txt := "Suggested "
+	for _, val := range comb.elems {
+		txt += val + " + "
+	}
+	txt = txt[:len(txt)-3]
+	txt += " = " + suggestion + " ✨"
+	rsp.Resp(txt)
 }
 
 func (b *EoD) markCmd(elem string, mark string, m msg, rsp rsp) {

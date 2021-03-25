@@ -2,10 +2,10 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
-	"sync"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql" // mysql
@@ -38,10 +38,6 @@ func handle(err error) {
 	}
 }
 
-var wg = &sync.WaitGroup{}
-
-var complcache = make(map[string]int)
-
 // Fixelems fixes the elements
 func main() {
 	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
@@ -51,55 +47,25 @@ func main() {
 
 	fmt.Println("Connected")
 
-	res, err := db.Query("SELECT name, parent1, parent2, complexity FROM eod_elements WHERE 1")
+	res, err := db.Query("SELECT name, parent1, parent2, complexity, guild FROM eod_elements WHERE 1")
 	handle(err)
-	elems := make(map[string]element)
 	defer res.Close()
 	for res.Next() {
 		var elem element
 		elem.Parents = make([]string, 2)
-		err = res.Scan(&elem.Name, &elem.Parents[0], &elem.Parents[1], &elem.Complexity)
+		err = res.Scan(&elem.Name, &elem.Parents[0], &elem.Parents[1], &elem.Complexity, &elem.Guild)
 		handle(err)
 		if (elem.Parents[0] == "") && (elem.Parents[1] == "") {
 			elem.Parents = make([]string, 0)
 		}
-		elems[strings.ToLower(elem.Name)] = elem
+		pars := make(map[string]empty)
+		for _, val := range elem.Parents {
+			pars[strings.ToLower(val)] = empty{}
+		}
+		data, err := json.Marshal(pars)
+		handle(err)
+		_, err = db.Exec("UPDATE eod_elements SET parents=? WHERE name=? AND guild=?", string(data), elem.Name, elem.Guild)
+		handle(err)
+		fmt.Println(elem.Name, string(data))
 	}
-	for k, v := range elems {
-		v.Difficulty = calcComplexity(v, elems)
-		elems[k] = v
-		wg.Add(1)
-		go func(v element) {
-			_, err = db.Exec("UPDATE eod_elements SET difficulty=? WHERE name=?", v.Difficulty, v.Name)
-			handle(err)
-			wg.Done()
-			fmt.Println(v.Name, v.Complexity, v.Difficulty)
-		}(v)
-	}
-	wg.Wait()
-}
-
-func calcComplexity(elem element, elems map[string]element) int {
-	scr, exists := complcache[elem.Name]
-	if exists {
-		return scr
-	}
-	if len(elem.Parents) == 0 {
-		return 0
-	}
-	parent1 := elems[strings.ToLower(elem.Parents[0])]
-	parent2 := elems[strings.ToLower(elem.Parents[1])]
-	comp1 := calcComplexity(parent1, elems)
-	comp2 := calcComplexity(parent2, elems)
-
-	if comp1 > comp2 {
-		scr = comp1
-	} else {
-		scr = comp2
-	}
-	if !strings.EqualFold(elem.Parents[0], elem.Parents[1]) {
-		scr++
-	}
-	complcache[elem.Name] = scr
-	return scr
 }

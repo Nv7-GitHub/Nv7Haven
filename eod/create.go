@@ -8,7 +8,7 @@ import (
 
 const newText = "🆕"
 
-func (b *EoD) elemCreate(name string, parent1 string, parent2 string, creator string, guild string) {
+func (b *EoD) elemCreate(name string, parents []string, creator string, guild string) {
 	lock.RLock()
 	dat, exists := b.dat[guild]
 	lock.RUnlock()
@@ -23,8 +23,23 @@ func (b *EoD) elemCreate(name string, parent1 string, parent2 string, creator st
 	}
 	text := "Combination"
 	if count == 0 {
-		diff := max(dat.elemCache[strings.ToLower(parent1)].Difficulty, dat.elemCache[strings.ToLower(parent2)].Difficulty)
-		if !strings.EqualFold(parent1, parent2) {
+		diff := -1
+		compl := -1
+		areUnique := false
+		for _, val := range parents {
+			elem := dat.elemCache[strings.ToLower(val)]
+			if elem.Difficulty > diff {
+				diff = elem.Difficulty
+			}
+			if elem.Complexity > compl {
+				compl = elem.Complexity
+			}
+			if !strings.EqualFold(parents[0], val) {
+				areUnique = true
+			}
+		}
+		compl++
+		if areUnique {
 			diff++
 		}
 		elem := element{
@@ -34,8 +49,8 @@ func (b *EoD) elemCreate(name string, parent1 string, parent2 string, creator st
 			Comment:    "None",
 			Creator:    creator,
 			CreatedOn:  time.Now(),
-			Parents:    []string{parent1, parent2},
-			Complexity: max(dat.elemCache[strings.ToLower(parent1)].Complexity, dat.elemCache[strings.ToLower(parent2)].Complexity) + 1,
+			Parents:    parents,
+			Complexity: compl,
 			Difficulty: diff,
 		}
 		dat.elemCache[strings.ToLower(elem.Name)] = elem
@@ -47,7 +62,16 @@ func (b *EoD) elemCreate(name string, parent1 string, parent2 string, creator st
 		if err != nil {
 			return
 		}
-		_, err = b.db.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, string(cats), elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), elem.Parents[0], elem.Parents[1], elem.Complexity, elem.Difficulty)
+
+		pars := make(map[string]empty, len(parents))
+		for _, val := range parents {
+			pars[val] = empty{}
+		}
+		dat, err := json.Marshal(pars)
+		if err != nil {
+			return
+		}
+		_, err = b.db.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, string(cats), elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), string(dat), elem.Complexity, elem.Difficulty)
 		if err != nil {
 			return
 		}
@@ -67,20 +91,31 @@ func (b *EoD) elemCreate(name string, parent1 string, parent2 string, creator st
 		lock.Unlock()
 		b.saveInv(guild, creator)
 	}
-	row = b.db.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE guild=? AND ((elem1=? AND elem2=?) OR (elem1=? AND elem2=?))", guild, parent1, parent2, parent2, parent1)
+	inps := make([]interface{}, len(parents))
+	for i, val := range parents {
+		inps[i] = interface{}(val)
+	}
+	inps = append([]interface{}{guild}, inps)
+
+	where := "guild=?"
+	for i := 0; i < len(parents); i++ {
+		where += " AND (JSON_EXTRACT(elems, ?) IS NOT NULL)"
+	}
+	row = b.db.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE "+where, inps...)
 	err = row.Scan(&count)
 	if err != nil {
 		return
 	}
+	pars := make(map[string]empty, len(parents))
+	for _, val := range parents {
+		pars[strings.ToLower(val)] = empty{}
+	}
+	data, err := json.Marshal(pars)
+	if err != nil {
+		return
+	}
 	if count == 0 {
-		b.db.Exec("INSERT INTO eod_combos VALUES ( ?, ?, ?, ? )", guild, parent1, parent2, name)
+		b.db.Exec("INSERT INTO eod_combos VALUES ( ?, ?, ? )", guild, string(data), name)
 	}
 	b.dg.ChannelMessageSend(dat.newsChannel, newText+" "+text+" - **"+name+"** (By <@"+creator+">)")
-}
-
-func max(val1, val2 int) int {
-	if val1 > val2 {
-		return val1
-	}
-	return val2
 }

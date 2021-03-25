@@ -7,34 +7,35 @@ import (
 
 const blueCircle = "🔵"
 
-func (b *EoD) combine(elem1 string, elem2 string, m msg, rsp rsp) {
+func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
 	if !exists {
 		return
 	}
-	elem1dat, exists := dat.elemCache[strings.ToLower(elem1)]
-	if !exists {
-		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", elem1))
-		return
+
+	inps := make([]interface{}, len(elems))
+	for i, val := range elems {
+		_, exists = dat.elemCache[val]
+		if !exists {
+			rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", val))
+			return
+		}
+		_, exists = dat.invCache[m.Author.ID][strings.ToLower(val)]
+		if !exists {
+			rsp.ErrorMessage(fmt.Sprintf("You don't have %s!", val))
+			return
+		}
+		inps[i] = interface{}("$." + strings.ToLower(val))
 	}
-	elem2dat, exists := dat.elemCache[strings.ToLower(elem2)]
-	if !exists {
-		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", elem2))
-		return
+	inps = append([]interface{}{m.GuildID}, inps)
+
+	where := "guild=?"
+	for i := 0; i < len(elems); i++ {
+		where += " AND (JSON_EXTRACT(elems, ?) IS NOT NULL)"
 	}
-	_, exists = dat.invCache[m.Author.ID][strings.ToLower(elem1)]
-	if !exists {
-		rsp.ErrorMessage(fmt.Sprintf("You don't have %s!", elem1))
-		return
-	}
-	_, exists = dat.invCache[m.Author.ID][strings.ToLower(elem2)]
-	if !exists {
-		rsp.ErrorMessage(fmt.Sprintf("You don't have %s!", elem2))
-		return
-	}
-	row := b.db.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE guild=? AND ((elem1=? AND elem2=?) OR (elem1=? AND elem2=?))", m.GuildID, elem1, elem2, elem2, elem1)
+	row := b.db.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE "+where, inps...)
 	var count int
 	err := row.Scan(&count)
 	if rsp.Error(err) {
@@ -43,7 +44,7 @@ func (b *EoD) combine(elem1 string, elem2 string, m msg, rsp rsp) {
 
 	if count > 0 {
 		var elem3 string
-		row = b.db.QueryRow("SELECT elem3 FROM eod_combos WHERE guild=? AND ((elem1=? AND elem2=?) OR (elem1=? AND elem2=?))", m.GuildID, elem1, elem2, elem2, elem1)
+		row = b.db.QueryRow("SELECT elem3 FROM eod_combos WHERE guild=? AND ((elem1=? AND elem2=?) OR (elem1=? AND elem2=?))", inps...)
 		err = row.Scan(&elem3)
 		if rsp.Error(err) {
 			return
@@ -54,8 +55,7 @@ func (b *EoD) combine(elem1 string, elem2 string, m msg, rsp rsp) {
 		}
 
 		dat.combCache[m.Author.ID] = comb{
-			elem1: elem1dat.Name,
-			elem2: elem2dat.Name,
+			elems: elems,
 			elem3: elem3,
 		}
 		_, exists := dat.invCache[m.Author.ID][strings.ToLower(elem3)]
@@ -80,8 +80,7 @@ func (b *EoD) combine(elem1 string, elem2 string, m msg, rsp rsp) {
 	}
 
 	dat.combCache[m.Author.ID] = comb{
-		elem1: elem1dat.Name,
-		elem2: elem2dat.Name,
+		elems: elems,
 		elem3: "",
 	}
 	lock.Lock()

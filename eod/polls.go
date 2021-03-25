@@ -38,9 +38,16 @@ func (b *EoD) createPoll(p poll) error {
 	}
 	switch p.Kind {
 	case pollCombo:
+		txt := ""
+		elems := p.Data["elems"].([]string)
+		for _, val := range elems {
+			txt += val + " + "
+		}
+		txt = txt[:len(txt)-2]
+		txt += " = " + p.Value3
 		m, err := b.dg.ChannelMessageSendEmbed(dat.votingChannel, &discordgo.MessageEmbed{
 			Title:       "Combination",
-			Description: p.Value1 + " + " + p.Value2 + " = " + p.Value3 + "\n\n" + "Suggested by <@" + p.Value4 + ">",
+			Description: txt + "\n\n" + "Suggested by <@" + p.Value4 + ">",
 			Footer: &discordgo.MessageEmbedFooter{
 				Text: "You can change your vote",
 			},
@@ -186,7 +193,7 @@ func (b *EoD) handlePollSuccess(p poll) {
 	}
 	switch p.Kind {
 	case pollCombo:
-		b.elemCreate(p.Value3, p.Value1, p.Value2, p.Value4, p.Guild)
+		b.elemCreate(p.Value3, p.Data["elems"].([]string), p.Value4, p.Guild)
 	case pollSign:
 		b.mark(p.Guild, p.Value1, p.Value2, p.Value4)
 	case pollImage:
