@@ -142,7 +142,7 @@ func (b *Bot) other(s *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func (b *Bot) pingCmd(rsp rsp) {
-	rsp.Resp("Pong! " + b.dg.HeartbeatLatency().String())
+	rsp.Resp(fmt.Sprintf("Pong! %dms", b.dg.HeartbeatLatency().Milliseconds()))
 }
 
 type ghSearch struct {
