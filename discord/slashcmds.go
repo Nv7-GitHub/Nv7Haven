@@ -76,6 +76,10 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "ping",
+			Description: "Confirm the bot is alive, and find out how laggy discord is!",
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"givenum": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -110,6 +114,9 @@ var (
 				mention = i.Data.Options[0].UserValue(bot.dg).ID
 			}
 			bot.warnsCmd(hasMention, mention, bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"ping": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.pingCmd(bot.newRespSlash(i))
 		},
 	}
 )

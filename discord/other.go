@@ -135,6 +135,14 @@ func (b *Bot) other(s *discordgo.Session, m *discordgo.MessageCreate) {
 		rating := rand.Intn(12)
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s is a %d / 10!", toRate, rating))
 	}
+
+	if b.startsWith(m, "ping") {
+		b.pingCmd(bot.newRespNormal(m))
+	}
+}
+
+func (b *Bot) pingCmd(rsp rsp) {
+	rsp.Resp("Pong! " + b.dg.HeartbeatLatency().String())
 }
 
 type ghSearch struct {
