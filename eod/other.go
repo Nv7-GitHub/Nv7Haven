@@ -93,7 +93,7 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 			prf += " + %s"
 			i++
 		}
-		params = append([]interface{}{pref}, params)
+		params = append([]interface{}{pref}, params...)
 		params[len(params)-1] = obscure(params[len(params)-1].(string))
 		txt := fmt.Sprintf(prf, params...)
 		out = append(out, hintCombo{
