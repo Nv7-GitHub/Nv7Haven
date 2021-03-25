@@ -8,8 +8,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-// element, guild, $.element, guild, guild, element - returns: made by x combos, used in x combos, found by x people
-const elemInfoDataCount = `SELECT a.cnt, b.cnt, c.cnt FROM (SELECT COUNT(1) AS cnt FROM eod_combos WHERE elem3=? AND guild=?) a, (SELECT COUNT(1) AS cnt FROM eod_combos WHERE JSON_EXTRACT(elems, ?) AND guild=?) b, (SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT("$.", LOWER(?))) IS NOT NULL)) c`
+// element, guild, element, guild, guild, element - returns: made by x combos, used in x combos, found by x people
+const elemInfoDataCount = `SELECT a.cnt, b.cnt, c.cnt FROM (SELECT COUNT(1) AS cnt FROM eod_combos WHERE elem3=? AND guild=?) a, (SELECT COUNT(1) AS cnt FROM eod_combos WHERE (JSON_EXTRACT(elems, CONCAT("$.", LOWER(name))) IS NOT NULL) AND guild=?) b, (SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT("$.", LOWER(?))) IS NOT NULL)) c`
 
 var infoChoices []*discordgo.ApplicationCommandOptionChoice
 var infoQuerys = map[string]string{
@@ -110,7 +110,7 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 		has = "don't "
 	}
 
-	row := b.db.QueryRow(elemInfoDataCount, el.Name, el.Guild, "$."+strings.ToLower(el.Name), el.Guild, el.Guild, el.Name)
+	row := b.db.QueryRow(elemInfoDataCount, el.Name, el.Guild, el.Name, el.Guild, el.Guild, el.Name)
 	var madeby int
 	var usedby int
 	var foundby int
