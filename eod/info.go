@@ -18,7 +18,7 @@ var infoQuerys = map[string]string{
 	"Complexity":   "SELECT name FROM eod_elements WHERE guild=? ORDER BY complexity %s LIMIT ? OFFSET ?",
 	"Difficulty":   "SELECT name FROM eod_elements WHERE guild=? ORDER BY difficulty %s LIMIT ? OFFSET ?",
 	"Made By":      "SELECT name FROM eod_elements ORDER BY (SELECT COUNT(1) AS cnt FROM eod_combos WHERE elem3=name AND guild=?) %s LIMIT ? OFFSET ?",
-	"Used In":      `SELECT name FROM eod_elements ORDER BY (SELECT COUNT(1) AS cnt FROM eod_combos WHERE (JSON_EXTRACT(elems, CONCAT("$.", LOWER(NAME))) IS NOT NULL) AND guild=?) %s LIMIT ? OFFSET ?"`,
+	"Used In":      `SELECT name FROM eod_elements ORDER BY (SELECT COUNT(1) AS cnt FROM eod_combos WHERE (JSON_EXTRACT(elems, CONCAT("$.", LOWER(name))) IS NOT NULL) AND guild=?) %s LIMIT ? OFFSET ?"`,
 	"Found By":     `SELECT name FROM eod_elements ORDER BY (SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT("$.", LOWER(name))) IS NOT NULL)) %s LIMIT ? OFFSET ?`,
 }
 
