@@ -6,6 +6,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+const maxComboLength = 20
+
 var combs = []string{
 	"+",
 	",",
@@ -55,6 +57,9 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 			for i, part := range parts {
 				parts[i] = strings.TrimSpace(part)
+			}
+			if len(parts) > maxComboLength {
+				parts = parts[:maxComboLength]
 			}
 			b.combine(parts, msg, rsp)
 			return
