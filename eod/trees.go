@@ -114,15 +114,33 @@ func (t *tree) addElem(elem string) (bool, string) {
 		if !exists {
 			return false, elem
 		}
+		if len(el.Parents) == 1 {
+			el.Parents = append(el.Parents, el.Parents[0])
+		}
 		for _, parent := range el.Parents {
+			if len(strings.TrimSpace(parent)) == 0 {
+				continue
+			}
 			suc, msg := t.addElem(parent)
 			if !suc {
 				return false, msg
 			}
 		}
+		perf := "%d. "
+		params := make([]interface{}, len(el.Parents))
+		for i, val := range el.Parents {
+			if i == 0 {
+				perf += "%s"
+			} else {
+				perf += " + %s"
+			}
+			params[i] = interface{}(t.elemCache[strings.ToLower(val)].Name)
+		}
+		params = append([]interface{}{t.num}, params...)
+		params = append(params, el.Name)
 		if len(el.Parents) == 2 {
-			t.text += fmt.Sprintf("%d. %s + %s = **%s**\n", t.num, el.Parents[0], el.Parents[1], el.Name)
-			t.rawTxt += fmt.Sprintf("%d. %s + %s = %s\n", t.num, el.Parents[0], el.Parents[1], el.Name)
+			t.text += fmt.Sprintf(perf+" = **%s**\n", params...)
+			t.rawTxt += fmt.Sprintf(perf+" = %s\n", params...)
 			t.num++
 		}
 		t.calced[strings.ToLower(elem)] = empty{}
