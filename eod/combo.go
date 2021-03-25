@@ -1,6 +1,7 @@
 package eod
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 )
@@ -41,14 +42,27 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 	if rsp.Error(err) {
 		return
 	}
-
+	cont := false
+	var elem3 string
 	if count > 0 {
-		var elem3 string
-		row = b.db.QueryRow("SELECT elem3 FROM eod_combos WHERE "+where, inps...)
-		err = row.Scan(&elem3)
+		var elemDat string
+		row = b.db.QueryRow("SELECT elems, elem3 FROM eod_combos WHERE "+where, inps...)
+		err = row.Scan(&elemDat, &elem3)
 		if rsp.Error(err) {
 			return
 		}
+		var comboDat map[string]empty
+		err = json.Unmarshal([]byte(elemDat), &comboDat)
+		if rsp.Error(err) {
+			return
+		}
+		if len(comboDat) != len(elems) {
+			cont = false
+		} else {
+			cont = true
+		}
+	}
+	if cont {
 
 		if dat.combCache == nil {
 			dat.combCache = make(map[string]comb)

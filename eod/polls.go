@@ -200,7 +200,15 @@ func (b *EoD) handlePollSuccess(p poll) {
 	}
 	switch p.Kind {
 	case pollCombo:
-		b.elemCreate(p.Value3, p.Data["elems"].([]string), p.Value4, p.Guild)
+		els, ok := p.Data["elems"].([]string)
+		if !ok {
+			dat := p.Data["elems"].([]interface{})
+			els = make([]string, len(dat))
+			for i, val := range dat {
+				els[i] = val.(string)
+			}
+		}
+		b.elemCreate(p.Value3, els, p.Value4, p.Guild)
 	case pollSign:
 		b.mark(p.Guild, p.Value1, p.Value2, p.Value4)
 	case pollImage:
