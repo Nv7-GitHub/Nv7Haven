@@ -17,7 +17,7 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 
 	inps := make([]interface{}, len(elems))
 	for i, val := range elems {
-		_, exists = dat.elemCache[val]
+		_, exists = dat.elemCache[strings.ToLower(val)]
 		if !exists {
 			rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", val))
 			return
