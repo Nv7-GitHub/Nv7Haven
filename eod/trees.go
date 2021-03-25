@@ -47,6 +47,9 @@ func giveElem(elemCache map[string]element, giveTree bool, elem string, out *map
 	}
 	if giveTree {
 		for _, parent := range el.Parents {
+			if len(strings.TrimSpace(parent)) == 0 {
+				continue
+			}
 			_, exists := (*out)[strings.ToLower(parent)]
 			if !exists {
 				msg, suc := giveElem(elemCache, giveTree, parent, out)
