@@ -46,7 +46,7 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 	var elem3 string
 	if count > 0 {
 		var elemDat string
-		res, err := b.db.Query("SELECT elems, elem3 FROM eod_combos WHERE "+where+" ORDER BY JSON_LENGTH(elems) DESC", inps...)
+		res, err := b.db.Query("SELECT elems, elem3 FROM eod_combos WHERE "+where+" ORDER BY JSON_LENGTH(elems) ASC", inps...)
 		if rsp.Error(err) {
 			return
 		}
