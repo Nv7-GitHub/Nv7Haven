@@ -39,9 +39,15 @@ func (b *EoD) createPoll(p poll) error {
 	switch p.Kind {
 	case pollCombo:
 		txt := ""
-		elems := p.Data["elems"].([]string)
+		elems, ok := p.Data["elems"].([]string)
+		if !ok {
+			elemDat := p.Data["elems"].([]interface{})
+			for i, val := range elemDat {
+				elems[i] = val.(string)
+			}
+		}
 		for _, val := range elems {
-			txt += val + " + "
+			txt += dat.elemCache[val].Name + " + "
 		}
 		txt = txt[:len(txt)-2]
 		txt += " = " + p.Value3

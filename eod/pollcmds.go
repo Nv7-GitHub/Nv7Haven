@@ -43,7 +43,7 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 	}
 	txt := "Suggested "
 	for _, val := range comb.elems {
-		txt += val + " + "
+		txt += dat.elemCache[val].Name + " + "
 	}
 	txt = txt[:len(txt)-3]
 	txt += " = " + suggestion + " ✨"

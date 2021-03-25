@@ -95,7 +95,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	for i, val := range parents {
 		inps[i] = interface{}(val)
 	}
-	inps = append([]interface{}{guild}, inps)
+	inps = append([]interface{}{guild}, inps...)
 
 	where := "guild=?"
 	for i := 0; i < len(parents); i++ {
