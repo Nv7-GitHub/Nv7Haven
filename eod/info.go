@@ -46,7 +46,7 @@ func (b *EoD) sortPageGetter(p pageSwitcher) (string, int, int, error) {
 	var res *sql.Rows
 	var err error
 	cnt := strings.Count(p.Query, "?")
-	if cnt == 1 {
+	if cnt == 3 {
 		res, err = b.db.Query(p.Query, p.Guild, pageLength, p.Page*pageLength)
 		if err != nil {
 			return "", length, length, err
