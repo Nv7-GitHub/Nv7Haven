@@ -42,6 +42,7 @@ func (b *EoD) createPoll(p poll) error {
 		elems, ok := p.Data["elems"].([]string)
 		if !ok {
 			elemDat := p.Data["elems"].([]interface{})
+			elems = make([]string, len(elemDat))
 			for i, val := range elemDat {
 				elems[i] = val.(string)
 			}
