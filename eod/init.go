@@ -41,6 +41,9 @@ func (b *EoD) init() {
 	b.dg.AddHandler(b.cmdHandler)
 	b.dg.AddHandler(b.reactionHandler)
 	b.dg.AddHandler(b.pageSwitchHandler)
+	b.dg.AddHandler(func(s *discordgo.Session, i *discordgo.Disconnect) {
+		fmt.Println("Disconnected!")
+	})
 
 	res, err := b.db.Query("SELECT * FROM eod_serverdata WHERE 1")
 	if err != nil {
