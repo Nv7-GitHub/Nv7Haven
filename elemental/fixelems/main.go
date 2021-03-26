@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"sync"
 
@@ -31,9 +32,8 @@ type Color struct {
 }
 
 const (
-	dbUser     = "u57_fypTHIW9t8"
-	dbPassword = "C7HgI6!GF0NaHCrdUi^tEMGy"
-	dbName     = "s57_nv7haven"
+	dbUser = "u57_fypTHIW9t8"
+	dbName = "s57_nv7haven"
 )
 
 func handle(err error) {
@@ -49,6 +49,10 @@ var complcache = make(map[string]int)
 
 // Fixelems fixes the elements
 func main() {
+	dbPass, err := ioutil.ReadFile("../../password.txt")
+	handle(err)
+	dbPassword := string(dbPass)
+
 	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
 	handle(err)
 	defer db.Close()

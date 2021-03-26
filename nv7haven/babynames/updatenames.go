@@ -31,9 +31,8 @@ const url = "https://www.ssa.gov/oact/babynames/names.zip"
 var reg = regexp.MustCompile("yob([0-9][0-9][0-9][0-9]).txt")
 
 const (
-	dbUser     = "u57_fypTHIW9t8"
-	dbPassword = "C7HgI6!GF0NaHCrdUi^tEMGy"
-	dbName     = "s57_nv7haven"
+	dbUser = "u57_fypTHIW9t8"
+	dbName = "s57_nv7haven"
 )
 
 var tm time.Time = time.Now()
@@ -45,6 +44,10 @@ func endTimer(print string) {
 }
 
 func main() {
+	dbPass, err := ioutil.ReadFile("../../password.txt")
+	handle(err)
+	dbPassword := string(dbPass)
+
 	// SQL
 	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp(host.kiwatech.net:3306)/"+dbName)
 	handle(err)
@@ -92,7 +95,7 @@ func main() {
 		handle(err)
 		defer fl.Close()
 		csv := csv.NewReader(fl)
-		for true {
+		for {
 			vals, err := csv.Read()
 			if vals == nil {
 				break

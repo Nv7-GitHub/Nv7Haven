@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 	"time"
@@ -27,9 +28,8 @@ type element struct {
 }
 
 const (
-	dbUser     = "u57_fypTHIW9t8"
-	dbPassword = "C7HgI6!GF0NaHCrdUi^tEMGy"
-	dbName     = "s57_nv7haven"
+	dbUser = "u57_fypTHIW9t8"
+	dbName = "s57_nv7haven"
 )
 
 func handle(err error) {
@@ -40,6 +40,10 @@ func handle(err error) {
 
 // Fixelems fixes the elements
 func main() {
+	dbPass, err := ioutil.ReadFile("../../password.txt")
+	handle(err)
+	dbPassword := string(dbPass)
+
 	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
 	handle(err)
 	defer db.Close()
