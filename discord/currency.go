@@ -35,7 +35,6 @@ func (b *Bot) ldbPageSwitcher(r *discordgo.MessageReactionAdd) {
 
 	res, err := b.db.Query("SELECT user, wallet FROM currency WHERE guilds LIKE ? ORDER BY wallet DESC LIMIT 10 OFFSET ?", "%"+r.GuildID+"%", page*10)
 	if err != nil {
-		fmt.Println(err)
 		return
 	}
 	defer res.Close()
@@ -48,12 +47,10 @@ func (b *Bot) ldbPageSwitcher(r *discordgo.MessageReactionAdd) {
 	for res.Next() {
 		err = res.Scan(&user, &wallet)
 		if err != nil {
-			fmt.Println(err)
 			return
 		}
 		usr, err = b.dg.User(user)
 		if err != nil {
-			fmt.Println(err)
 			return
 		}
 
@@ -63,7 +60,6 @@ func (b *Bot) ldbPageSwitcher(r *discordgo.MessageReactionAdd) {
 
 	gld, err := b.dg.Guild(r.GuildID)
 	if err != nil {
-		fmt.Println(err)
 		return
 	}
 	b.dg.ChannelMessageEditEmbed(r.ChannelID, r.MessageID, &discordgo.MessageEmbed{

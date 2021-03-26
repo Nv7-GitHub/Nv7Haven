@@ -97,12 +97,6 @@ func (b *Bot) math(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		defer func() {
-			if r := recover(); r != nil {
-				fmt.Println(r)
-			}
-		}()
-
 		_, exists := b.mathvars[m.GuildID]
 		if !exists {
 			b.mathvars[m.GuildID] = make(map[string]interface{})

@@ -1,8 +1,6 @@
 package discord
 
 import (
-	"fmt"
-
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -30,7 +28,6 @@ func (n *normalResp) Resp(msg string) {
 func (n *normalResp) Message(msg string) string {
 	m, err := n.b.dg.ChannelMessageSend(n.msg.ChannelID, msg)
 	if err != nil {
-		fmt.Println(err)
 		return ""
 	}
 	return m.ID
