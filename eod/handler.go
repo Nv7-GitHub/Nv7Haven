@@ -61,6 +61,11 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			if len(parts) > maxComboLength {
 				parts = parts[:maxComboLength]
 			}
+			for i, val := range parts {
+				if len(val) > 240 {
+					parts[i] = val[:240]
+				}
+			}
 			b.combine(parts, msg, rsp)
 			return
 		}
