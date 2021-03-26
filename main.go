@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"runtime/debug"
 	"syscall"
 
 	"github.com/Nv7-Github/Nv7Haven/discord"
@@ -39,6 +40,10 @@ func main() {
 	})
 	app.Use(cors.New())
 	app.Use(pprof.New())
+	app.Get("/freememory", func(c *fiber.Ctx) error {
+		debug.FreeOSMemory()
+		return nil
+	})
 
 	/* Testing*/
 	websockets(app)
