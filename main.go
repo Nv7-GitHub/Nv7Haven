@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"runtime"
 	"syscall"
 
 	"github.com/Nv7-Github/Nv7Haven/discord"
@@ -29,11 +28,7 @@ const (
 
 func main() {
 	// Error logging
-	file := "logs.txt"
-	if runtime.GOOS == "linux" {
-		file = "/home/container/logs.txt"
-	}
-	logFile, err := os.OpenFile(file, os.O_WRONLY|os.O_CREATE, os.ModePerm)
+	logFile, err := os.OpenFile("logs.txt", os.O_WRONLY|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		panic(err)
 	}
