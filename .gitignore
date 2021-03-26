@@ -36,3 +36,6 @@ main
 files/*
 packs/*
 logs.txt
+
+# Secret!
+password.txt

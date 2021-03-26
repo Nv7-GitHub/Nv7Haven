@@ -18,14 +18,18 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/pprof"
 
+	_ "embed"
+
 	_ "github.com/go-sql-driver/mysql" // mysql
 )
 
 const (
-	dbUser     = "u57_fypTHIW9t8"
-	dbPassword = "C7HgI6!GF0NaHCrdUi^tEMGy"
-	dbName     = "s57_nv7haven"
+	dbUser = "u57_fypTHIW9t8"
+	dbName = "s57_nv7haven"
 )
+
+//go:embed password.txt
+var dbPassword string
 
 func main() {
 	// Error logging
