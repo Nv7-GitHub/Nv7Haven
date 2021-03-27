@@ -3,11 +3,15 @@ package elemental
 import (
 	"database/sql"
 
+	_ "embed"
+
 	"github.com/Nv7-Github/firebase"
-	"github.com/Nv7-Github/firebase/db"
 	database "github.com/Nv7-Github/firebase/db"
 	"github.com/gofiber/fiber/v2"
 )
+
+//go:embed serviceAccount.json
+var serviceAccount string
 
 // CloseElemental cleans up elemental
 var CloseElemental func()
@@ -31,7 +35,7 @@ type Recent struct {
 type Elemental struct {
 	db    *sql.DB
 	cache map[string]Element
-	fdb   *db.Db
+	fdb   *database.Db
 }
 
 func (e *Elemental) init() {
