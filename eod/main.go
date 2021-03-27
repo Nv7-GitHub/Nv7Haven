@@ -10,9 +10,11 @@ import (
 )
 
 const (
-	token    = "ODE5MDc2OTIyODY3NzEyMDMx.YEhW1A.iCZTYR_8YH59k7vlYtUM5LZ8Kn8"
 	clientID = "819076922867712031"
 )
+
+//go:embed token.txt
+var token string
 
 var bot EoD
 var lock sync.RWMutex

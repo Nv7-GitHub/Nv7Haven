@@ -3,10 +3,15 @@ package nv7haven
 import (
 	"database/sql"
 
+	_ "embed"
+
 	"github.com/Nv7-Github/firebase"
 	database "github.com/Nv7-Github/firebase/db"
 	"github.com/gofiber/fiber/v2"
 )
+
+//go:embed serviceAccount.json
+var serviceAccount string
 
 // Nv7Haven is the backend for https://nv7haven.tk
 type Nv7Haven struct {
