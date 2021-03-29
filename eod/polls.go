@@ -51,6 +51,9 @@ func (b *EoD) createPoll(p poll) error {
 			txt += dat.elemCache[strings.ToLower(val)].Name + " + "
 		}
 		txt = txt[:len(txt)-2]
+		if len(elems) == 1 {
+			txt += " + " + elems[0]
+		}
 		txt += " = " + p.Value3
 		m, err := b.dg.ChannelMessageSendEmbed(dat.votingChannel, &discordgo.MessageEmbed{
 			Title:       "Combination",
