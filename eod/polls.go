@@ -52,7 +52,7 @@ func (b *EoD) createPoll(p poll) error {
 		}
 		txt = txt[:len(txt)-2]
 		if len(elems) == 1 {
-			txt += " + " + elems[0]
+			txt += " + " + dat.elemCache[strings.ToLower(elems[0])].Name
 		}
 		txt += " = " + p.Value3
 		m, err := b.dg.ChannelMessageSendEmbed(dat.votingChannel, &discordgo.MessageEmbed{
