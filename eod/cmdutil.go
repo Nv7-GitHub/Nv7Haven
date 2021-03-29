@@ -37,7 +37,9 @@ func (n *normalResp) Embed(emb *discordgo.MessageEmbed) string {
 	return msg.ID
 }
 
-func (n *normalResp) BlankReply() {
+func (n *normalResp) EmbedFollowup(emb *discordgo.MessageEmbed) string {
+	msg, _ := n.b.dg.ChannelMessageSendEmbed(n.msg.ChannelID, emb)
+	return msg.ID
 }
 
 func (b *EoD) newMsgNormal(m *discordgo.MessageCreate) msg {
@@ -127,10 +129,14 @@ func (s *slashResp) Embed(emb *discordgo.MessageEmbed) string {
 	return m.ID
 }
 
-func (s *slashResp) BlankReply() {
+func (s *slashResp) EmbedFollowup(emb *discordgo.MessageEmbed) string {
 	s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
 	})
+	msg, _ := s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
+		Embeds: []*discordgo.MessageEmbed{emb},
+	})
+	return msg.ID
 }
 
 func (b *EoD) newMsgSlash(i *discordgo.InteractionCreate) msg {

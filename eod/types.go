@@ -109,5 +109,5 @@ type rsp interface {
 	Message(msg string) string
 	Embed(emb *discordgo.MessageEmbed) string
 	Resp(msg string)
-	BlankReply()
+	EmbedFollowup(emb *discordgo.MessageEmbed) string
 }

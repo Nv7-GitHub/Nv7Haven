@@ -103,15 +103,13 @@ func (b *EoD) newPageSwitcher(ps pageSwitcher, m msg, rsp rsp) {
 	if rsp.Error(err) {
 		return
 	}
-	rsp.BlankReply()
-	msg, _ := b.dg.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
+	id := rsp.EmbedFollowup(&discordgo.MessageEmbed{
 		Title:       ps.Title,
 		Description: cont,
 		Footer: &discordgo.MessageEmbedFooter{
 			Text: fmt.Sprintf("Page %d/%d", ps.Page+1, length+1),
 		},
 	})
-	id := msg.ID
 	b.dg.MessageReactionAdd(m.ChannelID, id, leftArrow)
 	b.dg.MessageReactionAdd(m.ChannelID, id, rightArrow)
 	if dat.pageSwitchers == nil {
