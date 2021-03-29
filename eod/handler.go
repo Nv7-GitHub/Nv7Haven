@@ -74,6 +74,9 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 				parts[i] = k
 				i++
 			}
+			if len(parts) == 1 {
+				parts = append(parts, parts[0])
+			}
 			b.combine(parts, msg, rsp)
 			return
 		}
