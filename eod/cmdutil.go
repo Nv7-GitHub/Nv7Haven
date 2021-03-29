@@ -129,7 +129,7 @@ func (s *slashResp) Embed(emb *discordgo.MessageEmbed) string {
 
 func (s *slashResp) BlankReply() {
 	s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseAcknowledge,
+		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
 	})
 }
 
