@@ -38,8 +38,7 @@ func (n *normalResp) Embed(emb *discordgo.MessageEmbed) string {
 }
 
 func (n *normalResp) EmbedFollowup(emb *discordgo.MessageEmbed) string {
-	msg, _ := n.b.dg.ChannelMessageSendEmbed(n.msg.ChannelID, emb)
-	return msg.ID
+	return n.Embed(emb)
 }
 
 func (b *EoD) newMsgNormal(m *discordgo.MessageCreate) msg {
