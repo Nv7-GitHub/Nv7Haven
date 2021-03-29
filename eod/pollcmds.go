@@ -46,6 +46,9 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 		txt += dat.elemCache[strings.ToLower(val)].Name + " + "
 	}
 	txt = txt[:len(txt)-3]
+	if len(comb.elems) == 1 {
+		txt += " + " + dat.elemCache[strings.ToLower(comb.elems[0])].Name
+	}
 	txt += " = " + suggestion + " ✨"
 	rsp.Resp(txt)
 }
