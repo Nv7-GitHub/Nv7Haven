@@ -24,15 +24,40 @@ func (b *EoD) init() {
 		}(v)
 	}
 	b.dg.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		if (i.Data.Name != "suggest") && (i.Data.Name != "mark") && (i.Data.Name != "image") && (i.Data.Name != "inv") && (i.Data.Name != "lb") && (i.Data.Name != "addcat") && (i.Data.Name != "cat") && (i.Data.Name != "hint") && (i.Data.Name != "stats") && (i.Data.Name != "idea") && (i.Data.Name != "about") {
+		rsp := b.newRespSlash(i)
+		if (i.Data.Name != "suggest") && (i.Data.Name != "mark") && (i.Data.Name != "image") && (i.Data.Name != "inv") && (i.Data.Name != "lb") && (i.Data.Name != "addcat") && (i.Data.Name != "cat") && (i.Data.Name != "hint") && (i.Data.Name != "stats") && (i.Data.Name != "idea") && (i.Data.Name != "about") && (i.Data.Name != "path") {
 			isMod, err := b.isMod(i.Member.User.ID, b.newMsgSlash(i))
-			rsp := b.newRespSlash(i)
 			if rsp.Error(err) {
 				return
 			}
 			if !isMod {
 				rsp.ErrorMessage("You need to have permission `Administrator`!")
 				return
+			}
+		}
+		if i.Data.Name == "path" {
+			isMod, err := b.isMod(i.Member.User.ID, b.newMsgSlash(i))
+			if rsp.Error(err) {
+				return
+			}
+			if !isMod {
+				lock.RLock()
+				dat, exists := b.dat[i.GuildID]
+				lock.RUnlock()
+				if !exists {
+					rsp.ErrorMessage("You need to have permission `Administrator`!")
+					return
+				}
+				inv, exists := dat.invCache[i.User.ID]
+				if !exists {
+					rsp.ErrorMessage("You need to have permission `Administrator`!")
+					return
+				}
+				_, exists = inv[strings.ToLower(i.Data.Options[0].StringValue())]
+				if !exists {
+					rsp.ErrorMessage("You don't have that element!")
+					return
+				}
 			}
 		}
 		if h, ok := commandHandlers[i.Data.Name]; ok {
