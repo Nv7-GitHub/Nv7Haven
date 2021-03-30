@@ -81,11 +81,11 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if strings.HasPrefix(m.Content, "?") {
 		name := strings.TrimSpace(m.Content[1:])
-		isGood := true
+		isGood := false
 		if strings.Contains(name, "?") {
 			for _, val := range name {
 				if val != '?' {
-					isGood = false
+					isGood = true
 					break
 				}
 			}
