@@ -80,6 +80,19 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if strings.HasPrefix(m.Content, "?") {
-		b.infoCmd(strings.TrimSpace(m.Content[1:]), msg, rsp)
+		name := strings.TrimSpace(m.Content[1:])
+		isGood := true
+		if strings.Contains(name, "?") {
+			for _, val := range name {
+				if val != '?' {
+					isGood = false
+					break
+				}
+			}
+		}
+		if !isGood || len(name) == 0 {
+			return
+		}
+		b.infoCmd(name, msg, rsp)
 	}
 }
