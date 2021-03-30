@@ -28,13 +28,13 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 			rsp.ErrorMessage(fmt.Sprintf("You don't have %s!", val))
 			return
 		}
-		inps[i] = interface{}("$." + strings.ToLower(val))
+		inps[i] = interface{}(strings.ToLower(val))
 	}
 	inps = append([]interface{}{m.GuildID}, inps...)
 
 	where := "guild=?"
 	for i := 0; i < len(elems); i++ {
-		where += " AND (JSON_EXTRACT(elems, ?) IS NOT NULL)"
+		where += ` AND (JSON_EXTRACT(elems, CONCAT("$.", ?)) IS NOT NULL)`
 	}
 	cont := false
 	var elem3 string
