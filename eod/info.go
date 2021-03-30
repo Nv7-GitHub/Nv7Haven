@@ -97,6 +97,9 @@ func (b *EoD) sortCmd(query string, order bool, m msg, rsp rsp) {
 }
 
 func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
+	if len(elem) == 0 {
+		return
+	}
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -105,6 +108,18 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 	}
 	el, exists := dat.elemCache[strings.ToLower(elem)]
 	if !exists {
+		if strings.Contains(elem, "?") {
+			isValid := false
+			for _, letter := range elem {
+				if letter != '?' {
+					isValid = true
+					break
+				}
+			}
+			if !isValid {
+				return
+			}
+		}
 		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", elem))
 		return
 	}
