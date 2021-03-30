@@ -14,7 +14,7 @@ var starterElements = []element{
 		Creator:    "",
 		Complexity: 0,
 		Difficulty: 0,
-		CreatedOn:  time.Unix(0, 0),
+		CreatedOn:  time.Unix(1, 0),
 		Parents:    []string{},
 	},
 	{
@@ -24,7 +24,7 @@ var starterElements = []element{
 		Creator:    "",
 		Complexity: 0,
 		Difficulty: 0,
-		CreatedOn:  time.Unix(1, 0),
+		CreatedOn:  time.Unix(2, 0),
 		Parents:    []string{},
 	},
 	{
@@ -34,7 +34,7 @@ var starterElements = []element{
 		Creator:    "",
 		Complexity: 0,
 		Difficulty: 0,
-		CreatedOn:  time.Unix(2, 0),
+		CreatedOn:  time.Unix(3, 0),
 		Parents:    []string{},
 	},
 	{
@@ -44,7 +44,7 @@ var starterElements = []element{
 		Creator:    "",
 		Complexity: 0,
 		Difficulty: 0,
-		CreatedOn:  time.Unix(3, 0),
+		CreatedOn:  time.Unix(4, 0),
 		Parents:    []string{},
 	},
 }
