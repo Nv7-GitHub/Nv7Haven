@@ -9,8 +9,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-// element, guild, element, guild, guild, element - returns: made by x combos, used in x combos, found by x people
-const elemInfoDataCount = `SELECT a.cnt, b.cnt, c.cnt FROM (SELECT COUNT(1) AS cnt FROM eod_combos WHERE elem3=? AND guild=?) a, (SELECT COUNT(1) AS cnt FROM eod_combos WHERE (JSON_EXTRACT(elems, CONCAT("$.", LOWER(?))) IS NOT NULL) AND guild=?) b, (SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT("$.", LOWER(?))) IS NOT NULL)) c`
+// element, guild, element, guild, guild, element, guild, element - returns: made by x combos, used in x combos, found by x people
+const elemInfoDataCount = `SELECT a.cnt, b.cnt, c.cnt, d.cnt FROM (SELECT COUNT(1) AS cnt FROM eod_combos WHERE elem3=? AND guild=?) a, (SELECT COUNT(1) AS cnt FROM eod_combos WHERE (JSON_EXTRACT(elems, CONCAT("$.", LOWER(?))) IS NOT NULL) AND guild=?) b, (SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT("$.", LOWER(?))) IS NOT NULL)) c, (SELECT e.rw AS cnt FROM (SELECT ROW_NUMBER() OVER (ORDER BY createdon ASC) AS rw, name FROM eod_elements WHERE guild=?) e WHERE e.name=?) d`
 
 var infoChoices []*discordgo.ApplicationCommandOptionChoice
 var infoQuerys = map[string]string{
@@ -136,11 +136,12 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 		has = "don't "
 	}
 
-	row := b.db.QueryRow(elemInfoDataCount, el.Name, el.Guild, el.Name, el.Guild, el.Guild, el.Name)
+	row := b.db.QueryRow(elemInfoDataCount, el.Name, el.Guild, el.Name, el.Guild, el.Guild, el.Name, el.Guild, el.Name)
 	var madeby int
 	var usedby int
 	var foundby int
-	err := row.Scan(&madeby, &usedby, &foundby)
+	var id int
+	err := row.Scan(&madeby, &usedby, &foundby, &id)
 	if rsp.Error(err) {
 		return
 	}
@@ -160,7 +161,7 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 
 	rsp.Embed(&discordgo.MessageEmbed{
 		Title:       el.Name + " Info",
-		Description: fmt.Sprintf("Created by <@%s>\nCreated on %s\nUsed in %d combo%s\nMade with %d combo%s\nFound by %d player%s\nComplexity: %d\nDifficulty: %d\n<@%s> **You %shave this.**\n\n%s", el.Creator, el.CreatedOn.Format("January 2, 2006, 3:04 PM"), usedby, usedbysuff, madeby, madebysuff, foundby, foundbysuff, el.Complexity, el.Difficulty, m.Author.ID, has, el.Comment),
+		Description: fmt.Sprintf("Element **#%d**\nCreated by <@%s>\nCreated on %s\nUsed in %d combo%s\nMade with %d combo%s\nFound by %d player%s\nComplexity: %d\nDifficulty: %d\n<@%s> **You %shave this.**\n\n%s", id, el.Creator, el.CreatedOn.Format("January 2, 2006, 3:04 PM"), usedby, usedbysuff, madeby, madebysuff, foundby, foundbysuff, el.Complexity, el.Difficulty, m.Author.ID, has, el.Comment),
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
 			URL: el.Image,
 		},
