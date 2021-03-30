@@ -21,6 +21,11 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+	if strings.HasPrefix(m.Content, "?") {
+		b.infoCmd(strings.TrimSpace(m.Content[1:]), false, 0, msg, rsp)
+		return
+	}
+
 	if strings.HasPrefix(m.Content, "*2") {
 		if !b.checkServer(msg, rsp) {
 			return
@@ -77,9 +82,5 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			b.combine(parts, msg, rsp)
 			return
 		}
-	}
-
-	if strings.HasPrefix(m.Content, "?") {
-		b.infoCmd(strings.TrimSpace(m.Content[1:]), false, 0, msg, rsp)
 	}
 }

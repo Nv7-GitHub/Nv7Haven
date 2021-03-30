@@ -34,7 +34,7 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 
 	where := "guild=?"
 	for i := 0; i < len(elems); i++ {
-		where += ` AND (JSON_EXTRACT(elems, CONCAT("$.", ?)) IS NOT NULL)`
+		where += ` AND (JSON_EXTRACT(elems, CONCAT('$."', ?, '"')) IS NOT NULL)`
 	}
 	cont := false
 	var elem3 string
