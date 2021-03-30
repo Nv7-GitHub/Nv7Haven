@@ -80,6 +80,6 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if strings.HasPrefix(m.Content, "?") {
-		b.infoCmd(strings.TrimSpace(m.Content[1:]), msg, rsp)
+		b.infoCmd(strings.TrimSpace(m.Content[1:]), false, 0, msg, rsp)
 	}
 }

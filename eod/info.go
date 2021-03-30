@@ -96,9 +96,16 @@ func (b *EoD) sortCmd(query string, order bool, m msg, rsp rsp) {
 	}, m, rsp)
 }
 
-func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
+func (b *EoD) infoCmd(elem string, isNumber bool, number int, m msg, rsp rsp) {
 	if len(elem) == 0 {
 		return
+	}
+	if isNumber {
+		row := b.db.QueryRow(`SELECT e.name AS cnt FROM (SELECT ROW_NUMBER() OVER (ORDER BY createdon ASC) AS rw, name FROM eod_elements WHERE guild=?) e WHERE e.rw=?`, m.GuildID, number)
+		err := row.Scan(&elem)
+		if rsp.Error(err) {
+			return
+		}
 	}
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]

@@ -297,6 +297,24 @@ var (
 			Name:        "about",
 			Description: "Get help and learn about the bot!",
 		},
+		{
+			Name:        "get",
+			Description: "Get an element's info!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "name",
+					Description: "Name of the element!",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "id",
+					Description: "Optionally, get the ID instead.",
+					Required:    false,
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -380,6 +398,13 @@ var (
 		},
 		"about": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.aboutCmd(bot.newRespSlash(i))
+		},
+		"get": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			num := 0
+			if len(i.Data.Options) > 1 {
+				num = int(i.Data.Options[1].IntValue())
+			}
+			bot.infoCmd(i.Data.Options[0].StringValue(), len(i.Data.Options) > 1, num, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )
