@@ -48,7 +48,7 @@ func (b *EoD) init() {
 					rsp.ErrorMessage("You need to have permission `Administrator`!")
 					return
 				}
-				inv, exists := dat.invCache[i.User.ID]
+				inv, exists := dat.invCache[i.Member.User.ID]
 				if !exists {
 					rsp.ErrorMessage("You need to have permission `Administrator`!")
 					return
