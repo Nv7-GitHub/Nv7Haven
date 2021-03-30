@@ -10,7 +10,7 @@ import (
 )
 
 // element, guild, element, guild, guild, element, guild, element - returns: made by x combos, used in x combos, found by x people
-const elemInfoDataCount = `SELECT a.cnt, b.cnt, c.cnt, d.cnt FROM (SELECT COUNT(1) AS cnt FROM eod_combos WHERE elem3=? AND guild=?) a, (SELECT COUNT(1) AS cnt FROM eod_combos WHERE (JSON_EXTRACT(elems, CONCAT("$.", LOWER(?))) IS NOT NULL) AND guild=?) b, (SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT("$.", LOWER(?))) IS NOT NULL)) c, (SELECT e.rw AS cnt FROM (SELECT ROW_NUMBER() OVER (ORDER BY createdon ASC) AS rw, name FROM eod_elements WHERE guild=?) e WHERE e.name=?) d`
+const elemInfoDataCount = `SELECT a.cnt, b.cnt, c.cnt, d.cnt FROM (SELECT COUNT(1) AS cnt FROM eod_combos WHERE elem3=? AND guild=?) a, (SELECT COUNT(1) AS cnt FROM eod_combos WHERE (JSON_EXTRACT(elems, CONCAT('$."', LOWER(?), '"')) IS NOT NULL) AND guild=?) b, (SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT('$."', LOWER(?), '"')) IS NOT NULL)) c, (SELECT e.rw AS cnt FROM (SELECT ROW_NUMBER() OVER (ORDER BY createdon ASC) AS rw, name FROM eod_elements WHERE guild=?) e WHERE e.name=?) d`
 
 var infoChoices []*discordgo.ApplicationCommandOptionChoice
 var infoQuerys = map[string]string{
@@ -19,8 +19,8 @@ var infoQuerys = map[string]string{
 	"Complexity":   "SELECT name FROM eod_elements WHERE guild=? ORDER BY complexity %s LIMIT ? OFFSET ?",
 	"Difficulty":   "SELECT name FROM eod_elements WHERE guild=? ORDER BY difficulty %s LIMIT ? OFFSET ?",
 	"Made By":      "SELECT name FROM eod_elements WHERE guild=? ORDER BY (SELECT COUNT(1) AS cnt FROM eod_combos WHERE elem3=name AND guild=?) %s LIMIT ? OFFSET ?",
-	"Used In":      `SELECT name FROM eod_elements WHERE guild=? ORDER BY (SELECT COUNT(1) AS cnt FROM eod_combos WHERE (JSON_EXTRACT(elems, CONCAT("$.", LOWER(name))) IS NOT NULL) AND guild=?) %s LIMIT ? OFFSET ?`,
-	"Found By":     `SELECT name FROM eod_elements WHERE guild=?  ORDER BY (SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT("$.", LOWER(name))) IS NOT NULL)) %s LIMIT ? OFFSET ?`,
+	"Used In":      `SELECT name FROM eod_elements WHERE guild=? ORDER BY (SELECT COUNT(1) AS cnt FROM eod_combos WHERE (JSON_EXTRACT(elems, CONCAT('$."', LOWER(name), '"')) IS NOT NULL) AND guild=?) %s LIMIT ? OFFSET ?`,
+	"Found By":     `SELECT name FROM eod_elements WHERE guild=?  ORDER BY (SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT('$."', LOWER(name), '"')) IS NOT NULL)) %s LIMIT ? OFFSET ?`,
 }
 
 func (b *EoD) initInfoChoices() {
