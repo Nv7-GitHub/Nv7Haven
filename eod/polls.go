@@ -184,10 +184,10 @@ func (b *EoD) reactionHandler(s *discordgo.Session, r *discordgo.MessageReaction
 		b.dat[r.GuildID] = dat
 		lock.Unlock()
 		if (p.Upvotes - p.Downvotes) >= dat.voteCount {
+			b.dg.ChannelMessageDelete(p.Channel, p.Message)
 			b.handlePollSuccess(p)
 			delete(dat.polls, r.MessageID)
 			b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", p.Guild, p.Channel, p.Message)
-			b.dg.ChannelMessageDelete(p.Channel, p.Message)
 			lock.Lock()
 			b.dat[r.GuildID] = dat
 			lock.Unlock()
@@ -282,10 +282,10 @@ func (b *EoD) unReactionHandler(s *discordgo.Session, r *discordgo.MessageReacti
 		b.dat[r.GuildID] = dat
 		lock.Unlock()
 		if (p.Upvotes - p.Downvotes) >= dat.voteCount {
+			b.dg.ChannelMessageDelete(p.Channel, p.Message)
 			b.handlePollSuccess(p)
 			delete(dat.polls, r.MessageID)
 			b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", p.Guild, p.Channel, p.Message)
-			b.dg.ChannelMessageDelete(p.Channel, p.Message)
 			lock.Lock()
 			b.dat[r.GuildID] = dat
 			lock.Unlock()
