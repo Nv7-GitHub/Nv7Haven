@@ -2,7 +2,6 @@ package eod
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
@@ -59,23 +58,18 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 		return
 	}
 	defer combs.Close()
-	var elemDat string
-	var elemCombos map[string]empty
 	out := make([]hintCombo, 0)
+	var elemTxt string
 	for combs.Next() {
-		err = combs.Scan(&elemDat)
+		err = combs.Scan(&elemTxt)
 		if rsp.Error(err) {
 			return
 		}
-		elemCombos = make(map[string]empty)
-		err = json.Unmarshal([]byte(elemDat), &elemCombos)
-		if rsp.Error(err) {
-			return
-		}
+		elems := strings.Split(elemTxt, "+")
 
 		hasElems := true
-		for k := range elemCombos {
-			_, exists := inv[strings.ToLower(k)]
+		for _, val := range elems {
+			_, exists := inv[strings.ToLower(val)]
 			if !exists {
 				hasElems = false
 			}
@@ -87,9 +81,9 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 			ex = 1
 		}
 		prf := "%s"
-		params := make([]interface{}, len(elemCombos))
+		params := make([]interface{}, len(elems))
 		i := 0
-		for k := range elemCombos {
+		for _, k := range elems {
 			params[i] = interface{}(dat.elemCache[strings.ToLower(k)].Name)
 			if i == 0 {
 				prf += " %s"
@@ -99,10 +93,6 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 			i++
 		}
 		params = append([]interface{}{pref}, params...)
-		if len(elemCombos) == 1 {
-			params = append(params, params[1])
-			prf += " + %s"
-		}
 		params[len(params)-1] = obscure(params[len(params)-1].(string))
 		txt := fmt.Sprintf(prf, params...)
 		out = append(out, hintCombo{
