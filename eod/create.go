@@ -2,6 +2,7 @@ package eod
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 )
@@ -115,4 +116,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	b.dat[guild] = dat
 	lock.Unlock()
 	b.dg.ChannelMessageSend(dat.newsChannel, newText+" "+text+" - **"+name+"** (By <@"+creator+">)")
+	if guild == "819077688371314718" {
+		fmt.Println(name, parents)
+	}
 }
