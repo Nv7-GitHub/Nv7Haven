@@ -28,11 +28,11 @@ func (b *EoD) isMod(userID string, guildID string, m msg) (bool, error) {
 	}
 
 	for _, roleID := range user.Roles {
+		if roleID == dat.modRole {
+			return true, nil
+		}
 		for _, role := range roles {
 			if role.ID == roleID && ((role.Permissions & discordgo.PermissionAdministrator) == discordgo.PermissionAdministrator) {
-				return true, nil
-			}
-			if role.ID == dat.modRole {
 				return true, nil
 			}
 		}
