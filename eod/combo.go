@@ -40,6 +40,13 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 		_, hasElement := inv[strings.ToLower(elem)]
 		if !hasElement {
 			rsp.ErrorMessage(fmt.Sprintf("You don't have **%s**!", dat.elemCache[strings.ToLower(elem)].Name))
+			_, exists := dat.combCache[m.Author.ID]
+			if exists {
+				delete(dat.combCache, m.Author.ID)
+				lock.Lock()
+				b.dat[m.GuildID] = dat
+				lock.Unlock()
+			}
 			return
 		}
 	}
