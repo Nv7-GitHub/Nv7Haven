@@ -26,7 +26,7 @@ func (b *EoD) init() {
 	b.dg.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		rsp := b.newRespSlash(i)
 		if (i.Data.Name != "suggest") && (i.Data.Name != "mark") && (i.Data.Name != "image") && (i.Data.Name != "inv") && (i.Data.Name != "lb") && (i.Data.Name != "addcat") && (i.Data.Name != "cat") && (i.Data.Name != "hint") && (i.Data.Name != "stats") && (i.Data.Name != "idea") && (i.Data.Name != "about") && (i.Data.Name != "path") && (i.Data.Name != "get") {
-			isMod, err := b.isMod(i.Member.User.ID, b.newMsgSlash(i))
+			isMod, err := b.isMod(i.Member.User.ID, i.GuildID, bot.newMsgSlash(i))
 			if rsp.Error(err) {
 				return
 			}
@@ -36,7 +36,7 @@ func (b *EoD) init() {
 			}
 		}
 		if i.Data.Name == "path" {
-			isMod, err := b.isMod(i.Member.User.ID, b.newMsgSlash(i))
+			isMod, err := b.isMod(i.Member.User.ID, i.GuildID, bot.newMsgSlash(i))
 			if rsp.Error(err) {
 				return
 			}
@@ -147,6 +147,18 @@ func (b *EoD) init() {
 				dat = serverData{}
 			}
 			dat.pollCount = intval
+			lock.Lock()
+			b.dat[guild] = dat
+			lock.Unlock()
+
+		case modRole:
+			lock.RLock()
+			dat, exists := b.dat[guild]
+			lock.RUnlock()
+			if !exists {
+				dat = serverData{}
+			}
+			dat.modRole = value1
 			lock.Lock()
 			b.dat[guild] = dat
 			lock.Unlock()

@@ -197,3 +197,37 @@ func (b *EoD) setPlayChannel(channelID string, isPlayChannel bool, msg msg, rsp 
 
 	rsp.Resp("Succesfully marked channel as play channel!")
 }
+
+func (b *EoD) setModRole(roleID string, msg msg, rsp rsp) {
+	row := b.db.QueryRow("SELECT COUNT(1) FROM eod_serverdata WHERE guild=? AND type=?", msg.GuildID, modRole)
+	var count int
+	err := row.Scan(&count)
+	if rsp.Error(err) {
+		return
+	}
+
+	if count == 1 {
+		_, err = b.db.Exec("UPDATE eod_serverdata SET value1=? WHERE guild=? AND type=?", roleID, msg.GuildID, modRole)
+		if rsp.Error(err) {
+			return
+		}
+	} else {
+		_, err = b.db.Exec("INSERT INTO eod_serverdata VALUES ( ?, ?, ?, ? )", msg.GuildID, modRole, roleID, 0)
+		if rsp.Error(err) {
+			return
+		}
+	}
+
+	lock.RLock()
+	dat, exists := b.dat[msg.GuildID]
+	lock.RUnlock()
+	if !exists {
+		dat = serverData{}
+	}
+	dat.modRole = roleID
+	lock.Lock()
+	b.dat[msg.GuildID] = dat
+	lock.Unlock()
+
+	rsp.Resp("Succesfully updated mod role!")
+}

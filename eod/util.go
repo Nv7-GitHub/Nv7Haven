@@ -2,6 +2,7 @@ package eod
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -9,7 +10,14 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-func (b *EoD) isMod(userID string, m msg) (bool, error) {
+func (b *EoD) isMod(userID string, guildID string, m msg) (bool, error) {
+	lock.RLock()
+	dat, exists := b.dat[guildID]
+	lock.RUnlock()
+	if !exists {
+		return false, errors.New("server not initialized")
+	}
+
 	user, err := b.dg.GuildMember(m.GuildID, userID)
 	if err != nil {
 		return false, err
@@ -22,6 +30,9 @@ func (b *EoD) isMod(userID string, m msg) (bool, error) {
 	for _, roleID := range user.Roles {
 		for _, role := range roles {
 			if role.ID == roleID && ((role.Permissions & discordgo.PermissionAdministrator) == discordgo.PermissionAdministrator) {
+				return true, nil
+			}
+			if role.ID == dat.modRole {
 				return true, nil
 			}
 		}

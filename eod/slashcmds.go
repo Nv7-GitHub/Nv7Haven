@@ -315,13 +315,25 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "setmodrole",
+			Description: "Set a role to be a role for moderators!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionRole,
+					Name:        "role",
+					Description: "Role to be set as moderator role",
+					Required:    true,
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.setNewsChannel(i.Data.Options[0].RoleValue(bot.dg, i.GuildID).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.setNewsChannel(i.Data.Options[0].ChannelValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"setvotingchannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.setVotingChannel(i.Data.Options[0].RoleValue(bot.dg, i.GuildID).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.setVotingChannel(i.Data.Options[0].ChannelValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"setvotes": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.setVoteCount(int(i.Data.Options[0].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
@@ -334,7 +346,7 @@ var (
 			if len(i.Data.Options) > 1 {
 				isPlayChannel = i.Data.Options[1].BoolValue()
 			}
-			bot.setPlayChannel(i.Data.Options[0].RoleValue(bot.dg, i.GuildID).ID, isPlayChannel, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.setPlayChannel(i.Data.Options[0].ChannelValue(bot.dg).ID, isPlayChannel, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"suggest": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			autocapitalize := true
@@ -405,6 +417,9 @@ var (
 				num = int(i.Data.Options[1].IntValue())
 			}
 			bot.infoCmd(i.Data.Options[0].StringValue(), len(i.Data.Options) > 1, num, bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"setmodrole": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.setModRole(i.Data.Options[0].RoleValue(bot.dg, i.GuildID).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )
