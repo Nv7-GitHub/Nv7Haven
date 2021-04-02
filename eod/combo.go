@@ -9,6 +9,9 @@ import (
 const blueCircle = "🔵"
 
 func elems2txt(elems []string) string {
+	for i, elem := range elems {
+		elems[i] = strings.ToLower(elem)
+	}
 	sort.Strings(elems)
 	return strings.Join(elems, "+")
 }
