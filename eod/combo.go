@@ -39,7 +39,7 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 
 		_, hasElement := inv[strings.ToLower(elem)]
 		if !hasElement {
-			rsp.ErrorMessage(fmt.Sprintf("You don't have %s", dat.elemCache[strings.ToLower(elem)].Name))
+			rsp.ErrorMessage(fmt.Sprintf("You don't have **%s**!", dat.elemCache[strings.ToLower(elem)].Name))
 			return
 		}
 	}
