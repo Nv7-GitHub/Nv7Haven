@@ -3,6 +3,7 @@ package eod
 import (
 	"fmt"
 	"math"
+	"sort"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -191,7 +192,7 @@ func (b *EoD) invCmd(m msg, rsp rsp) {
 		items[i] = dat.elemCache[k].Name
 		i++
 	}
-
+	sort.Strings(items)
 	b.newPageSwitcher(pageSwitcher{
 		Kind:       pageSwitchInv,
 		Title:      fmt.Sprintf("%s's Inventory (%d, %s%%)", m.Author.Username, len(inv), formatFloat(float32(len(items))/float32(len(dat.elemCache))*100, 2)),
