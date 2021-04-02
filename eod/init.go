@@ -17,7 +17,7 @@ func (b *EoD) init() {
 			if val.Name == "elemsort" {
 				val.Options[0].Choices = infoChoices
 			}
-			_, err := b.dg.ApplicationCommandCreate(clientID, "819077688371314718", val)
+			_, err := b.dg.ApplicationCommandCreate(clientID, "", val) // 819077688371314718 for testing
 			if err != nil {
 				panic(err)
 			}
