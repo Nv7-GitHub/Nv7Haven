@@ -3,6 +3,7 @@ package eod
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -150,6 +151,7 @@ func (b *EoD) catCmd(category string, m msg, rsp rsp) {
 		for k := range cats {
 			out = append(out, k)
 		}
+		sort.Strings(out)
 		b.newPageSwitcher(pageSwitcher{
 			Kind:       pageSwitchInv,
 			Title:      fmt.Sprintf("All Categories (%d)", len(out)),
