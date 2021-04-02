@@ -24,10 +24,22 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 		return
 	}
 
+	inv, exists := dat.invCache[m.Author.ID]
+	if !exists {
+		rsp.ErrorMessage("You don't have an inventory!")
+		return
+	}
+
 	for _, elem := range elems {
 		_, exists := dat.elemCache[strings.ToLower(elem)]
 		if !exists {
 			rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", elem))
+			return
+		}
+
+		_, hasElement := inv[strings.ToLower(elem)]
+		if !hasElement {
+			rsp.ErrorMessage(fmt.Sprintf("You don't have %s", dat.elemCache[strings.ToLower(elem)].Name))
 			return
 		}
 	}
