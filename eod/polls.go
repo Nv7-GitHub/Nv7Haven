@@ -296,7 +296,7 @@ func (b *EoD) unReactionHandler(s *discordgo.Session, r *discordgo.MessageReacti
 		lock.Lock()
 		b.dat[r.GuildID] = dat
 		lock.Unlock()
-		if ((p.Downvotes - p.Upvotes) >= dat.voteCount) || (r.UserID == p.Value4) {
+		if (p.Downvotes - p.Upvotes) >= dat.voteCount {
 			delete(dat.polls, r.MessageID)
 			b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", p.Guild, p.Channel, p.Message)
 			b.dg.ChannelMessageDelete(p.Channel, p.Message)
