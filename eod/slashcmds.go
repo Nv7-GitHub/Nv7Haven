@@ -413,7 +413,7 @@ var (
 		},
 		"inv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			if len(i.Data.Options) > 0 {
-				bot.invCmd(i.Data.Options[1].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.invCmd(i.Data.Options[0].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
 			bot.invCmd(i.Member.User.ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
