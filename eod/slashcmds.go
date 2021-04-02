@@ -327,6 +327,48 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "rmcat",
+			Description: "Suggest or remove an element from a category!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "category",
+					Description: "The name of the category to add the element to!",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "elem",
+					Description: "What element to remove!",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "elem2",
+					Description: "Another element to remove from the category!",
+					Required:    false,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "elem3",
+					Description: "Another element to remove from the category!",
+					Required:    false,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "elem4",
+					Description: "Another element to remove from the category!",
+					Required:    false,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "elem5",
+					Description: "Another element to remove from the category!",
+					Required:    false,
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -420,6 +462,15 @@ var (
 		},
 		"setmodrole": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.setModRole(i.Data.Options[0].RoleValue(bot.dg, i.GuildID).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"rmcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			suggestAdd := []string{i.Data.Options[1].StringValue()}
+			if len(i.Data.Options) > 2 {
+				for _, val := range i.Data.Options[2:] {
+					suggestAdd = append(suggestAdd, val.StringValue())
+				}
+			}
+			bot.rmCategoryCmd(suggestAdd, i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )

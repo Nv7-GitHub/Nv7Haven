@@ -117,6 +117,27 @@ func (b *EoD) createPoll(p poll) error {
 			return err
 		}
 		p.Message = m.ID
+	case pollUnCategorize:
+		data, ok := p.Data["elems"].([]string)
+		if !ok {
+			dat := p.Data["elems"].([]interface{})
+			data = make([]string, len(dat))
+			for i, val := range dat {
+				data[i] = val.(string)
+			}
+		}
+		p.Data["elems"] = data
+		m, err := b.dg.ChannelMessageSendEmbed(dat.votingChannel, &discordgo.MessageEmbed{
+			Title:       "Un-Categorize",
+			Description: fmt.Sprintf("Elements:\n**%s**\n\nCategory: **%s**\n\nSuggested By <@%s>", strings.Join(p.Data["elems"].([]string), "\n"), p.Value1, p.Value4),
+			Footer: &discordgo.MessageEmbedFooter{
+				Text: "You can change your vote",
+			},
+		})
+		if err != nil {
+			return err
+		}
+		p.Message = m.ID
 	}
 	err := b.dg.MessageReactionAdd(p.Channel, p.Message, upArrow)
 	if err != nil {
@@ -220,6 +241,16 @@ func (b *EoD) handlePollSuccess(p poll) {
 		els := p.Data["elems"].([]string)
 		for _, val := range els {
 			b.categorize(val, p.Value1, p.Guild)
+		}
+		if len(els) == 1 {
+			b.dg.ChannelMessageSend(dat.newsChannel, fmt.Sprintf("🗃️ Added **%s** to **%s** (By <@%s>)", els[0], p.Value1, p.Value4))
+		} else {
+			b.dg.ChannelMessageSend(dat.newsChannel, fmt.Sprintf("🗃️ Added **%d elements** to **%s** (By <@%s>)", len(els), p.Value1, p.Value4))
+		}
+	case pollUnCategorize:
+		els := p.Data["elems"].([]string)
+		for _, val := range els {
+			b.unCategorize(val, p.Value1, p.Guild)
 		}
 		if len(els) == 1 {
 			b.dg.ChannelMessageSend(dat.newsChannel, fmt.Sprintf("🗃️ Added **%s** to **%s** (By <@%s>)", els[0], p.Value1, p.Value4))

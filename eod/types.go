@@ -19,10 +19,11 @@ const (
 	pollCount     = 4
 	modRole       = 5
 
-	pollCombo      = 0
-	pollCategorize = 1
-	pollSign       = 2
-	pollImage      = 3
+	pollCombo        = 0
+	pollCategorize   = 1
+	pollSign         = 2
+	pollImage        = 3
+	pollUnCategorize = 4
 
 	pageSwitchLdb      = 0
 	pageSwitchInv      = 1

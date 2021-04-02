@@ -91,6 +91,31 @@ func (b *EoD) categorize(elem string, category string, guild string) error {
 	return nil
 }
 
+func (b *EoD) unCategorize(elem string, category string, guild string) error {
+	lock.RLock()
+	dat, exists := b.dat[guild]
+	lock.RUnlock()
+	if !exists {
+		return nil
+	}
+	el, exists := dat.elemCache[strings.ToLower(elem)]
+	if !exists {
+		return nil
+	}
+	delete(el.Categories, category)
+	dat.elemCache[strings.ToLower(elem)] = el
+
+	data, err := json.Marshal(el.Categories)
+	if err != nil {
+		return err
+	}
+	_, err = b.db.Exec("UPDATE eod_elements SET categories=? WHERE guild=? AND name=?", string(data), el.Guild, el.Name)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (b *EoD) catCmd(category string, m msg, rsp rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
@@ -166,4 +191,64 @@ func (b *EoD) catCmd(category string, m msg, rsp rsp) {
 		PageGetter: b.invPageGetter,
 		Items:      out,
 	}, m, rsp)
+}
+
+func (b *EoD) rmCategoryCmd(elems []string, category string, m msg, rsp rsp) {
+	lock.RLock()
+	dat, exists := b.dat[m.GuildID]
+	lock.RUnlock()
+	if !exists {
+		return
+	}
+	suggestRm := make([]string, 0)
+	rmed := make([]string, 0)
+	for _, val := range elems {
+		el, exists := dat.elemCache[strings.ToLower(val)]
+		if !exists {
+			rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", val))
+			return
+		}
+		_, exists = el.Categories[category]
+		if !exists {
+			rsp.ErrorMessage(fmt.Sprintf("Element %s isn't in category %s!", el.Name, category))
+		}
+		if el.Creator == m.Author.ID {
+			rmed = append(rmed, el.Name)
+			err := b.unCategorize(el.Name, category, m.GuildID)
+			rsp.Error(err)
+		} else {
+			suggestRm = append(suggestRm, el.Name)
+		}
+	}
+	if len(rmed) > 0 {
+		lock.Lock()
+		b.dat[m.GuildID] = dat
+		lock.Unlock()
+	}
+	if len(suggestRm) > 0 {
+		err := b.createPoll(poll{
+			Channel: dat.votingChannel,
+			Guild:   m.GuildID,
+			Kind:    pollUnCategorize,
+			Value1:  category,
+			Value4:  m.Author.ID,
+			Data:    map[string]interface{}{"elems": suggestRm},
+		})
+		if rsp.Error(err) {
+			return
+		}
+	}
+	if len(rmed) > 0 && len(suggestRm) == 0 {
+		rsp.Resp("Successfully un-categorized! 🗃️")
+	} else if len(rmed) == 0 && len(suggestRm) == 1 {
+		rsp.Resp(fmt.Sprintf("Suggested to remove **%s** from **%s** 🗃️", suggestRm[0], category))
+	} else if len(rmed) == 0 && len(suggestRm) > 1 {
+		rsp.Resp(fmt.Sprintf("Suggested to remove **%d elements** from **%s** 🗃️", len(suggestRm), category))
+	} else if len(rmed) > 0 && len(suggestRm) == 1 {
+		rsp.Resp(fmt.Sprintf("Categorized and suggested to remove **%s** from **%s** 🗃️", suggestRm[0], category))
+	} else if len(rmed) > 0 && len(suggestRm) > 1 {
+		rsp.Resp(fmt.Sprintf("Categorized and suggested to remove **%d elements** tfrom**%s** 🗃️", len(suggestRm), category))
+	} else {
+		rsp.Resp("Successfully categorized! 🗃️")
+	}
 }
