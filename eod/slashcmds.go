@@ -129,6 +129,14 @@ var (
 		{
 			Name:        "inv",
 			Description: "See your elements!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionUser,
+					Name:        "user",
+					Description: "Optionally, get the inventory of another user!",
+					Required:    false,
+				},
+			},
 		},
 		{
 			Name:        "lb",
@@ -404,7 +412,10 @@ var (
 			bot.imageCmd(i.Data.Options[0].StringValue(), i.Data.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"inv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.invCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
+			if len(i.Data.Options) > 0 {
+				bot.invCmd(i.Data.Options[1].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+			}
+			bot.invCmd(i.Member.User.ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"lb": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.lbCmd(bot.newMsgSlash(i), bot.newRespSlash(i))

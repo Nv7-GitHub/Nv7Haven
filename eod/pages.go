@@ -174,16 +174,20 @@ func (b *EoD) pageSwitchHandler(s *discordgo.Session, r *discordgo.MessageReacti
 	lock.Unlock()
 }
 
-func (b *EoD) invCmd(m msg, rsp rsp) {
+func (b *EoD) invCmd(user string, m msg, rsp rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
 	if !exists {
 		return
 	}
-	inv, exists := dat.invCache[m.Author.ID]
+	inv, exists := dat.invCache[user]
 	if !exists {
-		rsp.ErrorMessage("You don't have an inventory!")
+		if user == m.Author.ID {
+			rsp.ErrorMessage("You don't have an inventory!")
+		} else {
+			rsp.ErrorMessage(fmt.Sprintf("User <@%s> doesn't have an inventory!", user))
+		}
 		return
 	}
 	items := make([]string, len(inv))
@@ -193,9 +197,17 @@ func (b *EoD) invCmd(m msg, rsp rsp) {
 		i++
 	}
 	sort.Strings(items)
+	name := m.Author.Username
+	if m.Author.ID != user {
+		u, err := b.dg.GuildMember(m.GuildID, user)
+		if rsp.Error(err) {
+			return
+		}
+		name = u.Nick
+	}
 	b.newPageSwitcher(pageSwitcher{
 		Kind:       pageSwitchInv,
-		Title:      fmt.Sprintf("%s's Inventory (%d, %s%%)", m.Author.Username, len(inv), formatFloat(float32(len(items))/float32(len(dat.elemCache))*100, 2)),
+		Title:      fmt.Sprintf("%s's Inventory (%d, %s%%)", name, len(inv), formatFloat(float32(len(items))/float32(len(dat.elemCache))*100, 2)),
 		PageGetter: b.invPageGetter,
 		Items:      items,
 	}, m, rsp)
