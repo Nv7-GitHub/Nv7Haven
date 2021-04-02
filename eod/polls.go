@@ -253,9 +253,9 @@ func (b *EoD) handlePollSuccess(p poll) {
 			b.unCategorize(val, p.Value1, p.Guild)
 		}
 		if len(els) == 1 {
-			b.dg.ChannelMessageSend(dat.newsChannel, fmt.Sprintf("🗃️ Added **%s** to **%s** (By <@%s>)", els[0], p.Value1, p.Value4))
+			b.dg.ChannelMessageSend(dat.newsChannel, fmt.Sprintf("🗃️ Removed **%s** from **%s** (By <@%s>)", els[0], p.Value1, p.Value4))
 		} else {
-			b.dg.ChannelMessageSend(dat.newsChannel, fmt.Sprintf("🗃️ Added **%d elements** to **%s** (By <@%s>)", len(els), p.Value1, p.Value4))
+			b.dg.ChannelMessageSend(dat.newsChannel, fmt.Sprintf("🗃️ Removed **%d elements** from **%s** (By <@%s>)", len(els), p.Value1, p.Value4))
 		}
 	}
 }
