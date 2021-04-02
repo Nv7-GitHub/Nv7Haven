@@ -28,6 +28,7 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 		_, exists := dat.elemCache[strings.ToLower(elem)]
 		if !exists {
 			rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", elem))
+			return
 		}
 	}
 	var elem3 string
