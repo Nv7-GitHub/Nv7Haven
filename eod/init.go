@@ -176,7 +176,7 @@ func (b *EoD) init() {
 	var catDat string
 	var parentDat string
 	for elems.Next() {
-		err = elems.Scan(&elem.Name, &catDat, &elem.Image, &elem.Guild, &elem.Comment, &elem.Creator, &createdon, &parentDat, &elem.Complexity, &elem.Difficulty)
+		err = elems.Scan(&elem.Name, &catDat, &elem.Image, &elem.Guild, &elem.Comment, &elem.Creator, &createdon, &parentDat, &elem.Complexity, &elem.Difficulty, &elem.UsedIn)
 		if err != nil {
 			return
 		}

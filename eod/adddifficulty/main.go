@@ -6,26 +6,18 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"sort"
 	"strings"
-	"time"
 
 	_ "github.com/go-sql-driver/mysql" // mysql
 )
 
-type empty struct{}
-
-type element struct {
-	Name       string
-	Categories map[string]empty
-	Image      string
-	Guild      string
-	Comment    string
-	Creator    string
-	CreatedOn  time.Time
-	Parents    []string
-	Complexity int
-	Difficulty int
+func elems2txt(elems []string) string {
+	sort.Strings(elems)
+	return strings.Join(elems, "+")
 }
+
+type empty struct{}
 
 const (
 	dbUser = "u57_fypTHIW9t8"
@@ -51,25 +43,33 @@ func main() {
 
 	fmt.Println("Connected")
 
-	res, err := db.Query("SELECT name, parent1, parent2, complexity, guild FROM eod_elements WHERE 1")
+	res, err := db.Query("SELECT elems, guild FROM eod_combos WHERE 1")
 	handle(err)
 	defer res.Close()
+
+	var combs map[string]empty
+	var guild string
 	for res.Next() {
-		var elem element
-		elem.Parents = make([]string, 2)
-		err = res.Scan(&elem.Name, &elem.Parents[0], &elem.Parents[1], &elem.Complexity, &elem.Guild)
+		var dat string
+		err = res.Scan(&dat, &guild)
 		handle(err)
-		if (elem.Parents[0] == "") && (elem.Parents[1] == "") {
-			elem.Parents = make([]string, 0)
+		combs = make(map[string]empty)
+		err = json.Unmarshal([]byte(dat), &combs)
+		handle(err)
+
+		elems := make([]string, len(combs))
+		i := 0
+		for k := range combs {
+			elems[i] = k
+			i++
 		}
-		pars := make(map[string]empty)
-		for _, val := range elem.Parents {
-			pars[strings.ToLower(val)] = empty{}
+		if len(elems) == 1 {
+			elems = append(elems, elems[0])
 		}
-		data, err := json.Marshal(pars)
+
+		dt := elems2txt(elems)
+		_, err = db.Exec("UPDATE eod_combos SET elemsnew=? WHERE elems=? AND guild=?", dt, dat, guild)
 		handle(err)
-		_, err = db.Exec("UPDATE eod_elements SET parents=? WHERE name=? AND guild=?", string(data), elem.Name, elem.Guild)
-		handle(err)
-		fmt.Println(elem.Name, string(data))
+		fmt.Println(dt)
 	}
 }

@@ -9,8 +9,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-// element, guild, element, guild, guild, element, guild, element - returns: made by x combos, used in x combos, found by x people
-const elemInfoDataCount = `SELECT a.cnt, b.cnt, c.cnt, d.cnt FROM (SELECT COUNT(1) AS cnt FROM eod_combos WHERE elem3=? AND guild=?) a, (SELECT COUNT(1) AS cnt FROM eod_combos WHERE (JSON_EXTRACT(elems, CONCAT('$."', LOWER(?), '"')) IS NOT NULL) AND guild=?) b, (SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT('$."', LOWER(?), '"')) IS NOT NULL)) c, (SELECT e.rw AS cnt FROM (SELECT ROW_NUMBER() OVER (ORDER BY createdon ASC) AS rw, name FROM eod_elements WHERE guild=?) e WHERE e.name=?) d`
+// element, guild, guild, element, guild, element - returns: made by x combos, used in x combos, found by x people
+const elemInfoDataCount = `SELECT a.cnt, b.cnt, c.cnt FROM (SELECT COUNT(1) AS cnt FROM eod_combos WHERE elem3=? AND guild=?) a, (SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT('$."', LOWER(?), '"')) IS NOT NULL)) b, (SELECT e.rw AS cnt FROM (SELECT ROW_NUMBER() OVER (ORDER BY createdon ASC) AS rw, name FROM eod_elements WHERE guild=?) e WHERE e.name=?) c`
 
 var infoChoices []*discordgo.ApplicationCommandOptionChoice
 var infoQuerys = map[string]string{
@@ -18,8 +18,8 @@ var infoQuerys = map[string]string{
 	"Date Created": "SELECT name FROM eod_elements WHERE guild=? ORDER BY createdon %s LIMIT ? OFFSET ?",
 	"Complexity":   "SELECT name FROM eod_elements WHERE guild=? ORDER BY complexity %s LIMIT ? OFFSET ?",
 	"Difficulty":   "SELECT name FROM eod_elements WHERE guild=? ORDER BY difficulty %s LIMIT ? OFFSET ?",
+	"Used In":      `SELECT name FROM eod_elements WHERE guild=? ORDER BY usedin %s LIMIT ? OFFSET ?`,
 	"Made By":      "SELECT name FROM eod_elements WHERE guild=? ORDER BY (SELECT COUNT(1) AS cnt FROM eod_combos WHERE elem3=name AND guild=?) %s LIMIT ? OFFSET ?",
-	"Used In":      `SELECT name FROM eod_elements WHERE guild=? ORDER BY (SELECT COUNT(1) AS cnt FROM eod_combos WHERE (JSON_EXTRACT(elems, CONCAT('$."', LOWER(name), '"')) IS NOT NULL) AND guild=?) %s LIMIT ? OFFSET ?`,
 	"Found By":     `SELECT name FROM eod_elements WHERE guild=?  ORDER BY (SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT('$."', LOWER(name), '"')) IS NOT NULL)) %s LIMIT ? OFFSET ?`,
 }
 
@@ -140,18 +140,17 @@ func (b *EoD) infoCmd(elem string, isNumber bool, number int, m msg, rsp rsp) {
 		has = "don't "
 	}
 
-	row := b.db.QueryRow(elemInfoDataCount, el.Name, el.Guild, el.Name, el.Guild, el.Guild, el.Name, el.Guild, el.Name)
+	row := b.db.QueryRow(elemInfoDataCount, el.Name, el.Guild, el.Guild, el.Name, el.Guild, el.Name)
 	var madeby int
-	var usedby int
 	var foundby int
 	var id int
-	err := row.Scan(&madeby, &usedby, &foundby, &id)
+	err := row.Scan(&madeby, &foundby, &id)
 	if rsp.Error(err) {
 		return
 	}
 
 	usedbysuff := "s"
-	if usedby == 1 {
+	if el.UsedIn == 1 {
 		usedbysuff = ""
 	}
 	madebysuff := "s"
@@ -165,7 +164,7 @@ func (b *EoD) infoCmd(elem string, isNumber bool, number int, m msg, rsp rsp) {
 
 	rsp.Embed(&discordgo.MessageEmbed{
 		Title:       el.Name + " Info",
-		Description: fmt.Sprintf("Element **#%d**\nCreated by <@%s>\nCreated on %s\nUsed in %d combo%s\nMade with %d combo%s\nFound by %d player%s\nComplexity: %d\nDifficulty: %d\n<@%s> **You %shave this.**\n\n%s", id, el.Creator, el.CreatedOn.Format("January 2, 2006, 3:04 PM"), usedby, usedbysuff, madeby, madebysuff, foundby, foundbysuff, el.Complexity, el.Difficulty, m.Author.ID, has, el.Comment),
+		Description: fmt.Sprintf("Element **#%d**\nCreated by <@%s>\nCreated on %s\nUsed in %d combo%s\nMade with %d combo%s\nFound by %d player%s\nComplexity: %d\nDifficulty: %d\n<@%s> **You %shave this.**\n\n%s", id, el.Creator, el.CreatedOn.Format("January 2, 2006, 3:04 PM"), el.UsedIn, usedbysuff, madeby, madebysuff, foundby, foundbysuff, el.Complexity, el.Difficulty, m.Author.ID, has, el.Comment),
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
 			URL: el.Image,
 		},

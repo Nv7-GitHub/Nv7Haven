@@ -91,31 +91,22 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		lock.Unlock()
 		b.saveInv(guild, creator)
 	}
-	inps := make([]interface{}, len(parents))
-	for i, val := range parents {
-		inps[i] = interface{}(val)
-	}
-	inps = append([]interface{}{guild}, inps...)
-
-	where := "guild=?"
-	for i := 0; i < len(parents); i++ {
-		where += " AND (JSON_EXTRACT(elems, ?) IS NOT NULL)"
-	}
-	row = b.db.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE "+where, inps...)
+	data := elems2txt(parents)
+	row = b.db.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE guild=? AND elems=?", guild, data)
 	err = row.Scan(&count)
 	if err != nil {
 		return
 	}
-	pars := make(map[string]empty, len(parents))
-	for _, val := range parents {
-		pars[strings.ToLower(val)] = empty{}
-	}
-	data, err := json.Marshal(pars)
-	if err != nil {
-		return
-	}
 	if count == 0 {
-		b.db.Exec("INSERT INTO eod_combos VALUES ( ?, ?, ? )", guild, string(data), name)
+		b.db.Exec("INSERT INTO eod_combos VALUES ( ?, ?, ? )", guild, data, name)
+	}
+
+	params := make(map[string]empty)
+	for _, val := range parents {
+		params[val] = empty{}
+	}
+	for k := range params {
+		b.db.Exec("UPDATE eod_elements SET usedin=usedin+1 WHERE name=? AND guild=?", k, guild)
 	}
 	b.dg.ChannelMessageSend(dat.newsChannel, newText+" "+text+" - **"+name+"** (By <@"+creator+">)")
 }

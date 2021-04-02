@@ -83,6 +83,7 @@ type element struct {
 	Parents    []string
 	Complexity int
 	Difficulty int
+	UsedIn     int
 }
 
 type poll struct {
