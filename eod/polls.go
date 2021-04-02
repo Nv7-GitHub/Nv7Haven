@@ -228,3 +228,55 @@ func (b *EoD) handlePollSuccess(p poll) {
 		}
 	}
 }
+
+func (b *EoD) unReactionHandler(s *discordgo.Session, r *discordgo.MessageReactionRemove) {
+	if r.UserID == b.dg.State.User.ID {
+		return
+	}
+	lock.RLock()
+	dat, exists := b.dat[r.GuildID]
+	lock.RUnlock()
+	if !exists {
+		return
+	}
+	p, exists := dat.polls[r.MessageID]
+	if !exists {
+		return
+	}
+	if r.Emoji.Name == downArrow {
+		p.Downvotes--
+		dat.polls[r.MessageID] = p
+		lock.Lock()
+		b.dat[r.GuildID] = dat
+		lock.Unlock()
+		if (p.Upvotes - p.Downvotes) >= dat.voteCount {
+			b.handlePollSuccess(p)
+			delete(dat.polls, r.MessageID)
+			b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", p.Guild, p.Channel, p.Message)
+			b.dg.ChannelMessageDelete(p.Channel, p.Message)
+			lock.Lock()
+			b.dat[r.GuildID] = dat
+			lock.Unlock()
+			return
+		}
+	} else if r.Emoji.Name == upArrow {
+		p.Upvotes--
+		dat.polls[r.MessageID] = p
+		lock.Lock()
+		b.dat[r.GuildID] = dat
+		lock.Unlock()
+		if ((p.Downvotes - p.Upvotes) >= dat.voteCount) || (r.UserID == p.Value4) {
+			delete(dat.polls, r.MessageID)
+			b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", p.Guild, p.Channel, p.Message)
+			b.dg.ChannelMessageDelete(p.Channel, p.Message)
+
+			lock.Lock()
+			b.dat[r.GuildID] = dat
+			lock.Unlock()
+			return
+		}
+	}
+	lock.Lock()
+	b.dat[r.GuildID] = dat
+	lock.Unlock()
+}

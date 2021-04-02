@@ -66,6 +66,7 @@ func (b *EoD) init() {
 	})
 	b.dg.AddHandler(b.cmdHandler)
 	b.dg.AddHandler(b.reactionHandler)
+	b.dg.AddHandler(b.unReactionHandler)
 	b.dg.AddHandler(b.pageSwitchHandler)
 	b.dg.AddHandler(func(s *discordgo.Session, i *discordgo.Disconnect) {
 		log.Println("Disconnected!")
