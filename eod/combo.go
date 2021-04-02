@@ -24,8 +24,14 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 		return
 	}
 
+	for _, elem := range elems {
+		_, exists := dat.elemCache[strings.ToLower(elem)]
+		if !exists {
+			rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", elem))
+		}
+	}
 	var elem3 string
-	var cont bool
+	cont := true
 	row := b.db.QueryRow("SELECT elem3 FROM eod_combos WHERE elems=? AND guild=?", elems2txt(elems), m.GuildID)
 	err := row.Scan(&elem3)
 	if err != nil {

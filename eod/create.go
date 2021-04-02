@@ -71,7 +71,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		if err != nil {
 			return
 		}
-		_, err = b.db.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, string(cats), elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), string(dat), elem.Complexity, elem.Difficulty)
+		_, err = b.db.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, string(cats), elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), string(dat), elem.Complexity, elem.Difficulty, 0)
 		if err != nil {
 			return
 		}
@@ -107,6 +107,12 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	}
 	for k := range params {
 		b.db.Exec("UPDATE eod_elements SET usedin=usedin+1 WHERE name=? AND guild=?", k, guild)
+		el := dat.elemCache[strings.ToLower(k)]
+		el.UsedIn++
+		dat.elemCache[strings.ToLower(k)] = el
 	}
+	lock.Lock()
+	b.dat[guild] = dat
+	lock.Unlock()
 	b.dg.ChannelMessageSend(dat.newsChannel, newText+" "+text+" - **"+name+"** (By <@"+creator+">)")
 }
