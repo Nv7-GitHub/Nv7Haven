@@ -199,11 +199,11 @@ func (b *EoD) invCmd(user string, m msg, rsp rsp) {
 	sort.Strings(items)
 	name := m.Author.Username
 	if m.Author.ID != user {
-		u, err := b.dg.GuildMember(m.GuildID, user)
+		u, err := b.dg.User(user)
 		if rsp.Error(err) {
 			return
 		}
-		name = u.Nick
+		name = u.Username
 	}
 	b.newPageSwitcher(pageSwitcher{
 		Kind:       pageSwitchInv,
