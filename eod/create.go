@@ -3,11 +3,14 @@ package eod
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 )
 
 const newText = "🆕"
+
+var datafile *os.File
 
 func (b *EoD) elemCreate(name string, parents []string, creator string, guild string) {
 	lock.RLock()
@@ -122,6 +125,6 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	lock.Unlock()
 	b.dg.ChannelMessageSend(dat.newsChannel, newText+" "+text+" - **"+name+"** (By <@"+creator+">)")
 	if guild == "819077688371314718" {
-		fmt.Println(name, parents)
+		datafile.Write([]byte(fmt.Sprintf("%s %s\n", name, parents)))
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 	"time"
 
@@ -11,6 +12,13 @@ import (
 )
 
 func (b *EoD) init() {
+	// Debugging
+	var err error
+	datafile, err = os.OpenFile("eodlogs.txt", os.O_APPEND|os.O_CREATE, os.ModeAppend)
+	if err != nil {
+		panic(err)
+	}
+
 	b.initInfoChoices()
 	for _, v := range commands {
 		go func(val *discordgo.ApplicationCommand) {

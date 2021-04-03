@@ -216,7 +216,7 @@ func (b *EoD) reactionHandler(s *discordgo.Session, r *discordgo.MessageReaction
 }
 
 func (b *EoD) handlePollSuccess(p poll) {
-	fmt.Println(p)
+	datafile.Write([]byte(fmt.Sprintf("%v\n", p)))
 	lock.RLock()
 	dat, exists := b.dat[p.Guild]
 	lock.RUnlock()
