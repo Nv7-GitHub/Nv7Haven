@@ -2,7 +2,6 @@ package eod
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -12,11 +11,8 @@ import (
 
 func (b *EoD) isMod(userID string, guildID string, m msg) (bool, error) {
 	lock.RLock()
-	dat, exists := b.dat[guildID]
+	dat, inited := b.dat[guildID]
 	lock.RUnlock()
-	if !exists {
-		return false, errors.New("server not initialized")
-	}
 
 	user, err := b.dg.GuildMember(m.GuildID, userID)
 	if err != nil {
@@ -28,7 +24,7 @@ func (b *EoD) isMod(userID string, guildID string, m msg) (bool, error) {
 	}
 
 	for _, roleID := range user.Roles {
-		if roleID == dat.modRole {
+		if inited && (roleID == dat.modRole) {
 			return true, nil
 		}
 		for _, role := range roles {
