@@ -6,6 +6,13 @@ import (
 )
 
 func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp) {
+	suggestion = strings.Replace(suggestion, "+", "", -1)
+	suggestion = strings.Replace(suggestion, "\\", "", -1)
+	suggestion = strings.TrimSpace(suggestion)
+	if len(suggestion) == 0 {
+		rsp.Resp("You need to suggest something!")
+	}
+
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
