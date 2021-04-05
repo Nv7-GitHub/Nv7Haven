@@ -62,7 +62,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 				return
 			}
 			for i, part := range parts {
-				parts[i] = strings.TrimSpace(strings.Replace(strings.Replace(part, "\\", "", -1), "+", "", -1))
+				parts[i] = strings.TrimSpace(strings.Replace(part, "\\", "", -1))
 			}
 			if len(parts) > maxComboLength {
 				parts = parts[:maxComboLength]
