@@ -14,7 +14,7 @@ import (
 func (b *EoD) init() {
 	// Debugging
 	var err error
-	datafile, err = os.OpenFile("eodlogs.txt", os.O_APPEND|os.O_CREATE, os.ModeAppend)
+	datafile, err = os.OpenFile("eodlogs.txt", os.O_WRONLY|os.O_CREATE, os.ModeAppend)
 	if err != nil {
 		panic(err)
 	}

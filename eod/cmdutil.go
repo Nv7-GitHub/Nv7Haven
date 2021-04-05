@@ -30,7 +30,7 @@ func (n *normalResp) Resp(msg string) {
 func (n *normalResp) Message(msg string) string {
 	m, err := n.b.dg.ChannelMessageSend(n.msg.ChannelID, msg)
 	if err != nil {
-	  return ""
+		return ""
 	}
 	return m.ID
 }
@@ -38,7 +38,7 @@ func (n *normalResp) Message(msg string) string {
 func (n *normalResp) Embed(emb *discordgo.MessageEmbed) string {
 	msg, err := n.b.dg.ChannelMessageSendEmbed(n.msg.ChannelID, emb)
 	if err != nil {
-	  return ""
+		return ""
 	}
 	return msg.ID
 }
@@ -138,9 +138,12 @@ func (s *slashResp) EmbedFollowup(emb *discordgo.MessageEmbed) string {
 	s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
 	})
-	msg, _ := s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
+	msg, err := s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
 		Embeds: []*discordgo.MessageEmbed{emb},
 	})
+	if err != nil {
+		return ""
+	}
 	return msg.ID
 }
 
