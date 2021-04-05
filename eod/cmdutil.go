@@ -28,7 +28,10 @@ func (n *normalResp) Resp(msg string) {
 }
 
 func (n *normalResp) Message(msg string) string {
-	m, _ := n.b.dg.ChannelMessageSend(n.msg.ChannelID, msg)
+	m, err := n.b.dg.ChannelMessageSend(n.msg.ChannelID, msg)
+	if err != nil {
+	  return ""
+	}
 	return m.ID
 }
 
