@@ -36,7 +36,10 @@ func (n *normalResp) Message(msg string) string {
 }
 
 func (n *normalResp) Embed(emb *discordgo.MessageEmbed) string {
-	msg, _ := n.b.dg.ChannelMessageSendEmbed(n.msg.ChannelID, emb)
+	msg, err := n.b.dg.ChannelMessageSendEmbed(n.msg.ChannelID, emb)
+	if err != nil {
+	  return ""
+	}
 	return msg.ID
 }
 
