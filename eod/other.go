@@ -100,6 +100,7 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 			text:   txt,
 		})
 	}
+	rsp.Acknowledge()
 
 	sort.Slice(out, func(i, j int) bool {
 		return out[i].exists > out[j].exists

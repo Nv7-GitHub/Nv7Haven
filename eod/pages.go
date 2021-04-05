@@ -104,7 +104,8 @@ func (b *EoD) newPageSwitcher(ps pageSwitcher, m msg, rsp rsp) {
 	if rsp.Error(err) {
 		return
 	}
-	id := rsp.EmbedFollowup(&discordgo.MessageEmbed{
+	rsp.Acknowledge()
+	id := rsp.Embed(&discordgo.MessageEmbed{
 		Title:       ps.Title,
 		Description: cont,
 		Footer: &discordgo.MessageEmbedFooter{

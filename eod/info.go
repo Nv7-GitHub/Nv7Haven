@@ -149,6 +149,8 @@ func (b *EoD) infoCmd(elem string, isNumber bool, number int, m msg, rsp rsp) {
 		return
 	}
 
+	rsp.Acknowledge()
+
 	usedbysuff := "s"
 	if el.UsedIn == 1 {
 		usedbysuff = ""

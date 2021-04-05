@@ -43,9 +43,7 @@ func (n *normalResp) Embed(emb *discordgo.MessageEmbed) string {
 	return msg.ID
 }
 
-func (n *normalResp) EmbedFollowup(emb *discordgo.MessageEmbed) string {
-	return n.Embed(emb)
-}
+func (n *normalResp) Acknowledge() {}
 
 func (b *EoD) newMsgNormal(m *discordgo.MessageCreate) msg {
 	return msg{
@@ -65,7 +63,7 @@ func (b *EoD) newRespNormal(m *discordgo.MessageCreate) rsp {
 type slashResp struct {
 	i          *discordgo.InteractionCreate
 	b          *EoD
-	hasReplied bool
+	isFollowup bool
 }
 
 func (s *slashResp) Error(err error) bool {
@@ -83,7 +81,6 @@ func (s *slashResp) Error(err error) bool {
 }
 
 func (s *slashResp) ErrorMessage(msg string) {
-	s.hasReplied = true
 	s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionApplicationCommandResponseData{
@@ -94,7 +91,6 @@ func (s *slashResp) ErrorMessage(msg string) {
 }
 
 func (s *slashResp) Resp(msg string) {
-	s.hasReplied = true
 	s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionApplicationCommandResponseData{
@@ -105,46 +101,48 @@ func (s *slashResp) Resp(msg string) {
 }
 
 func (s *slashResp) Message(msg string) string {
-	if !s.hasReplied {
-		s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
-			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionApplicationCommandResponseData{
-				Content: msg,
-			},
+	if s.isFollowup {
+		msg, err := s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
+			Content: msg,
 		})
-		s.hasReplied = true
-		return ""
+		if err != nil {
+			return ""
+		}
+		return msg.ID
 	}
-	m, _ := s.b.dg.ChannelMessageSend(s.i.ChannelID, msg)
-	return m.ID
+	s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionApplicationCommandResponseData{
+			Content: msg,
+		},
+	})
+	return ""
 }
 
 func (s *slashResp) Embed(emb *discordgo.MessageEmbed) string {
-	if !s.hasReplied {
-		s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
-			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionApplicationCommandResponseData{
-				Embeds: []*discordgo.MessageEmbed{emb},
-			},
+	if s.isFollowup {
+		msg, err := s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
+			Embeds: []*discordgo.MessageEmbed{emb},
 		})
-		s.hasReplied = true
-		return ""
+		if err != nil {
+			return ""
+		}
+		return msg.ID
 	}
-	m, _ := s.b.dg.ChannelMessageSendEmbed(s.i.ChannelID, emb)
-	return m.ID
+	s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionApplicationCommandResponseData{
+			Embeds: []*discordgo.MessageEmbed{emb},
+		},
+	})
+	return ""
 }
 
-func (s *slashResp) EmbedFollowup(emb *discordgo.MessageEmbed) string {
+func (s *slashResp) Acknowledge() {
+	s.isFollowup = true
 	s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
 	})
-	msg, err := s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
-		Embeds: []*discordgo.MessageEmbed{emb},
-	})
-	if err != nil {
-		return ""
-	}
-	return msg.ID
 }
 
 func (b *EoD) newMsgSlash(i *discordgo.InteractionCreate) msg {
