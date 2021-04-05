@@ -97,7 +97,10 @@ func (b *EoD) sortCmd(query string, order bool, m msg, rsp rsp) {
 }
 
 func (b *EoD) infoCmd(elem string, isNumber bool, number int, m msg, rsp rsp) {
+	rsp.Acknowledge()
+
 	if len(elem) == 0 {
+		rsp.ErrorMessage("Guild isn't setup yet!")
 		return
 	}
 	if isNumber {
@@ -108,6 +111,7 @@ func (b *EoD) infoCmd(elem string, isNumber bool, number int, m msg, rsp rsp) {
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
 	if !exists {
+		rsp.ErrorMessage("Guild isn't setup yet!")
 		return
 	}
 	el, exists := dat.elemCache[strings.ToLower(elem)]
@@ -121,6 +125,7 @@ func (b *EoD) infoCmd(elem string, isNumber bool, number int, m msg, rsp rsp) {
 				}
 			}
 			if !isValid {
+				rsp.ErrorMessage("Invalid letter!")
 				return
 			}
 		}
@@ -148,8 +153,6 @@ func (b *EoD) infoCmd(elem string, isNumber bool, number int, m msg, rsp rsp) {
 	if rsp.Error(err) {
 		return
 	}
-
-	rsp.Acknowledge()
 
 	usedbysuff := "s"
 	if el.UsedIn == 1 {

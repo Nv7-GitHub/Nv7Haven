@@ -24,12 +24,15 @@ func obscure(val string) string {
 }
 
 func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
+	rsp.Acknowledge()
+
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
 	if !exists {
 		return
 	}
+
 	inv, exists := dat.invCache[m.Author.ID]
 	if !exists {
 		rsp.ErrorMessage("You don't have an inventory!")
@@ -100,7 +103,6 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 			text:   txt,
 		})
 	}
-	rsp.Acknowledge()
 
 	sort.Slice(out, func(i, j int) bool {
 		return out[i].exists > out[j].exists

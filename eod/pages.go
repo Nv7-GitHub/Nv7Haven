@@ -89,10 +89,13 @@ func (b *EoD) lbPageGetter(p pageSwitcher) (string, int, int, error) {
 }
 
 func (b *EoD) newPageSwitcher(ps pageSwitcher, m msg, rsp rsp) {
+	rsp.Acknowledge()
+
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
 	if !exists {
+		rsp.ErrorMessage("Guild isn't setup yet!")
 		return
 	}
 
@@ -104,7 +107,6 @@ func (b *EoD) newPageSwitcher(ps pageSwitcher, m msg, rsp rsp) {
 	if rsp.Error(err) {
 		return
 	}
-	rsp.Acknowledge()
 	id := rsp.Embed(&discordgo.MessageEmbed{
 		Title:       ps.Title,
 		Description: cont,

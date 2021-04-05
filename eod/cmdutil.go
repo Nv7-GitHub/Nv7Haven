@@ -68,19 +68,31 @@ type slashResp struct {
 
 func (s *slashResp) Error(err error) bool {
 	if err != nil {
-		s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
-			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionApplicationCommandResponseData{
-				Flags:   1 << 6,
+		if s.isFollowup {
+			s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
 				Content: "Error: " + err.Error(),
-			},
-		})
+			})
+		} else {
+			s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionApplicationCommandResponseData{
+					Flags:   1 << 6,
+					Content: "Error: " + err.Error(),
+				},
+			})
+		}
 		return true
 	}
 	return false
 }
 
 func (s *slashResp) ErrorMessage(msg string) {
+	if s.isFollowup {
+		s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
+			Content: "Error: " + msg,
+		})
+	}
+
 	s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionApplicationCommandResponseData{
