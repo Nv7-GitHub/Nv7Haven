@@ -9,6 +9,7 @@ import (
 const maxComboLength = 20
 
 var combs = []string{
+	"\n",
 	"+",
 	",",
 }
