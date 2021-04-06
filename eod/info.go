@@ -98,7 +98,6 @@ func (b *EoD) sortCmd(query string, order bool, m msg, rsp rsp) {
 
 func (b *EoD) infoCmd(elem string, isNumber bool, number int, m msg, rsp rsp) {
 	if len(elem) == 0 {
-		rsp.ErrorMessage("Guild isn't setup yet!")
 		return
 	}
 	if isNumber {
