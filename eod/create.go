@@ -19,9 +19,21 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	if !exists {
 		return
 	}
-	row := b.db.QueryRow("SELECT COUNT(1) FROM eod_elements WHERE name=? AND guild=?", name, guild)
+
+	data := elems2txt(parents)
+	row := b.db.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE guild=? AND elems=?", guild, data)
 	var count int
 	err := row.Scan(&count)
+	if err != nil {
+		fmt.Println(103, err)
+		return
+	}
+	if count != 0 {
+		return
+	}
+
+	row = b.db.QueryRow("SELECT COUNT(1) FROM eod_elements WHERE name=? AND guild=?", name, guild)
+	err = row.Scan(&count)
 	if err != nil {
 		fmt.Println(23, err)
 		return
@@ -99,16 +111,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		lock.Unlock()
 		b.saveInv(guild, creator)
 	}
-	data := elems2txt(parents)
-	row = b.db.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE guild=? AND elems=?", guild, data)
-	err = row.Scan(&count)
-	if err != nil {
-		fmt.Println(103, err)
-		return
-	}
-	if count == 0 {
-		b.db.Exec("INSERT INTO eod_combos VALUES ( ?, ?, ? )", guild, data, name)
-	}
+	b.db.Exec("INSERT INTO eod_combos VALUES ( ?, ?, ? )", guild, data, name)
 
 	params := make(map[string]empty)
 	for _, val := range parents {

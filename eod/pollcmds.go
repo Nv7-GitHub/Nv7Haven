@@ -11,6 +11,7 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 	suggestion = strings.TrimSpace(suggestion)
 	if len(suggestion) == 0 {
 		rsp.Resp("You need to suggest something!")
+		return
 	}
 
 	lock.RLock()
@@ -30,12 +31,20 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 		rsp.ErrorMessage("You haven't combined anything!")
 		return
 	}
-	if comb.elem3 != "" {
-		rsp.ErrorMessage("That combo already has an element!")
+
+	data := elems2txt(comb.elems)
+	row := b.db.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE guild=? AND elems=?", m.GuildID, data)
+	var count int
+	err := row.Scan(&count)
+	if rsp.Error(err) {
+		return
+	}
+	if count != 0 {
+		rsp.ErrorMessage("That combo already has a result!")
 		return
 	}
 
-	err := b.createPoll(poll{
+	err = b.createPoll(poll{
 		Channel:   dat.votingChannel,
 		Guild:     m.GuildID,
 		Kind:      pollCombo,
