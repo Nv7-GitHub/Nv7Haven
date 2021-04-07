@@ -59,7 +59,7 @@ func (b *EoD) createPoll(p poll) error {
 			Title:       "Combination",
 			Description: txt + "\n\n" + "Suggested by <@" + p.Value4 + ">",
 			Footer: &discordgo.MessageEmbedFooter{
-				Text: "You can change your vote",
+				Text: fmt.Sprintf("Poll note: %s\n\nYou can change your vote", p.Value5),
 			},
 		})
 		if err != nil {
@@ -72,7 +72,7 @@ func (b *EoD) createPoll(p poll) error {
 			Title:       "Sign Note",
 			Description: fmt.Sprintf("**%s**\nNew Note: %s\n\nOld Note: %s\n\nSuggested by <@%s>", p.Value1, p.Value2, p.Value3, p.Value4),
 			Footer: &discordgo.MessageEmbedFooter{
-				Text: "You can change your vote",
+				Text: fmt.Sprintf("Poll note: %s\n\nYou can change your vote", p.Value5),
 			},
 		})
 		if err != nil {
@@ -85,7 +85,7 @@ func (b *EoD) createPoll(p poll) error {
 			Title:       "Add Image",
 			Description: fmt.Sprintf("**%s**\n[New Image](%s)\n[Old Image](%s)\n\nSuggested by <@%s>", p.Value1, p.Value2, p.Value3, p.Value4),
 			Footer: &discordgo.MessageEmbedFooter{
-				Text: "You can change your vote",
+				Text: fmt.Sprintf("Poll note: %s\n\nYou can change your vote", p.Value5),
 			},
 			Thumbnail: &discordgo.MessageEmbedThumbnail{
 				URL: p.Value2,
@@ -110,7 +110,7 @@ func (b *EoD) createPoll(p poll) error {
 			Title:       "Categorize",
 			Description: fmt.Sprintf("Elements:\n**%s**\n\nCategory: **%s**\n\nSuggested By <@%s>", strings.Join(p.Data["elems"].([]string), "\n"), p.Value1, p.Value4),
 			Footer: &discordgo.MessageEmbedFooter{
-				Text: "You can change your vote",
+				Text: fmt.Sprintf("Poll note: %s\n\nYou can change your vote", p.Value5),
 			},
 		})
 		if err != nil {
@@ -131,7 +131,7 @@ func (b *EoD) createPoll(p poll) error {
 			Title:       "Un-Categorize",
 			Description: fmt.Sprintf("Elements:\n**%s**\n\nCategory: **%s**\n\nSuggested By <@%s>", strings.Join(p.Data["elems"].([]string), "\n"), p.Value1, p.Value4),
 			Footer: &discordgo.MessageEmbedFooter{
-				Text: "You can change your vote",
+				Text: fmt.Sprintf("Poll note: %s\n\nYou can change your vote", p.Value5),
 			},
 		})
 		if err != nil {
