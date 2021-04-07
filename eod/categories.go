@@ -10,7 +10,7 @@ import (
 const x = "❌"
 const check = "✅"
 
-func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
+func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp, pollNote string) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -38,6 +38,9 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 		b.dat[m.GuildID] = dat
 		lock.Unlock()
 	}
+	if len(pollNote) == 0 {
+		pollNote = "None"
+	}
 	if len(suggestAdd) > 0 {
 		err := b.createPoll(poll{
 			Channel: dat.votingChannel,
@@ -45,6 +48,7 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 			Kind:    pollCategorize,
 			Value1:  category,
 			Value4:  m.Author.ID,
+			Value5:  pollNote,
 			Data:    map[string]interface{}{"elems": suggestAdd},
 		})
 		if rsp.Error(err) {
@@ -225,6 +229,9 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m msg, rsp rsp) {
 		b.dat[m.GuildID] = dat
 		lock.Unlock()
 	}
+	if len(pollNote) == 0 {
+		pollNote = "None"
+	}
 	if len(suggestRm) > 0 {
 		err := b.createPoll(poll{
 			Channel: dat.votingChannel,
@@ -232,6 +239,7 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m msg, rsp rsp) {
 			Kind:    pollUnCategorize,
 			Value1:  category,
 			Value4:  m.Author.ID,
+			Value5:  pollNote,
 			Data:    map[string]interface{}{"elems": suggestRm},
 		})
 		if rsp.Error(err) {
