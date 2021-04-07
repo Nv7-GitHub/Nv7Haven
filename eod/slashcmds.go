@@ -88,6 +88,12 @@ var (
 					Description: "Should the bot autocapitalize? Default: true",
 					Required:    false,
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "pollnote",
+					Description: "A note shown on the poll",
+					Required:    false,
+				},
 			},
 		},
 		{
@@ -106,6 +112,12 @@ var (
 					Description: "What the new creator mark should be!",
 					Required:    true,
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "pollnote",
+					Description: "A note shown on the poll",
+					Required:    false,
+				},
 			},
 		},
 		{
@@ -123,6 +135,12 @@ var (
 					Name:        "imageurl",
 					Description: "URL of an image to add to the element! You can also upload an image and then put the link here.",
 					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "pollnote",
+					Description: "A note shown on the poll",
+					Required:    false,
 				},
 			},
 		},
@@ -157,6 +175,12 @@ var (
 					Name:        "elem",
 					Description: "What element to add!",
 					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "pollnote",
+					Description: "A note shown on the poll",
+					Required:    false,
 				},
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
@@ -335,6 +359,12 @@ var (
 				},
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "pollnote",
+					Description: "A note shown on the poll",
+					Required:    false,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
 					Name:        "elem2",
 					Description: "Another element to remove from the category!",
 					Required:    false,
@@ -385,13 +415,13 @@ var (
 			if len(i.Data.Options) > 1 {
 				autocapitalize = i.Data.Options[1].BoolValue()
 			}
-			bot.suggestCmd(i.Data.Options[0].StringValue(), autocapitalize, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.suggestCmd(i.Data.Options[0].StringValue(), autocapitalize, bot.newMsgSlash(i), bot.newRespSlash(i), i.Data.Options[2].StringValue())
 		},
 		"mark": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.markCmd(i.Data.Options[0].StringValue(), i.Data.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.markCmd(i.Data.Options[0].StringValue(), i.Data.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i), i.Data.Options[2].StringValue())
 		},
 		"image": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.imageCmd(i.Data.Options[0].StringValue(), i.Data.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.imageCmd(i.Data.Options[0].StringValue(), i.Data.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i), i.Data.Options[2].StringValue())
 		},
 		"inv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			if len(i.Data.Options) > 0 {
@@ -405,12 +435,12 @@ var (
 		},
 		"addcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			suggestAdd := []string{i.Data.Options[1].StringValue()}
-			if len(i.Data.Options) > 2 {
-				for _, val := range i.Data.Options[2:] {
+			if len(i.Data.Options) > 3 {
+				for _, val := range i.Data.Options[3:] {
 					suggestAdd = append(suggestAdd, val.StringValue())
 				}
 			}
-			bot.categoryCmd(suggestAdd, i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.categoryCmd(suggestAdd, i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i), i.Data.Options[2])
 		},
 		"cat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			if len(i.Data.Options) == 0 {
@@ -452,12 +482,12 @@ var (
 		},
 		"rmcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			suggestAdd := []string{i.Data.Options[1].StringValue()}
-			if len(i.Data.Options) > 2 {
-				for _, val := range i.Data.Options[2:] {
+			if len(i.Data.Options) > 3 {
+				for _, val := range i.Data.Options[3:] {
 					suggestAdd = append(suggestAdd, val.StringValue())
 				}
 			}
-			bot.rmCategoryCmd(suggestAdd, i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.rmCategoryCmd(suggestAdd, i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i), i.Data.Options[2])
 		},
 	}
 )
