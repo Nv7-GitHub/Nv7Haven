@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp) {
+func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp, pollNote string) {
 	suggestion = strings.Replace(suggestion, "+", "", -1)
 	suggestion = strings.Replace(suggestion, "\\", "", -1)
 	suggestion = strings.TrimSpace(suggestion)
@@ -29,6 +29,11 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 	if dat.combCache == nil {
 		dat.combCache = make(map[string]comb)
 	}
+
+	if len(pollNote) == 0 {
+		pollNote = "None"
+	}
+
 	comb, exists := dat.combCache[m.Author.ID]
 	if !exists {
 		rsp.ErrorMessage("You haven't combined anything!")
@@ -53,6 +58,7 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 		Kind:      pollCombo,
 		Value3:    suggestion,
 		Value4:    m.Author.ID,
+		Value5:    pollNote,
 		Data:      map[string]interface{}{"elems": comb.elems},
 		Upvotes:   0,
 		Downvotes: 0,
@@ -72,7 +78,7 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 	rsp.Resp(txt)
 }
 
-func (b *EoD) markCmd(elem string, mark string, m msg, rsp rsp) {
+func (b *EoD) markCmd(elem string, mark string, m msg, rsp rsp, pollNote string) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -91,6 +97,10 @@ func (b *EoD) markCmd(elem string, mark string, m msg, rsp rsp) {
 		return
 	}
 
+	if len(pollNote) == 0 {
+		pollNote = "None"
+	}
+
 	err := b.createPoll(poll{
 		Channel: dat.votingChannel,
 		Guild:   m.GuildID,
@@ -99,6 +109,7 @@ func (b *EoD) markCmd(elem string, mark string, m msg, rsp rsp) {
 		Value2:  mark,
 		Value3:  el.Comment,
 		Value4:  m.Author.ID,
+		Value5:  pollNote
 	})
 	if rsp.Error(err) {
 		return
@@ -106,7 +117,7 @@ func (b *EoD) markCmd(elem string, mark string, m msg, rsp rsp) {
 	rsp.Resp(fmt.Sprintf("Suggested a note for **%s** 🖊️", el.Name))
 }
 
-func (b *EoD) imageCmd(elem string, image string, m msg, rsp rsp) {
+func (b *EoD) imageCmd(elem string, image string, m msg, rsp rsp, pollNote string) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -125,6 +136,10 @@ func (b *EoD) imageCmd(elem string, image string, m msg, rsp rsp) {
 		return
 	}
 
+	if len(pollNote) == 0 {
+		pollNote = "None"
+	}
+
 	err := b.createPoll(poll{
 		Channel: dat.votingChannel,
 		Guild:   m.GuildID,
@@ -133,6 +148,7 @@ func (b *EoD) imageCmd(elem string, image string, m msg, rsp rsp) {
 		Value2:  image,
 		Value3:  el.Image,
 		Value4:  m.Author.ID,
+		Value5:  pollNote,
 	})
 	if rsp.Error(err) {
 		return
