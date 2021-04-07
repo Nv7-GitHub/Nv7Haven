@@ -103,7 +103,8 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 	}
 	if elem[0] == '#' {
 		number, err := strconv.Atoi(elem[1:])
-		if rsp.Error(err) {
+		if err != nil {
+			rsp.ErrorMessage("Invalid Element ID!")
 			return
 		}
 
