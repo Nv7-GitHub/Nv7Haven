@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"math"
+	"strconv"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -96,12 +97,16 @@ func (b *EoD) sortCmd(query string, order bool, m msg, rsp rsp) {
 	}, m, rsp)
 }
 
-func (b *EoD) infoCmd(elem string, isNumber bool, number int, m msg, rsp rsp) {
+func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 	if len(elem) == 0 {
 		return
 	}
-	if isNumber {
-		rsp.Acknowledge()
+	if elem[0] == '#' {
+		number, err := strconv.Atoi(elem[1:])
+		if rsp.Error(err) {
+			return
+		}
+
 		row := b.db.QueryRow(`SELECT e.name AS cnt FROM (SELECT ROW_NUMBER() OVER (ORDER BY createdon ASC) AS rw, name FROM eod_elements WHERE guild=?) e WHERE e.rw=?`, m.GuildID, number)
 		row.Scan(&elem)
 	}
@@ -123,18 +128,13 @@ func (b *EoD) infoCmd(elem string, isNumber bool, number int, m msg, rsp rsp) {
 				}
 			}
 			if !isValid {
-				if isNumber {
-					rsp.ErrorMessage("Invalid letter!")
-				}
 				return
 			}
 		}
 		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", elem))
 		return
 	}
-	if !isNumber {
-		rsp.Acknowledge()
-	}
+	rsp.Acknowledge()
 
 	has := ""
 	exists = false

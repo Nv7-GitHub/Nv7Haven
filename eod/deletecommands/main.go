@@ -9,7 +9,7 @@ import (
 
 const (
 	clientID = "819076922867712031"
-	guild    = "819077688371314718"
+	guild    = "" // 819077688371314718
 )
 
 func main() {
@@ -36,8 +36,10 @@ func main() {
 	}
 
 	for _, cmd := range cmds {
-		fmt.Println(cmd.ID, cmd.Name)
-		dg.ApplicationCommandDelete(clientID, guild, cmd.ID)
+		if cmd.Name == "get" {
+			fmt.Println(cmd.ID, cmd.Name)
+			dg.ApplicationCommandDelete(clientID, guild, cmd.ID)
+		}
 	}
 
 	dg.Close()
