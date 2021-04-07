@@ -109,7 +109,7 @@ func (b *EoD) markCmd(elem string, mark string, m msg, rsp rsp, pollNote string)
 		Value2:  mark,
 		Value3:  el.Comment,
 		Value4:  m.Author.ID,
-		Value5:  pollNote
+		Value5:  pollNote,
 	})
 	if rsp.Error(err) {
 		return
