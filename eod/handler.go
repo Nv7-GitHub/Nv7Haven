@@ -23,6 +23,10 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if strings.HasPrefix(m.Content, "?") {
+		if strings.HasPrefix(m.Content, "?#") {
+			b.infoCmd(strings.TrimSpace(m.Content[1:]), true, strings.TrimSpace(m.content[2:]), msg, rsp)
+			return
+		}
 		b.infoCmd(strings.TrimSpace(m.Content[1:]), false, 0, msg, rsp)
 		return
 	}
