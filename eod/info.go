@@ -101,6 +101,13 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 	if len(elem) == 0 {
 		return
 	}
+	lock.RLock()
+	dat, exists := b.dat[m.GuildID]
+	lock.RUnlock()
+	if !exists {
+		rsp.ErrorMessage("Guild isn't setup yet!")
+		return
+	}
 	if elem[0] == '#' {
 		number, err := strconv.Atoi(elem[1:])
 		if err != nil {
@@ -108,15 +115,16 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 			return
 		}
 
+		if number > len(dat.elemCache) {
+			rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", elem))
+			return
+		}
+
 		row := b.db.QueryRow(`SELECT e.name AS cnt FROM (SELECT ROW_NUMBER() OVER (ORDER BY createdon ASC) AS rw, name FROM eod_elements WHERE guild=?) e WHERE e.rw=?`, m.GuildID, number)
-		row.Scan(&elem)
-	}
-	lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
-	if !exists {
-		rsp.ErrorMessage("Guild isn't setup yet!")
-		return
+		err = row.Scan(&elem)
+		if rsp.Error(err) {
+			return
+		}
 	}
 	el, exists := dat.elemCache[strings.ToLower(elem)]
 	if !exists {
