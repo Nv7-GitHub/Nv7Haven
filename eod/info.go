@@ -22,6 +22,7 @@ var infoQuerys = map[string]string{
 	"Used In":      `SELECT name FROM eod_elements WHERE guild=? ORDER BY usedin %s LIMIT ? OFFSET ?`,
 	"Made By":      "SELECT name FROM eod_elements WHERE guild=? ORDER BY (SELECT COUNT(1) AS cnt FROM eod_combos WHERE elem3=name AND guild=?) %s LIMIT ? OFFSET ?",
 	"Found By":     `SELECT name FROM eod_elements WHERE guild=?  ORDER BY (SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT('$."', LOWER(name), '"')) IS NOT NULL)) %s LIMIT ? OFFSET ?`,
+	"Creator":      "SELECT name FROM eod_elements WHERE guild=? ORDER BY creator %s LIMIT ? OFFSET ?",
 }
 
 func (b *EoD) initInfoChoices() {
