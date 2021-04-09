@@ -36,9 +36,16 @@ func (n *normalResp) Message(msg string) string {
 }
 
 func (n *normalResp) Embed(emb *discordgo.MessageEmbed) string {
-	role, err := bot.getRole(n.msg.Member.Roles[0], n.msg.GuildID)
-	if err == nil {
-		emb.Color = role.Color
+	for _, roleID := range n.msg.Member.Roles {
+		role, err := bot.getRole(roleID, n.msg.GuildID)
+		if err == nil {
+			if role.Color != 0 {
+				emb.Color = role.Color
+				break
+			}
+		} else {
+			break
+		}
 	}
 	msg, err := n.b.dg.ChannelMessageSendEmbed(n.msg.ChannelID, emb)
 	if err != nil {
