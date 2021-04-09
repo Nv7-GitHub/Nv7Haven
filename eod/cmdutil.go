@@ -36,6 +36,10 @@ func (n *normalResp) Message(msg string) string {
 }
 
 func (n *normalResp) Embed(emb *discordgo.MessageEmbed) string {
+	role, err := bot.getRole(n.msg.Member.Roles[0], n.msg.GuildID)
+	if err == nil {
+		emb.Color = role.Color
+	}
 	msg, err := n.b.dg.ChannelMessageSendEmbed(n.msg.ChannelID, emb)
 	if err != nil {
 		return ""
@@ -132,6 +136,10 @@ func (s *slashResp) Message(msg string) string {
 }
 
 func (s *slashResp) Embed(emb *discordgo.MessageEmbed) string {
+	role, err := bot.getRole(s.i.Member.Roles[0], s.i.GuildID)
+	if err == nil {
+		emb.Color = role.Color
+	}
 	if s.isFollowup {
 		msg, err := s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
 			Embeds: []*discordgo.MessageEmbed{emb},

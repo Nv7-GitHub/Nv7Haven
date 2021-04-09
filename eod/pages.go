@@ -210,7 +210,7 @@ func (b *EoD) invCmd(user string, m msg, rsp rsp) {
 	}
 	b.newPageSwitcher(pageSwitcher{
 		Kind:       pageSwitchInv,
-		Title:      fmt.Sprintf("%s's Inventory (%s, %s%%)", name, formatInt(len(inv)), formatFloat(float32(len(items))/float32(len(dat.elemCache))*100, 2)),
+		Title:      fmt.Sprintf("%s's Inventory (%d, %s%%)", name, len(inv), formatFloat(float32(len(items))/float32(len(dat.elemCache))*100, 2)),
 		PageGetter: b.invPageGetter,
 		Items:      items,
 	}, m, rsp)

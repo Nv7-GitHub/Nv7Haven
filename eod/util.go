@@ -2,6 +2,7 @@ package eod
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -18,17 +19,29 @@ func (b *EoD) isMod(userID string, guildID string, m msg) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	roles, err := b.dg.GuildRoles(m.GuildID)
-	if err != nil {
-		return false, err
-	}
+	hasLoadedRoles := false
+	var roles []*discordgo.Role
 
 	for _, roleID := range user.Roles {
 		if inited && (roleID == dat.modRole) {
 			return true, nil
 		}
-		for _, role := range roles {
-			if role.ID == roleID && ((role.Permissions & discordgo.PermissionAdministrator) == discordgo.PermissionAdministrator) {
+		role, err := b.dg.State.Role(guildID, roleID)
+		if err != nil {
+			if !hasLoadedRoles {
+				roles, err = b.dg.GuildRoles(m.GuildID)
+				if err != nil {
+					return false, err
+				}
+			}
+
+			for _, role := range roles {
+				if role.ID == roleID && ((role.Permissions & discordgo.PermissionAdministrator) == discordgo.PermissionAdministrator) {
+					return true, nil
+				}
+			}
+		} else {
+			if (role.Permissions & discordgo.PermissionAdministrator) == discordgo.PermissionAdministrator {
 				return true, nil
 			}
 		}
@@ -135,4 +148,24 @@ func formatInt(n int) string {
 			out[j] = ','
 		}
 	}
+}
+
+func (b *EoD) getRole(id string, guild string) (*discordgo.Role, error) {
+	role, err := b.dg.State.Role(guild, id)
+	if err == nil {
+		return role, nil
+	}
+
+	roles, err := b.dg.GuildRoles(guild)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, role := range roles {
+		if role.ID == id {
+			return role, nil
+		}
+	}
+
+	return nil, errors.New("eod: role not found")
 }
