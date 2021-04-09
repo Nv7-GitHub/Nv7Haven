@@ -148,7 +148,11 @@ func (b *EoD) statsCmd(m msg, rsp rsp) {
 	if rsp.Error(err) {
 		return
 	}
-	rsp.Resp(fmt.Sprintf("Element Count: %d\nCombination Count: %d\nMember Count: %d", len(dat.elemCache), cnt, gd.MemberCount))
+	found := 0
+	for _, val := range dat.invCache {
+		found += len(val)
+	}
+	rsp.Resp(fmt.Sprintf("Element Count: %d\nCombination Count: %d\nMember Count: %d\nElements Found: %d", len(dat.elemCache), cnt, gd.MemberCount, found))
 }
 
 func (b *EoD) giveAllCmd(user string, m msg, rsp rsp) {
