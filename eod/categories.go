@@ -179,7 +179,7 @@ func (b *EoD) catCmd(category string, m msg, rsp rsp) {
 		sort.Strings(out)
 		b.newPageSwitcher(pageSwitcher{
 			Kind:       pageSwitchInv,
-			Title:      fmt.Sprintf("All Categories (%d)", len(out)),
+			Title:      fmt.Sprintf("All Categories (%s)", formatInt(len(out))),
 			PageGetter: b.invPageGetter,
 			Items:      out,
 		}, m, rsp)
@@ -187,7 +187,7 @@ func (b *EoD) catCmd(category string, m msg, rsp rsp) {
 	}
 	b.newPageSwitcher(pageSwitcher{
 		Kind:       pageSwitchInv,
-		Title:      fmt.Sprintf("%s (%d, %s%%)", category, len(out), formatFloat(float32(found)/float32(len(out))*100, 2)),
+		Title:      fmt.Sprintf("%s (%s, %s%%)", category, formatInt(len(out)), formatFloat(float32(found)/float32(len(out))*100, 2)),
 		PageGetter: b.invPageGetter,
 		Items:      out,
 	}, m, rsp)
