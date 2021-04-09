@@ -62,7 +62,7 @@ func (e *Elemental) CreateSuggestion(mark string, pioneer string, elem1 string, 
 	if err != nil {
 		return false, err.Error()
 	}
-	if !(existing.Votes >= maxVotes) && (int(time.Now().Weekday()) != anarchyDay) {
+	if !(existing.Votes >= maxVotes) && (time.Now().Weekday() != anarchyDay) {
 		return false, "This element still needs more votes!"
 	}
 

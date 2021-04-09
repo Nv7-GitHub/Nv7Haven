@@ -8,7 +8,7 @@ import (
 )
 
 func (e *Elemental) randomSuggestion(where string, uid string) ([]string, error) {
-	isAnarchy := int(time.Now().Weekday()) == anarchyDay
+	isAnarchy := time.Now().Weekday() == anarchyDay
 	params := []interface{}{maxVotes, "%\"" + uid + "\"%"}
 	if isAnarchy {
 		where = "1"
