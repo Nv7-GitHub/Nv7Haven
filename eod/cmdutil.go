@@ -136,9 +136,16 @@ func (s *slashResp) Message(msg string) string {
 }
 
 func (s *slashResp) Embed(emb *discordgo.MessageEmbed) string {
-	role, err := bot.getRole(s.i.Member.Roles[0], s.i.GuildID)
-	if err == nil {
-		emb.Color = role.Color
+	for _, roleID := range s.i.Member.Roles {
+		role, err := bot.getRole(roleID, s.i.GuildID)
+		if err == nil {
+			if role.Color != 0 {
+				emb.Color = role.Color
+				break
+			}
+		} else {
+			break
+		}
 	}
 	if s.isFollowup {
 		msg, err := s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
