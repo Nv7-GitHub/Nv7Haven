@@ -239,7 +239,14 @@ func (b *EoD) handlePollSuccess(p poll) {
 	case pollImage:
 		b.image(p.Guild, p.Value1, p.Value2, p.Value4)
 	case pollCategorize:
-		els := p.Data["elems"].([]string)
+		els, ok := p.Data["elems"].([]string)
+		if !ok {
+			dat := p.Data["elems"].([]interface{})
+			els := make([]string, len(dat))
+			for i, val := range dat {
+				els[i] = val.(string)
+			}
+		}
 		for _, val := range els {
 			b.categorize(val, p.Value1, p.Guild)
 		}
