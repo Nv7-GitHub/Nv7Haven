@@ -53,7 +53,6 @@ func (n *Nv7Haven) getURL(c *fiber.Ctx) error {
 		return err
 	}
 	dats := d.StreamingData.Formats
-	dats = append(dats, d.StreamingData.AdaptiveFormats...)
 
 	out := make([]ytOut, len(dats))
 	for i, format := range dats {
@@ -84,8 +83,7 @@ type ytResponse struct {
 }
 
 type ytStreamingData struct {
-	Formats         []ytFormat `json:"formats"`
-	AdaptiveFormats []ytFormat `json:"adaptiveFormats"`
+	Formats []ytFormat `json:"formats"`
 }
 
 type ytFormat struct {
