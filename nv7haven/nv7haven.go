@@ -54,6 +54,7 @@ func (c *Nv7Haven) routing(app *fiber.App) {
 	app.Get("/get_name/:name", c.getName)
 	app.Get("/ldb_query/:order/:kind/:page", c.ldbQuery)
 	app.Get("/youtube_url/:id", c.getURL)
+	app.Get("/http_get/:url", c.httpGet)
 }
 
 // InitNv7Haven initializes the handlers for Nv7Haven

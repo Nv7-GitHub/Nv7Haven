@@ -16,6 +16,21 @@ func (d *Nv7Haven) getIP(c *fiber.Ctx) error {
 	return c.SendString(c.IPs()[0])
 }
 
+func (n *Nv7Haven) httpGet(c *fiber.Ctx) error {
+	uri, err := url.PathUnescape(c.Params("url"))
+	if err != nil {
+		return err
+	}
+
+	resp, err := http.Get(uri)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	return c.SendStream(resp.Body)
+}
+
 func (n *Nv7Haven) getURL(c *fiber.Ctx) error {
 	id := c.Params("id")
 	link := fmt.Sprintf("https://www.youtube.com/get_video_info?video_id=%s", id)
