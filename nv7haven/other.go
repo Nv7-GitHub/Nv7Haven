@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -60,7 +61,7 @@ func (n *Nv7Haven) getURL(c *fiber.Ctx) error {
 
 	return c.JSON(ytResp{
 		Results:   out,
-		Title:     d.Details.Title,
+		Title:     strings.ReplaceAll(d.Details.Title, "+", " "),
 		Thumbnail: d.Details.Thumbnail.Thumbnails[len(d.Details.Thumbnail.Thumbnails)].URL,
 	})
 }
