@@ -58,11 +58,16 @@ func (n *Nv7Haven) getURL(c *fiber.Ctx) error {
 		out[i].SizeFormatted = FormatByteSize(out[i].Size / 1024)
 	}
 
-	return c.JSON(out)
+	return c.JSON(ytResp{
+		Results:   out,
+		Title:     d.Details.Title,
+		Thumbnail: d.Details.Thumbnail.Thumbnails[len(d.Details.Thumbnail.Thumbnails)].URL,
+	})
 }
 
 type ytResponse struct {
 	StreamingData ytStreamingData `json:"streamingData"`
+	Details       ytDetails       `json:"videoDetails"`
 }
 
 type ytStreamingData struct {
@@ -76,9 +81,28 @@ type ytFormat struct {
 	Bitrate  int    `json:"bitrate"`
 }
 
+type ytDetails struct {
+	Title     string         `json:"title"`
+	Thumbnail ytThumbnailDat `json:"thumbnail"`
+}
+
+type ytThumbnailDat struct {
+	Thumbnails []ytThumbnail `json:"thumbnails"`
+}
+
+type ytThumbnail struct {
+	URL string `json:"url"`
+}
+
 type ytOut struct {
 	Size          int
 	SizeFormatted string
 	URL           string
 	Quality       string
+}
+
+type ytResp struct {
+	Results   []ytOut
+	Thumbnail string
+	Title     string
 }
