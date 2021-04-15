@@ -58,6 +58,7 @@ func (n *Nv7Haven) getURL(c *fiber.Ctx) error {
 		return err
 	}
 	dats := d.StreamingData.Formats
+	dats = append(dats, d.StreamingData.AdaptiveFormats...)
 
 	out := make([]ytOut, len(dats))
 	for i, format := range dats {
@@ -70,6 +71,7 @@ func (n *Nv7Haven) getURL(c *fiber.Ctx) error {
 			return err
 		}
 		out[i].Quality = format.Quality
+		out[i].MimeType = format.MimeType
 		out[i].Size = (format.Bitrate * duration) / 8
 		out[i].SizeFormatted = FormatByteSize(out[i].Size / 1024)
 	}
@@ -87,7 +89,8 @@ type ytResponse struct {
 }
 
 type ytStreamingData struct {
-	Formats []ytFormat `json:"formats"`
+	Formats         []ytFormat `json:"formats"`
+	AdaptiveFormats []ytFormat `json:"adaptiveFormats"`
 }
 
 type ytFormat struct {
@@ -95,6 +98,7 @@ type ytFormat struct {
 	Quality  string `json:"qualityLabel"`
 	Duration string `json:"approxDurationMs"`
 	Bitrate  int    `json:"bitrate"`
+	MimeType string `json:"mimeType"`
 }
 
 type ytDetails struct {
@@ -114,6 +118,7 @@ type ytOut struct {
 	Size          int
 	SizeFormatted string
 	URL           string
+	MimeType      string
 	Quality       string
 }
 
