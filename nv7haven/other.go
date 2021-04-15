@@ -53,7 +53,6 @@ func (n *Nv7Haven) getURL(c *fiber.Ctx) error {
 		if err != nil {
 			return err
 		}
-		fmt.Println(out[i].URL)
 		out[i].Quality = format.Quality
 		out[i].Size = (format.Bitrate * duration) / 8
 		out[i].SizeFormatted = FormatByteSize(out[i].Size / 1024)
