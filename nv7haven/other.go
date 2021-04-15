@@ -17,12 +17,7 @@ func (d *Nv7Haven) getIP(c *fiber.Ctx) error {
 }
 
 func (n *Nv7Haven) httpGet(c *fiber.Ctx) error {
-	uri, err := url.PathUnescape(c.Params("url"))
-	if err != nil {
-		return err
-	}
-
-	resp, err := http.Get(uri)
+	resp, err := http.Get(string(c.Body()))
 	if err != nil {
 		return err
 	}
