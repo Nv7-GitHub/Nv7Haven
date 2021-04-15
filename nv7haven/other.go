@@ -62,7 +62,7 @@ func (n *Nv7Haven) getURL(c *fiber.Ctx) error {
 	return c.JSON(ytResp{
 		Results:   out,
 		Title:     strings.ReplaceAll(d.Details.Title, "+", " "),
-		Thumbnail: d.Details.Thumbnail.Thumbnails[len(d.Details.Thumbnail.Thumbnails)].URL,
+		Thumbnail: d.Details.Thumbnail.Thumbnails[len(d.Details.Thumbnail.Thumbnails)-1].URL,
 	})
 }
 
