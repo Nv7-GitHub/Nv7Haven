@@ -1,4 +1,6 @@
 # Nv7Haven
+![uptime](https://img.shields.io/uptimerobot/ratio/m786933096-8b36755397a0431ff9949997?label=Nv7%27s%20API) ![Nv7 Bot Community](https://img.shields.io/discord/806258286043070545?label=Nv7%20Bot%20Community) ![EoD Everywhere](https://img.shields.io/discord/819077688371314718?label=EoD%20Everywhere)
+
 The server for Nv7Haven! Check it out at https://api.nv7haven.tk !
 
 How to use this server (based on folder):
