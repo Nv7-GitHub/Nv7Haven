@@ -8,6 +8,7 @@ import (
 	"github.com/Nv7-Github/firebase"
 	database "github.com/Nv7-Github/firebase/db"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 )
 
 //go:embed serviceAccount.json
@@ -81,6 +82,10 @@ func (e *Elemental) routing(app *fiber.App) {
 		e.init()
 		return nil
 	})
+
+	limit := limiter.New()
+	app.Use("/create_user", limit)
+	app.Use("/new_anonymous_user", limit)
 }
 
 // InitElemental initializes all of Elemental's handlers on the app.
