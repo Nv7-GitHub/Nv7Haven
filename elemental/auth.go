@@ -197,13 +197,7 @@ func (e *Elemental) createUser(c *fiber.Ctx) error {
 			"data":    err.Error(),
 		})
 	}
-	password, err := url.PathUnescape(c.Params("password"))
-	if err != nil {
-		return c.JSON(map[string]interface{}{
-			"success": false,
-			"data":    err.Error(),
-		})
-	}
+	password := string(c.Body())
 
 	resp := e.CreateUser(name, password)
 	return c.JSON(map[string]interface{}{
@@ -220,13 +214,7 @@ func (e *Elemental) loginUser(c *fiber.Ctx) error {
 			"data":    err.Error(),
 		})
 	}
-	password, err := url.PathUnescape(c.Params("password"))
-	if err != nil {
-		return c.JSON(map[string]interface{}{
-			"success": false,
-			"data":    err.Error(),
-		})
-	}
+	password := string(c.Body())
 	resp := e.LoginUser(name, password)
 	return c.JSON(map[string]interface{}{
 		"success": resp.Success,
