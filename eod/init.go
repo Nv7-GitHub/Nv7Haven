@@ -287,9 +287,11 @@ func (b *EoD) init() {
 			hasChanged = true
 		}
 		if hasChanged {
+			lock.RUnlock()
 			lock.Lock()
 			b.dat[k] = dat
 			lock.Unlock()
+			lock.RLock()
 		}
 	}
 	lock.RUnlock()
