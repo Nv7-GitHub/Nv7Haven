@@ -278,4 +278,19 @@ func (b *EoD) init() {
 			fmt.Println(err)
 		}
 	}
+
+	lock.RLock()
+	for k, dat := range b.dat {
+		hasChanged := false
+		if dat.invCache == nil {
+			dat.invCache = make(map[string]map[string]empty)
+			hasChanged = true
+		}
+		if hasChanged {
+			lock.Lock()
+			b.dat[k] = dat
+			lock.Unlock()
+		}
+	}
+	lock.RUnlock()
 }
