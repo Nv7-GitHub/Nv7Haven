@@ -244,31 +244,26 @@ func (b *Bot) randomCmd(getter func(uid string) ([]string, error), m msg, rsp rs
 		return
 	}
 	uid := u.Metadata["uid"].(string)
-	for i := 0; i < 10; i++ {
-		combs, err := getter(uid)
-		if err != nil {
-			continue
+	combs, _ := getter(uid) // if error, then no available suggestion
+	if len(combs) == 2 {
+		elem1 := combs[0]
+		elem2 := combs[1]
+
+		b.combos[m.Author.ID] = comb{
+			elem1: elem1,
+			elem2: elem2,
+			elem3: "",
 		}
-		if len(combs) == 2 {
-			elem1 := combs[0]
-			elem2 := combs[1]
 
-			b.combos[m.Author.ID] = comb{
-				elem1: elem1,
-				elem2: elem2,
-				elem3: "",
-			}
-
-			combs, err := b.e.GetSuggestions(elem1, elem2)
-			if rsp.Error(err) {
-				return
-			}
-			rsp.Embed(&discordgo.MessageEmbed{
-				Title:       fmt.Sprintf("Suggestions for %s+%s", elem1, elem2),
-				Description: strings.Join(combs, "\n"),
-			})
+		combs, err := b.e.GetSuggestions(elem1, elem2)
+		if rsp.Error(err) {
 			return
 		}
+		rsp.Embed(&discordgo.MessageEmbed{
+			Title:       fmt.Sprintf("Suggestions for %s+%s", elem1, elem2),
+			Description: strings.Join(combs, "\n"),
+		})
+		return
 	}
 	rsp.ErrorMessage("No available random lonely suggestions right now! Check back later!")
 }

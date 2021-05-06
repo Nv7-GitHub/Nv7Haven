@@ -1,11 +1,13 @@
 package elemental
 
 import (
-	"math/rand"
+	"fmt"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
+
+const randomQuery = `SELECT name FROM suggestions a, (SELECT found FROM users WHERE uid=? LIMIT 1) b WHERE %s AND JSON_CONTAINS(b.found, CONCAT('"', (SELECT elem1 FROM sugg_combos WHERE elem3=a.name LIMIT 1) ,'"'), "$") AND JSON_CONTAINS(b.found, CONCAT('"', (SELECT elem2 FROM sugg_combos WHERE elem3=a.name LIMIT 1) ,'"'), "$") ORDER BY RAND() LIMIT 1`
 
 func (e *Elemental) randomSuggestion(where string, uid string) ([]string, error) {
 	isAnarchy := time.Now().Weekday() == anarchyDay
@@ -14,58 +16,23 @@ func (e *Elemental) randomSuggestion(where string, uid string) ([]string, error)
 		where = "1"
 		params = []interface{}{}
 	}
+	params = append([]interface{}{uid}, params...)
 
-	res, err := e.db.Query("SELECT name FROM suggestions WHERE "+where+" LIMIT 100", params...)
+	row := e.db.QueryRow(fmt.Sprintf(randomQuery, where), params...)
+	var elem3 string
+	err := row.Scan(&elem3)
 	if err != nil {
 		return []string{}, err
 	}
-	defer res.Close()
-	comings := make([]string, 0)
-	var name string
-	for res.Next() {
-		err = res.Scan(&name)
-		if err != nil {
-			return []string{}, err
-		}
-		comings = append(comings, name)
-	}
-	if len(comings) == 0 {
-		return []string{}, nil
+
+	var elem1, elem2 string
+	row = e.db.QueryRow("SELECT elem1, elem2 FROM sugg_combos WHERE elem3=?", elem3)
+	err = row.Scan(&elem1, &elem2)
+	if err != nil {
+		return []string{}, err
 	}
 
-	for tries := 0; tries < 10; tries++ {
-		item := comings[rand.Intn(len(comings))]
-		parents, err := e.getSuggParents(item)
-		if err != nil {
-			return []string{}, err
-		}
-
-		if len(parents) == 2 {
-			if isAnarchy {
-				return parents, nil
-			}
-
-			combos, err := e.getSuggNeighbors(parents[1])
-			if err != nil {
-				return []string{}, err
-			}
-
-			for _, sugg := range combos {
-				sugg, err := e.getSugg(sugg)
-				if err != nil {
-					return []string{}, err
-				}
-				for _, val := range sugg.Voted {
-					if val == uid {
-						continue
-					}
-				}
-			}
-
-			return parents, nil
-		}
-	}
-	return []string{}, nil
+	return []string{elem1, elem2}, nil
 }
 
 func (e *Elemental) upAndComingSuggestion(c *fiber.Ctx) error {
@@ -93,33 +60,4 @@ func (e *Elemental) RandomLonelySuggestion(uid string) ([]string, error) {
 // UpAndComingSuggestion suggestion gets a suggestion that needs one vote
 func (e *Elemental) UpAndComingSuggestion(uid string) ([]string, error) {
 	return e.randomSuggestion("votes<? AND voted NOT LIKE ?", uid)
-}
-
-func (e *Elemental) getSuggParents(item string) ([]string, error) {
-	row := e.db.QueryRow("SELECT elem1, elem2 FROM sugg_combos WHERE elem3=?", item)
-	var elem1 string
-	var elem2 string
-	err := row.Scan(&elem1, &elem2)
-	if err != nil {
-		return nil, err
-	}
-	return []string{elem1, elem2}, nil
-}
-
-func (e *Elemental) getSuggNeighbors(elem1 string) ([]string, error) {
-	res, err := e.db.Query("SELECT elem3 FROM sugg_combos WHERE elem1=? OR elem2=?", elem1, elem1)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Close()
-	var dat string
-	var out []string
-	for res.Next() {
-		err = res.Scan(&dat)
-		if err != nil {
-			return nil, err
-		}
-		out = append(out, dat)
-	}
-	return out, nil
 }
