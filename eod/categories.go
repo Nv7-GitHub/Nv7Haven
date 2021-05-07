@@ -17,6 +17,10 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 	if !exists {
 		return
 	}
+	if len(category) == 0 {
+		rsp.ErrorMessage("Category name can't be blank!")
+		return
+	}
 	suggestAdd := make([]string, 0)
 	added := make([]string, 0)
 	for _, val := range elems {
