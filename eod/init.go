@@ -27,7 +27,7 @@ func (b *EoD) init() {
 			}
 			_, err := b.dg.ApplicationCommandCreate(clientID, "", val) // 819077688371314718 for testing
 			if err != nil {
-				panic(err)
+				fmt.Printf("Failed to update command %s\n", val.Name)
 			}
 		}(v)
 	}
