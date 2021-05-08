@@ -136,6 +136,26 @@ var (
 					Description: "Optionally, get the inventory of another user!",
 					Required:    false,
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "sortby",
+					Description: "How to sort the inventory",
+					Required:    false,
+					Choices: []*discordgo.ApplicationCommandOptionChoice{
+						{
+							Name:  "Name",
+							Value: "name",
+						},
+						{
+							Name:  "Element ID",
+							Value: "id",
+						},
+						{
+							Name:  "Made By",
+							Value: "madeby",
+						},
+					},
+				},
 			},
 		},
 		{
@@ -394,11 +414,15 @@ var (
 			bot.imageCmd(i.Data.Options[0].StringValue(), i.Data.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"inv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			sortby := "name"
+			if len(i.Data.Options) > 1 {
+				sortby = i.Data.Options[1].StringValue()
+			}
 			if len(i.Data.Options) > 0 {
-				bot.invCmd(i.Data.Options[0].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.invCmd(i.Data.Options[0].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i), sortby)
 				return
 			}
-			bot.invCmd(i.Member.User.ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.invCmd(i.Member.User.ID, bot.newMsgSlash(i), bot.newRespSlash(i), sortby)
 		},
 		"lb": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.lbCmd(bot.newMsgSlash(i), bot.newRespSlash(i))

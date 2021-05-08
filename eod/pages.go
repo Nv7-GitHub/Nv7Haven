@@ -177,7 +177,7 @@ func (b *EoD) pageSwitchHandler(s *discordgo.Session, r *discordgo.MessageReacti
 	lock.Unlock()
 }
 
-func (b *EoD) invCmd(user string, m msg, rsp rsp) {
+func (b *EoD) invCmd(user string, m msg, rsp rsp, sorter string) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -199,7 +199,44 @@ func (b *EoD) invCmd(user string, m msg, rsp rsp) {
 		items[i] = dat.elemCache[k].Name
 		i++
 	}
-	sort.Strings(items)
+
+	switch sorter {
+	case "id":
+		sort.Slice(items, func(i, j int) bool {
+			elem1, exists := dat.elemCache[strings.ToLower(items[i])]
+			if !exists {
+				return false
+			}
+
+			elem2, exists := dat.elemCache[strings.ToLower(items[j])]
+			if !exists {
+				return false
+			}
+			return elem1.CreatedOn.Before(elem2.CreatedOn)
+		})
+
+	case "madeby":
+		count := 0
+		outs := make([]string, len(items))
+		for _, val := range items {
+			creator := ""
+			elem, exists := dat.elemCache[strings.ToLower(items[i])]
+			if exists {
+				creator = elem.Comment
+			}
+			if creator == user {
+				outs[count] = val
+				count++
+			}
+		}
+		outs = outs[:count]
+		sort.Strings(outs)
+		items = outs
+
+	default:
+		sort.Strings(items)
+	}
+
 	name := m.Author.Username
 	if m.Author.ID != user {
 		u, err := b.dg.User(user)
