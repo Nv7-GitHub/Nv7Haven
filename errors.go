@@ -27,7 +27,6 @@ func traceHandler(stack interface{}) {
 
 func recoverer() {
 	r := recover()
-	fmt.Println(r)
 	if r != nil {
 		stack := string(debug.Stack())
 		traceHandler(stack)

@@ -220,9 +220,9 @@ func (b *EoD) invCmd(user string, m msg, rsp rsp, sorter string) {
 		outs := make([]string, len(items))
 		for _, val := range items {
 			creator := ""
-			elem, exists := dat.elemCache[strings.ToLower(items[i])]
+			elem, exists := dat.elemCache[strings.ToLower(val)]
 			if exists {
-				creator = elem.Comment
+				creator = elem.Creator
 			}
 			if creator == user {
 				outs[count] = val
