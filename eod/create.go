@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -126,7 +127,17 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	lock.Lock()
 	b.dat[guild] = dat
 	lock.Unlock()
-	b.dg.ChannelMessageSend(dat.newsChannel, newText+" "+text+" - **"+name+"** (By <@"+creator+">)")
+
+	txt := newText + " " + text + " - **" + name + "** (By <@" + creator + ">)"
+
+	var id int
+	row = b.db.QueryRow("SELECT e.rw AS cnt FROM (SELECT ROW_NUMBER() OVER (ORDER BY createdon ASC) AS rw, name FROM eod_elements WHERE guild=?) e WHERE e.name=?", guild, name)
+	err = row.Scan(&id)
+	if err == nil {
+		txt += " - Element #" + strconv.Itoa(id)
+	}
+
+	b.dg.ChannelMessageSend(dat.newsChannel, txt)
 	if guild == "819077688371314718" {
 		datafile.Write([]byte(fmt.Sprintf("%s %s\n", name, parents)))
 	}
