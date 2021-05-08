@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/signal"
 	"runtime/debug"
-	"syscall"
 
 	"github.com/Nv7-Github/Nv7Haven/discord"
 	"github.com/Nv7-Github/Nv7Haven/elemental"
@@ -17,6 +16,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/pprof"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 
 	_ "embed"
 
@@ -33,17 +33,18 @@ var dbPassword string
 
 func main() {
 	// Error logging
-	logFile, err := os.OpenFile("logs.txt", os.O_WRONLY|os.O_CREATE, os.ModePerm)
-	if err != nil {
-		panic(err)
-	}
-	syscall.Dup2(int(logFile.Fd()), 2)
+	defer recoverer()
 
 	app := fiber.New(fiber.Config{
 		BodyLimit: 1000000000,
 	})
 	app.Use(cors.New())
 	app.Use(pprof.New())
+	app.Use(recover.New(recover.Config{
+		Next:              nil,
+		EnableStackTrace:  true,
+		StackTraceHandler: traceHandler,
+	}))
 	app.Get("/freememory", func(c *fiber.Ctx) error {
 		debug.FreeOSMemory()
 		return nil
