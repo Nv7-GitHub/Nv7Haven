@@ -268,7 +268,7 @@ var (
 				},
 				{
 					Type:        discordgo.ApplicationCommandOptionBoolean,
-					Name:        "giveTree",
+					Name:        "givetree",
 					Description: "Give all the elements required to make that element?",
 					Required:    true,
 				},
