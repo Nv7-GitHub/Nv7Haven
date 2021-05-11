@@ -172,12 +172,13 @@ func (s *slashResp) Embed(emb *discordgo.MessageEmbed) string {
 		}
 		return msg.ID
 	}
-	s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
+	err := s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionApplicationCommandResponseData{
 			Embeds: []*discordgo.MessageEmbed{emb},
 		},
 	})
+	log.Println("Failed to send message:", err)
 	return ""
 }
 
