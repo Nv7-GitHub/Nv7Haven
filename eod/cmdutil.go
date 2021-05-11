@@ -1,6 +1,8 @@
 package eod
 
 import (
+	"log"
+
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -13,7 +15,8 @@ type normalResp struct {
 
 func (n *normalResp) Error(err error) bool {
 	if err != nil {
-		n.b.dg.ChannelMessageSend(n.msg.ChannelID, "Error: "+err.Error())
+		_, err := n.b.dg.ChannelMessageSend(n.msg.ChannelID, "Error: "+err.Error())
+		log.Println("Failed to send message:", err)
 		return true
 	}
 	return false
@@ -30,6 +33,7 @@ func (n *normalResp) Resp(msg string) {
 func (n *normalResp) Message(msg string) string {
 	m, err := n.b.dg.ChannelMessageSend(n.msg.ChannelID, msg)
 	if err != nil {
+		log.Println("Failed to send message:", err)
 		return ""
 	}
 	return m.ID
@@ -49,6 +53,7 @@ func (n *normalResp) Embed(emb *discordgo.MessageEmbed) string {
 	}
 	msg, err := n.b.dg.ChannelMessageSendEmbed(n.msg.ChannelID, emb)
 	if err != nil {
+		log.Println("Failed to send message:", err)
 		return ""
 	}
 	return msg.ID
@@ -80,17 +85,19 @@ type slashResp struct {
 func (s *slashResp) Error(err error) bool {
 	if err != nil {
 		if s.isFollowup {
-			s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
+			_, err := s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
 				Content: "Error: " + err.Error(),
 			})
+			log.Println("Failed to send message:", err)
 		} else {
-			s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
+			err := s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionApplicationCommandResponseData{
 					Flags:   1 << 6,
 					Content: "Error: " + err.Error(),
 				},
 			})
+			log.Println("Failed to send message:", err)
 		}
 		return true
 	}
@@ -129,6 +136,7 @@ func (s *slashResp) Message(msg string) string {
 			Content: msg,
 		})
 		if err != nil {
+			log.Println("Failed to send message:", err)
 			return ""
 		}
 		return msg.ID
@@ -159,6 +167,7 @@ func (s *slashResp) Embed(emb *discordgo.MessageEmbed) string {
 			Embeds: []*discordgo.MessageEmbed{emb},
 		})
 		if err != nil {
+			log.Println("Failed to send message:", err)
 			return ""
 		}
 		return msg.ID
