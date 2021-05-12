@@ -98,7 +98,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		}
 		text = "Element"
 
-		b.saveInv(guild, creator)
+		b.saveInv(guild, creator, true)
 	} else {
 		el, exists := dat.elemCache[strings.ToLower(name)]
 		if !exists {
@@ -110,7 +110,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		lock.Lock()
 		b.dat[guild] = dat
 		lock.Unlock()
-		b.saveInv(guild, creator)
+		b.saveInv(guild, creator, false)
 	}
 	b.db.Exec("INSERT INTO eod_combos VALUES ( ?, ?, ? )", guild, data, name)
 

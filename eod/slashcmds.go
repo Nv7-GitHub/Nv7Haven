@@ -161,6 +161,24 @@ var (
 		{
 			Name:        "lb",
 			Description: "See the leaderboard!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "sortby",
+					Description: "What to sort the leaderboard by!",
+					Required:    false,
+					Choices: []*discordgo.ApplicationCommandOptionChoice{
+						{
+							Name:  "Elements Found",
+							Value: "count",
+						},
+						{
+							Name:  "Elements Made",
+							Value: "made",
+						},
+					},
+				},
+			},
 		},
 		{
 			Name:        "addcat",
@@ -425,7 +443,11 @@ var (
 			bot.invCmd(i.Member.User.ID, bot.newMsgSlash(i), bot.newRespSlash(i), sortby)
 		},
 		"lb": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.lbCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
+			sort := "count"
+			if len(i.Data.Options) > 0 {
+				sort = i.Data.Options[1].StringValue()
+			}
+			bot.lbCmd(bot.newMsgSlash(i), bot.newRespSlash(i), sort)
 		},
 		"addcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			suggestAdd := []string{i.Data.Options[1].StringValue()}

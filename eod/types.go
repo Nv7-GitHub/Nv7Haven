@@ -56,6 +56,7 @@ type pageSwitcher struct {
 
 	// Ldb
 	User string
+	Sort string
 
 	// Element sorting
 	Query  string

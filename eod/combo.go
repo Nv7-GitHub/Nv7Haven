@@ -69,7 +69,7 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 		_, exists := dat.invCache[m.Author.ID][strings.ToLower(elem3)]
 		if !exists {
 			dat.invCache[m.Author.ID][strings.ToLower(elem3)] = empty{}
-			b.saveInv(m.GuildID, m.Author.ID)
+			b.saveInv(m.GuildID, m.Author.ID, false)
 
 			rsp.Resp(fmt.Sprintf("You made **%s** "+newText, elem3))
 			return

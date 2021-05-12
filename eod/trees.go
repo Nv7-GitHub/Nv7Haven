@@ -35,7 +35,7 @@ func (b *EoD) giveCmd(elem string, giveTree bool, user string, m msg, rsp rsp) {
 	lock.Lock()
 	b.dat[m.GuildID] = dat
 	lock.Unlock()
-	b.saveInv(m.GuildID, user)
+	b.saveInv(m.GuildID, user, true, true)
 
 	rsp.Resp("Successfully gave element " + el.Name + "!")
 }

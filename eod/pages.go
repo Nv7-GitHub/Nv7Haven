@@ -66,7 +66,7 @@ func (b *EoD) lbPageGetter(p pageSwitcher) (string, int, int, error) {
 	}
 
 	text := ""
-	res, err := b.db.Query("SELECT `count`, `user` FROM eod_inv WHERE guild=? ORDER BY `count` DESC LIMIT ? OFFSET ?", p.Guild, pageLength, p.Page*pageLength)
+	res, err := b.db.Query(fmt.Sprintf("SELECT %s, `user` FROM eod_inv WHERE guild=? ORDER BY %s DESC LIMIT ? OFFSET ?", p.Sort, p.Sort), p.Guild, pageLength, p.Page*pageLength)
 	if err != nil {
 		return "", 0, 0, err
 	}
@@ -253,7 +253,7 @@ func (b *EoD) invCmd(user string, m msg, rsp rsp, sorter string) {
 	}, m, rsp)
 }
 
-func (b *EoD) lbCmd(m msg, rsp rsp) {
+func (b *EoD) lbCmd(m msg, rsp rsp, sort string) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -270,6 +270,7 @@ func (b *EoD) lbCmd(m msg, rsp rsp) {
 		Kind:       pageSwitchLdb,
 		Title:      "Top Most Elements",
 		PageGetter: b.lbPageGetter,
+		Sort:       sort,
 		User:       m.Author.ID,
 	}, m, rsp)
 }

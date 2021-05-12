@@ -175,7 +175,7 @@ func (b *EoD) giveAllCmd(user string, m msg, rsp rsp) {
 	lock.Lock()
 	b.dat[m.GuildID] = dat
 	lock.Unlock()
-	b.saveInv(m.GuildID, user)
+	b.saveInv(m.GuildID, user, true, true)
 	rsp.Resp("Successfully gave every element to <@" + user + ">!")
 }
 
@@ -195,6 +195,6 @@ func (b *EoD) resetInvCmd(user string, m msg, rsp rsp) {
 	lock.Lock()
 	b.dat[m.GuildID] = dat
 	lock.Unlock()
-	b.saveInv(m.GuildID, user)
+	b.saveInv(m.GuildID, user, true, true)
 	rsp.Resp("Successfully reset <@" + user + ">'s inventory!")
 }

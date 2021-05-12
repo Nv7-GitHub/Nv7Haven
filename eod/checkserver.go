@@ -94,7 +94,7 @@ func (b *EoD) checkServer(m msg, rsp rsp) bool {
 		if rsp.Error(err) {
 			return false
 		}
-		_, err = b.db.Exec("INSERT INTO eod_inv VALUES ( ?, ?, ?, ? )", m.GuildID, m.Author.ID, string(data), len(dat.invCache[m.Author.ID]))
+		_, err = b.db.Exec("INSERT INTO eod_inv VALUES ( ?, ?, ?, ?, ? )", m.GuildID, m.Author.ID, string(data), len(dat.invCache[m.Author.ID]), 0) // Guild ID, User ID, inventory, elements found, made by (0 so far)
 		rsp.Error(err)
 		lock.Lock()
 		b.dat[m.GuildID] = dat

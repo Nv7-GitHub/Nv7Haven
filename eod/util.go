@@ -49,7 +49,7 @@ func (b *EoD) isMod(userID string, guildID string, m msg) (bool, error) {
 	return false, nil
 }
 
-func (b *EoD) saveInv(guild string, user string) {
+func (b *EoD) saveInv(guild string, user string, newmade bool, recalculate ...bool) {
 	lock.RLock()
 	dat, exists := b.dat[guild]
 	lock.RUnlock()
@@ -59,6 +59,26 @@ func (b *EoD) saveInv(guild string, user string) {
 
 	data, err := json.Marshal(dat.invCache[user])
 	if err != nil {
+		return
+	}
+
+	if newmade {
+		m := "made+1"
+		if len(recalculate) > 0 {
+			count := 0
+			for val := range dat.invCache[user] {
+				creator := ""
+				elem, exists := dat.elemCache[strings.ToLower(val)]
+				if exists {
+					creator = elem.Creator
+				}
+				if creator == user {
+					count++
+				}
+			}
+			m = strconv.Itoa(count)
+		}
+		b.db.Exec(fmt.Sprintf("UPDATE eod_inv SET inv=?, count=?, made=%s WHERE guild=? AND user=?", m), data, len(dat.invCache[user]), guild, user)
 		return
 	}
 
