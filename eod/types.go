@@ -115,4 +115,5 @@ type rsp interface {
 	Embed(emb *discordgo.MessageEmbed) string
 	Resp(msg string)
 	Acknowledge()
+	DM(msg string)
 }

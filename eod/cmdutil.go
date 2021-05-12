@@ -43,6 +43,21 @@ func (n *normalResp) Message(msg string) string {
 	return m.ID
 }
 
+func (n *normalResp) DM(msg string) {
+	channel, err := n.b.dg.UserChannelCreate(n.msg.Author.ID)
+	if err != nil {
+		if err != nil {
+			log.Println("Failed to send message:", err)
+		}
+	}
+	_, err = n.b.dg.ChannelMessageSend(channel.ID, msg)
+	if err != nil {
+		if err != nil {
+			log.Println("Failed to send message:", err)
+		}
+	}
+}
+
 func (n *normalResp) Embed(emb *discordgo.MessageEmbed) string {
 	for _, roleID := range n.msg.Member.Roles {
 		role, err := bot.getRole(roleID, n.msg.GuildID)
@@ -203,6 +218,21 @@ func (s *slashResp) Acknowledge() {
 	s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
 	})
+}
+
+func (s *slashResp) DM(msg string) {
+	channel, err := s.b.dg.UserChannelCreate(s.i.User.ID)
+	if err != nil {
+		if err != nil {
+			log.Println("Failed to send message:", err)
+		}
+	}
+	_, err = s.b.dg.ChannelMessageSend(channel.ID, msg)
+	if err != nil {
+		if err != nil {
+			log.Println("Failed to send message:", err)
+		}
+	}
 }
 
 func (b *EoD) newMsgSlash(i *discordgo.InteractionCreate) msg {

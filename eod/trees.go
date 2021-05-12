@@ -75,13 +75,17 @@ func (b *EoD) calcTreeCmd(elem string, m msg, rsp rsp) {
 		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", msg))
 	}
 	if len(txt) <= 2000 {
-		rsp.Resp(txt)
+		rsp.DM(txt)
 		return
 	}
-	rsp.Message("The path was too long! Sending it as a file!")
+	rsp.DM("The path was too long! Sending it as a file!")
 
+	channel, err := b.dg.UserChannelCreate(m.Author.ID)
+	if rsp.Error(err) {
+		return
+	}
 	buf := bytes.NewBufferString(txt)
-	b.dg.ChannelFileSend(m.ChannelID, "path.txt", buf)
+	b.dg.ChannelFileSend(channel.ID, "path.txt", buf)
 }
 
 // Treecalc
