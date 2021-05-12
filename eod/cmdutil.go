@@ -221,7 +221,7 @@ func (s *slashResp) Acknowledge() {
 }
 
 func (s *slashResp) DM(msg string) {
-	channel, err := s.b.dg.UserChannelCreate(s.i.User.ID)
+	channel, err := s.b.dg.UserChannelCreate(s.i.Member.User.ID)
 	if err != nil {
 		if err != nil {
 			log.Println("Failed to send message:", err)
