@@ -75,9 +75,11 @@ func (b *EoD) calcTreeCmd(elem string, m msg, rsp rsp) {
 		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", msg))
 	}
 	if len(txt) <= 2000 {
+		rsp.Message("Sent path in DMs!")
 		rsp.DM(txt)
 		return
 	}
+	rsp.Message("Sent path as file in DMs!")
 	rsp.DM("The path was too long! Sending it as a file!")
 
 	channel, err := b.dg.UserChannelCreate(m.Author.ID)
