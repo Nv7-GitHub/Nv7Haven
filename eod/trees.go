@@ -79,8 +79,7 @@ func (b *EoD) calcTreeCmd(elem string, m msg, rsp rsp) {
 		rsp.DM(txt)
 		return
 	}
-	rsp.Message("Sent path as file in DMs!")
-	rsp.DM("The path was too long! Sending it as a file!")
+	rsp.Message("The path was too long! Sending it as a file in DMs!")
 
 	channel, err := b.dg.UserChannelCreate(m.Author.ID)
 	if rsp.Error(err) {
