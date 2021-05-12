@@ -14,11 +14,11 @@ const leftArrow = "⬅️"
 const rightArrow = "➡️"
 
 const ldbQuery = `
-SELECT rw, ` + "user" + `, ` + "count" + `
+SELECT rw, ` + "user" + `, ` + "%s" + `
 FROM (
     SELECT 
-         ROW_NUMBER() OVER (ORDER BY ` + "count" + ` DESC) AS rw,
-         ` + "user" + `, ` + "count" + `
+         ROW_NUMBER() OVER (ORDER BY ` + "%s" + ` DESC) AS rw,
+         ` + "user" + `, ` + "%s" + `
     FROM eod_inv WHERE guild=?
 ) sub
 WHERE sub.user=?
@@ -43,7 +43,7 @@ func (b *EoD) invPageGetter(p pageSwitcher) (string, int, int, error) {
 
 func (b *EoD) lbPageGetter(p pageSwitcher) (string, int, int, error) {
 	cnt := b.db.QueryRow("SELECT COUNT(1) FROM eod_inv WHERE guild=?", p.Guild)
-	pos := b.db.QueryRow(ldbQuery, p.Guild, p.User)
+	pos := b.db.QueryRow(fmt.Sprintf(ldbQuery, p.User, p.User, p.User), p.Guild, p.User)
 	var count int
 	var ps int
 	var u string
