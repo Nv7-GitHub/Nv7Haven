@@ -3,7 +3,7 @@ package eod
 import (
 	"fmt"
 	"os"
-	"reflect"
+	"sort"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -99,11 +99,11 @@ func (b *EoD) initHandlers() {
 		cms[cmd.Name] = cmd
 	}
 	for _, val := range commands {
+		if val.Name == "elemsort" {
+			val.Options[0].Choices = infoChoices
+		}
 		cmd, exists := cms[val.Name]
-		if !exists || !reflect.DeepEqual(cmd, val) {
-			if val.Name == "elemsort" {
-				val.Options[0].Choices = infoChoices
-			}
+		if !exists || !commandsAreEqual(cmd, val) {
 			_, err := b.dg.ApplicationCommandCreate(clientID, guild, val)
 			if err != nil {
 				fmt.Printf("Failed to update command %s\n", val.Name)
@@ -158,4 +158,29 @@ func (b *EoD) initHandlers() {
 	b.dg.AddHandler(b.reactionHandler)
 	b.dg.AddHandler(b.unReactionHandler)
 	b.dg.AddHandler(b.pageSwitchHandler)
+}
+
+func commandsAreEqual(a *discordgo.ApplicationCommand, b *discordgo.ApplicationCommand) bool {
+	if a.Name != b.Name || a.Description != b.Description || len(a.Options) != len(b.Options) {
+		return false
+	}
+	for i, o1 := range a.Options {
+		o2 := b.Options[i]
+		if o1.Type != o2.Type || o1.Name != o2.Name || o1.Description != o2.Description || len(o1.Choices) != len(o2.Choices) {
+			return false
+		}
+		sort.Slice(o1.Choices, func(i, j int) bool {
+			return o1.Choices[i].Name < o1.Choices[j].Name
+		})
+		sort.Slice(o2.Choices, func(i, j int) bool {
+			return o2.Choices[i].Name < o2.Choices[j].Name
+		})
+		for i, c1 := range o1.Choices {
+			c2 := o2.Choices[i]
+			if c1.Name != c2.Name || c1.Value != c2.Value {
+				return false
+			}
+		}
+	}
+	return true
 }
