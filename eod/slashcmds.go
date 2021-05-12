@@ -445,7 +445,7 @@ var (
 		"lb": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			sort := "count"
 			if len(i.Data.Options) > 0 {
-				sort = i.Data.Options[1].StringValue()
+				sort = i.Data.Options[0].StringValue()
 			}
 			bot.lbCmd(bot.newMsgSlash(i), bot.newRespSlash(i), sort)
 		},
