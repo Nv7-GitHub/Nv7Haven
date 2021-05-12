@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	_ "embed"
 	"io/ioutil"
-	"sync"
 
 	"github.com/bwmarrin/discordgo"
+	deadlock "github.com/sasha-s/go-deadlock"
 )
 
 const (
@@ -17,7 +17,7 @@ const (
 var token string
 
 var bot EoD
-var lock sync.RWMutex
+var lock deadlock.RWMutex
 
 var about string
 
