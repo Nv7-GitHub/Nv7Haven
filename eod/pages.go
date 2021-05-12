@@ -43,7 +43,7 @@ func (b *EoD) invPageGetter(p pageSwitcher) (string, int, int, error) {
 
 func (b *EoD) lbPageGetter(p pageSwitcher) (string, int, int, error) {
 	cnt := b.db.QueryRow("SELECT COUNT(1) FROM eod_inv WHERE guild=?", p.Guild)
-	pos := b.db.QueryRow(fmt.Sprintf(ldbQuery, p.User, p.User, p.User), p.Guild, p.User)
+	pos := b.db.QueryRow(fmt.Sprintf(ldbQuery, p.Sort, p.Sort, p.Sort), p.Guild, p.User)
 	var count int
 	var ps int
 	var u string
