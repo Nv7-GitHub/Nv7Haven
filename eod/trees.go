@@ -66,7 +66,7 @@ func giveElem(elemCache map[string]element, giveTree bool, elem string, out *map
 func (b *EoD) calcTreeCmd(elem string, m msg, rsp rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RLock()
+	lock.RUnlock()
 	if !exists {
 		return
 	}

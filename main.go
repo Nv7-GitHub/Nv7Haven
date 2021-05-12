@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"runtime/debug"
+	"syscall"
 
 	"github.com/Nv7-Github/Nv7Haven/discord"
 	"github.com/Nv7-Github/Nv7Haven/elemental"
@@ -32,6 +33,12 @@ const (
 var dbPassword string
 
 func main() {
+	logFile, err := os.OpenFile("logs.txt", os.O_WRONLY|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
+	syscall.Dup2(int(logFile.Fd()), 2)
+
 	// Error logging
 	defer recoverer()
 
