@@ -47,10 +47,23 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 		}
 	}
 	if !hasElem {
+		hasFound := false
 		for _, v := range dat.elemCache {
-			el = v
-			elem = v.Name
-			break
+			_, exists := inv[strings.ToLower(v.Name)]
+			if !exists {
+				el = v
+				elem = v.Name
+				hasFound = true
+				break
+			}
+		}
+		if !hasFound {
+			for _, v := range dat.elemCache {
+				el = v
+				elem = v.Name
+				hasFound = true
+				break
+			}
 		}
 	}
 
