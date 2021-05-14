@@ -17,6 +17,11 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 		rsp.Resp("You need to suggest something!")
 		return
 	}
+	suggestIllegalTest = strings.Replace(suggestion, "<@", "", -1)
+	if len(suggestIllegalTest) != len(suggestion) {
+		rsp.Resp("Element names cannot contain pings.")
+		return
+	}
 
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
@@ -24,7 +29,9 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 	if !exists {
 		return
 	}
-	if autocapitalize {
+	suggestIllegalTest = strings.Replace(suggestIllegalTest, "@everyone", "", -1)
+	suggestIllegalTest = strings.Replace(suggestIllegalTest, "@here", "", -1)
+	if autocapitalize || len(suggestIllegalTest) != len(suggestion) {
 		suggestion = strings.Title(suggestion)
 	}
 	if dat.combCache == nil {
