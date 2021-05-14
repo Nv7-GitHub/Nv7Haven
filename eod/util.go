@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -193,7 +194,11 @@ func (b *EoD) getRole(id string, guild string) (*discordgo.Role, error) {
 func (b *EoD) getColor(guild, id string) (int, error) {
 	mem, err := b.dg.State.Member(guild, id)
 	if err != nil {
-		return 0, err
+		mem, err = b.dg.GuildMember(guild, id)
+		if err != nil {
+			log.Println(err)
+			return 0, err
+		}
 	}
 	for _, roleID := range mem.Roles {
 		role, err := b.getRole(roleID, guild)

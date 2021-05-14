@@ -57,7 +57,7 @@ func (n *normalResp) DM(msg string) {
 }
 
 func (n *normalResp) Embed(emb *discordgo.MessageEmbed) string {
-	color, err := bot.getColor(n.msg.GuildID, n.msg.Member.User.ID)
+	color, err := n.b.getColor(n.msg.GuildID, n.msg.Author.ID)
 	if err == nil {
 		emb.Color = color
 	}
