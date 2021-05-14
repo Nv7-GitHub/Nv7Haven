@@ -189,3 +189,21 @@ func (b *EoD) getRole(id string, guild string) (*discordgo.Role, error) {
 
 	return nil, errors.New("eod: role not found")
 }
+
+func (b *EoD) getColor(guild, id string) (int, error) {
+	mem, err := b.dg.State.Member(guild, id)
+	if err != nil {
+		return 0, err
+	}
+	for _, roleID := range mem.Roles {
+		role, err := b.getRole(roleID, guild)
+		if err == nil {
+			if role.Color != 0 {
+				return role.Color, nil
+			}
+		} else {
+			break
+		}
+	}
+	return 0, errors.New("eod: color not found")
+}

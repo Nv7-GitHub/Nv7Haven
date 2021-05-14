@@ -70,6 +70,7 @@ func (b *EoD) calcTreeCmd(elem string, m msg, rsp rsp) {
 	if !exists {
 		return
 	}
+	rsp.Acknowledge()
 	txt, suc, msg := calcTree(dat.elemCache, elem)
 	if !suc {
 		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", msg))
