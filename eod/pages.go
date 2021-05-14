@@ -162,12 +162,14 @@ func (b *EoD) pageSwitchHandler(s *discordgo.Session, r *discordgo.MessageReacti
 		}
 	}
 
+	color, _ := b.getColor(r.GuildID, r.UserID)
 	b.dg.ChannelMessageEditEmbed(ps.Channel, r.MessageID, &discordgo.MessageEmbed{
 		Title:       ps.Title,
 		Description: cont,
 		Footer: &discordgo.MessageEmbedFooter{
 			Text: fmt.Sprintf("Page %d/%d", ps.Page+1, length+1),
 		},
+		Color: color,
 	})
 	b.dg.MessageReactionRemove(ps.Channel, r.MessageID, r.Emoji.Name, r.UserID)
 	dat.pageSwitchers[r.MessageID] = ps
