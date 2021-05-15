@@ -3,6 +3,7 @@ package eod
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -26,7 +27,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	var count int
 	err := row.Scan(&count)
 	if err != nil {
-		fmt.Println(103, err)
+		log.Println(103, err)
 		return
 	}
 	if count != 0 {
@@ -36,7 +37,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	row = b.db.QueryRow("SELECT COUNT(1) FROM eod_elements WHERE name=? AND guild=?", name, guild)
 	err = row.Scan(&count)
 	if err != nil {
-		fmt.Println(23, err)
+		log.Println(23, err)
 		return
 	}
 	text := "Combination"
@@ -78,7 +79,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		lock.Unlock()
 		cats, err := json.Marshal(elem.Categories)
 		if err != nil {
-			fmt.Println(65, err)
+			log.Println(65, err)
 			return
 		}
 
@@ -88,12 +89,12 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		}
 		dat, err := json.Marshal(pars)
 		if err != nil {
-			fmt.Println(75, err)
+			log.Println(75, err)
 			return
 		}
 		_, err = b.db.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, string(cats), elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), string(dat), elem.Complexity, elem.Difficulty, 0)
 		if err != nil {
-			fmt.Println(80, err)
+			log.Println(80, err)
 			return
 		}
 		text = "Element"
@@ -112,7 +113,10 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		lock.Unlock()
 		b.saveInv(guild, creator, false)
 	}
-	b.db.Exec("INSERT INTO eod_combos VALUES ( ?, ?, ? )", guild, data, name)
+	_, err = b.db.Exec("INSERT INTO eod_combos VALUES ( ?, ?, ? )", guild, data, name)
+	if err != nil {
+		log.Println(err)
+	}
 
 	params := make(map[string]empty)
 	for _, val := range parents {
