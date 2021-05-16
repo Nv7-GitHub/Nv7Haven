@@ -124,7 +124,11 @@ func (b *EoD) init() {
 		}
 		elem.CreatedOn = time.Unix(createdon, 0)
 
-		elem.Parents = strings.Split(parentDat, "+")
+		if len(parentDat) == 0 {
+			elem.Parents = make([]string, 0)
+		} else {
+			elem.Parents = strings.Split(parentDat, "+")
+		}
 
 		lock.RLock()
 		dat := b.dat[elem.Guild]
