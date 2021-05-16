@@ -83,7 +83,16 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 			return
 		}
 
-		_, err = b.db.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, string(cats), elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), elems2txt(parents), elem.Complexity, elem.Difficulty, 0)
+		pars := make(map[string]empty, len(parents))
+		for _, val := range parents {
+			pars[val] = empty{}
+		}
+		dat, err := json.Marshal(pars)
+		if err != nil {
+			log.Println(75, err)
+			return
+		}
+		_, err = b.db.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, string(cats), elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), string(dat), elem.Complexity, elem.Difficulty, 0)
 		if err != nil {
 			log.Println(80, err)
 			return
