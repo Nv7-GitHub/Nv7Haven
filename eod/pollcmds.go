@@ -10,7 +10,6 @@ var invalidNames = []string{
 	"+",
 	"@everyone",
 	"@here",
-	"<@",
 }
 
 func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp) {
