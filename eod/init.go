@@ -123,18 +123,8 @@ func (b *EoD) init() {
 			panic(err)
 		}
 		elem.CreatedOn = time.Unix(createdon, 0)
-		parentMap := make(map[string]empty)
-		err = json.Unmarshal([]byte(parentDat), &parentMap)
-		if err != nil {
-			return
-		}
-		parents := make([]string, len(parentMap))
-		i := 0
-		for k := range parentMap {
-			parents[i] = k
-			i++
-		}
-		elem.Parents = parents
+
+		elem.Parents = strings.Split(parentDat, "+")
 
 		lock.RLock()
 		dat := b.dat[elem.Guild]
