@@ -141,7 +141,7 @@ func (b *Bot) comboCmd(elem1 string, elem2 string, m msg, rsp rsp) {
 		return
 	}
 	if !exts {
-		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", elem1))
+		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem1))
 		return
 	}
 	exts, suc = b.exts(rsp, "elements", "name=?", elem2)
@@ -149,7 +149,7 @@ func (b *Bot) comboCmd(elem1 string, elem2 string, m msg, rsp rsp) {
 		return
 	}
 	if !exts {
-		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", elem2))
+		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem2))
 		return
 	}
 

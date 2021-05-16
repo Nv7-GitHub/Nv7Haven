@@ -26,7 +26,7 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 	for _, val := range elems {
 		el, exists := dat.elemCache[strings.ToLower(val)]
 		if !exists {
-			rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", val))
+			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", val))
 			return
 		}
 		if el.Creator == m.Author.ID {
@@ -209,7 +209,7 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m msg, rsp rsp) {
 	for _, val := range elems {
 		el, exists := dat.elemCache[strings.ToLower(val)]
 		if !exists {
-			rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", val))
+			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", val))
 			return
 		}
 		_, exists = el.Categories[category]

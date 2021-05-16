@@ -93,7 +93,7 @@ func (b *EoD) markCmd(elem string, mark string, m msg, rsp rsp) {
 	}
 	el, exists := dat.elemCache[strings.ToLower(elem)]
 	if !exists {
-		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", elem))
+		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
 		return
 	}
 
@@ -127,7 +127,7 @@ func (b *EoD) imageCmd(elem string, image string, m msg, rsp rsp) {
 	}
 	el, exists := dat.elemCache[strings.ToLower(elem)]
 	if !exists {
-		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", elem))
+		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
 		return
 	}
 

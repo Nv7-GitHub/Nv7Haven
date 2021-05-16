@@ -33,7 +33,7 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 	for _, elem := range elems {
 		_, exists := dat.elemCache[strings.ToLower(elem)]
 		if !exists {
-			rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", elem))
+			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
 			return
 		}
 

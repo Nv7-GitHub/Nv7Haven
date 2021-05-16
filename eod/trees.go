@@ -21,13 +21,13 @@ func (b *EoD) giveCmd(elem string, giveTree bool, user string, m msg, rsp rsp) {
 
 	el, exists := dat.elemCache[strings.ToLower(elem)]
 	if !exists {
-		rsp.Resp(fmt.Sprintf("Element %s doesn't exist!", elem))
+		rsp.Resp(fmt.Sprintf("Element **%s** doesn't exist!", elem))
 		return
 	}
 
 	msg, suc := giveElem(dat.elemCache, giveTree, elem, &inv)
 	if !suc {
-		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", msg))
+		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", msg))
 		return
 	}
 
@@ -73,7 +73,7 @@ func (b *EoD) calcTreeCmd(elem string, m msg, rsp rsp) {
 	rsp.Acknowledge()
 	txt, suc, msg := calcTree(dat.elemCache, elem)
 	if !suc {
-		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", msg))
+		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", msg))
 	}
 	if len(txt) <= 2000 {
 		rsp.Message("Sent path in DMs!")

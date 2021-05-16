@@ -19,7 +19,7 @@ func (b *Bot) markCmd(mark string, id string, m msg, rsp rsp) {
 		return
 	}
 	if !exts {
-		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", id))
+		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", id))
 		return
 	}
 

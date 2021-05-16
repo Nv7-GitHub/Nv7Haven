@@ -117,7 +117,7 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 		}
 
 		if number > len(dat.elemCache) {
-			rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", elem))
+			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
 			return
 		}
 
@@ -141,7 +141,7 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 				return
 			}
 		}
-		rsp.ErrorMessage(fmt.Sprintf("Element %s doesn't exist!", elem))
+		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
 		return
 	}
 	rsp.Acknowledge()
