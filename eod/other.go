@@ -69,7 +69,7 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 
 	var combs *sql.Rows
 	var err error
-	combs, err = b.db.Query("SELECT elems FROM eod_combos WHERE elem3=? AND guild=?", elem, m.GuildID)
+	combs, err = b.db.Query("SELECT elems FROM eod_combos WHERE elem3 LIKE ? AND guild=?", elem, m.GuildID)
 	if rsp.Error(err) {
 		return
 	}
