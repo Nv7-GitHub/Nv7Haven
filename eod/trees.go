@@ -74,6 +74,7 @@ func (b *EoD) calcTreeCmd(elem string, m msg, rsp rsp) {
 	txt, suc, msg := calcTree(dat.elemCache, elem)
 	if !suc {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", msg))
+		return
 	}
 	if len(txt) <= 2000 {
 		rsp.Message("Sent path in DMs!")
