@@ -26,7 +26,7 @@ func (e *Elemental) randomSuggestion(where string, uid string) ([]string, error)
 	}
 
 	var elem1, elem2 string
-	row = e.db.QueryRow("SELECT elem1, elem2 FROM sugg_combos WHERE elem3=?", elem3)
+	row = e.db.QueryRow("SELECT elem1, elem2 FROM sugg_combos WHERE elem3 LIKE ?", elem3)
 	err = row.Scan(&elem1, &elem2)
 	if err != nil {
 		return []string{}, err

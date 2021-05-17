@@ -52,7 +52,7 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 	}
 	var elem3 string
 	cont := true
-	row := b.db.QueryRow("SELECT elem3 FROM eod_combos WHERE elems=? AND guild=?", elems2txt(elems), m.GuildID)
+	row := b.db.QueryRow("SELECT elem3 FROM eod_combos WHERE elems LIKE ? AND guild=?", elems2txt(elems), m.GuildID)
 	err := row.Scan(&elem3)
 	if err != nil {
 		cont = false

@@ -49,7 +49,7 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 	}
 
 	data := elems2txt(comb.elems)
-	row := b.db.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE guild=? AND elems=?", m.GuildID, data)
+	row := b.db.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE guild=? AND elems LIKE ?", m.GuildID, data)
 	var count int
 	err := row.Scan(&count)
 	if rsp.Error(err) {

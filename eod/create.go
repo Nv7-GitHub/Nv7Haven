@@ -23,7 +23,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	}
 
 	data := elems2txt(parents)
-	row := b.db.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE guild=? AND elems=?", guild, data)
+	row := b.db.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE guild=? AND elems LIKE ?", guild, data)
 	var count int
 	err := row.Scan(&count)
 	if err != nil {

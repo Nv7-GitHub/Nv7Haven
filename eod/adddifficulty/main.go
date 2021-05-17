@@ -68,7 +68,7 @@ func main() {
 		}
 
 		dt := elems2txt(elems)
-		_, err = db.Exec("UPDATE eod_combos SET elemsnew=? WHERE elems=? AND guild=?", dt, dat, guild)
+		_, err = db.Exec("UPDATE eod_combos SET elemsnew=? WHERE elems LIKE ? AND guild=?", dt, dat, guild)
 		handle(err)
 		fmt.Println(dt)
 	}
