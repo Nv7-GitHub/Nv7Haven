@@ -52,7 +52,12 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 	}
 	var elem3 string
 	cont := true
-	row := b.db.QueryRow("SELECT elem3 FROM eod_combos WHERE elems LIKE ? AND guild=?", elems2txt(elems), m.GuildID)
+	query := "SELECT elem3 FROM eod_combos WHERE elems LIKE ? AND guild=?"
+	els := elems2txt(elems)
+	if isASCII(els) {
+		query += " COLLATE utf8mb4_general_ci"
+	}
+	row := b.db.QueryRow(query, els, m.GuildID)
 	err := row.Scan(&elem3)
 	if err != nil {
 		cont = false
