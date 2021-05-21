@@ -83,34 +83,17 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 		}
 		elems := strings.Split(elemTxt, "+")
 
-		hasElems := true
-		for _, val := range elems {
-			_, exists := inv[strings.ToLower(val)]
-			if !exists {
-				hasElems = false
-			}
-		}
-		pref := x
-		ex := 0
-		if hasElems {
-			pref = check
-			ex = 1
-		}
-		prf := "%s"
-		params := make([]interface{}, len(elems))
-		i := 0
-		for _, k := range elems {
-			params[i] = interface{}(dat.elemCache[strings.ToLower(k)].Name)
-			if i == 0 {
-				prf += " %s"
-			} else {
-				prf += " + %s"
-			}
-			i++
-		}
-		params = append([]interface{}{pref}, params...)
-		params[len(params)-1] = obscure(params[len(params)-1].(string))
-		txt := fmt.Sprintf(prf, params...)
+		txt, ex := getHintText(elems, inv, dat)
+		out = append(out, hintCombo{
+			exists: ex,
+			text:   txt,
+		})
+	}
+
+	if len(out) == 0 {
+		element := dat.elemCache[strings.ToLower(elem)]
+
+		txt, ex := getHintText(element.Parents, inv, dat)
 		out = append(out, hintCombo{
 			exists: ex,
 			text:   txt,
@@ -142,6 +125,39 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 			Text: fmt.Sprintf("%d Hints • You %sHave This", len(out), txt),
 		},
 	})
+}
+
+func getHintText(elems []string, inv map[string]empty, dat serverData) (string, int) {
+	hasElems := true
+	for _, val := range elems {
+		_, exists := inv[strings.ToLower(val)]
+		if !exists {
+			hasElems = false
+		}
+	}
+	pref := x
+	ex := 0
+	if hasElems {
+		pref = check
+		ex = 1
+	}
+	prf := "%s"
+	params := make([]interface{}, len(elems))
+	i := 0
+	for _, k := range elems {
+		params[i] = interface{}(dat.elemCache[strings.ToLower(k)].Name)
+		if i == 0 {
+			prf += " %s"
+		} else {
+			prf += " + %s"
+		}
+		i++
+	}
+
+	params = append([]interface{}{pref}, params...)
+	params[len(params)-1] = obscure(params[len(params)-1].(string))
+	txt := fmt.Sprintf(prf, params...)
+	return txt, ex
 }
 
 func (b *EoD) statsCmd(m msg, rsp rsp) {
