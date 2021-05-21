@@ -80,6 +80,8 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 	defer combs.Close()
 	out := make([]hintCombo, 0)
 	var elemTxt string
+
+	length := 0
 	for combs.Next() {
 		err = combs.Scan(&elemTxt)
 		if rsp.Error(err) {
@@ -92,6 +94,7 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 			exists: ex,
 			text:   txt,
 		})
+		length += len(txt)
 	}
 
 	if len(out) == 0 {
@@ -117,6 +120,16 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 	_, hasElem = inv[strings.ToLower(el.Name)]
 	if hasElem {
 		txt = ""
+	}
+
+	if len(text) > 2000 {
+		lines := strings.Split(text, "\n")
+		text = ""
+		for _, line := range lines {
+			if len(text)+len(line) < 2000 {
+				text += line + "\n"
+			}
+		}
 	}
 
 	rsp.Embed(&discordgo.MessageEmbed{
