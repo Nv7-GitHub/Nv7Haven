@@ -68,6 +68,9 @@ func (b *EoD) ideaCmd(count int, m msg, rsp rsp) {
 		}
 	}
 
+	if dat.combCache == nil {
+		dat.combCache = make(map[string]comb)
+	}
 	dat.combCache[m.Author.ID] = comb{
 		elems: elems,
 		elem3: "",
