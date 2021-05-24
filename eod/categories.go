@@ -249,10 +249,10 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m msg, rsp rsp) {
 	} else if len(rmed) == 0 && len(suggestRm) > 1 {
 		rsp.Resp(fmt.Sprintf("Suggested to remove **%d elements** from **%s** 🗃️", len(suggestRm), category))
 	} else if len(rmed) > 0 && len(suggestRm) == 1 {
-		rsp.Resp(fmt.Sprintf("Categorized and suggested to remove **%s** from **%s** 🗃️", suggestRm[0], category))
+		rsp.Resp(fmt.Sprintf("Un-categorized and suggested to remove **%s** from **%s** 🗃️", suggestRm[0], category))
 	} else if len(rmed) > 0 && len(suggestRm) > 1 {
-		rsp.Resp(fmt.Sprintf("Categorized and suggested to remove **%d elements** tfrom**%s** 🗃️", len(suggestRm), category))
+		rsp.Resp(fmt.Sprintf("Un-categorized and suggested to remove **%d elements** tfrom**%s** 🗃️", len(suggestRm), category))
 	} else {
-		rsp.Resp("Successfully categorized! 🗃️")
+		rsp.Resp("Successfully un-categorized! 🗃️")
 	}
 }
