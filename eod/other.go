@@ -14,11 +14,23 @@ type hintCombo struct {
 	text   string
 }
 
+var noObscure = map[byte]empty{
+	' ': {},
+	'.': {},
+	'-': {},
+	'_': {},
+}
+
 func obscure(val string) string {
 	question := []byte("?")[0]
 	out := make([]byte, len(val))
-	for i := range out {
-		out[i] = question
+	for i, char := range []byte(val) {
+		_, exists := noObscure[char]
+		if exists {
+			out[i] = char
+		} else {
+			out[i] = question
+		}
 	}
 	return string(out)
 }
