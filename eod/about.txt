@@ -12,6 +12,7 @@ You can view categories with **/cat**
 Add elements to categories with **/addcat** and remove elements from categories with **/rmcat**
 You can use **/lb** to view the leaderboard and **/inv** to see what elements you have
 You can use **/hint** to get a hint on how to make an element.
+You can use **/idea** to get a random unused combination.
 
 **Setting up a Server**
 Information on how to use the commands will show up when you type them in.
