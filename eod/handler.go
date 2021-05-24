@@ -72,7 +72,8 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 				parts[i] = strings.TrimSpace(strings.Replace(part, "\\", "", -1))
 			}
 			if len(parts) > maxComboLength {
-				parts = parts[:maxComboLength]
+				rsp.ErrorMessage(fmt.Sprintf("You can only combine up to %d elements!", maxComboLength))
+				return
 			}
 			b.combine(parts, msg, rsp)
 			return

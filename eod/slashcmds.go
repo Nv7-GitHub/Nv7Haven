@@ -397,6 +397,18 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "idea",
+			Description: "Get a random unused combination!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "count",
+					Description: "Number of random unused elements in the combination!",
+					Required:    false,
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -504,6 +516,13 @@ var (
 				}
 			}
 			bot.rmCategoryCmd(suggestAdd, i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"idea": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			count := 2
+			if len(i.Data.Options) > 0 {
+				count = int(i.Data.Options[0].IntValue())
+			}
+			bot.ideaCmd(count, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )
