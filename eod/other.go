@@ -81,9 +81,9 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 
 	var combs *sql.Rows
 	var err error
-	query := "SELECT elems FROM eod_combos WHERE elem3 LIKE ? AND guild=? LIMIT 1"
+	query := "SELECT elems FROM eod_combos WHERE elem3 LIKE ? AND guild=?"
 	if isASCII(elem) {
-		query = "SELECT elems FROM eod_combos WHERE CONVERT(elem3 USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND guild=CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci LIMIT 1"
+		query = "SELECT elems FROM eod_combos WHERE CONVERT(elem3 USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND guild=CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci"
 	}
 	combs, err = b.db.Query(query, elem, m.GuildID)
 	if rsp.Error(err) {
