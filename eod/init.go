@@ -8,7 +8,6 @@ import (
 )
 
 func (b *EoD) init() {
-	b.initHandlers()
 	res, err := b.db.Query("SELECT * FROM eod_serverdata WHERE 1")
 	if err != nil {
 		panic(err)
@@ -218,4 +217,6 @@ func (b *EoD) init() {
 		}
 	}
 	lock.RUnlock()
+
+	b.initHandlers()
 }
