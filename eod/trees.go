@@ -37,7 +37,7 @@ func (b *EoD) giveCmd(elem string, giveTree bool, user string, m msg, rsp rsp) {
 	lock.Unlock()
 	b.saveInv(m.GuildID, user, true, true)
 
-	rsp.Resp("Successfully gave element " + el.Name + "!")
+	rsp.Resp("Successfully gave element **" + el.Name + "**!")
 }
 
 func giveElem(elemCache map[string]element, giveTree bool, elem string, out *map[string]empty) (string, bool) {

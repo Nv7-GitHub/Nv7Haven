@@ -9,10 +9,12 @@ import (
 func (b *EoD) ideaCmd(count int, m msg, rsp rsp) {
 	if count > maxComboLength {
 		rsp.ErrorMessage(fmt.Sprintf("You can only combine up to %d elements!", maxComboLength))
+		return
 	}
 
 	if count < 2 {
-		rsp.ErrorMessage("You must have at least 2 elements in a combination")
+		rsp.ErrorMessage("There must be at least 2 elements in an idea!")
+		return
 	}
 
 	lock.RLock()
