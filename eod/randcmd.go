@@ -11,6 +11,10 @@ func (b *EoD) ideaCmd(count int, m msg, rsp rsp) {
 		rsp.ErrorMessage(fmt.Sprintf("You can only combine up to %d elements!", maxComboLength))
 	}
 
+	if count < 2 {
+		rsp.ErrorMessage("You must have at least 2 elements in a combination")
+	}
+
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
