@@ -13,7 +13,7 @@ func (b *EoD) ideaCmd(count int, m msg, rsp rsp) {
 	}
 
 	if count < 2 {
-		rsp.ErrorMessage("There must be at least 2 elements in an idea!")
+		rsp.ErrorMessage("You must combine at least 2 elements!")
 		return
 	}
 
