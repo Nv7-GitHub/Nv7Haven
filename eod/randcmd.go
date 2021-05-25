@@ -12,7 +12,7 @@ func (b *EoD) ideaCmd(count int, m msg, rsp rsp) {
 	}
 
 	if count < 2 {
-		rsp.ErrorMessage(fmt.Sprintf("You must have at least 2 elements in a combination"))
+		rsp.ErrorMessage("You must have at least 2 elements in a combination")
 	}
 
 	lock.RLock()
