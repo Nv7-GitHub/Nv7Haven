@@ -15,6 +15,11 @@ var invalidNames = []string{
 func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp) {
 	if strings.HasPrefix(suggestion, "?") {
 		rsp.ErrorMessage("Element names can't start with '?'!")
+		return
+	}
+	if len(suggestion) >= 240 {
+		rsp.ErrorMessage("Element names must be under 240 characters!")
+		return
 	}
 	for _, name := range invalidNames {
 		if strings.Contains(suggestion, name) {
