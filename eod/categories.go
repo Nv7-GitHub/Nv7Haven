@@ -215,6 +215,7 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m msg, rsp rsp) {
 		_, exists = el.Categories[category]
 		if !exists {
 			rsp.ErrorMessage(fmt.Sprintf("Element %s isn't in category %s!", el.Name, category))
+			return
 		}
 		if el.Creator == m.Author.ID {
 			rmed = append(rmed, el.Name)
