@@ -8,12 +8,7 @@ import (
 	"runtime/debug"
 	"syscall"
 
-	"github.com/Nv7-Github/Nv7Haven/discord"
-	"github.com/Nv7-Github/Nv7Haven/elemental"
-	"github.com/Nv7-Github/Nv7Haven/eod"
 	"github.com/Nv7-Github/Nv7Haven/gdo"
-	"github.com/Nv7-Github/Nv7Haven/nv7haven"
-	"github.com/Nv7-Github/Nv7Haven/single"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -70,7 +65,7 @@ func main() {
 
 	//mysqlsetup.Mysqlsetup()
 
-	e, err := elemental.InitElemental(app, db)
+	/*e, err := elemental.InitElemental(app, db)
 	if err != nil {
 		panic(err)
 	}
@@ -82,7 +77,7 @@ func main() {
 
 	single.InitSingle(app, db)
 	b := discord.InitDiscord(db, e)
-	eod := eod.InitEoD(db)
+	eod := eod.InitEoD(db)*/
 	gdo.InitGDO(app)
 
 	c := make(chan os.Signal, 1)
@@ -97,8 +92,8 @@ func main() {
 		panic(err)
 	}
 
-	e.Close()
+	/*e.Close()
 	b.Close()
-	eod.Close()
+	eod.Close()*/
 	db.Close()
 }
