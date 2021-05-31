@@ -11,6 +11,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/discord"
 	"github.com/Nv7-Github/Nv7Haven/elemental"
 	"github.com/Nv7-Github/Nv7Haven/eod"
+	"github.com/Nv7-Github/Nv7Haven/gdo"
 	"github.com/Nv7-Github/Nv7Haven/nv7haven"
 	"github.com/Nv7-Github/Nv7Haven/single"
 
@@ -82,6 +83,7 @@ func main() {
 	single.InitSingle(app, db)
 	b := discord.InitDiscord(db, e)
 	eod := eod.InitEoD(db)
+	gdo.InitGDO(app)
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
