@@ -2,7 +2,6 @@ package gdo
 
 import (
 	"bufio"
-	"errors"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/valyala/fasthttp"
@@ -24,12 +23,6 @@ func (g *GDO) sendEvent(c *fiber.Ctx) error {
 	stream, exists := g.Streams[body.UID]
 	g.Lock.RUnlock()
 
-	if !exists {
-		return errors.New("gdo: client not connected")
-	}
-
-	stream.SendEvent(body.Event)
-
 	// SSE (wait for response)
 	ctx := c.Context()
 	ctx.SetContentType("text/event-stream")
@@ -40,7 +33,12 @@ func (g *GDO) sendEvent(c *fiber.Ctx) error {
 	ctx.Response.Header.Set("Access-Control-Allow-Headers", "Cache-Control")
 	ctx.Response.Header.Set("Access-Control-Allow-Credentials", "true")
 	ctx.SetBodyStreamWriter(fasthttp.StreamWriter(func(w *bufio.Writer) {
-		w.WriteString(stream.GetEvent())
+		if !exists {
+			w.WriteString("gdo: client not connected")
+		} else {
+			stream.SendEvent(body.Event)
+			w.WriteString(stream.GetEvent())
+		}
 		w.Flush()
 	}))
 
