@@ -3,6 +3,7 @@ package eod
 import (
 	"bytes"
 	"fmt"
+	"runtime"
 	"strings"
 )
 
@@ -112,9 +113,17 @@ type tree struct {
 	elemCache map[string]element
 	calced    map[string]empty
 	num       int
+
+	its int
 }
 
 func (t *tree) addElem(elem string) (bool, string) {
+	t.its++
+	if t.its == 500 {
+		t.its = 0
+		runtime.GC()
+	}
+
 	_, exists := t.calced[strings.ToLower(elem)]
 	if !exists {
 		el, exists := t.elemCache[strings.ToLower(elem)]
