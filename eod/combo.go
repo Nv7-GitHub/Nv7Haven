@@ -57,6 +57,11 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 	if isASCII(els) {
 		query = "SELECT elem3 FROM eod_combos WHERE CONVERT(elems USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND guild=CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci"
 	}
+
+	if isWildcard(els) {
+		query = strings.ReplaceAll(query, " LIKE ", "=")
+	}
+
 	row := b.db.QueryRow(query, els, m.GuildID)
 	err := row.Scan(&elem3)
 	if err != nil {

@@ -222,3 +222,12 @@ func isASCII(s string) bool {
 	}
 	return true
 }
+
+func isWildcard(s string) bool {
+	for _, char := range s {
+		if char == '%' || char == '*' || char == '?' || char == '[' || char == ']' || char == '!' || char == '-' || char == '#' {
+			return false
+		}
+	}
+	return true
+}

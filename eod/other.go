@@ -85,6 +85,11 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 	if isASCII(elem) {
 		query = "SELECT elems FROM eod_combos WHERE CONVERT(elem3 USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND guild=CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci"
 	}
+
+	if isWildcard(elem) {
+		query = strings.ReplaceAll(query, " LIKE ", "=")
+	}
+
 	combs, err = b.db.Query(query, elem, m.GuildID)
 	if rsp.Error(err) {
 		return
