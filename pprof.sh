@@ -1,1 +1,1 @@
-go tool pprof -png $"https://api.nv7haven.tk/debug/pprof/$1?debug=1" > out.png
+go tool pprof -http=:8080 $"https://api.nv7haven.tk/debug/pprof/$1?debug=1" > out.png
