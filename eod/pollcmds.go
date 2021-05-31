@@ -56,7 +56,17 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 	}
 
 	data := elems2txt(comb.elems)
-	row := b.db.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE guild=? AND elems LIKE ?", m.GuildID, data)
+	query := "SELECT COUNT(1) FROM eod_combos WHERE guild=? AND elems LIKE ?"
+
+	if isASCII(data) {
+		query = "SELECT COUNT(1) FROM eod_combos WHERE AND guild=CONVERT(? USING utf8mb4) CONVERT(elems USING utf8mb4) LIKE CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci"
+	}
+
+	if isWildcard(data) {
+		query = strings.ReplaceAll(query, " LIKE ", "=")
+	}
+
+	row := b.db.QueryRow(query, m.GuildID, data)
 	var count int
 	err := row.Scan(&count)
 	if rsp.Error(err) {
