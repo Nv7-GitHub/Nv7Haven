@@ -58,3 +58,13 @@ func (g *GDO) clientResponse(c *fiber.Ctx) error {
 	stream.SendEvent(body.Event)
 	return nil
 }
+
+func (g *GDO) clientDisconnect(c *fiber.Ctx) error {
+	uid := c.Body()
+
+	g.Lock.RLock()
+	delete(g.Streams, string(uid))
+	g.Lock.RUnlock()
+
+	return nil
+}
