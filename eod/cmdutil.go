@@ -33,7 +33,7 @@ func (n *normalResp) Resp(msg string) {
 }
 
 func (n *normalResp) Message(msg string) string {
-	m, err := n.b.dg.ChannelMessageSend(n.msg.ChannelID, msg)
+	m, err := n.b.dg.ChannelMessageSendReply(n.msg.ChannelID, msg, n.msg.Reference())
 	if err != nil {
 		log.Println("Failed to send message:", err)
 		return ""
