@@ -60,7 +60,7 @@ func (n *normalResp) Embed(emb *discordgo.MessageEmbed, nomention ...bool) strin
 	m := &discordgo.MessageSend{
 		Embed: emb,
 	}
-	if len(nomention) > 0 {
+	if len(nomention) == 0 {
 		m.Reference = n.msg.Reference()
 	}
 
