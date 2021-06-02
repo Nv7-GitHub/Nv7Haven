@@ -231,3 +231,29 @@ func isWildcard(s string) bool {
 	}
 	return false
 }
+
+var smallWords = map[string]empty{
+	"of":  {},
+	"an":  {},
+	"on":  {},
+	"the": {},
+	"to":  {},
+}
+
+func toTitle(s string) string {
+	words := strings.Split(strings.ToLower(s), " ")
+	for i, word := range words {
+		w := []byte(word)
+		if i == 0 {
+			w[0] = byte(strings.ToUpper(string(word[0]))[0])
+			words[i] = string(w)
+		} else {
+			_, exists := smallWords[word]
+			if !exists {
+				w[0] = byte(strings.ToUpper(string(word[0]))[0])
+				words[i] = string(w)
+			}
+		}
+	}
+	return strings.Join(words, " ")
+}

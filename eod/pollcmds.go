@@ -44,7 +44,7 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 		return
 	}
 	if autocapitalize {
-		suggestion = strings.Title(suggestion)
+		suggestion = toTitle(suggestion)
 	}
 	if dat.combCache == nil {
 		dat.combCache = make(map[string]comb)
