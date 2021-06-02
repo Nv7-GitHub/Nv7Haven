@@ -90,7 +90,7 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 	if rsp.Error(err) {
 		return
 	}
-	txt := "Suggested "
+	txt := "Suggested **"
 	for _, val := range comb.elems {
 		txt += dat.elemCache[strings.ToLower(val)].Name + " + "
 	}
@@ -98,7 +98,7 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 	if len(comb.elems) == 1 {
 		txt += " + " + dat.elemCache[strings.ToLower(comb.elems[0])].Name
 	}
-	txt += " = " + suggestion + " ✨"
+	txt += " = " + suggestion + "** ✨"
 	rsp.Message(txt)
 }
 
