@@ -122,6 +122,16 @@ func (b *EoD) markCmd(elem string, mark string, m msg, rsp rsp) {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
 		return
 	}
+	inv, exists := dat.invCache[m.Author.ID]
+	if !exists {
+		rsp.ErrorMessage("You don't have an inventory!")
+		return
+	}
+	_, exists = inv[strings.ToLower(el.Name)]
+	if !exists {
+		rsp.ErrorMessage(fmt.Sprintf("Element **%s** is not in your inventory!", el.Name))
+		return
+	}
 
 	if el.Creator == m.Author.ID {
 		b.mark(m.GuildID, elem, mark, "")
@@ -154,6 +164,17 @@ func (b *EoD) imageCmd(elem string, image string, m msg, rsp rsp) {
 	el, exists := dat.elemCache[strings.ToLower(elem)]
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
+		return
+	}
+
+	inv, exists := dat.invCache[m.Author.ID]
+	if !exists {
+		rsp.ErrorMessage("You don't have an inventory!")
+		return
+	}
+	_, exists = inv[strings.ToLower(el.Name)]
+	if !exists {
+		rsp.ErrorMessage(fmt.Sprintf("Element **%s** is not in your inventory!", el.Name))
 		return
 	}
 

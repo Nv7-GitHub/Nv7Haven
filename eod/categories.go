@@ -21,6 +21,13 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 		rsp.ErrorMessage("Category name can't be blank!")
 		return
 	}
+
+	inv, exists := dat.invCache[m.Author.ID]
+	if !exists {
+		rsp.ErrorMessage("You don't have an inventory!")
+		return
+	}
+
 	suggestAdd := make([]string, 0)
 	added := make([]string, 0)
 	for _, val := range elems {
@@ -29,6 +36,13 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", val))
 			return
 		}
+
+		_, exists = inv[strings.ToLower(el.Name)]
+		if !exists {
+			rsp.ErrorMessage(fmt.Sprintf("Element **%s** is not in your inventory!", el.Name))
+			return
+		}
+
 		if el.Creator == m.Author.ID {
 			added = append(added, el.Name)
 			err := b.categorize(el.Name, category, m.GuildID)
@@ -204,6 +218,13 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m msg, rsp rsp) {
 	if !exists {
 		return
 	}
+
+	inv, exists := dat.invCache[m.Author.ID]
+	if !exists {
+		rsp.ErrorMessage("You don't have an inventory!")
+		return
+	}
+
 	suggestRm := make([]string, 0)
 	rmed := make([]string, 0)
 	for _, val := range elems {
@@ -212,6 +233,13 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m msg, rsp rsp) {
 			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", val))
 			return
 		}
+
+		_, exists = inv[strings.ToLower(el.Name)]
+		if !exists {
+			rsp.ErrorMessage(fmt.Sprintf("Element **%s** is not in your inventory!", el.Name))
+			return
+		}
+
 		_, exists = el.Categories[category]
 		if !exists {
 			rsp.ErrorMessage(fmt.Sprintf("Element %s isn't in category %s!", el.Name, category))
