@@ -74,6 +74,7 @@ type comb struct {
 }
 
 type element struct {
+	ID         int
 	Name       string
 	Categories map[string]empty
 	Image      string

@@ -1,6 +1,7 @@
 package eod
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -22,6 +23,12 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		return
 	}
 
+	tx, err := b.db.BeginTx(context.Background(), nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
 	data := elems2txt(parents)
 	query := "SELECT COUNT(1) FROM eod_combos WHERE guild=? AND elems LIKE ?"
 	if isWildcard(data) {
@@ -30,9 +37,9 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 
 	row := b.db.QueryRow(query, guild, data)
 	var count int
-	err := row.Scan(&count)
+	err = row.Scan(&count)
 	if err != nil {
-		log.Println(103, err)
+		log.Println(err)
 		return
 	}
 	if count != 0 {
@@ -42,7 +49,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	row = b.db.QueryRow("SELECT COUNT(1) FROM eod_elements WHERE name=? AND guild=?", name, guild)
 	err = row.Scan(&count)
 	if err != nil {
-		log.Println(23, err)
+		log.Println(err)
 		return
 	}
 	text := "Combination"
@@ -67,6 +74,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 			diff++
 		}
 		elem := element{
+			ID:         len(dat.elemCache) + 1,
 			Name:       name,
 			Categories: make(map[string]empty),
 			Guild:      guild,
@@ -84,13 +92,13 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		lock.Unlock()
 		cats, err := json.Marshal(elem.Categories)
 		if err != nil {
-			log.Println(65, err)
+			log.Println(err)
 			return
 		}
 
-		_, err = b.db.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, string(cats), elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), elems2txt(parents), elem.Complexity, elem.Difficulty, 0)
+		_, err = tx.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, string(cats), elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), elems2txt(parents), elem.Complexity, elem.Difficulty, 0)
 		if err != nil {
-			log.Println(80, err)
+			log.Println(err)
 			return
 		}
 		text = "Element"
@@ -109,9 +117,10 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		lock.Unlock()
 		b.saveInv(guild, creator, false)
 	}
-	_, err = b.db.Exec("INSERT INTO eod_combos VALUES ( ?, ?, ? )", guild, data, name)
+	_, err = tx.Exec("INSERT INTO eod_combos VALUES ( ?, ?, ? )", guild, data, name)
 	if err != nil {
 		log.Println(err)
+		return
 	}
 
 	params := make(map[string]empty)
@@ -119,7 +128,12 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		params[val] = empty{}
 	}
 	for k := range params {
-		b.db.Exec("UPDATE eod_elements SET usedin=usedin+1 WHERE name=? AND guild=?", k, guild)
+		_, err = tx.Exec("UPDATE eod_elements SET usedin=usedin+1 WHERE name=? AND guild=?", k, guild)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
 		el := dat.elemCache[strings.ToLower(k)]
 		el.UsedIn++
 		dat.elemCache[strings.ToLower(k)] = el
@@ -140,5 +154,11 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	b.dg.ChannelMessageSend(dat.newsChannel, txt)
 	if guild == "819077688371314718" {
 		datafile.Write([]byte(fmt.Sprintf("%s %s\n", name, parents)))
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		log.Println(err)
+		return
 	}
 }

@@ -102,7 +102,7 @@ func (b *EoD) init() {
 		}
 	}
 
-	elems, err := b.db.Query("SELECT * FROM eod_elements WHERE 1")
+	elems, err := b.db.Query("SELECT * FROM eod_elements ORDER BY createdon ASC")
 	if err != nil {
 		panic(err)
 	}
@@ -135,6 +135,7 @@ func (b *EoD) init() {
 		if dat.elemCache == nil {
 			dat.elemCache = make(map[string]element)
 		}
+		elem.ID = len(dat.elemCache) + 1
 		dat.elemCache[strings.ToLower(elem.Name)] = elem
 		lock.Lock()
 		b.dat[elem.Guild] = dat
