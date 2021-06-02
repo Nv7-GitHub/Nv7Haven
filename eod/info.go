@@ -10,9 +10,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-// element, guild, guild, element - returns: made by x combos, used in x combos, found by x people
-const elemInfoDataCount = `SELECT a.cnt, b.cnt FROM (SELECT COUNT(1) AS cnt FROM eod_combos WHERE elem3 LIKE ? AND guild=?) a, (SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT('$."', LOWER(?), '"')) IS NOT NULL)) b`
-
 var infoChoices []*discordgo.ApplicationCommandOptionChoice
 var infoQuerys = map[string]string{
 	"Name":         "SELECT name FROM eod_elements WHERE guild=? ORDER BY name %s LIMIT ? OFFSET ?",
@@ -158,9 +155,12 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 		has = "don't "
 	}
 
-	quer := elemInfoDataCount
+	quer := `SELECT a.cnt, b.cnt FROM (SELECT COUNT(1) AS cnt FROM eod_combos WHERE elem3 LIKE ? AND guild=?) a, (SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT('$."', LOWER(?), '"')) IS NOT NULL)) b`
+	if isASCII(elem) {
+		quer = `SELECT a.cnt, b.cnt FROM (SELECT COUNT(1) AS cnt FROM eod_combos WHERE CONVERT(elem3 USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND guild=CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci) a, (SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT('$."', LOWER(?), '"')) IS NOT NULL)) b `
+	}
 	if isWildcard(elem) {
-		quer = strings.ReplaceAll(quer, "LIKE", "=")
+		quer = strings.ReplaceAll(quer, " LIKE ", "=")
 	}
 
 	row := b.db.QueryRow(quer, el.Name, el.Guild, el.Guild, el.Name)

@@ -59,6 +59,18 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			b.imageCmd(suggestion, m.Attachments[0].URL, msg, rsp)
 			return
 		}
+
+		if cmd == "hint" || cmd == "h" {
+			if len(m.Content) <= len(cmd)+2 {
+				b.hintCmd("", false, msg, rsp)
+				return
+			}
+			suggestion := m.Content[len(cmd)+2:]
+			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
+
+			b.hintCmd(suggestion, true, msg, rsp)
+			return
+		}
 	}
 
 	if strings.HasPrefix(m.Content, "?") {

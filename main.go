@@ -41,7 +41,7 @@ func main() {
 	syscall.Dup2(int(logFile.Fd()), 2)
 
 	// Error logging
-	defer recoverer()
+	//defer recoverer()
 
 	app := fiber.New(fiber.Config{
 		BodyLimit: 1000000000,
