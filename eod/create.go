@@ -53,6 +53,8 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		return
 	}
 	text := "Combination"
+
+	var id int
 	if count == 0 {
 		diff := -1
 		compl := -1
@@ -85,6 +87,8 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 			Complexity: compl,
 			Difficulty: diff,
 		}
+		id = elem.ID
+
 		dat.elemCache[strings.ToLower(elem.Name)] = elem
 		dat.invCache[creator][strings.ToLower(elem.Name)] = empty{}
 		lock.Lock()
@@ -110,6 +114,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 			return
 		}
 		name = el.Name
+		id = el.ID
 
 		dat.invCache[creator][strings.ToLower(name)] = empty{}
 		lock.Lock()
@@ -142,14 +147,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	b.dat[guild] = dat
 	lock.Unlock()
 
-	txt := newText + " " + text + " - **" + name + "** (By <@" + creator + ">)"
-
-	var id int
-	row = b.db.QueryRow("SELECT e.rw AS cnt FROM (SELECT ROW_NUMBER() OVER (ORDER BY createdon ASC) AS rw, name FROM eod_elements WHERE guild=?) e WHERE e.name=?", guild, name)
-	err = row.Scan(&id)
-	if err == nil {
-		txt += " - Element **#" + strconv.Itoa(id) + "**"
-	}
+	txt := newText + " " + text + " - **" + name + "** (By <@" + creator + ">)" + " - Element **#" + strconv.Itoa(id) + "**"
 
 	b.dg.ChannelMessageSend(dat.newsChannel, txt)
 	if guild == "819077688371314718" {
