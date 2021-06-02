@@ -98,7 +98,15 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 	if len(comb.elems) == 1 {
 		txt += " + " + dat.elemCache[strings.ToLower(comb.elems[0])].Name
 	}
-	txt += " = " + suggestion + "** ✨"
+	txt += " = " + suggestion + "** "
+
+	_, exists = dat.elemCache[strings.ToLower(suggestion)]
+	if !exists {
+		txt += "✨"
+	} else {
+		txt += "🌟"
+	}
+
 	rsp.Message(txt)
 }
 
