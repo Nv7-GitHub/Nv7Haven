@@ -56,17 +56,17 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 		}
 	}
 	if len(added) > 0 && len(suggestAdd) == 0 {
-		rsp.Resp("Successfully categorized! 🗃️")
+		rsp.Message("Successfully categorized! 🗃️")
 	} else if len(added) == 0 && len(suggestAdd) == 1 {
-		rsp.Resp(fmt.Sprintf("Suggested to add **%s** to **%s** 🗃️", suggestAdd[0], category))
+		rsp.Message(fmt.Sprintf("Suggested to add **%s** to **%s** 🗃️", suggestAdd[0], category))
 	} else if len(added) == 0 && len(suggestAdd) > 1 {
-		rsp.Resp(fmt.Sprintf("Suggested to add **%d elements** to **%s** 🗃️", len(suggestAdd), category))
+		rsp.Message(fmt.Sprintf("Suggested to add **%d elements** to **%s** 🗃️", len(suggestAdd), category))
 	} else if len(added) > 0 && len(suggestAdd) == 1 {
-		rsp.Resp(fmt.Sprintf("Categorized and suggested to add **%s** to **%s** 🗃️", suggestAdd[0], category))
+		rsp.Message(fmt.Sprintf("Categorized and suggested to add **%s** to **%s** 🗃️", suggestAdd[0], category))
 	} else if len(added) > 0 && len(suggestAdd) > 1 {
-		rsp.Resp(fmt.Sprintf("Categorized and suggested to add **%d elements** to **%s** 🗃️", len(suggestAdd), category))
+		rsp.Message(fmt.Sprintf("Categorized and suggested to add **%d elements** to **%s** 🗃️", len(suggestAdd), category))
 	} else {
-		rsp.Resp("Successfully categorized! 🗃️")
+		rsp.Message("Successfully categorized! 🗃️")
 	}
 }
 
@@ -244,16 +244,16 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m msg, rsp rsp) {
 		}
 	}
 	if len(rmed) > 0 && len(suggestRm) == 0 {
-		rsp.Resp("Successfully un-categorized! 🗃️")
+		rsp.Message("Successfully un-categorized! 🗃️")
 	} else if len(rmed) == 0 && len(suggestRm) == 1 {
-		rsp.Resp(fmt.Sprintf("Suggested to remove **%s** from **%s** 🗃️", suggestRm[0], category))
+		rsp.Message(fmt.Sprintf("Suggested to remove **%s** from **%s** 🗃️", suggestRm[0], category))
 	} else if len(rmed) == 0 && len(suggestRm) > 1 {
-		rsp.Resp(fmt.Sprintf("Suggested to remove **%d elements** from **%s** 🗃️", len(suggestRm), category))
+		rsp.Message(fmt.Sprintf("Suggested to remove **%d elements** from **%s** 🗃️", len(suggestRm), category))
 	} else if len(rmed) > 0 && len(suggestRm) == 1 {
-		rsp.Resp(fmt.Sprintf("Un-categorized and suggested to remove **%s** from **%s** 🗃️", suggestRm[0], category))
+		rsp.Message(fmt.Sprintf("Un-categorized and suggested to remove **%s** from **%s** 🗃️", suggestRm[0], category))
 	} else if len(rmed) > 0 && len(suggestRm) > 1 {
-		rsp.Resp(fmt.Sprintf("Un-categorized and suggested to remove **%d elements** tfrom**%s** 🗃️", len(suggestRm), category))
+		rsp.Message(fmt.Sprintf("Un-categorized and suggested to remove **%d elements** tfrom**%s** 🗃️", len(suggestRm), category))
 	} else {
-		rsp.Resp("Successfully un-categorized! 🗃️")
+		rsp.Message("Successfully un-categorized! 🗃️")
 	}
 }

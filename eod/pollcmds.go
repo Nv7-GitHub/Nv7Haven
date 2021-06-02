@@ -99,7 +99,7 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 		txt += " + " + dat.elemCache[strings.ToLower(comb.elems[0])].Name
 	}
 	txt += " = " + suggestion + " ✨"
-	rsp.Resp(txt)
+	rsp.Message(txt)
 }
 
 func (b *EoD) markCmd(elem string, mark string, m msg, rsp rsp) {
@@ -117,7 +117,7 @@ func (b *EoD) markCmd(elem string, mark string, m msg, rsp rsp) {
 
 	if el.Creator == m.Author.ID {
 		b.mark(m.GuildID, elem, mark, "")
-		rsp.Resp(fmt.Sprintf("You have signed **%s**! 🖋️", el.Name))
+		rsp.Message(fmt.Sprintf("You have signed **%s**! 🖋️", el.Name))
 		return
 	}
 
@@ -133,7 +133,7 @@ func (b *EoD) markCmd(elem string, mark string, m msg, rsp rsp) {
 	if rsp.Error(err) {
 		return
 	}
-	rsp.Resp(fmt.Sprintf("Suggested a note for **%s** 🖊️", el.Name))
+	rsp.Message(fmt.Sprintf("Suggested a note for **%s** 🖊️", el.Name))
 }
 
 func (b *EoD) imageCmd(elem string, image string, m msg, rsp rsp) {
