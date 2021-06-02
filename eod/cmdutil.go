@@ -15,7 +15,7 @@ type normalResp struct {
 
 func (n *normalResp) Error(err error) bool {
 	if err != nil {
-		_, err := n.b.dg.ChannelMessageSend(n.msg.ChannelID, "Error: "+err.Error())
+		_, err := n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" Error: "+err.Error()+" "+redCircle)
 		if err != nil {
 			log.Println("Failed to send message:", err)
 		}
@@ -29,11 +29,11 @@ func (n *normalResp) ErrorMessage(msg string) {
 }
 
 func (n *normalResp) Resp(msg string) {
-	n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" "+" "+msg)
+	n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" "+msg)
 }
 
 func (n *normalResp) Message(msg string) string {
-	m, err := n.b.dg.ChannelMessageSendReply(n.msg.ChannelID, msg, n.msg.Reference())
+	m, err := n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" "+msg)
 	if err != nil {
 		log.Println("Failed to send message:", err)
 		return ""
@@ -44,15 +44,11 @@ func (n *normalResp) Message(msg string) string {
 func (n *normalResp) DM(msg string) {
 	channel, err := n.b.dg.UserChannelCreate(n.msg.Author.ID)
 	if err != nil {
-		if err != nil {
-			log.Println("Failed to send message:", err)
-		}
+		log.Println("Failed to send message:", err)
 	}
 	_, err = n.b.dg.ChannelMessageSend(channel.ID, msg)
 	if err != nil {
-		if err != nil {
-			log.Println("Failed to send message:", err)
-		}
+		log.Println("Failed to send message:", err)
 	}
 }
 
