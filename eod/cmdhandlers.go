@@ -42,6 +42,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		if cmd == "stats" {
 			b.statsCmd(msg, rsp)
+			return
 		}
 
 		if cmd == "image" || cmd == "img" || cmd == "pic" {
@@ -51,7 +52,12 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			suggestion := m.Content[len(cmd)+2:]
 			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
 
+			if len(m.Attachments) < 1 {
+				rsp.ErrorMessage("You must attach an image!")
+				return
+			}
 			b.imageCmd(suggestion, m.Attachments[0].URL, msg, rsp)
+			return
 		}
 	}
 
