@@ -57,7 +57,10 @@ func (n *normalResp) Embed(emb *discordgo.MessageEmbed) string {
 	if err == nil {
 		emb.Color = color
 	}
-	msg, err := n.b.dg.ChannelMessageSendEmbed(n.msg.ChannelID, emb)
+	msg, err := n.b.dg.ChannelMessageSendComplex(n.msg.ChannelID, &discordgo.MessageSend{
+		Reference: n.msg.Reference(),
+		Embed:     emb,
+	})
 	if err != nil {
 		if err != nil {
 			log.Println("Failed to send message:", err)
