@@ -39,6 +39,20 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			b.suggestCmd(suggestion, true, msg, rsp)
 			return
 		}
+
+		if cmd == "stats" {
+			b.statsCmd(msg, rsp)
+		}
+
+		if cmd == "image" || cmd == "img" || cmd == "pic" {
+			if len(m.Content) <= len(cmd)+2 {
+				return
+			}
+			suggestion := m.Content[len(cmd)+2:]
+			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
+
+			b.imageCmd(suggestion, m.Attachments[0].URL, msg, rsp)
+		}
 	}
 
 	if strings.HasPrefix(m.Content, "?") {

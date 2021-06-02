@@ -158,7 +158,12 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 		has = "don't "
 	}
 
-	row := b.db.QueryRow(elemInfoDataCount, el.Name, el.Guild, el.Guild, el.Name)
+	quer := elemInfoDataCount
+	if isWildcard(elem) {
+		quer = strings.ReplaceAll(quer, "LIKE", "=")
+	}
+
+	row := b.db.QueryRow(quer, el.Name, el.Guild, el.Guild, el.Name)
 	var madeby int
 	var foundby int
 	err := row.Scan(&madeby, &foundby)

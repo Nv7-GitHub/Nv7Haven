@@ -175,5 +175,5 @@ func (b *EoD) imageCmd(elem string, image string, m msg, rsp rsp) {
 	if rsp.Error(err) {
 		return
 	}
-	rsp.Resp(fmt.Sprintf("Suggested an image for **%s** 📷", el.Name))
+	rsp.Message(fmt.Sprintf("Suggested an image for **%s** 📷", el.Name))
 }
