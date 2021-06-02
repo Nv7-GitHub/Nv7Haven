@@ -52,15 +52,19 @@ func (n *normalResp) DM(msg string) {
 	}
 }
 
-func (n *normalResp) Embed(emb *discordgo.MessageEmbed) string {
+func (n *normalResp) Embed(emb *discordgo.MessageEmbed, nomention ...bool) string {
 	color, err := n.b.getColor(n.msg.GuildID, n.msg.Author.ID)
 	if err == nil {
 		emb.Color = color
 	}
-	msg, err := n.b.dg.ChannelMessageSendComplex(n.msg.ChannelID, &discordgo.MessageSend{
-		Reference: n.msg.Reference(),
-		Embed:     emb,
-	})
+	m := &discordgo.MessageSend{
+		Embed: emb,
+	}
+	if len(nomention) > 0 {
+		m.Reference = n.msg.Reference()
+	}
+
+	msg, err := n.b.dg.ChannelMessageSendComplex(n.msg.ChannelID, m)
 	if err != nil {
 		if err != nil {
 			log.Println("Failed to send message:", err)
@@ -167,7 +171,7 @@ func (s *slashResp) Message(msg string) string {
 	return ""
 }
 
-func (s *slashResp) Embed(emb *discordgo.MessageEmbed) string {
+func (s *slashResp) Embed(emb *discordgo.MessageEmbed, nomention ...bool) string {
 	color, err := bot.getColor(s.i.GuildID, s.i.Member.User.ID)
 	if err == nil {
 		emb.Color = color

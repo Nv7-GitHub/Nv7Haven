@@ -113,7 +113,7 @@ type rsp interface {
 	Error(err error) bool
 	ErrorMessage(msg string)
 	Message(msg string) string
-	Embed(emb *discordgo.MessageEmbed) string
+	Embed(emb *discordgo.MessageEmbed, nomention ...bool) string
 	Resp(msg string)
 	Acknowledge()
 	DM(msg string)

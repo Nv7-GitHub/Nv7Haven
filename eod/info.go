@@ -190,5 +190,5 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
 			URL: el.Image,
 		},
-	})
+	}, true)
 }
