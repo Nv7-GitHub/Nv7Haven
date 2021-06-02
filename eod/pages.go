@@ -79,11 +79,11 @@ func (b *EoD) lbPageGetter(p pageSwitcher) (string, int, int, error) {
 		if err != nil {
 			return "", 0, 0, err
 		}
-		text += fmt.Sprintf("%d. <@%s> *You* - %d\n", i, user, ct)
+		text += fmt.Sprintf("%d. <@%s> - %d\n", i, user, ct)
 		i++
 	}
 	if !((pageLength*p.Page <= ps) && (ps <= (p.Page+1)*pageLength)) {
-		text += fmt.Sprintf("\n%d. <@%s>- %d\n", ps, u, ucnt)
+		text += fmt.Sprintf("\n%d. <@%s> *You* - %d\n", ps, u, ucnt)
 	}
 	return text, p.Page, length, nil
 }
