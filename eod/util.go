@@ -243,17 +243,14 @@ var smallWords = map[string]empty{
 func toTitle(s string) string {
 	words := strings.Split(strings.ToLower(s), " ")
 	for i, word := range words {
-		if !isASCII(word) {
-			continue // Ignore unicode stuff
-		}
-		w := []byte(word)
+		w := []rune(word)
 		if i == 0 {
-			w[0] = byte(strings.ToUpper(string(word[0]))[0])
+			w[0] = rune(strings.ToUpper(string(word[0]))[0])
 			words[i] = string(w)
 		} else {
 			_, exists := smallWords[word]
 			if !exists {
-				w[0] = byte(strings.ToUpper(string(word[0]))[0])
+				w[0] = rune(strings.ToUpper(string(word[0]))[0])
 				words[i] = string(w)
 			}
 		}
