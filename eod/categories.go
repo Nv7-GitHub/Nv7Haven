@@ -200,6 +200,7 @@ func (b *EoD) catCmd(category string, sortKind int, m msg, rsp rsp) {
 	cat, exists := dat.catCache[strings.ToLower(category)]
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Category **%s** doesn't exist!", category))
+		return
 	}
 	category = cat.Name
 
