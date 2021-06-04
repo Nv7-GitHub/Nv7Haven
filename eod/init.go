@@ -226,6 +226,8 @@ func (b *EoD) init() {
 			return
 		}
 
+		cat.Guild = guild
+
 		lock.RLock()
 		dat := b.dat[guild]
 		lock.RUnlock()
