@@ -84,7 +84,7 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 	}
 }
 
-func (b *EoD) categorize(elem string, category string, guild string) error {
+func (b *EoD) categorize(elem string, catName string, guild string) error {
 	lock.RLock()
 	dat, exists := b.dat[guild]
 	lock.RUnlock()
@@ -95,17 +95,38 @@ func (b *EoD) categorize(elem string, category string, guild string) error {
 	if !exists {
 		return nil
 	}
-	el.Categories[category] = empty{}
-	dat.elemCache[strings.ToLower(elem)] = el
 
-	data, err := json.Marshal(el.Categories)
+	cat, exists := dat.catCache[strings.ToLower(catName)]
+	if !exists {
+		cat = category{
+			Name:     catName,
+			Guild:    guild,
+			Elements: make(map[string]empty),
+			Image:    "",
+		}
+
+		_, err := b.db.Exec("INSERT INTO eod_categories VALUES (?, ?, ?, ?)", guild, cat.Name, "{}", cat.Image)
+		if err != nil {
+			return err
+		}
+	}
+	cat.Elements[el.Name] = empty{}
+	dat.catCache[strings.ToLower(catName)] = cat
+
+	els, err := json.Marshal(cat.Elements)
 	if err != nil {
 		return err
 	}
-	_, err = b.db.Exec("UPDATE eod_elements SET categories=? WHERE guild=? AND name=?", string(data), el.Guild, el.Name)
+
+	_, err = b.db.Exec("UPDATE eod_categories SET elements=? WHERE guild=? AND name=?", string(els), cat.Guild, cat.Name)
 	if err != nil {
 		return err
 	}
+
+	lock.Lock()
+	b.dat[guild] = dat
+	lock.Unlock()
+
 	return nil
 }
 
@@ -120,21 +141,38 @@ func (b *EoD) unCategorize(elem string, category string, guild string) error {
 	if !exists {
 		return nil
 	}
-	delete(el.Categories, category)
-	dat.elemCache[strings.ToLower(elem)] = el
 
-	data, err := json.Marshal(el.Categories)
-	if err != nil {
-		return err
+	cat, exists := dat.catCache[strings.ToLower(category)]
+	if !exists {
+		return nil
 	}
-	_, err = b.db.Exec("UPDATE eod_elements SET categories=? WHERE guild=? AND name=?", string(data), el.Guild, el.Name)
-	if err != nil {
-		return err
+	delete(cat.Elements, el.Name)
+	if len(cat.Elements) == 0 {
+		_, err := b.db.Exec("DELETE FROM eod_categories WHERE name=? AND guild=?", cat.Name, cat.Elements)
+		if err != nil {
+			return err
+		}
+	} else {
+		data, err := json.Marshal(cat.Elements)
+		if err != nil {
+			return err
+		}
+		_, err = b.db.Exec("UPDATE eod_categories SET elements=? WHERE guild=? AND name=?", string(data), cat.Guild, cat.Name)
+		if err != nil {
+			return err
+		}
 	}
+
 	return nil
 }
 
-func (b *EoD) catCmd(category string, m msg, rsp rsp) {
+const (
+	catSortAlphabetical = 0
+	catSortByFound      = 1
+	catSortByNotFound   = 2
+)
+
+func (b *EoD) catCmd(category string, sortKind int, m msg, rsp rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -147,65 +185,96 @@ func (b *EoD) catCmd(category string, m msg, rsp rsp) {
 		return
 	}
 
-	elems, err := b.db.Query("SELECT name FROM eod_elements WHERE guild=? AND JSON_EXTRACT(categories, ?) IS NOT NULL", m.GuildID, `$."`+category+`"`)
-	if rsp.Error(err) {
-		return
+	cat, exists := dat.catCache[strings.ToLower(category)]
+	if !exists {
+		rsp.ErrorMessage(fmt.Sprintf("Category **%s** doesn't exist!", category))
 	}
-	defer elems.Close()
-	out := make([]string, 0)
-	var name string
+
+	out := make([]struct {
+		found int
+		text  string
+		name  string
+	}, len(cat.Elements))
+
 	found := 0
-	for elems.Next() {
-		err = elems.Scan(&name)
-		if rsp.Error(err) {
-			return
-		}
+	i := 0
+	fnd := 0
+	var text string
+
+	for name := range cat.Elements {
 		_, exists := inv[strings.ToLower(name)]
 		if exists {
-			name += " " + check
+			text = name + " " + check
 			found++
+			fnd = 1
 		} else {
-			name += " " + x
+			text = name + " " + x
+			fnd = 0
 		}
-		out = append(out, name)
+
+		out[i] = struct {
+			found int
+			text  string
+			name  string
+		}{
+			found: fnd,
+			text:  text,
+			name:  name,
+		}
+
+		i++
 	}
-	if len(out) == 0 {
-		res, err := b.db.Query("SELECT DISTINCT categories FROM eod_elements WHERE guild=?", m.GuildID)
-		if rsp.Error(err) {
-			return
-		}
-		defer res.Close()
-		cats := make(map[string]empty)
-		var dt string
-		var data map[string]empty
-		for res.Next() {
-			err = res.Scan(&dt)
-			if rsp.Error(err) {
-				return
-			}
-			err = json.Unmarshal([]byte(dt), &data)
-			if rsp.Error(err) {
-				return
-			}
-			for k := range data {
-				cats[k] = empty{}
-			}
-		}
-		for k := range cats {
-			out = append(out, k)
-		}
-		sort.Strings(out)
-		b.newPageSwitcher(pageSwitcher{
-			Kind:       pageSwitchInv,
-			Title:      fmt.Sprintf("All Categories (%d)", len(out)),
-			PageGetter: b.invPageGetter,
-			Items:      out,
-		}, m, rsp)
-		return
+
+	switch sortKind {
+	case catSortAlphabetical:
+		sort.Slice(out, func(i, j int) bool {
+			return out[i].name < out[j].name
+		})
+
+	case catSortByFound:
+		sort.Slice(out, func(i, j int) bool {
+			return out[i].found < out[j].found
+		})
+
+	case catSortByNotFound:
+		sort.Slice(out, func(i, j int) bool {
+			return out[i].found > out[j].found
+		})
 	}
+
+	o := make([]string, len(out))
+	for i, val := range out {
+		o[i] = val.text
+	}
+
 	b.newPageSwitcher(pageSwitcher{
 		Kind:       pageSwitchInv,
 		Title:      fmt.Sprintf("%s (%d, %s%%)", category, len(out), formatFloat(float32(found)/float32(len(out))*100, 2)),
+		PageGetter: b.invPageGetter,
+		Items:      o,
+	}, m, rsp)
+}
+
+func (b *EoD) allCatCmd(m msg, rsp rsp) {
+	lock.RLock()
+	dat, exists := b.dat[m.GuildID]
+	lock.RUnlock()
+	if !exists {
+		return
+	}
+
+	out := make([]string, len(dat.catCache))
+
+	i := 0
+	for _, cat := range dat.catCache {
+		out[i] = cat.Name
+		i++
+	}
+
+	sort.Strings(out)
+	b.newPageSwitcher(pageSwitcher{
+		Kind:       pageSwitchInv,
+		Title:      fmt.Sprintf("All Categories (%d)", len(out)),
 		PageGetter: b.invPageGetter,
 		Items:      out,
 	}, m, rsp)
@@ -240,11 +309,18 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m msg, rsp rsp) {
 			return
 		}
 
-		_, exists = el.Categories[category]
+		cat, exists := dat.catCache[strings.ToLower(category)]
 		if !exists {
-			rsp.ErrorMessage(fmt.Sprintf("Element %s isn't in category %s!", el.Name, category))
+			rsp.ErrorMessage(fmt.Sprintf("Category %s doesn't exist!", category))
 			return
 		}
+
+		_, exists = cat.Elements[el.Name]
+		if !exists {
+			rsp.ErrorMessage(fmt.Sprintf("Element %s isn't in category %s!", el.Name, cat.Name))
+			return
+		}
+
 		if el.Creator == m.Author.ID {
 			rmed = append(rmed, el.Name)
 			err := b.unCategorize(el.Name, category, m.GuildID)

@@ -2,7 +2,6 @@ package eod
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -78,7 +77,6 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		elem := element{
 			ID:         len(dat.elemCache) + 1,
 			Name:       name,
-			Categories: make(map[string]empty),
 			Guild:      guild,
 			Comment:    "None",
 			Creator:    creator,
@@ -94,13 +92,8 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		lock.Lock()
 		b.dat[guild] = dat
 		lock.Unlock()
-		cats, err := json.Marshal(elem.Categories)
-		if err != nil {
-			log.Println(err)
-			return
-		}
 
-		_, err = tx.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, string(cats), elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), elems2txt(parents), elem.Complexity, elem.Difficulty, 0)
+		_, err = tx.Exec("INSERT INTO eod_elements VALUES ( ?,  ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), elems2txt(parents), elem.Complexity, elem.Difficulty, 0)
 		if err != nil {
 			log.Println(err)
 			return

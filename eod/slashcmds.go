@@ -232,6 +232,26 @@ var (
 					Description: "Name of the category",
 					Required:    false,
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "sort",
+					Description: "How to sort the elements of the category!",
+					Required:    false,
+					Choices: []*discordgo.ApplicationCommandOptionChoice{
+						{
+							Name:  "Alphabetical",
+							Value: catSortAlphabetical,
+						},
+						{
+							Name:  "Found",
+							Value: catSortByFound,
+						},
+						{
+							Name:  "Not Found",
+							Value: catSortByNotFound,
+						},
+					},
+				},
 			},
 		},
 		{
@@ -472,10 +492,15 @@ var (
 		},
 		"cat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			if len(i.Data.Options) == 0 {
-				bot.catCmd("", bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.allCatCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
 				return
 			}
-			bot.catCmd(i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			if len(i.Data.Options) == 1 {
+				bot.catCmd(i.Data.Options[0].StringValue(), catSortAlphabetical, bot.newMsgSlash(i), bot.newRespSlash(i))
+				return
+			}
+
+			bot.catCmd(i.Data.Options[0].StringValue(), int(i.Data.Options[1].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"hint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			if len(i.Data.Options) == 0 {

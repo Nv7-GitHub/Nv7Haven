@@ -109,17 +109,11 @@ func (b *EoD) init() {
 	defer elems.Close()
 	elem := element{}
 	var createdon int64
-	var catDat string
 	var parentDat string
 	for elems.Next() {
-		err = elems.Scan(&elem.Name, &catDat, &elem.Image, &elem.Guild, &elem.Comment, &elem.Creator, &createdon, &parentDat, &elem.Complexity, &elem.Difficulty, &elem.UsedIn)
+		err = elems.Scan(&elem.Name, &elem.Image, &elem.Guild, &elem.Comment, &elem.Creator, &createdon, &parentDat, &elem.Complexity, &elem.Difficulty, &elem.UsedIn)
 		if err != nil {
 			return
-		}
-		elem.Categories = make(map[string]empty)
-		err = json.Unmarshal([]byte(catDat), &elem.Categories)
-		if err != nil {
-			panic(err)
 		}
 		elem.CreatedOn = time.Unix(createdon, 0)
 
@@ -218,6 +212,37 @@ func (b *EoD) init() {
 		}
 	}
 	lock.RUnlock()
+
+	cats, err := b.db.Query("SELECT * FROM eod_categories")
+	if err != nil {
+		panic(err)
+	}
+	defer cats.Close()
+	var elemDat string
+	cat := category{}
+	for cats.Next() {
+		err = cats.Scan(&guild, &cat.Name, &elemDat, &cat.Image)
+		if err != nil {
+			return
+		}
+
+		lock.RLock()
+		dat := b.dat[guild]
+		lock.RUnlock()
+		if dat.catCache == nil {
+			dat.catCache = make(map[string]category)
+		}
+
+		err := json.Unmarshal([]byte(elemDat), &cat.Elements)
+		if err != nil {
+			panic(err)
+		}
+
+		dat.catCache[strings.ToLower(cat.Name)] = cat
+		lock.Lock()
+		b.dat[guild] = dat
+		lock.Unlock()
+	}
 
 	b.initHandlers()
 }

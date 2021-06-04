@@ -42,6 +42,7 @@ type serverData struct {
 	combCache     map[string]comb             // map[userID]comb
 	invCache      map[string]map[string]empty // map[userID]map[elementName]empty
 	elemCache     map[string]element          //map[elementName]element
+	catCache      map[string]category         // map[catName]category
 	polls         map[string]poll             // map[messageid]poll
 	pageSwitchers map[string]pageSwitcher     // map[messageid]pageswitcher
 }
@@ -76,7 +77,6 @@ type comb struct {
 type element struct {
 	ID         int
 	Name       string
-	Categories map[string]empty
 	Image      string
 	Guild      string
 	Comment    string
@@ -101,6 +101,13 @@ type poll struct {
 
 	Upvotes   int
 	Downvotes int
+}
+
+type category struct {
+	Name     string
+	Guild    string
+	Elements map[string]empty
+	Image    string
 }
 
 type msg struct {
