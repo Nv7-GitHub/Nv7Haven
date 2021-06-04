@@ -233,6 +233,7 @@ func (b *EoD) init() {
 			dat.catCache = make(map[string]category)
 		}
 
+		cat.Elements = make(map[string]empty)
 		err := json.Unmarshal([]byte(elemDat), &cat.Elements)
 		if err != nil {
 			panic(err)

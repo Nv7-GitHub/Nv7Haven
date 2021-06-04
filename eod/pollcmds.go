@@ -14,6 +14,10 @@ var invalidNames = []string{
 }
 
 func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp) {
+	if autocapitalize {
+		suggestion = toTitle(suggestion)
+	}
+
 	if strings.HasPrefix(suggestion, "?") {
 		rsp.ErrorMessage("Element names can't start with '?'!")
 		return
@@ -44,9 +48,7 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 	if !exists {
 		return
 	}
-	if autocapitalize {
-		suggestion = toTitle(suggestion)
-	}
+
 	if dat.combCache == nil {
 		dat.combCache = make(map[string]comb)
 	}

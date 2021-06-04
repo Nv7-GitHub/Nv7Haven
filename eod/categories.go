@@ -28,6 +28,11 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 		return
 	}
 
+	cat, exists := dat.catCache[strings.ToLower(category)]
+	if exists {
+		category = cat.Name
+	}
+
 	suggestAdd := make([]string, 0)
 	added := make([]string, 0)
 	for _, val := range elems {
@@ -147,11 +152,14 @@ func (b *EoD) unCategorize(elem string, category string, guild string) error {
 		return nil
 	}
 	delete(cat.Elements, el.Name)
+	dat.catCache[strings.ToLower(category)] = cat
+
 	if len(cat.Elements) == 0 {
-		_, err := b.db.Exec("DELETE FROM eod_categories WHERE name=? AND guild=?", cat.Name, cat.Elements)
+		_, err := b.db.Exec("DELETE FROM eod_categories WHERE name=? AND guild=?", cat.Name, cat.Guild)
 		if err != nil {
 			return err
 		}
+		delete(dat.catCache, strings.ToLower(category))
 	} else {
 		data, err := json.Marshal(cat.Elements)
 		if err != nil {
@@ -162,6 +170,10 @@ func (b *EoD) unCategorize(elem string, category string, guild string) error {
 			return err
 		}
 	}
+
+	lock.Lock()
+	b.dat[guild] = dat
+	lock.Unlock()
 
 	return nil
 }
@@ -189,6 +201,7 @@ func (b *EoD) catCmd(category string, sortKind int, m msg, rsp rsp) {
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Category **%s** doesn't exist!", category))
 	}
+	category = cat.Name
 
 	out := make([]struct {
 		found int
@@ -233,12 +246,12 @@ func (b *EoD) catCmd(category string, sortKind int, m msg, rsp rsp) {
 
 	case catSortByFound:
 		sort.Slice(out, func(i, j int) bool {
-			return out[i].found < out[j].found
+			return out[i].found > out[j].found
 		})
 
 	case catSortByNotFound:
 		sort.Slice(out, func(i, j int) bool {
-			return out[i].found > out[j].found
+			return out[i].found < out[j].found
 		})
 	}
 
@@ -294,6 +307,14 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m msg, rsp rsp) {
 		return
 	}
 
+	cat, exists := dat.catCache[strings.ToLower(category)]
+	if !exists {
+		rsp.ErrorMessage(fmt.Sprintf("Category **%s** doesn't exist!", category))
+		return
+	}
+
+	category = cat.Name
+
 	suggestRm := make([]string, 0)
 	rmed := make([]string, 0)
 	for _, val := range elems {
@@ -309,15 +330,9 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m msg, rsp rsp) {
 			return
 		}
 
-		cat, exists := dat.catCache[strings.ToLower(category)]
-		if !exists {
-			rsp.ErrorMessage(fmt.Sprintf("Category %s doesn't exist!", category))
-			return
-		}
-
 		_, exists = cat.Elements[el.Name]
 		if !exists {
-			rsp.ErrorMessage(fmt.Sprintf("Element %s isn't in category %s!", el.Name, cat.Name))
+			rsp.ErrorMessage(fmt.Sprintf("Element **%s** isn't in category **%s**!", el.Name, cat.Name))
 			return
 		}
 
