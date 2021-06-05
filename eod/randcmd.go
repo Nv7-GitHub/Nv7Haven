@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func (b *EoD) ideaCmd(count int, m msg, rsp rsp) {
+func (b *EoD) ideaCmd(count int, catName string, hasCat bool, m msg, rsp rsp) {
 	if count > maxComboLength {
 		rsp.ErrorMessage(fmt.Sprintf("You can only combine up to %d elements!", maxComboLength))
 		return
@@ -30,6 +30,23 @@ func (b *EoD) ideaCmd(count int, m msg, rsp rsp) {
 		return
 	}
 
+	els := inv
+	if hasCat {
+		cat, exists := dat.catCache[strings.ToLower(catName)]
+		if !exists {
+			rsp.ErrorMessage(fmt.Sprintf("Category **%s** doesn't exist!", catName))
+		}
+		els = make(map[string]empty)
+
+		for el := range cat.Elements {
+			l := strings.ToLower(el)
+			_, exists := inv[l]
+			if exists {
+				els[l] = empty{}
+			}
+		}
+	}
+
 	var elem3 string
 	cont := true
 	var elems []string
@@ -39,7 +56,7 @@ func (b *EoD) ideaCmd(count int, m msg, rsp rsp) {
 		for i := range elems {
 			cnt := rand.Intn(len(inv))
 			j := 0
-			for k := range inv {
+			for k := range els {
 				if j == cnt {
 					elems[i] = k
 					break

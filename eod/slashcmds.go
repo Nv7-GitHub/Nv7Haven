@@ -427,6 +427,12 @@ var (
 					Description: "Number of random unused elements in the combination!",
 					Required:    false,
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "category",
+					Description: "Use a category for the elements to choose from!",
+					Required:    false,
+				},
 			},
 		},
 		{
@@ -570,10 +576,19 @@ var (
 		},
 		"idea": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			count := 2
-			if len(i.Data.Options) > 0 {
-				count = int(i.Data.Options[0].IntValue())
+			hasCat := false
+			catName := ""
+			for _, opt := range i.Data.Options {
+				if opt.Name == "count" {
+					count = int(opt.IntValue())
+				}
+
+				if opt.Name == "category" {
+					hasCat = true
+					catName = opt.StringValue()
+				}
 			}
-			bot.ideaCmd(count, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.ideaCmd(count, catName, hasCat, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"catimg": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.catImgCmd(i.Data.Options[0].StringValue(), i.Data.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
