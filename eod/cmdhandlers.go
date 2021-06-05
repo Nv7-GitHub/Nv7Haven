@@ -60,6 +60,21 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
+		if cmd == "catimage" || cmd == "catimg" || cmd == "catpic" {
+			if len(m.Content) <= len(cmd)+2 {
+				return
+			}
+			suggestion := m.Content[len(cmd)+2:]
+			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
+
+			if len(m.Attachments) < 1 {
+				rsp.ErrorMessage("You must attach an image!")
+				return
+			}
+			b.catImgCmd(suggestion, m.Attachments[0].URL, msg, rsp)
+			return
+		}
+
 		if cmd == "hint" || cmd == "h" {
 			if len(m.Content) <= len(cmd)+2 {
 				b.hintCmd("", false, msg, rsp)

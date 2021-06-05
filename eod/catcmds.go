@@ -16,6 +16,9 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 	if !exists {
 		return
 	}
+
+	category = strings.TrimSpace(category)
+
 	if len(category) == 0 {
 		rsp.ErrorMessage("Category name can't be blank!")
 		return
