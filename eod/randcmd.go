@@ -60,7 +60,7 @@ func (b *EoD) ideaCmd(count int, catName string, hasCat bool, m msg, rsp rsp) {
 	for cont {
 		elems = make([]string, count)
 		for i := range elems {
-			cnt := rand.Intn(len(inv))
+			cnt := rand.Intn(len(els))
 			j := 0
 			for k := range els {
 				if j == cnt {
