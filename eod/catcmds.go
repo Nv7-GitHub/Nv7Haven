@@ -294,7 +294,7 @@ func (b *EoD) catImgCmd(catName string, url string, m msg, rsp rsp) {
 	if rsp.Error(err) {
 		return
 	}
-	rsp.Message(fmt.Sprintf("Suggested an image for **%s** 📷", cat.Name))
+	rsp.Message(fmt.Sprintf("Suggested an image for category **%s** 📷", cat.Name))
 }
 
 func (b *EoD) catImage(guild string, catName string, image string, creator string) {
