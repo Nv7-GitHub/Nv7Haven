@@ -108,7 +108,7 @@ func commandsAreEqual(a *discordgo.ApplicationCommand, b *discordgo.ApplicationC
 		})
 		for i, c1 := range o1.Choices {
 			c2 := o2.Choices[i]
-			if c1.Name != c2.Name || c1.Value != c2.Value {
+			if c1.Name != c2.Name || fmt.Sprintf("%v", c1.Value) != fmt.Sprintf("%v", c2.Value) {
 				return false
 			}
 		}
