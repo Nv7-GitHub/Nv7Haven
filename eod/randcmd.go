@@ -35,6 +35,7 @@ func (b *EoD) ideaCmd(count int, catName string, hasCat bool, m msg, rsp rsp) {
 		cat, exists := dat.catCache[strings.ToLower(catName)]
 		if !exists {
 			rsp.ErrorMessage(fmt.Sprintf("Category **%s** doesn't exist!", catName))
+			return
 		}
 		els = make(map[string]empty)
 
@@ -44,6 +45,11 @@ func (b *EoD) ideaCmd(count int, catName string, hasCat bool, m msg, rsp rsp) {
 			if exists {
 				els[l] = empty{}
 			}
+		}
+
+		if len(els) == 0 {
+			rsp.ErrorMessage(fmt.Sprintf("You don't have any elements in category **%s**!", cat.Name))
+			return
 		}
 	}
 
