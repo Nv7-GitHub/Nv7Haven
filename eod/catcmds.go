@@ -318,6 +318,6 @@ func (b *EoD) catImage(guild string, catName string, image string, creator strin
 
 	b.db.Exec("UPDATE eod_categories SET image=? WHERE guild=? AND name=?", image, cat.Guild, cat.Name)
 	if creator != "" {
-		b.dg.ChannelMessageSend(dat.newsChannel, "📸 Added Image - **"+cat.Name+"** (By <@"+creator+">)")
+		b.dg.ChannelMessageSend(dat.newsChannel, "📸 Added Category Image - **"+cat.Name+"** (By <@"+creator+">)")
 	}
 }

@@ -141,7 +141,7 @@ func (b *EoD) createPoll(p poll) error {
 
 	case pollCatImage:
 		m, err := b.dg.ChannelMessageSendEmbed(dat.votingChannel, &discordgo.MessageEmbed{
-			Title:       "Add Image (Category)",
+			Title:       "Add Category Image",
 			Description: fmt.Sprintf("**%s**\n[New Image](%s)\n[Old Image](%s)\n\nSuggested by <@%s>", p.Value1, p.Value2, p.Value3, p.Value4),
 			Footer: &discordgo.MessageEmbedFooter{
 				Text: "You can change your vote",
