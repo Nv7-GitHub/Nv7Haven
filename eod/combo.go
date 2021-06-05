@@ -33,7 +33,19 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 	for _, elem := range elems {
 		_, exists := dat.elemCache[strings.ToLower(elem)]
 		if !exists {
-			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
+			notExists := make([]string, 0)
+			for _, el := range elems {
+				_, exists := dat.elemCache[strings.ToLower(el)]
+				if !exists {
+					notExists = append(notExists, "**"+el+"**")
+				}
+			}
+			if len(notExists) == 1 {
+				rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
+				return
+			}
+
+			rsp.ErrorMessage("Elements " + joinTxt(notExists, "and") + " don't exist!")
 			return
 		}
 
@@ -46,10 +58,26 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 				lock.Lock()
 				b.dat[m.GuildID] = dat
 				lock.Unlock()
+
+				notFound := make([]string, 0)
+				for _, el := range elems {
+					_, exists := dat.elemCache[strings.ToLower(el)]
+					if !exists {
+						notFound = append(notFound, "**"+dat.elemCache[strings.ToLower(el)].Name+"**")
+					}
+				}
+				if len(notFound) == 1 {
+					rsp.ErrorMessage(fmt.Sprintf("You don't have **%s**!", dat.elemCache[strings.ToLower(elem)].Name))
+					return
+				}
+
+				rsp.ErrorMessage("You don't have " + joinTxt(notFound, "or") + "!")
+				return
 			}
 			return
 		}
 	}
+
 	var elem3 string
 	cont := true
 	query := "SELECT elem3 FROM eod_combos WHERE elems LIKE ? AND guild=?"
@@ -105,4 +133,20 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 	b.dat[m.GuildID] = dat
 	lock.Unlock()
 	rsp.Resp("That combination doesn't exist! " + redCircle + "\n 	Suggest it by typing **/suggest**")
+}
+
+func joinTxt(elems []string, ending string) string {
+	out := ""
+	for i, elem := range elems {
+		out += elem
+		if i != len(elems)-1 {
+			out += ", "
+		}
+
+		if i == len(elems)-2 {
+			out += ending + " "
+		}
+	}
+
+	return out
 }
