@@ -465,14 +465,17 @@ var (
 		},
 		"inv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			sortby := "name"
-			if len(i.Data.Options) > 1 {
-				sortby = i.Data.Options[1].StringValue()
+			id := i.Member.User.ID
+			for _, val := range i.Data.Options {
+				if val.Name == "sortby" {
+					sortby = val.StringValue()
+				}
+
+				if val.Name == "user" {
+					id = val.UserValue(bot.dg).ID
+				}
 			}
-			if len(i.Data.Options) > 0 {
-				bot.invCmd(i.Data.Options[0].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i), sortby)
-				return
-			}
-			bot.invCmd(i.Member.User.ID, bot.newMsgSlash(i), bot.newRespSlash(i), sortby)
+			bot.invCmd(id, bot.newMsgSlash(i), bot.newRespSlash(i), sortby)
 		},
 		"lb": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			sort := "count"
@@ -496,7 +499,12 @@ var (
 				return
 			}
 			if len(i.Data.Options) == 1 {
-				bot.catCmd(i.Data.Options[0].StringValue(), catSortAlphabetical, bot.newMsgSlash(i), bot.newRespSlash(i))
+				rsp := bot.newRespSlash(i)
+				if i.Data.Options[0].Name == "sort" {
+					rsp.ErrorMessage("You must specify a category name!")
+					return
+				}
+				bot.catCmd(i.Data.Options[0].StringValue(), catSortAlphabetical, bot.newMsgSlash(i), rsp)
 				return
 			}
 
