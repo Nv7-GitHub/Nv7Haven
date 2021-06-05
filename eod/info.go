@@ -118,9 +118,16 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 			return
 		}
 
-		row := b.db.QueryRow(`SELECT e.name AS cnt FROM (SELECT ROW_NUMBER() OVER (ORDER BY createdon ASC) AS rw, name FROM eod_elements WHERE guild=?) e WHERE e.rw=?`, m.GuildID, number)
-		err = row.Scan(&elem)
-		if rsp.Error(err) {
+		hasFound := false
+		for _, el := range dat.elemCache {
+			if el.ID == number {
+				hasFound = true
+				elem = el.Name
+			}
+		}
+
+		if !hasFound {
+			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
 			return
 		}
 	}
