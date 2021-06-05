@@ -24,12 +24,6 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 		return
 	}
 
-	inv, exists := dat.invCache[m.Author.ID]
-	if !exists {
-		rsp.ErrorMessage("You don't have an inventory!")
-		return
-	}
-
 	cat, exists := dat.catCache[strings.ToLower(category)]
 	if exists {
 		category = cat.Name
@@ -41,12 +35,6 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 		el, exists := dat.elemCache[strings.ToLower(val)]
 		if !exists {
 			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", val))
-			return
-		}
-
-		_, exists = inv[strings.ToLower(el.Name)]
-		if !exists {
-			rsp.ErrorMessage(fmt.Sprintf("Element **%s** is not in your inventory!", el.Name))
 			return
 		}
 
@@ -216,12 +204,6 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m msg, rsp rsp) {
 		return
 	}
 
-	inv, exists := dat.invCache[m.Author.ID]
-	if !exists {
-		rsp.ErrorMessage("You don't have an inventory!")
-		return
-	}
-
 	cat, exists := dat.catCache[strings.ToLower(category)]
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Category **%s** doesn't exist!", category))
@@ -236,12 +218,6 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m msg, rsp rsp) {
 		el, exists := dat.elemCache[strings.ToLower(val)]
 		if !exists {
 			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", val))
-			return
-		}
-
-		_, exists = inv[strings.ToLower(el.Name)]
-		if !exists {
-			rsp.ErrorMessage(fmt.Sprintf("Element **%s** is not in your inventory!", el.Name))
 			return
 		}
 
