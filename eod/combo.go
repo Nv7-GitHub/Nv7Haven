@@ -33,11 +33,11 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 	for _, elem := range elems {
 		_, exists := dat.elemCache[strings.ToLower(elem)]
 		if !exists {
-			notExists := make([]string, 0)
+			notExists := make(map[string]empty)
 			for _, el := range elems {
 				_, exists := dat.elemCache[strings.ToLower(el)]
 				if !exists {
-					notExists = append(notExists, "**"+el+"**")
+					notExists["**"+el+"**"] = empty{}
 				}
 			}
 			if len(notExists) == 1 {
@@ -51,21 +51,21 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 
 		_, hasElement := inv[strings.ToLower(elem)]
 		if !hasElement {
-			rsp.ErrorMessage(fmt.Sprintf("You don't have **%s**!", dat.elemCache[strings.ToLower(elem)].Name))
 			_, exists := dat.combCache[m.Author.ID]
-			if exists {
+			if !exists {
 				delete(dat.combCache, m.Author.ID)
 				lock.Lock()
 				b.dat[m.GuildID] = dat
 				lock.Unlock()
 
-				notFound := make([]string, 0)
+				notFound := make(map[string]empty)
 				for _, el := range elems {
-					_, exists := dat.elemCache[strings.ToLower(el)]
+					_, exists := inv[strings.ToLower(el)]
 					if !exists {
-						notFound = append(notFound, "**"+dat.elemCache[strings.ToLower(el)].Name+"**")
+						notFound["**"+dat.elemCache[strings.ToLower(el)].Name+"**"] = empty{}
 					}
 				}
+
 				if len(notFound) == 1 {
 					rsp.ErrorMessage(fmt.Sprintf("You don't have **%s**!", dat.elemCache[strings.ToLower(elem)].Name))
 					return
@@ -135,12 +135,22 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 	rsp.Resp("That combination doesn't exist! " + redCircle + "\n 	Suggest it by typing **/suggest**")
 }
 
-func joinTxt(elems []string, ending string) string {
+func joinTxt(elemDat map[string]empty, ending string) string {
+	elems := make([]string, len(elemDat))
+	i := 0
+	for k := range elemDat {
+		elems[i] = k
+		i++
+	}
+	sort.Strings(elems)
+
 	out := ""
 	for i, elem := range elems {
 		out += elem
-		if i != len(elems)-1 {
+		if i != len(elems)-1 && len(elems) != 2 {
 			out += ", "
+		} else if i != len(elems)-1 {
+			out += " "
 		}
 
 		if i == len(elems)-2 {
