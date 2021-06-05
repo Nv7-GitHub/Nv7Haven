@@ -80,6 +80,11 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 		return
 	}
 
+	el, exists := dat.elemCache[strings.ToLower(suggestion)]
+	if exists {
+		suggestion = el.Name
+	}
+
 	err = b.createPoll(poll{
 		Channel:   dat.votingChannel,
 		Guild:     m.GuildID,
