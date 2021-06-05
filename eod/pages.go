@@ -114,6 +114,9 @@ func (b *EoD) newPageSwitcher(ps pageSwitcher, m msg, rsp rsp) {
 	id := rsp.Embed(&discordgo.MessageEmbed{
 		Title:       ps.Title,
 		Description: cont,
+		Thumbnail: &discordgo.MessageEmbedThumbnail{
+			URL: ps.Thumbnail,
+		},
 		Footer: &discordgo.MessageEmbedFooter{
 			Text: fmt.Sprintf("Page %d/%d", ps.Page+1, length+1),
 		},
@@ -170,6 +173,9 @@ func (b *EoD) pageSwitchHandler(s *discordgo.Session, r *discordgo.MessageReacti
 	b.dg.ChannelMessageEditEmbed(ps.Channel, r.MessageID, &discordgo.MessageEmbed{
 		Title:       ps.Title,
 		Description: cont,
+		Thumbnail: &discordgo.MessageEmbedThumbnail{
+			URL: ps.Thumbnail,
+		},
 		Footer: &discordgo.MessageEmbedFooter{
 			Text: fmt.Sprintf("Page %d/%d", ps.Page+1, length+1),
 		},

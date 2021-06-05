@@ -138,6 +138,22 @@ func (b *EoD) createPoll(p poll) error {
 			return err
 		}
 		p.Message = m.ID
+
+	case pollCatImage:
+		m, err := b.dg.ChannelMessageSendEmbed(dat.votingChannel, &discordgo.MessageEmbed{
+			Title:       "Add Image",
+			Description: fmt.Sprintf("**%s**\n[New Image](%s)\n[Old Image](%s)\n\nSuggested by <@%s>", p.Value1, p.Value2, p.Value3, p.Value4),
+			Footer: &discordgo.MessageEmbedFooter{
+				Text: "You can change your vote",
+			},
+			Thumbnail: &discordgo.MessageEmbedThumbnail{
+				URL: p.Value2,
+			},
+		})
+		if err != nil {
+			return err
+		}
+		p.Message = m.ID
 	}
 	err := b.dg.MessageReactionAdd(p.Channel, p.Message, upArrow)
 	if err != nil {
@@ -265,6 +281,8 @@ func (b *EoD) handlePollSuccess(p poll) {
 		} else {
 			b.dg.ChannelMessageSend(dat.newsChannel, fmt.Sprintf("🗃️ Removed **%d elements** from **%s** (By <@%s>)", len(els), p.Value1, p.Value4))
 		}
+	case pollCatImage:
+		b.catImage(p.Guild, p.Value1, p.Value2, p.Value4)
 	}
 }
 

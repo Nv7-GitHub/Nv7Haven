@@ -24,6 +24,7 @@ const (
 	pollSign         = 2
 	pollImage        = 3
 	pollUnCategorize = 4
+	pollCatImage     = 5
 
 	pageSwitchLdb      = 0
 	pageSwitchInv      = 1
@@ -51,6 +52,7 @@ type pageSwitcher struct {
 	Kind       pageSwitchType
 	Title      string
 	PageGetter pageSwitchGetter
+	Thumbnail  string
 
 	// Inv
 	Items []string
