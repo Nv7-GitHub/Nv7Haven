@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"runtime"
 	"strings"
+
+	"github.com/bwmarrin/discordgo"
 )
 
 func (b *EoD) giveCmd(elem string, giveTree bool, user string, m msg, rsp rsp) {
@@ -89,7 +91,17 @@ func (b *EoD) calcTreeCmd(elem string, m msg, rsp rsp) {
 		return
 	}
 	buf := bytes.NewBufferString(txt)
-	b.dg.ChannelFileSend(channel.ID, fmt.Sprintf("%s.txt\n", dat.elemCache[strings.ToLower(elem)].Name), buf)
+	name := dat.elemCache[strings.ToLower(elem)].Name
+	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
+		Content: fmt.Sprintf("Path for %s:", name),
+		Files: []*discordgo.File{
+			{
+				Name:        "path.txt",
+				ContentType: "text/plain",
+				Reader:      buf,
+			},
+		},
+	})
 }
 
 // Treecalc
