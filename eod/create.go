@@ -3,7 +3,6 @@ package eod
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -19,12 +18,13 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	dat, exists := b.dat[guild]
 	lock.RUnlock()
 	if !exists {
+		fmt.Println("no dat")
 		return
 	}
 
 	tx, err := b.db.BeginTx(context.Background(), nil)
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 		return
 	}
 
@@ -38,17 +38,23 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	var count int
 	err = row.Scan(&count)
 	if err != nil {
-		log.Println(err)
 		return
 	}
 	if count != 0 {
 		return
 	}
 
-	row = b.db.QueryRow("SELECT COUNT(1) FROM eod_elements WHERE name=? AND guild=?", name, guild)
+	query = "SELECT COUNT(1) FROM eod_elements WHERE name LIKE ? AND guild LIKE ?"
+	if isASCII(name) {
+		query = "SELECT COUNT(1) FROM eod_elements WHERE CONVERT(name USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND CONVERT(guild USING utf8mb4) LIKE CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci"
+	}
+	if isWildcard(name) {
+		query = strings.ReplaceAll(query, " LIKE ", "=")
+	}
+
+	row = b.db.QueryRow(query, name, guild)
 	err = row.Scan(&count)
 	if err != nil {
-		log.Println(err)
 		return
 	}
 	text := "Combination"
@@ -95,7 +101,6 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 
 		_, err = tx.Exec("INSERT INTO eod_elements VALUES ( ?,  ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), elems2txt(parents), elem.Complexity, elem.Difficulty, 0)
 		if err != nil {
-			log.Println(err)
 			return
 		}
 		text = "Element"
@@ -104,6 +109,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	} else {
 		el, exists := dat.elemCache[strings.ToLower(name)]
 		if !exists {
+			fmt.Println("Doesn't exist")
 			return
 		}
 		name = el.Name
@@ -117,7 +123,6 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	}
 	_, err = tx.Exec("INSERT INTO eod_combos VALUES ( ?, ?, ? )", guild, data, name)
 	if err != nil {
-		log.Println(err)
 		return
 	}
 
@@ -128,7 +133,6 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	for k := range params {
 		_, err = tx.Exec("UPDATE eod_elements SET usedin=usedin+1 WHERE name=? AND guild=?", k, guild)
 		if err != nil {
-			log.Println(err)
 			return
 		}
 
@@ -149,7 +153,6 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 
 	err = tx.Commit()
 	if err != nil {
-		log.Println(err)
 		return
 	}
 }
