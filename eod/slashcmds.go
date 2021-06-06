@@ -518,21 +518,26 @@ var (
 			bot.categoryCmd(suggestAdd, i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"cat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			if len(i.Data.Options) == 0 {
-				bot.allCatCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
-				return
-			}
-			if len(i.Data.Options) == 1 {
-				rsp := bot.newRespSlash(i)
-				if i.Data.Options[0].Name == "sort" {
-					rsp.ErrorMessage("You must specify a category name!")
-					return
+			isAll := true
+			sort := catSortAlphabetical
+			catName := ""
+			for _, val := range i.Data.Options {
+				if val.Name == "category" {
+					isAll = false
+					catName = val.StringValue()
 				}
-				bot.catCmd(i.Data.Options[0].StringValue(), catSortAlphabetical, bot.newMsgSlash(i), rsp)
+
+				if val.Name == "sort" {
+					sort = int(val.IntValue())
+				}
+			}
+
+			if isAll {
+				bot.allCatCmd(sort, bot.newMsgSlash(i), bot.newRespSlash(i))
 				return
 			}
 
-			bot.catCmd(i.Data.Options[0].StringValue(), int(i.Data.Options[1].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.catCmd(catName, sort, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"hint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			if len(i.Data.Options) == 0 {
