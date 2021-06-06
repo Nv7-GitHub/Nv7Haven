@@ -93,7 +93,7 @@ func (b *EoD) calcTreeCmd(elem string, m msg, rsp rsp) {
 	buf := bytes.NewBufferString(txt)
 	name := dat.elemCache[strings.ToLower(elem)].Name
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: fmt.Sprintf("Path for %s:", name),
+		Content: fmt.Sprintf("Path for **%s**:", name),
 		Files: []*discordgo.File{
 			{
 				Name:        "path.txt",
