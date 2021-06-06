@@ -52,28 +52,27 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 		_, hasElement := inv[strings.ToLower(elem)]
 		if !hasElement {
 			_, exists := dat.combCache[m.Author.ID]
-			if !exists {
+			if exists {
 				delete(dat.combCache, m.Author.ID)
 				lock.Lock()
 				b.dat[m.GuildID] = dat
 				lock.Unlock()
+			}
 
-				notFound := make(map[string]empty)
-				for _, el := range elems {
-					_, exists := inv[strings.ToLower(el)]
-					if !exists {
-						notFound["**"+dat.elemCache[strings.ToLower(el)].Name+"**"] = empty{}
-					}
+			notFound := make(map[string]empty)
+			for _, el := range elems {
+				_, exists := inv[strings.ToLower(el)]
+				if !exists {
+					notFound["**"+dat.elemCache[strings.ToLower(el)].Name+"**"] = empty{}
 				}
+			}
 
-				if len(notFound) == 1 {
-					rsp.ErrorMessage(fmt.Sprintf("You don't have **%s**!", dat.elemCache[strings.ToLower(elem)].Name))
-					return
-				}
-
-				rsp.ErrorMessage("You don't have " + joinTxt(notFound, "or") + "!")
+			if len(notFound) == 1 {
+				rsp.ErrorMessage(fmt.Sprintf("You don't have **%s**!", dat.elemCache[strings.ToLower(elem)].Name))
 				return
 			}
+
+			rsp.ErrorMessage("You don't have " + joinTxt(notFound, "or") + "!")
 			return
 		}
 	}
