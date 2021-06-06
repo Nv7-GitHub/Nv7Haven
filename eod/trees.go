@@ -89,7 +89,7 @@ func (b *EoD) calcTreeCmd(elem string, m msg, rsp rsp) {
 		return
 	}
 	buf := bytes.NewBufferString(txt)
-	b.dg.ChannelFileSend(channel.ID, "path.txt", buf)
+	b.dg.ChannelFileSend(channel.ID, fmt.Sprintf("%s.txt\n", dat.elemCache[strings.ToLower(elem)].Name), buf)
 }
 
 // Treecalc
