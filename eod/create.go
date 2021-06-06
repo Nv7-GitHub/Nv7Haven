@@ -18,13 +18,11 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	dat, exists := b.dat[guild]
 	lock.RUnlock()
 	if !exists {
-		fmt.Println("no dat")
 		return
 	}
 
 	tx, err := b.db.BeginTx(context.Background(), nil)
 	if err != nil {
-		fmt.Println(err)
 		return
 	}
 
