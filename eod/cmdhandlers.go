@@ -86,6 +86,38 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			b.hintCmd(suggestion, true, msg, rsp)
 			return
 		}
+
+		if cmd == "addcat" || cmd == "ac" {
+			if len(m.Content) <= len(cmd)+2 {
+				return
+			}
+			txt := m.Content[len(cmd)+2:]
+			parts := strings.Split(txt, "|")
+			catName := strings.TrimSpace(parts[0])
+			elems := strings.Split(parts[1], ",")
+			for i, elem := range elems {
+				elems[i] = strings.TrimSpace(elem)
+			}
+
+			b.categoryCmd(elems, catName, msg, rsp)
+			return
+		}
+
+		if cmd == "rmcat" || cmd == "rc" {
+			if len(m.Content) <= len(cmd)+2 {
+				return
+			}
+			txt := m.Content[len(cmd)+2:]
+			parts := strings.Split(txt, "|")
+			catName := strings.TrimSpace(parts[0])
+			elems := strings.Split(parts[1], ",")
+			for i, elem := range elems {
+				elems[i] = strings.TrimSpace(elem)
+			}
+
+			b.rmCategoryCmd(elems, catName, msg, rsp)
+			return
+		}
 	}
 
 	if strings.HasPrefix(m.Content, "?") {
