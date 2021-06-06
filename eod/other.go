@@ -340,7 +340,7 @@ func (b *EoD) downloadInvCmd(user string, sorter string, m msg, rsp rsp) {
 	}
 
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: fmt.Sprintf("Inv for **%s** in **%s**:", usr.Username, gld.Name),
+		Content: fmt.Sprintf("**%s**'s Inventory in **%s**:", usr.Username, gld.Name),
 		Files: []*discordgo.File{
 			{
 				Name:        "inv.txt",
