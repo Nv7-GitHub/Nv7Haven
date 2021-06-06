@@ -118,3 +118,17 @@ func (b *EoD) catImage(guild string, catName string, image string, creator strin
 		b.dg.ChannelMessageSend(dat.newsChannel, "📸 Added Category Image - **"+cat.Name+"** (By <@"+creator+">)")
 	}
 }
+
+func removeDuplicates(elems []string) []string {
+	mp := make(map[string]empty, len(elems))
+	for _, elem := range elems {
+		mp[elem] = empty{}
+	}
+	out := make([]string, len(mp))
+	i := 0
+	for k := range mp {
+		out[i] = k
+		i++
+	}
+	return out
+}

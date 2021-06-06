@@ -13,6 +13,8 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 		return
 	}
 
+	elems = removeDuplicates(elems)
+
 	category = strings.TrimSpace(category)
 
 	if len(category) == 0 {
@@ -82,6 +84,8 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m msg, rsp rsp) {
 	if !exists {
 		return
 	}
+
+	elems = removeDuplicates(elems)
 
 	cat, exists := dat.catCache[strings.ToLower(category)]
 	if !exists {
