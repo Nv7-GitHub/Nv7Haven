@@ -1,7 +1,6 @@
 package eod
 
 import (
-	"bytes"
 	"fmt"
 	"runtime"
 	"strings"
@@ -90,7 +89,7 @@ func (b *EoD) calcTreeCmd(elem string, m msg, rsp rsp) {
 	if rsp.Error(err) {
 		return
 	}
-	buf := bytes.NewBufferString(txt)
+	buf := strings.NewReader(txt)
 	name := dat.elemCache[strings.ToLower(elem)].Name
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
 		Content: fmt.Sprintf("Path for **%s**:", name),

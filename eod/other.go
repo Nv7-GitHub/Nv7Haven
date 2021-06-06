@@ -261,3 +261,93 @@ func (b *EoD) resetInvCmd(user string, m msg, rsp rsp) {
 	b.saveInv(m.GuildID, user, true, true)
 	rsp.Resp("Successfully reset <@" + user + ">'s inventory!")
 }
+
+func (b *EoD) downloadInvCmd(user string, sorter string, m msg, rsp rsp) {
+	lock.RLock()
+	dat, exists := b.dat[m.GuildID]
+	lock.RUnlock()
+	if !exists {
+		return
+	}
+	inv, exists := dat.invCache[user]
+	if !exists {
+		if user == m.Author.ID {
+			rsp.ErrorMessage("You don't have an inventory!")
+		} else {
+			rsp.ErrorMessage(fmt.Sprintf("User <@%s> doesn't have an inventory!", user))
+		}
+		return
+	}
+	items := make([]string, len(inv))
+	i := 0
+	for k := range inv {
+		items[i] = dat.elemCache[k].Name
+		i++
+	}
+
+	switch sorter {
+	case "id":
+		sort.Slice(items, func(i, j int) bool {
+			elem1, exists := dat.elemCache[strings.ToLower(items[i])]
+			if !exists {
+				return false
+			}
+
+			elem2, exists := dat.elemCache[strings.ToLower(items[j])]
+			if !exists {
+				return false
+			}
+			return elem1.CreatedOn.Before(elem2.CreatedOn)
+		})
+
+	case "madeby":
+		count := 0
+		outs := make([]string, len(items))
+		for _, val := range items {
+			creator := ""
+			elem, exists := dat.elemCache[strings.ToLower(val)]
+			if exists {
+				creator = elem.Creator
+			}
+			if creator == user {
+				outs[count] = val
+				count++
+			}
+		}
+		outs = outs[:count]
+		sort.Strings(outs)
+		items = outs
+
+	default:
+		sort.Strings(items)
+	}
+
+	txt := strings.Join(items, "\n")
+	buf := strings.NewReader(txt)
+
+	channel, err := b.dg.UserChannelCreate(m.Author.ID)
+	if rsp.Error(err) {
+		return
+	}
+
+	usr, err := b.dg.User(user)
+	if rsp.Error(err) {
+		return
+	}
+	gld, err := b.dg.Guild(m.GuildID)
+	if rsp.Error(err) {
+		return
+	}
+
+	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
+		Content: fmt.Sprintf("Inv for **%s** in **%s**:", usr.Username, gld.Name),
+		Files: []*discordgo.File{
+			{
+				Name:        "inv.txt",
+				ContentType: "text/plain",
+				Reader:      buf,
+			},
+		},
+	})
+	rsp.Message("Sent inv in DMs!")
+}

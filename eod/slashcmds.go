@@ -453,6 +453,38 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "downloadinv",
+			Description: "Download your inventory!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionUser,
+					Name:        "user",
+					Description: "Optionally, download the inventory of another user!",
+					Required:    false,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "sortby",
+					Description: "How to sort the inventory",
+					Required:    false,
+					Choices: []*discordgo.ApplicationCommandOptionChoice{
+						{
+							Name:  "Name",
+							Value: "name",
+						},
+						{
+							Name:  "Element ID",
+							Value: "id",
+						},
+						{
+							Name:  "Made By",
+							Value: "madeby",
+						},
+					},
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -597,6 +629,20 @@ var (
 		},
 		"catimg": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.catImgCmd(i.Data.Options[0].StringValue(), i.Data.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"downloadinv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			sortby := "name"
+			id := i.Member.User.ID
+			for _, val := range i.Data.Options {
+				if val.Name == "sortby" {
+					sortby = val.StringValue()
+				}
+
+				if val.Name == "user" {
+					id = val.UserValue(bot.dg).ID
+				}
+			}
+			bot.downloadInvCmd(id, sortby, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )
