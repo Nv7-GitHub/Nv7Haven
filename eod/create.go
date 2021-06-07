@@ -129,7 +129,14 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		params[val] = empty{}
 	}
 	for k := range params {
-		_, err = tx.Exec("UPDATE eod_elements SET usedin=usedin+1 WHERE name=? AND guild=?", k, guild)
+		query := "UPDATE eod_elements SET usedin=usedin+1 WHERE name LIKE ? AND guild LIKE ?"
+		if isASCII(k) {
+			query = "UPDATE eod_elements SET usedin=usedin+1 WHERE CONVERT(name USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND CONVERT(guild USING utf8mb4) LIKE CONVERT(? USING utf8mb4)"
+		}
+		if isWildcard(k) {
+			query = strings.ReplaceAll(query, " LIKE ", "")
+		}
+		_, err = tx.Exec(query, k, guild)
 		if err != nil {
 			return
 		}
