@@ -108,5 +108,5 @@ func (b *EoD) ideaCmd(count int, catName string, hasCat bool, m msg, rsp rsp) {
 	b.dat[m.GuildID] = dat
 	lock.Unlock()
 
-	rsp.Resp(fmt.Sprintf("Your random unused combination is... **%s**\n 	Suggest it by typing **/suggest**", text))
+	rsp.Message(fmt.Sprintf("Your random unused combination is... **%s**\n 	Suggest it by typing **/suggest**", text))
 }

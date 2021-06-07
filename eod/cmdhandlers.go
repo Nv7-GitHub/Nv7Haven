@@ -118,6 +118,27 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			b.rmCategoryCmd(elems, catName, msg, rsp)
 			return
 		}
+
+		if cmd == "inv" {
+			b.invCmd(m.Author.ID, msg, rsp, "")
+			return
+		}
+
+		if cmd == "lb" {
+			b.lbCmd(msg, rsp, "count")
+			return
+		}
+
+		if cmd == "cat" {
+			if len(m.Content) <= len(cmd)+2 {
+				return
+			}
+			suggestion := m.Content[len(cmd)+2:]
+			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
+
+			b.catCmd(suggestion, catSortAlphabetical, msg, rsp)
+			return
+		}
 	}
 
 	if strings.HasPrefix(m.Content, "?") {
