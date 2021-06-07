@@ -22,15 +22,16 @@ var noObscure = map[rune]empty{
 }
 
 func obscure(val string) string {
-	question := []rune("?")[0]
 	out := make([]rune, len([]rune(val)))
-	for i, char := range val {
+	i := 0
+	for _, char := range val {
 		_, exists := noObscure[char]
 		if exists {
 			out[i] = char
 		} else {
-			out[i] = question
+			out[i] = '?'
 		}
+		i++
 	}
 	return string(out)
 }

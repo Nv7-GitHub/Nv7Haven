@@ -46,7 +46,7 @@ func (b *EoD) initHandlers() {
 
 	b.dg.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		rsp := b.newRespSlash(i)
-		if (i.Data.Name != "suggest") && (i.Data.Name != "mark") && (i.Data.Name != "image") && (i.Data.Name != "inv") && (i.Data.Name != "lb") && (i.Data.Name != "addcat") && (i.Data.Name != "cat") && (i.Data.Name != "hint") && (i.Data.Name != "stats") && (i.Data.Name != "idea") && (i.Data.Name != "about") && (i.Data.Name != "path") && (i.Data.Name != "get") && (i.Data.Name != "rmcat") && (i.Data.Name != "catimg") && (i.Data.Name != "downloadinv") {
+		if (i.Data.Name != "suggest") && (i.Data.Name != "mark") && (i.Data.Name != "image") && (i.Data.Name != "inv") && (i.Data.Name != "lb") && (i.Data.Name != "addcat") && (i.Data.Name != "cat") && (i.Data.Name != "hint") && (i.Data.Name != "stats") && (i.Data.Name != "idea") && (i.Data.Name != "about") && (i.Data.Name != "path") && (i.Data.Name != "get") && (i.Data.Name != "rmcat") && (i.Data.Name != "catimg") && (i.Data.Name != "downloadinv") && (i.Data.Name != "elemsort") {
 			isMod, err := b.isMod(i.Member.User.ID, i.GuildID, bot.newMsgSlash(i))
 			if rsp.Error(err) {
 				return
