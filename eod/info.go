@@ -35,8 +35,8 @@ func (b *EoD) initInfoChoices() {
 }
 
 func (b *EoD) sortPageGetter(p pageSwitcher) (string, int, int, error) {
-	length := int(math.Floor(float64(p.Length-1) / float64(pageLength)))
-	if pageLength*p.Page > (p.Length - 1) {
+	length := int(math.Floor(float64(p.Length-1) / float64(p.PageLength)))
+	if p.PageLength*p.Page > (p.Length - 1) {
 		return "", 0, length, nil
 	}
 	if p.Page < 0 {
@@ -46,12 +46,12 @@ func (b *EoD) sortPageGetter(p pageSwitcher) (string, int, int, error) {
 	var err error
 	cnt := strings.Count(p.Query, "?")
 	if cnt == 3 {
-		res, err = b.db.Query(p.Query, p.Guild, pageLength, p.Page*pageLength)
+		res, err = b.db.Query(p.Query, p.Guild, p.PageLength, p.Page*p.PageLength)
 		if err != nil {
 			return "", length, length, err
 		}
 	} else {
-		res, err = b.db.Query(p.Query, p.Guild, p.Guild, pageLength, p.Page*pageLength)
+		res, err = b.db.Query(p.Query, p.Guild, p.Guild, p.PageLength, p.Page*p.PageLength)
 		if err != nil {
 			return "", length, length, err
 		}

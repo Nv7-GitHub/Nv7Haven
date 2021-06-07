@@ -53,6 +53,7 @@ type pageSwitcher struct {
 	Title      string
 	PageGetter pageSwitchGetter
 	Thumbnail  string
+	PageLength int
 
 	// Inv
 	Items []string

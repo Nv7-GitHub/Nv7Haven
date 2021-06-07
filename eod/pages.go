@@ -9,9 +9,11 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-const pageLength = 10
 const leftArrow = "⬅️"
 const rightArrow = "➡️"
+
+const defaultPageLength = 10
+const playPageLength = 30
 
 const ldbQuery = `
 SELECT rw, ` + "user" + `, ` + "%s" + `
@@ -25,8 +27,8 @@ WHERE sub.user=?
 `
 
 func (b *EoD) invPageGetter(p pageSwitcher) (string, int, int, error) {
-	length := int(math.Floor(float64(len(p.Items)-1) / float64(pageLength)))
-	if pageLength*p.Page > (len(p.Items) - 1) {
+	length := int(math.Floor(float64(len(p.Items)-1) / float64(p.PageLength)))
+	if p.PageLength*p.Page > (len(p.Items) - 1) {
 		return "", 0, length, nil
 	}
 
@@ -34,9 +36,9 @@ func (b *EoD) invPageGetter(p pageSwitcher) (string, int, int, error) {
 		return "", length, length, nil
 	}
 
-	items := p.Items[pageLength*p.Page:]
-	if len(items) > pageLength {
-		items = items[:pageLength]
+	items := p.Items[p.PageLength*p.Page:]
+	if len(items) > p.PageLength {
+		items = items[:p.PageLength]
 	}
 	return strings.Join(items, "\n"), p.Page, length, nil
 }
@@ -53,11 +55,11 @@ func (b *EoD) lbPageGetter(p pageSwitcher) (string, int, int, error) {
 		return "", 0, 0, err
 	}
 	cnt.Scan(&count)
-	length := int(math.Floor(float64(count-1) / float64(pageLength)))
+	length := int(math.Floor(float64(count-1) / float64(p.PageLength)))
 	if err != nil {
 		return "", 0, 0, err
 	}
-	if pageLength*p.Page > (count - 1) {
+	if p.PageLength*p.Page > (count - 1) {
 		return "", 0, length, nil
 	}
 
@@ -66,12 +68,12 @@ func (b *EoD) lbPageGetter(p pageSwitcher) (string, int, int, error) {
 	}
 
 	text := ""
-	res, err := b.db.Query(fmt.Sprintf("SELECT %s, `user` FROM eod_inv WHERE guild=? ORDER BY %s DESC LIMIT ? OFFSET ?", p.Sort, p.Sort), p.Guild, pageLength, p.Page*pageLength)
+	res, err := b.db.Query(fmt.Sprintf("SELECT %s, `user` FROM eod_inv WHERE guild=? ORDER BY %s DESC LIMIT ? OFFSET ?", p.Sort, p.Sort), p.Guild, p.PageLength, p.Page*p.PageLength)
 	if err != nil {
 		return "", 0, 0, err
 	}
 	defer res.Close()
-	i := pageLength*p.Page + 1
+	i := p.PageLength*p.Page + 1
 	var user string
 	var ct int
 	for res.Next() {
@@ -86,7 +88,7 @@ func (b *EoD) lbPageGetter(p pageSwitcher) (string, int, int, error) {
 		text += fmt.Sprintf("%d. <@%s>%s - %d\n", i, user, you, ct)
 		i++
 	}
-	if !((pageLength*p.Page <= ps) && (ps <= (p.Page+1)*pageLength)) {
+	if !((p.PageLength*p.Page <= ps) && (ps <= (p.Page+1)*p.PageLength)) {
 		text += fmt.Sprintf("\n%d. <@%s> *You* - %d\n", ps, u, ucnt)
 	}
 	return text, p.Page, length, nil
@@ -106,6 +108,11 @@ func (b *EoD) newPageSwitcher(ps pageSwitcher, m msg, rsp rsp) {
 	ps.Channel = m.ChannelID
 	ps.Guild = m.GuildID
 	ps.Page = 0
+	ps.PageLength = defaultPageLength
+	_, exists = dat.playChannels[m.ChannelID]
+	if exists {
+		ps.Page = playPageLength
+	}
 
 	cont, _, length, err := ps.PageGetter(ps)
 	if rsp.Error(err) {
