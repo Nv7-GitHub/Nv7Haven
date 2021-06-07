@@ -225,7 +225,7 @@ func isASCII(s string) bool {
 
 func isWildcard(s string) bool {
 	for _, char := range s {
-		if char == '%' || char == '*' || char == '?' || char == '[' || char == ']' || char == '!' || char == '-' || char == '#' {
+		if char == '%' || char == '*' || char == '?' || char == '[' || char == ']' || char == '!' || char == '-' || char == '#' || char == '^' || char == '_' {
 			return true
 		}
 	}
