@@ -111,7 +111,7 @@ func (b *EoD) newPageSwitcher(ps pageSwitcher, m msg, rsp rsp) {
 	ps.PageLength = defaultPageLength
 	_, exists = dat.playChannels[m.ChannelID]
 	if exists {
-		ps.Page = playPageLength
+		ps.PageLength = playPageLength
 	}
 
 	cont, _, length, err := ps.PageGetter(ps)
