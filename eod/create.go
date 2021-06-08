@@ -99,6 +99,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 
 		_, err = tx.Exec("INSERT INTO eod_elements VALUES ( ?,  ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), elems2txt(parents), elem.Complexity, elem.Difficulty, 0)
 		if err != nil {
+			fmt.Println(err)
 			return
 		}
 		text = "Element"
@@ -121,6 +122,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	}
 	_, err = tx.Exec("INSERT INTO eod_combos VALUES ( ?, ?, ? )", guild, data, name)
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 
@@ -138,6 +140,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		}
 		_, err = tx.Exec(query, k, guild)
 		if err != nil {
+			fmt.Println(err)
 			return
 		}
 
@@ -158,6 +161,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 
 	err = tx.Commit()
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 }
