@@ -93,6 +93,9 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 			txt := m.Content[len(cmd)+2:]
 			parts := strings.Split(txt, "|")
+			if len(parts) == 1 {
+				return
+			}
 			catName := strings.TrimSpace(parts[0])
 			elems := strings.Split(parts[1], ",")
 			for i, elem := range elems {
@@ -109,6 +112,9 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 			txt := m.Content[len(cmd)+2:]
 			parts := strings.Split(txt, "|")
+			if len(parts) == 1 {
+				return
+			}
 			catName := strings.TrimSpace(parts[0])
 			elems := strings.Split(parts[1], ",")
 			for i, elem := range elems {
