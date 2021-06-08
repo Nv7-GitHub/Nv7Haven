@@ -136,7 +136,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 			query = "UPDATE eod_elements SET usedin=usedin+1 WHERE CONVERT(name USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND CONVERT(guild USING utf8mb4) LIKE CONVERT(? USING utf8mb4)"
 		}
 		if isWildcard(k) {
-			query = strings.ReplaceAll(query, " LIKE ", "")
+			query = strings.ReplaceAll(query, " LIKE ", "=")
 		}
 		_, err = tx.Exec(query, k, guild)
 		if err != nil {
