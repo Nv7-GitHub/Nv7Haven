@@ -145,7 +145,7 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m msg, rsp rsp) {
 	} else if len(rmed) > 0 && len(suggestRm) == 1 {
 		rsp.Message(fmt.Sprintf("Un-categorized and suggested to remove **%s** from **%s** 🗃️", suggestRm[0], category))
 	} else if len(rmed) > 0 && len(suggestRm) > 1 {
-		rsp.Message(fmt.Sprintf("Un-categorized and suggested to remove **%d elements** tfrom**%s** 🗃️", len(suggestRm), category))
+		rsp.Message(fmt.Sprintf("Un-categorized and suggested to remove **%d elements** from **%s** 🗃️", len(suggestRm), category))
 	} else {
 		rsp.Message("Successfully un-categorized! 🗃️")
 	}
