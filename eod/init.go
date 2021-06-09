@@ -102,8 +102,6 @@ func (b *EoD) init() {
 		}
 	}
 
-	// Test
-
 	//elems, err := b.db.Query("SELECT * FROM eod_elements ORDER BY createdon ASC") // Do after nov 21
 	elems, err := b.db.Query("SELECT name, image, guild, comment, creator, createdon, parents, complexity, difficulty, usedin FROM `eod_elements` ORDER BY (CASE WHEN createdon=1637536881 THEN 1605988759 ELSE createdon END) ASC")
 	if err != nil {
