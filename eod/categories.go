@@ -17,6 +17,10 @@ func (b *EoD) categorize(elem string, catName string, guild string) error {
 		return nil
 	}
 
+	if dat.catCache == nil {
+		dat.catCache = make(map[string]category)
+	}
+
 	cat, exists := dat.catCache[strings.ToLower(catName)]
 	if !exists {
 		cat = category{
@@ -51,7 +55,7 @@ func (b *EoD) categorize(elem string, catName string, guild string) error {
 	return nil
 }
 
-func (b *EoD) unCategorize(elem string, category string, guild string) error {
+func (b *EoD) unCategorize(elem string, catName string, guild string) error {
 	lock.RLock()
 	dat, exists := b.dat[guild]
 	lock.RUnlock()
@@ -63,19 +67,23 @@ func (b *EoD) unCategorize(elem string, category string, guild string) error {
 		return nil
 	}
 
-	cat, exists := dat.catCache[strings.ToLower(category)]
+	if dat.catCache == nil {
+		dat.catCache = make(map[string]category)
+	}
+
+	cat, exists := dat.catCache[strings.ToLower(catName)]
 	if !exists {
 		return nil
 	}
 	delete(cat.Elements, el.Name)
-	dat.catCache[strings.ToLower(category)] = cat
+	dat.catCache[strings.ToLower(catName)] = cat
 
 	if len(cat.Elements) == 0 {
 		_, err := b.db.Exec("DELETE FROM eod_categories WHERE name=? AND guild=?", cat.Name, cat.Guild)
 		if err != nil {
 			return err
 		}
-		delete(dat.catCache, strings.ToLower(category))
+		delete(dat.catCache, strings.ToLower(catName))
 	} else {
 		data, err := json.Marshal(cat.Elements)
 		if err != nil {
