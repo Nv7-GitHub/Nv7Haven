@@ -485,6 +485,18 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "catpath",
+			Description: "Calculate the path of a category!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "category",
+					Description: "Name of the category!",
+					Required:    true,
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -643,6 +655,9 @@ var (
 				}
 			}
 			bot.downloadInvCmd(id, sortby, bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"catpath": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.calcTreeCatCmd(i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )
