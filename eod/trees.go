@@ -2,7 +2,6 @@ package eod
 
 import (
 	"fmt"
-	"runtime"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -105,36 +104,42 @@ func (b *EoD) calcTreeCmd(elem string, m msg, rsp rsp) {
 
 // Treecalc
 func calcTree(elemCache map[string]element, elem string) (string, bool, string) {
+	// Commented out code is for profiling
+
+	/*runtime.GC()
+	cpuprof, _ := os.Create("cpuprof.pprof")
+	pprof.StartCPUProfile(cpuprof)*/
+
 	t := tree{
-		text:      "",
+		text:      &strings.Builder{},
+		rawTxt:    &strings.Builder{},
 		elemCache: elemCache,
 		calced:    make(map[string]empty),
 		num:       1,
 	}
 	suc, msg := t.addElem(elem)
-	if len(t.text) > 2000 {
-		return t.rawTxt, suc, msg
+
+	/*pprof.StopCPUProfile()
+	memprof, _ := os.Create("memprof.pprof")
+	_ = pprof.WriteHeapProfile(memprof)*/
+
+	text := t.text.String()
+	if len(text) > 2000 {
+		return t.rawTxt.String(), suc, msg
 	}
-	return t.text, suc, msg
+
+	return text, suc, msg
 }
 
 type tree struct {
-	text      string
-	rawTxt    string
+	text      *strings.Builder
+	rawTxt    *strings.Builder
 	elemCache map[string]element
 	calced    map[string]empty
 	num       int
-
-	its int
 }
 
 func (t *tree) addElem(elem string) (bool, string) {
-	t.its++
-	if t.its == 500 {
-		t.its = 0
-		runtime.GC()
-	}
-
 	_, exists := t.calced[strings.ToLower(elem)]
 	if !exists {
 		el, exists := t.elemCache[strings.ToLower(elem)]
@@ -153,21 +158,25 @@ func (t *tree) addElem(elem string) (bool, string) {
 				return false, msg
 			}
 		}
-		perf := "%d. "
+
+		perf := &strings.Builder{}
+
+		perf.WriteString("%d. ")
 		params := make([]interface{}, len(el.Parents))
 		for i, val := range el.Parents {
 			if i == 0 {
-				perf += "%s"
+				perf.WriteString("%s")
 			} else {
-				perf += " + %s"
+				perf.WriteString(" + %s")
 			}
 			params[i] = interface{}(t.elemCache[strings.ToLower(val)].Name)
 		}
 		params = append([]interface{}{t.num}, params...)
 		params = append(params, el.Name)
 		if len(el.Parents) >= 2 {
-			t.text += fmt.Sprintf(perf+" = **%s**\n", params...)
-			t.rawTxt += fmt.Sprintf(perf+" = %s\n", params...)
+			p := perf.String()
+			fmt.Fprintf(t.text, p+" = **%s**\n", params...)
+			fmt.Fprintf(t.rawTxt, p+" = %s\n", params...)
 			t.num++
 		}
 		t.calced[strings.ToLower(elem)] = empty{}
