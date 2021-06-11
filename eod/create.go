@@ -42,23 +42,11 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		return
 	}
 
-	query = "SELECT COUNT(1) FROM eod_elements WHERE name LIKE ? AND guild LIKE ?"
-	if isASCII(name) {
-		query = "SELECT COUNT(1) FROM eod_elements WHERE CONVERT(name USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND CONVERT(guild USING utf8mb4) LIKE CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci"
-	}
-	if isWildcard(name) {
-		query = strings.ReplaceAll(query, " LIKE ", "=")
-	}
-
-	row = b.db.QueryRow(query, name, guild)
-	err = row.Scan(&count)
-	if err != nil {
-		return
-	}
+	_, exists = dat.elemCache[strings.ToLower(name)]
 	text := "Combination"
 
 	var id int
-	if count == 0 {
+	if !exists {
 		diff := -1
 		compl := -1
 		areUnique := false
