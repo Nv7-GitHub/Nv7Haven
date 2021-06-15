@@ -28,7 +28,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		cmd := strings.Split(m.Content[1:], " ")[0]
+		cmd := strings.ToLower(strings.Split(m.Content[1:], " ")[0])
 		if cmd == "s" || cmd == "suggest" {
 			if len(m.Content) <= len(cmd)+2 {
 				return
