@@ -13,6 +13,14 @@ var invalidNames = []string{
 	"İ",
 }
 
+var charReplace = map[rune]rune{
+	'’': '\'',
+	'‘': '\'',
+	'`': '\'',
+	'”': '"',
+	'“': '"',
+}
+
 func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp) {
 	if autocapitalize {
 		suggestion = toTitle(suggestion)
@@ -32,6 +40,16 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 			return
 		}
 	}
+
+	// Clean up suggestions with weird quotes
+	cleaned := []rune(suggestion)
+	for i, char := range cleaned {
+		newVal, exists := charReplace[char]
+		if exists {
+			cleaned[i] = newVal
+		}
+	}
+	suggestion = string(cleaned)
 
 	suggestion = strings.TrimSpace(suggestion)
 	if len(suggestion) > 1 && suggestion[0] == '#' {
