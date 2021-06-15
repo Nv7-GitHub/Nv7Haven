@@ -21,6 +21,8 @@ var charReplace = map[rune]rune{
 	'“': '"',
 }
 
+var remove = []string{"\uFE0E", "\uFE0F"}
+
 func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp) {
 	if autocapitalize {
 		suggestion = toTitle(suggestion)
@@ -50,6 +52,9 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 		}
 	}
 	suggestion = string(cleaned)
+	for _, val := range remove {
+		suggestion = strings.ReplaceAll(suggestion, val, "")
+	}
 
 	suggestion = strings.TrimSpace(suggestion)
 	if len(suggestion) > 1 && suggestion[0] == '#' {
