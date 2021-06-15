@@ -30,14 +30,15 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 		return
 	}
 
-	for i, val := range elems {
-		if len(val) == 0 {
-			buff := elems[len(elems)-1]
-			elems[len(elems)-1] = val
-			elems[i] = buff
-			elems = elems[:len(elems)-1]
+	validElems := make([]string, len(elems))
+	validCnt := 0
+	for _, elem := range elems {
+		if len(elem) > 0 {
+			validElems[validCnt] = elem
+			validCnt++
 		}
 	}
+	elems = validElems[:validCnt]
 
 	for _, elem := range elems {
 		_, exists := dat.elemCache[strings.ToLower(elem)]
