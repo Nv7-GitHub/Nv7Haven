@@ -10,9 +10,10 @@ const x = "❌"
 const check = "✅"
 
 const (
-	catSortAlphabetical = 0
-	catSortByFound      = 1
-	catSortByNotFound   = 2
+	catSortAlphabetical   = 0
+	catSortByFound        = 1
+	catSortByNotFound     = 2
+	catSortByElementCount = 3
 )
 
 func (b *EoD) catCmd(category string, sortKind int, m msg, rsp rsp) {
@@ -37,6 +38,7 @@ func (b *EoD) catCmd(category string, sortKind int, m msg, rsp rsp) {
 
 	out := make([]struct {
 		found int
+		count int
 		text  string
 		name  string
 	}, len(cat.Elements))
@@ -59,10 +61,12 @@ func (b *EoD) catCmd(category string, sortKind int, m msg, rsp rsp) {
 
 		out[i] = struct {
 			found int
+			count int
 			text  string
 			name  string
 		}{
 			found: fnd,
+			count: len(cat.Elements),
 			text:  text,
 			name:  name,
 		}
@@ -84,6 +88,11 @@ func (b *EoD) catCmd(category string, sortKind int, m msg, rsp rsp) {
 	case catSortByNotFound:
 		sort.Slice(out, func(i, j int) bool {
 			return out[i].found < out[j].found
+		})
+
+	case catSortByElementCount:
+		sort.Slice(out, func(i, j int) bool {
+			return out[i].count > out[j].count
 		})
 	}
 

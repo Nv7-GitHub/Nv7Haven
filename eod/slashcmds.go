@@ -250,6 +250,10 @@ var (
 							Name:  "Not Found",
 							Value: catSortByNotFound,
 						},
+						{
+							Name:  "Element Count",
+							Value: catSortByElementCount,
+						},
 					},
 				},
 			},
