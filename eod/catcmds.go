@@ -38,7 +38,6 @@ func (b *EoD) catCmd(category string, sortKind int, m msg, rsp rsp) {
 
 	out := make([]struct {
 		found int
-		count int
 		text  string
 		name  string
 	}, len(cat.Elements))
@@ -61,12 +60,10 @@ func (b *EoD) catCmd(category string, sortKind int, m msg, rsp rsp) {
 
 		out[i] = struct {
 			found int
-			count int
 			text  string
 			name  string
 		}{
 			found: fnd,
-			count: len(cat.Elements),
 			text:  text,
 			name:  name,
 		}
@@ -75,11 +72,6 @@ func (b *EoD) catCmd(category string, sortKind int, m msg, rsp rsp) {
 	}
 
 	switch sortKind {
-	case catSortAlphabetical:
-		sort.Slice(out, func(i, j int) bool {
-			return out[i].name < out[j].name
-		})
-
 	case catSortByFound:
 		sort.Slice(out, func(i, j int) bool {
 			return out[i].found > out[j].found
@@ -90,9 +82,9 @@ func (b *EoD) catCmd(category string, sortKind int, m msg, rsp rsp) {
 			return out[i].found < out[j].found
 		})
 
-	case catSortByElementCount:
+	default:
 		sort.Slice(out, func(i, j int) bool {
-			return out[i].count > out[j].count
+			return out[i].name < out[j].name
 		})
 	}
 
@@ -114,6 +106,7 @@ type catData struct {
 	text  string
 	name  string
 	found float32
+	count int
 }
 
 func (b *EoD) allCatCmd(sortBy int, m msg, rsp rsp) {
@@ -151,6 +144,7 @@ func (b *EoD) allCatCmd(sortBy int, m msg, rsp rsp) {
 			text:  fmt.Sprintf("%s %s", cat.Name, text),
 			name:  cat.Name,
 			found: perc,
+			count: len(cat.Elements),
 		}
 		i++
 	}
@@ -169,6 +163,11 @@ func (b *EoD) allCatCmd(sortBy int, m msg, rsp rsp) {
 	case catSortAlphabetical:
 		sort.Slice(out, func(i, j int) bool {
 			return out[i].name < out[j].name
+		})
+
+	case catSortByElementCount:
+		sort.Slice(out, func(i, j int) bool {
+			return out[i].count > out[j].count
 		})
 	}
 
