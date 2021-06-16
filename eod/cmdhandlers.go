@@ -155,6 +155,31 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+	if strings.HasPrefix(m.Content, "*9") {
+		if !b.checkServer(msg, rsp) {
+			return
+		}
+		lock.RLock()
+		dat, exists := b.dat[msg.GuildID]
+		lock.RUnlock()
+		if !exists {
+			return
+		}
+		if dat.combCache == nil {
+			dat.combCache = make(map[string]comb)
+		}
+		comb, exists := dat.combCache[msg.Author.ID]
+		if !exists {
+			return
+		}
+		if comb.elem3 != "" {
+			b.combine([]string{comb.elem3, comb.elem3, comb.elem3, comb.elem3, comb.elem3, comb.elem3, comb.elem3, comb.elem3, comb.elem3}, msg, rsp)
+			return
+		}
+		b.combine(comb.elems, msg, rsp)
+		return
+	}
+
 	if strings.HasPrefix(m.Content, "*2") {
 		if !b.checkServer(msg, rsp) {
 			return
