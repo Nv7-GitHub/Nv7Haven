@@ -31,8 +31,8 @@ const url = "https://www.ssa.gov/oact/babynames/names.zip"
 var reg = regexp.MustCompile("yob([0-9][0-9][0-9][0-9]).txt")
 
 const (
-	dbUser = "u57_fypTHIW9t8"
-	dbName = "s57_nv7haven"
+	dbUser = "root"
+	dbName = "nv7haven"
 )
 
 var tm time.Time = time.Now()

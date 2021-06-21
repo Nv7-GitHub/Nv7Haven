@@ -26,12 +26,9 @@ import (
 )
 
 const (
-	dbUser = "u57_fypTHIW9t8"
-	dbName = "s57_nv7haven"
+	dbUser = "root"
+	dbName = "nv7haven"
 )
-
-//go:embed password.txt
-var dbPassword string
 
 func main() {
 	logFile, err := os.OpenFile("logs.txt", os.O_WRONLY|os.O_CREATE, os.ModePerm)
@@ -63,7 +60,7 @@ func main() {
 
 	app.Static("/", "./index.html")
 
-	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
+	db, err := sql.Open("mysql", dbUser+":"+os.Getenv("PASSWORD")+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
 	if err != nil {
 		panic(err)
 	}

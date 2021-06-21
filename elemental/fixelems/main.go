@@ -32,8 +32,8 @@ type Color struct {
 }
 
 const (
-	dbUser = "u57_fypTHIW9t8"
-	dbName = "s57_nv7haven"
+	dbUser = "root"
+	dbName = "nv7haven"
 )
 
 func handle(err error) {

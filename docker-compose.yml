@@ -1,0 +1,66 @@
+version: '3'
+
+# Needs environment variables set: PORT, PHP_PORT, PASSWORD
+
+services:
+  db:
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${PASSWORD}
+      MYSQL_DATABASE: nv7haven
+    ports:
+      - "3308:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+    restart: unless-stopped
+      
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    depends_on: 
+      - db
+    environment:
+      PMA_HOST: db
+      UPLOAD_LIMIT: 1G
+    ports:
+      - "${PHP_PORT}:80"
+    restart: unless-stopped
+  
+  backup:
+    image: fradelg/mysql-cron-backup
+    depends_on:
+      - mariadb
+    volumes:
+      - ./backups:/backup
+    environment:
+      MYSQL_HOST: db
+      MYSQL_PORT: 3306
+      MYSQL_USER: root
+      MYSQL_PASS: ${PASSWORD}
+      CRON_TIME: 0 3 * * *
+      INIT_BACKUP: 1
+      GZIP_LEVEL: 9
+    restart: unless-stopped
+
+  server:
+    build: .
+    ports: 
+      - "${PORT}:${PORT}"
+    depends_on: 
+      - db
+    # restart: unless-stopped
+    volumes:
+      - ./files:/dist/files
+      - ./packs:/dist/packs
+      - ./logs.txt:/dist/logs.txt
+      - ./eodlogs.txt:/dist/eodlogs.txt
+    environment: 
+      PORT: ${PORT}
+      MYSQL_HOST: db
+      PASSWORD: ${PASSWORD}
+    
+    restart: unless-stopped
+
+
+volumes:
+  db-data:
