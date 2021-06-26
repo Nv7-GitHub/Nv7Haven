@@ -29,7 +29,7 @@ services:
   backup:
     image: fradelg/mysql-cron-backup
     depends_on:
-      - mariadb
+      - db
     volumes:
       - ./backups:/backup
     environment:
