@@ -4,8 +4,7 @@ version: '3'
 
 services:
   db:
-    # image: mariadb
-    image: jsurf/rpi-mariadb
+    image: mariadb
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${PASSWORD}
