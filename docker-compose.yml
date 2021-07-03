@@ -17,7 +17,7 @@ services:
       
   phpmyadmin:
     # image: phpmyadmin/phpmyadmin:latest
-    image: jackgruber/phpmyadmin
+    image: sk278/phpmyadmin-armhf
     depends_on: 
       - db
     environment:
