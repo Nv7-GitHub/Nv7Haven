@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/signal"
 	"runtime/debug"
-	"syscall"
 
 	"github.com/Nv7-Github/Nv7Haven/discord"
 	"github.com/Nv7-Github/Nv7Haven/elemental"
@@ -35,7 +34,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	syscall.Dup2(int(logFile.Fd()), 2)
+	dupfn(int(logFile.Fd()), 2)
 
 	// Error logging
 	//defer recoverer()

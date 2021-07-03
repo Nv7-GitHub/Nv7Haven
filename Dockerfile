@@ -8,6 +8,6 @@ RUN go mod download -x
 
 COPY . .
 
-RUN go build -o main
+RUN go build -o main -tags="arm"
 
 CMD ./main
