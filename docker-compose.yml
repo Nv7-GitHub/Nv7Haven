@@ -17,7 +17,7 @@ services:
       
   phpmyadmin:
     # image: phpmyadmin/phpmyadmin:latest
-    image: ebspace/armhf-phpmyadmin:latest
+    image: jackgruber/phpmyadmin
     depends_on: 
       - db
     environment:
