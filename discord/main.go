@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"io/ioutil"
 	"math/rand"
+	"strings"
 	"time"
 
 	_ "embed"
@@ -87,7 +88,7 @@ func InitDiscord(db *sql.DB, e elemental.Elemental) Bot {
 	rand.Seed(time.Now().UnixNano())
 
 	// Discord bot
-	dg, err := discordgo.New("Bot " + token)
+	dg, err := discordgo.New("Bot " + strings.TrimSpace(token))
 	if err != nil {
 		panic(err)
 	}

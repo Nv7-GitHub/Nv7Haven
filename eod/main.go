@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	_ "embed"
 	"io/ioutil"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	deadlock "github.com/sasha-s/go-deadlock"
@@ -37,7 +38,7 @@ func InitEoD(db *sql.DB) EoD {
 	about = string(abt)
 
 	// Discord bot
-	dg, err := discordgo.New("Bot " + token)
+	dg, err := discordgo.New("Bot " + strings.TrimSpace(token))
 	if err != nil {
 		panic(err)
 	}
