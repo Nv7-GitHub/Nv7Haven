@@ -48,7 +48,6 @@ services:
       - "${PORT}:${PORT}"
     depends_on: 
       - db
-    # restart: unless-stopped
     volumes:
       - ./files:/dist/files
       - ./packs:/dist/packs
