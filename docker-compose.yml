@@ -59,8 +59,8 @@ services:
       PORT: ${PORT}
       MYSQL_HOST: db
       PASSWORD: ${PASSWORD}
-      GOPROXY: direct
-      GOPRIVATE: *
+      GOPROXY: "direct"
+      GOPRIVATE: "*"
     
     restart: unless-stopped
 
