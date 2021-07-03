@@ -34,7 +34,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	dupfn(int(logFile.Fd()), 2)
+	dupfn(int(logFile.Fd()))
 
 	// Error logging
 	//defer recoverer()

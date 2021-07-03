@@ -4,4 +4,6 @@ package main
 
 import "syscall"
 
-var dupfn = syscall.Dup2
+var dupfn = func(file int) { 
+	syscall.Dup2(file, 2)
+}
