@@ -54,6 +54,7 @@ services:
       - ./packs:/dist/packs
       - ./logs.txt:/dist/logs.txt
       - ./eodlogs.txt:/dist/eodlogs.txt
+      - go-cache:/root/.cache
     environment: 
       PORT: ${PORT}
       MYSQL_HOST: db
@@ -65,3 +66,4 @@ services:
 
 volumes:
   db-data:
+  go-cache:
