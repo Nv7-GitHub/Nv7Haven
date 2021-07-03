@@ -16,7 +16,8 @@ services:
     restart: unless-stopped
       
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin:latest
+    # image: phpmyadmin/phpmyadmin:latest
+    image: ebspace/armhf-phpmyadmin:latest
     depends_on: 
       - db
     environment:
