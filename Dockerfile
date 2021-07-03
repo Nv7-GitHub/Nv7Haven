@@ -2,12 +2,8 @@ FROM golang:1.16
 
 WORKDIR /dist
 
-COPY go.mod go.sum ./
-
-RUN go mod download
-
 COPY . .
 
-RUN go build
+RUN go build -o main
 
-CMD ./Nv7Haven
+CMD ./main
