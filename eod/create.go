@@ -102,8 +102,8 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		name = el.Name
 
 		var id int
-		res := tx.QueryRow("SELCT COUNT(1) FROM eod_combos WHERE guild=?", guild)
-		err = res.Scan(id)
+		res := tx.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE guild=?", guild)
+		err = res.Scan(&id)
 		if err == nil {
 			postTxt = " - Combination **#" + strconv.Itoa(id) + "**"
 		}
