@@ -92,12 +92,14 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 				return
 			}
 			txt := m.Content[len(cmd)+2:]
-			parts := strings.Split(txt, "|")
-			if len(parts) == 1 {
+			sepPos := strings.Index(txt, "|")
+			if sepPos == -1 {
+				rsp.ErrorMessage("You must have a \"|\" to seperate the category name and the elements to add!")
 				return
 			}
-			catName := strings.TrimSpace(parts[0])
-			elems := strings.Split(parts[1], ",")
+
+			catName := strings.TrimSpace(txt[:sepPos])
+			elems := strings.Split(txt[sepPos+1:], ",")
 			for i, elem := range elems {
 				elems[i] = strings.TrimSpace(elem)
 			}
@@ -111,12 +113,14 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 				return
 			}
 			txt := m.Content[len(cmd)+2:]
-			parts := strings.Split(txt, "|")
-			if len(parts) == 1 {
+			sepPos := strings.Index(txt, "|")
+			if sepPos == -1 {
+				rsp.ErrorMessage("You must have a \"|\" to seperate the category name and the elements to remove!")
 				return
 			}
-			catName := strings.TrimSpace(parts[0])
-			elems := strings.Split(parts[1], ",")
+
+			catName := strings.TrimSpace(txt[:sepPos])
+			elems := strings.Split(txt[sepPos+1:], ",")
 			for i, elem := range elems {
 				elems[i] = strings.TrimSpace(elem)
 			}
