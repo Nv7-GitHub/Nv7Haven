@@ -71,13 +71,13 @@ func (b *EoD) giveCatCmd(catName string, giveTree bool, user string, m msg, rsp 
 			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", msg))
 			return
 		}
-
-		dat.invCache[user] = inv
-		lock.Lock()
-		b.dat[m.GuildID] = dat
-		lock.Unlock()
-		b.saveInv(m.GuildID, user, true, true)
 	}
+
+	dat.invCache[user] = inv
+	lock.Lock()
+	b.dat[m.GuildID] = dat
+	lock.Unlock()
+	b.saveInv(m.GuildID, user, true, true)
 
 	rsp.Resp("Successfully gave all elements in category **" + cat.Name + "**!")
 }
