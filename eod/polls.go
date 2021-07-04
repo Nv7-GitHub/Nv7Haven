@@ -47,6 +47,9 @@ func (b *EoD) createPoll(p poll) error {
 				elems[i] = val.(string)
 			}
 		}
+		if len(elems) < 1 {
+			return errors.New("error: combo must have at least one element")
+		}
 		for _, val := range elems {
 			txt += dat.elemCache[strings.ToLower(val)].Name + " + "
 		}
