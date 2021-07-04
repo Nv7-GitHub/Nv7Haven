@@ -145,6 +145,23 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			b.catCmd(suggestion, catSortAlphabetical, msg, rsp)
 			return
 		}
+
+		if cmd == "mark" || cmd == "sign" {
+			if len(m.Content) <= len(cmd)+2 {
+				return
+			}
+			txt := m.Content[len(cmd)+2:]
+			sepPos := strings.Index(txt, "|")
+			if sepPos == -1 {
+				rsp.ErrorMessage("You must have a \"|\" to seperate element name and its new mark!")
+				return
+			}
+
+			elem := strings.TrimSpace(txt[:sepPos])
+			mark := strings.TrimSpace(txt[sepPos+1:])
+			b.markCmd(elem, mark, msg, rsp)
+			return
+		}
 	}
 
 	if strings.HasPrefix(m.Content, "?") {
