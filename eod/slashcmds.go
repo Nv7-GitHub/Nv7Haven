@@ -324,7 +324,7 @@ var (
 		},
 		{
 			Name:        "givecat",
-			Description: "Give a user all the elements in a category, and choose whether to give all the elements required to make those elements!",
+			Description: "Give a user all the elements in a category, and optionally give the tree!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
