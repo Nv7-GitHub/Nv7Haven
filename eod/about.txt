@@ -1,4 +1,4 @@
-EoD Everywhere is an Elemental game built entirely with a Discord bot. Check out the **Using the Bot** section to learn about the commands! Each server has a separate element list and can be customized by server admins to change channel types, vote counts, and even directly modify a user's inventory! Check out the **Useful Admin Commands** section for more info.
+EoD Everywhere is an alchemy game built entirely with a Discord bot. Check out the **Using the Bot** section to learn about the commands! Each server has a separate element list and can be customized by server admins to change channel types, vote counts, and even directly modify a user's inventory! Check out the **Useful Admin Commands** section for more info.
 
 **Using the Bot**
 You can combine elements in any play channel by seperating element names by a **plus sign**, **comma**, or a **line break**.
