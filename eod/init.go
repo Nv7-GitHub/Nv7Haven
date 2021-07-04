@@ -30,7 +30,7 @@ func (b *EoD) init() {
 			dat, exists := b.dat[guild]
 			lock.RUnlock()
 			if !exists {
-				dat = serverData{}
+				dat = NewServerData()
 			}
 			dat.newsChannel = value1
 			lock.Lock()
@@ -42,7 +42,7 @@ func (b *EoD) init() {
 			dat, exists := b.dat[guild]
 			lock.RUnlock()
 			if !exists {
-				dat = serverData{}
+				dat = NewServerData()
 			}
 			if dat.playChannels == nil {
 				dat.playChannels = make(map[string]empty)
@@ -57,7 +57,7 @@ func (b *EoD) init() {
 			dat, exists := b.dat[guild]
 			lock.RUnlock()
 			if !exists {
-				dat = serverData{}
+				dat = NewServerData()
 			}
 			dat.votingChannel = value1
 			lock.Lock()
@@ -69,7 +69,7 @@ func (b *EoD) init() {
 			dat, exists := b.dat[guild]
 			lock.RUnlock()
 			if !exists {
-				dat = serverData{}
+				dat = NewServerData()
 			}
 			dat.voteCount = intval
 			lock.Lock()
@@ -81,7 +81,7 @@ func (b *EoD) init() {
 			dat, exists := b.dat[guild]
 			lock.RUnlock()
 			if !exists {
-				dat = serverData{}
+				dat = NewServerData()
 			}
 			dat.pollCount = intval
 			lock.Lock()
@@ -93,7 +93,7 @@ func (b *EoD) init() {
 			dat, exists := b.dat[guild]
 			lock.RUnlock()
 			if !exists {
-				dat = serverData{}
+				dat = NewServerData()
 			}
 			dat.modRole = value1
 			lock.Lock()
