@@ -149,9 +149,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	txt := newText + " " + text + " - **" + name + "** (By <@" + creator + ">)" + postTxt
 
 	b.dg.ChannelMessageSend(dat.newsChannel, txt)
-	if guild == "819077688371314718" {
-		datafile.Write([]byte(fmt.Sprintf("%s %s\n", name, parents)))
-	}
+	datafile.Write([]byte(fmt.Sprintf("%s %s\n", name, parents)))
 
 	err = tx.Commit()
 	if err != nil {
