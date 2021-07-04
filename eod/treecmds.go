@@ -41,6 +41,47 @@ func (b *EoD) giveCmd(elem string, giveTree bool, user string, m msg, rsp rsp) {
 	rsp.Resp("Successfully gave element **" + el.Name + "**!")
 }
 
+func (b *EoD) giveCatCmd(catName string, giveTree bool, user string, m msg, rsp rsp) {
+	lock.RLock()
+	dat, exists := b.dat[m.GuildID]
+	lock.RUnlock()
+	if !exists {
+		return
+	}
+	inv, exists := dat.invCache[user]
+	if !exists {
+		rsp.ErrorMessage("You don't have an inventory!")
+		return
+	}
+	cat, exists := dat.catCache[strings.ToLower(catName)]
+	if !exists {
+		rsp.ErrorMessage(fmt.Sprintf("Category **%s** doesn't exist!", catName))
+		return
+	}
+
+	for elem := range cat.Elements {
+		_, exists := dat.elemCache[strings.ToLower(elem)]
+		if !exists {
+			rsp.Resp(fmt.Sprintf("Element **%s** doesn't exist!", elem))
+			return
+		}
+
+		msg, suc := giveElem(dat.elemCache, giveTree, elem, &inv)
+		if !suc {
+			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", msg))
+			return
+		}
+
+		dat.invCache[user] = inv
+		lock.Lock()
+		b.dat[m.GuildID] = dat
+		lock.Unlock()
+		b.saveInv(m.GuildID, user, true, true)
+	}
+
+	rsp.Resp("Successfully gave all elements in category **" + cat.Name + "**!")
+}
+
 func giveElem(elemCache map[string]element, giveTree bool, elem string, out *map[string]empty) (string, bool) {
 	el, exists := elemCache[strings.ToLower(elem)]
 	if !exists {

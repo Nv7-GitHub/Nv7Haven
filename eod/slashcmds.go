@@ -323,6 +323,30 @@ var (
 			},
 		},
 		{
+			Name:        "givecat",
+			Description: "Give a user all the elements in a category, and choose whether to give all the elements required to make those elements!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "category",
+					Description: "Name of the category!",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionBoolean,
+					Name:        "givetree",
+					Description: "Give all the elements required to make the elements?",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionUser,
+					Name:        "user",
+					Description: "User to give the elemenst (and maybe the elements required) to!",
+					Required:    true,
+				},
+			},
+		},
+		{
 			Name:        "path",
 			Description: "Calculate the path of an element!",
 			Options: []*discordgo.ApplicationCommandOption{
@@ -605,6 +629,9 @@ var (
 		},
 		"give": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.giveCmd(i.Data.Options[0].StringValue(), i.Data.Options[1].BoolValue(), i.Data.Options[2].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"givecat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.giveCatCmd(i.Data.Options[0].StringValue(), i.Data.Options[1].BoolValue(), i.Data.Options[2].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"path": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.calcTreeCmd(i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
