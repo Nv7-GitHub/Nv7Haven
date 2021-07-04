@@ -1,6 +1,7 @@
 package eod
 
 import (
+	"sync"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -46,6 +47,7 @@ type serverData struct {
 	catCache      map[string]category         // map[catName]category
 	polls         map[string]poll             // map[messageid]poll
 	pageSwitchers map[string]pageSwitcher     // map[messageid]pageswitcher
+	lock          *sync.RWMutex
 }
 
 type pageSwitcher struct {

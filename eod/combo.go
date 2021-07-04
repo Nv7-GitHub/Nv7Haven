@@ -61,6 +61,7 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 
 		_, hasElement := inv[strings.ToLower(elem)]
 		if !hasElement {
+			dat.lock.RLock()
 			_, exists := dat.combCache[m.Author.ID]
 			if exists {
 				delete(dat.combCache, m.Author.ID)
@@ -68,6 +69,7 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 				b.dat[m.GuildID] = dat
 				lock.Unlock()
 			}
+			dat.lock.RUnlock()
 
 			notFound := make(map[string]empty)
 			for _, el := range elems {
@@ -109,10 +111,13 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 			dat.combCache = make(map[string]comb)
 		}
 
+		dat.lock.Lock()
 		dat.combCache[m.Author.ID] = comb{
 			elems: elems,
 			elem3: elem3,
 		}
+		dat.lock.Unlock()
+
 		_, exists := dat.invCache[m.Author.ID][strings.ToLower(elem3)]
 		if !exists {
 			dat.invCache[m.Author.ID][strings.ToLower(elem3)] = empty{}
@@ -134,10 +139,13 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 		dat.combCache = make(map[string]comb)
 	}
 
+	dat.lock.Lock()
 	dat.combCache[m.Author.ID] = comb{
 		elems: elems,
 		elem3: "",
 	}
+	dat.lock.Unlock()
+
 	lock.Lock()
 	b.dat[m.GuildID] = dat
 	lock.Unlock()
