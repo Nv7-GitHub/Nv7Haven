@@ -14,6 +14,8 @@ COPY packs packs
 
 COPY single single
 
+COPY main.go index.html errors.go build_armlogs.go build_normal.go websocket.go ./
+
 COPY elemental elemental
 
 COPY discord discord
@@ -21,8 +23,6 @@ COPY discord discord
 COPY nv7haven nv7haven
 
 COPY eod eod
-
-COPY main.go index.html errors.go build_armlogs.go build_normal.go websocket.go ./
 
 RUN go build -o main -tags="arm_logs"
 
