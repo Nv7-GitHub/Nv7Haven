@@ -42,30 +42,5 @@ services:
       GZIP_LEVEL: 9
     restart: unless-stopped
 
-  server:
-    build: .
-    ports: 
-      - "${PORT}:${PORT}"
-    depends_on: 
-      - db
-    volumes:
-      - ./files:/dist/files
-      - ./packs:/dist/packs
-      - ./logs.txt:/dist/logs.txt
-      - ./eodlogs.txt:/dist/eodlogs.txt
-      - go-cache:/root/.cache/go-cache
-      - go-pkg:/go/pkg
-    environment: 
-      PORT: ${PORT}
-      MYSQL_HOST: db
-      PASSWORD: ${PASSWORD}
-      GOPROXY: "direct"
-      GOPRIVATE: "*"
-    
-    restart: unless-stopped
-
-
 volumes:
   db-data:
-  go-cache:
-  go-pkg:
