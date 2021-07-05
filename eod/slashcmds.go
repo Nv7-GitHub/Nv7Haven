@@ -528,41 +528,50 @@ var (
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.setNewsChannel(i.Data.Options[0].ChannelValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+			resp := i.ApplicationCommandData()
+			bot.setNewsChannel(resp.Options[0].ChannelValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"setvotingchannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.setVotingChannel(i.Data.Options[0].ChannelValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+			resp := i.ApplicationCommandData()
+			bot.setVotingChannel(resp.Options[0].ChannelValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"setvotes": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.setVoteCount(int(i.Data.Options[0].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
+			resp := i.ApplicationCommandData()
+			bot.setVoteCount(int(resp.Options[0].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"setpolls": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.setPollCount(int(i.Data.Options[0].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
+			resp := i.ApplicationCommandData()
+			bot.setPollCount(int(resp.Options[0].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"setplaychannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
 			isPlayChannel := true
-			if len(i.Data.Options) > 1 {
-				isPlayChannel = i.Data.Options[1].BoolValue()
+			if len(resp.Options) > 1 {
+				isPlayChannel = resp.Options[1].BoolValue()
 			}
-			bot.setPlayChannel(i.Data.Options[0].ChannelValue(bot.dg).ID, isPlayChannel, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.setPlayChannel(resp.Options[0].ChannelValue(bot.dg).ID, isPlayChannel, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"suggest": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
 			autocapitalize := true
-			if len(i.Data.Options) > 1 {
-				autocapitalize = i.Data.Options[1].BoolValue()
+			if len(resp.Options) > 1 {
+				autocapitalize = resp.Options[1].BoolValue()
 			}
-			bot.suggestCmd(i.Data.Options[0].StringValue(), autocapitalize, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.suggestCmd(resp.Options[0].StringValue(), autocapitalize, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"mark": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.markCmd(i.Data.Options[0].StringValue(), i.Data.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			resp := i.ApplicationCommandData()
+			bot.markCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"image": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.imageCmd(i.Data.Options[0].StringValue(), i.Data.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			resp := i.ApplicationCommandData()
+			bot.imageCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"inv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
 			sortby := "name"
 			id := i.Member.User.ID
-			for _, val := range i.Data.Options {
+			for _, val := range resp.Options {
 				if val.Name == "sortby" {
 					sortby = val.StringValue()
 				}
@@ -574,26 +583,29 @@ var (
 			bot.invCmd(id, bot.newMsgSlash(i), bot.newRespSlash(i), sortby)
 		},
 		"lb": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
 			sort := "count"
-			if len(i.Data.Options) > 0 {
-				sort = i.Data.Options[0].StringValue()
+			if len(resp.Options) > 0 {
+				sort = resp.Options[0].StringValue()
 			}
 			bot.lbCmd(bot.newMsgSlash(i), bot.newRespSlash(i), sort)
 		},
 		"addcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			suggestAdd := []string{i.Data.Options[1].StringValue()}
-			if len(i.Data.Options) > 2 {
-				for _, val := range i.Data.Options[2:] {
+			resp := i.ApplicationCommandData()
+			suggestAdd := []string{resp.Options[1].StringValue()}
+			if len(resp.Options) > 2 {
+				for _, val := range resp.Options[2:] {
 					suggestAdd = append(suggestAdd, val.StringValue())
 				}
 			}
-			bot.categoryCmd(suggestAdd, i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.categoryCmd(suggestAdd, resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"cat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
 			isAll := true
 			sort := catSortAlphabetical
 			catName := ""
-			for _, val := range i.Data.Options {
+			for _, val := range resp.Options {
 				if val.Name == "category" {
 					isAll = false
 					catName = val.StringValue()
@@ -612,53 +624,63 @@ var (
 			bot.catCmd(catName, sort, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"hint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			if len(i.Data.Options) == 0 {
+			resp := i.ApplicationCommandData()
+			if len(resp.Options) == 0 {
 				bot.hintCmd("", false, bot.newMsgSlash(i), bot.newRespSlash(i))
 				return
 			}
-			bot.hintCmd(i.Data.Options[0].StringValue(), true, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.hintCmd(resp.Options[0].StringValue(), true, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"stats": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.statsCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"giveall": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.giveAllCmd(i.Data.Options[0].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+			resp := i.ApplicationCommandData()
+			bot.giveAllCmd(resp.Options[0].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"resetinv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.resetInvCmd(i.Data.Options[0].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+			resp := i.ApplicationCommandData()
+			bot.resetInvCmd(resp.Options[0].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"give": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.giveCmd(i.Data.Options[0].StringValue(), i.Data.Options[1].BoolValue(), i.Data.Options[2].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+			resp := i.ApplicationCommandData()
+			bot.giveCmd(resp.Options[0].StringValue(), resp.Options[1].BoolValue(), resp.Options[2].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"givecat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.giveCatCmd(i.Data.Options[0].StringValue(), i.Data.Options[1].BoolValue(), i.Data.Options[2].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+			resp := i.ApplicationCommandData()
+			bot.giveCatCmd(resp.Options[0].StringValue(), resp.Options[1].BoolValue(), resp.Options[2].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"path": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.calcTreeCmd(i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			resp := i.ApplicationCommandData()
+			bot.calcTreeCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"elemsort": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.sortCmd(i.Data.Options[0].StringValue(), i.Data.Options[1].StringValue() == "1", bot.newMsgSlash(i), bot.newRespSlash(i))
+			resp := i.ApplicationCommandData()
+			bot.sortCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue() == "1", bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"about": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.aboutCmd(bot.newRespSlash(i))
 		},
 		"setmodrole": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.setModRole(i.Data.Options[0].RoleValue(bot.dg, i.GuildID).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+			resp := i.ApplicationCommandData()
+			bot.setModRole(resp.Options[0].RoleValue(bot.dg, i.GuildID).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"rmcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			suggestAdd := []string{i.Data.Options[1].StringValue()}
-			if len(i.Data.Options) > 2 {
-				for _, val := range i.Data.Options[2:] {
+			resp := i.ApplicationCommandData()
+			suggestAdd := []string{resp.Options[1].StringValue()}
+			if len(resp.Options) > 2 {
+				for _, val := range resp.Options[2:] {
 					suggestAdd = append(suggestAdd, val.StringValue())
 				}
 			}
-			bot.rmCategoryCmd(suggestAdd, i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.rmCategoryCmd(suggestAdd, resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"idea": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
 			count := 2
 			hasCat := false
 			catName := ""
-			for _, opt := range i.Data.Options {
+			for _, opt := range resp.Options {
 				if opt.Name == "count" {
 					count = int(opt.IntValue())
 				}
@@ -671,12 +693,14 @@ var (
 			bot.ideaCmd(count, catName, hasCat, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"catimg": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.catImgCmd(i.Data.Options[0].StringValue(), i.Data.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			resp := i.ApplicationCommandData()
+			bot.catImgCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"downloadinv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
 			sortby := "name"
 			id := i.Member.User.ID
-			for _, val := range i.Data.Options {
+			for _, val := range resp.Options {
 				if val.Name == "sortby" {
 					sortby = val.StringValue()
 				}
@@ -688,7 +712,8 @@ var (
 			bot.downloadInvCmd(id, sortby, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"catpath": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.calcTreeCatCmd(i.Data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			resp := i.ApplicationCommandData()
+			bot.calcTreeCatCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )

@@ -109,7 +109,7 @@ func (s *slashResp) Error(err error) bool {
 		} else {
 			err := s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionApplicationCommandResponseData{
+				Data: &discordgo.InteractionResponseData{
 					Flags:   1 << 6,
 					Content: "Error: " + err.Error(),
 				},
@@ -132,7 +132,7 @@ func (s *slashResp) ErrorMessage(msg string) {
 
 	s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionApplicationCommandResponseData{
+		Data: &discordgo.InteractionResponseData{
 			Flags:   1 << 6,
 			Content: "Error: " + msg,
 		},
@@ -142,7 +142,7 @@ func (s *slashResp) ErrorMessage(msg string) {
 func (s *slashResp) Resp(msg string) {
 	s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionApplicationCommandResponseData{
+		Data: &discordgo.InteractionResponseData{
 			Flags:   1 << 6,
 			Content: msg,
 		},
@@ -164,7 +164,7 @@ func (s *slashResp) Message(msg string) string {
 	}
 	s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionApplicationCommandResponseData{
+		Data: &discordgo.InteractionResponseData{
 			Content: msg,
 		},
 	})
@@ -190,7 +190,7 @@ func (s *slashResp) Embed(emb *discordgo.MessageEmbed, nomention ...bool) string
 	}
 	err = s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionApplicationCommandResponseData{
+		Data: &discordgo.InteractionResponseData{
 			Embeds: []*discordgo.MessageEmbed{emb},
 		},
 	})
