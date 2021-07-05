@@ -82,17 +82,26 @@ func (b *EoD) checkServer(m msg, rsp rsp) bool {
 	if dat.invCache == nil {
 		dat.invCache = make(map[string]map[string]empty)
 	}
+	dat.lock.RLock()
 	_, exists = dat.invCache[m.Author.ID]
+	dat.lock.RUnlock()
 	if !exists {
+		dat.lock.Lock()
 		dat.invCache[m.Author.ID] = make(map[string]empty)
 		for _, val := range starterElements {
 			dat.invCache[m.Author.ID][strings.ToLower(val.Name)] = empty{}
 		}
-		data, err := json.Marshal(dat.invCache[m.Author.ID])
+		dat.lock.Unlock()
+
+		dat.lock.RLock()
+		inv := dat.invCache[m.Author.ID]
+		dat.lock.RUnlock()
+
+		data, err := json.Marshal(inv)
 		if rsp.Error(err) {
 			return false
 		}
-		_, err = b.db.Exec("INSERT INTO eod_inv VALUES ( ?, ?, ?, ?, ? )", m.GuildID, m.Author.ID, string(data), len(dat.invCache[m.Author.ID]), 0) // Guild ID, User ID, inventory, elements found, made by (0 so far)
+		_, err = b.db.Exec("INSERT INTO eod_inv VALUES ( ?, ?, ?, ?, ? )", m.GuildID, m.Author.ID, string(data), len(inv), 0) // Guild ID, User ID, inventory, elements found, made by (0 so far)
 		rsp.Error(err)
 		lock.Lock()
 		b.dat[m.GuildID] = dat

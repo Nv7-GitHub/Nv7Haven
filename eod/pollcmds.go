@@ -163,7 +163,9 @@ func (b *EoD) markCmd(elem string, mark string, m msg, rsp rsp) {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
 		return
 	}
+	dat.lock.RLock()
 	inv, exists := dat.invCache[m.Author.ID]
+	dat.lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage("You don't have an inventory!")
 		return
@@ -210,7 +212,9 @@ func (b *EoD) imageCmd(elem string, image string, m msg, rsp rsp) {
 		return
 	}
 
+	dat.lock.RLock()
 	inv, exists := dat.invCache[m.Author.ID]
+	dat.lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage("You don't have an inventory!")
 		return

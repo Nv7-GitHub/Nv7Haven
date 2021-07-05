@@ -15,7 +15,9 @@ func (b *EoD) giveCmd(elem string, giveTree bool, user string, m msg, rsp rsp) {
 	if !exists {
 		return
 	}
+	dat.lock.RLock()
 	inv, exists := dat.invCache[user]
+	dat.lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage("You don't have an inventory!")
 		return
@@ -35,7 +37,10 @@ func (b *EoD) giveCmd(elem string, giveTree bool, user string, m msg, rsp rsp) {
 		return
 	}
 
+	dat.lock.Lock()
 	dat.invCache[user] = inv
+	dat.lock.Unlock()
+
 	lock.Lock()
 	b.dat[m.GuildID] = dat
 	lock.Unlock()
@@ -51,7 +56,9 @@ func (b *EoD) giveCatCmd(catName string, giveTree bool, user string, m msg, rsp 
 	if !exists {
 		return
 	}
+	dat.lock.RLock()
 	inv, exists := dat.invCache[user]
+	dat.lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage("You don't have an inventory!")
 		return
@@ -78,7 +85,10 @@ func (b *EoD) giveCatCmd(catName string, giveTree bool, user string, m msg, rsp 
 		}
 	}
 
+	dat.lock.Lock()
 	dat.invCache[user] = inv
+	dat.lock.Unlock()
+
 	lock.Lock()
 	b.dat[m.GuildID] = dat
 	lock.Unlock()

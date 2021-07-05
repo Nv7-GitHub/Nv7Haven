@@ -24,7 +24,9 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 		return
 	}
 
+	dat.lock.RLock()
 	inv, exists := dat.invCache[m.Author.ID]
+	dat.lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage("You don't have an inventory!")
 		return
@@ -126,9 +128,13 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 		}
 		dat.lock.Unlock()
 
+		dat.lock.RLock()
 		_, exists := dat.invCache[m.Author.ID][strings.ToLower(elem3)]
+		dat.lock.RUnlock()
 		if !exists {
+			dat.lock.Lock()
 			dat.invCache[m.Author.ID][strings.ToLower(elem3)] = empty{}
+			dat.lock.Unlock()
 			b.saveInv(m.GuildID, m.Author.ID, false)
 
 			rsp.Resp(fmt.Sprintf("You made **%s** "+newText, elem3))

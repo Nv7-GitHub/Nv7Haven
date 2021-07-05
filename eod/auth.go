@@ -55,7 +55,9 @@ func (b *EoD) canRunCmd(cmd *discordgo.InteractionCreate) (bool, string) {
 	// If command is path or catpath, check if has element/all elements in cat
 	// path
 	if resp.Name == "path" {
+		dat.lock.RLock()
 		inv, exists := dat.invCache[cmd.Member.User.ID]
+		dat.lock.RUnlock()
 		if !exists {
 			return false, "You don't have an inventory!"
 		}
@@ -77,7 +79,9 @@ func (b *EoD) canRunCmd(cmd *discordgo.InteractionCreate) (bool, string) {
 
 	// catpath
 	if resp.Name == "catpath" {
+		dat.lock.RLock()
 		inv, exists := dat.invCache[cmd.Member.User.ID]
+		dat.lock.RUnlock()
 		if !exists {
 			return false, "You don't have an inventory!"
 		}

@@ -59,7 +59,11 @@ func (b *EoD) saveInv(guild string, user string, newmade bool, recalculate ...bo
 		return
 	}
 
-	data, err := json.Marshal(dat.invCache[user])
+	dat.lock.RLock()
+	inv := dat.invCache[user]
+	dat.lock.RUnlock()
+
+	data, err := json.Marshal(inv)
 	if err != nil {
 		return
 	}
@@ -68,7 +72,7 @@ func (b *EoD) saveInv(guild string, user string, newmade bool, recalculate ...bo
 		m := "made+1"
 		if len(recalculate) > 0 {
 			count := 0
-			for val := range dat.invCache[user] {
+			for val := range inv {
 				creator := ""
 				dat.lock.RLock()
 				elem, exists := dat.elemCache[strings.ToLower(val)]
@@ -82,11 +86,11 @@ func (b *EoD) saveInv(guild string, user string, newmade bool, recalculate ...bo
 			}
 			m = strconv.Itoa(count)
 		}
-		b.db.Exec(fmt.Sprintf("UPDATE eod_inv SET inv=?, count=?, made=%s WHERE guild=? AND user=?", m), data, len(dat.invCache[user]), guild, user)
+		b.db.Exec(fmt.Sprintf("UPDATE eod_inv SET inv=?, count=?, made=%s WHERE guild=? AND user=?", m), data, len(inv), guild, user)
 		return
 	}
 
-	b.db.Exec("UPDATE eod_inv SET inv=?, count=? WHERE guild=? AND user=?", data, len(dat.invCache[user]), guild, user)
+	b.db.Exec("UPDATE eod_inv SET inv=?, count=? WHERE guild=? AND user=?", data, len(inv), guild, user)
 }
 
 func (b *EoD) mark(guild string, elem string, mark string, creator string) {

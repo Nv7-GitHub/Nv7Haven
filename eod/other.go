@@ -28,9 +28,11 @@ func (b *EoD) statsCmd(m msg, rsp rsp) {
 	}
 
 	found := 0
+	dat.lock.RLock()
 	for _, val := range dat.invCache {
 		found += len(val)
 	}
+	dat.lock.RUnlock()
 
 	categorized := 0
 	for _, val := range dat.catCache {
@@ -49,7 +51,9 @@ func (b *EoD) giveAllCmd(user string, m msg, rsp rsp) {
 	if !exists {
 		return
 	}
+	dat.lock.RLock()
 	inv, exists := dat.invCache[user]
+	dat.lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage("You don't have an inventory!")
 		return
@@ -59,7 +63,10 @@ func (b *EoD) giveAllCmd(user string, m msg, rsp rsp) {
 		inv[k] = empty{}
 	}
 	dat.lock.RUnlock()
+
+	dat.lock.Lock()
 	dat.invCache[user] = inv
+	dat.lock.Unlock()
 
 	lock.Lock()
 	b.dat[m.GuildID] = dat
@@ -79,7 +86,10 @@ func (b *EoD) resetInvCmd(user string, m msg, rsp rsp) {
 	for _, v := range starterElements {
 		inv[strings.ToLower(v.Name)] = empty{}
 	}
+
+	dat.lock.Lock()
 	dat.invCache[user] = inv
+	dat.lock.Unlock()
 
 	lock.Lock()
 	b.dat[m.GuildID] = dat

@@ -203,7 +203,9 @@ func (b *EoD) invCmd(user string, m msg, rsp rsp, sorter string) {
 	if !exists {
 		return
 	}
+	dat.lock.RLock()
 	inv, exists := dat.invCache[user]
+	dat.lock.RUnlock()
 	if !exists {
 		if user == m.Author.ID {
 			rsp.ErrorMessage("You don't have an inventory!")
@@ -285,7 +287,9 @@ func (b *EoD) lbCmd(m msg, rsp rsp, sort string) {
 	if !exists {
 		return
 	}
+	dat.lock.RLock()
 	_, exists = dat.invCache[m.Author.ID]
+	dat.lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage("You don't have an inventory!")
 		return

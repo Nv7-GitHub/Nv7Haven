@@ -24,7 +24,9 @@ func (b *EoD) ideaCmd(count int, catName string, hasCat bool, m msg, rsp rsp) {
 		return
 	}
 
+	dat.lock.RLock()
 	inv, exists := dat.invCache[m.Author.ID]
+	dat.lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage("You don't have an inventory!")
 		return

@@ -119,7 +119,10 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 			postTxt = " - Combination **#" + strconv.Itoa(id) + "**"
 		}
 
+		dat.lock.Lock()
 		dat.invCache[creator][strings.ToLower(name)] = empty{}
+		dat.lock.Unlock()
+
 		lock.Lock()
 		b.dat[guild] = dat
 		lock.Unlock()

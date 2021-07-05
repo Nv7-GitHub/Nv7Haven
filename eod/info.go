@@ -157,10 +157,12 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 	has := ""
 	exists = false
 	if dat.invCache != nil {
+		dat.lock.RLock()
 		_, exists = dat.invCache[m.Author.ID]
 		if exists {
 			_, exists = dat.invCache[m.Author.ID][strings.ToLower(el.Name)]
 		}
+		dat.lock.RUnlock()
 	}
 	if !exists {
 		has = "don't "
