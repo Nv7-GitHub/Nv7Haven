@@ -41,6 +41,10 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 		}
 	}
 	elems = validElems[:validCnt]
+	if len(elems) == 1 {
+		rsp.ErrorMessage("You must combine at least 2 elements!")
+		return
+	}
 
 	for _, elem := range elems {
 		dat.lock.RLock()
