@@ -16,7 +16,7 @@ services:
     restart: unless-stopped
       
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin:latest
+    image: phpmyadmin:latest
     depends_on: 
       - db
     environment:
