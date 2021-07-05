@@ -44,21 +44,30 @@ func (b *EoD) initHandlers() {
 	}
 
 	b.dg.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		rsp := b.newRespSlash(i)
-		canRun, msg := b.canRunCmd(i)
-		if !canRun {
-			rsp.ErrorMessage(msg)
+		// Command
+		if i.Type == discordgo.InteractionApplicationCommand {
+			rsp := b.newRespSlash(i)
+			canRun, msg := b.canRunCmd(i)
+			if !canRun {
+				rsp.ErrorMessage(msg)
+				return
+			}
+
+			if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
+				h(s, i)
+			}
 			return
 		}
 
-		if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
-			h(s, i)
+		// Button
+		if i.Type == discordgo.InteractionMessageComponent {
+			b.pageSwitchHandler(s, i)
+			return
 		}
 	})
 	b.dg.AddHandler(b.cmdHandler)
 	b.dg.AddHandler(b.reactionHandler)
 	b.dg.AddHandler(b.unReactionHandler)
-	b.dg.AddHandler(b.pageSwitchHandler)
 }
 
 func commandsAreEqual(a *discordgo.ApplicationCommand, b *discordgo.ApplicationCommand) bool {

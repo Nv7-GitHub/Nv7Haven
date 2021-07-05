@@ -6,11 +6,21 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-const leftArrow = "⬅️"
-const rightArrow = "➡️"
-
 const defaultPageLength = 10
 const playPageLength = 30
+
+var btnRow = discordgo.ActionsRow{
+	Components: []discordgo.MessageComponent{
+		discordgo.Button{
+			Label:    "Previous Page",
+			CustomID: "prev",
+		},
+		discordgo.Button{
+			Label:    "Next Page",
+			CustomID: "next",
+		},
+	},
+}
 
 func (b *EoD) newPageSwitcher(ps pageSwitcher, m msg, rsp rsp) {
 	rsp.Acknowledge()
@@ -45,9 +55,8 @@ func (b *EoD) newPageSwitcher(ps pageSwitcher, m msg, rsp rsp) {
 		Footer: &discordgo.MessageEmbedFooter{
 			Text: fmt.Sprintf("Page %d/%d", ps.Page+1, length+1),
 		},
-	})
-	b.dg.MessageReactionAdd(m.ChannelID, id, leftArrow)
-	b.dg.MessageReactionAdd(m.ChannelID, id, rightArrow)
+	}, btnRow)
+
 	if dat.pageSwitchers == nil {
 		dat.pageSwitchers = make(map[string]pageSwitcher)
 	}
@@ -58,25 +67,26 @@ func (b *EoD) newPageSwitcher(ps pageSwitcher, m msg, rsp rsp) {
 	lock.Unlock()
 }
 
-func (b *EoD) pageSwitchHandler(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
-	if r.UserID == b.dg.State.User.ID {
+func (b *EoD) pageSwitchHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	if i.User.ID == b.dg.State.User.ID {
 		return
 	}
 
 	lock.RLock()
-	dat, exists := b.dat[r.GuildID]
+	dat, exists := b.dat[i.GuildID]
 	lock.RUnlock()
 	if !exists {
 		return
 	}
-	ps, exists := dat.pageSwitchers[r.MessageID]
+	ps, exists := dat.pageSwitchers[i.ID]
 	if !exists {
 		return
 	}
 
-	if r.Emoji.Name == rightArrow {
+	resp := i.MessageComponentData()
+	if resp.CustomID == "next" {
 		ps.Page++
-	} else if r.Emoji.Name == leftArrow {
+	} else if resp.CustomID == "prev" {
 		ps.Page--
 	} else {
 		return
@@ -94,22 +104,26 @@ func (b *EoD) pageSwitchHandler(s *discordgo.Session, r *discordgo.MessageReacti
 		}
 	}
 
-	color, _ := b.getColor(r.GuildID, r.UserID)
-	b.dg.ChannelMessageEditEmbed(ps.Channel, r.MessageID, &discordgo.MessageEmbed{
-		Title:       ps.Title,
-		Description: cont,
-		Thumbnail: &discordgo.MessageEmbedThumbnail{
-			URL: ps.Thumbnail,
+	color, _ := b.getColor(i.GuildID, i.User.ID)
+	b.dg.ChannelMessageEditComplex(&discordgo.MessageEdit{
+		Embed: &discordgo.MessageEmbed{
+			Title:       ps.Title,
+			Description: cont,
+			Thumbnail: &discordgo.MessageEmbedThumbnail{
+				URL: ps.Thumbnail,
+			},
+			Footer: &discordgo.MessageEmbedFooter{
+				Text: fmt.Sprintf("Page %d/%d", ps.Page+1, length+1),
+			},
+			Color: color,
 		},
-		Footer: &discordgo.MessageEmbedFooter{
-			Text: fmt.Sprintf("Page %d/%d", ps.Page+1, length+1),
-		},
-		Color: color,
+		ID:         i.ID,
+		Channel:    ps.Channel,
+		Components: []discordgo.MessageComponent{btnRow},
 	})
-	b.dg.MessageReactionRemove(ps.Channel, r.MessageID, r.Emoji.Name, r.UserID)
-	dat.pageSwitchers[r.MessageID] = ps
+	dat.pageSwitchers[i.ID] = ps
 
 	lock.Lock()
-	b.dat[r.GuildID] = dat
+	b.dat[i.GuildID] = dat
 	lock.Unlock()
 }
