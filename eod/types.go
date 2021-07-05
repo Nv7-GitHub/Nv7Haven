@@ -69,9 +69,8 @@ type pageSwitcher struct {
 	Length int
 
 	// Don't need to set these
-	Guild   string
-	Channel string
-	Page    int
+	Guild string
+	Page  int
 }
 
 type comb struct {

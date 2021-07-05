@@ -2,6 +2,7 @@ package eod
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -33,7 +34,6 @@ func (b *EoD) newPageSwitcher(ps pageSwitcher, m msg, rsp rsp) {
 		return
 	}
 
-	ps.Channel = m.ChannelID
 	ps.Guild = m.GuildID
 	ps.Page = 0
 	ps.PageLength = defaultPageLength
@@ -60,7 +60,11 @@ func (b *EoD) newPageSwitcher(ps pageSwitcher, m msg, rsp rsp) {
 	if dat.pageSwitchers == nil {
 		dat.pageSwitchers = make(map[string]pageSwitcher)
 	}
+
+	fmt.Println(id)
+	dat.lock.Lock()
 	dat.pageSwitchers[id] = ps
+	dat.lock.Unlock()
 
 	lock.Lock()
 	b.dat[m.GuildID] = dat
@@ -74,7 +78,10 @@ func (b *EoD) pageSwitchHandler(s *discordgo.Session, i *discordgo.InteractionCr
 	if !exists {
 		return
 	}
-	ps, exists := dat.pageSwitchers[i.ID]
+
+	dat.lock.RLock()
+	ps, exists := dat.pageSwitchers[i.Message.ID]
+	dat.lock.RUnlock()
 	if !exists {
 		return
 	}
@@ -100,8 +107,8 @@ func (b *EoD) pageSwitchHandler(s *discordgo.Session, i *discordgo.InteractionCr
 		}
 	}
 
-	color, _ := b.getColor(i.GuildID, i.User.ID)
-	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+	color, _ := b.getColor(i.GuildID, i.Member.User.ID)
+	err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseUpdateMessage,
 		Data: &discordgo.InteractionResponseData{
 			Embeds: []*discordgo.MessageEmbed{
@@ -120,7 +127,10 @@ func (b *EoD) pageSwitchHandler(s *discordgo.Session, i *discordgo.InteractionCr
 			Components: []discordgo.MessageComponent{btnRow},
 		},
 	})
-	dat.pageSwitchers[i.ID] = ps
+	if err != nil {
+		log.Println("failed to update page switcher:", err)
+	}
+	dat.pageSwitchers[i.Message.ID] = ps
 
 	lock.Lock()
 	b.dat[i.GuildID] = dat
