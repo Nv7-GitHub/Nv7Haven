@@ -13,11 +13,19 @@ const playPageLength = 30
 var btnRow = discordgo.ActionsRow{
 	Components: []discordgo.MessageComponent{
 		discordgo.Button{
-			Label:    "Previous Page",
+			Emoji: discordgo.ButtonEmoji{
+				Name:     "leftarrow",
+				ID:       "861722690813165598",
+				Animated: false,
+			},
 			CustomID: "prev",
 		},
 		discordgo.Button{
-			Label:    "Next Page",
+			Emoji: discordgo.ButtonEmoji{
+				Name:     "rightarrow",
+				ID:       "861722690926936084",
+				Animated: false,
+			},
 			CustomID: "next",
 		},
 	},
@@ -25,6 +33,11 @@ var btnRow = discordgo.ActionsRow{
 
 func (b *EoD) newPageSwitcher(ps pageSwitcher, m msg, rsp rsp) {
 	rsp.Acknowledge()
+	// Get emojis for guild to find their ID
+	/*ems, _ := b.dg.GuildEmojis("819077688371314718")
+	for _, emoji := range ems {
+		fmt.Println(emoji)
+	}*/
 
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
@@ -61,7 +74,6 @@ func (b *EoD) newPageSwitcher(ps pageSwitcher, m msg, rsp rsp) {
 		dat.pageSwitchers = make(map[string]pageSwitcher)
 	}
 
-	fmt.Println(id)
 	dat.lock.Lock()
 	dat.pageSwitchers[id] = ps
 	dat.lock.Unlock()
