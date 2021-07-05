@@ -10,7 +10,7 @@ go build -o main -tags="arm_logs"
 echo "Starting..."
 sudo -E docker-compose up -d
 
-echo "Runing..."
+echo "Running..."
 until ./main; do
   echo "Server 'nv7haven' crashed with exit code $?.  Respawning.." >&2
   sleep 1
