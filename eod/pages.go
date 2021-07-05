@@ -68,10 +68,6 @@ func (b *EoD) newPageSwitcher(ps pageSwitcher, m msg, rsp rsp) {
 }
 
 func (b *EoD) pageSwitchHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	if i.User.ID == b.dg.State.User.ID {
-		return
-	}
-
 	lock.RLock()
 	dat, exists := b.dat[i.GuildID]
 	lock.RUnlock()
