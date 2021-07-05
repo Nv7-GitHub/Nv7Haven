@@ -4,17 +4,15 @@ EoD Everywhere is an Elemental game built entirely with a Discord bot. Check out
 You can combine elements in any play channel by seperating element names by a **+**, **,**, or a **line break**.
 You can combine up to 20 elements, and element names can be up to 240 characters long!
 For example, you can do **air, air, air**.
-You can see the information on an element with **?<element name>**
-Put anything in the element name and put a number in the id of **/get** to get an element by it's ID.
-You can add an image to an element with **/image**
-You can add a creator mark to an element with **/mark**
-You can view categories with **/cat**
+You can see the information on an element with **?<element name>**, and **?#<element id>** to get info by ID
+Add a creator mark to an element with **/mark**
+View categories with **/cat**
 Add elements to categories with **/addcat** and remove elements from categories with **/rmcat**
-You can add an image to a category using **/catimg**
-You can use **/lb** to view the leaderboard and **/inv** to see what elements you have
-You can use **/hint** to get a hint on how to make an element
-You can use **/idea** to get a random unused combination
-You can use **/path** to get the path for an element, or **/catpath** to get the path for all elements in a category
+Add an image to an element with **/image**, and to a category with **/catimg**
+Use **/lb** to view the leaderboard and **/inv** to see what elements you have
+Use **/hint** to get a hint on how to make an element
+Use **/idea** to get a random unused combination
+Use **/path** to get the path for an element, or **/catpath** to get the path for all elements in a category
 Use **/stats** to get the server's stats
 
 **Setting up a Server**
