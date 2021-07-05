@@ -103,7 +103,9 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 		return
 	}
 
+	dat.lock.RLock()
 	el, exists := dat.elemCache[strings.ToLower(suggestion)]
+	dat.lock.RUnlock()
 	if exists {
 		suggestion = el.Name
 	}
@@ -123,15 +125,21 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 	}
 	txt := "Suggested **"
 	for _, val := range comb.elems {
+		dat.lock.RLock()
 		txt += dat.elemCache[strings.ToLower(val)].Name + " + "
+		dat.lock.RUnlock()
 	}
 	txt = txt[:len(txt)-3]
 	if len(comb.elems) == 1 {
+		dat.lock.RLock()
 		txt += " + " + dat.elemCache[strings.ToLower(comb.elems[0])].Name
+		dat.lock.RUnlock()
 	}
 	txt += " = " + suggestion + "** "
 
+	dat.lock.RLock()
 	_, exists = dat.elemCache[strings.ToLower(suggestion)]
+	dat.lock.RUnlock()
 	if !exists {
 		txt += "✨"
 	} else {
@@ -148,7 +156,9 @@ func (b *EoD) markCmd(elem string, mark string, m msg, rsp rsp) {
 	if !exists {
 		return
 	}
+	dat.lock.RLock()
 	el, exists := dat.elemCache[strings.ToLower(elem)]
+	dat.lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
 		return
@@ -192,7 +202,9 @@ func (b *EoD) imageCmd(elem string, image string, m msg, rsp rsp) {
 	if !exists {
 		return
 	}
+	dat.lock.RLock()
 	el, exists := dat.elemCache[strings.ToLower(elem)]
+	dat.lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
 		return

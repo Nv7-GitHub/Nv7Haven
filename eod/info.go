@@ -119,19 +119,23 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 		}
 
 		hasFound := false
+		dat.lock.RLock()
 		for _, el := range dat.elemCache {
 			if el.ID == number {
 				hasFound = true
 				elem = el.Name
 			}
 		}
+		dat.lock.RUnlock()
 
 		if !hasFound {
 			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
 			return
 		}
 	}
+	dat.lock.RLock()
 	el, exists := dat.elemCache[strings.ToLower(elem)]
+	dat.lock.RUnlock()
 	if !exists {
 		if strings.Contains(elem, "?") {
 			isValid := false

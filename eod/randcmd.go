@@ -91,7 +91,9 @@ func (b *EoD) ideaCmd(count int, catName string, hasCat bool, m msg, rsp rsp) {
 
 	text := ""
 	for i, el := range elems {
+		dat.lock.RLock()
 		text += dat.elemCache[strings.ToLower(el)].Name
+		dat.lock.RUnlock()
 		if i != len(elems)-1 {
 			text += " + "
 		}

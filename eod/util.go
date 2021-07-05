@@ -70,7 +70,9 @@ func (b *EoD) saveInv(guild string, user string, newmade bool, recalculate ...bo
 			count := 0
 			for val := range dat.invCache[user] {
 				creator := ""
+				dat.lock.RLock()
 				elem, exists := dat.elemCache[strings.ToLower(val)]
+				dat.lock.RUnlock()
 				if exists {
 					creator = elem.Creator
 				}
@@ -94,7 +96,9 @@ func (b *EoD) mark(guild string, elem string, mark string, creator string) {
 	if !exists {
 		return
 	}
+	dat.lock.RLock()
 	el, exists := dat.elemCache[strings.ToLower(elem)]
+	dat.lock.RUnlock()
 	if !exists {
 		return
 	}
@@ -119,13 +123,18 @@ func (b *EoD) image(guild string, elem string, image string, creator string) {
 	if !exists {
 		return
 	}
+	dat.lock.RLock()
 	el, exists := dat.elemCache[strings.ToLower(elem)]
+	dat.lock.RUnlock()
 	if !exists {
 		return
 	}
 
 	el.Image = image
+
+	dat.lock.Lock()
 	dat.elemCache[strings.ToLower(elem)] = el
+	dat.lock.Unlock()
 
 	lock.Lock()
 	b.dat[guild] = dat

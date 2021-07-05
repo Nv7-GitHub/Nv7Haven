@@ -12,10 +12,12 @@ func (b *EoD) categorize(elem string, catName string, guild string) error {
 	if !exists {
 		return nil
 	}
+	dat.lock.RLock()
 	el, exists := dat.elemCache[strings.ToLower(elem)]
 	if !exists {
 		return nil
 	}
+	dat.lock.RUnlock()
 
 	if dat.catCache == nil {
 		dat.catCache = make(map[string]category)
@@ -62,10 +64,12 @@ func (b *EoD) unCategorize(elem string, catName string, guild string) error {
 	if !exists {
 		return nil
 	}
+	dat.lock.RLock()
 	el, exists := dat.elemCache[strings.ToLower(elem)]
 	if !exists {
 		return nil
 	}
+	dat.lock.RUnlock()
 
 	if dat.catCache == nil {
 		dat.catCache = make(map[string]category)

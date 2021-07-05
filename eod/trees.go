@@ -3,6 +3,7 @@ package eod
 import (
 	"fmt"
 	"strings"
+	"sync"
 )
 
 // Tree calculator
@@ -12,12 +13,15 @@ type tree struct {
 	elemCache map[string]element
 	calced    map[string]empty
 	num       int
+	lock      *sync.RWMutex
 }
 
 func (t *tree) addElem(elem string) (bool, string) {
 	_, exists := t.calced[strings.ToLower(elem)]
 	if !exists {
+		t.lock.RLock()
 		el, exists := t.elemCache[strings.ToLower(elem)]
+		t.lock.RUnlock()
 		if !exists {
 			return false, elem
 		}
@@ -44,7 +48,9 @@ func (t *tree) addElem(elem string) (bool, string) {
 			} else {
 				perf.WriteString(" + %s")
 			}
+			t.lock.RLock()
 			params[i] = interface{}(t.elemCache[strings.ToLower(val)].Name)
+			t.lock.RUnlock()
 		}
 		params = append([]interface{}{t.num}, params...)
 		params = append(params, el.Name)
@@ -60,7 +66,7 @@ func (t *tree) addElem(elem string) (bool, string) {
 }
 
 // Tree calculation utilities
-func calcTree(elemCache map[string]element, elem string) (string, bool, string) {
+func calcTree(elemCache map[string]element, elem string, lock *sync.RWMutex) (string, bool, string) {
 	// Commented out code is for profiling
 
 	/*runtime.GC()
@@ -73,6 +79,7 @@ func calcTree(elemCache map[string]element, elem string) (string, bool, string) 
 		elemCache: elemCache,
 		calced:    make(map[string]empty),
 		num:       1,
+		lock:      lock,
 	}
 	suc, msg := t.addElem(elem)
 
@@ -88,7 +95,7 @@ func calcTree(elemCache map[string]element, elem string) (string, bool, string) 
 	return text, suc, msg
 }
 
-func calcTreeCat(elemCache map[string]element, elems map[string]empty) (string, bool, string) {
+func calcTreeCat(elemCache map[string]element, elems map[string]empty, lock *sync.RWMutex) (string, bool, string) {
 	// Commented out code is for profiling
 
 	/*runtime.GC()
@@ -101,6 +108,7 @@ func calcTreeCat(elemCache map[string]element, elems map[string]empty) (string, 
 		elemCache: elemCache,
 		calced:    make(map[string]empty),
 		num:       1,
+		lock:      lock,
 	}
 	for elem := range elems {
 		suc, msg := t.addElem(elem)

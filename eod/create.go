@@ -42,8 +42,10 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		return
 	}
 
+	dat.lock.RLock()
 	_, exists = dat.elemCache[strings.ToLower(name)]
 	text := "Combination"
+	dat.lock.RUnlock()
 
 	var postTxt string
 	if !exists {
@@ -51,7 +53,9 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		compl := -1
 		areUnique := false
 		for _, val := range parents {
+			dat.lock.RLock()
 			elem := dat.elemCache[strings.ToLower(val)]
+			dat.lock.RUnlock()
 			if elem.Difficulty > diff {
 				diff = elem.Difficulty
 			}
@@ -66,6 +70,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		if areUnique {
 			diff++
 		}
+		dat.lock.RLock()
 		elem := element{
 			ID:         len(dat.elemCache) + 1,
 			Name:       name,
@@ -77,10 +82,14 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 			Complexity: compl,
 			Difficulty: diff,
 		}
+		dat.lock.RUnlock()
 		postTxt = " - Element **#" + strconv.Itoa(elem.ID) + "**"
 
+		dat.lock.Lock()
 		dat.elemCache[strings.ToLower(elem.Name)] = elem
 		dat.invCache[creator][strings.ToLower(elem.Name)] = empty{}
+		dat.lock.Unlock()
+
 		lock.Lock()
 		b.dat[guild] = dat
 		lock.Unlock()
@@ -94,7 +103,9 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 
 		b.saveInv(guild, creator, true)
 	} else {
+		dat.lock.RLock()
 		el, exists := dat.elemCache[strings.ToLower(name)]
+		dat.lock.RUnlock()
 		if !exists {
 			fmt.Println("Doesn't exist")
 			return
@@ -138,9 +149,13 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 			return
 		}
 
+		dat.lock.RLock()
 		el := dat.elemCache[strings.ToLower(k)]
+		dat.lock.RUnlock()
 		el.UsedIn++
+		dat.lock.Lock()
 		dat.elemCache[strings.ToLower(k)] = el
+		dat.lock.Unlock()
 	}
 	lock.Lock()
 	b.dat[guild] = dat

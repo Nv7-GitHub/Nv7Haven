@@ -53,7 +53,9 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 	}
 	var el element
 	if hasElem {
+		dat.lock.RLock()
 		el, exists = dat.elemCache[strings.ToLower(elem)]
+		dat.lock.RUnlock()
 		if !exists {
 			rsp.ErrorMessage(fmt.Sprintf("No hints were found for **%s**!", elem))
 			return
@@ -61,6 +63,7 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 	}
 	if !hasElem {
 		hasFound := false
+		dat.lock.RLock()
 		for _, v := range dat.elemCache {
 			_, exists := inv[strings.ToLower(v.Name)]
 			if !exists {
@@ -70,13 +73,16 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 				break
 			}
 		}
+		dat.lock.RUnlock()
 		if !hasFound {
+			dat.lock.RLock()
 			for _, v := range dat.elemCache {
 				el = v
 				elem = v.Name
 				hasFound = true
 				break
 			}
+			dat.lock.RUnlock()
 		}
 	}
 
@@ -116,7 +122,9 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 	}
 
 	if len(out) == 0 {
+		dat.lock.RLock()
 		element := dat.elemCache[strings.ToLower(elem)]
+		dat.lock.RUnlock()
 
 		txt, ex := getHintText(element.Parents, inv, dat)
 		out = append(out, hintCombo{
@@ -180,7 +188,10 @@ func getHintText(elems []string, inv map[string]empty, dat serverData) (string, 
 	params := make([]interface{}, len(elems))
 	i := 0
 	for _, k := range elems {
+		dat.lock.RLock()
 		params[i] = interface{}(dat.elemCache[strings.ToLower(k)].Name)
+		dat.lock.RUnlock()
+
 		if i == 0 {
 			prf += " %s"
 		} else {

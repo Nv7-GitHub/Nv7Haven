@@ -30,11 +30,13 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 	suggestAdd := make([]string, 0)
 	added := make([]string, 0)
 	for _, val := range elems {
+		dat.lock.RLock()
 		el, exists := dat.elemCache[strings.ToLower(val)]
 		if !exists {
 			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", val))
 			return
 		}
+		dat.lock.RUnlock()
 
 		if el.Creator == m.Author.ID {
 			added = append(added, el.Name)
@@ -98,11 +100,13 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m msg, rsp rsp) {
 	suggestRm := make([]string, 0)
 	rmed := make([]string, 0)
 	for _, val := range elems {
+		dat.lock.RLock()
 		el, exists := dat.elemCache[strings.ToLower(val)]
 		if !exists {
 			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", val))
 			return
 		}
+		dat.lock.RUnlock()
 
 		_, exists = cat.Elements[el.Name]
 		if !exists {

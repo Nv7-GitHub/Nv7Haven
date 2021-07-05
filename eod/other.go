@@ -37,7 +37,9 @@ func (b *EoD) statsCmd(m msg, rsp rsp) {
 		categorized += len(val.Elements)
 	}
 
+	dat.lock.RLock()
 	rsp.Message(fmt.Sprintf("Element Count: **%s**\nCombination Count: **%s**\nMember Count: **%s**\nElements Found: **%s**\nElements Categorized: **%s**", formatInt(len(dat.elemCache)), formatInt(cnt), formatInt(gd.MemberCount), formatInt(found), formatInt(categorized)))
+	dat.lock.RUnlock()
 }
 
 func (b *EoD) giveAllCmd(user string, m msg, rsp rsp) {
@@ -52,9 +54,11 @@ func (b *EoD) giveAllCmd(user string, m msg, rsp rsp) {
 		rsp.ErrorMessage("You don't have an inventory!")
 		return
 	}
+	dat.lock.RLock()
 	for k := range dat.elemCache {
 		inv[k] = empty{}
 	}
+	dat.lock.RUnlock()
 	dat.invCache[user] = inv
 
 	lock.Lock()
@@ -102,14 +106,17 @@ func (b *EoD) downloadInvCmd(user string, sorter string, m msg, rsp rsp) {
 	}
 	items := make([]string, len(inv))
 	i := 0
+	dat.lock.RLock()
 	for k := range inv {
 		items[i] = dat.elemCache[k].Name
 		i++
 	}
+	dat.lock.RUnlock()
 
 	switch sorter {
 	case "id":
 		sort.Slice(items, func(i, j int) bool {
+			dat.lock.RLock()
 			elem1, exists := dat.elemCache[strings.ToLower(items[i])]
 			if !exists {
 				return false
@@ -119,6 +126,7 @@ func (b *EoD) downloadInvCmd(user string, sorter string, m msg, rsp rsp) {
 			if !exists {
 				return false
 			}
+			dat.lock.RUnlock()
 			return elem1.CreatedOn.Before(elem2.CreatedOn)
 		})
 
@@ -127,7 +135,9 @@ func (b *EoD) downloadInvCmd(user string, sorter string, m msg, rsp rsp) {
 		outs := make([]string, len(items))
 		for _, val := range items {
 			creator := ""
+			dat.lock.RLock()
 			elem, exists := dat.elemCache[strings.ToLower(val)]
+			dat.lock.RUnlock()
 			if exists {
 				creator = elem.Creator
 			}

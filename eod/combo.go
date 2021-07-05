@@ -41,14 +41,18 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 	elems = validElems[:validCnt]
 
 	for _, elem := range elems {
+		dat.lock.RLock()
 		_, exists := dat.elemCache[strings.ToLower(elem)]
+		dat.lock.RUnlock()
 		if !exists {
 			notExists := make(map[string]empty)
 			for _, el := range elems {
+				dat.lock.RLock()
 				_, exists := dat.elemCache[strings.ToLower(el)]
 				if !exists {
 					notExists["**"+el+"**"] = empty{}
 				}
+				dat.lock.RUnlock()
 			}
 			if len(notExists) == 1 {
 				rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
@@ -75,12 +79,16 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 			for _, el := range elems {
 				_, exists := inv[strings.ToLower(el)]
 				if !exists {
+					dat.lock.RLock()
 					notFound["**"+dat.elemCache[strings.ToLower(el)].Name+"**"] = empty{}
+					dat.lock.RUnlock()
 				}
 			}
 
 			if len(notFound) == 1 {
+				dat.lock.RLock()
 				rsp.ErrorMessage(fmt.Sprintf("You don't have **%s**!", dat.elemCache[strings.ToLower(elem)].Name))
+				dat.lock.RUnlock()
 				return
 			}
 
