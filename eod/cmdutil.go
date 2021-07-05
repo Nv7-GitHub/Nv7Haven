@@ -179,7 +179,8 @@ func (s *slashResp) Resp(msg string, components ...discordgo.MessageComponent) {
 func (s *slashResp) Message(msg string, components ...discordgo.MessageComponent) string {
 	if s.isFollowup {
 		msg, err := s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
-			Content: msg,
+			Content:    msg,
+			Components: components,
 		})
 		if err != nil {
 			if err != nil {
@@ -189,13 +190,16 @@ func (s *slashResp) Message(msg string, components ...discordgo.MessageComponent
 		}
 		return msg.ID
 	}
-	s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
+	err := s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
 			Content:    msg,
 			Components: components,
 		},
 	})
+	if err != nil {
+		log.Println("Failed to send message:", err)
+	}
 	return ""
 }
 

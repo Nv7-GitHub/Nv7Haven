@@ -4,7 +4,8 @@ import "sync"
 
 func NewServerData() serverData {
 	return serverData{
-		lock: &sync.RWMutex{},
+		lock:          &sync.RWMutex{},
+		componentMsgs: make(map[string]componentMsg),
 	}
 }
 

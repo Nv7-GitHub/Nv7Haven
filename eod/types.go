@@ -34,6 +34,10 @@ const (
 
 type empty struct{}
 
+type componentMsg interface {
+	handler(s *discordgo.Session, i *discordgo.InteractionCreate)
+}
+
 type serverData struct {
 	playChannels  map[string]empty // channelID
 	votingChannel string
@@ -47,6 +51,7 @@ type serverData struct {
 	catCache      map[string]category         // map[catName]category
 	polls         map[string]poll             // map[messageid]poll
 	pageSwitchers map[string]pageSwitcher     // map[messageid]pageswitcher
+	componentMsgs map[string]componentMsg     // map[messageid]componentMsg
 	lock          *sync.RWMutex
 }
 
