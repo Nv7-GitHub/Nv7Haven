@@ -105,21 +105,24 @@ func (b *EoD) pageSwitchHandler(s *discordgo.Session, i *discordgo.InteractionCr
 	}
 
 	color, _ := b.getColor(i.GuildID, i.User.ID)
-	b.dg.ChannelMessageEditComplex(&discordgo.MessageEdit{
-		Embed: &discordgo.MessageEmbed{
-			Title:       ps.Title,
-			Description: cont,
-			Thumbnail: &discordgo.MessageEmbedThumbnail{
-				URL: ps.Thumbnail,
+	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseUpdateMessage,
+		Data: &discordgo.InteractionResponseData{
+			Embeds: []*discordgo.MessageEmbed{
+				{
+					Title:       ps.Title,
+					Description: cont,
+					Thumbnail: &discordgo.MessageEmbedThumbnail{
+						URL: ps.Thumbnail,
+					},
+					Footer: &discordgo.MessageEmbedFooter{
+						Text: fmt.Sprintf("Page %d/%d", ps.Page+1, length+1),
+					},
+					Color: color,
+				},
 			},
-			Footer: &discordgo.MessageEmbedFooter{
-				Text: fmt.Sprintf("Page %d/%d", ps.Page+1, length+1),
-			},
-			Color: color,
+			Components: []discordgo.MessageComponent{btnRow},
 		},
-		ID:         i.ID,
-		Channel:    ps.Channel,
-		Components: []discordgo.MessageComponent{btnRow},
 	})
 	dat.pageSwitchers[i.ID] = ps
 
