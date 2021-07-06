@@ -9,6 +9,42 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+var hintCmp = discordgo.ActionsRow{
+	Components: []discordgo.MessageComponent{
+		discordgo.Button{
+			Label:    "New Hint",
+			CustomID: "hint-new",
+			Style:    discordgo.SuccessButton,
+		},
+	},
+}
+
+type hintComponent struct {
+	b *EoD
+}
+
+func (h *hintComponent) handler(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	hint, msg, suc := h.b.getHint("", false, i.Member.User.ID, i.GuildID)
+	if !suc {
+		h.b.dg.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseUpdateMessage,
+			Data: &discordgo.InteractionResponseData{
+				Content:    msg,
+				Components: []discordgo.MessageComponent{hintCmp},
+			},
+		})
+		return
+	}
+
+	h.b.dg.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseUpdateMessage,
+		Data: &discordgo.InteractionResponseData{
+			Embeds:     []*discordgo.MessageEmbed{hint},
+			Components: []discordgo.MessageComponent{hintCmp},
+		},
+	})
+}
+
 type hintCombo struct {
 	exists int
 	text   string
@@ -39,6 +75,19 @@ func obscure(val string) string {
 func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 	rsp.Acknowledge()
 
+	hint, msg, suc := b.getHint(elem, hasElem, m.Author.ID, m.GuildID)
+	if !suc {
+		rsp.ErrorMessage(msg)
+		return
+	}
+
+	if hasElem {
+		rsp.Embed(hint)
+		return
+	}
+
+	id := rsp.Embed(hint, hintCmp)
+
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -46,12 +95,28 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 		return
 	}
 
+	dat.lock.Lock()
+	dat.componentMsgs[id] = &hintComponent{b: b}
+	dat.lock.Unlock()
+
+	lock.Lock()
+	b.dat[m.GuildID] = dat
+	lock.Unlock()
+}
+
+func (b *EoD) getHint(elem string, hasElem bool, author string, guild string) (*discordgo.MessageEmbed, string, bool) {
+	lock.RLock()
+	dat, exists := b.dat[guild]
+	lock.RUnlock()
+	if !exists {
+		return nil, "Guild not found", false
+	}
+
 	dat.lock.RLock()
-	inv, exists := dat.invCache[m.Author.ID]
+	inv, exists := dat.invCache[author]
 	dat.lock.RUnlock()
 	if !exists {
-		rsp.ErrorMessage("You don't have an inventory!")
-		return
+		return nil, "You don't have an inventory!", false
 	}
 	var el element
 	if hasElem {
@@ -59,8 +124,7 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 		el, exists = dat.elemCache[strings.ToLower(elem)]
 		dat.lock.RUnlock()
 		if !exists {
-			rsp.ErrorMessage(fmt.Sprintf("No hints were found for **%s**!", elem))
-			return
+			return nil, fmt.Sprintf("No hints were found for **%s**!", elem), false
 		}
 	}
 	if !hasElem {
@@ -99,9 +163,9 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 		query = strings.ReplaceAll(query, " LIKE ", "=")
 	}
 
-	combs, err = b.db.Query(query, elem, m.GuildID)
-	if rsp.Error(err) {
-		return
+	combs, err = b.db.Query(query, elem, guild)
+	if err != nil {
+		return nil, err.Error(), false
 	}
 	defer combs.Close()
 	out := make([]hintCombo, 0)
@@ -110,8 +174,8 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 	length := 0
 	for combs.Next() {
 		err = combs.Scan(&elemTxt)
-		if rsp.Error(err) {
-			return
+		if err != nil {
+			return nil, err.Error(), false
 		}
 		elems := strings.Split(elemTxt, "+")
 
@@ -160,7 +224,7 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 		}
 	}
 
-	rsp.Embed(&discordgo.MessageEmbed{
+	return &discordgo.MessageEmbed{
 		Title:       fmt.Sprintf("Hints for %s", el.Name),
 		Description: text,
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
@@ -169,7 +233,7 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 		Footer: &discordgo.MessageEmbedFooter{
 			Text: fmt.Sprintf("%d Hints • You %sHave This", len(out), txt),
 		},
-	})
+	}, "", true
 }
 
 func getHintText(elems []string, inv map[string]empty, dat serverData) (string, int) {
