@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"time"
+
+	"github.com/bwmarrin/discordgo"
 )
 
 func (b *EoD) statsCmd(m msg, rsp rsp) {
@@ -38,7 +40,14 @@ func (b *EoD) statsCmd(m msg, rsp rsp) {
 	dat.lock.RUnlock()
 
 	dat.lock.RLock()
-	rsp.Message(fmt.Sprintf("Element Count: **%s**\nCombination Count: **%s**\nMember Count: **%s**\nElements Found: **%s**\nElements Categorized: **%s**", formatInt(len(dat.elemCache)), formatInt(cnt), formatInt(gd.MemberCount), formatInt(found), formatInt(categorized)))
+	rsp.Message(fmt.Sprintf("Element Count: **%s**\nCombination Count: **%s**\nMember Count: **%s**\nElements Found: **%s**\nElements Categorized: **%s**", formatInt(len(dat.elemCache)), formatInt(cnt), formatInt(gd.MemberCount), formatInt(found), formatInt(categorized)), discordgo.ActionsRow{
+		Components: []discordgo.MessageComponent{
+			discordgo.Button{
+				Label: "View More Stats",
+				URL:   "https://nv7haven.tk/?page=eod",
+			},
+		},
+	})
 	dat.lock.RUnlock()
 }
 
