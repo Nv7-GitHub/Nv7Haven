@@ -174,4 +174,10 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		fmt.Println(err)
 		return
 	}
+
+	err = b.autocategorize(name, guild)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 }
