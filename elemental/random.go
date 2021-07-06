@@ -59,5 +59,5 @@ func (e *Elemental) RandomLonelySuggestion(uid string) ([]string, error) {
 
 // UpAndComingSuggestion suggestion gets a suggestion that needs one vote
 func (e *Elemental) UpAndComingSuggestion(uid string) ([]string, error) {
-	return e.randomSuggestion("votes=? AND voted NOT LIKE ?", uid)
+	return e.randomSuggestion("votes=(?-1) AND voted NOT LIKE ?", uid)
 }
