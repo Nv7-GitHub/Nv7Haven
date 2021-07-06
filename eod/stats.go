@@ -45,6 +45,7 @@ func (b *EoD) statsCmd(m msg, rsp rsp) {
 			discordgo.Button{
 				Label: "View More Stats",
 				URL:   "https://nv7haven.tk/?page=eod",
+				Style: discordgo.LinkButton,
 			},
 		},
 	})
