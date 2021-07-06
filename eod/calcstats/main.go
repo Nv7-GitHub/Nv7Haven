@@ -76,8 +76,8 @@ func main() {
 
 	for _, elem := range elems {
 		count++
-		if elem.createdon.Sub(currTime) > (time.Minute * 30) {
-			currTime = currTime.Add(time.Minute * 30)
+		if elem.createdon.Sub(currTime) > (time.Hour * 24) {
+			currTime = currTime.Add(time.Hour * 24)
 			out = append(out, row{
 				time:  currTime,
 				count: count,
@@ -113,5 +113,5 @@ func main() {
 	query = query[:len(query)-1]
 	_, err = db.Exec(query, args...)
 	handle(err)
-	fmt.Println("Wrote", times, " records in", time.Since(start))
+	fmt.Println("Wrote", len(args)/2, " records in", time.Since(start))
 }
