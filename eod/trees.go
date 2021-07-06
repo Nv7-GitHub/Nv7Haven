@@ -3,7 +3,8 @@ package eod
 import (
 	"fmt"
 	"strings"
-	"sync"
+
+	deadlock "github.com/sasha-s/go-deadlock"
 )
 
 // Tree calculator
@@ -13,7 +14,7 @@ type tree struct {
 	elemCache map[string]element
 	calced    map[string]empty
 	num       int
-	lock      *sync.RWMutex
+	lock      *deadlock.RWMutex
 }
 
 func (t *tree) addElem(elem string) (bool, string) {
@@ -66,7 +67,7 @@ func (t *tree) addElem(elem string) (bool, string) {
 }
 
 // Tree calculation utilities
-func calcTree(elemCache map[string]element, elem string, lock *sync.RWMutex) (string, bool, string) {
+func calcTree(elemCache map[string]element, elem string, lock *deadlock.RWMutex) (string, bool, string) {
 	// Commented out code is for profiling
 
 	/*runtime.GC()
@@ -95,7 +96,7 @@ func calcTree(elemCache map[string]element, elem string, lock *sync.RWMutex) (st
 	return text, suc, msg
 }
 
-func calcTreeCat(elemCache map[string]element, elems map[string]empty, lock *sync.RWMutex) (string, bool, string) {
+func calcTreeCat(elemCache map[string]element, elems map[string]empty, lock *deadlock.RWMutex) (string, bool, string) {
 	// Commented out code is for profiling
 
 	/*runtime.GC()

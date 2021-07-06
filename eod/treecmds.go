@@ -3,9 +3,9 @@ package eod
 import (
 	"fmt"
 	"strings"
-	"sync"
 
 	"github.com/bwmarrin/discordgo"
+	deadlock "github.com/sasha-s/go-deadlock"
 )
 
 func (b *EoD) giveCmd(elem string, giveTree bool, user string, m msg, rsp rsp) {
@@ -97,7 +97,7 @@ func (b *EoD) giveCatCmd(catName string, giveTree bool, user string, m msg, rsp 
 	rsp.Resp("Successfully gave all elements in category **" + cat.Name + "**!")
 }
 
-func giveElem(elemCache map[string]element, giveTree bool, elem string, out *map[string]empty, lock *sync.RWMutex) (string, bool) {
+func giveElem(elemCache map[string]element, giveTree bool, elem string, out *map[string]empty, lock *deadlock.RWMutex) (string, bool) {
 	lock.RLock()
 	el, exists := elemCache[strings.ToLower(elem)]
 	lock.RUnlock()
