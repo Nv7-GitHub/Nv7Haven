@@ -11,6 +11,7 @@ var invalidNames = []string{
 	"@here",
 	"<@",
 	"İ",
+	"\n",
 }
 
 var charReplace = map[rune]rune{
