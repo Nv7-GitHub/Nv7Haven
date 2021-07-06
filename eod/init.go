@@ -249,4 +249,13 @@ func (b *EoD) init() {
 	}
 
 	b.initHandlers()
+
+	// Start stats saving
+	go func() {
+		b.saveStats()
+		for {
+			time.Sleep(time.Minute * 30)
+			b.saveStats()
+		}
+	}()
 }
