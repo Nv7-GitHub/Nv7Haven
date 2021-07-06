@@ -63,7 +63,9 @@ func (b *EoD) saveInv(guild string, user string, newmade bool, recalculate ...bo
 	inv := dat.invCache[user]
 	dat.lock.RUnlock()
 
+	dat.lock.RLock()
 	data, err := json.Marshal(inv)
+	dat.lock.RUnlock()
 	if err != nil {
 		return
 	}
