@@ -17,6 +17,8 @@ var serviceAccount string
 type Nv7Haven struct {
 	db  *database.Db
 	sql *sql.DB
+
+	eodStats eodStats
 }
 
 func (c *Nv7Haven) routing(app *fiber.App) {
@@ -50,6 +52,8 @@ func (c *Nv7Haven) routing(app *fiber.App) {
 	app.Get("/ldb_query/:order/:kind/:page", c.ldbQuery)
 	app.Get("/youtube_url/:id", c.getURL)
 	app.Post("/http_get", c.httpGet)
+
+	app.Get("/eod_stats", c.getEodStats)
 }
 
 // InitNv7Haven initializes the handlers for Nv7Haven
@@ -64,6 +68,16 @@ func InitNv7Haven(app *fiber.App, sql *sql.DB) error {
 	nv7haven := Nv7Haven{
 		db:  db,
 		sql: sql,
+
+		eodStats: eodStats{
+			Elemcnt:     make([]int, 0),
+			Combcnt:     make([]int, 0),
+			Usercnt:     make([]int, 0),
+			Found:       make([]int, 0),
+			Categorized: make([]int, 0),
+			Servercnt:   make([]int, 0),
+			Labels:      make([]string, 0),
+		},
 	}
 
 	err = nv7haven.initBestEver()
@@ -71,6 +85,8 @@ func InitNv7Haven(app *fiber.App, sql *sql.DB) error {
 		return err
 	}
 	nv7haven.routing(app)
+
+	go nv7haven.refreshStats()
 
 	return nil
 }
