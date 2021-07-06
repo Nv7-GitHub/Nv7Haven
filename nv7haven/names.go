@@ -2,6 +2,7 @@ package nv7haven
 
 import (
 	"net/url"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -43,6 +44,26 @@ func (n *Nv7Haven) getName(c *fiber.Ctx) error {
 
 	row := n.sql.QueryRow("SELECT * FROM names WHERE name=? ORDER BY count DESC LIMIT 1", name)
 	var nm nameData
-	row.Scan(&nm.Name, &nm.IsMale, &nm.Population)
+	err = row.Scan(&nm.Name, &nm.IsMale, &nm.Population)
+	if err != nil {
+		return err
+	}
 	return c.JSON(nm)
+}
+
+func (n *Nv7Haven) nameCount(c *fiber.Ctx) error {
+	name, err := url.PathUnescape(c.Params("name"))
+	if err != nil {
+		return err
+	}
+
+	row := n.sql.QueryRow("SELECT SUM(`count`) AS num FROM `names` WHERE name=?", name)
+	var num int
+	err = row.Scan(&num)
+	if err != nil {
+		return err
+	}
+
+	c.WriteString(strconv.Itoa(num))
+	return nil
 }
