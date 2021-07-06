@@ -57,6 +57,17 @@ func (n *Nv7Haven) nameCount(c *fiber.Ctx) error {
 		return err
 	}
 
+	if name == "all" {
+		row := n.sql.QueryRow("SELECT SUM(`count`) AS num FROM `names`")
+		var num int
+		err = row.Scan(&num)
+		if err != nil {
+			return err
+		}
+		c.WriteString(strconv.Itoa(num))
+		return nil
+	}
+
 	row := n.sql.QueryRow("SELECT SUM(`count`) AS num FROM `names` WHERE name=?", name)
 	var num int
 	err = row.Scan(&num)
