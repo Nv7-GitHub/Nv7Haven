@@ -51,6 +51,11 @@ func (n *Nv7Haven) getName(c *fiber.Ctx) error {
 	return c.JSON(nm)
 }
 
+type nameCountResult struct {
+	Name  string
+	Count int
+}
+
 func (n *Nv7Haven) nameCount(c *fiber.Ctx) error {
 	name, err := url.PathUnescape(c.Params("name"))
 	if err != nil {
@@ -68,13 +73,12 @@ func (n *Nv7Haven) nameCount(c *fiber.Ctx) error {
 		return nil
 	}
 
-	row := n.sql.QueryRow("SELECT SUM(`count`) AS num FROM `names` WHERE name=?", name)
+	row := n.sql.QueryRow("SELECT name, SUM(`count`) AS num FROM `names` WHERE name=?", name)
 	var num int
-	err = row.Scan(&num)
+	err = row.Scan(&name, &num)
 	if err != nil {
 		return err
 	}
 
-	c.WriteString(strconv.Itoa(num))
-	return nil
+	return c.JSON(nameCountResult{Name: name, Count: num})
 }
