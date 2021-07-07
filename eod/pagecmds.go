@@ -26,17 +26,15 @@ func (b *EoD) invCmd(user string, m msg, rsp rsp, sorter string) {
 	}
 	items := make([]string, len(inv))
 	i := 0
+	dat.lock.RLock()
 	for k := range inv {
-		dat.lock.RLock()
 		items[i] = dat.elemCache[k].Name
-		dat.lock.RUnlock()
 		i++
 	}
 
 	switch sorter {
 	case "id":
 		sort.Slice(items, func(i, j int) bool {
-			dat.lock.RLock()
 			elem1, exists := dat.elemCache[strings.ToLower(items[i])]
 			if !exists {
 				return false
@@ -46,7 +44,6 @@ func (b *EoD) invCmd(user string, m msg, rsp rsp, sorter string) {
 			if !exists {
 				return false
 			}
-			dat.lock.RUnlock()
 			return elem1.CreatedOn.Before(elem2.CreatedOn)
 		})
 
@@ -55,9 +52,7 @@ func (b *EoD) invCmd(user string, m msg, rsp rsp, sorter string) {
 		outs := make([]string, len(items))
 		for _, val := range items {
 			creator := ""
-			dat.lock.RLock()
 			elem, exists := dat.elemCache[strings.ToLower(val)]
-			dat.lock.RUnlock()
 			if exists {
 				creator = elem.Creator
 			}
@@ -73,6 +68,7 @@ func (b *EoD) invCmd(user string, m msg, rsp rsp, sorter string) {
 	default:
 		sort.Strings(items)
 	}
+	dat.lock.RUnlock()
 
 	name := m.Author.Username
 	if m.Author.ID != user {
