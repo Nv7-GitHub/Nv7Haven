@@ -23,6 +23,17 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+	if strings.HasPrefix(m.Content, "+") {
+		if len(m.Content) < 2 {
+			return
+		}
+		suggestion := m.Content[1:]
+
+		suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
+		b.suggestCmd(suggestion, true, msg, rsp)
+		return
+	}
+
 	if strings.HasPrefix(m.Content, "!") {
 		if len(m.Content) < 2 {
 			return
