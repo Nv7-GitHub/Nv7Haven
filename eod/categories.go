@@ -15,12 +15,12 @@ var autocats = map[string]func(string) bool{
 	"Cheesy":     func(s string) bool { return strings.HasPrefix(strings.ToLower(s), "cheesy") },
 	"Bloops":     func(s string) bool { return strings.HasSuffix(strings.ToLower(s), "bloop") },
 	"Melons":     func(s string) bool { return strings.HasSuffix(strings.ToLower(s), "melon") },
-	"Numbers":    func(s string) bool {
+	"Numbers": func(s string) bool {
 		_, err := strconv.ParseFloat(s, 32)
 		return err == nil
 	},
-	"Vukkies":    func(s string) bool { return strings.Contains(strings.ToLower(s), "vukky") },
-	"All \"All\" Elements":     func(s string) bool { return strings.HasPrefix(strings.ToLower(s), "all ") }
+	"Vukkies":              func(s string) bool { return strings.Contains(strings.ToLower(s), "vukky") },
+	"All \"All\" Elements": func(s string) bool { return strings.HasPrefix(strings.ToLower(s), "all ") },
 }
 
 func (b *EoD) autocategorize(elem string, guild string) error {
