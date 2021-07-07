@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/schollz/progressbar/v3"
 )
 
 func (b *EoD) init() {
@@ -103,6 +105,15 @@ func (b *EoD) init() {
 	}
 
 	//elems, err := b.db.Query("SELECT * FROM eod_elements ORDER BY createdon ASC") // Do after nov 21
+
+	var cnt int
+	err = b.db.QueryRow("SELECT COUNT(1) FROM eod_elements").Scan(&cnt)
+	if err != nil {
+		panic(err)
+	}
+
+	bar := progressbar.New(cnt)
+
 	elems, err := b.db.Query("SELECT name, image, guild, comment, creator, createdon, parents, complexity, difficulty, usedin FROM `eod_elements` ORDER BY (CASE WHEN createdon=1637536881 THEN 1605988759 ELSE createdon END) ASC")
 	if err != nil {
 		panic(err)
@@ -135,6 +146,8 @@ func (b *EoD) init() {
 		lock.Lock()
 		b.dat[elem.Guild] = dat
 		lock.Unlock()
+
+		bar.Add(1)
 	}
 
 	invs, err := b.db.Query("SELECT guild, user, inv FROM eod_inv WHERE 1")

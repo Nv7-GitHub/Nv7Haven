@@ -9,6 +9,7 @@ import (
 	database "github.com/Nv7-Github/firebase/db"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
+	"github.com/schollz/progressbar/v3"
 )
 
 //go:embed serviceAccount.json
@@ -40,6 +41,14 @@ type Elemental struct {
 }
 
 func (e *Elemental) init() {
+	var cnt int
+	err := e.db.QueryRow(`SELECT COUNT(1) FROM elemental`).Scan(&cnt)
+	if err != nil {
+		panic(err)
+	}
+
+	bar := progressbar.New(cnt)
+
 	res, err := e.db.Query("SELECT * FROM elements WHERE 1")
 	if err != nil {
 		panic(err)
@@ -56,6 +65,8 @@ func (e *Elemental) init() {
 			elem.Parents = make([]string, 0)
 		}
 		e.cache[elem.Name] = elem
+
+		bar.Add(1)
 	}
 }
 
