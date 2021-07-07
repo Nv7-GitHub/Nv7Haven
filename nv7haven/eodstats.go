@@ -45,7 +45,7 @@ func (n *Nv7Haven) refreshStats() {
 		n.eodStats.Combcnt = append(n.eodStats.Combcnt, combcnt)
 		n.eodStats.Usercnt = append(n.eodStats.Usercnt, usercnt)
 		n.eodStats.Servercnt = append(n.eodStats.Servercnt, servercnt)
-		n.eodStats.Found = append(n.eodStats.Servercnt, found)
+		n.eodStats.Found = append(n.eodStats.Found, found)
 		n.eodStats.Categorized = append(n.eodStats.Categorized, categorized)
 
 		if !changed {
