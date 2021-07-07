@@ -19,7 +19,8 @@ var autocats = map[string]func(string) bool{
 		_, err := strconv.ParseFloat(s, 32)
 		return err == nil
 	},
-	"Vukkies":    func(s string) bool { return strings.Contains(strings.ToLower(s), "vukky") }
+	"Vukkies":    func(s string) bool { return strings.Contains(strings.ToLower(s), "vukky") },
+	"All \"All\" Elements":     func(s string) bool { return strings.HasPrefix(strings.ToLower(s), "all ") }
 }
 
 func (b *EoD) autocategorize(elem string, guild string) error {
