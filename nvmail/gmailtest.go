@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -12,7 +13,13 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/gmail/v1"
+	"google.golang.org/api/option"
+
+	"cloud.google.com/go/pubsub"
 )
+
+//go:embed serviceAccount.json
+var serviceAccount []byte
 
 // Retrieve a token, saves the token, then returns the generated client.
 func getClient(config *oauth2.Config) *http.Client {
@@ -76,7 +83,7 @@ func main() {
 	}
 
 	// If modifying these scopes, delete your previously saved token.json.
-	config, err := google.ConfigFromJSON(b, gmail.GmailReadonlyScope)
+	config, err := google.ConfigFromJSON(b, gmail.GmailModifyScope)
 	if err != nil {
 		log.Fatalf("Unable to parse client secret file to config: %v", err)
 	}
@@ -88,7 +95,7 @@ func main() {
 	}
 
 	user := "me"
-	r, err := srv.Users.Labels.List(user).Do()
+	/*r, err := srv.Users.Labels.List(user).Do()
 	if err != nil {
 		log.Fatalf("Unable to retrieve labels: %v", err)
 	}
@@ -99,9 +106,9 @@ func main() {
 	fmt.Println("Labels:")
 	for _, l := range r.Labels {
 		fmt.Printf("- %s\n", l.Name)
-	}
+	}*/
 
-	r2, err := srv.Users.Messages.List(user).Do()
+	/*r2, err := srv.Users.Messages.List(user).Q("label:UNREAD").Do()
 	if err != nil {
 		log.Fatalf("Unable to retrieve labels: %v", err)
 	}
@@ -121,12 +128,88 @@ func main() {
 			}
 		}
 		/*if msg.Payload.Body.Data != "" {
-			data, err := base64.URLEncoding.DecodeString(msg.Payload.Body.Data[:500])
+			data, err := base64.URLEncoding.DecodeString(msg.Payload.Body.Data)
 			if err != nil {
 				fmt.Println("error:", err)
 				return
 			}
 			fmt.Println(string(data))
-		}*/
+		}
+	}*/
+
+	// Pubsub Create Topic
+	fmt.Println("Creating pubsub client...")
+	clt, err := pubsub.NewClient(context.Background(), "nvmail-1611539053087", option.WithCredentialsJSON(serviceAccount))
+	if err != nil {
+		log.Fatalf("pubsub.NewClient: %v", err)
 	}
+	defer clt.Close()
+
+	fmt.Println("Creating topic...")
+	var mailTopic *pubsub.Topic
+	topics := clt.Topics(context.Background())
+	for {
+		topic, err := topics.Next()
+		if err != nil {
+			break
+		}
+		if topic.ID() == "mail" {
+			mailTopic = topic
+		}
+	}
+
+	if mailTopic == nil {
+		fmt.Println("Creating new topic...")
+		var err error
+		mailTopic, err = clt.CreateTopic(context.Background(), "mail")
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	// Listen to mail topic
+	fmt.Println("Creating pubsub listener...")
+	var sub *pubsub.Subscription
+	subs := clt.Subscriptions(context.Background())
+	for {
+		subS, err := subs.Next()
+		if err != nil {
+			break
+		}
+		if subS.ID() == "mailSub" {
+			sub = subS
+		}
+	}
+
+	if sub == nil {
+		var err error
+		sub, err = clt.CreateSubscription(context.Background(), "mailSub", pubsub.SubscriptionConfig{
+			Topic: mailTopic,
+		})
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	// Listen
+	fmt.Println("Adding publisher...")
+	srv.Users.Watch(user, &gmail.WatchRequest{
+		LabelIds:  []string{"UNREAD"},
+		TopicName: "projects/nvmail-1611539053087/topics/mail",
+	}).Do()
+	if err != nil {
+		log.Fatalf("Unable to listen for mail: %v", err)
+	}
+
+	// Add Listener
+	fmt.Println("Listening for messages...")
+	ctx, cancel := context.WithCancel(context.Background())
+	err = sub.Receive(ctx, func(ctx context.Context, m *pubsub.Message) {
+		fmt.Println("Received message!")
+		fmt.Println(string(m.Data))
+	})
+	if err != nil {
+		panic(err)
+	}
+	defer cancel()
 }
