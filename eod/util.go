@@ -258,6 +258,9 @@ var smallWords = map[string]empty{
 func toTitle(s string) string {
 	words := strings.Split(strings.ToLower(s), " ")
 	for i, word := range words {
+		if len(word) < 1 {
+			continue
+		}
 		w := []rune(word)
 		ind := -1
 
