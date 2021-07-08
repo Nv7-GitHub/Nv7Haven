@@ -53,6 +53,12 @@ func main() {
 		debug.FreeOSMemory()
 		return nil
 	})
+	app.Get("/kill/:password", func(c *fiber.Ctx) error {
+		if c.Params("password") == os.Getenv("PASSWORD") {
+			os.Exit(2)
+		}
+		return nil
+	})
 
 	/* Testing*/
 	websockets(app)
