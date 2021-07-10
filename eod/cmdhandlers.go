@@ -177,6 +177,13 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			b.markCmd(elem, mark, msg, rsp)
 			return
 		}
+		if cmd == "info" || cmd == "get" {
+			if len(m.Content) <= len(cmd)+2 {
+				return
+			}
+			b.infoCmd(strings.TrimSpace(m.Content[len(cmd)+2:], msg, rsp)
+			return
+		}
 	}
 
 	if strings.HasPrefix(m.Content, "?") {
