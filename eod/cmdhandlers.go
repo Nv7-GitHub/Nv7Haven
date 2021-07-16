@@ -181,7 +181,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			if len(m.Content) <= len(cmd)+2 {
 				return
 			}
-			b.infoCmd(strings.TrimSpace(m.Content[len(cmd)+2:], msg, rsp)
+			b.infoCmd(strings.TrimSpace(m.Content[len(cmd)+2:]), msg, rsp)
 			return
 		}
 	}
