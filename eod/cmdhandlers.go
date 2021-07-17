@@ -151,6 +151,9 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		if cmd == "cat" {
+			if len(m.Content) <= len(cmd)+2 {
+				 bot.allCatCmd(catSortAlphabetical, msg, rsp) 
+			}
 			suggestion := m.Content[len(cmd)+2:]
 			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
 
