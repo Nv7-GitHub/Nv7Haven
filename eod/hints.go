@@ -105,6 +105,7 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 }
 
 func (b *EoD) getHint(elem string, hasElem bool, author string, guild string) (*discordgo.MessageEmbed, string, bool) {
+	fmt.Println("a")
 	lock.RLock()
 	dat, exists := b.dat[guild]
 	lock.RUnlock()
@@ -112,17 +113,21 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string) (*
 		return nil, "Guild not found", false
 	}
 
+	fmt.Println("b")
 	dat.lock.RLock()
 	inv, exists := dat.invCache[author]
 	dat.lock.RUnlock()
 	if !exists {
 		return nil, "You don't have an inventory!", false
 	}
+	fmt.Println("c")
 	var el element
 	if hasElem {
+		fmt.Println("d")
 		dat.lock.RLock()
 		el, exists = dat.elemCache[strings.ToLower(elem)]
 		dat.lock.RUnlock()
+		fmt.Println("e")
 		if !exists {
 			return nil, fmt.Sprintf("No hints were found for **%s**!", elem), false
 		}
@@ -172,6 +177,7 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string) (*
 	var elemTxt string
 
 	length := 0
+	fmt.Println("f")
 	for combs.Next() {
 		err = combs.Scan(&elemTxt)
 		if err != nil {
@@ -179,11 +185,13 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string) (*
 		}
 		elems := strings.Split(elemTxt, "+")
 
+		fmt.Println("g")
 		txt, ex := getHintText(elems, inv, dat)
 		out = append(out, hintCombo{
 			exists: ex,
 			text:   txt,
 		})
+		fmt.Println("h")
 		length += len(txt)
 	}
 
@@ -224,6 +232,7 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string) (*
 		}
 	}
 
+	fmt.Println("i")
 	return &discordgo.MessageEmbed{
 		Title:       fmt.Sprintf("Hints for %s", el.Name),
 		Description: text,
