@@ -22,7 +22,7 @@ var charReplace = map[rune]rune{
 	'“': '"',
 }
 
-var remove = []string{"\uFE0E", "\uFE0F", "\u200B", "\u200E", "\u200F", "\u2060"}
+var remove = []string{"\uFE0E", "\uFE0F", "\u200B", "\u200E", "\u200F", "\u2060", "\u2061", "\u2062", "\u2063", "\u2064", "\u2065", "\u2066", "\u2067", "\u2068", "\u2069", "\u206A", "\u206B", "\u206C", "\u206D", "\u206E", "\u206F", "\u3000"}
 
 func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp) {
 	if autocapitalize {
