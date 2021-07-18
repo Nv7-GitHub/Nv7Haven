@@ -22,7 +22,9 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 		return
 	}
 
+	dat.lock.RLock()
 	cat, exists := dat.catCache[strings.ToLower(category)]
+	dat.lock.RUnlock()
 	if exists {
 		category = cat.Name
 	}
@@ -32,11 +34,11 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 	for _, val := range elems {
 		dat.lock.RLock()
 		el, exists := dat.elemCache[strings.ToLower(val)]
+		dat.lock.RUnlock()
 		if !exists {
 			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", val))
 			return
 		}
-		dat.lock.RUnlock()
 
 		if el.Creator == m.Author.ID {
 			added = append(added, el.Name)
@@ -89,7 +91,9 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m msg, rsp rsp) {
 
 	elems = removeDuplicates(elems)
 
+	dat.lock.RLock()
 	cat, exists := dat.catCache[strings.ToLower(category)]
+	dat.lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Category **%s** doesn't exist!", category))
 		return
@@ -102,11 +106,11 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m msg, rsp rsp) {
 	for _, val := range elems {
 		dat.lock.RLock()
 		el, exists := dat.elemCache[strings.ToLower(val)]
+		dat.lock.RUnlock()
 		if !exists {
 			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", val))
 			return
 		}
-		dat.lock.RUnlock()
 
 		_, exists = cat.Elements[el.Name]
 		if !exists {
