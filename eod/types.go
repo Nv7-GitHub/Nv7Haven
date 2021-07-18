@@ -1,10 +1,10 @@
 package eod
 
 import (
+	"sync"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
-	deadlock "github.com/sasha-s/go-deadlock"
 )
 
 type serverDataType int
@@ -52,7 +52,7 @@ type serverData struct {
 	polls         map[string]poll             // map[messageid]poll
 	pageSwitchers map[string]pageSwitcher     // map[messageid]pageswitcher
 	componentMsgs map[string]componentMsg     // map[messageid]componentMsg
-	lock          *deadlock.RWMutex
+	lock          *sync.RWMutex
 }
 
 type pageSwitcher struct {

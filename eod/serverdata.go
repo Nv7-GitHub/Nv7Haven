@@ -1,10 +1,10 @@
 package eod
 
-import deadlock "github.com/sasha-s/go-deadlock"
+import "sync"
 
 func NewServerData() serverData {
 	return serverData{
-		lock:          &deadlock.RWMutex{},
+		lock:          &sync.RWMutex{},
 		componentMsgs: make(map[string]componentMsg),
 	}
 }
