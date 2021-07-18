@@ -63,6 +63,8 @@ func (b *EoD) resetInvCmd(user string, m msg, rsp rsp) {
 }
 
 func (b *EoD) downloadInvCmd(user string, sorter string, m msg, rsp rsp) {
+	rsp.Acknowledge()
+
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
