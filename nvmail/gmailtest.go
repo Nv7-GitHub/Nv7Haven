@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "embed"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -13,13 +14,7 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/gmail/v1"
-	"google.golang.org/api/option"
-
-	"cloud.google.com/go/pubsub"
 )
-
-//go:embed serviceAccount.json
-var serviceAccount []byte
 
 // Retrieve a token, saves the token, then returns the generated client.
 func getClient(config *oauth2.Config) *http.Client {
@@ -95,20 +90,7 @@ func main() {
 	}
 
 	user := "me"
-	/*r, err := srv.Users.Labels.List(user).Do()
-	if err != nil {
-		log.Fatalf("Unable to retrieve labels: %v", err)
-	}
-	if len(r.Labels) == 0 {
-		fmt.Println("No labels found.")
-		return
-	}
-	fmt.Println("Labels:")
-	for _, l := range r.Labels {
-		fmt.Printf("- %s\n", l.Name)
-	}*/
-
-	/*r2, err := srv.Users.Messages.List(user).Q("label:UNREAD").Do()
+	r2, err := srv.Users.Messages.List(user).Q("label:UNREAD").Do()
 	if err != nil {
 		log.Fatalf("Unable to retrieve labels: %v", err)
 	}
@@ -123,11 +105,12 @@ func main() {
 			log.Fatalf("Unable to load message: %v", err)
 		}
 		for _, header := range msg.Payload.Headers {
+			fmt.Println(header.Name)
 			if header.Name == "Subject" {
 				fmt.Println(header.Value)
 			}
 		}
-		/*if msg.Payload.Body.Data != "" {
+		if msg.Payload.Body.Data != "" {
 			data, err := base64.URLEncoding.DecodeString(msg.Payload.Body.Data)
 			if err != nil {
 				fmt.Println("error:", err)
@@ -135,81 +118,22 @@ func main() {
 			}
 			fmt.Println(string(data))
 		}
-	}*/
+	}
 
-	// Pubsub Create Topic
-	fmt.Println("Creating pubsub client...")
-	clt, err := pubsub.NewClient(context.Background(), "nvmail-1611539053087", option.WithCredentialsJSON(serviceAccount))
+	// Send message
+	const to = "vikramaditya.nishant@gmail.com"
+	const subject = "Message from Code"
+	const body = "This was sent from code!"
+	fmt.Println("Sending message...")
+
+	var msg gmail.Message
+	toData := "To: " + to + "\r\n"
+	subjectData := "Subject: " + subject + "\n"
+	mimeData := "MIME-version: 1.0;\nContent-Type: text/plain; charset=\"UTF-8\";\n\n"
+	data := []byte(toData + subjectData + mimeData + "\n" + body)
+	msg.Raw = base64.URLEncoding.EncodeToString(data)
+	_, err = srv.Users.Messages.Send(user, &msg).Do()
 	if err != nil {
-		log.Fatalf("pubsub.NewClient: %v", err)
+		log.Fatalf("Unable to send message: %v", err)
 	}
-	defer clt.Close()
-
-	fmt.Println("Creating topic...")
-	var mailTopic *pubsub.Topic
-	topics := clt.Topics(context.Background())
-	for {
-		topic, err := topics.Next()
-		if err != nil {
-			break
-		}
-		if topic.ID() == "mail" {
-			mailTopic = topic
-		}
-	}
-
-	if mailTopic == nil {
-		fmt.Println("Creating new topic...")
-		var err error
-		mailTopic, err = clt.CreateTopic(context.Background(), "mail")
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	// Listen to mail topic
-	fmt.Println("Creating pubsub listener...")
-	var sub *pubsub.Subscription
-	subs := clt.Subscriptions(context.Background())
-	for {
-		subS, err := subs.Next()
-		if err != nil {
-			break
-		}
-		if subS.ID() == "mailSub" {
-			sub = subS
-		}
-	}
-
-	if sub == nil {
-		var err error
-		sub, err = clt.CreateSubscription(context.Background(), "mailSub", pubsub.SubscriptionConfig{
-			Topic: mailTopic,
-		})
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	// Listen
-	fmt.Println("Adding publisher...")
-	srv.Users.Watch(user, &gmail.WatchRequest{
-		LabelIds:  []string{"UNREAD"},
-		TopicName: "projects/nvmail-1611539053087/topics/mail",
-	}).Do()
-	if err != nil {
-		log.Fatalf("Unable to listen for mail: %v", err)
-	}
-
-	// Add Listener
-	fmt.Println("Listening for messages...")
-	ctx, cancel := context.WithCancel(context.Background())
-	err = sub.Receive(ctx, func(ctx context.Context, m *pubsub.Message) {
-		fmt.Println("Received message!")
-		fmt.Println(string(m.Data))
-	})
-	if err != nil {
-		panic(err)
-	}
-	defer cancel()
 }

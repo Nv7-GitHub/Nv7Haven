@@ -18,4 +18,7 @@ require (
 	github.com/schollz/progressbar/v3 v3.8.2
 	github.com/valyala/fasthttp v1.27.0
 	golang.org/x/crypto v0.0.0-20210616213533-5ff15b29337e
+	golang.org/x/net v0.0.0-20210510120150-4163338589ed
+	golang.org/x/oauth2 v0.0.0-20210628180205-a41e5a781914
+	google.golang.org/api v0.50.0
 )
