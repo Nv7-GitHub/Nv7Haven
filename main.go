@@ -4,7 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"os/exec"
 	"os/signal"
+	"runtime"
 	"runtime/debug"
 
 	"github.com/Nv7-Github/Nv7Haven/discord"
@@ -59,6 +61,22 @@ func main() {
 		}
 		return nil
 	})
+
+	if runtime.GOOS == "linux" {
+		app.Get("/temp", func(c *fiber.Ctx) error {
+			cmd := exec.Command("vcgencmd", "measure_temp")
+			err = cmd.Run()
+			if err != nil {
+				return err
+			}
+			output, err := cmd.Output()
+			if err != nil {
+				return err
+			}
+			c.WriteString(string(output))
+			return nil
+		})
+	}
 
 	/* Testing*/
 	websockets(app)
