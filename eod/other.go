@@ -130,8 +130,11 @@ func (b *EoD) downloadInvCmd(user string, sorter string, m msg, rsp rsp) {
 		sort.Strings(items)
 	}
 
-	txt := strings.Join(items, "\n")
-	buf := strings.NewReader(txt)
+	out := &strings.Builder{}
+	for _, val := range items {
+		out.WriteString(val + "\n")
+	}
+	buf := strings.NewReader(out.String())
 
 	channel, err := b.dg.UserChannelCreate(m.Author.ID)
 	if rsp.Error(err) {
