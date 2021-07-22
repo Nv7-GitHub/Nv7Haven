@@ -89,7 +89,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		postTxt = " - Element **#" + strconv.Itoa(elem.ID) + "**"
 
 		dat.lock.Lock()
-		dat.invCache[creator][strings.ToLower(elem.Name)] = empty{}
+		dat.elemCache[strings.ToLower(elem.Name)] = elem
 		dat.lock.Unlock()
 
 		_, err = tx.Exec("INSERT INTO eod_elements VALUES ( ?,  ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), elems2txt(parents), elem.Complexity, elem.Difficulty, 0)
@@ -117,6 +117,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 			postTxt = " - Combination **#" + strconv.Itoa(id) + "**"
 		}
 	}
+
 	_, err = tx.Exec("INSERT INTO eod_combos VALUES ( ?, ?, ? )", guild, data, name)
 	if err != nil {
 		fmt.Println(err)
@@ -170,14 +171,12 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	err = tx.Commit()
 	if err != nil {
 		fmt.Println(err)
-		tx.Rollback()
 		return
 	}
 
 	err = b.autocategorize(name, guild)
 	if err != nil {
 		fmt.Println(err)
-		tx.Rollback()
 		return
 	}
 }
