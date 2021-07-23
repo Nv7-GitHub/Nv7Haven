@@ -7,7 +7,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-const maxComboLength = 20
+const maxComboElems = 20
+const maxComboLength = 2000
 
 var combs = []string{
 	"\n",
@@ -225,6 +226,10 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			if !b.checkServer(msg, rsp) {
 				return
 			}
+			if len(m.Content) > maxComboLength {
+				rsp.ErrorMessage(fmt.Sprintf("You can only use up to %d characters to combine elements!", maxComboLength))
+				return
+			}
 			parts := strings.Split(m.Content, comb)
 			if len(parts) < 2 {
 				return
@@ -232,8 +237,8 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			for i, part := range parts {
 				parts[i] = strings.TrimSpace(strings.Replace(part, "\\", "", -1))
 			}
-			if len(parts) > maxComboLength {
-				rsp.ErrorMessage(fmt.Sprintf("You can only combine up to %d elements!", maxComboLength))
+			if len(parts) > maxComboElems {
+				rsp.ErrorMessage(fmt.Sprintf("You can only combine up to %d elements!", maxComboElems))
 				return
 			}
 			b.combine(parts, msg, rsp)
