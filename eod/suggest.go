@@ -22,6 +22,8 @@ var charReplace = map[rune]rune{
 	'“': '"',
 }
 
+const maxSuggestionLength = 240
+
 var remove = []string{"\uFE0E", "\uFE0F", "\u200B", "\u200E", "\u200F", "\u2060", "\u2061", "\u2062", "\u2063", "\u2064", "\u2065", "\u2066", "\u2067", "\u2068", "\u2069", "\u206A", "\u206B", "\u206C", "\u206D", "\u206E", "\u206F", "\u3000", "\uFE00", "\uFE01", "\uFE02", "\uFE03", "\uFE04", "\uFE05", "\uFE06", "\uFE07", "\uFE08", "\uFE09", "\uFE0A", "\uFE0B", "\uFE0C", "\uFE0D"}
 
 func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp) {
@@ -33,8 +35,8 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 		rsp.ErrorMessage("Element names can't start with '?'!")
 		return
 	}
-	if len(suggestion) >= 240 {
-		rsp.ErrorMessage("Element names must be under 240 characters!")
+	if len(suggestion) >= maxSuggestionLength {
+		rsp.ErrorMessage(fmt.Sprintf("Element names must be under %d characters!", maxSuggestionLength))
 		return
 	}
 	for _, name := range invalidNames {
