@@ -199,7 +199,7 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 
 	rsp.RawEmbed(&discordgo.MessageEmbed{
 		Title:       el.Name + " Info",
-		Description: fmt.Sprintf("Element **#%d**\nCreated by <@%s>\nCreated on %s\nUsed in %d combo%s\nMade with %d combo%s\nFound by %d player%s\nComplexity: %d\nDifficulty: %d\n<@%s> **You %shave this.**\n\n%s", el.ID, el.Creator, el.CreatedOn.Format("January 2, 2006, 3:04 PM"), el.UsedIn, usedbysuff, madeby, madebysuff, foundby, foundbysuff, el.Complexity, el.Difficulty, m.Author.ID, has, el.Comment),
+		Description: fmt.Sprintf("Element **#%d**\nCreated by <@%s>\nCreated on <t:%d>\nUsed in %d combo%s\nMade with %d combo%s\nFound by %d player%s\nComplexity: %d\nDifficulty: %d\n<@%s> **You %shave this.**\n\n%s", el.ID, el.Creator, el.CreatedOn.Unix(), el.UsedIn, usedbysuff, madeby, madebysuff, foundby, foundbysuff, el.Complexity, el.Difficulty, m.Author.ID, has, el.Comment),
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
 			URL: el.Image,
 		},
