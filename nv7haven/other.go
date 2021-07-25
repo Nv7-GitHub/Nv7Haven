@@ -28,9 +28,13 @@ func (n *Nv7Haven) httpGet(c *fiber.Ctx) error {
 
 func (n *Nv7Haven) getURL(c *fiber.Ctx) error {
 	id := c.Params("id")
-	link := fmt.Sprintf("https://www.youtube.com/get_video_info?video_id=%s&el=detailpage&ps=default&html5=1&c=TVHTML5&cver=6.20180913", id)
-	resp, err := http.Get(link)
-	if err != nil {
+	var jsonData = []byte(`{ "context": { "client": { "hl": "en", "clientName": "WEB", "clientVersion": "2.20210721.00.00" } }, "videoId": "`+id+`" }`)
+	request, error := http.NewRequest("POST", "https://youtubei.googleapis.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8", bytes.NewBuffer(jsonData))
+	request.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	
+	client := &http.Client{}
+	resp, error := client.Do(request)
+	if error != nil {
 		return err
 	}
 	defer resp.Body.Close()
