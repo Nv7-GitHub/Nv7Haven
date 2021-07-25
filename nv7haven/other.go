@@ -36,7 +36,7 @@ func (n *Nv7Haven) getURL(c *fiber.Ctx) error {
 	client := &http.Client{}
 	resp, error := client.Do(request)
 	if error != nil {
-		return err
+		return error
 	}
 	defer resp.Body.Close()
 
