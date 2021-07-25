@@ -1,6 +1,7 @@
 package nv7haven
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
