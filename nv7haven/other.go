@@ -44,16 +44,9 @@ func (n *Nv7Haven) getURL(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-
-	u, err := url.Parse("?" + string(data))
-	if err != nil {
-		return err
-	}
-	query := u.Query()
-
-	dat := query.Get("player_response")
+	
 	var d ytResponse
-	err = json.Unmarshal([]byte(dat), &d)
+	err = json.Unmarshal([]byte(data), &d)
 	if err != nil {
 		return err
 	}
