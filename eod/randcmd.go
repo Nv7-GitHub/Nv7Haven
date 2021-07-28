@@ -193,10 +193,12 @@ func (b *EoD) ideaCmd(count int, catName string, hasCat bool, elemName string, h
 
 	dat.lock.Lock()
 	dat.componentMsgs[id] = &ideaComponent{
-		catName: catName,
-		count:   count,
-		hasCat:  hasCat,
-		b:       b,
+		catName:  catName,
+		count:    count,
+		hasCat:   hasCat,
+		elemName: elemName,
+		hasEl:    hasEl,
+		b:        b,
 	}
 	dat.lock.Unlock()
 
