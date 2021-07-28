@@ -181,8 +181,6 @@ func (b *EoD) ideaCmd(count int, catName string, hasCat bool, elemName string, h
 	}
 	rsp.Acknowledge()
 
-	fmt.Println(elemName, hasEl)
-
 	lock.Lock()
 	dat, exists := b.dat[m.GuildID]
 	lock.Unlock()
