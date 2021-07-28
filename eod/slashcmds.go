@@ -461,6 +461,12 @@ var (
 					Description: "Use a category for the elements to choose from!",
 					Required:    false,
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "element",
+					Description: "Require an element to be in the idea!",
+					Required:    false,
+				},
 			},
 		},
 		{
@@ -680,6 +686,8 @@ var (
 			count := 2
 			hasCat := false
 			catName := ""
+			hasEl := false
+			elName := ""
 			for _, opt := range resp.Options {
 				if opt.Name == "count" {
 					count = int(opt.IntValue())
@@ -689,8 +697,13 @@ var (
 					hasCat = true
 					catName = opt.StringValue()
 				}
+
+				if opt.Name == "element" {
+					hasEl = true
+					elName = opt.StringValue()
+				}
 			}
-			bot.ideaCmd(count, catName, hasCat, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.ideaCmd(count, catName, hasCat, elName, hasEl, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"catimg": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()

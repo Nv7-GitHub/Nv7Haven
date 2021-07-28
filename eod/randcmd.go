@@ -20,14 +20,16 @@ var ideaCmp = discordgo.ActionsRow{
 }
 
 type ideaComponent struct {
-	catName string
-	hasCat  bool
-	count   int
-	b       *EoD
+	catName  string
+	hasCat   bool
+	elemName string
+	hasEl    bool
+	count    int
+	b        *EoD
 }
 
 func (c *ideaComponent) handler(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	res, suc := c.b.genIdea(c.count, c.catName, c.hasCat, i.GuildID, i.Member.User.ID)
+	res, suc := c.b.genIdea(c.count, c.catName, c.hasCat, c.elemName, c.hasEl, i.GuildID, i.Member.User.ID)
 	if !suc {
 		res += " " + redCircle
 	}
@@ -43,7 +45,7 @@ func (c *ideaComponent) handler(s *discordgo.Session, i *discordgo.InteractionCr
 	}
 }
 
-func (b *EoD) genIdea(count int, catName string, hasCat bool, guild string, author string) (string, bool) {
+func (b *EoD) genIdea(count int, catName string, hasCat bool, elemName string, hasEl bool, guild string, author string) (string, bool) {
 	if count > maxComboLength {
 		return fmt.Sprintf("You can only combine up to %d elements!", maxComboLength), false
 	}
@@ -64,6 +66,25 @@ func (b *EoD) genIdea(count int, catName string, hasCat bool, guild string, auth
 	dat.lock.RUnlock()
 	if !exists {
 		return "You don't have an inventory!", false
+	}
+
+	if hasEl {
+		elName := strings.ToLower(elemName)
+		dat.lock.RLock()
+		el, exists := dat.elemCache[elName]
+		dat.lock.RUnlock()
+		if !exists {
+			return fmt.Sprintf("Element **%s** doesn't exist!", elemName), false
+		} else {
+			elemName = elName
+		}
+
+		dat.lock.RLock()
+		_, exists = inv[elemName]
+		dat.lock.RUnlock()
+		if !exists {
+			return fmt.Sprintf("Element **%s** is not in your inventory!", el.Name), false
+		}
 	}
 
 	els := inv
@@ -93,6 +114,9 @@ func (b *EoD) genIdea(count int, catName string, hasCat bool, guild string, auth
 	tries := 0
 	for cont {
 		elems = make([]string, count)
+		if hasEl {
+			elems = append(elems, elemName)
+		}
 		for i := range elems {
 			cnt := rand.Intn(len(els))
 			j := 0
@@ -148,8 +172,8 @@ func (b *EoD) genIdea(count int, catName string, hasCat bool, guild string, auth
 
 	return fmt.Sprintf("Your random unused combination is... **%s**\n 	Suggest it by typing **/suggest**", text), true
 }
-func (b *EoD) ideaCmd(count int, catName string, hasCat bool, m msg, rsp rsp) {
-	res, suc := b.genIdea(count, catName, hasCat, m.GuildID, m.Author.ID)
+func (b *EoD) ideaCmd(count int, catName string, hasCat bool, elemName string, hasEl bool, m msg, rsp rsp) {
+	res, suc := b.genIdea(count, catName, hasCat, elemName, hasEl, m.GuildID, m.Author.ID)
 	if !suc {
 		rsp.ErrorMessage(res)
 		return
