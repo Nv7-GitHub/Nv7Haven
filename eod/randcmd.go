@@ -77,6 +77,7 @@ func (b *EoD) genIdea(count int, catName string, hasCat bool, elemName string, h
 			return fmt.Sprintf("Element **%s** doesn't exist!", elemName), false
 		} else {
 			elemName = elName
+			count--
 		}
 
 		dat.lock.RLock()
@@ -114,9 +115,6 @@ func (b *EoD) genIdea(count int, catName string, hasCat bool, elemName string, h
 	tries := 0
 	for cont {
 		elems = make([]string, count)
-		if hasEl {
-			elems = append(elems, elemName)
-		}
 		for i := range elems {
 			cnt := rand.Intn(len(els))
 			j := 0
@@ -127,6 +125,9 @@ func (b *EoD) genIdea(count int, catName string, hasCat bool, elemName string, h
 				}
 				j++
 			}
+		}
+		if hasEl {
+			elems = append([]string{elemName}, elems...)
 		}
 
 		query := "SELECT elem3 FROM eod_combos WHERE elems LIKE ? AND guild=?"
@@ -179,6 +180,8 @@ func (b *EoD) ideaCmd(count int, catName string, hasCat bool, elemName string, h
 		return
 	}
 	rsp.Acknowledge()
+
+	fmt.Println(elemName, hasEl)
 
 	lock.Lock()
 	dat, exists := b.dat[m.GuildID]
