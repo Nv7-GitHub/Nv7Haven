@@ -64,12 +64,7 @@ func main() {
 
 	if runtime.GOOS == "linux" {
 		app.Get("/temp", func(c *fiber.Ctx) error {
-			cmd := exec.Command("vcgencmd", "measure_temp")
-			err = cmd.Run()
-			if err != nil {
-				return err
-			}
-			output, err := cmd.Output()
+			output, err := exec.Command("vcgencmd", "measure_temp").Output()
 			if err != nil {
 				return err
 			}
