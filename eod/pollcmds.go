@@ -24,7 +24,7 @@ var charReplace = map[rune]rune{
 var remove = []string{"\uFE0E", "\uFE0F"}
 
 func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp) {
-	if autocapitalize && strings.ToLower(suggestion) == suggestion {
+	if autocapitalize {
 		suggestion = toTitle(suggestion)
 	}
 
