@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"sort"
-	"strings"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -45,50 +44,48 @@ func (b *EoD) initHandlers() {
 	}
 
 	b.dg.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		rsp := b.newRespSlash(i)
-		if (i.Data.Name != "suggest") && (i.Data.Name != "mark") && (i.Data.Name != "image") && (i.Data.Name != "inv") && (i.Data.Name != "lb") && (i.Data.Name != "addcat") && (i.Data.Name != "cat") && (i.Data.Name != "hint") && (i.Data.Name != "stats") && (i.Data.Name != "idea") && (i.Data.Name != "about") && (i.Data.Name != "path") && (i.Data.Name != "get") && (i.Data.Name != "rmcat") && (i.Data.Name != "catimg") && (i.Data.Name != "downloadinv") && (i.Data.Name != "elemsort") {
-			isMod, err := b.isMod(i.Member.User.ID, i.GuildID, bot.newMsgSlash(i))
-			if rsp.Error(err) {
+		// Command
+		if i.Type == discordgo.InteractionApplicationCommand {
+			rsp := b.newRespSlash(i)
+			canRun, msg := b.canRunCmd(i)
+			if !canRun {
+				rsp.ErrorMessage(msg)
 				return
 			}
-			if !isMod {
-				rsp.ErrorMessage("You need to have permission `Administrator`!")
-				return
+
+			if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
+				h(s, i)
 			}
+			return
 		}
-		if i.Data.Name == "path" {
-			isMod, err := b.isMod(i.Member.User.ID, i.GuildID, bot.newMsgSlash(i))
-			if rsp.Error(err) {
+
+		// Button
+		if i.Type == discordgo.InteractionMessageComponent {
+			lock.Lock()
+			dat, exists := b.dat[i.GuildID]
+			if !exists {
 				return
 			}
-			if !isMod {
-				lock.RLock()
-				dat, exists := b.dat[i.GuildID]
-				lock.RUnlock()
-				if !exists {
-					rsp.ErrorMessage("You need to have permission `Administrator`!")
-					return
-				}
-				inv, exists := dat.invCache[i.Member.User.ID]
-				if !exists {
-					rsp.ErrorMessage("You need to have permission `Administrator`!")
-					return
-				}
-				_, exists = inv[strings.ToLower(i.Data.Options[0].StringValue())]
-				if !exists {
-					rsp.ErrorMessage("You don't have that element!")
-					return
-				}
+			lock.Unlock()
+
+			// Check if page switch handler or component handler
+			_, exists = dat.pageSwitchers[i.Message.ID]
+			if exists {
+				b.pageSwitchHandler(s, i)
+				return
 			}
-		}
-		if h, ok := commandHandlers[i.Data.Name]; ok {
-			h(s, i)
+
+			compMsg, exists := dat.componentMsgs[i.Message.ID]
+			if exists {
+				compMsg.handler(s, i)
+				return
+			}
+			return
 		}
 	})
 	b.dg.AddHandler(b.cmdHandler)
 	b.dg.AddHandler(b.reactionHandler)
 	b.dg.AddHandler(b.unReactionHandler)
-	b.dg.AddHandler(b.pageSwitchHandler)
 }
 
 func commandsAreEqual(a *discordgo.ApplicationCommand, b *discordgo.ApplicationCommand) bool {

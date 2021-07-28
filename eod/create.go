@@ -23,6 +23,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 
 	tx, err := b.db.BeginTx(context.Background(), nil)
 	if err != nil {
+		tx.Rollback()
 		return
 	}
 
@@ -36,22 +37,28 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	var count int
 	err = row.Scan(&count)
 	if err != nil {
+		tx.Rollback()
 		return
 	}
 	if count != 0 {
+		tx.Rollback()
 		return
 	}
 
+	dat.lock.RLock()
 	_, exists = dat.elemCache[strings.ToLower(name)]
 	text := "Combination"
+	dat.lock.RUnlock()
 
-	var id int
+	var postTxt string
 	if !exists {
 		diff := -1
 		compl := -1
 		areUnique := false
 		for _, val := range parents {
+			dat.lock.RLock()
 			elem := dat.elemCache[strings.ToLower(val)]
+			dat.lock.RUnlock()
 			if elem.Difficulty > diff {
 				diff = elem.Difficulty
 			}
@@ -66,6 +73,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		if areUnique {
 			diff++
 		}
+		dat.lock.RLock()
 		elem := element{
 			ID:         len(dat.elemCache) + 1,
 			Name:       name,
@@ -77,40 +85,43 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 			Complexity: compl,
 			Difficulty: diff,
 		}
-		id = elem.ID
+		dat.lock.RUnlock()
+		postTxt = " - Element **#" + strconv.Itoa(elem.ID) + "**"
 
+		dat.lock.Lock()
 		dat.elemCache[strings.ToLower(elem.Name)] = elem
-		dat.invCache[creator][strings.ToLower(elem.Name)] = empty{}
-		lock.Lock()
-		b.dat[guild] = dat
-		lock.Unlock()
+		dat.lock.Unlock()
 
 		_, err = tx.Exec("INSERT INTO eod_elements VALUES ( ?,  ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), elems2txt(parents), elem.Complexity, elem.Difficulty, 0)
 		if err != nil {
 			fmt.Println(err)
+			tx.Rollback()
 			return
 		}
 		text = "Element"
-
-		b.saveInv(guild, creator, true)
 	} else {
+		dat.lock.RLock()
 		el, exists := dat.elemCache[strings.ToLower(name)]
+		dat.lock.RUnlock()
 		if !exists {
 			fmt.Println("Doesn't exist")
+			tx.Rollback()
 			return
 		}
 		name = el.Name
-		id = el.ID
 
-		dat.invCache[creator][strings.ToLower(name)] = empty{}
-		lock.Lock()
-		b.dat[guild] = dat
-		lock.Unlock()
-		b.saveInv(guild, creator, false)
+		var id int
+		res := tx.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE guild=?", guild)
+		err = res.Scan(&id)
+		if err == nil {
+			postTxt = " - Combination **#" + strconv.Itoa(id) + "**"
+		}
 	}
+
 	_, err = tx.Exec("INSERT INTO eod_combos VALUES ( ?, ?, ? )", guild, data, name)
 	if err != nil {
 		fmt.Println(err)
+		tx.Rollback()
 		return
 	}
 
@@ -129,25 +140,41 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		_, err = tx.Exec(query, k, guild)
 		if err != nil {
 			fmt.Println(err)
+			tx.Rollback()
 			return
 		}
 
+		dat.lock.RLock()
 		el := dat.elemCache[strings.ToLower(k)]
+		dat.lock.RUnlock()
 		el.UsedIn++
+		dat.lock.Lock()
 		dat.elemCache[strings.ToLower(k)] = el
+		dat.lock.Unlock()
 	}
+
+	txt := newText + " " + text + " - **" + name + "** (By <@" + creator + ">)" + postTxt
+
+	b.dg.ChannelMessageSend(dat.newsChannel, txt)
+	datafile.Write([]byte(fmt.Sprintf("%s %s\n", name, parents)))
+
+	// Add Element to Inv
+	dat.lock.Lock()
+	dat.invCache[creator][strings.ToLower(name)] = empty{}
+	dat.lock.Unlock()
+
 	lock.Lock()
 	b.dat[guild] = dat
 	lock.Unlock()
-
-	txt := newText + " " + text + " - **" + name + "** (By <@" + creator + ">)" + " - Element **#" + strconv.Itoa(id) + "**"
-
-	b.dg.ChannelMessageSend(dat.newsChannel, txt)
-	if guild == "819077688371314718" {
-		datafile.Write([]byte(fmt.Sprintf("%s %s\n", name, parents)))
-	}
+	b.saveInv(guild, creator, true)
 
 	err = tx.Commit()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	err = b.autocategorize(name, guild)
 	if err != nil {
 		fmt.Println(err)
 		return

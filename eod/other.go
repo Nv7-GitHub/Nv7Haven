@@ -8,38 +8,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-func (b *EoD) statsCmd(m msg, rsp rsp) {
-	lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
-	if !exists {
-		return
-	}
-	gd, err := b.dg.State.Guild(m.GuildID)
-	if rsp.Error(err) {
-		return
-	}
-
-	var cnt int
-	row := b.db.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE guild=?", m.GuildID)
-	err = row.Scan(&cnt)
-	if rsp.Error(err) {
-		return
-	}
-
-	found := 0
-	for _, val := range dat.invCache {
-		found += len(val)
-	}
-
-	categorized := 0
-	for _, val := range dat.catCache {
-		categorized += len(val.Elements)
-	}
-
-	rsp.Message(fmt.Sprintf("Element Count: **%s**\nCombination Count: **%s**\nMember Count: **%s**\nElements Found: **%s**\nElements Categorized: **%s**", formatInt(len(dat.elemCache)), formatInt(cnt), formatInt(gd.MemberCount), formatInt(found), formatInt(categorized)))
-}
-
 func (b *EoD) giveAllCmd(user string, m msg, rsp rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
@@ -47,15 +15,22 @@ func (b *EoD) giveAllCmd(user string, m msg, rsp rsp) {
 	if !exists {
 		return
 	}
+	dat.lock.RLock()
 	inv, exists := dat.invCache[user]
+	dat.lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage("You don't have an inventory!")
 		return
 	}
+	dat.lock.RLock()
 	for k := range dat.elemCache {
 		inv[k] = empty{}
 	}
+	dat.lock.RUnlock()
+
+	dat.lock.Lock()
 	dat.invCache[user] = inv
+	dat.lock.Unlock()
 
 	lock.Lock()
 	b.dat[m.GuildID] = dat
@@ -75,7 +50,10 @@ func (b *EoD) resetInvCmd(user string, m msg, rsp rsp) {
 	for _, v := range starterElements {
 		inv[strings.ToLower(v.Name)] = empty{}
 	}
+
+	dat.lock.Lock()
 	dat.invCache[user] = inv
+	dat.lock.Unlock()
 
 	lock.Lock()
 	b.dat[m.GuildID] = dat
@@ -85,6 +63,8 @@ func (b *EoD) resetInvCmd(user string, m msg, rsp rsp) {
 }
 
 func (b *EoD) downloadInvCmd(user string, sorter string, m msg, rsp rsp) {
+	rsp.Acknowledge()
+
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -102,14 +82,17 @@ func (b *EoD) downloadInvCmd(user string, sorter string, m msg, rsp rsp) {
 	}
 	items := make([]string, len(inv))
 	i := 0
+	dat.lock.RLock()
 	for k := range inv {
 		items[i] = dat.elemCache[k].Name
 		i++
 	}
+	dat.lock.RUnlock()
 
 	switch sorter {
 	case "id":
 		sort.Slice(items, func(i, j int) bool {
+			dat.lock.RLock()
 			elem1, exists := dat.elemCache[strings.ToLower(items[i])]
 			if !exists {
 				return false
@@ -119,6 +102,7 @@ func (b *EoD) downloadInvCmd(user string, sorter string, m msg, rsp rsp) {
 			if !exists {
 				return false
 			}
+			dat.lock.RUnlock()
 			return elem1.CreatedOn.Before(elem2.CreatedOn)
 		})
 
@@ -127,7 +111,9 @@ func (b *EoD) downloadInvCmd(user string, sorter string, m msg, rsp rsp) {
 		outs := make([]string, len(items))
 		for _, val := range items {
 			creator := ""
+			dat.lock.RLock()
 			elem, exists := dat.elemCache[strings.ToLower(val)]
+			dat.lock.RUnlock()
 			if exists {
 				creator = elem.Creator
 			}
@@ -144,8 +130,11 @@ func (b *EoD) downloadInvCmd(user string, sorter string, m msg, rsp rsp) {
 		sort.Strings(items)
 	}
 
-	txt := strings.Join(items, "\n")
-	buf := strings.NewReader(txt)
+	out := &strings.Builder{}
+	for _, val := range items {
+		out.WriteString(val + "\n")
+	}
+	buf := strings.NewReader(out.String())
 
 	channel, err := b.dg.UserChannelCreate(m.Author.ID)
 	if rsp.Error(err) {

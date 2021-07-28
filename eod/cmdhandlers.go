@@ -23,6 +23,17 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+	if strings.HasPrefix(m.Content, "+") {
+		if len(m.Content) < 2 {
+			return
+		}
+		suggestion := m.Content[1:]
+
+		suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
+		b.suggestCmd(suggestion, true, msg, rsp)
+		return
+	}
+
 	if strings.HasPrefix(m.Content, "!") {
 		if len(m.Content) < 2 {
 			return
@@ -92,12 +103,14 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 				return
 			}
 			txt := m.Content[len(cmd)+2:]
-			parts := strings.Split(txt, "|")
-			if len(parts) == 1 {
+			sepPos := strings.Index(txt, "|")
+			if sepPos == -1 {
+				rsp.ErrorMessage("You must have a \"|\" to seperate the category name and the elements to add!")
 				return
 			}
-			catName := strings.TrimSpace(parts[0])
-			elems := strings.Split(parts[1], ",")
+
+			catName := strings.TrimSpace(txt[:sepPos])
+			elems := strings.Split(txt[sepPos+1:], ",")
 			for i, elem := range elems {
 				elems[i] = strings.TrimSpace(elem)
 			}
@@ -111,12 +124,14 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 				return
 			}
 			txt := m.Content[len(cmd)+2:]
-			parts := strings.Split(txt, "|")
-			if len(parts) == 1 {
+			sepPos := strings.Index(txt, "|")
+			if sepPos == -1 {
+				rsp.ErrorMessage("You must have a \"|\" to seperate the category name and the elements to remove!")
 				return
 			}
-			catName := strings.TrimSpace(parts[0])
-			elems := strings.Split(parts[1], ",")
+
+			catName := strings.TrimSpace(txt[:sepPos])
+			elems := strings.Split(txt[sepPos+1:], ",")
 			for i, elem := range elems {
 				elems[i] = strings.TrimSpace(elem)
 			}
@@ -137,12 +152,37 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		if cmd == "cat" {
 			if len(m.Content) <= len(cmd)+2 {
+				 bot.allCatCmd(catSortAlphabetical, msg, rsp) 
 				return
 			}
 			suggestion := m.Content[len(cmd)+2:]
 			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
 
 			b.catCmd(suggestion, catSortAlphabetical, msg, rsp)
+			return
+		}
+
+		if cmd == "mark" || cmd == "sign" {
+			if len(m.Content) <= len(cmd)+2 {
+				return
+			}
+			txt := m.Content[len(cmd)+2:]
+			sepPos := strings.Index(txt, "|")
+			if sepPos == -1 {
+				rsp.ErrorMessage("You must have a \"|\" to seperate element name and its new mark!")
+				return
+			}
+
+			elem := strings.TrimSpace(txt[:sepPos])
+			mark := strings.TrimSpace(txt[sepPos+1:])
+			b.markCmd(elem, mark, msg, rsp)
+			return
+		}
+		if cmd == "info" || cmd == "get" {
+			if len(m.Content) <= len(cmd)+2 {
+				return
+			}
+			b.infoCmd(strings.TrimSpace(m.Content[len(cmd)+2:]), msg, rsp)
 			return
 		}
 	}

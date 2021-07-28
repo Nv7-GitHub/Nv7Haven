@@ -28,12 +28,24 @@ func (n *normalResp) ErrorMessage(msg string) {
 	n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" "+msg+" "+redCircle)
 }
 
-func (n *normalResp) Resp(msg string) {
-	n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" "+msg)
+func (n *normalResp) Resp(msg string, components ...discordgo.MessageComponent) {
+	n.Message(msg, components...)
 }
 
-func (n *normalResp) Message(msg string) string {
-	m, err := n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" "+msg)
+func (n *normalResp) Message(msg string, components ...discordgo.MessageComponent) string {
+	var err error
+	var m *discordgo.Message
+
+	if len(components) == 0 {
+		m, err = n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" "+msg)
+	} else {
+		msg := &discordgo.MessageSend{
+			Content:    n.msg.Author.Mention() + " " + msg,
+			Components: components,
+		}
+		m, err = n.b.dg.ChannelMessageSendComplex(n.msg.ChannelID, msg)
+	}
+
 	if err != nil {
 		log.Println("Failed to send message:", err)
 		return ""
@@ -52,18 +64,15 @@ func (n *normalResp) DM(msg string) {
 	}
 }
 
-func (n *normalResp) Embed(emb *discordgo.MessageEmbed, nomention ...bool) string {
+func (n *normalResp) Embed(emb *discordgo.MessageEmbed, components ...discordgo.MessageComponent) string {
 	color, err := n.b.getColor(n.msg.GuildID, n.msg.Author.ID)
 	if err == nil {
 		emb.Color = color
 	}
 	m := &discordgo.MessageSend{
-		Embed: emb,
+		Embed:      emb,
+		Components: components,
 	}
-	if len(nomention) == 0 {
-		m.Reference = n.msg.Reference()
-	}
-
 	msg, err := n.b.dg.ChannelMessageSendComplex(n.msg.ChannelID, m)
 	if err != nil {
 		if err != nil {
@@ -71,6 +80,23 @@ func (n *normalResp) Embed(emb *discordgo.MessageEmbed, nomention ...bool) strin
 		}
 		return ""
 	}
+	return msg.ID
+}
+
+func (n *normalResp) RawEmbed(emb *discordgo.MessageEmbed) string {
+	color, err := n.b.getColor(n.msg.GuildID, n.msg.Author.ID)
+	if err == nil {
+		emb.Color = color
+	}
+
+	msg, err := n.b.dg.ChannelMessageSendEmbed(n.msg.ChannelID, emb)
+	if err != nil {
+		if err != nil {
+			log.Println("Failed to send message:", err)
+		}
+		return ""
+	}
+
 	return msg.ID
 }
 
@@ -109,7 +135,7 @@ func (s *slashResp) Error(err error) bool {
 		} else {
 			err := s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionApplicationCommandResponseData{
+				Data: &discordgo.InteractionResponseData{
 					Flags:   1 << 6,
 					Content: "Error: " + err.Error(),
 				},
@@ -132,27 +158,29 @@ func (s *slashResp) ErrorMessage(msg string) {
 
 	s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionApplicationCommandResponseData{
+		Data: &discordgo.InteractionResponseData{
 			Flags:   1 << 6,
 			Content: "Error: " + msg,
 		},
 	})
 }
 
-func (s *slashResp) Resp(msg string) {
+func (s *slashResp) Resp(msg string, components ...discordgo.MessageComponent) {
 	s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionApplicationCommandResponseData{
-			Flags:   1 << 6,
-			Content: msg,
+		Data: &discordgo.InteractionResponseData{
+			Flags:      1 << 6,
+			Content:    msg,
+			Components: components,
 		},
 	})
 }
 
-func (s *slashResp) Message(msg string) string {
+func (s *slashResp) Message(msg string, components ...discordgo.MessageComponent) string {
 	if s.isFollowup {
 		msg, err := s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
-			Content: msg,
+			Content:    msg,
+			Components: components,
 		})
 		if err != nil {
 			if err != nil {
@@ -162,23 +190,28 @@ func (s *slashResp) Message(msg string) string {
 		}
 		return msg.ID
 	}
-	s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
+	err := s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionApplicationCommandResponseData{
-			Content: msg,
+		Data: &discordgo.InteractionResponseData{
+			Content:    msg,
+			Components: components,
 		},
 	})
+	if err != nil {
+		log.Println("Failed to send message:", err)
+	}
 	return ""
 }
 
-func (s *slashResp) Embed(emb *discordgo.MessageEmbed, nomention ...bool) string {
+func (s *slashResp) Embed(emb *discordgo.MessageEmbed, components ...discordgo.MessageComponent) string {
 	color, err := bot.getColor(s.i.GuildID, s.i.Member.User.ID)
 	if err == nil {
 		emb.Color = color
 	}
 	if s.isFollowup {
 		msg, err := s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
-			Embeds: []*discordgo.MessageEmbed{emb},
+			Embeds:     []*discordgo.MessageEmbed{emb},
+			Components: components,
 		})
 		if err != nil {
 			if err != nil {
@@ -190,14 +223,19 @@ func (s *slashResp) Embed(emb *discordgo.MessageEmbed, nomention ...bool) string
 	}
 	err = s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionApplicationCommandResponseData{
-			Embeds: []*discordgo.MessageEmbed{emb},
+		Data: &discordgo.InteractionResponseData{
+			Embeds:     []*discordgo.MessageEmbed{emb},
+			Components: components,
 		},
 	})
 	if err != nil {
 		log.Println("Failed to send message:", err)
 	}
 	return ""
+}
+
+func (s *slashResp) RawEmbed(emb *discordgo.MessageEmbed) string {
+	return s.Embed(emb)
 }
 
 func (s *slashResp) Acknowledge() {

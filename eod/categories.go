@@ -2,8 +2,38 @@ package eod
 
 import (
 	"encoding/json"
+	"strconv"
 	"strings"
 )
+
+const alphabet = "abcdefghijklmnopqrstuvwxyz"
+
+var autocats = map[string]func(string) bool{
+	"Characters": func(s string) bool { return len([]rune(s)) == 1 },
+	"Letters":    func(s string) bool { return len([]rune(s)) == 1 && strings.Contains(alphabet, strings.ToLower(s)) },
+	"Briks":      func(s string) bool { return strings.HasSuffix(strings.ToLower(s), "brik") },
+	"Cheesy":     func(s string) bool { return strings.HasPrefix(strings.ToLower(s), "cheesy") },
+	"Bloops":     func(s string) bool { return strings.HasSuffix(strings.ToLower(s), "bloop") },
+	"Melons":     func(s string) bool { return strings.HasSuffix(strings.ToLower(s), "melon") },
+	"Numbers": func(s string) bool {
+		_, err := strconv.ParseFloat(s, 32)
+		return err == nil
+	},
+	"Vukkies":              func(s string) bool { return strings.Contains(strings.ToLower(s), "vukky") },
+	"All \"All\" Elements": func(s string) bool { return strings.HasPrefix(strings.ToLower(s), "all ") },
+}
+
+func (b *EoD) autocategorize(elem string, guild string) error {
+	for catName, catFn := range autocats {
+		if catFn(elem) {
+			err := b.categorize(elem, catName, guild)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
 
 func (b *EoD) categorize(elem string, catName string, guild string) error {
 	lock.RLock()
@@ -12,10 +42,12 @@ func (b *EoD) categorize(elem string, catName string, guild string) error {
 	if !exists {
 		return nil
 	}
+	dat.lock.RLock()
 	el, exists := dat.elemCache[strings.ToLower(elem)]
 	if !exists {
 		return nil
 	}
+	dat.lock.RUnlock()
 
 	if dat.catCache == nil {
 		dat.catCache = make(map[string]category)
@@ -34,7 +66,14 @@ func (b *EoD) categorize(elem string, catName string, guild string) error {
 		if err != nil {
 			return err
 		}
+	} else {
+		// Already exists, don't need to do anything
+		_, exists = cat.Elements[el.Name]
+		if exists {
+			return nil
+		}
 	}
+
 	cat.Elements[el.Name] = empty{}
 	dat.catCache[strings.ToLower(catName)] = cat
 
@@ -62,10 +101,12 @@ func (b *EoD) unCategorize(elem string, catName string, guild string) error {
 	if !exists {
 		return nil
 	}
+	dat.lock.RLock()
 	el, exists := dat.elemCache[strings.ToLower(elem)]
 	if !exists {
 		return nil
 	}
+	dat.lock.RUnlock()
 
 	if dat.catCache == nil {
 		dat.catCache = make(map[string]category)

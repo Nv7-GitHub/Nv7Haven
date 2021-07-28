@@ -3,9 +3,9 @@ package elemental
 import (
 	"encoding/json"
 	"net/url"
-	"sync"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/sasha-s/go-deadlock"
 )
 
 // Element has the data for a created element
@@ -29,7 +29,7 @@ type Color struct {
 	Saturation float32 `json:"saturation"`
 }
 
-var lock = &sync.RWMutex{}
+var lock = &deadlock.RWMutex{}
 
 // GetElement gets an element from the database
 func (e *Elemental) GetElement(elemName string) (Element, error) {

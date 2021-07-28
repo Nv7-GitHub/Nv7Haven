@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"io/ioutil"
 	"math/rand"
+	"strings"
 	"time"
 
 	_ "embed"
@@ -75,7 +76,7 @@ func (b *Bot) handlers() {
 		}(v)
 	}
 	b.dg.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		if h, ok := commandHandlers[i.Data.Name]; ok {
+		if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
 			h(s, i)
 		}
 	})
@@ -87,7 +88,7 @@ func InitDiscord(db *sql.DB, e elemental.Elemental) Bot {
 	rand.Seed(time.Now().UnixNano())
 
 	// Discord bot
-	dg, err := discordgo.New("Bot " + token)
+	dg, err := discordgo.New("Bot " + strings.TrimSpace(token))
 	if err != nil {
 		panic(err)
 	}

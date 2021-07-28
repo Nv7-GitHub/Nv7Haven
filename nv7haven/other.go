@@ -28,7 +28,7 @@ func (n *Nv7Haven) httpGet(c *fiber.Ctx) error {
 
 func (n *Nv7Haven) getURL(c *fiber.Ctx) error {
 	id := c.Params("id")
-	link := fmt.Sprintf("https://www.youtube.com/get_video_info?video_id=%s", id)
+	link := fmt.Sprintf("https://www.youtube.com/get_video_info?video_id=%s&el=detailpage&ps=default&html5=1&c=TVHTML5&cver=6.20180913", id)
 	resp, err := http.Get(link)
 	if err != nil {
 		return err

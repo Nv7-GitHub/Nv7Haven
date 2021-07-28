@@ -14,7 +14,7 @@ import (
 
 const minVotes = -1
 const maxVotes = 3
-const anarchyDay = time.Saturday
+const anarchyDay = time.Friday
 
 func (e *Elemental) getSugg(id string) (Suggestion, error) {
 	row := e.db.QueryRow("SELECT * FROM suggestions WHERE name=?", id)

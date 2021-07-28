@@ -47,12 +47,19 @@ func (b *EoD) createPoll(p poll) error {
 				elems[i] = val.(string)
 			}
 		}
+		if len(elems) < 1 {
+			return errors.New("error: combo must have at least one element")
+		}
 		for _, val := range elems {
+			dat.lock.RLock()
 			txt += dat.elemCache[strings.ToLower(val)].Name + " + "
+			dat.lock.RUnlock()
 		}
 		txt = txt[:len(txt)-2]
 		if len(elems) == 1 {
+			dat.lock.RLock()
 			txt += " + " + dat.elemCache[strings.ToLower(elems[0])].Name
+			dat.lock.RUnlock()
 		}
 		txt += " = " + p.Value3
 		m, err := b.dg.ChannelMessageSendEmbed(dat.votingChannel, &discordgo.MessageEmbed{

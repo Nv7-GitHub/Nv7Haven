@@ -22,7 +22,9 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 		return
 	}
 
+	dat.lock.RLock()
 	cat, exists := dat.catCache[strings.ToLower(category)]
+	dat.lock.RUnlock()
 	if exists {
 		category = cat.Name
 	}
@@ -30,7 +32,9 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 	suggestAdd := make([]string, 0)
 	added := make([]string, 0)
 	for _, val := range elems {
+		dat.lock.RLock()
 		el, exists := dat.elemCache[strings.ToLower(val)]
+		dat.lock.RUnlock()
 		if !exists {
 			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", val))
 			return
@@ -87,7 +91,9 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m msg, rsp rsp) {
 
 	elems = removeDuplicates(elems)
 
+	dat.lock.RLock()
 	cat, exists := dat.catCache[strings.ToLower(category)]
+	dat.lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Category **%s** doesn't exist!", category))
 		return
@@ -98,7 +104,9 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m msg, rsp rsp) {
 	suggestRm := make([]string, 0)
 	rmed := make([]string, 0)
 	for _, val := range elems {
+		dat.lock.RLock()
 		el, exists := dat.elemCache[strings.ToLower(val)]
+		dat.lock.RUnlock()
 		if !exists {
 			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", val))
 			return

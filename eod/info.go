@@ -119,19 +119,23 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 		}
 
 		hasFound := false
+		dat.lock.RLock()
 		for _, el := range dat.elemCache {
 			if el.ID == number {
 				hasFound = true
 				elem = el.Name
 			}
 		}
+		dat.lock.RUnlock()
 
 		if !hasFound {
 			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
 			return
 		}
 	}
+	dat.lock.RLock()
 	el, exists := dat.elemCache[strings.ToLower(elem)]
+	dat.lock.RUnlock()
 	if !exists {
 		if strings.Contains(elem, "?") {
 			isValid := false
@@ -153,10 +157,12 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 	has := ""
 	exists = false
 	if dat.invCache != nil {
+		dat.lock.RLock()
 		_, exists = dat.invCache[m.Author.ID]
 		if exists {
 			_, exists = dat.invCache[m.Author.ID][strings.ToLower(el.Name)]
 		}
+		dat.lock.RUnlock()
 	}
 	if !exists {
 		has = "don't "
@@ -191,11 +197,11 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 		foundbysuff = ""
 	}
 
-	rsp.Embed(&discordgo.MessageEmbed{
+	rsp.RawEmbed(&discordgo.MessageEmbed{
 		Title:       el.Name + " Info",
-		Description: fmt.Sprintf("Element **#%d**\nCreated by <@%s>\nCreated on %s\nUsed in %d combo%s\nMade with %d combo%s\nFound by %d player%s\nComplexity: %d\nDifficulty: %d\n<@%s> **You %shave this.**\n\n%s", el.ID, el.Creator, el.CreatedOn.Format("January 2, 2006, 3:04 PM"), el.UsedIn, usedbysuff, madeby, madebysuff, foundby, foundbysuff, el.Complexity, el.Difficulty, m.Author.ID, has, el.Comment),
+		Description: fmt.Sprintf("Element **#%d**\nCreated by <@%s>\nCreated on <t:%d>\nUsed in %d combo%s\nMade with %d combo%s\nFound by %d player%s\nComplexity: %d\nDifficulty: %d\n<@%s> **You %shave this.**\n\n%s", el.ID, el.Creator, el.CreatedOn.Unix(), el.UsedIn, usedbysuff, madeby, madebysuff, foundby, foundbysuff, el.Complexity, el.Difficulty, m.Author.ID, has, el.Comment),
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
 			URL: el.Image,
 		},
-	}, true)
+	})
 }

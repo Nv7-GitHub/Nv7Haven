@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/schollz/progressbar/v3"
 )
 
 func (b *EoD) init() {
@@ -26,83 +28,92 @@ func (b *EoD) init() {
 
 		switch kind {
 		case newsChannel:
-			lock.RLock()
+			//lock.RLock()
 			dat, exists := b.dat[guild]
-			lock.RUnlock()
+			//lock.RUnlock()
 			if !exists {
-				dat = serverData{}
+				dat = NewServerData()
 			}
 			dat.newsChannel = value1
-			lock.Lock()
+			//lock.Lock()
 			b.dat[guild] = dat
-			lock.Unlock()
+			//lock.Unlock()
 
 		case playChannel:
-			lock.RLock()
+			//lock.RLock()
 			dat, exists := b.dat[guild]
-			lock.RUnlock()
+			//lock.RUnlock()
 			if !exists {
-				dat = serverData{}
+				dat = NewServerData()
 			}
 			if dat.playChannels == nil {
 				dat.playChannels = make(map[string]empty)
 			}
 			dat.playChannels[value1] = empty{}
-			lock.Lock()
+			//lock.Lock()
 			b.dat[guild] = dat
-			lock.Unlock()
+			//lock.Unlock()
 
 		case votingChannel:
-			lock.RLock()
+			//lock.RLock()
 			dat, exists := b.dat[guild]
-			lock.RUnlock()
+			//lock.RUnlock()
 			if !exists {
-				dat = serverData{}
+				dat = NewServerData()
 			}
 			dat.votingChannel = value1
-			lock.Lock()
+			//lock.Lock()
 			b.dat[guild] = dat
-			lock.Unlock()
+			//lock.Unlock()
 
 		case voteCount:
-			lock.RLock()
+			//lock.RLock()
 			dat, exists := b.dat[guild]
-			lock.RUnlock()
+			//lock.RUnlock()
 			if !exists {
-				dat = serverData{}
+				dat = NewServerData()
 			}
 			dat.voteCount = intval
-			lock.Lock()
+			//lock.Lock()
 			b.dat[guild] = dat
-			lock.Unlock()
+			//lock.Unlock()
 
 		case pollCount:
-			lock.RLock()
+			//lock.RLock()
 			dat, exists := b.dat[guild]
-			lock.RUnlock()
+			//lock.RUnlock()
 			if !exists {
-				dat = serverData{}
+				dat = NewServerData()
 			}
 			dat.pollCount = intval
-			lock.Lock()
+			//lock.Lock()
 			b.dat[guild] = dat
-			lock.Unlock()
+			//lock.Unlock()
 
 		case modRole:
-			lock.RLock()
+			//lock.RLock()
 			dat, exists := b.dat[guild]
-			lock.RUnlock()
+			//lock.RUnlock()
 			if !exists {
-				dat = serverData{}
+				dat = NewServerData()
 			}
 			dat.modRole = value1
-			lock.Lock()
+			//lock.Lock()
 			b.dat[guild] = dat
-			lock.Unlock()
+			//lock.Unlock()
 		}
 	}
 
 	//elems, err := b.db.Query("SELECT * FROM eod_elements ORDER BY createdon ASC") // Do after nov 21
+
+	var cnt int
+	err = b.db.QueryRow("SELECT COUNT(1) FROM eod_elements").Scan(&cnt)
+	if err != nil {
+		panic(err)
+	}
+
+	bar := progressbar.New(cnt)
+
 	elems, err := b.db.Query("SELECT name, image, guild, comment, creator, createdon, parents, complexity, difficulty, usedin FROM `eod_elements` ORDER BY (CASE WHEN createdon=1637536881 THEN 1605988759 ELSE createdon END) ASC")
 	if err != nil {
 		panic(err)
@@ -124,17 +135,19 @@ func (b *EoD) init() {
 			elem.Parents = strings.Split(parentDat, "+")
 		}
 
-		lock.RLock()
+		//lock.RLock()
 		dat := b.dat[elem.Guild]
-		lock.RUnlock()
+		//lock.RUnlock()
 		if dat.elemCache == nil {
 			dat.elemCache = make(map[string]element)
 		}
 		elem.ID = len(dat.elemCache) + 1
 		dat.elemCache[strings.ToLower(elem.Name)] = elem
-		lock.Lock()
+		//lock.Lock()
 		b.dat[elem.Guild] = dat
-		lock.Unlock()
+		//lock.Unlock()
+
+		bar.Add(1)
 	}
 
 	invs, err := b.db.Query("SELECT guild, user, inv FROM eod_inv WHERE 1")
@@ -155,19 +168,26 @@ func (b *EoD) init() {
 		if err != nil {
 			panic(err)
 		}
-		lock.RLock()
+		//lock.RLock()
 		dat := b.dat[guild]
-		lock.RUnlock()
+		//lock.RUnlock()
 		if dat.invCache == nil {
 			dat.invCache = make(map[string]map[string]empty)
 		}
 		dat.invCache[user] = inv
-		lock.Lock()
+		//lock.Lock()
 		b.dat[guild] = dat
-		lock.Unlock()
+		//lock.Unlock()
 	}
 
-	polls, err := b.db.Query("SELECT * FROM eod_polls WHERE 1")
+	err = b.db.QueryRow("SELECT COUNT(1) FROM eod_polls").Scan(&cnt)
+	if err != nil {
+		panic(err)
+	}
+	bar.Finish()
+	bar = progressbar.New(cnt)
+
+	polls, err := b.db.Query("SELECT * FROM eod_polls")
 	if err != nil {
 		panic(err)
 	}
@@ -195,9 +215,10 @@ func (b *EoD) init() {
 		if err != nil {
 			fmt.Println(err)
 		}
+		bar.Add(1)
 	}
 
-	lock.RLock()
+	//lock.RLock()
 	for k, dat := range b.dat {
 		hasChanged := false
 		if dat.invCache == nil {
@@ -205,14 +226,14 @@ func (b *EoD) init() {
 			hasChanged = true
 		}
 		if hasChanged {
-			lock.RUnlock()
-			lock.Lock()
+			//lock.RUnlock()
+			//lock.Lock()
 			b.dat[k] = dat
-			lock.Unlock()
-			lock.RLock()
+			//lock.Unlock()
+			//lock.RLock()
 		}
 	}
-	lock.RUnlock()
+	//lock.RUnlock()
 
 	cats, err := b.db.Query("SELECT * FROM eod_categories")
 	if err != nil {
@@ -229,9 +250,9 @@ func (b *EoD) init() {
 
 		cat.Guild = guild
 
-		lock.RLock()
+		//lock.RLock()
 		dat := b.dat[guild]
-		lock.RUnlock()
+		//lock.RUnlock()
 		if dat.catCache == nil {
 			dat.catCache = make(map[string]category)
 		}
@@ -243,10 +264,19 @@ func (b *EoD) init() {
 		}
 
 		dat.catCache[strings.ToLower(cat.Name)] = cat
-		lock.Lock()
+		//lock.Lock()
 		b.dat[guild] = dat
-		lock.Unlock()
+		//lock.Unlock()
 	}
 
 	b.initHandlers()
+
+	// Start stats saving
+	go func() {
+		b.saveStats()
+		for {
+			time.Sleep(time.Minute * 30)
+			b.saveStats()
+		}
+	}()
 }

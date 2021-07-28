@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql" // mysql
 )
@@ -21,11 +21,9 @@ func handle(err error) {
 }
 
 func main() {
-	dbPass, err := ioutil.ReadFile("../../password.txt")
-	handle(err)
-	dbPassword := string(dbPass)
+	dbPassword := os.Getenv("PASSWORD")
 
-	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp(host.kiwatech.net:3306)/"+dbName)
+	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
 	handle(err)
 	defer db.Close()
 

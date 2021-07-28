@@ -59,7 +59,13 @@ func (b *EoD) saveInv(guild string, user string, newmade bool, recalculate ...bo
 		return
 	}
 
-	data, err := json.Marshal(dat.invCache[user])
+	dat.lock.RLock()
+	inv := dat.invCache[user]
+	dat.lock.RUnlock()
+
+	dat.lock.RLock()
+	data, err := json.Marshal(inv)
+	dat.lock.RUnlock()
 	if err != nil {
 		return
 	}
@@ -68,9 +74,11 @@ func (b *EoD) saveInv(guild string, user string, newmade bool, recalculate ...bo
 		m := "made+1"
 		if len(recalculate) > 0 {
 			count := 0
-			for val := range dat.invCache[user] {
+			for val := range inv {
 				creator := ""
+				dat.lock.RLock()
 				elem, exists := dat.elemCache[strings.ToLower(val)]
+				dat.lock.RUnlock()
 				if exists {
 					creator = elem.Creator
 				}
@@ -80,11 +88,11 @@ func (b *EoD) saveInv(guild string, user string, newmade bool, recalculate ...bo
 			}
 			m = strconv.Itoa(count)
 		}
-		b.db.Exec(fmt.Sprintf("UPDATE eod_inv SET inv=?, count=?, made=%s WHERE guild=? AND user=?", m), data, len(dat.invCache[user]), guild, user)
+		b.db.Exec(fmt.Sprintf("UPDATE eod_inv SET inv=?, count=?, made=%s WHERE guild=? AND user=?", m), data, len(inv), guild, user)
 		return
 	}
 
-	b.db.Exec("UPDATE eod_inv SET inv=?, count=? WHERE guild=? AND user=?", data, len(dat.invCache[user]), guild, user)
+	b.db.Exec("UPDATE eod_inv SET inv=?, count=? WHERE guild=? AND user=?", data, len(inv), guild, user)
 }
 
 func (b *EoD) mark(guild string, elem string, mark string, creator string) {
@@ -94,7 +102,9 @@ func (b *EoD) mark(guild string, elem string, mark string, creator string) {
 	if !exists {
 		return
 	}
+	dat.lock.RLock()
 	el, exists := dat.elemCache[strings.ToLower(elem)]
+	dat.lock.RUnlock()
 	if !exists {
 		return
 	}
@@ -119,13 +129,18 @@ func (b *EoD) image(guild string, elem string, image string, creator string) {
 	if !exists {
 		return
 	}
+	dat.lock.RLock()
 	el, exists := dat.elemCache[strings.ToLower(elem)]
+	dat.lock.RUnlock()
 	if !exists {
 		return
 	}
 
 	el.Image = image
+
+	dat.lock.Lock()
 	dat.elemCache[strings.ToLower(elem)] = el
+	dat.lock.Unlock()
 
 	lock.Lock()
 	b.dat[guild] = dat
@@ -243,6 +258,9 @@ var smallWords = map[string]empty{
 func toTitle(s string) string {
 	words := strings.Split(strings.ToLower(s), " ")
 	for i, word := range words {
+		if len(word) < 1 {
+			continue
+		}
 		w := []rune(word)
 		ind := -1
 

@@ -1,6 +1,7 @@
 package eod
 
 import (
+	"sync"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -33,6 +34,10 @@ const (
 
 type empty struct{}
 
+type componentMsg interface {
+	handler(s *discordgo.Session, i *discordgo.InteractionCreate)
+}
+
 type serverData struct {
 	playChannels  map[string]empty // channelID
 	votingChannel string
@@ -46,6 +51,8 @@ type serverData struct {
 	catCache      map[string]category         // map[catName]category
 	polls         map[string]poll             // map[messageid]poll
 	pageSwitchers map[string]pageSwitcher     // map[messageid]pageswitcher
+	componentMsgs map[string]componentMsg     // map[messageid]componentMsg
+	lock          *sync.RWMutex
 }
 
 type pageSwitcher struct {
@@ -67,9 +74,8 @@ type pageSwitcher struct {
 	Length int
 
 	// Don't need to set these
-	Guild   string
-	Channel string
-	Page    int
+	Guild string
+	Page  int
 }
 
 type comb struct {
@@ -122,9 +128,10 @@ type msg struct {
 type rsp interface {
 	Error(err error) bool
 	ErrorMessage(msg string)
-	Message(msg string) string
-	Embed(emb *discordgo.MessageEmbed, nomention ...bool) string
-	Resp(msg string)
+	Message(msg string, components ...discordgo.MessageComponent) string
+	Embed(emb *discordgo.MessageEmbed, components ...discordgo.MessageComponent) string
+	RawEmbed(emb *discordgo.MessageEmbed) string
+	Resp(msg string, components ...discordgo.MessageComponent)
 	Acknowledge()
 	DM(msg string)
 }

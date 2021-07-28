@@ -16,7 +16,7 @@ services:
     restart: unless-stopped
       
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin:latest
+    image: phpmyadmin:latest
     depends_on: 
       - db
     environment:
@@ -41,26 +41,6 @@ services:
       INIT_BACKUP: 1
       GZIP_LEVEL: 9
     restart: unless-stopped
-
-  server:
-    build: .
-    ports: 
-      - "${PORT}:${PORT}"
-    depends_on: 
-      - db
-    # restart: unless-stopped
-    volumes:
-      - ./files:/dist/files
-      - ./packs:/dist/packs
-      - ./logs.txt:/dist/logs.txt
-      - ./eodlogs.txt:/dist/eodlogs.txt
-    environment: 
-      PORT: ${PORT}
-      MYSQL_HOST: db
-      PASSWORD: ${PASSWORD}
-    
-    restart: unless-stopped
-
 
 volumes:
   db-data:

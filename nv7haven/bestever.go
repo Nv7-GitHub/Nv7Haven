@@ -51,8 +51,6 @@ func (n *Nv7Haven) initBestEver() error {
 }
 
 func (n *Nv7Haven) newSuggestion(c *fiber.Ctx) error {
-	
-	
 	suggest, err := url.PathUnescape(c.Params("suggestion"))
 	if err != nil {
 		return err
@@ -82,8 +80,6 @@ type itemData struct {
 }
 
 func (n *Nv7Haven) getSuggestion(c *fiber.Ctx) error {
-	
-	
 	dat := make([]randutil.Choice, len(data))
 	for i, val := range data {
 		dat[i] = randutil.Choice{
@@ -116,8 +112,6 @@ func (n *Nv7Haven) getSuggestion(c *fiber.Ctx) error {
 }
 
 func (n *Nv7Haven) vote(c *fiber.Ctx) error {
-	
-	
 	item, err := strconv.Atoi(c.Params("item"))
 	if err != nil {
 		return err
@@ -134,8 +128,6 @@ func (n *Nv7Haven) vote(c *fiber.Ctx) error {
 }
 
 func (n *Nv7Haven) getLdb(c *fiber.Ctx) error {
-	
-	
 	end, err := strconv.Atoi(c.Params("len"))
 	if err != nil {
 		return c.JSON([]string{"Invalid input", "error: " + err.Error()})

@@ -83,14 +83,16 @@ var (
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"givenum": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.giveNumCmd(int(i.Data.Options[0].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
+			resp := i.ApplicationCommandData()
+			bot.giveNumCmd(int(resp.Options[0].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"getnum": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
 			mention := ""
-			if len(i.Data.Options) > 0 {
-				mention = i.Data.Options[0].UserValue(bot.dg).ID
+			if len(resp.Options) > 0 {
+				mention = resp.Options[0].UserValue(bot.dg).ID
 			}
-			bot.getNumCmd(len(i.Data.Options) > 0, mention, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.getNumCmd(len(resp.Options) > 0, mention, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"randselect": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.randselectCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
@@ -105,13 +107,15 @@ var (
 			bot.pmemeCommand(bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"warn": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.warnCmd(i.Data.Options[0].UserValue(s).ID, i.Member.User.ID, i.Data.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			resp := i.ApplicationCommandData()
+			bot.warnCmd(resp.Options[0].UserValue(s).ID, i.Member.User.ID, resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"warns": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			hasMention := len(i.Data.Options) > 0
+			resp := i.ApplicationCommandData()
+			hasMention := len(resp.Options) > 0
 			mention := ""
 			if hasMention {
-				mention = i.Data.Options[0].UserValue(bot.dg).ID
+				mention = resp.Options[0].UserValue(bot.dg).ID
 			}
 			bot.warnsCmd(hasMention, mention, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},

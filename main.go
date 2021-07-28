@@ -4,9 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"os/exec"
 	"os/signal"
+	"runtime"
 	"runtime/debug"
-	"syscall"
 
 	"github.com/Nv7-Github/Nv7Haven/discord"
 	"github.com/Nv7-Github/Nv7Haven/elemental"
@@ -35,7 +36,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	syscall.Dup2(int(logFile.Fd()), 2)
+	dupfn(int(logFile.Fd()))
 
 	// Error logging
 	//defer recoverer()
@@ -54,6 +55,28 @@ func main() {
 		debug.FreeOSMemory()
 		return nil
 	})
+	app.Get("/kill/:password", func(c *fiber.Ctx) error {
+		if c.Params("password") == os.Getenv("PASSWORD") {
+			os.Exit(2)
+		}
+		return nil
+	})
+
+	if runtime.GOOS == "linux" {
+		app.Get("/temp", func(c *fiber.Ctx) error {
+			cmd := exec.Command("vcgencmd", "measure_temp")
+			err = cmd.Run()
+			if err != nil {
+				return err
+			}
+			output, err := cmd.Output()
+			if err != nil {
+				return err
+			}
+			c.WriteString(string(output))
+			return nil
+		})
+	}
 
 	/* Testing*/
 	websockets(app)

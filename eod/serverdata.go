@@ -1,5 +1,14 @@
 package eod
 
+import "sync"
+
+func NewServerData() serverData {
+	return serverData{
+		lock:          &sync.RWMutex{},
+		componentMsgs: make(map[string]componentMsg),
+	}
+}
+
 func (b *EoD) setNewsChannel(channelID string, msg msg, rsp rsp) {
 	row := b.db.QueryRow("SELECT COUNT(1) FROM eod_serverdata WHERE guild=? AND type=?", msg.GuildID, newsChannel)
 	var count int
@@ -24,7 +33,7 @@ func (b *EoD) setNewsChannel(channelID string, msg msg, rsp rsp) {
 	dat, exists := b.dat[msg.GuildID]
 	lock.RUnlock()
 	if !exists {
-		dat = serverData{}
+		dat = NewServerData()
 	}
 	dat.newsChannel = channelID
 	lock.Lock()
@@ -58,7 +67,7 @@ func (b *EoD) setVotingChannel(channelID string, msg msg, rsp rsp) {
 	dat, exists := b.dat[msg.GuildID]
 	lock.RUnlock()
 	if !exists {
-		dat = serverData{}
+		dat = NewServerData()
 	}
 	dat.votingChannel = channelID
 	lock.Lock()
@@ -95,7 +104,7 @@ func (b *EoD) setVoteCount(count int, msg msg, rsp rsp) {
 	dat, exists := b.dat[msg.GuildID]
 	lock.RUnlock()
 	if !exists {
-		dat = serverData{}
+		dat = NewServerData()
 	}
 	dat.voteCount = count
 	lock.Lock()
@@ -132,7 +141,7 @@ func (b *EoD) setPollCount(count int, msg msg, rsp rsp) {
 	dat, exists := b.dat[msg.GuildID]
 	lock.RUnlock()
 	if !exists {
-		dat = serverData{}
+		dat = NewServerData()
 	}
 	dat.pollCount = count
 	lock.Lock()
@@ -160,7 +169,7 @@ func (b *EoD) setPlayChannel(channelID string, isPlayChannel bool, msg msg, rsp 
 		dat, exists := b.dat[msg.GuildID]
 		lock.RUnlock()
 		if !exists {
-			dat = serverData{}
+			dat = NewServerData()
 		}
 		delete(dat.playChannels, channelID)
 		lock.Lock()
@@ -185,7 +194,7 @@ func (b *EoD) setPlayChannel(channelID string, isPlayChannel bool, msg msg, rsp 
 	dat, exists := b.dat[msg.GuildID]
 	lock.RUnlock()
 	if !exists {
-		dat = serverData{}
+		dat = NewServerData()
 	}
 	if dat.playChannels == nil {
 		dat.playChannels = make(map[string]empty)
@@ -222,7 +231,7 @@ func (b *EoD) setModRole(roleID string, msg msg, rsp rsp) {
 	dat, exists := b.dat[msg.GuildID]
 	lock.RUnlock()
 	if !exists {
-		dat = serverData{}
+		dat = NewServerData()
 	}
 	dat.modRole = roleID
 	lock.Lock()
