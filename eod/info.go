@@ -186,22 +186,18 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 		return
 	}
 
-	usedbysuff := "s"
-	if el.UsedIn == 1 {
-		usedbysuff = ""
-	}
-	madebysuff := "s"
-	if madeby == 1 {
-		madebysuff = ""
-	}
-	foundbysuff := "s"
-	if foundby == 1 {
-		foundbysuff = ""
-	}
-
 	rsp.RawEmbed(&discordgo.MessageEmbed{
 		Title:       el.Name + " Info",
-		Description: fmt.Sprintf("Element **#%d**\nCreated by <@%s>\nCreated on <t:%d>\nUsed in %d combo%s\nMade with %d combo%s\nFound by %d player%s\nComplexity: %d\nDifficulty: %d\n<@%s> **You %shave this.**\n\n%s", el.ID, el.Creator, el.CreatedOn.Unix(), el.UsedIn, usedbysuff, madeby, madebysuff, foundby, foundbysuff, el.Complexity, el.Difficulty, m.Author.ID, has, el.Comment),
+		Description: fmt.Sprintf("Element **#%d\n<@%s> **You %shave this.**\n\n%s", el.ID, m.Author.ID, has, el.Comment),
+		Fields: []*discordgo.MessageEmbedField{
+			{Name: "Created By", Value: fmt.Sprintf("<@%s>", el.Creator), Inline: true},
+			{Name: "Created On", Value: fmt.Sprintf("<t:%d>", el.CreatedOn.Unix()), Inline: true},
+			{Name: "Used In", Value: strconv.Itoa(el.UsedIn), Inline: true},
+			{Name: "Made With", Value: strconv.Itoa(madeby), Inline: true},
+			{Name: "Found By", Value: strconv.Itoa(foundby), Inline: true},
+			{Name: "Complexity", Value: strconv.Itoa(el.Complexity), Inline: true},
+			{Name: "Difficulty", Value: strconv.Itoa(el.Difficulty), Inline: true},
+		},
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
 			URL: el.Image,
 		},
