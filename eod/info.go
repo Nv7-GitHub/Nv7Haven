@@ -190,14 +190,14 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 		Title:       el.Name + " Info",
 		Description: fmt.Sprintf("Element **#%d**\n<@%s> **You %shave this.**", el.ID, m.Author.ID, has),
 		Fields: []*discordgo.MessageEmbedField{
-			{Name: "Created By", Value: fmt.Sprintf("<@%s>", el.Creator), Inline: true},
-			{Name: "Created On", Value: fmt.Sprintf("<t:%d>", el.CreatedOn.Unix()), Inline: true},
+			{Name: "Creator Mark", Value: el.Comment, Inline: false},
 			{Name: "Used In", Value: strconv.Itoa(el.UsedIn), Inline: true},
 			{Name: "Made With", Value: strconv.Itoa(madeby), Inline: true},
 			{Name: "Found By", Value: strconv.Itoa(foundby), Inline: true},
+			{Name: "Created By", Value: fmt.Sprintf("<@%s>", el.Creator), Inline: true},
+			{Name: "Created On", Value: fmt.Sprintf("<t:%d>", el.CreatedOn.Unix()), Inline: true},
 			{Name: "Complexity", Value: strconv.Itoa(el.Complexity), Inline: true},
 			{Name: "Difficulty", Value: strconv.Itoa(el.Difficulty), Inline: true},
-			{Name: "Creator Mark", Value: el.Comment, Inline: false},
 		},
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
 			URL: el.Image,
