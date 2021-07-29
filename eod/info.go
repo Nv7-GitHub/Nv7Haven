@@ -187,10 +187,10 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 	// Get Categories
 	catsMap := make(map[catSortInfo]empty)
 	dat.lock.RLock()
-	elLower := strings.ToLower(el.Name)
 	for _, cat := range dat.catCache {
-		_, exists := cat.Elements[elLower]
+		_, exists := cat.Elements[el.Name]
 		if exists {
+			fmt.Println(cat.Name)
 			catsMap[catSortInfo{
 				Name: cat.Name,
 				Cnt:  len(cat.Elements),
@@ -239,7 +239,7 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 		return
 	}
 
-	rsp.RawEmbed(&discordgo.MessageEmbed{
+	emb := &discordgo.MessageEmbed{
 		Title:       el.Name + " Info",
 		Description: fmt.Sprintf("Element **#%d**\n<@%s> **You %shave this.**", el.ID, m.Author.ID, has),
 		Fields: []*discordgo.MessageEmbedField{
@@ -251,10 +251,14 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 			{Name: "Created On", Value: fmt.Sprintf("<t:%d>", el.CreatedOn.Unix()), Inline: true},
 			{Name: "Complexity", Value: strconv.Itoa(el.Complexity), Inline: true},
 			{Name: "Difficulty", Value: strconv.Itoa(el.Difficulty), Inline: true},
-			{Name: "Categories", Value: catTxt.String(), Inline: false},
 		},
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
 			URL: el.Image,
 		},
-	})
+	}
+	if len(cats) > 0 {
+		emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{Name: "Categories", Value: catTxt.String(), Inline: false})
+	}
+
+	rsp.RawEmbed(emb)
 }
