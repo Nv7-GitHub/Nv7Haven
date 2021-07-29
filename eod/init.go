@@ -149,6 +149,14 @@ func (b *EoD) init() {
 
 		bar.Add(1)
 	}
+	bar.Finish()
+
+	err = b.db.QueryRow("SELECT COUNT(1) FROM eod_elements").Scan(&cnt)
+	if err != nil {
+		panic(err)
+	}
+
+	bar = progressbar.New(cnt)
 
 	invs, err := b.db.Query("SELECT guild, user, inv FROM eod_inv WHERE 1")
 	if err != nil {
@@ -178,13 +186,15 @@ func (b *EoD) init() {
 		//lock.Lock()
 		b.dat[guild] = dat
 		//lock.Unlock()
+
+		bar.Add(1)
 	}
+	bar.Finish()
 
 	err = b.db.QueryRow("SELECT COUNT(1) FROM eod_polls").Scan(&cnt)
 	if err != nil {
 		panic(err)
 	}
-	bar.Finish()
 	bar = progressbar.New(cnt)
 
 	polls, err := b.db.Query("SELECT * FROM eod_polls")
@@ -218,6 +228,8 @@ func (b *EoD) init() {
 		bar.Add(1)
 	}
 
+	bar.Finish()
+
 	//lock.RLock()
 	for k, dat := range b.dat {
 		hasChanged := false
@@ -234,6 +246,12 @@ func (b *EoD) init() {
 		}
 	}
 	//lock.RUnlock()
+
+	err = b.db.QueryRow("SELECT COUNT(1) FROM eod_categories").Scan(&cnt)
+	if err != nil {
+		panic(err)
+	}
+	bar = progressbar.New(cnt)
 
 	cats, err := b.db.Query("SELECT * FROM eod_categories")
 	if err != nil {
@@ -267,7 +285,11 @@ func (b *EoD) init() {
 		//lock.Lock()
 		b.dat[guild] = dat
 		//lock.Unlock()
+
+		bar.Add(1)
 	}
+
+	bar.Finish()
 
 	b.initHandlers()
 
