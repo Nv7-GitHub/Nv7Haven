@@ -9,12 +9,18 @@ import (
 
 type breakDownTree struct {
 	lock      *sync.RWMutex
+	added     map[string]empty
 	elemCache map[string]element
 	breakdown map[string]int // map[userid]count
 	total     int
 }
 
 func (b *breakDownTree) addElem(elem string) (bool, string) {
+	_, exists := b.added[strings.ToLower(elem)]
+	if exists {
+		return true, ""
+	}
+
 	b.lock.RLock()
 	el, exists := b.elemCache[strings.ToLower(elem)]
 	b.lock.RUnlock()
@@ -30,6 +36,7 @@ func (b *breakDownTree) addElem(elem string) (bool, string) {
 	b.breakdown[el.Creator]++
 	b.total++
 
+	b.added[strings.ToLower(elem)] = empty{}
 	return true, ""
 }
 
@@ -83,6 +90,7 @@ func (b *EoD) elemBreakdownCmd(elem string, m msg, rsp rsp) {
 		lock:      dat.lock,
 		elemCache: dat.elemCache,
 		breakdown: make(map[string]int),
+		added:     make(map[string]empty),
 		total:     0,
 	}
 	suc, err := tree.addElem(el.Name)
@@ -122,6 +130,7 @@ func (b *EoD) catBreakdownCmd(catName string, m msg, rsp rsp) {
 		lock:      dat.lock,
 		elemCache: dat.elemCache,
 		breakdown: make(map[string]int),
+		added:     make(map[string]empty),
 		total:     0,
 	}
 
