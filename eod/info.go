@@ -4,11 +4,14 @@ import (
 	"database/sql"
 	"fmt"
 	"math"
+	"sort"
 	"strconv"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
 )
+
+const catInfoCount = 3
 
 var infoChoices []*discordgo.ApplicationCommandOptionChoice
 var infoQuerys = map[string]string{
@@ -97,6 +100,11 @@ func (b *EoD) sortCmd(query string, order bool, m msg, rsp rsp) {
 	}, m, rsp)
 }
 
+type catSortInfo struct {
+	Name string
+	Cnt  int
+}
+
 func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 	if len(elem) == 0 {
 		return
@@ -108,6 +116,8 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 		rsp.ErrorMessage("Guild isn't setup yet!")
 		return
 	}
+
+	// Get Element name from ID
 	if elem[0] == '#' {
 		number, err := strconv.Atoi(elem[1:])
 		if err != nil {
@@ -135,10 +145,13 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 			return
 		}
 	}
+
+	// Get Element
 	dat.lock.RLock()
 	el, exists := dat.elemCache[strings.ToLower(elem)]
 	dat.lock.RUnlock()
 	if !exists {
+		// If what you said was "????", then stop
 		if strings.Contains(elem, "?") {
 			isValid := false
 			for _, letter := range elem {
@@ -156,6 +169,7 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 	}
 	rsp.Acknowledge()
 
+	// Get whether has element
 	has := ""
 	exists = false
 	if dat.invCache != nil {
@@ -170,6 +184,45 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 		has = "don't "
 	}
 
+	// Get Categories
+	catsMap := make(map[catSortInfo]empty)
+	dat.lock.RLock()
+	elLower := strings.ToLower(el.Name)
+	for _, cat := range dat.catCache {
+		_, exists := cat.Elements[elLower]
+		if exists {
+			catsMap[catSortInfo{
+				Name: cat.Name,
+				Cnt:  len(cat.Elements),
+			}] = empty{}
+		}
+	}
+	dat.lock.RUnlock()
+	cats := make([]catSortInfo, len(catsMap))
+	i := 0
+	for k := range catsMap {
+		cats[i] = k
+		i++
+	}
+
+	// Sort by count
+	sort.Slice(cats, func(i, j int) bool {
+		return cats[i].Cnt > cats[j].Cnt
+	})
+
+	// Make text
+	catTxt := &strings.Builder{}
+	for i := 0; i < catInfoCount && i < len(cats); i++ {
+		catTxt.WriteString(cats[i].Name)
+		if i != catInfoCount-1 && i != len(cats)-1 {
+			catTxt.WriteString(", ")
+		}
+	}
+	if len(cats) > catInfoCount {
+		fmt.Fprintf(catTxt, ", and %d more...", len(cats)-catInfoCount)
+	}
+
+	// Get SQL Stats
 	quer := `SELECT a.cnt, b.cnt FROM (SELECT COUNT(1) AS cnt FROM eod_combos WHERE elem3 LIKE ? AND guild=?) a, (SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT('$."', LOWER(?), '"')) IS NOT NULL)) b`
 	if isASCII(elem) {
 		quer = `SELECT a.cnt, b.cnt FROM (SELECT COUNT(1) AS cnt FROM eod_combos WHERE CONVERT(elem3 USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND guild=CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci) a, (SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT('$."', LOWER(?), '"')) IS NOT NULL)) b`
@@ -198,6 +251,7 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 			{Name: "Created On", Value: fmt.Sprintf("<t:%d>", el.CreatedOn.Unix()), Inline: true},
 			{Name: "Complexity", Value: strconv.Itoa(el.Complexity), Inline: true},
 			{Name: "Difficulty", Value: strconv.Itoa(el.Difficulty), Inline: true},
+			{Name: "Categories", Value: catTxt.String(), Inline: false},
 		},
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
 			URL: el.Image,
