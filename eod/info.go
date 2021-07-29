@@ -190,7 +190,6 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 	for _, cat := range dat.catCache {
 		_, exists := cat.Elements[el.Name]
 		if exists {
-			fmt.Println(cat.Name)
 			catsMap[catSortInfo{
 				Name: cat.Name,
 				Cnt:  len(cat.Elements),
