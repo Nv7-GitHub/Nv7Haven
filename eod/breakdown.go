@@ -61,6 +61,8 @@ func (b *breakDownTree) getStringArr() []string {
 }
 
 func (b *EoD) elemBreakdownCmd(elem string, m msg, rsp rsp) {
+	rsp.Acknowledge()
+
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -98,6 +100,8 @@ func (b *EoD) elemBreakdownCmd(elem string, m msg, rsp rsp) {
 }
 
 func (b *EoD) catBreakdownCmd(catName string, m msg, rsp rsp) {
+	rsp.Acknowledge()
+
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
