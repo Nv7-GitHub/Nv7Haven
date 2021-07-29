@@ -188,7 +188,7 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 
 	rsp.RawEmbed(&discordgo.MessageEmbed{
 		Title:       el.Name + " Info",
-		Description: fmt.Sprintf("Element **#%d\n<@%s> **You %shave this.**\n\n%s", el.ID, m.Author.ID, has, el.Comment),
+		Description: fmt.Sprintf("Element **#%d**\n<@%s> **You %shave this.**\n\n%s", el.ID, m.Author.ID, has, el.Comment),
 		Fields: []*discordgo.MessageEmbedField{
 			{Name: "Created By", Value: fmt.Sprintf("<@%s>", el.Creator), Inline: true},
 			{Name: "Created On", Value: fmt.Sprintf("<t:%d>", el.CreatedOn.Unix()), Inline: true},
