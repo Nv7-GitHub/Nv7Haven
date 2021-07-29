@@ -549,6 +549,12 @@ var (
 					Description: "Name of the element!",
 					Required:    true,
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionBoolean,
+					Name:        "calctree",
+					Description: "Whether to include the tree of that element!",
+					Required:    false,
+				},
 			},
 		},
 		{
@@ -560,6 +566,12 @@ var (
 					Name:        "category",
 					Description: "Name of the category!",
 					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionBoolean,
+					Name:        "calctree",
+					Description: "Whether to include the tree of the elements in the category!",
+					Required:    false,
 				},
 			},
 		},
@@ -762,11 +774,19 @@ var (
 		},
 		"breakdown": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.elemBreakdownCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			calctree := true
+			if len(resp.Options) > 1 {
+				calctree = resp.Options[1].BoolValue()
+			}
+			bot.elemBreakdownCmd(resp.Options[0].StringValue(), calctree, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"catbreakdown": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.catBreakdownCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			calctree := true
+			if len(resp.Options) > 1 {
+				calctree = resp.Options[1].BoolValue()
+			}
+			bot.catBreakdownCmd(resp.Options[0].StringValue(), calctree, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )

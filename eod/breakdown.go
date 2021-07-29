@@ -13,6 +13,7 @@ type breakDownTree struct {
 	elemCache map[string]element
 	breakdown map[string]int // map[userid]count
 	total     int
+	tree      bool
 }
 
 func (b *breakDownTree) addElem(elem string) (bool, string) {
@@ -27,12 +28,16 @@ func (b *breakDownTree) addElem(elem string) (bool, string) {
 	if !exists {
 		return false, fmt.Sprintf("Element **%s** doesn't exist!", elem)
 	}
-	for _, par := range el.Parents {
-		suc, err := b.addElem(par)
-		if !suc {
-			return suc, err
+
+	if b.tree {
+		for _, par := range el.Parents {
+			suc, err := b.addElem(par)
+			if !suc {
+				return suc, err
+			}
 		}
 	}
+
 	b.breakdown[el.Creator]++
 	b.total++
 
@@ -67,7 +72,7 @@ func (b *breakDownTree) getStringArr() []string {
 	return out
 }
 
-func (b *EoD) elemBreakdownCmd(elem string, m msg, rsp rsp) {
+func (b *EoD) elemBreakdownCmd(elem string, calcTree bool, m msg, rsp rsp) {
 	rsp.Acknowledge()
 
 	lock.RLock()
@@ -91,6 +96,7 @@ func (b *EoD) elemBreakdownCmd(elem string, m msg, rsp rsp) {
 		elemCache: dat.elemCache,
 		breakdown: make(map[string]int),
 		added:     make(map[string]empty),
+		tree:      calcTree,
 		total:     0,
 	}
 	suc, err := tree.addElem(el.Name)
@@ -107,7 +113,7 @@ func (b *EoD) elemBreakdownCmd(elem string, m msg, rsp rsp) {
 	}, m, rsp)
 }
 
-func (b *EoD) catBreakdownCmd(catName string, m msg, rsp rsp) {
+func (b *EoD) catBreakdownCmd(catName string, calcTree bool, m msg, rsp rsp) {
 	rsp.Acknowledge()
 
 	lock.RLock()
@@ -132,6 +138,7 @@ func (b *EoD) catBreakdownCmd(catName string, m msg, rsp rsp) {
 		breakdown: make(map[string]int),
 		added:     make(map[string]empty),
 		total:     0,
+		tree:      calcTree,
 	}
 
 	for elem := range cat.Elements {
