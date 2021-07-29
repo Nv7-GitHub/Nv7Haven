@@ -154,6 +154,10 @@ var (
 							Name:  "Made By",
 							Value: "madeby",
 						},
+						{
+							Name:  "Name Length",
+							Value: "length",
+						},
 					},
 				},
 			},

@@ -65,6 +65,11 @@ func (b *EoD) invCmd(user string, m msg, rsp rsp, sorter string) {
 		sort.Strings(outs)
 		items = outs
 
+	case "length":
+		sort.Slice(items, func(i, j int) bool {
+			return len(items[i]) < len(items[j])
+		})
+
 	default:
 		sort.Strings(items)
 	}
