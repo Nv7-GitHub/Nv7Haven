@@ -8,21 +8,23 @@ import (
 )
 
 var noModCmds = map[string]empty{
-	"suggest":     {},
-	"mark":        {},
-	"image":       {},
-	"inv":         {},
-	"lb":          {},
-	"addcat":      {},
-	"cat":         {},
-	"hint":        {},
-	"stats":       {},
-	"idea":        {},
-	"about":       {},
-	"rmcat":       {},
-	"catimg":      {},
-	"downloadinv": {},
-	"elemsort":    {},
+	"suggest":      {},
+	"mark":         {},
+	"image":        {},
+	"inv":          {},
+	"lb":           {},
+	"addcat":       {},
+	"cat":          {},
+	"hint":         {},
+	"stats":        {},
+	"idea":         {},
+	"about":        {},
+	"rmcat":        {},
+	"catimg":       {},
+	"downloadinv":  {},
+	"elemsort":     {},
+	"breakdown":    {},
+	"catbreakdown": {},
 }
 
 func (b *EoD) canRunCmd(cmd *discordgo.InteractionCreate) (bool, string) {
