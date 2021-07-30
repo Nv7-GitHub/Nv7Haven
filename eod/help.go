@@ -1,6 +1,10 @@
 package eod
 
-import "github.com/bwmarrin/discordgo"
+import (
+	_ "embed"
+
+	"github.com/bwmarrin/discordgo"
+)
 
 //go:embed help/about.txt
 var helpAbout string
@@ -75,6 +79,23 @@ func (h *helpComponent) handler(s *discordgo.Session, i *discordgo.InteractionCr
 	})
 }
 
-func (b *EoD) helpCmd(rsp rsp) {
-	rsp.Resp(helpAbout, helpComponents)
+func (b *EoD) helpCmd(m msg, rsp rsp) {
+	id := rsp.Message(helpAbout, helpComponents)
+
+	lock.RLock()
+	dat, exists := b.dat[m.GuildID]
+	lock.RUnlock()
+	if !exists {
+		return
+	}
+
+	dat.lock.Lock()
+	dat.componentMsgs[id] = &helpComponent{
+		b: b,
+	}
+	dat.lock.Unlock()
+
+	lock.Lock()
+	b.dat[m.GuildID] = dat
+	lock.Unlock()
 }

@@ -709,7 +709,7 @@ var (
 			bot.sortCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue() == "1", bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"help": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.helpCmd(bot.newRespSlash(i))
+			bot.helpCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"setmodrole": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
