@@ -18,7 +18,7 @@ var noModCmds = map[string]empty{
 	"hint":         {},
 	"stats":        {},
 	"idea":         {},
-	"about":        {},
+	"help":         {},
 	"rmcat":        {},
 	"catimg":       {},
 	"downloadinv":  {},
