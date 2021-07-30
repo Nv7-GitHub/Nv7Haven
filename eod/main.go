@@ -3,7 +3,6 @@ package eod
 import (
 	"database/sql"
 	_ "embed"
-	"io/ioutil"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -12,6 +11,7 @@ import (
 
 const (
 	clientID = "819076922867712031"
+	status   = "Use /help to view the bot's commands!"
 )
 
 //go:embed token.txt
@@ -19,8 +19,6 @@ var token string
 
 var bot EoD
 var lock deadlock.RWMutex
-
-var about string
 
 // EoD contains the data for an EoD bot
 type EoD struct {
@@ -31,12 +29,6 @@ type EoD struct {
 
 // InitEoD initializes the EoD bot
 func InitEoD(db *sql.DB) EoD {
-	abt, err := ioutil.ReadFile("eod/about.txt")
-	if err != nil {
-		panic(err)
-	}
-	about = string(abt)
-
 	// Discord bot
 	dg, err := discordgo.New("Bot " + strings.TrimSpace(token))
 	if err != nil {
@@ -55,13 +47,9 @@ func InitEoD(db *sql.DB) EoD {
 		dat: make((map[string]serverData)),
 	}
 
-	dg.UpdateGameStatus(0, "Type / to see the bot's commands!")
+	dg.UpdateGameStatus(0, status)
 	bot.init()
 	return bot
-}
-
-func (b *EoD) aboutCmd(rsp rsp) {
-	rsp.Resp(about)
 }
 
 // Close cleans up

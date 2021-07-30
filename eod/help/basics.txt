@@ -1,0 +1,5 @@
+Bot basic commands (suggest, cat, element info, addcat, rmcat, stats, etc.) 
+Also how to combine elements
+Link to official server for help
+Tells you to go to advanced to learn how to do advanced commands
+Link to bot invite that tells you to go to setup to learn how to setup server

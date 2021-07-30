@@ -392,7 +392,7 @@ var (
 			},
 		},
 		{
-			Name:        "about",
+			Name:        "help",
 			Description: "Get help and learn about the bot!",
 		},
 		{
@@ -708,8 +708,8 @@ var (
 			resp := i.ApplicationCommandData()
 			bot.sortCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue() == "1", bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
-		"about": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.aboutCmd(bot.newRespSlash(i))
+		"help": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.helpCmd(bot.newRespSlash(i))
 		},
 		"setmodrole": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()

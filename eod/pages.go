@@ -13,7 +13,7 @@ const playPageLength = 30
 var btnRow = discordgo.ActionsRow{
 	Components: []discordgo.MessageComponent{
 		discordgo.Button{
-			Emoji: discordgo.ButtonEmoji{
+			Emoji: discordgo.ComponentEmoji{
 				Name:     "leftarrow",
 				ID:       "861722690813165598",
 				Animated: false,
@@ -21,7 +21,7 @@ var btnRow = discordgo.ActionsRow{
 			CustomID: "prev",
 		},
 		discordgo.Button{
-			Emoji: discordgo.ButtonEmoji{
+			Emoji: discordgo.ComponentEmoji{
 				Name:     "rightarrow",
 				ID:       "861722690926936084",
 				Animated: false,

@@ -36,7 +36,7 @@ func main() {
 	}
 
 	for _, cmd := range cmds {
-		if cmd.Name == "get" {
+		if cmd.Name == "about" {
 			fmt.Println(cmd.ID, cmd.Name)
 			dg.ApplicationCommandDelete(clientID, guild, cmd.ID)
 		}

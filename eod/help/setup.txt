@@ -1,0 +1,2 @@
+Setup commands (setplaychannel, setmodrole, setnewschannel, setvotingchannel, etc.) 
+Link to EoDE server template explaining that thats how servers are normally set up
