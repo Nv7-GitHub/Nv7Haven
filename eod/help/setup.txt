@@ -14,4 +14,4 @@ For a simple EoD server, check out the **Official EoD Server Template**:
 https://discord.new/QKrwgdtSK4jC
 
 To **invite the bot**, use the following link:
-https://discord.gg/KPmbJmNtxQ
+https://discord.com/api/oauth2/authorize?client_id=819076922867712031&permissions=2148543552&redirect_uri=https%3A%2F%2Fnv7haven.tk&scope=bot%20applications.commands
