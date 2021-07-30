@@ -1,2 +1,17 @@
-Setup commands (setplaychannel, setmodrole, setnewschannel, setvotingchannel, etc.) 
-Link to EoDE server template explaining that thats how servers are normally set up
+EoD servers have **play channels** where they combine elements. You can add more channels to have a less laggy experience. 
+Make a new channel and use **/setplaychannel** to mark a channel as a play channel.
+
+In addition to play channels, EoDE requires a **voting channel** and a **news channel**.
+
+In a voting channel, polls are created to vote on whether a suggestion should be accepted. 
+Use **/setvotes** to set the number of votes required for a poll to be deleted or accepted.
+use **/setvotingchannel** to set the channel where polls should be sent.
+Use **/setpolls** to set the maximum number of polls a user can create.
+
+In a news channel, a log of polls accepted is sent. Use **/setnewschannel** to set the news channel.
+
+For a simple EoD server, check out the **Official EoD Server Template**:
+https://discord.new/QKrwgdtSK4jC
+
+To **invite the bot**, use the following link:
+https://discord.gg/KPmbJmNtxQ

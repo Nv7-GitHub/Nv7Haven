@@ -1,5 +1,11 @@
-Bot basic commands (suggest, cat, element info, addcat, rmcat, stats, etc.) 
-Also how to combine elements
-Link to official server for help
-Tells you to go to advanced to learn how to do advanced commands
-Link to bot invite that tells you to go to setup to learn how to setup server
+You can combine elements in any play channel by seperating element names by a **+**, **,**, or a **line break**.
+You can combine up to 20 elements, and element names can be up to 240 characters long!
+For example, you can do **air, earth, fire, water**.
+You can see the information on an element with **?<element name>**, and **?#<element id>** to get info by ID
+Add elements to categories with **/addcat** and remove elements from categories with **/rmcat**
+View a list of categories using **/cat** and view the elements in a category by passing the category name to the command
+Use **/lb** to view the leaderboard and **/inv** to see what elements you have
+Use **/hint** to get a hint on how to make an element
+Use **/stats** to get the server's stats
+
+Head over to the **Advanced** section to learn about the advanced commands, or head over to he **Setup** to learn how to set up your own EoD server!
