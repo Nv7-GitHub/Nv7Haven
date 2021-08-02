@@ -1,43 +1,21 @@
 package elemental
 
 import (
-	"encoding/json"
+	"context"
 	"errors"
 	"fmt"
-	"net/url"
 	"time"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/Nv7-Github/Nv7Haven/pb"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (e *Elemental) createSuggestion(c *fiber.Ctx) error {
-
-	id, err := url.PathUnescape(c.Params("id"))
-	if err != nil {
-		return err
-	}
-	elem1, err := url.PathUnescape(c.Params("elem1"))
-	if err != nil {
-		return err
-	}
-	elem2, err := url.PathUnescape(c.Params("elem2"))
-	if err != nil {
-		return err
-	}
-	mark, err := url.PathUnescape(c.Params("mark"))
-	if err != nil {
-		return err
-	}
-	pioneer, err := url.PathUnescape(c.Params("pioneer"))
-	if err != nil {
-		return err
-	}
-
-	suc, msg := e.CreateSuggestion(mark, pioneer, elem1, elem2, id)
+func (e *Elemental) CreateSugg(ctx context.Context, req *pb.CreateRequest) (*emptypb.Empty, error) {
+	suc, msg := e.CreateSuggestion(req.Mark, req.Pioneer, req.Elem1, req.Elem2, req.Id)
 	if !suc {
-		return errors.New(msg)
+		return &emptypb.Empty{}, errors.New(msg)
 	}
-	return nil
+	return &emptypb.Empty{}, nil
 }
 
 func (e *Elemental) incrementUses(id string) error {
@@ -131,23 +109,14 @@ func (e *Elemental) CreateSuggestion(mark string, pioneer string, elem1 string, 
 	}
 
 	// New Recent Combo
-	var recents []RecentCombination
-	data, err := e.fdb.Get("recent")
+	err = e.NewRecent(&pb.RecentCombination{
+		Elem1: elem1,
+		Elem2: elem2,
+		Elem3: id,
+	})
 	if err != nil {
 		return false, err.Error()
 	}
-	err = json.Unmarshal(data, &recents)
-	if err != nil {
-		return false, err.Error()
-	}
-	combo := RecentCombination{
-		Recipe: [2]string{elem1, elem2},
-		Result: id,
-	}
-	recents = append([]RecentCombination{combo}, recents...)
-	if len(recents) > recentsLength {
-		recents = recents[:recentsLength-1]
-	}
-	e.fdb.SetData("recent", recents)
+
 	return true, ""
 }

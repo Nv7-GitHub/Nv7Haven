@@ -3,18 +3,18 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"net"
+	"net/http"
 	"os"
 	"os/exec"
 	"os/signal"
 	"runtime"
 	"runtime/debug"
 
-	"github.com/Nv7-Github/Nv7Haven/discord"
 	"github.com/Nv7-Github/Nv7Haven/elemental"
-	"github.com/Nv7-Github/Nv7Haven/eod"
-	"github.com/Nv7-Github/Nv7Haven/gdo"
 	"github.com/Nv7-Github/Nv7Haven/nv7haven"
-	"github.com/Nv7-Github/Nv7Haven/single"
+	"github.com/improbable-eng/grpc-web/go/grpcweb"
+	"google.golang.org/grpc"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -41,6 +41,7 @@ func main() {
 	// Error logging
 	//defer recoverer()
 
+	// Fiber app
 	app := fiber.New(fiber.Config{
 		BodyLimit: 1000000000,
 	})
@@ -62,9 +63,22 @@ func main() {
 		return nil
 	})
 
+	// gRPC
+	lis, err := net.Listen("tcp", ":"+os.Getenv("GRPC_PORT"))
+	if err != nil {
+		panic(err)
+	}
+	grpc := grpc.NewServer()
+
+	// temp
 	if runtime.GOOS == "linux" {
 		app.Get("/temp", func(c *fiber.Ctx) error {
-			output, err := exec.Command("vcgencmd", "measure_temp").Output()
+			cmd := exec.Command("vcgencmd", "measure_temp")
+			err = cmd.Run()
+			if err != nil {
+				return err
+			}
+			output, err := cmd.Output()
 			if err != nil {
 				return err
 			}
@@ -85,7 +99,7 @@ func main() {
 
 	//mysqlsetup.Mysqlsetup()
 
-	e, err := elemental.InitElemental(app, db)
+	e, err := elemental.InitElemental(app, db, grpc)
 	if err != nil {
 		panic(err)
 	}
@@ -95,10 +109,29 @@ func main() {
 		panic(err)
 	}
 
-	single.InitSingle(app, db)
+	/*single.InitSingle(app, db)
 	b := discord.InitDiscord(db, e)
 	eod := eod.InitEoD(db)
-	gdo.InitGDO(app)
+	gdo.InitGDO(app)*/
+
+	go func() {
+		wrapped := grpcweb.WrapServer(grpc)
+		httpS := &http.Server{
+			Handler: http.HandlerFunc(func(resp http.ResponseWriter, req *http.Request) {
+				// CORS
+				resp.Header().Set("Access-Control-Allow-Origin", "*")
+				resp.Header().Set("Access-Control-Allow-Methods", "*")
+				resp.Header().Set("Access-Control-Allow-Headers", "*")
+				wrapped.ServeHTTP(resp, req)
+			}),
+		}
+		defer httpS.Close()
+
+		err = httpS.Serve(lis)
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
@@ -113,7 +146,7 @@ func main() {
 	}
 
 	e.Close()
-	b.Close()
-	eod.Close()
+	/*b.Close()
+	eod.Close()*/
 	db.Close()
 }

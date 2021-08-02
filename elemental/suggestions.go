@@ -1,41 +1,42 @@
 package elemental
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/url"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/Nv7-Github/Nv7Haven/pb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 const minVotes = -1
 const maxVotes = 3
 const anarchyDay = time.Friday
 
-func (e *Elemental) getSugg(id string) (Suggestion, error) {
+func (e *Elemental) getSugg(id string) (*pb.Suggestion, error) {
 	row := e.db.QueryRow("SELECT * FROM suggestions WHERE name=?", id)
-	var suggestion Suggestion
+	suggestion := &pb.Suggestion{}
 	var color string
 	var voted string
 	err := row.Scan(&suggestion.Name, &color, &suggestion.Creator, &voted, &suggestion.Votes)
 	if err != nil {
-		return Suggestion{}, err
+		return &pb.Suggestion{}, err
 	}
 
 	colors := strings.Split(color, "_")
 	sat, err := strconv.ParseFloat(colors[1], 32)
 	if err != nil {
-		return Suggestion{}, err
+		return &pb.Suggestion{}, err
 	}
 	light, err := strconv.ParseFloat(colors[2], 32)
 	if err != nil {
-		return Suggestion{}, err
+		return &pb.Suggestion{}, err
 	}
-	suggestion.Color = Color{
+	suggestion.Color = &pb.Color{
 		Base:       colors[0],
 		Saturation: float32(sat),
 		Lightness:  float32(light),
@@ -44,56 +45,39 @@ func (e *Elemental) getSugg(id string) (Suggestion, error) {
 	var votedData []string
 	err = json.Unmarshal([]byte(voted), &votedData)
 	if err != nil {
-		return Suggestion{}, err
+		return &pb.Suggestion{}, err
 	}
 	suggestion.Voted = votedData
 
 	return suggestion, nil
 }
 
-func (e *Elemental) getSuggestion(c *fiber.Ctx) error {
-	id, err := url.PathUnescape(c.Params("id"))
-	if err != nil {
-		return err
-	}
-	suggestion, err := e.getSugg(id)
+func (e *Elemental) GetSuggestion(ctx context.Context, id *wrapperspb.StringValue) (*pb.Suggestion, error) {
+	suggestion, err := e.getSugg(id.Value)
 	if err != nil {
 		if err.Error() == "null" {
-			return c.SendString("null")
+			return &pb.Suggestion{}, errors.New("null")
 		}
-		return err
 	}
-	return c.JSON(suggestion)
+	return suggestion, err
 }
 
-func (e *Elemental) getSuggestionCombos(c *fiber.Ctx) error {
-	elem1, err := url.PathUnescape(c.Params("elem1"))
-	if err != nil {
-		return err
-	}
-	elem2, err := url.PathUnescape(c.Params("elem2"))
-	if err != nil {
-		return err
-	}
-	data, err := e.GetSuggestions(elem1, elem2)
-	if err != nil {
-		return err
-	}
-	return c.JSON(data)
+func (e *Elemental) GetSuggestionCombos(ctx context.Context, req *pb.Combination) (*pb.SuggestionCombinationResponse, error) {
+	data, err := e.GetSuggestions(req.Elem1, req.Elem2)
+	return &pb.SuggestionCombinationResponse{
+		Suggestions: data,
+	}, err
 }
 
-func (e *Elemental) downVoteSuggestion(c *fiber.Ctx) error {
-	id, err := url.PathUnescape(c.Params("id"))
-	if err != nil {
-		return err
-	}
-	uid := c.Params("uid")
-	suc, msg := e.DownvoteSuggestion(id, uid)
+func (e *Elemental) DownSuggestion(ctx context.Context, req *pb.SuggestionRequest) (*pb.VoteResponse, error) {
+	suc, msg := e.DownvoteSuggestion(req.Element, req.Uid)
 	if !suc {
-		return errors.New(msg)
+		return &pb.VoteResponse{}, errors.New(msg)
 	}
 
-	return nil
+	return &pb.VoteResponse{
+		Create: false,
+	}, nil
 }
 
 // DownvoteSuggestion downvotes a suggestion
@@ -124,22 +108,15 @@ func (e *Elemental) DownvoteSuggestion(id, uid string) (bool, string) {
 	return true, ""
 }
 
-func (e *Elemental) upVoteSuggestion(c *fiber.Ctx) error {
-	id, err := url.PathUnescape(c.Params("id"))
-	if err != nil {
-		return err
-	}
-	uid := c.Params("uid")
-	create, suc, msg := e.UpvoteSuggestion(id, uid)
+func (e *Elemental) UpSuggestion(ctx context.Context, req *pb.SuggestionRequest) (*pb.VoteResponse, error) {
+	create, suc, msg := e.UpvoteSuggestion(req.Element, req.Uid)
 	if !suc {
-		return errors.New(msg)
+		return &pb.VoteResponse{}, errors.New(msg)
 	}
 
-	if create {
-		return c.SendString("create")
-	}
-
-	return nil
+	return &pb.VoteResponse{
+		Create: create,
+	}, nil
 }
 
 // UpvoteSuggestion upvotes a suggestion
@@ -174,40 +151,15 @@ func (e *Elemental) UpvoteSuggestion(id, uid string) (bool, bool, string) {
 	return false, true, ""
 }
 
-func (e *Elemental) newSuggestion(c *fiber.Ctx) error {
-	elem1, err := url.PathUnescape(c.Params("elem1"))
-	if err != nil {
-		return err
-	}
-	elem2, err := url.PathUnescape(c.Params("elem2"))
-	if err != nil {
-		return err
-	}
-	newElem, err := url.PathUnescape(c.Params("data"))
-	if err != nil {
-		return err
-	}
-
-	var suggestion Suggestion
-	err = json.Unmarshal([]byte(newElem), &suggestion)
-	if err != nil {
-		return err
-	}
-
-	create, err := e.NewSuggestion(elem1, elem2, suggestion)
-	if err != nil {
-		return err
-	}
-
-	if create {
-		return c.SendString("create")
-	}
-
-	return nil
+func (e *Elemental) NewSugg(ctx context.Context, req *pb.NewSuggestionRequest) (*pb.VoteResponse, error) {
+	create, err := e.NewSuggestion(req.Elem1, req.Elem2, req.Suggestion)
+	return &pb.VoteResponse{
+		Create: create,
+	}, err
 }
 
 // NewSuggestion makes a new suggestion
-func (e *Elemental) NewSuggestion(elem1, elem2 string, suggestion Suggestion) (bool, error) {
+func (e *Elemental) NewSuggestion(elem1, elem2 string, suggestion *pb.Suggestion) (bool, error) {
 	voted, _ := json.Marshal(suggestion.Voted)
 	color := fmt.Sprintf("%s_%f_%f", suggestion.Color.Base, suggestion.Color.Saturation, suggestion.Color.Lightness)
 	_, err := e.db.Exec("INSERT INTO suggestions VALUES( ?, ?, ?, ?, ? )", suggestion.Name, color, suggestion.Creator, voted, suggestion.Votes)

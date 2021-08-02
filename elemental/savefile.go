@@ -1,10 +1,12 @@
 package elemental
 
 import (
+	"context"
 	"encoding/json"
-	"net/url"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/Nv7-Github/Nv7Haven/pb"
+	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 // GetFound gets a user's found elements, based on their UID
@@ -25,28 +27,15 @@ func (e *Elemental) GetFound(uid string) ([]string, error) {
 	return found, nil
 }
 
-func (e *Elemental) getFound(c *fiber.Ctx) error {
-	res, err := e.db.Query("SELECT found FROM users WHERE uid=?", c.Params("uid"))
-	if err != nil {
-		return err
-	}
-	defer res.Close()
-	var data string
-	res.Next()
-	err = res.Scan(&data)
-	if err != nil {
-		return err
-	}
-	return c.SendString(data)
+func (e *Elemental) GetInv(ctx context.Context, uid *wrapperspb.StringValue) (*pb.Inventory, error) {
+	res, err := e.GetFound(uid.Value)
+	return &pb.Inventory{
+		Found: res,
+	}, err
 }
 
-func (e *Elemental) newFound(c *fiber.Ctx) error {
-	elem, err := url.PathUnescape(c.Params("elem"))
-	if err != nil {
-		return err
-	}
-
-	return e.NewFound(elem, c.Params("uid"))
+func (e *Elemental) AddFound(ctx context.Context, req *pb.SuggestionRequest) (*emptypb.Empty, error) {
+	return &emptypb.Empty{}, e.NewFound(req.Element, req.Uid)
 }
 
 // NewFound adds an element to a user's savefile

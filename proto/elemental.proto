@@ -1,0 +1,122 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "../Nv7haven/pb"; // Workaround to add a slash
+package elemental;
+
+
+service Elemental {
+  // Elements
+  rpc GetElem(google.protobuf.StringValue) returns (Element) {}
+  rpc GetCombination(Combination) returns (CombinationResult) {}
+  rpc GetAll(google.protobuf.StringValue) returns (stream GetAllChunk) {}
+
+  // Savefile
+  rpc GetInv(google.protobuf.StringValue) returns (Inventory) {}
+  rpc AddFound(SuggestionRequest) returns (google.protobuf.Empty) {}
+
+  // Suggestions
+  rpc GetSuggestion(google.protobuf.StringValue) returns (Suggestion) {}
+  rpc GetSuggestionCombos(Combination) returns (SuggestionCombinationResponse) {}
+  rpc UpSuggestion(SuggestionRequest) returns (VoteResponse) {}
+  rpc DownSuggestion(SuggestionRequest) returns (VoteResponse) {}
+  rpc CreateSugg(CreateRequest) returns (google.protobuf.Empty) {}
+  rpc NewSugg(NewSuggestionRequest) returns (VoteResponse) {}
+
+  // Random Suggestions
+  rpc RandomLonely(google.protobuf.StringValue) returns (RandomCombinationResponse) {}
+  rpc UpAndComing(google.protobuf.StringValue) returns (RandomCombinationResponse) {}
+
+  // Recents
+  rpc GetRec(google.protobuf.Empty) returns (Recents) {}
+  rpc WaitForNextRecent(google.protobuf.Empty) returns (stream google.protobuf.Empty) {}
+}
+
+message Suggestion {
+  string Creator = 1;
+  string Name = 2;
+  int64 Votes = 3;
+  Color Color = 4;
+  repeated string Voted = 5;
+}
+
+message Color {
+  string Base = 1;
+  float Lightness = 2;
+  float Saturation = 3;
+}
+
+message Combination {
+  string elem1 = 1;
+  string elem2 = 2;
+}
+
+message CombinationResult {
+  string data = 1;
+  bool exists = 2;
+}
+
+message Element {
+  string Color = 1;
+  string Comment = 2;
+  int64 CreatedOn = 3;
+  string Creator = 4;
+  string Name = 5;
+  repeated string Parents = 6;
+  string Pioneer = 7;
+  int64 Uses = 8;
+  int64 FoundBy = 9;
+  int64 Complexity = 10;
+}
+
+message Inventory {
+  repeated string Found = 1;
+}
+
+message SuggestionRequest {
+  string uid = 1;
+  string element = 2;
+}
+
+message SuggestionCombinationResponse {
+  repeated string Suggestions = 1;
+}
+
+message VoteResponse {
+  bool Create = 1;
+}
+
+message CreateRequest {
+  string Id = 1;
+  string Elem1 = 2;
+  string Elem2 = 3;
+  string Mark = 4;
+  string Pioneer = 5;
+}
+
+message NewSuggestionRequest {
+  string Elem1 = 1;
+  string Elem2 = 2;
+  Suggestion Suggestion = 3;
+}
+
+message RandomCombinationResponse {
+  repeated string Elements = 1;
+}
+
+message GetAllChunk {
+  repeated Element Elements = 1;
+  int64 count = 2;
+}
+
+message RecentCombination {
+  string Elem1 = 1;
+  string Elem2 = 2;
+  string Elem3 = 3;
+}
+
+message Recents {
+  repeated RecentCombination Recents = 1;
+}

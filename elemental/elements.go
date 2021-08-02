@@ -1,38 +1,20 @@
 package elemental
 
 import (
+	"context"
 	"encoding/json"
-	"net/url"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/Nv7-Github/Nv7Haven/pb"
 	"github.com/sasha-s/go-deadlock"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
-// Element has the data for a created element
-type Element struct {
-	Color      string   `json:"color"`
-	Comment    string   `json:"comment"`
-	CreatedOn  int      `json:"createdOn"`
-	Creator    string   `json:"creator"`
-	Name       string   `json:"name"`
-	Parents    []string `json:"parents"`
-	Pioneer    string   `json:"pioneer"`
-	Uses       int      `json:"uses"`
-	FoundBy    int      `json:"foundby"`
-	Complexity int      `json:"complexity"`
-}
-
-// Color has the data for a suggestion's color
-type Color struct {
-	Base       string  `json:"base"`
-	Lightness  float32 `json:"lightness"`
-	Saturation float32 `json:"saturation"`
-}
+type empty struct{}
 
 var lock = &deadlock.RWMutex{}
 
 // GetElement gets an element from the database
-func (e *Elemental) GetElement(elemName string) (Element, error) {
+func (e *Elemental) GetElement(elemName string) (*pb.Element, error) {
 	lock.RLock()
 	val, exists := e.cache[elemName]
 	lock.RUnlock()
@@ -43,18 +25,18 @@ func (e *Elemental) GetElement(elemName string) (Element, error) {
 }
 
 // RefreshElement gets an element from the database and refreshes the local cache with that element
-func (e *Elemental) RefreshElement(elemName string) (Element, error) {
-	var elem Element
+func (e *Elemental) RefreshElement(elemName string) (*pb.Element, error) {
+	elem := &pb.Element{}
 	res, err := e.db.Query("SELECT * FROM elements WHERE name=?", elemName)
 	if err != nil {
-		return Element{}, err
+		return &pb.Element{}, err
 	}
 	defer res.Close()
 	elem.Parents = make([]string, 2)
 	res.Next()
 	err = res.Scan(&elem.Name, &elem.Color, &elem.Comment, &elem.Parents[0], &elem.Parents[1], &elem.Creator, &elem.Pioneer, &elem.CreatedOn, &elem.Complexity, &elem.Uses, &elem.FoundBy)
 	if err != nil {
-		return Element{}, err
+		return &pb.Element{}, err
 	}
 	if (elem.Parents[0] == "") && (elem.Parents[1] == "") {
 		elem.Parents = make([]string, 0)
@@ -66,42 +48,17 @@ func (e *Elemental) RefreshElement(elemName string) (Element, error) {
 	return elem, nil
 }
 
-func (e *Elemental) getElem(c *fiber.Ctx) error {
-	elemName, err := url.PathUnescape(c.Params("elem"))
-	if err != nil {
-		return err
-	}
-	elem, err := e.GetElement(elemName)
-	if err != nil {
-		return err
-	}
-	return c.JSON(elem)
+func (e *Elemental) GetElem(ctx context.Context, inp *wrapperspb.StringValue) (*pb.Element, error) {
+	return e.GetElement(inp.Value)
 }
 
-func (e *Elemental) getCombo(c *fiber.Ctx) error {
-	elem1, err := url.PathUnescape(c.Params("elem1"))
-	if err != nil {
-		return err
-	}
-	elem2, err := url.PathUnescape(c.Params("elem2"))
-	if err != nil {
-		return err
-	}
+func (e *Elemental) GetCombination(ctx context.Context, inp *pb.Combination) (*pb.CombinationResult, error) {
+	comb, suc, err := e.GetCombo(inp.Elem1, inp.Elem2)
 
-	comb, suc, err := e.GetCombo(elem1, elem2)
-	if err != nil {
-		return err
-	}
-	if !suc {
-		return c.JSON(map[string]interface{}{
-			"exists": false,
-		})
-	}
-
-	return c.JSON(map[string]interface{}{
-		"exists": true,
-		"combo":  comb,
-	})
+	return &pb.CombinationResult{
+		Data:   comb,
+		Exists: suc,
+	}, err
 }
 
 // GetCombo gets a combination
@@ -133,8 +90,8 @@ func (e *Elemental) GetCombo(elem1, elem2 string) (string, bool, error) {
 	return elem3, true, nil
 }
 
-func (e *Elemental) getAll(c *fiber.Ctx) error {
-	res, err := e.db.Query("SELECT found FROM users WHERE uid=?", c.Params("uid"))
+func (e *Elemental) GetAll(uid *wrapperspb.StringValue, stream pb.Elemental_GetAllServer) error {
+	res, err := e.db.Query("SELECT found FROM users WHERE uid=?", uid.Value)
 	if err != nil {
 		return err
 	}
@@ -151,34 +108,56 @@ func (e *Elemental) getAll(c *fiber.Ctx) error {
 		return err
 	}
 
-	var recents []RecentCombination
-	dat, err := e.fdb.Get("recent")
-	if err != nil {
-		return err
-	}
-	err = json.Unmarshal(dat, &recents)
+	recents, err := e.GetRecents()
 	if err != nil {
 		return err
 	}
 
-	req := make(map[string]bool)
+	req := make(map[string]empty)
 	for _, val := range found {
-		req[val] = true
+		req[val] = empty{}
 	}
 	for _, rec := range recents {
-		req[rec.Result] = true
-		req[rec.Recipe[0]] = true
-		req[rec.Recipe[1]] = true
+		req[rec.Elem1] = empty{}
+		req[rec.Elem2] = empty{}
+		req[rec.Elem3] = empty{}
 	}
 
-	final := make([]Element, len(req))
+	total := int64(len(req))
+
+	getAllBatchSize := 60
+	if total/50 > int64(getAllBatchSize) {
+		getAllBatchSize = int(total / 50)
+	}
+
+	batch := make([]*pb.Element, 0, getAllBatchSize)
+
 	i := 0
 	for k := range req {
-		final[i], err = e.GetElement(k)
+		elem, err := e.GetElement(k)
 		if err != nil {
 			return err
 		}
+		batch = append(batch, elem)
+		if i == getAllBatchSize {
+			err = stream.Send(&pb.GetAllChunk{
+				Count:    total,
+				Elements: batch,
+			})
+			if err != nil {
+				return err
+			}
+			batch = make([]*pb.Element, 0, getAllBatchSize)
+			i = 0
+		}
 		i++
 	}
-	return c.JSON(final)
+	if len(batch) > 0 {
+		err = stream.Send(&pb.GetAllChunk{
+			Count:    total,
+			Elements: batch,
+		})
+		return err
+	}
+	return nil
 }

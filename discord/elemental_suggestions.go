@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Nv7-Github/Nv7Haven/elemental"
+	"github.com/Nv7-Github/Nv7Haven/pb"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -92,10 +92,10 @@ func (b *Bot) suggestCmd(name string, color string, m msg, rsp rsp) {
 		return
 	}
 
-	create, err := b.e.NewSuggestion(comb.elem1, comb.elem2, elemental.Suggestion{
+	create, err := b.e.NewSuggestion(comb.elem1, comb.elem2, &pb.Suggestion{
 		Name:    name,
 		Creator: u.Metadata["eusername"].(string),
-		Color: elemental.Color{
+		Color: &pb.Color{
 			Base: color,
 		},
 		Votes: 0,

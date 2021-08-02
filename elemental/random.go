@@ -1,10 +1,12 @@
 package elemental
 
 import (
+	"context"
 	"fmt"
 	"time"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/Nv7-Github/Nv7Haven/pb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 const randomQuery = `SELECT name FROM suggestions a, (SELECT found FROM users WHERE uid=? LIMIT 1) b WHERE %s AND JSON_CONTAINS(b.found, CONCAT('"', (SELECT elem1 FROM sugg_combos WHERE elem3=a.name LIMIT 1) ,'"'), "$") AND JSON_CONTAINS(b.found, CONCAT('"', (SELECT elem2 FROM sugg_combos WHERE elem3=a.name LIMIT 1) ,'"'), "$") ORDER BY RAND() LIMIT 1`
@@ -35,21 +37,19 @@ func (e *Elemental) randomSuggestion(where string, uid string) ([]string, error)
 	return []string{elem1, elem2}, nil
 }
 
-func (e *Elemental) upAndComingSuggestion(c *fiber.Ctx) error {
-	ans, err := e.UpAndComingSuggestion(c.Params("uid"))
-	if err != nil {
-		return err
-	}
-	return c.JSON(ans)
+func (e *Elemental) RandomLonely(ctx context.Context, req *wrapperspb.StringValue) (*pb.RandomCombinationResponse, error) {
+	ans, err := e.RandomLonelySuggestion(req.Value)
+	return &pb.RandomCombinationResponse{
+		Elements: ans,
+	}, err
 }
 
 // Pretty much the same, just different first line
-func (e *Elemental) randomLonelySuggestion(c *fiber.Ctx) error {
-	ans, err := e.RandomLonelySuggestion(c.Params("uid"))
-	if err != nil {
-		return err
-	}
-	return c.JSON(ans)
+func (e *Elemental) UpAndComing(ctx context.Context, req *wrapperspb.StringValue) (*pb.RandomCombinationResponse, error) {
+	ans, err := e.UpAndComingSuggestion(req.Value)
+	return &pb.RandomCombinationResponse{
+		Elements: ans,
+	}, err
 }
 
 // RandomLonelySuggestion gets a random lonely suggestion
