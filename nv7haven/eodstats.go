@@ -2,7 +2,7 @@ package nv7haven
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -27,7 +27,7 @@ type eodStats struct {
 func (n *Nv7Haven) refreshStats() {
 	res, err := n.sql.Query("SELECT * FROM eod_stats WHERE time > ? ORDER BY time ASC", n.eodStats.refreshTime.Unix())
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 	}
 
 	changed := false
@@ -37,7 +37,7 @@ func (n *Nv7Haven) refreshStats() {
 	for res.Next() {
 		err = res.Scan(&tm, &elemcnt, &combcnt, &usercnt, &found, &categorized, &servercnt)
 		if err != nil {
-			log.Println(err)
+			fmt.Println(err)
 		}
 
 		n.eodStats.Labels = append(n.eodStats.Labels, time.Unix(tm, 0).Format("2006-01-02"))
@@ -57,7 +57,7 @@ func (n *Nv7Haven) refreshStats() {
 	if changed {
 		dat, err := json.Marshal(n.eodStats)
 		if err != nil {
-			log.Println(err)
+			fmt.Println(err)
 		}
 		n.eodStats.chart = string(dat)
 	}

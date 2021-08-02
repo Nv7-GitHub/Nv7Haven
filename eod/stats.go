@@ -2,7 +2,6 @@ package eod
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -59,7 +58,7 @@ func (b *EoD) saveStats() {
 	var lastTime int64
 	err := b.db.QueryRow("SELECT time FROM eod_stats ORDER BY time DESC LIMIT 1").Scan(&lastTime)
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 	}
 
 	if time.Since(time.Unix(lastTime, 0)).Hours() > 24 {
@@ -78,7 +77,7 @@ func (b *EoD) saveStats() {
 
 		_, err = b.db.Exec(saveStatsQuery, time.Now().Unix(), found, categorized)
 		if err != nil {
-			log.Println(err)
+			fmt.Println(err)
 		}
 	}
 }

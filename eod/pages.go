@@ -2,7 +2,6 @@ package eod
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -140,7 +139,7 @@ func (b *EoD) pageSwitchHandler(s *discordgo.Session, i *discordgo.InteractionCr
 		},
 	})
 	if err != nil {
-		log.Println("failed to update page switcher:", err)
+		fmt.Println("failed to update page switcher:", err)
 	}
 	dat.pageSwitchers[i.Message.ID] = ps
 

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 	"unicode"
@@ -212,7 +211,7 @@ func (b *EoD) getColor(guild, id string) (int, error) {
 	if err != nil {
 		mem, err = b.dg.GuildMember(guild, id)
 		if err != nil {
-			log.Println(err)
+			fmt.Println(err)
 			return 0, err
 		}
 	}

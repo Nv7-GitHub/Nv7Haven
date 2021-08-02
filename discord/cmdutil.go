@@ -1,7 +1,7 @@
 package discord
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -40,7 +40,7 @@ func (n *normalResp) Embed(emb *discordgo.MessageEmbed) string {
 	if err == nil {
 		return msg.ID
 	}
-	log.Println(err)
+	fmt.Println(err)
 	return ""
 }
 
