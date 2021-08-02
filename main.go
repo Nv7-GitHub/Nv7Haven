@@ -11,8 +11,12 @@ import (
 	"runtime"
 	"runtime/debug"
 
+	"github.com/Nv7-Github/Nv7Haven/discord"
 	"github.com/Nv7-Github/Nv7Haven/elemental"
+	"github.com/Nv7-Github/Nv7Haven/eod"
+	"github.com/Nv7-Github/Nv7Haven/gdo"
 	"github.com/Nv7-Github/Nv7Haven/nv7haven"
+	"github.com/Nv7-Github/Nv7Haven/single"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"google.golang.org/grpc"
 
@@ -109,10 +113,10 @@ func main() {
 		panic(err)
 	}
 
-	/*single.InitSingle(app, db)
+	single.InitSingle(app, db)
 	b := discord.InitDiscord(db, e)
 	eod := eod.InitEoD(db)
-	gdo.InitGDO(app)*/
+	gdo.InitGDO(app)
 
 	go func() {
 		wrapped := grpcweb.WrapServer(grpc)
@@ -146,7 +150,7 @@ func main() {
 	}
 
 	e.Close()
-	/*b.Close()
-	eod.Close()*/
+	b.Close()
+	eod.Close()
 	db.Close()
 }

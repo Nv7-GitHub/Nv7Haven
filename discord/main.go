@@ -44,7 +44,7 @@ type Bot struct {
 
 	pages map[string]reactionMsg
 
-	e      elemental.Elemental
+	e      *elemental.Elemental
 	combos map[string]comb
 }
 
@@ -83,7 +83,7 @@ func (b *Bot) handlers() {
 }
 
 // InitDiscord creates a discord bot
-func InitDiscord(db *sql.DB, e elemental.Elemental) Bot {
+func InitDiscord(db *sql.DB, e *elemental.Elemental) Bot {
 	// Init
 	rand.Seed(time.Now().UnixNano())
 
