@@ -178,7 +178,10 @@ func (b *EoD) createPoll(p poll) error {
 	if dat.polls == nil {
 		dat.polls = make(map[string]poll)
 	}
+
+	dat.lock.Lock()
 	dat.polls[p.Message] = p
+	dat.lock.Unlock()
 
 	lock.Lock()
 	b.dat[p.Guild] = dat
