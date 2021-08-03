@@ -1,3 +1,5 @@
+echo "Updating..."
+ > logs.txt
 git pull
 
 export PORT=8080
