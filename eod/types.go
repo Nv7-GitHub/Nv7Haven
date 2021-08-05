@@ -60,6 +60,7 @@ type pageSwitcher struct {
 	Title      string
 	PageGetter pageSwitchGetter
 	Thumbnail  string
+	Footer     string
 	PageLength int
 
 	// Inv
