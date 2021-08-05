@@ -80,7 +80,7 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 		rspInp = nil
 	}
 	hint, msg, suc := b.getHint(elem, hasElem, m.Author.ID, m.GuildID, m, rspInp)
-	if !suc {
+	if !suc && msg != "" {
 		rsp.ErrorMessage(msg)
 		return
 	}
