@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"sort"
 	"strings"
-
-	"facette.io/natsort"
 )
 
 func (b *EoD) invCmd(user string, m msg, rsp rsp, sorter string) {
@@ -64,7 +62,7 @@ func (b *EoD) invCmd(user string, m msg, rsp rsp, sorter string) {
 			}
 		}
 		outs = outs[:count]
-		natsort.Sort(outs)
+		sortStrings(outs)
 		items = outs
 
 	case "length":
@@ -73,7 +71,7 @@ func (b *EoD) invCmd(user string, m msg, rsp rsp, sorter string) {
 		})
 
 	default:
-		natsort.Sort(items)
+		sortStrings(items)
 	}
 	dat.lock.RUnlock()
 

@@ -5,7 +5,6 @@ import (
 	"sort"
 	"strings"
 
-	"facette.io/natsort"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -124,7 +123,7 @@ func (b *EoD) downloadInvCmd(user string, sorter string, m msg, rsp rsp) {
 			}
 		}
 		outs = outs[:count]
-		natsort.Sort(outs)
+		sortStrings(outs)
 		items = outs
 
 	case "length":
@@ -133,7 +132,7 @@ func (b *EoD) downloadInvCmd(user string, sorter string, m msg, rsp rsp) {
 		})
 
 	default:
-		natsort.Sort(items)
+		sortStrings(items)
 	}
 
 	out := &strings.Builder{}
