@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"unicode"
@@ -215,16 +216,23 @@ func (b *EoD) getColor(guild, id string) (int, error) {
 			return 0, err
 		}
 	}
-	for _, roleID := range mem.Roles {
+	roles := make([]*discordgo.Role, len(mem.Roles))
+	for i, roleID := range mem.Roles {
 		role, err := b.getRole(roleID, guild)
-		if err == nil {
-			if role.Color != 0 {
-				return role.Color, nil
-			}
-		} else {
-			break
+		if err != nil {
+			return 0, err
+		}
+		roles[i] = role
+	}
+
+	sorted := discordgo.Roles(roles)
+	sort.Sort(sorted)
+	for _, role := range sorted {
+		if role.Color != 0 {
+			return role.Color, nil
 		}
 	}
+
 	return 0, errors.New("eod: color not found")
 }
 
