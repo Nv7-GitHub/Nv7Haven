@@ -80,6 +80,7 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 	_, exists = dat.playChannels[m.ChannelID]
 	if !exists {
 		rsp.ErrorMessage("You can only suggest in play channels!")
+		return
 	}
 
 	if dat.combCache == nil {
