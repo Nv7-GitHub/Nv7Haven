@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+
+	"facette.io/natsort"
 )
 
 const x = "❌"
@@ -86,7 +88,7 @@ func (b *EoD) catCmd(category string, sortKind int, m msg, rsp rsp) {
 
 	default:
 		sort.Slice(out, func(i, j int) bool {
-			return out[i].name < out[j].name
+			return natsort.Compare(out[i].name, out[j].name)
 		})
 	}
 
@@ -164,7 +166,7 @@ func (b *EoD) allCatCmd(sortBy int, m msg, rsp rsp) {
 
 	case catSortAlphabetical:
 		sort.Slice(out, func(i, j int) bool {
-			return out[i].name < out[j].name
+			return natsort.Compare(out[i].name, out[j].name)
 		})
 
 	case catSortByElementCount:
