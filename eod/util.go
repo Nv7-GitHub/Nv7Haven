@@ -1,6 +1,7 @@
 package eod
 
 import (
+	_ "embed"
 	"encoding/json"
 	"errors"
 	"fmt"
