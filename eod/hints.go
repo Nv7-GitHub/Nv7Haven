@@ -178,7 +178,7 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, in
 			query = strings.ReplaceAll(query, " LIKE ", "=")
 		}
 	} else {
-		query = `SELECT DISTINCT elem3 FROM eod_combos WHERE ((elems LIKE CONCAT("%+", LOWER(?), "+%")) OR (elems LIKE CONCAT("%", LOWER(?), "+%")) OR (elems LIKE CONCAT("%+", LOWER(?), "%"))) AND guild=?`
+		query = `SELECT DISTINCT elem3 FROM eod_combos WHERE ((elems LIKE CONCAT("%+", LOWER(?), "+%")) OR (elems LIKE CONCAT(LOWER(?), "+%")) OR (elems LIKE CONCAT("%+", LOWER(?)))) AND guild=?`
 		if isWildcard(elem) {
 			for val := range wildcards {
 				elem = strings.ReplaceAll(elem, string([]rune{val}), string([]rune{'\\', val}))
