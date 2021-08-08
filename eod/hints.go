@@ -178,7 +178,7 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, in
 			query = strings.ReplaceAll(query, " LIKE ", "=")
 		}
 	} else {
-		query = `SELECT elem3 FROM eod_combos WHERE (elems LIKE CONCAT("%+", LOWER(?), "+%")) OR (elems LIKE CONCAT("%", LOWER(?), "+%")) OR (elems LIKE CONCAT("%+", LOWER(?), "%")) AND guild=?`
+		query = `SELECT elem3 FROM eod_combos WHERE ((elems LIKE CONCAT("%+", LOWER(?), "+%")) OR (elems LIKE CONCAT("%", LOWER(?), "+%")) OR (elems LIKE CONCAT("%+", LOWER(?), "%"))) AND guild=?`
 		args = []interface{}{elem, elem, elem, guild}
 	}
 
@@ -217,7 +217,11 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, in
 	}
 	val := text.String()
 
-	title := fmt.Sprintf("Hints for %s", el.Name)
+	inverseTitle := ""
+	if inverse {
+		inverseTitle = "Inverse "
+	}
+	title := fmt.Sprintf("%sHints for %s", inverseTitle, el.Name)
 
 	txt := "Don't "
 	_, hasElem = inv[strings.ToLower(el.Name)]
