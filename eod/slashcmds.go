@@ -662,7 +662,7 @@ var (
 			sort := catSortAlphabetical
 			catName := ""
 			hasUser := false
-			var user *discordgo.User
+			var user string
 			for _, val := range resp.Options {
 				if val.Name == "category" {
 					isAll = false
@@ -675,16 +675,16 @@ var (
 
 				if val.Name == "user" {
 					hasUser = true
-					user = val.UserValue(bot.dg)
+					user = val.UserValue(bot.dg).ID
 				}
 			}
 
 			if isAll {
-				bot.allCatCmd(sort, hasUser, user.ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.allCatCmd(sort, hasUser, user, bot.newMsgSlash(i), bot.newRespSlash(i))
 				return
 			}
 
-			bot.catCmd(catName, sort, hasUser, user.ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.catCmd(catName, sort, hasUser, user, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"hint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
