@@ -146,6 +146,11 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 		}
 	}
 
+	if isFoolsMode && !isFool(elem) {
+		rsp.ErrorMessage(makeFoolResp(elem))
+		return
+	}
+
 	// Get Element
 	dat.lock.RLock()
 	el, exists := dat.elemCache[strings.ToLower(elem)]

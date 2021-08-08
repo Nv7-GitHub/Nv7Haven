@@ -24,6 +24,11 @@ func (b *EoD) catCmd(category string, sortKind int, hasUser bool, user string, m
 		return
 	}
 
+	if isFoolsMode && !isFool(category) {
+		rsp.ErrorMessage(makeFoolResp(category))
+		return
+	}
+
 	msg := "You don't have an inventory!"
 	id := m.Author.ID
 	if hasUser {

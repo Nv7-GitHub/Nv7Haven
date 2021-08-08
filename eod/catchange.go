@@ -17,6 +17,17 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 
 	category = strings.TrimSpace(category)
 
+	for _, elem := range elems {
+		if isFoolsMode && !isFool(elem) {
+			rsp.ErrorMessage(makeFoolResp(elem))
+			return
+		}
+	}
+	if isFoolsMode && !isFool(category) {
+		rsp.ErrorMessage(makeFoolResp(category))
+		return
+	}
+
 	if len(category) == 0 {
 		rsp.ErrorMessage("Category name can't be blank!")
 		return

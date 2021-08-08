@@ -311,3 +311,23 @@ func sortStrings(arr []string) {
 		return compareStrings(arr[i], arr[j])
 	})
 }
+
+// FOOLS
+//go:embed fools.txt
+var foolsRaw string
+var fools []string
+
+const isFoolsMode = false
+
+func isFool(inp string) bool {
+	for _, val := range fools {
+		if strings.Contains(inp, val) {
+			return true
+		}
+	}
+	return false
+}
+
+func makeFoolResp(val string) string {
+	return fmt.Sprintf("**%s** doesn't satisfy me!", val)
+}
