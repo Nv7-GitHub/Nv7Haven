@@ -108,6 +108,10 @@ func (b *EoD) checkServer(m msg, rsp rsp) bool {
 		lock.Unlock()
 	}
 
+	if dat.catCache == nil {
+		dat.catCache = make(map[string]category)
+	}
+
 	_, exists = dat.playChannels[m.ChannelID]
 	return exists
 }
