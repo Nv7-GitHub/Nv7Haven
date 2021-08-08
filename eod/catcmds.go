@@ -16,18 +16,25 @@ const (
 	catSortByElementCount = 3
 )
 
-func (b *EoD) catCmd(category string, sortKind int, m msg, rsp rsp) {
+func (b *EoD) catCmd(category string, sortKind int, hasUser bool, user string, m msg, rsp rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
 	if !exists {
 		return
 	}
+
+	msg := "You don't have an inventory!"
+	id := m.Author.ID
+	if hasUser {
+		id = user
+		msg = fmt.Sprintf("User <@%s> doesn't have an inventory!", user)
+	}
 	dat.lock.RLock()
-	inv, exists := dat.invCache[m.Author.ID]
+	inv, exists := dat.invCache[id]
 	dat.lock.RUnlock()
 	if !exists {
-		rsp.ErrorMessage("You don't have an inventory!")
+		rsp.ErrorMessage(msg)
 		return
 	}
 
@@ -111,7 +118,7 @@ type catData struct {
 	count int
 }
 
-func (b *EoD) allCatCmd(sortBy int, m msg, rsp rsp) {
+func (b *EoD) allCatCmd(sortBy int, hasUser bool, user string, m msg, rsp rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -119,9 +126,17 @@ func (b *EoD) allCatCmd(sortBy int, m msg, rsp rsp) {
 		return
 	}
 
-	inv, exists := dat.invCache[m.Author.ID]
+	msg := "You don't have an inventory!"
+	id := m.Author.ID
+	if hasUser {
+		id = user
+		msg = fmt.Sprintf("User <@%s> doesn't have an inventory!", user)
+	}
+	dat.lock.RLock()
+	inv, exists := dat.invCache[id]
+	dat.lock.RUnlock()
 	if !exists {
-		rsp.ErrorMessage("You don't have an inventory!")
+		rsp.ErrorMessage(msg)
 		return
 	}
 

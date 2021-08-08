@@ -260,6 +260,12 @@ var (
 						},
 					},
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionUser,
+					Name:        "user",
+					Description: "User's inventory to compare",
+					Required:    false,
+				},
 			},
 		},
 		{
@@ -655,6 +661,8 @@ var (
 			isAll := true
 			sort := catSortAlphabetical
 			catName := ""
+			hasUser := false
+			var user *discordgo.User
 			for _, val := range resp.Options {
 				if val.Name == "category" {
 					isAll = false
@@ -664,14 +672,19 @@ var (
 				if val.Name == "sort" {
 					sort = int(val.IntValue())
 				}
+
+				if val.Name == "user" {
+					hasUser = true
+					user = val.UserValue(bot.dg)
+				}
 			}
 
 			if isAll {
-				bot.allCatCmd(sort, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.allCatCmd(sort, hasUser, user.ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 				return
 			}
 
-			bot.catCmd(catName, sort, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.catCmd(catName, sort, hasUser, user.ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"hint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
