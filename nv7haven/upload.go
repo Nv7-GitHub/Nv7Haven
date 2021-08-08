@@ -2,7 +2,6 @@ package nv7haven
 
 import (
 	"fmt"
-	"log"
 	"math/rand"
 	"net/url"
 	"os"
@@ -72,7 +71,7 @@ func (n *Nv7Haven) upload(c *fiber.Ctx) error {
 func (n *Nv7Haven) checkDates() {
 	res, err := n.sql.Query("SELECT id, extension FROM upload WHERE expiry<=?", time.Now().Unix())
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 	}
 	defer res.Close()
 	var num int
@@ -80,16 +79,16 @@ func (n *Nv7Haven) checkDates() {
 	for res.Next() {
 		err = res.Scan(&num, &ext)
 		if err != nil {
-			log.Println(err)
+			fmt.Println(err)
 		}
 		err = os.Remove(fmt.Sprintf(fileDir, num, ext))
 		if err != nil {
-			log.Println(err)
+			fmt.Println(err)
 		}
 	}
 	_, err = n.sql.Exec("DELETE FROM upload WHERE expiry<=?", time.Now().Unix())
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 	}
 }
 

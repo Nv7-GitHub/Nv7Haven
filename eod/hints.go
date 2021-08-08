@@ -24,7 +24,7 @@ type hintComponent struct {
 }
 
 func (h *hintComponent) handler(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	hint, msg, suc := h.b.getHint("", false, i.Member.User.ID, i.GuildID)
+	hint, msg, suc := h.b.getHint("", false, i.Member.User.ID, i.GuildID, h.b.newMsgSlash(i), nil)
 	if !suc {
 		h.b.dg.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseUpdateMessage,
@@ -75,7 +75,15 @@ func obscure(val string) string {
 func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 	rsp.Acknowledge()
 
-	hint, msg, suc := b.getHint(elem, hasElem, m.Author.ID, m.GuildID)
+	rspInp := rsp
+	if !hasElem {
+		rspInp = nil
+	}
+	hint, msg, suc := b.getHint(elem, hasElem, m.Author.ID, m.GuildID, m, rspInp)
+	if !suc && msg == "" {
+		return
+	}
+
 	if !suc {
 		rsp.ErrorMessage(msg)
 		return
@@ -104,7 +112,7 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 	lock.Unlock()
 }
 
-func (b *EoD) getHint(elem string, hasElem bool, author string, guild string) (*discordgo.MessageEmbed, string, bool) {
+func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, m msg, rsp rsp) (*discordgo.MessageEmbed, string, bool) {
 	lock.RLock()
 	dat, exists := b.dat[guild]
 	lock.RUnlock()
@@ -204,35 +212,62 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string) (*
 		return out[i].exists > out[j].exists
 	})
 
-	text := ""
+	text := &strings.Builder{}
 	for _, val := range out {
-		text += val.text + "\n"
+		text.WriteString(val.text)
+		text.WriteString("\n")
 	}
+	val := text.String()
+
+	title := fmt.Sprintf("Hints for %s", el.Name)
 
 	txt := "Don't "
 	_, hasElem = inv[strings.ToLower(el.Name)]
 	if hasElem {
 		txt = ""
 	}
+	footer := fmt.Sprintf("%d Hints • You %sHave This", len(out), txt)
 
-	if len(text) > 2000 {
-		lines := strings.Split(text, "\n")
-		text = ""
-		for _, line := range lines {
-			if len(text)+len(line) < 2000 {
-				text += line + "\n"
+	// Too long
+	if len(val) > 2000 {
+		if rsp == nil {
+			// If can't do page switcher, shorten it (cant do pageswitcher if its in a random hint)
+			text = &strings.Builder{}
+			length := 0
+			for _, val := range out {
+				if length+len(val.text) > 2000 {
+					break
+				}
+
+				length += len(val.text)
+				text.WriteString(val.text)
 			}
+			val = text.String()
+		} else {
+			vals := make([]string, len(out))
+			for i, v := range out {
+				vals[i] = v.text
+			}
+			b.newPageSwitcher(pageSwitcher{
+				Kind:       pageSwitchInv,
+				Title:      title,
+				PageGetter: b.invPageGetter,
+				Items:      vals,
+				Thumbnail:  el.Image,
+				Footer:     footer,
+			}, m, rsp)
+			return nil, "", false
 		}
 	}
 
 	return &discordgo.MessageEmbed{
-		Title:       fmt.Sprintf("Hints for %s", el.Name),
-		Description: text,
+		Title:       title,
+		Description: val,
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
 			URL: el.Image,
 		},
 		Footer: &discordgo.MessageEmbedFooter{
-			Text: fmt.Sprintf("%d Hints • You %sHave This", len(out), txt),
+			Text: footer,
 		},
 	}, "", true
 }

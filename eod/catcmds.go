@@ -93,7 +93,7 @@ func (b *EoD) catCmd(category string, sortKind int, hasUser bool, user string, m
 
 	default:
 		sort.Slice(out, func(i, j int) bool {
-			return out[i].name < out[j].name
+			return compareStrings(out[i].name, out[j].name)
 		})
 	}
 
@@ -179,7 +179,7 @@ func (b *EoD) allCatCmd(sortBy int, hasUser bool, user string, m msg, rsp rsp) {
 
 	case catSortAlphabetical:
 		sort.Slice(out, func(i, j int) bool {
-			return out[i].name < out[j].name
+			return compareStrings(out[i].name, out[j].name)
 		})
 
 	case catSortByElementCount:

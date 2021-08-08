@@ -2,7 +2,6 @@ package eod
 
 import (
 	"fmt"
-	"log"
 	"math/rand"
 	"strings"
 
@@ -41,7 +40,7 @@ func (c *ideaComponent) handler(s *discordgo.Session, i *discordgo.InteractionCr
 		},
 	})
 	if err != nil {
-		log.Println("Failed to send message:", err)
+		fmt.Println("Failed to send message:", err)
 	}
 }
 

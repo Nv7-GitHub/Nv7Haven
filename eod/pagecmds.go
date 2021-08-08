@@ -7,10 +7,13 @@ import (
 )
 
 func (b *EoD) invCmd(user string, m msg, rsp rsp, sorter string) {
+	rsp.Acknowledge()
+
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
 	if !exists {
+		rsp.ErrorMessage("Guild not setup!")
 		return
 	}
 	dat.lock.RLock()
@@ -62,7 +65,7 @@ func (b *EoD) invCmd(user string, m msg, rsp rsp, sorter string) {
 			}
 		}
 		outs = outs[:count]
-		sort.Strings(outs)
+		sortStrings(outs)
 		items = outs
 
 	case "length":
@@ -71,7 +74,7 @@ func (b *EoD) invCmd(user string, m msg, rsp rsp, sorter string) {
 		})
 
 	default:
-		sort.Strings(items)
+		sortStrings(items)
 	}
 	dat.lock.RUnlock()
 

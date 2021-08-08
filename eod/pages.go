@@ -2,7 +2,6 @@ package eod
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -59,6 +58,12 @@ func (b *EoD) newPageSwitcher(ps pageSwitcher, m msg, rsp rsp) {
 	if rsp.Error(err) {
 		return
 	}
+
+	footerTxt := fmt.Sprintf("Page %d/%d", ps.Page+1, length+1)
+	if ps.Footer != "" {
+		footerTxt += " • " + ps.Footer
+	}
+
 	id := rsp.Embed(&discordgo.MessageEmbed{
 		Title:       ps.Title,
 		Description: cont,
@@ -66,7 +71,7 @@ func (b *EoD) newPageSwitcher(ps pageSwitcher, m msg, rsp rsp) {
 			URL: ps.Thumbnail,
 		},
 		Footer: &discordgo.MessageEmbedFooter{
-			Text: fmt.Sprintf("Page %d/%d", ps.Page+1, length+1),
+			Text: footerTxt,
 		},
 	}, btnRow)
 
@@ -119,6 +124,11 @@ func (b *EoD) pageSwitchHandler(s *discordgo.Session, i *discordgo.InteractionCr
 		}
 	}
 
+	footerTxt := fmt.Sprintf("Page %d/%d", ps.Page+1, length+1)
+	if ps.Footer != "" {
+		footerTxt += " • " + ps.Footer
+	}
+
 	color, _ := b.getColor(i.GuildID, i.Member.User.ID)
 	err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseUpdateMessage,
@@ -131,7 +141,7 @@ func (b *EoD) pageSwitchHandler(s *discordgo.Session, i *discordgo.InteractionCr
 						URL: ps.Thumbnail,
 					},
 					Footer: &discordgo.MessageEmbedFooter{
-						Text: fmt.Sprintf("Page %d/%d", ps.Page+1, length+1),
+						Text: footerTxt,
 					},
 					Color: color,
 				},
@@ -140,7 +150,7 @@ func (b *EoD) pageSwitchHandler(s *discordgo.Session, i *discordgo.InteractionCr
 		},
 	})
 	if err != nil {
-		log.Println("failed to update page switcher:", err)
+		fmt.Println("failed to update page switcher:", err)
 	}
 	dat.pageSwitchers[i.Message.ID] = ps
 

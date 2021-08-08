@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"os"
@@ -64,6 +65,18 @@ func main() {
 		if c.Params("password") == os.Getenv("PASSWORD") {
 			os.Exit(2)
 		}
+		return nil
+	})
+	app.Get("/logs", func(c *fiber.Ctx) error {
+		file, err := os.Open("logs.txt")
+		if err != nil {
+			return err
+		}
+		_, err = io.Copy(c, file)
+		if err != nil {
+			return err
+		}
+		file.Close()
 		return nil
 	})
 

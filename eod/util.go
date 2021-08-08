@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
+	"sort"
 	"strconv"
 	"strings"
 	"unicode"
@@ -212,20 +212,27 @@ func (b *EoD) getColor(guild, id string) (int, error) {
 	if err != nil {
 		mem, err = b.dg.GuildMember(guild, id)
 		if err != nil {
-			log.Println(err)
+			fmt.Println(err)
 			return 0, err
 		}
 	}
-	for _, roleID := range mem.Roles {
+	roles := make([]*discordgo.Role, len(mem.Roles))
+	for i, roleID := range mem.Roles {
 		role, err := b.getRole(roleID, guild)
-		if err == nil {
-			if role.Color != 0 {
-				return role.Color, nil
-			}
-		} else {
-			break
+		if err != nil {
+			return 0, err
+		}
+		roles[i] = role
+	}
+
+	sorted := discordgo.Roles(roles)
+	sort.Sort(sorted)
+	for _, role := range sorted {
+		if role.Color != 0 {
+			return role.Color, nil
 		}
 	}
+
 	return 0, errors.New("eod: color not found")
 }
 
@@ -287,4 +294,20 @@ func toTitle(s string) string {
 		}
 	}
 	return strings.Join(words, " ")
+}
+
+// Less
+func compareStrings(a, b string) bool {
+	fl1, err := strconv.ParseFloat(a, 32)
+	fl2, err2 := strconv.ParseFloat(b, 32)
+	if err == nil && err2 == nil {
+		return fl1 < fl2
+	}
+	return a < b
+}
+
+func sortStrings(arr []string) {
+	sort.Slice(arr, func(i, j int) bool {
+		return compareStrings(arr[i], arr[j])
+	})
 }
