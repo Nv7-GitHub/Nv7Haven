@@ -271,7 +271,7 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, in
 }
 
 func getHintText(elemTxt string, inv map[string]empty, dat serverData, inverse bool) (string, int) {
-	if inverse {
+	if !inverse {
 		elems := strings.Split(elemTxt, "+")
 		hasElems := true
 		for _, val := range elems {
