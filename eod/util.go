@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 	"unicode"
 
 	"github.com/bwmarrin/discordgo"
@@ -318,7 +319,7 @@ func sortStrings(arr []string) {
 var foolsRaw string
 var fools []string
 
-const isFoolsMode = false
+var isFoolsMode = time.Now().Month() == time.April && time.Now().Day() == 1
 
 func isFool(inp string) bool {
 	for _, val := range fools {
