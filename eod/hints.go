@@ -179,6 +179,12 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, in
 		}
 	} else {
 		query = `SELECT elem3 FROM eod_combos WHERE ((elems LIKE CONCAT("%+", LOWER(?), "+%")) OR (elems LIKE CONCAT("%", LOWER(?), "+%")) OR (elems LIKE CONCAT("%+", LOWER(?), "%"))) AND guild=?`
+		if isWildcard(elem) {
+			query += ` ESCAPE '\'`
+			for val := range wildcards {
+				query = strings.ReplaceAll(query, string([]rune{val}), string([]rune{'\\', val}))
+			}
+		}
 		args = []interface{}{elem, elem, elem, guild}
 	}
 

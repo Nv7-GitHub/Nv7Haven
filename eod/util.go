@@ -247,9 +247,23 @@ func isASCII(s string) bool {
 	return true
 }
 
+var wildcards = map[rune]empty{
+	'%': {},
+	'*': {},
+	'?': {},
+	'[': {},
+	']': {},
+	'!': {},
+	'-': {},
+	'#': {},
+	'^': {},
+	'_': {},
+}
+
 func isWildcard(s string) bool {
 	for _, char := range s {
-		if char == '%' || char == '*' || char == '?' || char == '[' || char == ']' || char == '!' || char == '-' || char == '#' || char == '^' || char == '_' {
+		_, exists := wildcards[char]
+		if exists {
 			return true
 		}
 	}
