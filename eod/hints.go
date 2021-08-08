@@ -178,7 +178,7 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, in
 			query = strings.ReplaceAll(query, " LIKE ", "=")
 		}
 	} else {
-		query = `SELECT * FROM eod_combos WHERE (elems LIKE CONCAT("%+", LOWER(?), "+%")) OR (elems LIKE CONCAT("%", LOWER(?), "+%")) OR (elems LIKE CONCAT("%+", LOWER(?), "%")) AND guild=?`
+		query = `SELECT elem3 FROM eod_combos WHERE (elems LIKE CONCAT("%+", LOWER(?), "+%")) OR (elems LIKE CONCAT("%", LOWER(?), "+%")) OR (elems LIKE CONCAT("%+", LOWER(?), "%")) AND guild=?`
 		args = []interface{}{elem, elem, elem, guild}
 	}
 
@@ -196,27 +196,14 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, in
 		if err != nil {
 			return nil, err.Error(), false
 		}
-		elems := strings.Split(elemTxt, "+")
 
-		txt, ex := getHintText(elems, inv, dat)
+		txt, ex := getHintText(elemTxt, inv, dat, inverse)
 		out = append(out, hintCombo{
 			exists: ex,
 			text:   txt,
 		})
 
 		length += len(txt)
-	}
-
-	if len(out) == 0 {
-		dat.lock.RLock()
-		element := dat.elemCache[strings.ToLower(elem)]
-		dat.lock.RUnlock()
-
-		txt, ex := getHintText(element.Parents, inv, dat)
-		out = append(out, hintCombo{
-			exists: ex,
-			text:   txt,
-		})
 	}
 
 	sort.Slice(out, func(i, j int) bool {
@@ -283,38 +270,55 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, in
 	}, "", true
 }
 
-func getHintText(elems []string, inv map[string]empty, dat serverData) (string, int) {
-	hasElems := true
-	for _, val := range elems {
-		_, exists := inv[strings.ToLower(val)]
-		if !exists {
-			hasElems = false
+func getHintText(elemTxt string, inv map[string]empty, dat serverData, inverse bool) (string, int) {
+	if inverse {
+		elems := strings.Split(elemTxt, "+")
+		hasElems := true
+		for _, val := range elems {
+			_, exists := inv[strings.ToLower(val)]
+			if !exists {
+				hasElems = false
+			}
 		}
+		pref := x
+		ex := 0
+		if hasElems {
+			pref = check
+			ex = 1
+		}
+		prf := "%s"
+		params := make([]interface{}, len(elems))
+		i := 0
+		for _, k := range elems {
+			dat.lock.RLock()
+			params[i] = interface{}(dat.elemCache[strings.ToLower(k)].Name)
+			dat.lock.RUnlock()
+
+			if i == 0 {
+				prf += " %s"
+			} else {
+				prf += " + %s"
+			}
+			i++
+		}
+
+		params = append([]interface{}{pref}, params...)
+		params[len(params)-1] = obscure(params[len(params)-1].(string))
+		txt := fmt.Sprintf(prf, params...)
+		return txt, ex
 	}
-	pref := x
+
+	dat.lock.RLock()
+	_, found := inv[strings.ToLower(elemTxt)]
+	dat.lock.RUnlock()
+	txt := x
 	ex := 0
-	if hasElems {
-		pref = check
+	if found {
+		txt = check
 		ex = 1
 	}
-	prf := "%s"
-	params := make([]interface{}, len(elems))
-	i := 0
-	for _, k := range elems {
-		dat.lock.RLock()
-		params[i] = interface{}(dat.elemCache[strings.ToLower(k)].Name)
-		dat.lock.RUnlock()
-
-		if i == 0 {
-			prf += " %s"
-		} else {
-			prf += " + %s"
-		}
-		i++
-	}
-
-	params = append([]interface{}{pref}, params...)
-	params[len(params)-1] = obscure(params[len(params)-1].(string))
-	txt := fmt.Sprintf(prf, params...)
+	dat.lock.RLock()
+	txt += " " + dat.elemCache[strings.ToLower(elemTxt)].Name
+	dat.lock.RUnlock()
 	return txt, ex
 }
