@@ -88,13 +88,13 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		if cmd == "hint" || cmd == "h" {
 			if len(m.Content) <= len(cmd)+2 {
-				b.hintCmd("", false, msg, rsp)
+				b.hintCmd("", false, false, msg, rsp)
 				return
 			}
 			suggestion := m.Content[len(cmd)+2:]
 			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
 
-			b.hintCmd(suggestion, true, msg, rsp)
+			b.hintCmd(suggestion, true, false, msg, rsp)
 			return
 		}
 

@@ -24,7 +24,7 @@ type hintComponent struct {
 }
 
 func (h *hintComponent) handler(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	hint, msg, suc := h.b.getHint("", false, i.Member.User.ID, i.GuildID, h.b.newMsgSlash(i), nil)
+	hint, msg, suc := h.b.getHint("", false, i.Member.User.ID, i.GuildID, false, h.b.newMsgSlash(i), nil)
 	if !suc {
 		h.b.dg.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseUpdateMessage,
@@ -72,14 +72,18 @@ func obscure(val string) string {
 	return string(out)
 }
 
-func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
+func (b *EoD) hintCmd(elem string, hasElem bool, inverse bool, m msg, rsp rsp) {
 	rsp.Acknowledge()
 
 	rspInp := rsp
 	if !hasElem {
+		if inverse {
+			rsp.ErrorMessage("You cannot have an inverse hint without an element!")
+			return
+		}
 		rspInp = nil
 	}
-	hint, msg, suc := b.getHint(elem, hasElem, m.Author.ID, m.GuildID, m, rspInp)
+	hint, msg, suc := b.getHint(elem, hasElem, m.Author.ID, m.GuildID, inverse, m, rspInp)
 	if !suc && msg == "" {
 		return
 	}
@@ -112,7 +116,7 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 	lock.Unlock()
 }
 
-func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, m msg, rsp rsp) (*discordgo.MessageEmbed, string, bool) {
+func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, inverse bool, m msg, rsp rsp) (*discordgo.MessageEmbed, string, bool) {
 	lock.RLock()
 	dat, exists := b.dat[guild]
 	lock.RUnlock()
@@ -162,16 +166,23 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, m 
 
 	var combs *sql.Rows
 	var err error
-	query := "SELECT elems FROM eod_combos WHERE elem3 LIKE ? AND guild=?"
-	if isASCII(elem) {
-		query = "SELECT elems FROM eod_combos WHERE CONVERT(elem3 USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND guild=CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci"
+	var query string
+	var args []interface{}
+	if !inverse {
+		query = "SELECT elems FROM eod_combos WHERE elem3 LIKE ? AND guild=?"
+		if isASCII(elem) {
+			query = "SELECT elems FROM eod_combos WHERE CONVERT(elem3 USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND guild=CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci"
+		}
+		args = []interface{}{elem, guild}
+		if isWildcard(elem) {
+			query = strings.ReplaceAll(query, " LIKE ", "=")
+		}
+	} else {
+		query = `SELECT * FROM eod_combos WHERE (elems LIKE CONCAT("%+", LOWER(?), "+%")) OR (elems LIKE CONCAT("%", LOWER(?), "+%")) OR (elems LIKE CONCAT("%+", LOWER(?), "%")) AND guild=?`
+		args = []interface{}{elem, elem, elem, guild}
 	}
 
-	if isWildcard(elem) {
-		query = strings.ReplaceAll(query, " LIKE ", "=")
-	}
-
-	combs, err = b.db.Query(query, elem, guild)
+	combs, err = b.db.Query(query, args...)
 	if err != nil {
 		return nil, err.Error(), false
 	}

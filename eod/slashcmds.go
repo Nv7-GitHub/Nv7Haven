@@ -278,6 +278,12 @@ var (
 					Description: "Name of the element!",
 					Required:    false,
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionBoolean,
+					Name:        "inverse",
+					Description: "Whether its an inverse hint!",
+					Required:    false,
+				},
 			},
 		},
 		{
@@ -688,11 +694,21 @@ var (
 		},
 		"hint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			if len(resp.Options) == 0 {
-				bot.hintCmd("", false, bot.newMsgSlash(i), bot.newRespSlash(i))
-				return
+			hasElem := false
+			var elem string
+			inverse := false
+			for _, opt := range resp.Options {
+				if opt.Name == "element" {
+					hasElem = true
+					elem = opt.StringValue()
+				}
+
+				if opt.Name == "inverse" {
+					inverse = opt.BoolValue()
+				}
 			}
-			bot.hintCmd(resp.Options[0].StringValue(), true, bot.newMsgSlash(i), bot.newRespSlash(i))
+
+			bot.hintCmd(elem, hasElem, inverse, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"stats": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.statsCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
