@@ -90,6 +90,11 @@ func (e *Elemental) GetCombo(elem1, elem2 string) (string, bool, error) {
 	return elem3, true, nil
 }
 
+const (
+	minBatchCount = 60
+	batchCount    = 10
+)
+
 func (e *Elemental) GetAll(uid *wrapperspb.StringValue, stream pb.Elemental_GetAllServer) error {
 	res, err := e.db.Query("SELECT found FROM users WHERE uid=?", uid.Value)
 	if err != nil {
@@ -125,9 +130,9 @@ func (e *Elemental) GetAll(uid *wrapperspb.StringValue, stream pb.Elemental_GetA
 
 	total := int64(len(req))
 
-	getAllBatchSize := 60
-	if total/50 > int64(getAllBatchSize) {
-		getAllBatchSize = int(total / 50)
+	getAllBatchSize := minBatchCount
+	if total/batchCount > int64(getAllBatchSize) {
+		getAllBatchSize = int(total / batchCount)
 	}
 
 	batch := make([]*pb.Element, 0, getAllBatchSize)
