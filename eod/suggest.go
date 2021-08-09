@@ -28,6 +28,12 @@ var remove = []string{"\uFE0E", "\uFE0F", "\u200B", "\u200E", "\u200F", "\u2060"
 
 func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp) {
 	rsp.Acknowledge()
+
+	if isFoolsMode && !isFool(suggestion) {
+		rsp.ErrorMessage(makeFoolResp(suggestion))
+		return
+	}
+
 	if autocapitalize && strings.ToLower(suggestion) == suggestion {
 		suggestion = toTitle(suggestion)
 	}

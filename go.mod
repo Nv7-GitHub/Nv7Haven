@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go v0.84.0 // indirect
 	github.com/Knetic/govaluate v3.0.0+incompatible
 	github.com/Nv7-Github/firebase v0.0.0-20201012033747-47c56e1d869d
-	github.com/bwmarrin/discordgo v0.23.3-0.20210627161652-421e14965030
+	github.com/bwmarrin/discordgo v0.23.3-0.20210809001607-4ebe5a08ee67
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/gofiber/fiber/v2 v2.13.0
@@ -29,5 +29,3 @@ require (
 	google.golang.org/protobuf v1.26.0
 	nhooyr.io/websocket v1.8.7 // indirect
 )
-
-replace github.com/bwmarrin/discordgo => github.com/FedorLap2006/discordgo v0.22.1-0.20210630204054-40bdedfa5215

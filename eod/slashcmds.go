@@ -260,6 +260,12 @@ var (
 						},
 					},
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionUser,
+					Name:        "user",
+					Description: "User's inventory to compare",
+					Required:    false,
+				},
 			},
 		},
 		{
@@ -270,6 +276,12 @@ var (
 					Type:        discordgo.ApplicationCommandOptionString,
 					Name:        "element",
 					Description: "Name of the element!",
+					Required:    false,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionBoolean,
+					Name:        "inverse",
+					Description: "Whether its an inverse hint!",
 					Required:    false,
 				},
 			},
@@ -655,6 +667,8 @@ var (
 			isAll := true
 			sort := catSortAlphabetical
 			catName := ""
+			hasUser := false
+			var user string
 			for _, val := range resp.Options {
 				if val.Name == "category" {
 					isAll = false
@@ -664,22 +678,37 @@ var (
 				if val.Name == "sort" {
 					sort = int(val.IntValue())
 				}
+
+				if val.Name == "user" {
+					hasUser = true
+					user = val.UserValue(bot.dg).ID
+				}
 			}
 
 			if isAll {
-				bot.allCatCmd(sort, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.allCatCmd(sort, hasUser, user, bot.newMsgSlash(i), bot.newRespSlash(i))
 				return
 			}
 
-			bot.catCmd(catName, sort, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.catCmd(catName, sort, hasUser, user, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"hint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			if len(resp.Options) == 0 {
-				bot.hintCmd("", false, bot.newMsgSlash(i), bot.newRespSlash(i))
-				return
+			hasElem := false
+			var elem string
+			inverse := false
+			for _, opt := range resp.Options {
+				if opt.Name == "element" {
+					hasElem = true
+					elem = opt.StringValue()
+				}
+
+				if opt.Name == "inverse" {
+					inverse = opt.BoolValue()
+				}
 			}
-			bot.hintCmd(resp.Options[0].StringValue(), true, bot.newMsgSlash(i), bot.newRespSlash(i))
+
+			bot.hintCmd(elem, hasElem, inverse, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"stats": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.statsCmd(bot.newMsgSlash(i), bot.newRespSlash(i))

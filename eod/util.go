@@ -1,12 +1,14 @@
 package eod
 
 import (
+	_ "embed"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 	"unicode"
 
 	"github.com/bwmarrin/discordgo"
@@ -245,9 +247,23 @@ func isASCII(s string) bool {
 	return true
 }
 
+var wildcards = map[rune]empty{
+	'%': {},
+	'*': {},
+	'?': {},
+	'[': {},
+	']': {},
+	'!': {},
+	'-': {},
+	'#': {},
+	'^': {},
+	'_': {},
+}
+
 func isWildcard(s string) bool {
 	for _, char := range s {
-		if char == '%' || char == '*' || char == '?' || char == '[' || char == ']' || char == '!' || char == '-' || char == '#' || char == '^' || char == '_' {
+		_, exists := wildcards[char]
+		if exists {
 			return true
 		}
 	}
@@ -310,4 +326,24 @@ func sortStrings(arr []string) {
 	sort.Slice(arr, func(i, j int) bool {
 		return compareStrings(arr[i], arr[j])
 	})
+}
+
+// FOOLS
+//go:embed fools.txt
+var foolsRaw string
+var fools []string
+
+var isFoolsMode = time.Now().Month() == time.April && time.Now().Day() == 1
+
+func isFool(inp string) bool {
+	for _, val := range fools {
+		if strings.Contains(inp, val) {
+			return true
+		}
+	}
+	return false
+}
+
+func makeFoolResp(val string) string {
+	return fmt.Sprintf("**%s** doesn't satisfy me!", val)
 }

@@ -47,3 +47,4 @@ elemental/serviceAccount.json
 backups/*
 nvmail/*.json
 token.json
+eod/fools.txt

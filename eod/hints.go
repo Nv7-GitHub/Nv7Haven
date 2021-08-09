@@ -24,7 +24,7 @@ type hintComponent struct {
 }
 
 func (h *hintComponent) handler(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	hint, msg, suc := h.b.getHint("", false, i.Member.User.ID, i.GuildID, h.b.newMsgSlash(i), nil)
+	hint, msg, suc := h.b.getHint("", false, i.Member.User.ID, i.GuildID, false, h.b.newMsgSlash(i), nil)
 	if !suc {
 		h.b.dg.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseUpdateMessage,
@@ -72,14 +72,18 @@ func obscure(val string) string {
 	return string(out)
 }
 
-func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
+func (b *EoD) hintCmd(elem string, hasElem bool, inverse bool, m msg, rsp rsp) {
 	rsp.Acknowledge()
 
 	rspInp := rsp
 	if !hasElem {
+		if inverse {
+			rsp.ErrorMessage("You cannot have an inverse hint without an element!")
+			return
+		}
 		rspInp = nil
 	}
-	hint, msg, suc := b.getHint(elem, hasElem, m.Author.ID, m.GuildID, m, rspInp)
+	hint, msg, suc := b.getHint(elem, hasElem, m.Author.ID, m.GuildID, inverse, m, rspInp)
 	if !suc && msg == "" {
 		return
 	}
@@ -112,7 +116,7 @@ func (b *EoD) hintCmd(elem string, hasElem bool, m msg, rsp rsp) {
 	lock.Unlock()
 }
 
-func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, m msg, rsp rsp) (*discordgo.MessageEmbed, string, bool) {
+func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, inverse bool, m msg, rsp rsp) (*discordgo.MessageEmbed, string, bool) {
 	lock.RLock()
 	dat, exists := b.dat[guild]
 	lock.RUnlock()
@@ -162,16 +166,28 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, m 
 
 	var combs *sql.Rows
 	var err error
-	query := "SELECT elems FROM eod_combos WHERE elem3 LIKE ? AND guild=?"
-	if isASCII(elem) {
-		query = "SELECT elems FROM eod_combos WHERE CONVERT(elem3 USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND guild=CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci"
+	var query string
+	var args []interface{}
+	if !inverse {
+		query = "SELECT elems FROM eod_combos WHERE elem3 LIKE ? AND guild=?"
+		if isASCII(elem) {
+			query = "SELECT elems FROM eod_combos WHERE CONVERT(elem3 USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND guild=CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci"
+		}
+		args = []interface{}{elem, guild}
+		if isWildcard(elem) {
+			query = strings.ReplaceAll(query, " LIKE ", "=")
+		}
+	} else {
+		query = `SELECT DISTINCT elem3 FROM eod_combos WHERE ((elems LIKE CONCAT("%+", LOWER(?), "+%")) OR (elems LIKE CONCAT(LOWER(?), "+%")) OR (elems LIKE CONCAT("%+", LOWER(?)))) AND guild=?`
+		if isWildcard(elem) {
+			for val := range wildcards {
+				elem = strings.ReplaceAll(elem, string([]rune{val}), string([]rune{'\\', val}))
+			}
+		}
+		args = []interface{}{elem, elem, elem, guild}
 	}
 
-	if isWildcard(elem) {
-		query = strings.ReplaceAll(query, " LIKE ", "=")
-	}
-
-	combs, err = b.db.Query(query, elem, guild)
+	combs, err = b.db.Query(query, args...)
 	if err != nil {
 		return nil, err.Error(), false
 	}
@@ -185,27 +201,14 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, m 
 		if err != nil {
 			return nil, err.Error(), false
 		}
-		elems := strings.Split(elemTxt, "+")
 
-		txt, ex := getHintText(elems, inv, dat)
+		txt, ex := getHintText(elemTxt, inv, dat, inverse)
 		out = append(out, hintCombo{
 			exists: ex,
 			text:   txt,
 		})
 
 		length += len(txt)
-	}
-
-	if len(out) == 0 {
-		dat.lock.RLock()
-		element := dat.elemCache[strings.ToLower(elem)]
-		dat.lock.RUnlock()
-
-		txt, ex := getHintText(element.Parents, inv, dat)
-		out = append(out, hintCombo{
-			exists: ex,
-			text:   txt,
-		})
 	}
 
 	sort.Slice(out, func(i, j int) bool {
@@ -219,7 +222,11 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, m 
 	}
 	val := text.String()
 
-	title := fmt.Sprintf("Hints for %s", el.Name)
+	inverseTitle := ""
+	if inverse {
+		inverseTitle = "Inverse "
+	}
+	title := fmt.Sprintf("%sHints for %s", inverseTitle, el.Name)
 
 	txt := "Don't "
 	_, hasElem = inv[strings.ToLower(el.Name)]
@@ -272,38 +279,55 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, m 
 	}, "", true
 }
 
-func getHintText(elems []string, inv map[string]empty, dat serverData) (string, int) {
-	hasElems := true
-	for _, val := range elems {
-		_, exists := inv[strings.ToLower(val)]
-		if !exists {
-			hasElems = false
+func getHintText(elemTxt string, inv map[string]empty, dat serverData, inverse bool) (string, int) {
+	if !inverse {
+		elems := strings.Split(elemTxt, "+")
+		hasElems := true
+		for _, val := range elems {
+			_, exists := inv[strings.ToLower(val)]
+			if !exists {
+				hasElems = false
+			}
 		}
+		pref := x
+		ex := 0
+		if hasElems {
+			pref = check
+			ex = 1
+		}
+		prf := "%s"
+		params := make([]interface{}, len(elems))
+		i := 0
+		for _, k := range elems {
+			dat.lock.RLock()
+			params[i] = interface{}(dat.elemCache[strings.ToLower(k)].Name)
+			dat.lock.RUnlock()
+
+			if i == 0 {
+				prf += " %s"
+			} else {
+				prf += " + %s"
+			}
+			i++
+		}
+
+		params = append([]interface{}{pref}, params...)
+		params[len(params)-1] = obscure(params[len(params)-1].(string))
+		txt := fmt.Sprintf(prf, params...)
+		return txt, ex
 	}
-	pref := x
+
+	dat.lock.RLock()
+	_, found := inv[strings.ToLower(elemTxt)]
+	dat.lock.RUnlock()
+	txt := x
 	ex := 0
-	if hasElems {
-		pref = check
+	if found {
+		txt = check
 		ex = 1
 	}
-	prf := "%s"
-	params := make([]interface{}, len(elems))
-	i := 0
-	for _, k := range elems {
-		dat.lock.RLock()
-		params[i] = interface{}(dat.elemCache[strings.ToLower(k)].Name)
-		dat.lock.RUnlock()
-
-		if i == 0 {
-			prf += " %s"
-		} else {
-			prf += " + %s"
-		}
-		i++
-	}
-
-	params = append([]interface{}{pref}, params...)
-	params[len(params)-1] = obscure(params[len(params)-1].(string))
-	txt := fmt.Sprintf(prf, params...)
+	dat.lock.RLock()
+	txt += " " + dat.elemCache[strings.ToLower(elemTxt)].Name
+	dat.lock.RUnlock()
 	return txt, ex
 }

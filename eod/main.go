@@ -29,6 +29,12 @@ type EoD struct {
 
 // InitEoD initializes the EoD bot
 func InitEoD(db *sql.DB) EoD {
+	// FOOLS
+	fools = strings.Split(foolsRaw, "\n")
+	for i, val := range fools {
+		fools[i] = strings.TrimSpace(val)
+	}
+
 	// Discord bot
 	dg, err := discordgo.New("Bot " + strings.TrimSpace(token))
 	if err != nil {
