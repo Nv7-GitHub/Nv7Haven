@@ -39,6 +39,7 @@ func (b *EoD) graphCmd(elem string, m types.Msg, rsp types.Rsp) {
 	}
 
 	var file *discordgo.File
+	txt := ""
 	if graph.NodeCount() < 200 {
 		out, err := graph.RenderPNG()
 		if rsp.Error(err) {
@@ -55,6 +56,7 @@ func (b *EoD) graphCmd(elem string, m types.Msg, rsp types.Rsp) {
 			ContentType: "text/plain",
 			Reader:      strings.NewReader(graph.String()),
 		}
+		txt = " (too big to render server-side, check out https://graphviz.org/ to render it)"
 	}
 
 	rsp.Message("Sent graph in DMs!")
@@ -68,7 +70,7 @@ func (b *EoD) graphCmd(elem string, m types.Msg, rsp types.Rsp) {
 	name := dat.ElemCache[strings.ToLower(elem)].Name
 	dat.Lock.RUnlock()
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: fmt.Sprintf("Graph for **%s**:", name),
+		Content: fmt.Sprintf("Graph for **%s**%s:", name, txt),
 		Files:   []*discordgo.File{file},
 	})
 }
@@ -112,6 +114,7 @@ func (b *EoD) catGraphCmd(catName string, m types.Msg, rsp types.Rsp) {
 	}
 
 	var file *discordgo.File
+	txt := ""
 	if graph.NodeCount() < 200 {
 		out, err := graph.RenderPNG()
 		if rsp.Error(err) {
@@ -128,6 +131,7 @@ func (b *EoD) catGraphCmd(catName string, m types.Msg, rsp types.Rsp) {
 			ContentType: "text/plain",
 			Reader:      strings.NewReader(graph.String()),
 		}
+		txt = " (too big to render server-side, check out https://graphviz.org/ to render it)"
 	}
 
 	rsp.Message("Sent graph in DMs!")
@@ -138,7 +142,7 @@ func (b *EoD) catGraphCmd(catName string, m types.Msg, rsp types.Rsp) {
 	}
 
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: fmt.Sprintf("Graph for category **%s**:", cat.Name),
+		Content: fmt.Sprintf("Graph for category **%s**%s:", cat.Name, txt),
 		Files:   []*discordgo.File{file},
 	})
 }
