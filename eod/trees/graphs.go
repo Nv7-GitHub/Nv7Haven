@@ -38,7 +38,7 @@ func NewGraph(dat types.ServerData) (*Graph, error) {
 	}, nil
 }
 
-func (g *Graph) AddElem(elem string) (string, bool) {
+func (g *Graph) AddElem(elem string, special bool) (string, bool) {
 	elem = strings.ToLower(elem)
 
 	// Already exists
@@ -62,20 +62,27 @@ func (g *Graph) AddElem(elem string) (string, bool) {
 	}
 	node.SetLabel(el.Name)
 	node.SetShape("box")
-	node.SetStyle("rounded")
+	if special {
+		node.SetFillColor("#000000")
+		node.SetFontColor("#ffffff")
+		node.SetStyle("filled")
+	} else {
+		node.SetStyle("rounded")
+	}
 
 	// Add parents and connections to parents
 	for _, par := range el.Parents {
 		lower := strings.ToLower(par)
-		resp, suc := g.AddElem(par)
+		resp, suc := g.AddElem(par, false)
 		if !suc {
 			return resp, false
 		}
 
-		_, err := g.graph.CreateEdge(elem+"+"+lower, node, g.nodes[lower])
+		edge, err := g.graph.CreateEdge(elem+"+"+lower, node, g.nodes[lower])
 		if err != nil {
 			return err.Error(), false
 		}
+		edge.SetDir(cgraph.NoneDir)
 	}
 
 	// Finish
@@ -86,6 +93,18 @@ func (g *Graph) AddElem(elem string) (string, bool) {
 func (g *Graph) RenderPNG() (*bytes.Buffer, error) {
 	buf := bytes.NewBuffer(nil)
 	err := g.viz.Render(g.graph, graphviz.PNG, buf)
+	return buf, err
+}
+
+func (g *Graph) RenderSVG() (*bytes.Buffer, error) {
+	buf := bytes.NewBuffer(nil)
+	err := g.viz.Render(g.graph, graphviz.SVG, buf)
+	return buf, err
+}
+
+func (g *Graph) RenderDOT() (*bytes.Buffer, error) {
+	buf := bytes.NewBuffer(nil)
+	err := g.viz.Render(g.graph, "dot", buf)
 	return buf, err
 }
 

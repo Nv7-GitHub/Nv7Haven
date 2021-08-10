@@ -18,19 +18,28 @@ func (b *EoD) graphCmd(elem string, m types.Msg, rsp types.Rsp) {
 	}
 	rsp.Acknowledge()
 
+	//start := time.Now()
 	graph, err := trees.NewGraph(dat)
 	if rsp.Error(err) {
 		return
 	}
-	msg, suc := graph.AddElem(elem)
+	/*fmt.Println(time.Since(start))
+	start = time.Now()*/
+	msg, suc := graph.AddElem(elem, true)
 	if !suc {
 		rsp.ErrorMessage(msg)
 		return
 	}
+	/*fmt.Println(time.Since(start))
+	start = time.Now()*/
 	out, err := graph.RenderPNG()
 	if rsp.Error(err) {
 		return
 	}
+	/*fmt.Println(time.Since(start))
+	start = time.Now()*/
+
+	graph.Close()
 
 	rsp.Message("Sent graph in DMs!")
 
@@ -74,7 +83,7 @@ func (b *EoD) catGraphCmd(catName string, m types.Msg, rsp types.Rsp) {
 	}
 
 	for elem := range cat.Elements {
-		msg, suc := graph.AddElem(elem)
+		msg, suc := graph.AddElem(elem, true)
 		if !suc {
 			rsp.ErrorMessage(msg)
 			return
@@ -87,6 +96,8 @@ func (b *EoD) catGraphCmd(catName string, m types.Msg, rsp types.Rsp) {
 	}
 
 	rsp.Message("Sent graph in DMs!")
+
+	graph.Close()
 
 	channel, err := b.dg.UserChannelCreate(m.Author.ID)
 	if rsp.Error(err) {
