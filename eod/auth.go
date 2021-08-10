@@ -57,7 +57,7 @@ func (b *EoD) canRunCmd(cmd *discordgo.InteractionCreate) (bool, string) {
 
 	// If command is path or catpath, check if has element/all elements in cat
 	// path
-	if resp.Name == "path" {
+	if resp.Name == "path" || resp.Name == "graph" {
 		dat.Lock.RLock()
 		inv, exists := dat.InvCache[cmd.Member.User.ID]
 		dat.Lock.RUnlock()
@@ -81,7 +81,7 @@ func (b *EoD) canRunCmd(cmd *discordgo.InteractionCreate) (bool, string) {
 	}
 
 	// catpath
-	if resp.Name == "catpath" {
+	if resp.Name == "catpath" || resp.Name == "catgraph" {
 		dat.Lock.RLock()
 		inv, exists := dat.InvCache[cmd.Member.User.ID]
 		dat.Lock.RUnlock()
