@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/schollz/progressbar/v3"
 )
 
@@ -17,7 +18,7 @@ func (b *EoD) init() {
 	defer res.Close()
 
 	var guild string
-	var kind serverDataType
+	var kind types.ServerDataType
 	var value1 string
 	var intval int
 	for res.Next() {
@@ -27,77 +28,77 @@ func (b *EoD) init() {
 		}
 
 		switch kind {
-		case newsChannel:
+		case types.NewsChannel:
 			//lock.RLock()
 			dat, exists := b.dat[guild]
 			//lock.RUnlock()
 			if !exists {
-				dat = NewServerData()
+				dat = types.NewServerData()
 			}
-			dat.newsChannel = value1
+			dat.NewsChannel = value1
 			//lock.Lock()
 			b.dat[guild] = dat
 			//lock.Unlock()
 
-		case playChannel:
+		case types.PlayChannel:
 			//lock.RLock()
 			dat, exists := b.dat[guild]
 			//lock.RUnlock()
 			if !exists {
-				dat = NewServerData()
+				dat = types.NewServerData()
 			}
-			if dat.playChannels == nil {
-				dat.playChannels = make(map[string]empty)
+			if dat.PlayChannels == nil {
+				dat.PlayChannels = make(map[string]types.Empty)
 			}
-			dat.playChannels[value1] = empty{}
+			dat.PlayChannels[value1] = types.Empty{}
 			//lock.Lock()
 			b.dat[guild] = dat
 			//lock.Unlock()
 
-		case votingChannel:
+		case types.VotingChannel:
 			//lock.RLock()
 			dat, exists := b.dat[guild]
 			//lock.RUnlock()
 			if !exists {
-				dat = NewServerData()
+				dat = types.NewServerData()
 			}
-			dat.votingChannel = value1
+			dat.VotingChannel = value1
 			//lock.Lock()
 			b.dat[guild] = dat
 			//lock.Unlock()
 
-		case voteCount:
+		case types.VoteCount:
 			//lock.RLock()
 			dat, exists := b.dat[guild]
 			//lock.RUnlock()
 			if !exists {
-				dat = NewServerData()
+				dat = types.NewServerData()
 			}
-			dat.voteCount = intval
+			dat.VoteCount = intval
 			//lock.Lock()
 			b.dat[guild] = dat
 			//lock.Unlock()
 
-		case pollCount:
+		case types.PollCount:
 			//lock.RLock()
 			dat, exists := b.dat[guild]
 			//lock.RUnlock()
 			if !exists {
-				dat = NewServerData()
+				dat = types.NewServerData()
 			}
-			dat.pollCount = intval
+			dat.PollCount = intval
 			//lock.Lock()
 			b.dat[guild] = dat
 			//lock.Unlock()
 
-		case modRole:
+		case types.ModRole:
 			//lock.RLock()
 			dat, exists := b.dat[guild]
 			//lock.RUnlock()
 			if !exists {
-				dat = NewServerData()
+				dat = types.NewServerData()
 			}
-			dat.modRole = value1
+			dat.ModRole = value1
 			//lock.Lock()
 			b.dat[guild] = dat
 			//lock.Unlock()
@@ -119,7 +120,7 @@ func (b *EoD) init() {
 		panic(err)
 	}
 	defer elems.Close()
-	elem := element{}
+	elem := types.Element{}
 	var createdon int64
 	var parentDat string
 	for elems.Next() {
@@ -138,11 +139,11 @@ func (b *EoD) init() {
 		//lock.RLock()
 		dat := b.dat[elem.Guild]
 		//lock.RUnlock()
-		if dat.elemCache == nil {
-			dat.elemCache = make(map[string]element)
+		if dat.ElemCache == nil {
+			dat.ElemCache = make(map[string]types.Element)
 		}
-		elem.ID = len(dat.elemCache) + 1
-		dat.elemCache[strings.ToLower(elem.Name)] = elem
+		elem.ID = len(dat.ElemCache) + 1
+		dat.ElemCache[strings.ToLower(elem.Name)] = elem
 		//lock.Lock()
 		b.dat[elem.Guild] = dat
 		//lock.Unlock()
@@ -165,9 +166,9 @@ func (b *EoD) init() {
 	defer invs.Close()
 	var invDat string
 	var user string
-	var inv map[string]empty
+	var inv map[string]types.Empty
 	for invs.Next() {
-		inv = make(map[string]empty)
+		inv = make(map[string]types.Empty)
 		err = invs.Scan(&guild, &user, &invDat)
 		if err != nil {
 			panic(err)
@@ -179,10 +180,10 @@ func (b *EoD) init() {
 		//lock.RLock()
 		dat := b.dat[guild]
 		//lock.RUnlock()
-		if dat.invCache == nil {
-			dat.invCache = make(map[string]map[string]empty)
+		if dat.InvCache == nil {
+			dat.InvCache = make(map[string]map[string]types.Empty)
 		}
-		dat.invCache[user] = inv
+		dat.InvCache[user] = inv
 		//lock.Lock()
 		b.dat[guild] = dat
 		//lock.Unlock()
@@ -202,7 +203,7 @@ func (b *EoD) init() {
 		panic(err)
 	}
 	defer polls.Close()
-	var po poll
+	var po types.Poll
 	for polls.Next() {
 		var jsondat string
 		err = polls.Scan(&guild, &po.Channel, &po.Message, &po.Kind, &po.Value1, &po.Value2, &po.Value3, &po.Value4, &jsondat)
@@ -233,8 +234,8 @@ func (b *EoD) init() {
 	//lock.RLock()
 	for k, dat := range b.dat {
 		hasChanged := false
-		if dat.invCache == nil {
-			dat.invCache = make(map[string]map[string]empty)
+		if dat.InvCache == nil {
+			dat.InvCache = make(map[string]map[string]types.Empty)
 			hasChanged = true
 		}
 		if hasChanged {
@@ -259,7 +260,7 @@ func (b *EoD) init() {
 	}
 	defer cats.Close()
 	var elemDat string
-	cat := category{}
+	cat := types.Category{}
 	for cats.Next() {
 		err = cats.Scan(&guild, &cat.Name, &elemDat, &cat.Image)
 		if err != nil {
@@ -271,17 +272,17 @@ func (b *EoD) init() {
 		//lock.RLock()
 		dat := b.dat[guild]
 		//lock.RUnlock()
-		if dat.catCache == nil {
-			dat.catCache = make(map[string]category)
+		if dat.CatCache == nil {
+			dat.CatCache = make(map[string]types.Category)
 		}
 
-		cat.Elements = make(map[string]empty)
+		cat.Elements = make(map[string]types.Empty)
 		err := json.Unmarshal([]byte(elemDat), &cat.Elements)
 		if err != nil {
 			panic(err)
 		}
 
-		dat.catCache[strings.ToLower(cat.Name)] = cat
+		dat.CatCache[strings.ToLower(cat.Name)] = cat
 		//lock.Lock()
 		b.dat[guild] = dat
 		//lock.Unlock()

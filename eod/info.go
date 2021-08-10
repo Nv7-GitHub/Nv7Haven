@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -39,7 +40,7 @@ func (b *EoD) initInfoChoices() {
 	}
 }
 
-func (b *EoD) sortPageGetter(p pageSwitcher) (string, int, int, error) {
+func (b *EoD) sortPageGetter(p types.PageSwitcher) (string, int, int, error) {
 	length := int(math.Floor(float64(p.Length-1) / float64(p.PageLength)))
 	if p.PageLength*p.Page > (p.Length - 1) {
 		return "", 0, length, nil
@@ -74,7 +75,7 @@ func (b *EoD) sortPageGetter(p pageSwitcher) (string, int, int, error) {
 	return out, p.Page, length, nil
 }
 
-func (b *EoD) sortCmd(query string, order bool, m msg, rsp rsp) {
+func (b *EoD) sortCmd(query string, order bool, m types.Msg, rsp types.Rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -91,12 +92,12 @@ func (b *EoD) sortCmd(query string, order bool, m msg, rsp rsp) {
 		ord = "ASC"
 	}
 	quer = fmt.Sprintf(quer, ord)
-	b.newPageSwitcher(pageSwitcher{
-		Kind:       pageSwitchElemSort,
+	b.newPageSwitcher(types.PageSwitcher{
+		Kind:       types.PageSwitchElemSort,
 		Title:      "Element Sort",
 		PageGetter: b.sortPageGetter,
 		Query:      quer,
-		Length:     len(dat.elemCache),
+		Length:     len(dat.ElemCache),
 	}, m, rsp)
 }
 
@@ -105,7 +106,7 @@ type catSortInfo struct {
 	Cnt  int
 }
 
-func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
+func (b *EoD) infoCmd(elem string, m types.Msg, rsp types.Rsp) {
 	if len(elem) == 0 {
 		return
 	}
@@ -125,20 +126,20 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 			return
 		}
 
-		if number > len(dat.elemCache) {
+		if number > len(dat.ElemCache) {
 			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
 			return
 		}
 
 		hasFound := false
-		dat.lock.RLock()
-		for _, el := range dat.elemCache {
+		dat.Lock.RLock()
+		for _, el := range dat.ElemCache {
 			if el.ID == number {
 				hasFound = true
 				elem = el.Name
 			}
 		}
-		dat.lock.RUnlock()
+		dat.Lock.RUnlock()
 
 		if !hasFound {
 			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
@@ -152,9 +153,9 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 	}
 
 	// Get Element
-	dat.lock.RLock()
-	el, exists := dat.elemCache[strings.ToLower(elem)]
-	dat.lock.RUnlock()
+	dat.Lock.RLock()
+	el, exists := dat.ElemCache[strings.ToLower(elem)]
+	dat.Lock.RUnlock()
 	if !exists {
 		// If what you said was "????", then stop
 		if strings.Contains(elem, "?") {
@@ -177,31 +178,31 @@ func (b *EoD) infoCmd(elem string, m msg, rsp rsp) {
 	// Get whether has element
 	has := ""
 	exists = false
-	if dat.invCache != nil {
-		dat.lock.RLock()
-		_, exists = dat.invCache[m.Author.ID]
+	if dat.InvCache != nil {
+		dat.Lock.RLock()
+		_, exists = dat.InvCache[m.Author.ID]
 		if exists {
-			_, exists = dat.invCache[m.Author.ID][strings.ToLower(el.Name)]
+			_, exists = dat.InvCache[m.Author.ID][strings.ToLower(el.Name)]
 		}
-		dat.lock.RUnlock()
+		dat.Lock.RUnlock()
 	}
 	if !exists {
 		has = "don't "
 	}
 
 	// Get Categories
-	catsMap := make(map[catSortInfo]empty)
-	dat.lock.RLock()
-	for _, cat := range dat.catCache {
+	catsMap := make(map[catSortInfo]types.Empty)
+	dat.Lock.RLock()
+	for _, cat := range dat.CatCache {
 		_, exists := cat.Elements[el.Name]
 		if exists {
 			catsMap[catSortInfo{
 				Name: cat.Name,
 				Cnt:  len(cat.Elements),
-			}] = empty{}
+			}] = types.Empty{}
 		}
 	}
-	dat.lock.RUnlock()
+	dat.Lock.RUnlock()
 	cats := make([]catSortInfo, len(catsMap))
 	i := 0
 	for k := range catsMap {

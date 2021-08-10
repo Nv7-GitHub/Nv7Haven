@@ -5,32 +5,33 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
 
-func (b *EoD) giveAllCmd(user string, m msg, rsp rsp) {
+func (b *EoD) giveAllCmd(user string, m types.Msg, rsp types.Rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
 	if !exists {
 		return
 	}
-	dat.lock.RLock()
-	inv, exists := dat.invCache[user]
-	dat.lock.RUnlock()
+	dat.Lock.RLock()
+	inv, exists := dat.InvCache[user]
+	dat.Lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage("You don't have an inventory!")
 		return
 	}
-	dat.lock.RLock()
-	for k := range dat.elemCache {
-		inv[k] = empty{}
+	dat.Lock.RLock()
+	for k := range dat.ElemCache {
+		inv[k] = types.Empty{}
 	}
-	dat.lock.RUnlock()
+	dat.Lock.RUnlock()
 
-	dat.lock.Lock()
-	dat.invCache[user] = inv
-	dat.lock.Unlock()
+	dat.Lock.Lock()
+	dat.InvCache[user] = inv
+	dat.Lock.Unlock()
 
 	lock.Lock()
 	b.dat[m.GuildID] = dat
@@ -39,21 +40,21 @@ func (b *EoD) giveAllCmd(user string, m msg, rsp rsp) {
 	rsp.Resp("Successfully gave every element to <@" + user + ">!")
 }
 
-func (b *EoD) resetInvCmd(user string, m msg, rsp rsp) {
+func (b *EoD) resetInvCmd(user string, m types.Msg, rsp types.Rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
 	if !exists {
 		return
 	}
-	inv := make(map[string]empty)
+	inv := make(map[string]types.Empty)
 	for _, v := range starterElements {
-		inv[strings.ToLower(v.Name)] = empty{}
+		inv[strings.ToLower(v.Name)] = types.Empty{}
 	}
 
-	dat.lock.Lock()
-	dat.invCache[user] = inv
-	dat.lock.Unlock()
+	dat.Lock.Lock()
+	dat.InvCache[user] = inv
+	dat.Lock.Unlock()
 
 	lock.Lock()
 	b.dat[m.GuildID] = dat
@@ -62,7 +63,7 @@ func (b *EoD) resetInvCmd(user string, m msg, rsp rsp) {
 	rsp.Resp("Successfully reset <@" + user + ">'s inventory!")
 }
 
-func (b *EoD) downloadInvCmd(user string, sorter string, m msg, rsp rsp) {
+func (b *EoD) downloadInvCmd(user string, sorter string, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 
 	lock.RLock()
@@ -71,7 +72,7 @@ func (b *EoD) downloadInvCmd(user string, sorter string, m msg, rsp rsp) {
 	if !exists {
 		return
 	}
-	inv, exists := dat.invCache[user]
+	inv, exists := dat.InvCache[user]
 	if !exists {
 		if user == m.Author.ID {
 			rsp.ErrorMessage("You don't have an inventory!")
@@ -82,27 +83,27 @@ func (b *EoD) downloadInvCmd(user string, sorter string, m msg, rsp rsp) {
 	}
 	items := make([]string, len(inv))
 	i := 0
-	dat.lock.RLock()
+	dat.Lock.RLock()
 	for k := range inv {
-		items[i] = dat.elemCache[k].Name
+		items[i] = dat.ElemCache[k].Name
 		i++
 	}
-	dat.lock.RUnlock()
+	dat.Lock.RUnlock()
 
 	switch sorter {
 	case "id":
 		sort.Slice(items, func(i, j int) bool {
-			dat.lock.RLock()
-			elem1, exists := dat.elemCache[strings.ToLower(items[i])]
+			dat.Lock.RLock()
+			elem1, exists := dat.ElemCache[strings.ToLower(items[i])]
 			if !exists {
 				return false
 			}
 
-			elem2, exists := dat.elemCache[strings.ToLower(items[j])]
+			elem2, exists := dat.ElemCache[strings.ToLower(items[j])]
 			if !exists {
 				return false
 			}
-			dat.lock.RUnlock()
+			dat.Lock.RUnlock()
 			return elem1.CreatedOn.Before(elem2.CreatedOn)
 		})
 
@@ -111,9 +112,9 @@ func (b *EoD) downloadInvCmd(user string, sorter string, m msg, rsp rsp) {
 		outs := make([]string, len(items))
 		for _, val := range items {
 			creator := ""
-			dat.lock.RLock()
-			elem, exists := dat.elemCache[strings.ToLower(val)]
-			dat.lock.RUnlock()
+			dat.Lock.RLock()
+			elem, exists := dat.ElemCache[strings.ToLower(val)]
+			dat.Lock.RUnlock()
 			if exists {
 				creator = elem.Creator
 			}
