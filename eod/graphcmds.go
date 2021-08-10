@@ -40,7 +40,7 @@ func (b *EoD) graphCmd(elem string, m types.Msg, rsp types.Rsp) {
 	}
 
 	var file *discordgo.File
-	txt := ""
+	txt := "Sent graph in DMs!"
 	if graph.NodeCount() < 200 {
 		out, err := graph.RenderPNG()
 		if rsp.Error(err) {
@@ -57,10 +57,10 @@ func (b *EoD) graphCmd(elem string, m types.Msg, rsp types.Rsp) {
 			ContentType: "text/plain",
 			Reader:      strings.NewReader(graph.String()),
 		}
-		txt = " (too big to render server-side, check out https://graphviz.org/ to render it)"
+		txt = "The graph was to big to render server-side! Check out https://graphviz.org/ to render it on your computer!"
 	}
 
-	rsp.Message("Sent graph in DMs!")
+	rsp.Message(txt)
 
 	channel, err := b.dg.UserChannelCreate(m.Author.ID)
 	if rsp.Error(err) {
@@ -71,7 +71,7 @@ func (b *EoD) graphCmd(elem string, m types.Msg, rsp types.Rsp) {
 	name := dat.ElemCache[strings.ToLower(elem)].Name
 	dat.Lock.RUnlock()
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: fmt.Sprintf("Graph for **%s**%s:", name, txt),
+		Content: fmt.Sprintf("Graph for **%s**:", name),
 		Files:   []*discordgo.File{file},
 	})
 }
@@ -116,7 +116,7 @@ func (b *EoD) catGraphCmd(catName string, m types.Msg, rsp types.Rsp) {
 	}
 
 	var file *discordgo.File
-	txt := ""
+	txt := "Sent graph in DMs!"
 	if graph.NodeCount() < 200 {
 		out, err := graph.RenderPNG()
 		if rsp.Error(err) {
@@ -133,10 +133,10 @@ func (b *EoD) catGraphCmd(catName string, m types.Msg, rsp types.Rsp) {
 			ContentType: "text/plain",
 			Reader:      strings.NewReader(graph.String()),
 		}
-		txt = " (too big to render server-side, check out https://graphviz.org/ to render it)"
+		txt = "The graph was to big to render server-side! Check out https://graphviz.org/ to render it on your computer!"
 	}
 
-	rsp.Message("Sent graph in DMs!")
+	rsp.Message(txt)
 
 	channel, err := b.dg.UserChannelCreate(m.Author.ID)
 	if rsp.Error(err) {
@@ -144,7 +144,7 @@ func (b *EoD) catGraphCmd(catName string, m types.Msg, rsp types.Rsp) {
 	}
 
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: fmt.Sprintf("Graph for category **%s**%s:", cat.Name, txt),
+		Content: fmt.Sprintf("Graph for category **%s**:", cat.Name),
 		Files:   []*discordgo.File{file},
 	})
 }
