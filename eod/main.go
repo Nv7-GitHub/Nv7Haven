@@ -19,7 +19,7 @@ const (
 var token string
 
 var bot EoD
-var lock *sync.RWMutex
+var lock = &sync.RWMutex{}
 
 // EoD contains the data for an EoD bot
 type EoD struct {

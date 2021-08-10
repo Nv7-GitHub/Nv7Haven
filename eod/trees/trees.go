@@ -1,4 +1,4 @@
-package eod
+package trees
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 )
 
 // Tree calculator
-type tree struct {
+type Tree struct {
 	text      *strings.Builder
 	rawTxt    *strings.Builder
 	elemCache map[string]types.Element
@@ -18,7 +18,7 @@ type tree struct {
 	lock      *sync.RWMutex
 }
 
-func (t *tree) addElem(elem string) (bool, string) {
+func (t *Tree) AddElem(elem string) (bool, string) {
 	_, exists := t.calced[strings.ToLower(elem)]
 	if !exists {
 		t.lock.RLock()
@@ -34,7 +34,7 @@ func (t *tree) addElem(elem string) (bool, string) {
 			if len(strings.TrimSpace(parent)) == 0 {
 				continue
 			}
-			suc, msg := t.addElem(parent)
+			suc, msg := t.AddElem(parent)
 			if !suc {
 				return false, msg
 			}
@@ -68,14 +68,14 @@ func (t *tree) addElem(elem string) (bool, string) {
 }
 
 // Tree calculation utilities
-func calcTree(elemCache map[string]types.Element, elem string, lock *sync.RWMutex) (string, bool, string) {
+func CalcTree(elemCache map[string]types.Element, elem string, lock *sync.RWMutex) (string, bool, string) {
 	// Commented out code is for profiling
 
 	/*runtime.GC()
 	cpuprof, _ := os.Create("cpuprof.pprof")
 	pprof.StartCPUProfile(cpuprof)*/
 
-	t := tree{
+	t := Tree{
 		text:      &strings.Builder{},
 		rawTxt:    &strings.Builder{},
 		elemCache: elemCache,
@@ -83,7 +83,7 @@ func calcTree(elemCache map[string]types.Element, elem string, lock *sync.RWMute
 		num:       1,
 		lock:      lock,
 	}
-	suc, msg := t.addElem(elem)
+	suc, msg := t.AddElem(elem)
 
 	/*pprof.StopCPUProfile()
 	memprof, _ := os.Create("memprof.pprof")
@@ -97,14 +97,14 @@ func calcTree(elemCache map[string]types.Element, elem string, lock *sync.RWMute
 	return text, suc, msg
 }
 
-func calcTreeCat(elemCache map[string]types.Element, elems map[string]types.Empty, lock *sync.RWMutex) (string, bool, string) {
+func CalcTreeCat(elemCache map[string]types.Element, elems map[string]types.Empty, lock *sync.RWMutex) (string, bool, string) {
 	// Commented out code is for profiling
 
 	/*runtime.GC()
 	cpuprof, _ := os.Create("cpuprof.pprof")
 	pprof.StartCPUProfile(cpuprof)*/
 
-	t := tree{
+	t := Tree{
 		text:      &strings.Builder{},
 		rawTxt:    &strings.Builder{},
 		elemCache: elemCache,
@@ -113,7 +113,7 @@ func calcTreeCat(elemCache map[string]types.Element, elems map[string]types.Empt
 		lock:      lock,
 	}
 	for elem := range elems {
-		suc, msg := t.addElem(elem)
+		suc, msg := t.AddElem(elem)
 		if !suc {
 			return "", false, msg
 		}

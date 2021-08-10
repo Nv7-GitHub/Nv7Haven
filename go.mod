@@ -9,6 +9,7 @@ require (
 	github.com/bwmarrin/discordgo v0.23.3-0.20210809001607-4ebe5a08ee67
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/go-sql-driver/mysql v1.6.0
+	github.com/goccy/go-graphviz v0.0.9
 	github.com/gofiber/fiber/v2 v2.13.0
 	github.com/gofiber/websocket/v2 v2.0.6
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0

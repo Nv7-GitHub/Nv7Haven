@@ -5,7 +5,9 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -131,7 +133,7 @@ func (b *EoD) calcTreeCmd(elem string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 	rsp.Acknowledge()
-	txt, suc, msg := calcTree(dat.ElemCache, elem, dat.Lock)
+	txt, suc, msg := trees.CalcTree(dat.ElemCache, elem, dat.Lock)
 	if !suc {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", msg))
 		return
@@ -177,7 +179,7 @@ func (b *EoD) calcTreeCatCmd(catName string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 
-	txt, suc, msg := calcTreeCat(dat.ElemCache, cat.Elements, dat.Lock)
+	txt, suc, msg := trees.CalcTreeCat(dat.ElemCache, cat.Elements, dat.Lock)
 	if !suc {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", msg))
 		return
