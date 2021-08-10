@@ -57,7 +57,7 @@ func (b *EoD) graphCmd(elem string, m types.Msg, rsp types.Rsp) {
 			ContentType: "text/plain",
 			Reader:      strings.NewReader(graph.String()),
 		}
-		txt = "The graph was to big to render server-side! Check out https://graphviz.org/ to render it on your computer!"
+		txt = "The graph was too big to render server-side! Check out https://graphviz.org/ to render it on your computer!"
 	}
 
 	rsp.Message(txt)
@@ -133,7 +133,7 @@ func (b *EoD) catGraphCmd(catName string, m types.Msg, rsp types.Rsp) {
 			ContentType: "text/plain",
 			Reader:      strings.NewReader(graph.String()),
 		}
-		txt = "The graph was to big to render server-side! Check out https://graphviz.org/ to render it on your computer!"
+		txt = "The graph was to big too render server-side! Check out https://graphviz.org/ to render it on your computer!"
 	}
 
 	rsp.Message(txt)
