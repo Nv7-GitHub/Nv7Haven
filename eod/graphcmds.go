@@ -25,6 +25,7 @@ func (b *EoD) graphCmd(elem string, m types.Msg, rsp types.Rsp) {
 	dat.Lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
+		return
 	}
 
 	graph, err := trees.NewGraph(dat)
@@ -95,6 +96,7 @@ func (b *EoD) catGraphCmd(catName string, m types.Msg, rsp types.Rsp) {
 		el, exists := dat.ElemCache[strings.ToLower(elem)]
 		if !exists {
 			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
+			return
 		}
 		compl += el.Difficulty
 	}
