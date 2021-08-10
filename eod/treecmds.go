@@ -5,41 +5,42 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
 
-func (b *EoD) giveCmd(elem string, giveTree bool, user string, m msg, rsp rsp) {
+func (b *EoD) giveCmd(elem string, giveTree bool, user string, m types.Msg, rsp types.Rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
 	if !exists {
 		return
 	}
-	dat.lock.RLock()
-	inv, exists := dat.invCache[user]
-	dat.lock.RUnlock()
+	dat.Lock.RLock()
+	inv, exists := dat.InvCache[user]
+	dat.Lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage("You don't have an inventory!")
 		return
 	}
 
-	dat.lock.RLock()
-	el, exists := dat.elemCache[strings.ToLower(elem)]
-	dat.lock.RUnlock()
+	dat.Lock.RLock()
+	el, exists := dat.ElemCache[strings.ToLower(elem)]
+	dat.Lock.RUnlock()
 	if !exists {
 		rsp.Resp(fmt.Sprintf("Element **%s** doesn't exist!", elem))
 		return
 	}
 
-	msg, suc := giveElem(dat.elemCache, giveTree, elem, &inv, dat.lock)
+	msg, suc := giveElem(dat.ElemCache, giveTree, elem, &inv, dat.Lock)
 	if !suc {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", msg))
 		return
 	}
 
-	dat.lock.Lock()
-	dat.invCache[user] = inv
-	dat.lock.Unlock()
+	dat.Lock.Lock()
+	dat.InvCache[user] = inv
+	dat.Lock.Unlock()
 
 	lock.Lock()
 	b.dat[m.GuildID] = dat
@@ -49,45 +50,45 @@ func (b *EoD) giveCmd(elem string, giveTree bool, user string, m msg, rsp rsp) {
 	rsp.Resp("Successfully gave element **" + el.Name + "**!")
 }
 
-func (b *EoD) giveCatCmd(catName string, giveTree bool, user string, m msg, rsp rsp) {
+func (b *EoD) giveCatCmd(catName string, giveTree bool, user string, m types.Msg, rsp types.Rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
 	if !exists {
 		return
 	}
-	dat.lock.RLock()
-	inv, exists := dat.invCache[user]
-	dat.lock.RUnlock()
+	dat.Lock.RLock()
+	inv, exists := dat.InvCache[user]
+	dat.Lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage("You don't have an inventory!")
 		return
 	}
-	cat, exists := dat.catCache[strings.ToLower(catName)]
+	cat, exists := dat.CatCache[strings.ToLower(catName)]
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Category **%s** doesn't exist!", catName))
 		return
 	}
 
 	for elem := range cat.Elements {
-		dat.lock.RLock()
-		_, exists := dat.elemCache[strings.ToLower(elem)]
-		dat.lock.RUnlock()
+		dat.Lock.RLock()
+		_, exists := dat.ElemCache[strings.ToLower(elem)]
+		dat.Lock.RUnlock()
 		if !exists {
 			rsp.Resp(fmt.Sprintf("Element **%s** doesn't exist!", elem))
 			return
 		}
 
-		msg, suc := giveElem(dat.elemCache, giveTree, elem, &inv, dat.lock)
+		msg, suc := giveElem(dat.ElemCache, giveTree, elem, &inv, dat.Lock)
 		if !suc {
 			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", msg))
 			return
 		}
 	}
 
-	dat.lock.Lock()
-	dat.invCache[user] = inv
-	dat.lock.Unlock()
+	dat.Lock.Lock()
+	dat.InvCache[user] = inv
+	dat.Lock.Unlock()
 
 	lock.Lock()
 	b.dat[m.GuildID] = dat
@@ -97,7 +98,7 @@ func (b *EoD) giveCatCmd(catName string, giveTree bool, user string, m msg, rsp 
 	rsp.Resp("Successfully gave all elements in category **" + cat.Name + "**!")
 }
 
-func giveElem(elemCache map[string]element, giveTree bool, elem string, out *map[string]empty, lock *sync.RWMutex) (string, bool) {
+func giveElem(elemCache map[string]types.Element, giveTree bool, elem string, out *map[string]types.Empty, lock *sync.RWMutex) (string, bool) {
 	lock.RLock()
 	el, exists := elemCache[strings.ToLower(elem)]
 	lock.RUnlock()
@@ -118,11 +119,11 @@ func giveElem(elemCache map[string]element, giveTree bool, elem string, out *map
 			}
 		}
 	}
-	(*out)[strings.ToLower(el.Name)] = empty{}
+	(*out)[strings.ToLower(el.Name)] = types.Empty{}
 	return "", true
 }
 
-func (b *EoD) calcTreeCmd(elem string, m msg, rsp rsp) {
+func (b *EoD) calcTreeCmd(elem string, m types.Msg, rsp types.Rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -130,7 +131,7 @@ func (b *EoD) calcTreeCmd(elem string, m msg, rsp rsp) {
 		return
 	}
 	rsp.Acknowledge()
-	txt, suc, msg := calcTree(dat.elemCache, elem, dat.lock)
+	txt, suc, msg := calcTree(dat.ElemCache, elem, dat.Lock)
 	if !suc {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", msg))
 		return
@@ -147,9 +148,9 @@ func (b *EoD) calcTreeCmd(elem string, m msg, rsp rsp) {
 		return
 	}
 	buf := strings.NewReader(txt)
-	dat.lock.RLock()
-	name := dat.elemCache[strings.ToLower(elem)].Name
-	dat.lock.RUnlock()
+	dat.Lock.RLock()
+	name := dat.ElemCache[strings.ToLower(elem)].Name
+	dat.Lock.RUnlock()
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
 		Content: fmt.Sprintf("Path for **%s**:", name),
 		Files: []*discordgo.File{
@@ -162,7 +163,7 @@ func (b *EoD) calcTreeCmd(elem string, m msg, rsp rsp) {
 	})
 }
 
-func (b *EoD) calcTreeCatCmd(catName string, m msg, rsp rsp) {
+func (b *EoD) calcTreeCatCmd(catName string, m types.Msg, rsp types.Rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -170,13 +171,13 @@ func (b *EoD) calcTreeCatCmd(catName string, m msg, rsp rsp) {
 		return
 	}
 	rsp.Acknowledge()
-	cat, exists := dat.catCache[strings.ToLower(catName)]
+	cat, exists := dat.CatCache[strings.ToLower(catName)]
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Category **%s** doesn't exist!", catName))
 		return
 	}
 
-	txt, suc, msg := calcTreeCat(dat.elemCache, cat.Elements, dat.lock)
+	txt, suc, msg := calcTreeCat(dat.ElemCache, cat.Elements, dat.Lock)
 	if !suc {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", msg))
 		return

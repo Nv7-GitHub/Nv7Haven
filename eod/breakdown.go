@@ -5,12 +5,14 @@ import (
 	"sort"
 	"strings"
 	"sync"
+
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
 type breakDownTree struct {
 	lock      *sync.RWMutex
-	added     map[string]empty
-	elemCache map[string]element
+	added     map[string]types.Empty
+	elemCache map[string]types.Element
 	breakdown map[string]int // map[userid]count
 	total     int
 	tree      bool
@@ -41,7 +43,7 @@ func (b *breakDownTree) addElem(elem string) (bool, string) {
 	b.breakdown[el.Creator]++
 	b.total++
 
-	b.added[strings.ToLower(elem)] = empty{}
+	b.added[strings.ToLower(elem)] = types.Empty{}
 	return true, ""
 }
 
@@ -72,7 +74,7 @@ func (b *breakDownTree) getStringArr() []string {
 	return out
 }
 
-func (b *EoD) elemBreakdownCmd(elem string, calcTree bool, m msg, rsp rsp) {
+func (b *EoD) elemBreakdownCmd(elem string, calcTree bool, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 
 	lock.RLock()
@@ -83,19 +85,19 @@ func (b *EoD) elemBreakdownCmd(elem string, calcTree bool, m msg, rsp rsp) {
 		return
 	}
 
-	dat.lock.RLock()
-	el, exists := dat.elemCache[strings.ToLower(elem)]
-	dat.lock.RUnlock()
+	dat.Lock.RLock()
+	el, exists := dat.ElemCache[strings.ToLower(elem)]
+	dat.Lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
 		return
 	}
 
 	tree := &breakDownTree{
-		lock:      dat.lock,
-		elemCache: dat.elemCache,
+		lock:      dat.Lock,
+		elemCache: dat.ElemCache,
 		breakdown: make(map[string]int),
-		added:     make(map[string]empty),
+		added:     make(map[string]types.Empty),
 		tree:      calcTree,
 		total:     0,
 	}
@@ -105,15 +107,15 @@ func (b *EoD) elemBreakdownCmd(elem string, calcTree bool, m msg, rsp rsp) {
 		return
 	}
 
-	b.newPageSwitcher(pageSwitcher{
-		Kind:       pageSwitchInv,
+	b.newPageSwitcher(types.PageSwitcher{
+		Kind:       types.PageSwitchInv,
 		Title:      fmt.Sprintf("%s Breakdown (%d)", el.Name, tree.total),
 		PageGetter: b.invPageGetter,
 		Items:      tree.getStringArr(),
 	}, m, rsp)
 }
 
-func (b *EoD) catBreakdownCmd(catName string, calcTree bool, m msg, rsp rsp) {
+func (b *EoD) catBreakdownCmd(catName string, calcTree bool, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 
 	lock.RLock()
@@ -124,19 +126,19 @@ func (b *EoD) catBreakdownCmd(catName string, calcTree bool, m msg, rsp rsp) {
 		return
 	}
 
-	dat.lock.RLock()
-	cat, exists := dat.catCache[strings.ToLower(catName)]
-	dat.lock.RUnlock()
+	dat.Lock.RLock()
+	cat, exists := dat.CatCache[strings.ToLower(catName)]
+	dat.Lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Category **%s** doesn't exist!", catName))
 		return
 	}
 
 	tree := &breakDownTree{
-		lock:      dat.lock,
-		elemCache: dat.elemCache,
+		lock:      dat.Lock,
+		elemCache: dat.ElemCache,
 		breakdown: make(map[string]int),
-		added:     make(map[string]empty),
+		added:     make(map[string]types.Empty),
 		total:     0,
 		tree:      calcTree,
 	}
@@ -149,8 +151,8 @@ func (b *EoD) catBreakdownCmd(catName string, calcTree bool, m msg, rsp rsp) {
 		}
 	}
 
-	b.newPageSwitcher(pageSwitcher{
-		Kind:       pageSwitchInv,
+	b.newPageSwitcher(types.PageSwitcher{
+		Kind:       types.PageSwitchInv,
 		Title:      fmt.Sprintf("%s Breakdown (%d)", cat.Name, tree.total),
 		PageGetter: b.invPageGetter,
 		Items:      tree.getStringArr(),

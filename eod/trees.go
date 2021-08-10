@@ -4,14 +4,16 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
 // Tree calculator
 type tree struct {
 	text      *strings.Builder
 	rawTxt    *strings.Builder
-	elemCache map[string]element
-	calced    map[string]empty
+	elemCache map[string]types.Element
+	calced    map[string]types.Empty
 	num       int
 	lock      *sync.RWMutex
 }
@@ -60,13 +62,13 @@ func (t *tree) addElem(elem string) (bool, string) {
 			fmt.Fprintf(t.rawTxt, p+" = %s\n", params...)
 			t.num++
 		}
-		t.calced[strings.ToLower(elem)] = empty{}
+		t.calced[strings.ToLower(elem)] = types.Empty{}
 	}
 	return true, ""
 }
 
 // Tree calculation utilities
-func calcTree(elemCache map[string]element, elem string, lock *sync.RWMutex) (string, bool, string) {
+func calcTree(elemCache map[string]types.Element, elem string, lock *sync.RWMutex) (string, bool, string) {
 	// Commented out code is for profiling
 
 	/*runtime.GC()
@@ -77,7 +79,7 @@ func calcTree(elemCache map[string]element, elem string, lock *sync.RWMutex) (st
 		text:      &strings.Builder{},
 		rawTxt:    &strings.Builder{},
 		elemCache: elemCache,
-		calced:    make(map[string]empty),
+		calced:    make(map[string]types.Empty),
 		num:       1,
 		lock:      lock,
 	}
@@ -95,7 +97,7 @@ func calcTree(elemCache map[string]element, elem string, lock *sync.RWMutex) (st
 	return text, suc, msg
 }
 
-func calcTreeCat(elemCache map[string]element, elems map[string]empty, lock *sync.RWMutex) (string, bool, string) {
+func calcTreeCat(elemCache map[string]types.Element, elems map[string]types.Empty, lock *sync.RWMutex) (string, bool, string) {
 	// Commented out code is for profiling
 
 	/*runtime.GC()
@@ -106,7 +108,7 @@ func calcTreeCat(elemCache map[string]element, elems map[string]empty, lock *syn
 		text:      &strings.Builder{},
 		rawTxt:    &strings.Builder{},
 		elemCache: elemCache,
-		calced:    make(map[string]empty),
+		calced:    make(map[string]types.Empty),
 		num:       1,
 		lock:      lock,
 	}

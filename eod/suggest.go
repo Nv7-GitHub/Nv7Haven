@@ -3,6 +3,8 @@ package eod
 import (
 	"fmt"
 	"strings"
+
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
 var invalidNames = []string{
@@ -26,7 +28,7 @@ const maxSuggestionLength = 240
 
 var remove = []string{"\uFE0E", "\uFE0F", "\u200B", "\u200E", "\u200F", "\u2060", "\u2061", "\u2062", "\u2063", "\u2064", "\u2065", "\u2066", "\u2067", "\u2068", "\u2069", "\u206A", "\u206B", "\u206C", "\u206D", "\u206E", "\u206F", "\u3000", "\uFE00", "\uFE01", "\uFE02", "\uFE03", "\uFE04", "\uFE05", "\uFE06", "\uFE07", "\uFE08", "\uFE09", "\uFE0A", "\uFE0B", "\uFE0C", "\uFE0D"}
 
-func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp) {
+func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 
 	if isFoolsMode && !isFool(suggestion) {
@@ -83,22 +85,22 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 		return
 	}
 
-	_, exists = dat.playChannels[m.ChannelID]
+	_, exists = dat.PlayChannels[m.ChannelID]
 	if !exists {
 		rsp.ErrorMessage("You can only suggest in play channels!")
 		return
 	}
 
-	if dat.combCache == nil {
-		dat.combCache = make(map[string]comb)
+	if dat.CombCache == nil {
+		dat.CombCache = make(map[string]types.Comb)
 	}
-	comb, exists := dat.combCache[m.Author.ID]
+	comb, exists := dat.CombCache[m.Author.ID]
 	if !exists {
 		rsp.ErrorMessage("You haven't combined anything!")
 		return
 	}
 
-	data := elems2txt(comb.elems)
+	data := elems2txt(comb.Elems)
 	query := "SELECT COUNT(1) FROM eod_combos WHERE guild=? AND elems LIKE ?"
 
 	if isASCII(data) {
@@ -120,20 +122,20 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 		return
 	}
 
-	dat.lock.RLock()
-	el, exists := dat.elemCache[strings.ToLower(suggestion)]
-	dat.lock.RUnlock()
+	dat.Lock.RLock()
+	el, exists := dat.ElemCache[strings.ToLower(suggestion)]
+	dat.Lock.RUnlock()
 	if exists {
 		suggestion = el.Name
 	}
 
-	err = b.createPoll(poll{
-		Channel:   dat.votingChannel,
+	err = b.createPoll(types.Poll{
+		Channel:   dat.VotingChannel,
 		Guild:     m.GuildID,
-		Kind:      pollCombo,
+		Kind:      types.PollCombo,
 		Value3:    suggestion,
 		Value4:    m.Author.ID,
-		Data:      map[string]interface{}{"elems": comb.elems},
+		Data:      map[string]interface{}{"elems": comb.Elems},
 		Upvotes:   0,
 		Downvotes: 0,
 	})
@@ -141,22 +143,22 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m msg, rsp rsp)
 		return
 	}
 	txt := "Suggested **"
-	for _, val := range comb.elems {
-		dat.lock.RLock()
-		txt += dat.elemCache[strings.ToLower(val)].Name + " + "
-		dat.lock.RUnlock()
+	for _, val := range comb.Elems {
+		dat.Lock.RLock()
+		txt += dat.ElemCache[strings.ToLower(val)].Name + " + "
+		dat.Lock.RUnlock()
 	}
 	txt = txt[:len(txt)-3]
-	if len(comb.elems) == 1 {
-		dat.lock.RLock()
-		txt += " + " + dat.elemCache[strings.ToLower(comb.elems[0])].Name
-		dat.lock.RUnlock()
+	if len(comb.Elems) == 1 {
+		dat.Lock.RLock()
+		txt += " + " + dat.ElemCache[strings.ToLower(comb.Elems[0])].Name
+		dat.Lock.RUnlock()
 	}
 	txt += " = " + suggestion + "** "
 
-	dat.lock.RLock()
-	_, exists = dat.elemCache[strings.ToLower(suggestion)]
-	dat.lock.RUnlock()
+	dat.Lock.RLock()
+	_, exists = dat.ElemCache[strings.ToLower(suggestion)]
+	dat.Lock.RUnlock()
 	if !exists {
 		txt += "✨"
 	} else {

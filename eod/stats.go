@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
 
-func (b *EoD) statsCmd(m msg, rsp rsp) {
+func (b *EoD) statsCmd(m types.Msg, rsp types.Rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -27,19 +28,19 @@ func (b *EoD) statsCmd(m msg, rsp rsp) {
 	}
 
 	found := 0
-	dat.lock.RLock()
-	for _, val := range dat.invCache {
+	dat.Lock.RLock()
+	for _, val := range dat.InvCache {
 		found += len(val)
 	}
 
 	categorized := 0
-	for _, val := range dat.catCache {
+	for _, val := range dat.CatCache {
 		categorized += len(val.Elements)
 	}
-	dat.lock.RUnlock()
+	dat.Lock.RUnlock()
 
-	dat.lock.RLock()
-	rsp.Message(fmt.Sprintf("Element Count: **%s**\nCombination Count: **%s**\nMember Count: **%s**\nElements Found: **%s**\nElements Categorized: **%s**", formatInt(len(dat.elemCache)), formatInt(cnt), formatInt(gd.MemberCount), formatInt(found), formatInt(categorized)), discordgo.ActionsRow{
+	dat.Lock.RLock()
+	rsp.Message(fmt.Sprintf("Element Count: **%s**\nCombination Count: **%s**\nMember Count: **%s**\nElements Found: **%s**\nElements Categorized: **%s**", formatInt(len(dat.ElemCache)), formatInt(cnt), formatInt(gd.MemberCount), formatInt(found), formatInt(categorized)), discordgo.ActionsRow{
 		Components: []discordgo.MessageComponent{
 			discordgo.Button{
 				Label: "View More Stats",
@@ -48,7 +49,7 @@ func (b *EoD) statsCmd(m msg, rsp rsp) {
 			},
 		},
 	})
-	dat.lock.RUnlock()
+	dat.Lock.RUnlock()
 }
 
 // takes time, found, categorized
@@ -66,10 +67,10 @@ func (b *EoD) saveStats() {
 		categorized := 0
 		found := 0
 		for _, dat := range b.dat {
-			for _, val := range dat.catCache {
+			for _, val := range dat.CatCache {
 				categorized += len(val.Elements)
 			}
-			for _, val := range dat.invCache {
+			for _, val := range dat.InvCache {
 				found += len(val)
 			}
 		}

@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
 
-var noModCmds = map[string]empty{
+var noModCmds = map[string]types.Empty{
 	"suggest":      {},
 	"mark":         {},
 	"image":        {},
@@ -49,7 +50,7 @@ func (b *EoD) canRunCmd(cmd *discordgo.InteractionCreate) (bool, string) {
 	lock.RLock()
 	dat, exists := b.dat[cmd.GuildID]
 	lock.RUnlock()
-	falseMsg := "You need to have permission `Administrator` or have role <@&" + dat.modRole + ">!"
+	falseMsg := "You need to have permission `Administrator` or have role <@&" + dat.ModRole + ">!"
 	if !exists {
 		return false, falseMsg
 	}
@@ -57,17 +58,17 @@ func (b *EoD) canRunCmd(cmd *discordgo.InteractionCreate) (bool, string) {
 	// If command is path or catpath, check if has element/all elements in cat
 	// path
 	if resp.Name == "path" {
-		dat.lock.RLock()
-		inv, exists := dat.invCache[cmd.Member.User.ID]
-		dat.lock.RUnlock()
+		dat.Lock.RLock()
+		inv, exists := dat.InvCache[cmd.Member.User.ID]
+		dat.Lock.RUnlock()
 		if !exists {
 			return false, "You don't have an inventory!"
 		}
 
 		name := strings.ToLower(resp.Options[0].StringValue())
-		dat.lock.RLock()
-		el, exists := dat.elemCache[name]
-		dat.lock.RUnlock()
+		dat.Lock.RLock()
+		el, exists := dat.ElemCache[name]
+		dat.Lock.RUnlock()
 		if !exists {
 			return true, "" // If the element doesn't exist, the cat command will tell the user it doesn't exist
 		}
@@ -81,13 +82,13 @@ func (b *EoD) canRunCmd(cmd *discordgo.InteractionCreate) (bool, string) {
 
 	// catpath
 	if resp.Name == "catpath" {
-		dat.lock.RLock()
-		inv, exists := dat.invCache[cmd.Member.User.ID]
-		dat.lock.RUnlock()
+		dat.Lock.RLock()
+		inv, exists := dat.InvCache[cmd.Member.User.ID]
+		dat.Lock.RUnlock()
 		if !exists {
 			return false, "You don't have an inventory!"
 		}
-		cat, exists := dat.catCache[strings.ToLower(resp.Options[0].StringValue())]
+		cat, exists := dat.CatCache[strings.ToLower(resp.Options[0].StringValue())]
 		if !exists {
 			return true, "" // If the category doesn't exist, the cat command will tell the user it doesn't exist
 		}
