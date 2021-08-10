@@ -43,7 +43,7 @@ func (b *EoD) graphCmd(elems map[string]types.Empty, dat types.ServerData, m typ
 		if layout != "" {
 			outputType = "PNG"
 		} else if graph.NodeCount() > maxSizes["Twopi"] {
-			outputType = "Text"
+			outputType = "DOT"
 		} else if graph.NodeCount() > maxSizes["Dot"] {
 			layout = "Twopi"
 			outputType = "PNG"
