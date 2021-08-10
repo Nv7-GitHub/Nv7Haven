@@ -597,6 +597,45 @@ var (
 					Description: "Name of the element!",
 					Required:    true,
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "output_type",
+					Description: "The output type of the graph!",
+					Required:    false,
+					Choices: []*discordgo.ApplicationCommandOptionChoice{
+						{
+							Name:  "PNG",
+							Value: "PNG",
+						},
+						{
+							Name:  "SVG",
+							Value: "SVG",
+						},
+						{
+							Name:  "Text",
+							Value: "Text",
+						},
+						{
+							Name:  "DOT",
+							Value: "DOT",
+						},
+					},
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "layout",
+					Description: "The layout engine to use for rendering images!",
+					Choices: []*discordgo.ApplicationCommandOptionChoice{
+						{
+							Name:  "Dot",
+							Value: "Dot",
+						},
+						{
+							Name:  "Twopi",
+							Value: "Twopi",
+						},
+					},
+				},
 			},
 		},
 		{
@@ -608,6 +647,45 @@ var (
 					Name:        "category",
 					Description: "Name of the category!",
 					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "output_type",
+					Description: "The output type of the graph!",
+					Required:    false,
+					Choices: []*discordgo.ApplicationCommandOptionChoice{
+						{
+							Name:  "PNG",
+							Value: "PNG",
+						},
+						{
+							Name:  "SVG",
+							Value: "SVG",
+						},
+						{
+							Name:  "Text",
+							Value: "Text",
+						},
+						{
+							Name:  "DOT",
+							Value: "DOT",
+						},
+					},
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "layout",
+					Description: "The layout engine to use for rendering images!",
+					Choices: []*discordgo.ApplicationCommandOptionChoice{
+						{
+							Name:  "Dot",
+							Value: "Dot",
+						},
+						{
+							Name:  "Twopi",
+							Value: "Twopi",
+						},
+					},
 				},
 			},
 		},
@@ -843,11 +921,43 @@ var (
 		},
 		"graph": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.graphCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			var elem string
+			outputType := ""
+			layout := ""
+			for _, opt := range resp.Options {
+				if opt.Name == "element" {
+					elem = opt.StringValue()
+				}
+
+				if opt.Name == "output_type" {
+					outputType = opt.StringValue()
+				}
+
+				if opt.Name == "layout" {
+					layout = opt.StringValue()
+				}
+			}
+			bot.elemGraphCmd(elem, layout, outputType, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"catgraph": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.catGraphCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			var catName string
+			outputType := ""
+			layout := ""
+			for _, opt := range resp.Options {
+				if opt.Name == "category" {
+					catName = opt.StringValue()
+				}
+
+				if opt.Name == "output_type" {
+					outputType = opt.StringValue()
+				}
+
+				if opt.Name == "layout" {
+					layout = opt.StringValue()
+				}
+			}
+			bot.catGraphCmd(catName, layout, outputType, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )
