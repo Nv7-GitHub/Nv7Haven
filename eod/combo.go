@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
 const blueCircle = "🔵"
@@ -16,7 +18,7 @@ func elems2txt(elems []string) string {
 	return strings.Join(elems, "+")
 }
 
-func (b *EoD) combine(elems []string, m msg, rsp rsp) {
+func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -24,9 +26,9 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 		return
 	}
 
-	dat.lock.RLock()
-	inv, exists := dat.invCache[m.Author.ID]
-	dat.lock.RUnlock()
+	dat.Lock.RLock()
+	inv, exists := dat.InvCache[m.Author.ID]
+	dat.Lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage("You don't have an inventory!")
 		return
@@ -47,18 +49,18 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 	}
 
 	for _, elem := range elems {
-		dat.lock.RLock()
-		_, exists := dat.elemCache[strings.ToLower(elem)]
-		dat.lock.RUnlock()
+		dat.Lock.RLock()
+		_, exists := dat.ElemCache[strings.ToLower(elem)]
+		dat.Lock.RUnlock()
 		if !exists {
-			notExists := make(map[string]empty)
+			notExists := make(map[string]types.Empty)
 			for _, el := range elems {
-				dat.lock.RLock()
-				_, exists := dat.elemCache[strings.ToLower(el)]
+				dat.Lock.RLock()
+				_, exists := dat.ElemCache[strings.ToLower(el)]
 				if !exists {
-					notExists["**"+el+"**"] = empty{}
+					notExists["**"+el+"**"] = types.Empty{}
 				}
-				dat.lock.RUnlock()
+				dat.Lock.RUnlock()
 			}
 			if len(notExists) == 1 {
 				rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
@@ -71,30 +73,30 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 
 		_, hasElement := inv[strings.ToLower(elem)]
 		if !hasElement {
-			dat.lock.RLock()
-			_, exists := dat.combCache[m.Author.ID]
+			dat.Lock.RLock()
+			_, exists := dat.CombCache[m.Author.ID]
 			if exists {
-				delete(dat.combCache, m.Author.ID)
+				delete(dat.CombCache, m.Author.ID)
 				lock.Lock()
 				b.dat[m.GuildID] = dat
 				lock.Unlock()
 			}
-			dat.lock.RUnlock()
+			dat.Lock.RUnlock()
 
-			notFound := make(map[string]empty)
+			notFound := make(map[string]types.Empty)
 			for _, el := range elems {
 				_, exists := inv[strings.ToLower(el)]
 				if !exists {
-					dat.lock.RLock()
-					notFound["**"+dat.elemCache[strings.ToLower(el)].Name+"**"] = empty{}
-					dat.lock.RUnlock()
+					dat.Lock.RLock()
+					notFound["**"+dat.ElemCache[strings.ToLower(el)].Name+"**"] = types.Empty{}
+					dat.Lock.RUnlock()
 				}
 			}
 
 			if len(notFound) == 1 {
-				dat.lock.RLock()
-				rsp.ErrorMessage(fmt.Sprintf("You don't have **%s**!", dat.elemCache[strings.ToLower(elem)].Name))
-				dat.lock.RUnlock()
+				dat.Lock.RLock()
+				rsp.ErrorMessage(fmt.Sprintf("You don't have **%s**!", dat.ElemCache[strings.ToLower(elem)].Name))
+				dat.Lock.RUnlock()
 				return
 			}
 
@@ -121,24 +123,24 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 		cont = false
 	}
 	if cont {
-		if dat.combCache == nil {
-			dat.combCache = make(map[string]comb)
+		if dat.CombCache == nil {
+			dat.CombCache = make(map[string]types.Comb)
 		}
 
-		dat.lock.Lock()
-		dat.combCache[m.Author.ID] = comb{
-			elems: elems,
-			elem3: elem3,
+		dat.Lock.Lock()
+		dat.CombCache[m.Author.ID] = types.Comb{
+			Elems: elems,
+			Elem3: elem3,
 		}
-		dat.lock.Unlock()
+		dat.Lock.Unlock()
 
-		dat.lock.RLock()
-		_, exists := dat.invCache[m.Author.ID][strings.ToLower(elem3)]
-		dat.lock.RUnlock()
+		dat.Lock.RLock()
+		_, exists := dat.InvCache[m.Author.ID][strings.ToLower(elem3)]
+		dat.Lock.RUnlock()
 		if !exists {
-			dat.lock.Lock()
-			dat.invCache[m.Author.ID][strings.ToLower(elem3)] = empty{}
-			dat.lock.Unlock()
+			dat.Lock.Lock()
+			dat.InvCache[m.Author.ID][strings.ToLower(elem3)] = types.Empty{}
+			dat.Lock.Unlock()
 			b.saveInv(m.GuildID, m.Author.ID, false)
 
 			rsp.Resp(fmt.Sprintf("You made **%s** "+newText, elem3))
@@ -153,16 +155,16 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 		return
 	}
 
-	if dat.combCache == nil {
-		dat.combCache = make(map[string]comb)
+	if dat.CombCache == nil {
+		dat.CombCache = make(map[string]types.Comb)
 	}
 
-	dat.lock.Lock()
-	dat.combCache[m.Author.ID] = comb{
-		elems: elems,
-		elem3: "",
+	dat.Lock.Lock()
+	dat.CombCache[m.Author.ID] = types.Comb{
+		Elems: elems,
+		Elem3: "",
 	}
-	dat.lock.Unlock()
+	dat.Lock.Unlock()
 
 	lock.Lock()
 	b.dat[m.GuildID] = dat
@@ -170,7 +172,7 @@ func (b *EoD) combine(elems []string, m msg, rsp rsp) {
 	rsp.Resp("That combination doesn't exist! " + redCircle + "\n 	Suggest it by typing **/suggest**")
 }
 
-func joinTxt(elemDat map[string]empty, ending string) string {
+func joinTxt(elemDat map[string]types.Empty, ending string) string {
 	elems := make([]string, len(elemDat))
 	i := 0
 	for k := range elemDat {

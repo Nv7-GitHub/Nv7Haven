@@ -69,15 +69,15 @@ func (b *EoD) initHandlers() {
 			lock.Unlock()
 
 			// Check if page switch handler or component handler
-			_, exists = dat.pageSwitchers[i.Message.ID]
+			_, exists = dat.PageSwitchers[i.Message.ID]
 			if exists {
 				b.pageSwitchHandler(s, i)
 				return
 			}
 
-			compMsg, exists := dat.componentMsgs[i.Message.ID]
+			compMsg, exists := dat.ComponentMsgs[i.Message.ID]
 			if exists {
-				compMsg.handler(s, i)
+				compMsg.Handler(s, i)
 				return
 			}
 			return

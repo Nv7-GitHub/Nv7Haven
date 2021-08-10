@@ -3,9 +3,11 @@ package eod
 import (
 	"fmt"
 	"strings"
+
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
-func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
+func (b *EoD) categoryCmd(elems []string, category string, m types.Msg, rsp types.Rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -33,9 +35,9 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 		return
 	}
 
-	dat.lock.RLock()
-	cat, exists := dat.catCache[strings.ToLower(category)]
-	dat.lock.RUnlock()
+	dat.Lock.RLock()
+	cat, exists := dat.CatCache[strings.ToLower(category)]
+	dat.Lock.RUnlock()
 	if exists {
 		category = cat.Name
 	}
@@ -43,9 +45,9 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 	suggestAdd := make([]string, 0)
 	added := make([]string, 0)
 	for _, val := range elems {
-		dat.lock.RLock()
-		el, exists := dat.elemCache[strings.ToLower(val)]
-		dat.lock.RUnlock()
+		dat.Lock.RLock()
+		el, exists := dat.ElemCache[strings.ToLower(val)]
+		dat.Lock.RUnlock()
 		if !exists {
 			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", val))
 			return
@@ -65,10 +67,10 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 		lock.Unlock()
 	}
 	if len(suggestAdd) > 0 {
-		err := b.createPoll(poll{
-			Channel: dat.votingChannel,
+		err := b.createPoll(types.Poll{
+			Channel: dat.VotingChannel,
 			Guild:   m.GuildID,
-			Kind:    pollCategorize,
+			Kind:    types.PollCategorize,
 			Value1:  category,
 			Value4:  m.Author.ID,
 			Data:    map[string]interface{}{"elems": suggestAdd},
@@ -92,7 +94,7 @@ func (b *EoD) categoryCmd(elems []string, category string, m msg, rsp rsp) {
 	}
 }
 
-func (b *EoD) rmCategoryCmd(elems []string, category string, m msg, rsp rsp) {
+func (b *EoD) rmCategoryCmd(elems []string, category string, m types.Msg, rsp types.Rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -102,9 +104,9 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m msg, rsp rsp) {
 
 	elems = removeDuplicates(elems)
 
-	dat.lock.RLock()
-	cat, exists := dat.catCache[strings.ToLower(category)]
-	dat.lock.RUnlock()
+	dat.Lock.RLock()
+	cat, exists := dat.CatCache[strings.ToLower(category)]
+	dat.Lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Category **%s** doesn't exist!", category))
 		return
@@ -115,9 +117,9 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m msg, rsp rsp) {
 	suggestRm := make([]string, 0)
 	rmed := make([]string, 0)
 	for _, val := range elems {
-		dat.lock.RLock()
-		el, exists := dat.elemCache[strings.ToLower(val)]
-		dat.lock.RUnlock()
+		dat.Lock.RLock()
+		el, exists := dat.ElemCache[strings.ToLower(val)]
+		dat.Lock.RUnlock()
 		if !exists {
 			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", val))
 			return
@@ -143,10 +145,10 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m msg, rsp rsp) {
 		lock.Unlock()
 	}
 	if len(suggestRm) > 0 {
-		err := b.createPoll(poll{
-			Channel: dat.votingChannel,
+		err := b.createPoll(types.Poll{
+			Channel: dat.VotingChannel,
 			Guild:   m.GuildID,
-			Kind:    pollUnCategorize,
+			Kind:    types.PollUnCategorize,
 			Value1:  category,
 			Value4:  m.Author.ID,
 			Data:    map[string]interface{}{"elems": suggestRm},
@@ -170,7 +172,7 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m msg, rsp rsp) {
 	}
 }
 
-func (b *EoD) catImgCmd(catName string, url string, m msg, rsp rsp) {
+func (b *EoD) catImgCmd(catName string, url string, m types.Msg, rsp types.Rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -178,16 +180,16 @@ func (b *EoD) catImgCmd(catName string, url string, m msg, rsp rsp) {
 		return
 	}
 
-	cat, exists := dat.catCache[strings.ToLower(catName)]
+	cat, exists := dat.CatCache[strings.ToLower(catName)]
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Category **%s** doesn't exist!", catName))
 		return
 	}
 
-	err := b.createPoll(poll{
-		Channel: dat.votingChannel,
+	err := b.createPoll(types.Poll{
+		Channel: dat.VotingChannel,
 		Guild:   m.GuildID,
-		Kind:    pollCatImage,
+		Kind:    types.PollCatImage,
 		Value1:  cat.Name,
 		Value2:  url,
 		Value3:  cat.Image,

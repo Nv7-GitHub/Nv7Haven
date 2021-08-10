@@ -3,6 +3,7 @@ package eod
 import (
 	"fmt"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -102,15 +103,15 @@ func (n *normalResp) RawEmbed(emb *discordgo.MessageEmbed) string {
 
 func (n *normalResp) Acknowledge() {}
 
-func (b *EoD) newMsgNormal(m *discordgo.MessageCreate) msg {
-	return msg{
+func (b *EoD) newMsgNormal(m *discordgo.MessageCreate) types.Msg {
+	return types.Msg{
 		Author:    m.Author,
 		ChannelID: m.ChannelID,
 		GuildID:   m.GuildID,
 	}
 }
 
-func (b *EoD) newRespNormal(m *discordgo.MessageCreate) rsp {
+func (b *EoD) newRespNormal(m *discordgo.MessageCreate) types.Rsp {
 	return &normalResp{
 		msg: m,
 		b:   b,
@@ -260,15 +261,15 @@ func (s *slashResp) DM(msg string) {
 	}
 }
 
-func (b *EoD) newMsgSlash(i *discordgo.InteractionCreate) msg {
-	return msg{
+func (b *EoD) newMsgSlash(i *discordgo.InteractionCreate) types.Msg {
+	return types.Msg{
 		Author:    i.Member.User,
 		ChannelID: i.ChannelID,
 		GuildID:   i.GuildID,
 	}
 }
 
-func (b *EoD) newRespSlash(i *discordgo.InteractionCreate) rsp {
+func (b *EoD) newRespSlash(i *discordgo.InteractionCreate) types.Rsp {
 	return &slashResp{
 		i: i,
 		b: b,

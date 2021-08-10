@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -205,18 +206,18 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if !exists {
 			return
 		}
-		if dat.combCache == nil {
-			dat.combCache = make(map[string]comb)
+		if dat.CombCache == nil {
+			dat.CombCache = make(map[string]types.Comb)
 		}
-		comb, exists := dat.combCache[msg.Author.ID]
+		comb, exists := dat.CombCache[msg.Author.ID]
 		if !exists {
 			return
 		}
-		if comb.elem3 != "" {
-			b.combine([]string{comb.elem3, comb.elem3}, msg, rsp)
+		if comb.Elem3 != "" {
+			b.combine([]string{comb.Elem3, comb.Elem3}, msg, rsp)
 			return
 		}
-		b.combine(comb.elems, msg, rsp)
+		b.combine(comb.Elems, msg, rsp)
 		return
 	}
 
