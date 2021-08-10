@@ -3,46 +3,48 @@ package trees
 import (
 	"bytes"
 	"fmt"
-	"image"
 	"strings"
 	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/goccy/go-graphviz"
-	"github.com/goccy/go-graphviz/cgraph"
 )
 
 type Graph struct {
-	viz   *graphviz.Graphviz
-	graph *cgraph.Graph
-	nodes map[string]*cgraph.Node
+	added    map[string]types.Empty
+	dot      *strings.Builder
+	finished bool
 
 	lock      *sync.RWMutex
 	elemCache map[string]types.Element
 }
 
 func NewGraph(dat types.ServerData) (*Graph, error) {
-	viz := graphviz.New()
-	graph, err := viz.Graph()
-	if err != nil {
-		return nil, err
-	}
-	graph.SetSplines("ortho")
+	dot := &strings.Builder{}
+	dot.WriteString("digraph tree {\n")
+	dot.WriteString("\tnode [ fontname=\"Arial\", shape=\"box\", style=\"rounded\" ];\n")
+	dot.WriteString("\tedge [ dir=\"none\" ];\n")
+	dot.WriteString("\tgraph [ splines=ortho ];\n")
+
 	return &Graph{
-		viz:   viz,
-		graph: graph,
-		nodes: make(map[string]*cgraph.Node),
+		added:    make(map[string]types.Empty),
+		dot:      dot,
+		finished: false,
 
 		elemCache: dat.ElemCache,
 		lock:      dat.Lock,
 	}, nil
 }
 
+func escapeGraphNode(txt string) string {
+	return strings.ReplaceAll(txt, "\"", "\\\"")
+}
+
 func (g *Graph) AddElem(elem string, special bool) (string, bool) {
 	elem = strings.ToLower(elem)
 
 	// Already exists
-	_, exists := g.nodes[elem]
+	_, exists := g.added[elem]
 	if exists {
 		return "", true
 	}
@@ -55,64 +57,63 @@ func (g *Graph) AddElem(elem string, special bool) (string, bool) {
 		return fmt.Sprintf("Element **%s** doesn't exist!", elem), false
 	}
 
-	// Create Node
-	node, err := g.graph.CreateNode(elem)
-	if err != nil {
-		return err.Error(), false
-	}
-	node.SetLabel(el.Name)
-	node.SetShape("box")
+	// Create Node Style because top level
 	if special {
-		node.SetFillColor("#000000")
-		node.SetFontColor("#ffffff")
-		node.SetStyle("filled")
-	} else {
-		node.SetStyle("rounded")
+		fmt.Fprintf(g.dot, "\t\"%s\" [ style=\"rounded,filled\", fontcolor=\"#ffffff\", fillcolor=\"#000000\" ];\n", escapeGraphNode(el.Name))
 	}
 
 	// Add parents and connections to parents
 	for _, par := range el.Parents {
-		lower := strings.ToLower(par)
-		resp, suc := g.AddElem(par, false)
-		if !suc {
-			return resp, false
+		g.AddElem(par, false)
+
+		g.lock.RLock()
+		parEl, exists := g.elemCache[strings.ToLower(par)]
+		g.lock.RUnlock()
+		if !exists {
+			return fmt.Sprintf("Element **%s** doesn't exist!", elem), false
 		}
 
-		edge, err := g.graph.CreateEdge(elem+"+"+lower, node, g.nodes[lower])
-		if err != nil {
-			return err.Error(), false
-		}
-		edge.SetDir(cgraph.NoneDir)
+		fmt.Fprintf(g.dot, "\t\"%s\" -> \"%s\"\n", escapeGraphNode(el.Name), escapeGraphNode(parEl.Name))
 	}
 
 	// Finish
-	g.nodes[elem] = node
+	g.added[elem] = types.Empty{}
 	return "", true
 }
 
-func (g *Graph) RenderPNG() (*bytes.Buffer, error) {
-	buf := bytes.NewBuffer(nil)
-	err := g.viz.Render(g.graph, graphviz.PNG, buf)
-	return buf, err
-}
-
-func (g *Graph) RenderSVG() (*bytes.Buffer, error) {
-	buf := bytes.NewBuffer(nil)
-	err := g.viz.Render(g.graph, graphviz.SVG, buf)
-	return buf, err
-}
-
-func (g *Graph) RenderDOT() (*bytes.Buffer, error) {
-	buf := bytes.NewBuffer(nil)
-	err := g.viz.Render(g.graph, "dot", buf)
-	return buf, err
-}
-
-func (g *Graph) Render() (image.Image, error) {
-	return g.viz.RenderImage(g.graph)
-}
-
 func (g *Graph) Close() {
-	g.graph.Close()
-	g.viz.Close()
+	if !g.finished {
+		g.dot.WriteString("}")
+		g.finished = true
+	}
+}
+
+func (g *Graph) String() string {
+	g.Close()
+	return g.dot.String()
+}
+
+func (g *Graph) RenderPNG() (*bytes.Buffer, error) {
+	g.Close()
+	buf := bytes.NewBuffer(nil)
+
+	graph, err := graphviz.ParseBytes([]byte(g.String()))
+	if err != nil {
+		return nil, err
+	}
+
+	viz := graphviz.New()
+	err = viz.Render(graph, graphviz.PNG, buf)
+	if err != nil {
+		return nil, err
+	}
+
+	graph.Close()
+	viz.Close()
+
+	return buf, nil
+}
+
+func (g *Graph) NodeCount() int {
+	return len(g.added)
 }

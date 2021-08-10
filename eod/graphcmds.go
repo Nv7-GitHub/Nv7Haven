@@ -9,6 +9,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+const renderDifficulty = 30
+
 func (b *EoD) graphCmd(elem string, m types.Msg, rsp types.Rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
@@ -18,28 +20,42 @@ func (b *EoD) graphCmd(elem string, m types.Msg, rsp types.Rsp) {
 	}
 	rsp.Acknowledge()
 
-	//start := time.Now()
+	dat.Lock.RLock()
+	el, exists := dat.ElemCache[strings.ToLower(elem)]
+	dat.Lock.RUnlock()
+	if !exists {
+		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
+	}
+
 	graph, err := trees.NewGraph(dat)
 	if rsp.Error(err) {
 		return
 	}
-	/*fmt.Println(time.Since(start))
-	start = time.Now()*/
-	msg, suc := graph.AddElem(elem, true)
+
+	msg, suc := graph.AddElem(elem, el.Difficulty >= renderDifficulty)
 	if !suc {
 		rsp.ErrorMessage(msg)
 		return
 	}
-	/*fmt.Println(time.Since(start))
-	start = time.Now()*/
-	out, err := graph.RenderPNG()
-	if rsp.Error(err) {
-		return
-	}
-	/*fmt.Println(time.Since(start))
-	start = time.Now()*/
 
-	graph.Close()
+	var file *discordgo.File
+	if graph.NodeCount() < 200 {
+		out, err := graph.RenderPNG()
+		if rsp.Error(err) {
+			return
+		}
+		file = &discordgo.File{
+			Name:        "graph.png",
+			ContentType: "image/png",
+			Reader:      out,
+		}
+	} else {
+		file = &discordgo.File{
+			Name:        "graph.dot",
+			ContentType: "text/plain",
+			Reader:      strings.NewReader(graph.String()),
+		}
+	}
 
 	rsp.Message("Sent graph in DMs!")
 
@@ -53,13 +69,7 @@ func (b *EoD) graphCmd(elem string, m types.Msg, rsp types.Rsp) {
 	dat.Lock.RUnlock()
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
 		Content: fmt.Sprintf("Graph for **%s**:", name),
-		Files: []*discordgo.File{
-			{
-				Name:        "graph.png",
-				ContentType: "image/png",
-				Reader:      out,
-			},
-		},
+		Files:   []*discordgo.File{file},
 	})
 }
 
@@ -77,27 +87,50 @@ func (b *EoD) catGraphCmd(catName string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 
+	compl := 0
+	dat.Lock.RLock()
+	for elem := range cat.Elements {
+		el, exists := dat.ElemCache[strings.ToLower(elem)]
+		if !exists {
+			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
+		}
+		compl += el.Difficulty
+	}
+	dat.Lock.RUnlock()
+
 	graph, err := trees.NewGraph(dat)
 	if rsp.Error(err) {
 		return
 	}
 
 	for elem := range cat.Elements {
-		msg, suc := graph.AddElem(elem, true)
+		msg, suc := graph.AddElem(elem, compl >= renderDifficulty)
 		if !suc {
 			rsp.ErrorMessage(msg)
 			return
 		}
 	}
 
-	out, err := graph.RenderPNG()
-	if rsp.Error(err) {
-		return
+	var file *discordgo.File
+	if graph.NodeCount() < 200 {
+		out, err := graph.RenderPNG()
+		if rsp.Error(err) {
+			return
+		}
+		file = &discordgo.File{
+			Name:        "graph.png",
+			ContentType: "image/png",
+			Reader:      out,
+		}
+	} else {
+		file = &discordgo.File{
+			Name:        "graph.dot",
+			ContentType: "text/plain",
+			Reader:      strings.NewReader(graph.String()),
+		}
 	}
 
 	rsp.Message("Sent graph in DMs!")
-
-	graph.Close()
 
 	channel, err := b.dg.UserChannelCreate(m.Author.ID)
 	if rsp.Error(err) {
@@ -106,12 +139,6 @@ func (b *EoD) catGraphCmd(catName string, m types.Msg, rsp types.Rsp) {
 
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
 		Content: fmt.Sprintf("Graph for category **%s**:", cat.Name),
-		Files: []*discordgo.File{
-			{
-				Name:        "graph.png",
-				ContentType: "image/png",
-				Reader:      out,
-			},
-		},
+		Files:   []*discordgo.File{file},
 	})
 }
