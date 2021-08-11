@@ -36,7 +36,7 @@ main
 files/*
 packs/*
 logs.txt
-eodlogs.txt
+createlogs.txt
 
 # Secret!
 password.txt

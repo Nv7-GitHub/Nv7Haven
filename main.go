@@ -79,6 +79,18 @@ func main() {
 		file.Close()
 		return nil
 	})
+	app.Get("/createlogs", func(c *fiber.Ctx) error {
+		file, err := os.Open("createlogs.txt")
+		if err != nil {
+			return err
+		}
+		_, err = io.Copy(c, file)
+		if err != nil {
+			return err
+		}
+		file.Close()
+		return nil
+	})
 
 	// gRPC
 	lis, err := net.Listen("tcp", ":"+os.Getenv("GRPC_PORT"))

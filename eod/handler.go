@@ -13,7 +13,7 @@ const guild = "" // 819077688371314718 for testing
 func (b *EoD) initHandlers() {
 	// Debugging
 	var err error
-	datafile, err = os.OpenFile("eodlogs.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, os.ModePerm)
+	datafile, err = os.OpenFile("createlogs.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		panic(err)
 	}
