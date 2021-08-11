@@ -123,10 +123,14 @@ func (b *EoD) graphCmd(elems map[string]types.Empty, dat types.ServerData, m typ
 		if outputType == "Text" {
 			name = "graph.txt"
 		}
+		splines := "ortho"
+		if layout == "Twopi" {
+			splines = "false"
+		}
 		file = &discordgo.File{
 			Name:        name,
 			ContentType: "text/plain",
-			Reader:      strings.NewReader(graph.String(distinctPrimary)),
+			Reader:      strings.NewReader(graph.String(distinctPrimary, splines)),
 		}
 	}
 
