@@ -2,8 +2,11 @@ package eod
 
 import (
 	"fmt"
+	"log"
 	"os"
+	"runtime"
 	"sort"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -20,6 +23,22 @@ func (b *EoD) initHandlers() {
 	discordlogs, err = os.OpenFile("discordlogs.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		panic(err)
+	}
+	discordgo.Logger = func(msgL, caller int, format string, a ...interface{}) {
+		// This code is a slightly modified version of https://github.com/bwmarrin/discordgo/blob/577e7dd4f6ccf1beb10acdb1871300c7638b84c4/logging.go#L46
+		pc, file, line, _ := runtime.Caller(caller)
+
+		files := strings.Split(file, "/")
+		file = files[len(files)-1]
+
+		name := runtime.FuncForPC(pc).Name()
+		fns := strings.Split(name, ".")
+		name = fns[len(fns)-1]
+
+		msg := fmt.Sprintf(format, a...)
+
+		log.SetOutput(discordlogs)
+		log.Printf("[DG%d] %s:%d:%s() %s\n", msgL, file, line, name, msg)
 	}
 
 	// Handlers

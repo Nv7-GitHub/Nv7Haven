@@ -1,6 +1,7 @@
 package eod
 
 import (
+	"log"
 	"os"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -20,7 +21,7 @@ func (n *normalResp) Error(err error) bool {
 	if err != nil {
 		_, err := n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" Error: "+err.Error()+" "+redCircle)
 		if err != nil {
-			discordlogs.WriteString(err.Error() + "\n")
+			log.SetOutput(discordlogs)
 		}
 		return true
 	}
@@ -50,7 +51,8 @@ func (n *normalResp) Message(msg string, components ...discordgo.MessageComponen
 	}
 
 	if err != nil {
-		discordlogs.WriteString(err.Error() + "\n")
+		log.SetOutput(discordlogs)
+		log.Println(err)
 		return ""
 	}
 	return m.ID
@@ -59,11 +61,13 @@ func (n *normalResp) Message(msg string, components ...discordgo.MessageComponen
 func (n *normalResp) DM(msg string) {
 	channel, err := n.b.dg.UserChannelCreate(n.msg.Author.ID)
 	if err != nil {
-		discordlogs.WriteString(err.Error() + "\n")
+		log.SetOutput(discordlogs)
+		log.Println(err)
 	}
 	_, err = n.b.dg.ChannelMessageSend(channel.ID, msg)
 	if err != nil {
-		discordlogs.WriteString(err.Error() + "\n")
+		log.SetOutput(discordlogs)
+		log.Println(err)
 	}
 }
 
@@ -79,7 +83,8 @@ func (n *normalResp) Embed(emb *discordgo.MessageEmbed, components ...discordgo.
 	msg, err := n.b.dg.ChannelMessageSendComplex(n.msg.ChannelID, m)
 	if err != nil {
 		if err != nil {
-			discordlogs.WriteString(err.Error() + "\n")
+			log.SetOutput(discordlogs)
+			log.Println(err)
 		}
 		return ""
 	}
@@ -95,7 +100,8 @@ func (n *normalResp) RawEmbed(emb *discordgo.MessageEmbed) string {
 	msg, err := n.b.dg.ChannelMessageSendEmbed(n.msg.ChannelID, emb)
 	if err != nil {
 		if err != nil {
-			discordlogs.WriteString(err.Error() + "\n")
+			log.SetOutput(discordlogs)
+			log.Println(err)
 		}
 		return ""
 	}
@@ -133,7 +139,8 @@ func (s *slashResp) Error(err error) bool {
 				Content: "Error: " + err.Error(),
 			})
 			if err != nil {
-				discordlogs.WriteString(err.Error() + "\n")
+				log.SetOutput(discordlogs)
+				log.Println(err)
 			}
 		} else {
 			err := s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
@@ -144,7 +151,8 @@ func (s *slashResp) Error(err error) bool {
 				},
 			})
 			if err != nil {
-				discordlogs.WriteString(err.Error() + "\n")
+				log.SetOutput(discordlogs)
+				log.Println(err)
 			}
 		}
 		return true
@@ -187,7 +195,8 @@ func (s *slashResp) Message(msg string, components ...discordgo.MessageComponent
 		})
 		if err != nil {
 			if err != nil {
-				discordlogs.WriteString(err.Error() + "\n")
+				log.SetOutput(discordlogs)
+				log.Println(err)
 			}
 			return ""
 		}
@@ -201,7 +210,8 @@ func (s *slashResp) Message(msg string, components ...discordgo.MessageComponent
 		},
 	})
 	if err != nil {
-		discordlogs.WriteString(err.Error() + "\n")
+		log.SetOutput(discordlogs)
+		log.Println(err)
 	}
 	return ""
 }
@@ -218,7 +228,8 @@ func (s *slashResp) Embed(emb *discordgo.MessageEmbed, components ...discordgo.M
 		})
 		if err != nil {
 			if err != nil {
-				discordlogs.WriteString(err.Error() + "\n")
+				log.SetOutput(discordlogs)
+				log.Println(err)
 			}
 			return ""
 		}
@@ -232,7 +243,8 @@ func (s *slashResp) Embed(emb *discordgo.MessageEmbed, components ...discordgo.M
 		},
 	})
 	if err != nil {
-		discordlogs.WriteString(err.Error() + "\n")
+		log.SetOutput(discordlogs)
+		log.Println(err)
 	}
 	return ""
 }
@@ -252,13 +264,15 @@ func (s *slashResp) DM(msg string) {
 	channel, err := s.b.dg.UserChannelCreate(s.i.Member.User.ID)
 	if err != nil {
 		if err != nil {
-			discordlogs.WriteString(err.Error() + "\n")
+			log.SetOutput(discordlogs)
+			log.Println(err)
 		}
 	}
 	_, err = s.b.dg.ChannelMessageSend(channel.ID, msg)
 	if err != nil {
 		if err != nil {
-			discordlogs.WriteString(err.Error() + "\n")
+			log.SetOutput(discordlogs)
+			log.Println(err)
 		}
 	}
 }
