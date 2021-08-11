@@ -636,6 +636,11 @@ var (
 						},
 					},
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionBoolean,
+					Name:        "distinct",
+					Description: "Whether to style the primary elements of the graph differently",
+				},
 			},
 		},
 		{
@@ -686,6 +691,11 @@ var (
 							Value: "Twopi",
 						},
 					},
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionBoolean,
+					Name:        "distinct",
+					Description: "Whether to style the primary elements of the graph differently",
 				},
 			},
 		},
@@ -924,6 +934,7 @@ var (
 			var elem string
 			outputType := ""
 			layout := ""
+			special := false
 			for _, opt := range resp.Options {
 				if opt.Name == "element" {
 					elem = opt.StringValue()
@@ -936,14 +947,19 @@ var (
 				if opt.Name == "layout" {
 					layout = opt.StringValue()
 				}
+
+				if opt.Name == "distinct" {
+					special = opt.BoolValue()
+				}
 			}
-			bot.elemGraphCmd(elem, layout, outputType, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.elemGraphCmd(elem, layout, outputType, special, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"catgraph": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			var catName string
 			outputType := ""
 			layout := ""
+			special := false
 			for _, opt := range resp.Options {
 				if opt.Name == "category" {
 					catName = opt.StringValue()
@@ -956,8 +972,12 @@ var (
 				if opt.Name == "layout" {
 					layout = opt.StringValue()
 				}
+
+				if opt.Name == "distinct" {
+					special = opt.BoolValue()
+				}
 			}
-			bot.catGraphCmd(catName, layout, outputType, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.catGraphCmd(catName, layout, outputType, special, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )

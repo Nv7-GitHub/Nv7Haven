@@ -23,7 +23,7 @@ var outputTypes = map[string]types.Empty{
 	"DOT":  {},
 }
 
-func (b *EoD) graphCmd(elems map[string]types.Empty, dat types.ServerData, m types.Msg, layout string, outputType string, name string, rsp types.Rsp) {
+func (b *EoD) graphCmd(elems map[string]types.Empty, dat types.ServerData, m types.Msg, layout string, outputType string, name string, distinctPrimary bool, rsp types.Rsp) {
 	// Create graph
 	graph, err := trees.NewGraph(dat)
 	if rsp.Error(err) {
@@ -126,7 +126,7 @@ func (b *EoD) graphCmd(elems map[string]types.Empty, dat types.ServerData, m typ
 		file = &discordgo.File{
 			Name:        name,
 			ContentType: "text/plain",
-			Reader:      strings.NewReader(graph.String()),
+			Reader:      strings.NewReader(graph.String(distinctPrimary)),
 		}
 	}
 
@@ -143,7 +143,7 @@ func (b *EoD) graphCmd(elems map[string]types.Empty, dat types.ServerData, m typ
 	})
 }
 
-func (b *EoD) elemGraphCmd(elem string, layout string, outputType string, m types.Msg, rsp types.Rsp) {
+func (b *EoD) elemGraphCmd(elem string, layout string, outputType string, distinctPrimary bool, m types.Msg, rsp types.Rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -156,10 +156,10 @@ func (b *EoD) elemGraphCmd(elem string, layout string, outputType string, m type
 	name := dat.ElemCache[strings.ToLower(elem)].Name
 	dat.Lock.RUnlock()
 
-	b.graphCmd(map[string]types.Empty{elem: {}}, dat, m, layout, outputType, name, rsp)
+	b.graphCmd(map[string]types.Empty{elem: {}}, dat, m, layout, outputType, name, distinctPrimary, rsp)
 }
 
-func (b *EoD) catGraphCmd(catName, layout, outputType string, m types.Msg, rsp types.Rsp) {
+func (b *EoD) catGraphCmd(catName, layout, outputType string, distinctPrimary bool, m types.Msg, rsp types.Rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -173,5 +173,5 @@ func (b *EoD) catGraphCmd(catName, layout, outputType string, m types.Msg, rsp t
 		return
 	}
 
-	b.graphCmd(cat.Elements, dat, m, layout, outputType, catName, rsp)
+	b.graphCmd(cat.Elements, dat, m, layout, outputType, catName, distinctPrimary, rsp)
 }

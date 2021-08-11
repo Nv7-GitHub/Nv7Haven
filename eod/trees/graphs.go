@@ -96,8 +96,8 @@ func (g *Graph) Close(special bool, splines string) {
 	}
 }
 
-func (g *Graph) String() string {
-	g.Close(true, "ortho")
+func (g *Graph) String(special bool) string {
+	g.Close(special, "ortho")
 	return g.dot.String()
 }
 
