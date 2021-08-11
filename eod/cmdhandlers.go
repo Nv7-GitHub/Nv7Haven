@@ -209,7 +209,10 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if dat.CombCache == nil {
 			dat.CombCache = make(map[string]types.Comb)
 		}
+
+		dat.Lock.RLock()
 		comb, exists := dat.CombCache[msg.Author.ID]
+		dat.Lock.RUnlock()
 		if !exists {
 			return
 		}
