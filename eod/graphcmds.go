@@ -12,7 +12,7 @@ import (
 )
 
 var maxSizes = map[string]int{
-	"Dot":   100,
+	"Dot":   115,
 	"Twopi": 1000,
 }
 
