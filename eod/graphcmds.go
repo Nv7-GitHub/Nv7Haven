@@ -12,8 +12,8 @@ import (
 )
 
 var maxSizes = map[string]int{
-	"Dot":   115,
-	"Twopi": 500,
+	"Dot":   115, // This is 7 * 3 multiplied by a number nice
+	"Twopi": 504, // 7 * 3^2 * 2^3 also very cool
 }
 
 var outputTypes = map[string]types.Empty{
