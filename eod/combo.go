@@ -76,7 +76,10 @@ func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
 			dat.Lock.RLock()
 			_, exists := dat.CombCache[m.Author.ID]
 			if exists {
+				dat.Lock.RLock()
 				delete(dat.CombCache, m.Author.ID)
+				dat.Lock.RUnlock()
+
 				lock.Lock()
 				b.dat[m.GuildID] = dat
 				lock.Unlock()
