@@ -119,7 +119,7 @@ func (b *EoD) graphCmd(elems map[string]types.Empty, dat types.ServerData, m typ
 
 		}
 	case "Text", "DOT":
-		txt = "The graph was not rendered server-side! Check out https://graphviz.org/ to render it on your computer!"
+		txt = "The graph was not rendered server-side! Check out https://github.com/Nv7-Github/graphwhiz to render it on your computer!"
 		name := "graph.dot"
 		if outputType == "Text" {
 			name = "graph.txt"
