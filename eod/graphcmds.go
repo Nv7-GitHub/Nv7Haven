@@ -13,7 +13,7 @@ import (
 
 var maxSizes = map[string]int{
 	"Dot":   115,
-	"Twopi": 1000,
+	"Twopi": 500,
 }
 
 var outputTypes = map[string]types.Empty{
