@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"runtime/debug"
 )
 
 func traceHandler(stack interface{}) {
@@ -23,12 +22,4 @@ func traceHandler(stack interface{}) {
 		panic(err)
 	}
 	defer resp.Body.Close()
-}
-
-func recoverer() {
-	r := recover()
-	if r != nil {
-		stack := string(debug.Stack())
-		traceHandler(stack)
-	}
 }

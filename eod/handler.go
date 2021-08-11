@@ -17,7 +17,12 @@ func (b *EoD) initHandlers() {
 	if err != nil {
 		panic(err)
 	}
+	discordlogs, err = os.OpenFile("discordlogs.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
 
+	// Handlers
 	b.initInfoChoices()
 
 	cmds, err := b.dg.ApplicationCommands(clientID, guild)

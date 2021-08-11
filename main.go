@@ -3,14 +3,12 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"io"
 	"net"
 	"net/http"
 	"os"
 	"os/exec"
 	"os/signal"
 	"runtime"
-	"runtime/debug"
 
 	"github.com/Nv7-Github/Nv7Haven/discord"
 	"github.com/Nv7-Github/Nv7Haven/elemental"
@@ -57,40 +55,7 @@ func main() {
 		EnableStackTrace:  true,
 		StackTraceHandler: traceHandler,
 	}))
-	app.Get("/freememory", func(c *fiber.Ctx) error {
-		debug.FreeOSMemory()
-		return nil
-	})
-	app.Get("/kill/:password", func(c *fiber.Ctx) error {
-		if c.Params("password") == os.Getenv("PASSWORD") {
-			os.Exit(2)
-		}
-		return nil
-	})
-	app.Get("/logs", func(c *fiber.Ctx) error {
-		file, err := os.Open("logs.txt")
-		if err != nil {
-			return err
-		}
-		_, err = io.Copy(c, file)
-		if err != nil {
-			return err
-		}
-		file.Close()
-		return nil
-	})
-	app.Get("/createlogs", func(c *fiber.Ctx) error {
-		file, err := os.Open("createlogs.txt")
-		if err != nil {
-			return err
-		}
-		_, err = io.Copy(c, file)
-		if err != nil {
-			return err
-		}
-		file.Close()
-		return nil
-	})
+	systemHandlers(app)
 
 	// gRPC
 	lis, err := net.Listen("tcp", ":"+os.Getenv("GRPC_PORT"))
