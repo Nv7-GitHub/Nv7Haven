@@ -69,6 +69,7 @@ func (b *EoD) graphCmd(elems map[string]types.Empty, dat types.ServerData, m typ
 
 		if maxSizes[layout] > 0 && graph.NodeCount() > maxSizes[layout] {
 			rsp.ErrorMessage(fmt.Sprintf("Graph is too big for layout **%s**!", layout))
+			return
 		}
 	}
 
