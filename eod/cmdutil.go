@@ -1,12 +1,16 @@
 package eod
 
 import (
-	"fmt"
+	"log"
+	"os"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
 
 const redCircle = "🔴"
+
+var discordlogs *os.File
 
 type normalResp struct {
 	msg *discordgo.MessageCreate
@@ -17,7 +21,7 @@ func (n *normalResp) Error(err error) bool {
 	if err != nil {
 		_, err := n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" Error: "+err.Error()+" "+redCircle)
 		if err != nil {
-			fmt.Println("Failed to send message:", err)
+			log.SetOutput(discordlogs)
 		}
 		return true
 	}
@@ -47,7 +51,8 @@ func (n *normalResp) Message(msg string, components ...discordgo.MessageComponen
 	}
 
 	if err != nil {
-		fmt.Println("Failed to send message:", err)
+		log.SetOutput(discordlogs)
+		log.Println(err)
 		return ""
 	}
 	return m.ID
@@ -56,11 +61,13 @@ func (n *normalResp) Message(msg string, components ...discordgo.MessageComponen
 func (n *normalResp) DM(msg string) {
 	channel, err := n.b.dg.UserChannelCreate(n.msg.Author.ID)
 	if err != nil {
-		fmt.Println("Failed to send message:", err)
+		log.SetOutput(discordlogs)
+		log.Println(err)
 	}
 	_, err = n.b.dg.ChannelMessageSend(channel.ID, msg)
 	if err != nil {
-		fmt.Println("Failed to send message:", err)
+		log.SetOutput(discordlogs)
+		log.Println(err)
 	}
 }
 
@@ -76,7 +83,8 @@ func (n *normalResp) Embed(emb *discordgo.MessageEmbed, components ...discordgo.
 	msg, err := n.b.dg.ChannelMessageSendComplex(n.msg.ChannelID, m)
 	if err != nil {
 		if err != nil {
-			fmt.Println("Failed to send message:", err)
+			log.SetOutput(discordlogs)
+			log.Println(err)
 		}
 		return ""
 	}
@@ -92,7 +100,8 @@ func (n *normalResp) RawEmbed(emb *discordgo.MessageEmbed) string {
 	msg, err := n.b.dg.ChannelMessageSendEmbed(n.msg.ChannelID, emb)
 	if err != nil {
 		if err != nil {
-			fmt.Println("Failed to send message:", err)
+			log.SetOutput(discordlogs)
+			log.Println(err)
 		}
 		return ""
 	}
@@ -102,15 +111,15 @@ func (n *normalResp) RawEmbed(emb *discordgo.MessageEmbed) string {
 
 func (n *normalResp) Acknowledge() {}
 
-func (b *EoD) newMsgNormal(m *discordgo.MessageCreate) msg {
-	return msg{
+func (b *EoD) newMsgNormal(m *discordgo.MessageCreate) types.Msg {
+	return types.Msg{
 		Author:    m.Author,
 		ChannelID: m.ChannelID,
 		GuildID:   m.GuildID,
 	}
 }
 
-func (b *EoD) newRespNormal(m *discordgo.MessageCreate) rsp {
+func (b *EoD) newRespNormal(m *discordgo.MessageCreate) types.Rsp {
 	return &normalResp{
 		msg: m,
 		b:   b,
@@ -130,7 +139,8 @@ func (s *slashResp) Error(err error) bool {
 				Content: "Error: " + err.Error(),
 			})
 			if err != nil {
-				fmt.Println("Failed to send message:", err)
+				log.SetOutput(discordlogs)
+				log.Println(err)
 			}
 		} else {
 			err := s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
@@ -141,7 +151,8 @@ func (s *slashResp) Error(err error) bool {
 				},
 			})
 			if err != nil {
-				fmt.Println("Failed to send message:", err)
+				log.SetOutput(discordlogs)
+				log.Println(err)
 			}
 		}
 		return true
@@ -184,7 +195,8 @@ func (s *slashResp) Message(msg string, components ...discordgo.MessageComponent
 		})
 		if err != nil {
 			if err != nil {
-				fmt.Println("Failed to send message:", err)
+				log.SetOutput(discordlogs)
+				log.Println(err)
 			}
 			return ""
 		}
@@ -198,7 +210,8 @@ func (s *slashResp) Message(msg string, components ...discordgo.MessageComponent
 		},
 	})
 	if err != nil {
-		fmt.Println("Failed to send message:", err)
+		log.SetOutput(discordlogs)
+		log.Println(err)
 	}
 	return ""
 }
@@ -215,7 +228,8 @@ func (s *slashResp) Embed(emb *discordgo.MessageEmbed, components ...discordgo.M
 		})
 		if err != nil {
 			if err != nil {
-				fmt.Println("Failed to send message:", err)
+				log.SetOutput(discordlogs)
+				log.Println(err)
 			}
 			return ""
 		}
@@ -229,7 +243,8 @@ func (s *slashResp) Embed(emb *discordgo.MessageEmbed, components ...discordgo.M
 		},
 	})
 	if err != nil {
-		fmt.Println("Failed to send message:", err)
+		log.SetOutput(discordlogs)
+		log.Println(err)
 	}
 	return ""
 }
@@ -249,26 +264,28 @@ func (s *slashResp) DM(msg string) {
 	channel, err := s.b.dg.UserChannelCreate(s.i.Member.User.ID)
 	if err != nil {
 		if err != nil {
-			fmt.Println("Failed to send message:", err)
+			log.SetOutput(discordlogs)
+			log.Println(err)
 		}
 	}
 	_, err = s.b.dg.ChannelMessageSend(channel.ID, msg)
 	if err != nil {
 		if err != nil {
-			fmt.Println("Failed to send message:", err)
+			log.SetOutput(discordlogs)
+			log.Println(err)
 		}
 	}
 }
 
-func (b *EoD) newMsgSlash(i *discordgo.InteractionCreate) msg {
-	return msg{
+func (b *EoD) newMsgSlash(i *discordgo.InteractionCreate) types.Msg {
+	return types.Msg{
 		Author:    i.Member.User,
 		ChannelID: i.ChannelID,
 		GuildID:   i.GuildID,
 	}
 }
 
-func (b *EoD) newRespSlash(i *discordgo.InteractionCreate) rsp {
+func (b *EoD) newRespSlash(i *discordgo.InteractionCreate) types.Rsp {
 	return &slashResp{
 		i: i,
 		b: b,

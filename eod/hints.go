@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -23,7 +24,7 @@ type hintComponent struct {
 	b *EoD
 }
 
-func (h *hintComponent) handler(s *discordgo.Session, i *discordgo.InteractionCreate) {
+func (h *hintComponent) Handler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	hint, msg, suc := h.b.getHint("", false, i.Member.User.ID, i.GuildID, false, h.b.newMsgSlash(i), nil)
 	if !suc {
 		h.b.dg.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
@@ -50,7 +51,7 @@ type hintCombo struct {
 	text   string
 }
 
-var noObscure = map[rune]empty{
+var noObscure = map[rune]types.Empty{
 	' ': {},
 	'.': {},
 	'-': {},
@@ -72,7 +73,7 @@ func obscure(val string) string {
 	return string(out)
 }
 
-func (b *EoD) hintCmd(elem string, hasElem bool, inverse bool, m msg, rsp rsp) {
+func (b *EoD) hintCmd(elem string, hasElem bool, inverse bool, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 
 	rspInp := rsp
@@ -107,16 +108,16 @@ func (b *EoD) hintCmd(elem string, hasElem bool, inverse bool, m msg, rsp rsp) {
 		return
 	}
 
-	dat.lock.Lock()
-	dat.componentMsgs[id] = &hintComponent{b: b}
-	dat.lock.Unlock()
+	dat.Lock.Lock()
+	dat.ComponentMsgs[id] = &hintComponent{b: b}
+	dat.Lock.Unlock()
 
 	lock.Lock()
 	b.dat[m.GuildID] = dat
 	lock.Unlock()
 }
 
-func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, inverse bool, m msg, rsp rsp) (*discordgo.MessageEmbed, string, bool) {
+func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, inverse bool, m types.Msg, rsp types.Rsp) (*discordgo.MessageEmbed, string, bool) {
 	lock.RLock()
 	dat, exists := b.dat[guild]
 	lock.RUnlock()
@@ -124,25 +125,25 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, in
 		return nil, "Guild not found", false
 	}
 
-	dat.lock.RLock()
-	inv, exists := dat.invCache[author]
-	dat.lock.RUnlock()
+	dat.Lock.RLock()
+	inv, exists := dat.InvCache[author]
+	dat.Lock.RUnlock()
 	if !exists {
 		return nil, "You don't have an inventory!", false
 	}
-	var el element
+	var el types.Element
 	if hasElem {
-		dat.lock.RLock()
-		el, exists = dat.elemCache[strings.ToLower(elem)]
-		dat.lock.RUnlock()
+		dat.Lock.RLock()
+		el, exists = dat.ElemCache[strings.ToLower(elem)]
+		dat.Lock.RUnlock()
 		if !exists {
 			return nil, fmt.Sprintf("No hints were found for **%s**!", elem), false
 		}
 	}
 	if !hasElem {
 		hasFound := false
-		dat.lock.RLock()
-		for _, v := range dat.elemCache {
+		dat.Lock.RLock()
+		for _, v := range dat.ElemCache {
 			_, exists := inv[strings.ToLower(v.Name)]
 			if !exists {
 				el = v
@@ -151,16 +152,16 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, in
 				break
 			}
 		}
-		dat.lock.RUnlock()
+		dat.Lock.RUnlock()
 		if !hasFound {
-			dat.lock.RLock()
-			for _, v := range dat.elemCache {
+			dat.Lock.RLock()
+			for _, v := range dat.ElemCache {
 				el = v
 				elem = v.Name
 				hasFound = true
 				break
 			}
-			dat.lock.RUnlock()
+			dat.Lock.RUnlock()
 		}
 	}
 
@@ -255,8 +256,8 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, in
 			for i, v := range out {
 				vals[i] = v.text
 			}
-			b.newPageSwitcher(pageSwitcher{
-				Kind:       pageSwitchInv,
+			b.newPageSwitcher(types.PageSwitcher{
+				Kind:       types.PageSwitchInv,
 				Title:      title,
 				PageGetter: b.invPageGetter,
 				Items:      vals,
@@ -279,7 +280,7 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, in
 	}, "", true
 }
 
-func getHintText(elemTxt string, inv map[string]empty, dat serverData, inverse bool) (string, int) {
+func getHintText(elemTxt string, inv map[string]types.Empty, dat types.ServerData, inverse bool) (string, int) {
 	if !inverse {
 		elems := strings.Split(elemTxt, "+")
 		hasElems := true
@@ -299,9 +300,9 @@ func getHintText(elemTxt string, inv map[string]empty, dat serverData, inverse b
 		params := make([]interface{}, len(elems))
 		i := 0
 		for _, k := range elems {
-			dat.lock.RLock()
-			params[i] = interface{}(dat.elemCache[strings.ToLower(k)].Name)
-			dat.lock.RUnlock()
+			dat.Lock.RLock()
+			params[i] = interface{}(dat.ElemCache[strings.ToLower(k)].Name)
+			dat.Lock.RUnlock()
 
 			if i == 0 {
 				prf += " %s"
@@ -317,17 +318,17 @@ func getHintText(elemTxt string, inv map[string]empty, dat serverData, inverse b
 		return txt, ex
 	}
 
-	dat.lock.RLock()
+	dat.Lock.RLock()
 	_, found := inv[strings.ToLower(elemTxt)]
-	dat.lock.RUnlock()
+	dat.Lock.RUnlock()
 	txt := x
 	ex := 0
 	if found {
 		txt = check
 		ex = 1
 	}
-	dat.lock.RLock()
-	txt += " " + dat.elemCache[strings.ToLower(elemTxt)].Name
-	dat.lock.RUnlock()
+	dat.Lock.RLock()
+	txt += " " + dat.ElemCache[strings.ToLower(elemTxt)].Name
+	dat.Lock.RUnlock()
 	return txt, ex
 }

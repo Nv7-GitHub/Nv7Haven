@@ -8,5 +8,6 @@ Use **/givecat** to give a user all the elements in a category, and optionally a
 Use **/giveall** to give a user every element
 Reset a user's inventory to only the Starter Elements by using **/resetinv**
 Use **/elemsort** to view a sorted list of the elements in your server
+Use **/graph** or **/catgraph** to create a visual graph of an element
 
 You can head over to the **Setup** section to learn how to set up the bot in your own discord server!

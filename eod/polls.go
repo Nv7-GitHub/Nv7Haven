@@ -6,38 +6,39 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
 
 const upArrow = "⬆️"
 const downArrow = "⬇️"
 
-func (b *EoD) createPoll(p poll) error {
+func (b *EoD) createPoll(p types.Poll) error {
 	lock.RLock()
 	dat, exists := b.dat[p.Guild]
 	lock.RUnlock()
 	if !exists {
 		return nil
 	}
-	if dat.voteCount == 0 {
+	if dat.VoteCount == 0 {
 		b.handlePollSuccess(p)
 		return nil
 	}
 	msg := ""
-	if dat.pollCount > 0 {
+	if dat.PollCount > 0 {
 		uPolls := 0
-		for _, val := range dat.polls {
+		for _, val := range dat.Polls {
 			if val.Value4 == p.Value4 {
 				uPolls++
 			}
 		}
 		msg = "Too many active polls!"
-		if uPolls >= dat.pollCount {
+		if uPolls >= dat.PollCount {
 			return errors.New(msg)
 		}
 	}
 	switch p.Kind {
-	case pollCombo:
+	case types.PollCombo:
 		txt := ""
 		elems, ok := p.Data["elems"].([]string)
 		if !ok {
@@ -51,18 +52,18 @@ func (b *EoD) createPoll(p poll) error {
 			return errors.New("error: combo must have at least one element")
 		}
 		for _, val := range elems {
-			dat.lock.RLock()
-			txt += dat.elemCache[strings.ToLower(val)].Name + " + "
-			dat.lock.RUnlock()
+			dat.Lock.RLock()
+			txt += dat.ElemCache[strings.ToLower(val)].Name + " + "
+			dat.Lock.RUnlock()
 		}
 		txt = txt[:len(txt)-2]
 		if len(elems) == 1 {
-			dat.lock.RLock()
-			txt += " + " + dat.elemCache[strings.ToLower(elems[0])].Name
-			dat.lock.RUnlock()
+			dat.Lock.RLock()
+			txt += " + " + dat.ElemCache[strings.ToLower(elems[0])].Name
+			dat.Lock.RUnlock()
 		}
 		txt += " = " + p.Value3
-		m, err := b.dg.ChannelMessageSendEmbed(dat.votingChannel, &discordgo.MessageEmbed{
+		m, err := b.dg.ChannelMessageSendEmbed(dat.VotingChannel, &discordgo.MessageEmbed{
 			Title:       "Combination",
 			Description: txt + "\n\n" + "Suggested by <@" + p.Value4 + ">",
 			Footer: &discordgo.MessageEmbedFooter{
@@ -74,8 +75,8 @@ func (b *EoD) createPoll(p poll) error {
 		}
 		p.Message = m.ID
 
-	case pollSign:
-		m, err := b.dg.ChannelMessageSendEmbed(dat.votingChannel, &discordgo.MessageEmbed{
+	case types.PollSign:
+		m, err := b.dg.ChannelMessageSendEmbed(dat.VotingChannel, &discordgo.MessageEmbed{
 			Title:       "Sign Note",
 			Description: fmt.Sprintf("**%s**\nNew Note: %s\n\nOld Note: %s\n\nSuggested by <@%s>", p.Value1, p.Value2, p.Value3, p.Value4),
 			Footer: &discordgo.MessageEmbedFooter{
@@ -87,8 +88,8 @@ func (b *EoD) createPoll(p poll) error {
 		}
 		p.Message = m.ID
 
-	case pollImage:
-		m, err := b.dg.ChannelMessageSendEmbed(dat.votingChannel, &discordgo.MessageEmbed{
+	case types.PollImage:
+		m, err := b.dg.ChannelMessageSendEmbed(dat.VotingChannel, &discordgo.MessageEmbed{
 			Title:       "Add Image",
 			Description: fmt.Sprintf("**%s**\n[New Image](%s)\n[Old Image](%s)\n\nSuggested by <@%s>", p.Value1, p.Value2, p.Value3, p.Value4),
 			Footer: &discordgo.MessageEmbedFooter{
@@ -103,7 +104,7 @@ func (b *EoD) createPoll(p poll) error {
 		}
 		p.Message = m.ID
 
-	case pollCategorize:
+	case types.PollCategorize:
 		data, ok := p.Data["elems"].([]string)
 		if !ok {
 			dat := p.Data["elems"].([]interface{})
@@ -113,7 +114,7 @@ func (b *EoD) createPoll(p poll) error {
 			}
 		}
 		p.Data["elems"] = data
-		m, err := b.dg.ChannelMessageSendEmbed(dat.votingChannel, &discordgo.MessageEmbed{
+		m, err := b.dg.ChannelMessageSendEmbed(dat.VotingChannel, &discordgo.MessageEmbed{
 			Title:       "Categorize",
 			Description: fmt.Sprintf("Elements:\n**%s**\n\nCategory: **%s**\n\nSuggested By <@%s>", strings.Join(p.Data["elems"].([]string), "\n"), p.Value1, p.Value4),
 			Footer: &discordgo.MessageEmbedFooter{
@@ -124,7 +125,7 @@ func (b *EoD) createPoll(p poll) error {
 			return err
 		}
 		p.Message = m.ID
-	case pollUnCategorize:
+	case types.PollUnCategorize:
 		data, ok := p.Data["elems"].([]string)
 		if !ok {
 			dat := p.Data["elems"].([]interface{})
@@ -134,7 +135,7 @@ func (b *EoD) createPoll(p poll) error {
 			}
 		}
 		p.Data["elems"] = data
-		m, err := b.dg.ChannelMessageSendEmbed(dat.votingChannel, &discordgo.MessageEmbed{
+		m, err := b.dg.ChannelMessageSendEmbed(dat.VotingChannel, &discordgo.MessageEmbed{
 			Title:       "Un-Categorize",
 			Description: fmt.Sprintf("Elements:\n**%s**\n\nCategory: **%s**\n\nSuggested By <@%s>", strings.Join(p.Data["elems"].([]string), "\n"), p.Value1, p.Value4),
 			Footer: &discordgo.MessageEmbedFooter{
@@ -146,8 +147,8 @@ func (b *EoD) createPoll(p poll) error {
 		}
 		p.Message = m.ID
 
-	case pollCatImage:
-		m, err := b.dg.ChannelMessageSendEmbed(dat.votingChannel, &discordgo.MessageEmbed{
+	case types.PollCatImage:
+		m, err := b.dg.ChannelMessageSendEmbed(dat.VotingChannel, &discordgo.MessageEmbed{
 			Title:       "Add Category Image",
 			Description: fmt.Sprintf("**%s**\n[New Image](%s)\n[Old Image](%s)\n\nSuggested by <@%s>", p.Value1, p.Value2, p.Value3, p.Value4),
 			Footer: &discordgo.MessageEmbedFooter{
@@ -175,13 +176,13 @@ func (b *EoD) createPoll(p poll) error {
 		return err
 	}
 	_, err = b.db.Exec("INSERT INTO eod_polls VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ? )", p.Guild, p.Channel, p.Message, p.Kind, p.Value1, p.Value2, p.Value3, p.Value4, string(cnt))
-	if dat.polls == nil {
-		dat.polls = make(map[string]poll)
+	if dat.Polls == nil {
+		dat.Polls = make(map[string]types.Poll)
 	}
 
-	dat.lock.Lock()
-	dat.polls[p.Message] = p
-	dat.lock.Unlock()
+	dat.Lock.Lock()
+	dat.Polls[p.Message] = p
+	dat.Lock.Unlock()
 
 	lock.Lock()
 	b.dat[p.Guild] = dat
@@ -199,20 +200,20 @@ func (b *EoD) reactionHandler(s *discordgo.Session, r *discordgo.MessageReaction
 	if !exists {
 		return
 	}
-	p, exists := dat.polls[r.MessageID]
+	p, exists := dat.Polls[r.MessageID]
 	if !exists {
 		return
 	}
 	if r.Emoji.Name == upArrow {
 		p.Upvotes++
-		dat.polls[r.MessageID] = p
+		dat.Polls[r.MessageID] = p
 		lock.Lock()
 		b.dat[r.GuildID] = dat
 		lock.Unlock()
-		if (p.Upvotes - p.Downvotes) >= dat.voteCount {
+		if (p.Upvotes - p.Downvotes) >= dat.VoteCount {
 			b.dg.ChannelMessageDelete(p.Channel, p.Message)
 			b.handlePollSuccess(p)
-			delete(dat.polls, r.MessageID)
+			delete(dat.Polls, r.MessageID)
 			b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", p.Guild, p.Channel, p.Message)
 			lock.Lock()
 			b.dat[r.GuildID] = dat
@@ -221,12 +222,12 @@ func (b *EoD) reactionHandler(s *discordgo.Session, r *discordgo.MessageReaction
 		}
 	} else if r.Emoji.Name == downArrow {
 		p.Downvotes++
-		dat.polls[r.MessageID] = p
+		dat.Polls[r.MessageID] = p
 		lock.Lock()
 		b.dat[r.GuildID] = dat
 		lock.Unlock()
-		if ((p.Downvotes - p.Upvotes) >= dat.voteCount) || (r.UserID == p.Value4) {
-			delete(dat.polls, r.MessageID)
+		if ((p.Downvotes - p.Upvotes) >= dat.VoteCount) || (r.UserID == p.Value4) {
+			delete(dat.Polls, r.MessageID)
 			b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", p.Guild, p.Channel, p.Message)
 			b.dg.ChannelMessageDelete(p.Channel, p.Message)
 
@@ -241,8 +242,7 @@ func (b *EoD) reactionHandler(s *discordgo.Session, r *discordgo.MessageReaction
 	lock.Unlock()
 }
 
-func (b *EoD) handlePollSuccess(p poll) {
-	datafile.Write([]byte(fmt.Sprintf("%v\n", p)))
+func (b *EoD) handlePollSuccess(p types.Poll) {
 	lock.RLock()
 	dat, exists := b.dat[p.Guild]
 	lock.RUnlock()
@@ -250,7 +250,7 @@ func (b *EoD) handlePollSuccess(p poll) {
 		return
 	}
 	switch p.Kind {
-	case pollCombo:
+	case types.PollCombo:
 		els, ok := p.Data["elems"].([]string)
 		if !ok {
 			dat := p.Data["elems"].([]interface{})
@@ -260,11 +260,11 @@ func (b *EoD) handlePollSuccess(p poll) {
 			}
 		}
 		b.elemCreate(p.Value3, els, p.Value4, p.Guild)
-	case pollSign:
+	case types.PollSign:
 		b.mark(p.Guild, p.Value1, p.Value2, p.Value4)
-	case pollImage:
+	case types.PollImage:
 		b.image(p.Guild, p.Value1, p.Value2, p.Value4)
-	case pollCategorize:
+	case types.PollCategorize:
 		els, ok := p.Data["elems"].([]string)
 		if !ok {
 			dat := p.Data["elems"].([]interface{})
@@ -277,21 +277,21 @@ func (b *EoD) handlePollSuccess(p poll) {
 			b.categorize(val, p.Value1, p.Guild)
 		}
 		if len(els) == 1 {
-			b.dg.ChannelMessageSend(dat.newsChannel, fmt.Sprintf("🗃️ Added **%s** to **%s** (By <@%s>)", els[0], p.Value1, p.Value4))
+			b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("🗃️ Added **%s** to **%s** (By <@%s>)", els[0], p.Value1, p.Value4))
 		} else {
-			b.dg.ChannelMessageSend(dat.newsChannel, fmt.Sprintf("🗃️ Added **%d elements** to **%s** (By <@%s>)", len(els), p.Value1, p.Value4))
+			b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("🗃️ Added **%d elements** to **%s** (By <@%s>)", len(els), p.Value1, p.Value4))
 		}
-	case pollUnCategorize:
+	case types.PollUnCategorize:
 		els := p.Data["elems"].([]string)
 		for _, val := range els {
 			b.unCategorize(val, p.Value1, p.Guild)
 		}
 		if len(els) == 1 {
-			b.dg.ChannelMessageSend(dat.newsChannel, fmt.Sprintf("🗃️ Removed **%s** from **%s** (By <@%s>)", els[0], p.Value1, p.Value4))
+			b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("🗃️ Removed **%s** from **%s** (By <@%s>)", els[0], p.Value1, p.Value4))
 		} else {
-			b.dg.ChannelMessageSend(dat.newsChannel, fmt.Sprintf("🗃️ Removed **%d elements** from **%s** (By <@%s>)", len(els), p.Value1, p.Value4))
+			b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("🗃️ Removed **%d elements** from **%s** (By <@%s>)", len(els), p.Value1, p.Value4))
 		}
-	case pollCatImage:
+	case types.PollCatImage:
 		b.catImage(p.Guild, p.Value1, p.Value2, p.Value4)
 	}
 }
@@ -306,20 +306,20 @@ func (b *EoD) unReactionHandler(s *discordgo.Session, r *discordgo.MessageReacti
 	if !exists {
 		return
 	}
-	p, exists := dat.polls[r.MessageID]
+	p, exists := dat.Polls[r.MessageID]
 	if !exists {
 		return
 	}
 	if r.Emoji.Name == downArrow {
 		p.Downvotes--
-		dat.polls[r.MessageID] = p
+		dat.Polls[r.MessageID] = p
 		lock.Lock()
 		b.dat[r.GuildID] = dat
 		lock.Unlock()
-		if (p.Upvotes - p.Downvotes) >= dat.voteCount {
+		if (p.Upvotes - p.Downvotes) >= dat.VoteCount {
 			b.dg.ChannelMessageDelete(p.Channel, p.Message)
 			b.handlePollSuccess(p)
-			delete(dat.polls, r.MessageID)
+			delete(dat.Polls, r.MessageID)
 			b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", p.Guild, p.Channel, p.Message)
 			lock.Lock()
 			b.dat[r.GuildID] = dat
@@ -328,12 +328,12 @@ func (b *EoD) unReactionHandler(s *discordgo.Session, r *discordgo.MessageReacti
 		}
 	} else if r.Emoji.Name == upArrow {
 		p.Upvotes--
-		dat.polls[r.MessageID] = p
+		dat.Polls[r.MessageID] = p
 		lock.Lock()
 		b.dat[r.GuildID] = dat
 		lock.Unlock()
-		if (p.Downvotes - p.Upvotes) >= dat.voteCount {
-			delete(dat.polls, r.MessageID)
+		if (p.Downvotes - p.Upvotes) >= dat.VoteCount {
+			delete(dat.Polls, r.MessageID)
 			b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", p.Guild, p.Channel, p.Message)
 			b.dg.ChannelMessageDelete(p.Channel, p.Message)
 

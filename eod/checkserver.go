@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"strings"
 	"time"
+
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
-var starterElements = []element{
+var starterElements = []types.Element{
 	{
 		Name:       "Air",
 		Comment:    "The invisible gaseous substance surrounding the earth, a mixture mainly of oxygen and nitrogen.",
@@ -49,7 +51,7 @@ var starterElements = []element{
 	},
 }
 
-func (b *EoD) checkServer(m msg, rsp rsp) bool {
+func (b *EoD) checkServer(m types.Msg, rsp types.Rsp) bool {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -57,24 +59,24 @@ func (b *EoD) checkServer(m msg, rsp rsp) bool {
 		rsp.ErrorMessage("No voting or news channel has been set!")
 		return false
 	}
-	if dat.votingChannel == "" {
+	if dat.VotingChannel == "" {
 		rsp.ErrorMessage("No voting channel has been set!")
 		return false
 	}
-	if dat.newsChannel == "" {
+	if dat.NewsChannel == "" {
 		rsp.ErrorMessage("No news channel has been set!")
 		return false
 	}
-	if dat.elemCache == nil {
-		dat.elemCache = make(map[string]element)
+	if dat.ElemCache == nil {
+		dat.ElemCache = make(map[string]types.Element)
 	}
-	if len(dat.elemCache) < 4 {
+	if len(dat.ElemCache) < 4 {
 		for _, elem := range starterElements {
 			elem.Guild = m.GuildID
 			elem.CreatedOn = time.Now()
-			dat.lock.Lock()
-			dat.elemCache[strings.ToLower(elem.Name)] = elem
-			dat.lock.Unlock()
+			dat.Lock.Lock()
+			dat.ElemCache[strings.ToLower(elem.Name)] = elem
+			dat.Lock.Unlock()
 			_, err := b.db.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), "" /* Parents */, elem.Complexity, elem.Difficulty, elem.UsedIn)
 			rsp.Error(err)
 		}
@@ -83,23 +85,23 @@ func (b *EoD) checkServer(m msg, rsp rsp) bool {
 		lock.Unlock()
 	}
 
-	if dat.invCache == nil {
-		dat.invCache = make(map[string]map[string]empty)
+	if dat.InvCache == nil {
+		dat.InvCache = make(map[string]map[string]types.Empty)
 	}
-	dat.lock.RLock()
-	_, exists = dat.invCache[m.Author.ID]
-	dat.lock.RUnlock()
+	dat.Lock.RLock()
+	_, exists = dat.InvCache[m.Author.ID]
+	dat.Lock.RUnlock()
 	if !exists {
-		dat.lock.Lock()
-		dat.invCache[m.Author.ID] = make(map[string]empty)
+		dat.Lock.Lock()
+		dat.InvCache[m.Author.ID] = make(map[string]types.Empty)
 		for _, val := range starterElements {
-			dat.invCache[m.Author.ID][strings.ToLower(val.Name)] = empty{}
+			dat.InvCache[m.Author.ID][strings.ToLower(val.Name)] = types.Empty{}
 		}
-		dat.lock.Unlock()
+		dat.Lock.Unlock()
 
-		dat.lock.RLock()
-		inv := dat.invCache[m.Author.ID]
-		dat.lock.RUnlock()
+		dat.Lock.RLock()
+		inv := dat.InvCache[m.Author.ID]
+		dat.Lock.RUnlock()
 
 		data, err := json.Marshal(inv)
 		if rsp.Error(err) {
@@ -112,10 +114,10 @@ func (b *EoD) checkServer(m msg, rsp rsp) bool {
 		lock.Unlock()
 	}
 
-	if dat.catCache == nil {
-		dat.catCache = make(map[string]category)
+	if dat.CatCache == nil {
+		dat.CatCache = make(map[string]types.Category)
 	}
 
-	_, exists = dat.playChannels[m.ChannelID]
+	_, exists = dat.PlayChannels[m.ChannelID]
 	return exists
 }

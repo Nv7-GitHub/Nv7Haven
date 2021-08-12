@@ -2,7 +2,9 @@ package eod
 
 import (
 	"fmt"
+	"log"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -30,7 +32,7 @@ var btnRow = discordgo.ActionsRow{
 	},
 }
 
-func (b *EoD) newPageSwitcher(ps pageSwitcher, m msg, rsp rsp) {
+func (b *EoD) newPageSwitcher(ps types.PageSwitcher, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 	// Get emojis for guild to find their ID
 	/*ems, _ := b.dg.GuildEmojis("819077688371314718")
@@ -49,7 +51,7 @@ func (b *EoD) newPageSwitcher(ps pageSwitcher, m msg, rsp rsp) {
 	ps.Guild = m.GuildID
 	ps.Page = 0
 	ps.PageLength = defaultPageLength
-	_, exists = dat.playChannels[m.ChannelID]
+	_, exists = dat.PlayChannels[m.ChannelID]
 	if exists {
 		ps.PageLength = playPageLength
 	}
@@ -75,13 +77,13 @@ func (b *EoD) newPageSwitcher(ps pageSwitcher, m msg, rsp rsp) {
 		},
 	}, btnRow)
 
-	if dat.pageSwitchers == nil {
-		dat.pageSwitchers = make(map[string]pageSwitcher)
+	if dat.PageSwitchers == nil {
+		dat.PageSwitchers = make(map[string]types.PageSwitcher)
 	}
 
-	dat.lock.Lock()
-	dat.pageSwitchers[id] = ps
-	dat.lock.Unlock()
+	dat.Lock.Lock()
+	dat.PageSwitchers[id] = ps
+	dat.Lock.Unlock()
 
 	lock.Lock()
 	b.dat[m.GuildID] = dat
@@ -96,9 +98,9 @@ func (b *EoD) pageSwitchHandler(s *discordgo.Session, i *discordgo.InteractionCr
 		return
 	}
 
-	dat.lock.RLock()
-	ps, exists := dat.pageSwitchers[i.Message.ID]
-	dat.lock.RUnlock()
+	dat.Lock.RLock()
+	ps, exists := dat.PageSwitchers[i.Message.ID]
+	dat.Lock.RUnlock()
 	if !exists {
 		return
 	}
@@ -150,9 +152,10 @@ func (b *EoD) pageSwitchHandler(s *discordgo.Session, i *discordgo.InteractionCr
 		},
 	})
 	if err != nil {
-		fmt.Println("failed to update page switcher:", err)
+		log.SetOutput(discordlogs)
+		log.Println(err)
 	}
-	dat.pageSwitchers[i.Message.ID] = ps
+	dat.PageSwitchers[i.Message.ID] = ps
 
 	lock.Lock()
 	b.dat[i.GuildID] = dat

@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -27,7 +28,7 @@ type ideaComponent struct {
 	b        *EoD
 }
 
-func (c *ideaComponent) handler(s *discordgo.Session, i *discordgo.InteractionCreate) {
+func (c *ideaComponent) Handler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	res, suc := c.b.genIdea(c.count, c.catName, c.hasCat, c.elemName, c.hasEl, i.GuildID, i.Member.User.ID)
 	if !suc {
 		res += " " + redCircle
@@ -60,18 +61,18 @@ func (b *EoD) genIdea(count int, catName string, hasCat bool, elemName string, h
 		return "Guild not found", false
 	}
 
-	dat.lock.RLock()
-	inv, exists := dat.invCache[author]
-	dat.lock.RUnlock()
+	dat.Lock.RLock()
+	inv, exists := dat.InvCache[author]
+	dat.Lock.RUnlock()
 	if !exists {
 		return "You don't have an inventory!", false
 	}
 
 	if hasEl {
 		elName := strings.ToLower(elemName)
-		dat.lock.RLock()
-		el, exists := dat.elemCache[elName]
-		dat.lock.RUnlock()
+		dat.Lock.RLock()
+		el, exists := dat.ElemCache[elName]
+		dat.Lock.RUnlock()
 		if !exists {
 			return fmt.Sprintf("Element **%s** doesn't exist!", elemName), false
 		} else {
@@ -79,9 +80,9 @@ func (b *EoD) genIdea(count int, catName string, hasCat bool, elemName string, h
 			count--
 		}
 
-		dat.lock.RLock()
+		dat.Lock.RLock()
 		_, exists = inv[elemName]
-		dat.lock.RUnlock()
+		dat.Lock.RUnlock()
 		if !exists {
 			return fmt.Sprintf("Element **%s** is not in your inventory!", el.Name), false
 		}
@@ -89,17 +90,17 @@ func (b *EoD) genIdea(count int, catName string, hasCat bool, elemName string, h
 
 	els := inv
 	if hasCat {
-		cat, exists := dat.catCache[strings.ToLower(catName)]
+		cat, exists := dat.CatCache[strings.ToLower(catName)]
 		if !exists {
 			return fmt.Sprintf("Category **%s** doesn't exist!", catName), false
 		}
-		els = make(map[string]empty)
+		els = make(map[string]types.Empty)
 
 		for el := range cat.Elements {
 			l := strings.ToLower(el)
 			_, exists := inv[l]
 			if exists {
-				els[l] = empty{}
+				els[l] = types.Empty{}
 			}
 		}
 
@@ -148,23 +149,23 @@ func (b *EoD) genIdea(count int, catName string, hasCat bool, elemName string, h
 
 	text := ""
 	for i, el := range elems {
-		dat.lock.RLock()
-		text += dat.elemCache[strings.ToLower(el)].Name
-		dat.lock.RUnlock()
+		dat.Lock.RLock()
+		text += dat.ElemCache[strings.ToLower(el)].Name
+		dat.Lock.RUnlock()
 		if i != len(elems)-1 {
 			text += " + "
 		}
 	}
 
-	if dat.combCache == nil {
-		dat.combCache = make(map[string]comb)
+	if dat.CombCache == nil {
+		dat.CombCache = make(map[string]types.Comb)
 	}
-	dat.lock.Lock()
-	dat.combCache[author] = comb{
-		elems: elems,
-		elem3: "",
+	dat.Lock.Lock()
+	dat.CombCache[author] = types.Comb{
+		Elems: elems,
+		Elem3: "",
 	}
-	dat.lock.Unlock()
+	dat.Lock.Unlock()
 
 	lock.Lock()
 	b.dat[guild] = dat
@@ -172,7 +173,7 @@ func (b *EoD) genIdea(count int, catName string, hasCat bool, elemName string, h
 
 	return fmt.Sprintf("Your random unused combination is... **%s**\n 	Suggest it by typing **/suggest**", text), true
 }
-func (b *EoD) ideaCmd(count int, catName string, hasCat bool, elemName string, hasEl bool, m msg, rsp rsp) {
+func (b *EoD) ideaCmd(count int, catName string, hasCat bool, elemName string, hasEl bool, m types.Msg, rsp types.Rsp) {
 	res, suc := b.genIdea(count, catName, hasCat, elemName, hasEl, m.GuildID, m.Author.ID)
 	if !suc {
 		rsp.ErrorMessage(res)
@@ -190,8 +191,8 @@ func (b *EoD) ideaCmd(count int, catName string, hasCat bool, elemName string, h
 
 	id := rsp.Message(res, ideaCmp)
 
-	dat.lock.Lock()
-	dat.componentMsgs[id] = &ideaComponent{
+	dat.Lock.Lock()
+	dat.ComponentMsgs[id] = &ideaComponent{
 		catName:  catName,
 		count:    count,
 		hasCat:   hasCat,
@@ -199,7 +200,7 @@ func (b *EoD) ideaCmd(count int, catName string, hasCat bool, elemName string, h
 		hasEl:    hasEl,
 		b:        b,
 	}
-	dat.lock.Unlock()
+	dat.Lock.Unlock()
 
 	lock.Lock()
 	b.dat[m.GuildID] = dat

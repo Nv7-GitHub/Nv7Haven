@@ -587,6 +587,118 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "graph",
+			Description: "Create a graph of an element's tree!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "element",
+					Description: "Name of the element!",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "output_type",
+					Description: "The output type of the graph!",
+					Required:    false,
+					Choices: []*discordgo.ApplicationCommandOptionChoice{
+						{
+							Name:  "PNG",
+							Value: "PNG",
+						},
+						{
+							Name:  "SVG",
+							Value: "SVG",
+						},
+						{
+							Name:  "Text",
+							Value: "Text",
+						},
+						{
+							Name:  "DOT",
+							Value: "DOT",
+						},
+					},
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "layout",
+					Description: "The layout engine to use for rendering images!",
+					Choices: []*discordgo.ApplicationCommandOptionChoice{
+						{
+							Name:  "Dot",
+							Value: "Dot",
+						},
+						{
+							Name:  "Twopi",
+							Value: "Twopi",
+						},
+					},
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionBoolean,
+					Name:        "distinct",
+					Description: "Whether to style the primary elements of the graph differently",
+				},
+			},
+		},
+		{
+			Name:        "catgraph",
+			Description: "Create a graph of a category's tree!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "category",
+					Description: "Name of the category!",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "output_type",
+					Description: "The output type of the graph!",
+					Required:    false,
+					Choices: []*discordgo.ApplicationCommandOptionChoice{
+						{
+							Name:  "PNG",
+							Value: "PNG",
+						},
+						{
+							Name:  "SVG",
+							Value: "SVG",
+						},
+						{
+							Name:  "Text",
+							Value: "Text",
+						},
+						{
+							Name:  "DOT",
+							Value: "DOT",
+						},
+					},
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "layout",
+					Description: "The layout engine to use for rendering images!",
+					Choices: []*discordgo.ApplicationCommandOptionChoice{
+						{
+							Name:  "Dot",
+							Value: "Dot",
+						},
+						{
+							Name:  "Twopi",
+							Value: "Twopi",
+						},
+					},
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionBoolean,
+					Name:        "distinct",
+					Description: "Whether to style the primary elements of the graph differently",
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -816,6 +928,56 @@ var (
 				calctree = resp.Options[1].BoolValue()
 			}
 			bot.catBreakdownCmd(resp.Options[0].StringValue(), calctree, bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"graph": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
+			var elem string
+			outputType := ""
+			layout := ""
+			special := false
+			for _, opt := range resp.Options {
+				if opt.Name == "element" {
+					elem = opt.StringValue()
+				}
+
+				if opt.Name == "output_type" {
+					outputType = opt.StringValue()
+				}
+
+				if opt.Name == "layout" {
+					layout = opt.StringValue()
+				}
+
+				if opt.Name == "distinct" {
+					special = opt.BoolValue()
+				}
+			}
+			bot.elemGraphCmd(elem, layout, outputType, special, bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"catgraph": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
+			var catName string
+			outputType := ""
+			layout := ""
+			special := false
+			for _, opt := range resp.Options {
+				if opt.Name == "category" {
+					catName = opt.StringValue()
+				}
+
+				if opt.Name == "output_type" {
+					outputType = opt.StringValue()
+				}
+
+				if opt.Name == "layout" {
+					layout = opt.StringValue()
+				}
+
+				if opt.Name == "distinct" {
+					special = opt.BoolValue()
+				}
+			}
+			bot.catGraphCmd(catName, layout, outputType, special, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )

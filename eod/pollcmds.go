@@ -3,25 +3,27 @@ package eod
 import (
 	"fmt"
 	"strings"
+
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
-func (b *EoD) markCmd(elem string, mark string, m msg, rsp rsp) {
+func (b *EoD) markCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
 	if !exists {
 		return
 	}
-	dat.lock.RLock()
-	el, exists := dat.elemCache[strings.ToLower(elem)]
-	dat.lock.RUnlock()
+	dat.Lock.RLock()
+	el, exists := dat.ElemCache[strings.ToLower(elem)]
+	dat.Lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
 		return
 	}
-	dat.lock.RLock()
-	inv, exists := dat.invCache[m.Author.ID]
-	dat.lock.RUnlock()
+	dat.Lock.RLock()
+	inv, exists := dat.InvCache[m.Author.ID]
+	dat.Lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage("You don't have an inventory!")
 		return
@@ -42,10 +44,10 @@ func (b *EoD) markCmd(elem string, mark string, m msg, rsp rsp) {
 		return
 	}
 
-	err := b.createPoll(poll{
-		Channel: dat.votingChannel,
+	err := b.createPoll(types.Poll{
+		Channel: dat.VotingChannel,
 		Guild:   m.GuildID,
-		Kind:    pollSign,
+		Kind:    types.PollSign,
 		Value1:  el.Name,
 		Value2:  mark,
 		Value3:  el.Comment,
@@ -57,24 +59,24 @@ func (b *EoD) markCmd(elem string, mark string, m msg, rsp rsp) {
 	rsp.Message(fmt.Sprintf("Suggested a note for **%s** 🖊️", el.Name))
 }
 
-func (b *EoD) imageCmd(elem string, image string, m msg, rsp rsp) {
+func (b *EoD) imageCmd(elem string, image string, m types.Msg, rsp types.Rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
 	if !exists {
 		return
 	}
-	dat.lock.RLock()
-	el, exists := dat.elemCache[strings.ToLower(elem)]
-	dat.lock.RUnlock()
+	dat.Lock.RLock()
+	el, exists := dat.ElemCache[strings.ToLower(elem)]
+	dat.Lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
 		return
 	}
 
-	dat.lock.RLock()
-	inv, exists := dat.invCache[m.Author.ID]
-	dat.lock.RUnlock()
+	dat.Lock.RLock()
+	inv, exists := dat.InvCache[m.Author.ID]
+	dat.Lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage("You don't have an inventory!")
 		return
@@ -91,10 +93,10 @@ func (b *EoD) imageCmd(elem string, image string, m msg, rsp rsp) {
 		return
 	}
 
-	err := b.createPoll(poll{
-		Channel: dat.votingChannel,
+	err := b.createPoll(types.Poll{
+		Channel: dat.VotingChannel,
 		Guild:   m.GuildID,
-		Kind:    pollImage,
+		Kind:    types.PollImage,
 		Value1:  el.Name,
 		Value2:  image,
 		Value3:  el.Image,

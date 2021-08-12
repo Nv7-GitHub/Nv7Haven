@@ -4,9 +4,10 @@ import (
 	"database/sql"
 	_ "embed"
 	"strings"
+	"sync"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
-	deadlock "github.com/sasha-s/go-deadlock"
 )
 
 const (
@@ -18,13 +19,13 @@ const (
 var token string
 
 var bot EoD
-var lock deadlock.RWMutex
+var lock = &sync.RWMutex{}
 
 // EoD contains the data for an EoD bot
 type EoD struct {
 	dg  *discordgo.Session
 	db  *sql.DB
-	dat map[string]serverData // map[guild]data
+	dat map[string]types.ServerData // map[guild]data
 }
 
 // InitEoD initializes the EoD bot
@@ -50,7 +51,7 @@ func InitEoD(db *sql.DB) EoD {
 	bot = EoD{
 		dg:  dg,
 		db:  db,
-		dat: make((map[string]serverData)),
+		dat: make((map[string]types.ServerData)),
 	}
 
 	dg.UpdateGameStatus(0, status)

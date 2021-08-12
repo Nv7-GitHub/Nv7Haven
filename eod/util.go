@@ -11,10 +11,11 @@ import (
 	"time"
 	"unicode"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
 
-func (b *EoD) isMod(userID string, guildID string, m msg) (bool, error) {
+func (b *EoD) isMod(userID string, guildID string, m types.Msg) (bool, error) {
 	lock.RLock()
 	dat, inited := b.dat[guildID]
 	lock.RUnlock()
@@ -27,7 +28,7 @@ func (b *EoD) isMod(userID string, guildID string, m msg) (bool, error) {
 	var roles []*discordgo.Role
 
 	for _, roleID := range user.Roles {
-		if inited && (roleID == dat.modRole) {
+		if inited && (roleID == dat.ModRole) {
 			return true, nil
 		}
 		role, err := b.dg.State.Role(guildID, roleID)
@@ -61,13 +62,13 @@ func (b *EoD) saveInv(guild string, user string, newmade bool, recalculate ...bo
 		return
 	}
 
-	dat.lock.RLock()
-	inv := dat.invCache[user]
-	dat.lock.RUnlock()
+	dat.Lock.RLock()
+	inv := dat.InvCache[user]
+	dat.Lock.RUnlock()
 
-	dat.lock.RLock()
+	dat.Lock.RLock()
 	data, err := json.Marshal(inv)
-	dat.lock.RUnlock()
+	dat.Lock.RUnlock()
 	if err != nil {
 		return
 	}
@@ -78,9 +79,9 @@ func (b *EoD) saveInv(guild string, user string, newmade bool, recalculate ...bo
 			count := 0
 			for val := range inv {
 				creator := ""
-				dat.lock.RLock()
-				elem, exists := dat.elemCache[strings.ToLower(val)]
-				dat.lock.RUnlock()
+				dat.Lock.RLock()
+				elem, exists := dat.ElemCache[strings.ToLower(val)]
+				dat.Lock.RUnlock()
 				if exists {
 					creator = elem.Creator
 				}
@@ -104,15 +105,15 @@ func (b *EoD) mark(guild string, elem string, mark string, creator string) {
 	if !exists {
 		return
 	}
-	dat.lock.RLock()
-	el, exists := dat.elemCache[strings.ToLower(elem)]
-	dat.lock.RUnlock()
+	dat.Lock.RLock()
+	el, exists := dat.ElemCache[strings.ToLower(elem)]
+	dat.Lock.RUnlock()
 	if !exists {
 		return
 	}
 
 	el.Comment = mark
-	dat.elemCache[strings.ToLower(elem)] = el
+	dat.ElemCache[strings.ToLower(elem)] = el
 
 	lock.Lock()
 	b.dat[guild] = dat
@@ -120,7 +121,7 @@ func (b *EoD) mark(guild string, elem string, mark string, creator string) {
 
 	b.db.Exec("UPDATE eod_elements SET comment=? WHERE guild=? AND name=?", mark, guild, el.Name)
 	if creator != "" {
-		b.dg.ChannelMessageSend(dat.newsChannel, "📝 Signed - **"+el.Name+"** (By <@"+creator+">)")
+		b.dg.ChannelMessageSend(dat.NewsChannel, "📝 Signed - **"+el.Name+"** (By <@"+creator+">)")
 	}
 }
 
@@ -131,18 +132,18 @@ func (b *EoD) image(guild string, elem string, image string, creator string) {
 	if !exists {
 		return
 	}
-	dat.lock.RLock()
-	el, exists := dat.elemCache[strings.ToLower(elem)]
-	dat.lock.RUnlock()
+	dat.Lock.RLock()
+	el, exists := dat.ElemCache[strings.ToLower(elem)]
+	dat.Lock.RUnlock()
 	if !exists {
 		return
 	}
 
 	el.Image = image
 
-	dat.lock.Lock()
-	dat.elemCache[strings.ToLower(elem)] = el
-	dat.lock.Unlock()
+	dat.Lock.Lock()
+	dat.ElemCache[strings.ToLower(elem)] = el
+	dat.Lock.Unlock()
 
 	lock.Lock()
 	b.dat[guild] = dat
@@ -150,7 +151,7 @@ func (b *EoD) image(guild string, elem string, image string, creator string) {
 
 	b.db.Exec("UPDATE eod_elements SET image=? WHERE guild=? AND name=?", image, guild, el.Name)
 	if creator != "" {
-		b.dg.ChannelMessageSend(dat.newsChannel, "📸 Added Image - **"+el.Name+"** (By <@"+creator+">)")
+		b.dg.ChannelMessageSend(dat.NewsChannel, "📸 Added Image - **"+el.Name+"** (By <@"+creator+">)")
 	}
 }
 
@@ -247,7 +248,7 @@ func isASCII(s string) bool {
 	return true
 }
 
-var wildcards = map[rune]empty{
+var wildcards = map[rune]types.Empty{
 	'%': {},
 	'*': {},
 	'?': {},
@@ -270,7 +271,7 @@ func isWildcard(s string) bool {
 	return false
 }
 
-var smallWords = map[string]empty{
+var smallWords = map[string]types.Empty{
 	"of":  {},
 	"an":  {},
 	"on":  {},

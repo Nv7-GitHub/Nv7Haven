@@ -3,6 +3,7 @@ package eod
 import (
 	_ "embed"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -58,7 +59,7 @@ type helpComponent struct {
 	b *EoD
 }
 
-func (h *helpComponent) handler(s *discordgo.Session, i *discordgo.InteractionCreate) {
+func (h *helpComponent) Handler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	var txt string
 
 	val := i.MessageComponentData().Values[0]
@@ -84,7 +85,7 @@ func (h *helpComponent) handler(s *discordgo.Session, i *discordgo.InteractionCr
 	})
 }
 
-func (b *EoD) helpCmd(m msg, rsp rsp) {
+func (b *EoD) helpCmd(m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 	id := rsp.Message(helpAbout, makeHelpComponents("about"))
 
@@ -95,11 +96,11 @@ func (b *EoD) helpCmd(m msg, rsp rsp) {
 		return
 	}
 
-	dat.lock.Lock()
-	dat.componentMsgs[id] = &helpComponent{
+	dat.Lock.Lock()
+	dat.ComponentMsgs[id] = &helpComponent{
 		b: b,
 	}
-	dat.lock.Unlock()
+	dat.Lock.Unlock()
 
 	lock.Lock()
 	b.dat[m.GuildID] = dat

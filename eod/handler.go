@@ -2,8 +2,11 @@ package eod
 
 import (
 	"fmt"
+	"log"
 	"os"
+	"runtime"
 	"sort"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -13,11 +16,32 @@ const guild = "" // 819077688371314718 for testing
 func (b *EoD) initHandlers() {
 	// Debugging
 	var err error
-	datafile, err = os.OpenFile("eodlogs.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, os.ModePerm)
+	datafile, err = os.OpenFile("createlogs.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		panic(err)
 	}
+	discordlogs, err = os.OpenFile("discordlogs.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
+	discordgo.Logger = func(msgL, caller int, format string, a ...interface{}) {
+		// This code is a slightly modified version of https://github.com/bwmarrin/discordgo/blob/577e7dd4f6ccf1beb10acdb1871300c7638b84c4/logging.go#L46
+		pc, file, line, _ := runtime.Caller(caller)
 
+		files := strings.Split(file, "/")
+		file = files[len(files)-1]
+
+		name := runtime.FuncForPC(pc).Name()
+		fns := strings.Split(name, ".")
+		name = fns[len(fns)-1]
+
+		msg := fmt.Sprintf(format, a...)
+
+		log.SetOutput(discordlogs)
+		log.Printf("[DG%d] %s:%d:%s() %s\n", msgL, file, line, name, msg)
+	}
+
+	// Handlers
 	b.initInfoChoices()
 
 	cmds, err := b.dg.ApplicationCommands(clientID, guild)
@@ -69,15 +93,15 @@ func (b *EoD) initHandlers() {
 			lock.Unlock()
 
 			// Check if page switch handler or component handler
-			_, exists = dat.pageSwitchers[i.Message.ID]
+			_, exists = dat.PageSwitchers[i.Message.ID]
 			if exists {
 				b.pageSwitchHandler(s, i)
 				return
 			}
 
-			compMsg, exists := dat.componentMsgs[i.Message.ID]
+			compMsg, exists := dat.ComponentMsgs[i.Message.ID]
 			if exists {
-				compMsg.handler(s, i)
+				compMsg.Handler(s, i)
 				return
 			}
 			return

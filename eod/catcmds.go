@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
 const x = "❌"
@@ -16,7 +18,7 @@ const (
 	catSortByElementCount = 3
 )
 
-func (b *EoD) catCmd(category string, sortKind int, hasUser bool, user string, m msg, rsp rsp) {
+func (b *EoD) catCmd(category string, sortKind int, hasUser bool, user string, m types.Msg, rsp types.Rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -35,15 +37,15 @@ func (b *EoD) catCmd(category string, sortKind int, hasUser bool, user string, m
 		id = user
 		msg = fmt.Sprintf("User <@%s> doesn't have an inventory!", user)
 	}
-	dat.lock.RLock()
-	inv, exists := dat.invCache[id]
-	dat.lock.RUnlock()
+	dat.Lock.RLock()
+	inv, exists := dat.InvCache[id]
+	dat.Lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage(msg)
 		return
 	}
 
-	cat, exists := dat.catCache[strings.ToLower(category)]
+	cat, exists := dat.CatCache[strings.ToLower(category)]
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Category **%s** doesn't exist!", category))
 		return
@@ -107,8 +109,8 @@ func (b *EoD) catCmd(category string, sortKind int, hasUser bool, user string, m
 		o[i] = val.text
 	}
 
-	b.newPageSwitcher(pageSwitcher{
-		Kind:       pageSwitchInv,
+	b.newPageSwitcher(types.PageSwitcher{
+		Kind:       types.PageSwitchInv,
 		Thumbnail:  cat.Image,
 		Title:      fmt.Sprintf("%s (%d, %s%%)", category, len(out), formatFloat(float32(found)/float32(len(out))*100, 2)),
 		PageGetter: b.invPageGetter,
@@ -123,7 +125,7 @@ type catData struct {
 	count int
 }
 
-func (b *EoD) allCatCmd(sortBy int, hasUser bool, user string, m msg, rsp rsp) {
+func (b *EoD) allCatCmd(sortBy int, hasUser bool, user string, m types.Msg, rsp types.Rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -137,18 +139,18 @@ func (b *EoD) allCatCmd(sortBy int, hasUser bool, user string, m msg, rsp rsp) {
 		id = user
 		msg = fmt.Sprintf("User <@%s> doesn't have an inventory!", user)
 	}
-	dat.lock.RLock()
-	inv, exists := dat.invCache[id]
-	dat.lock.RUnlock()
+	dat.Lock.RLock()
+	inv, exists := dat.InvCache[id]
+	dat.Lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage(msg)
 		return
 	}
 
-	out := make([]catData, len(dat.catCache))
+	out := make([]catData, len(dat.CatCache))
 
 	i := 0
-	for _, cat := range dat.catCache {
+	for _, cat := range dat.CatCache {
 		count := 0
 		for elem := range cat.Elements {
 			_, exists := inv[strings.ToLower(elem)]
@@ -198,8 +200,8 @@ func (b *EoD) allCatCmd(sortBy int, hasUser bool, user string, m msg, rsp rsp) {
 		names[i] = dat.text
 	}
 
-	b.newPageSwitcher(pageSwitcher{
-		Kind:       pageSwitchInv,
+	b.newPageSwitcher(types.PageSwitcher{
+		Kind:       types.PageSwitchInv,
 		Title:      fmt.Sprintf("All Categories (%d)", len(out)),
 		PageGetter: b.invPageGetter,
 		Items:      names,

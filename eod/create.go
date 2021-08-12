@@ -2,28 +2,25 @@ package eod
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
+
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
 const newText = "🆕"
 
 var datafile *os.File
+var createLock = &sync.Mutex{}
 
 func (b *EoD) elemCreate(name string, parents []string, creator string, guild string) {
 	lock.RLock()
 	dat, exists := b.dat[guild]
 	lock.RUnlock()
 	if !exists {
-		return
-	}
-
-	tx, err := b.db.BeginTx(context.Background(), nil)
-	if err != nil {
-		tx.Rollback()
 		return
 	}
 
@@ -35,20 +32,25 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 
 	row := b.db.QueryRow(query, guild, data)
 	var count int
-	err = row.Scan(&count)
+	err := row.Scan(&count)
+	if err != nil {
+		return
+	}
+	if count != 0 {
+		return
+	}
+
+	dat.Lock.RLock()
+	_, exists = dat.ElemCache[strings.ToLower(name)]
+	text := "Combination"
+	dat.Lock.RUnlock()
+
+	createLock.Lock()
+	tx, err := b.db.BeginTx(context.Background(), nil)
 	if err != nil {
 		tx.Rollback()
 		return
 	}
-	if count != 0 {
-		tx.Rollback()
-		return
-	}
-
-	dat.lock.RLock()
-	_, exists = dat.elemCache[strings.ToLower(name)]
-	text := "Combination"
-	dat.lock.RUnlock()
 
 	var postTxt string
 	if !exists {
@@ -56,9 +58,9 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		compl := -1
 		areUnique := false
 		for _, val := range parents {
-			dat.lock.RLock()
-			elem := dat.elemCache[strings.ToLower(val)]
-			dat.lock.RUnlock()
+			dat.Lock.RLock()
+			elem := dat.ElemCache[strings.ToLower(val)]
+			dat.Lock.RUnlock()
 			if elem.Difficulty > diff {
 				diff = elem.Difficulty
 			}
@@ -73,9 +75,9 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		if areUnique {
 			diff++
 		}
-		dat.lock.RLock()
-		elem := element{
-			ID:         len(dat.elemCache) + 1,
+		dat.Lock.RLock()
+		elem := types.Element{
+			ID:         len(dat.ElemCache) + 1,
 			Name:       name,
 			Guild:      guild,
 			Comment:    "None",
@@ -85,30 +87,30 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 			Complexity: compl,
 			Difficulty: diff,
 		}
-		dat.lock.RUnlock()
+		dat.Lock.RUnlock()
 		postTxt = " - Element **#" + strconv.Itoa(elem.ID) + "**"
 
-		dat.lock.Lock()
-		dat.elemCache[strings.ToLower(elem.Name)] = elem
-		dat.lock.Unlock()
+		dat.Lock.Lock()
+		dat.ElemCache[strings.ToLower(elem.Name)] = elem
+		dat.Lock.Unlock()
 
 		_, err = tx.Exec("INSERT INTO eod_elements VALUES ( ?,  ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), elems2txt(parents), elem.Complexity, elem.Difficulty, 0)
 		if err != nil {
-			dat.lock.RLock()
-			delete(dat.elemCache, strings.ToLower(elem.Name))
-			dat.lock.RUnlock()
+			dat.Lock.RLock()
+			delete(dat.ElemCache, strings.ToLower(elem.Name))
+			dat.Lock.RUnlock()
 
-			fmt.Println(err)
+			datafile.WriteString(err.Error() + "\n")
 			tx.Rollback()
 			return
 		}
 		text = "Element"
 	} else {
-		dat.lock.RLock()
-		el, exists := dat.elemCache[strings.ToLower(name)]
-		dat.lock.RUnlock()
+		dat.Lock.RLock()
+		el, exists := dat.ElemCache[strings.ToLower(name)]
+		dat.Lock.RUnlock()
 		if !exists {
-			fmt.Println("Doesn't exist")
+			datafile.WriteString("Doesn't exist\n")
 			tx.Rollback()
 			return
 		}
@@ -124,18 +126,18 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 
 	_, err = tx.Exec("INSERT INTO eod_combos VALUES ( ?, ?, ? )", guild, data, name)
 	if err != nil {
-		dat.lock.RLock()
-		delete(dat.elemCache, strings.ToLower(name))
-		dat.lock.RUnlock()
+		dat.Lock.RLock()
+		delete(dat.ElemCache, strings.ToLower(name))
+		dat.Lock.RUnlock()
 
-		fmt.Println(err)
+		datafile.WriteString(err.Error() + "\n")
 		tx.Rollback()
 		return
 	}
 
-	params := make(map[string]empty)
+	params := make(map[string]types.Empty)
 	for _, val := range parents {
-		params[val] = empty{}
+		params[val] = types.Empty{}
 	}
 	for k := range params {
 		query := "UPDATE eod_elements SET usedin=usedin+1 WHERE name LIKE ? AND guild LIKE ?"
@@ -147,52 +149,53 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		}
 		_, err = tx.Exec(query, k, guild)
 		if err != nil {
-			dat.lock.RLock()
-			delete(dat.elemCache, strings.ToLower(name))
-			dat.lock.RUnlock()
+			dat.Lock.RLock()
+			delete(dat.ElemCache, strings.ToLower(name))
+			dat.Lock.RUnlock()
 
-			fmt.Println(err)
+			datafile.WriteString(err.Error() + "\n")
 			tx.Rollback()
 			return
 		}
 
-		dat.lock.RLock()
-		el := dat.elemCache[strings.ToLower(k)]
-		dat.lock.RUnlock()
+		dat.Lock.RLock()
+		el := dat.ElemCache[strings.ToLower(k)]
+		dat.Lock.RUnlock()
 		el.UsedIn++
-		dat.lock.Lock()
-		dat.elemCache[strings.ToLower(k)] = el
-		dat.lock.Unlock()
+		dat.Lock.Lock()
+		dat.ElemCache[strings.ToLower(k)] = el
+		dat.Lock.Unlock()
 	}
 
 	txt := newText + " " + text + " - **" + name + "** (By <@" + creator + ">)" + postTxt
 
-	b.dg.ChannelMessageSend(dat.newsChannel, txt)
-	datafile.Write([]byte(fmt.Sprintf("%s %s\n", name, parents)))
+	b.dg.ChannelMessageSend(dat.NewsChannel, txt)
+
+	err = tx.Commit()
+	if err != nil {
+		dat.Lock.RLock()
+		delete(dat.ElemCache, strings.ToLower(name))
+		dat.Lock.RUnlock()
+
+		datafile.WriteString(err.Error() + "\n")
+		return
+	}
+
+	createLock.Unlock()
 
 	// Add Element to Inv
-	dat.lock.Lock()
-	dat.invCache[creator][strings.ToLower(name)] = empty{}
-	dat.lock.Unlock()
+	dat.Lock.Lock()
+	dat.InvCache[creator][strings.ToLower(name)] = types.Empty{}
+	dat.Lock.Unlock()
 
 	lock.Lock()
 	b.dat[guild] = dat
 	lock.Unlock()
 	b.saveInv(guild, creator, true)
 
-	err = tx.Commit()
-	if err != nil {
-		dat.lock.RLock()
-		delete(dat.elemCache, strings.ToLower(name))
-		dat.lock.RUnlock()
-
-		fmt.Println(err)
-		return
-	}
-
 	err = b.autocategorize(name, guild)
 	if err != nil {
-		fmt.Println(err)
+		datafile.WriteString(err.Error() + "\n")
 		return
 	}
 }

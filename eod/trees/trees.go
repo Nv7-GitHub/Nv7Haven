@@ -1,22 +1,24 @@
-package eod
+package trees
 
 import (
 	"fmt"
 	"strings"
 	"sync"
+
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
 // Tree calculator
-type tree struct {
+type Tree struct {
 	text      *strings.Builder
 	rawTxt    *strings.Builder
-	elemCache map[string]element
-	calced    map[string]empty
+	elemCache map[string]types.Element
+	calced    map[string]types.Empty
 	num       int
 	lock      *sync.RWMutex
 }
 
-func (t *tree) addElem(elem string) (bool, string) {
+func (t *Tree) AddElem(elem string) (bool, string) {
 	_, exists := t.calced[strings.ToLower(elem)]
 	if !exists {
 		t.lock.RLock()
@@ -32,7 +34,7 @@ func (t *tree) addElem(elem string) (bool, string) {
 			if len(strings.TrimSpace(parent)) == 0 {
 				continue
 			}
-			suc, msg := t.addElem(parent)
+			suc, msg := t.AddElem(parent)
 			if !suc {
 				return false, msg
 			}
@@ -60,28 +62,28 @@ func (t *tree) addElem(elem string) (bool, string) {
 			fmt.Fprintf(t.rawTxt, p+" = %s\n", params...)
 			t.num++
 		}
-		t.calced[strings.ToLower(elem)] = empty{}
+		t.calced[strings.ToLower(elem)] = types.Empty{}
 	}
 	return true, ""
 }
 
 // Tree calculation utilities
-func calcTree(elemCache map[string]element, elem string, lock *sync.RWMutex) (string, bool, string) {
+func CalcTree(elemCache map[string]types.Element, elem string, lock *sync.RWMutex) (string, bool, string) {
 	// Commented out code is for profiling
 
 	/*runtime.GC()
 	cpuprof, _ := os.Create("cpuprof.pprof")
 	pprof.StartCPUProfile(cpuprof)*/
 
-	t := tree{
+	t := Tree{
 		text:      &strings.Builder{},
 		rawTxt:    &strings.Builder{},
 		elemCache: elemCache,
-		calced:    make(map[string]empty),
+		calced:    make(map[string]types.Empty),
 		num:       1,
 		lock:      lock,
 	}
-	suc, msg := t.addElem(elem)
+	suc, msg := t.AddElem(elem)
 
 	/*pprof.StopCPUProfile()
 	memprof, _ := os.Create("memprof.pprof")
@@ -95,23 +97,23 @@ func calcTree(elemCache map[string]element, elem string, lock *sync.RWMutex) (st
 	return text, suc, msg
 }
 
-func calcTreeCat(elemCache map[string]element, elems map[string]empty, lock *sync.RWMutex) (string, bool, string) {
+func CalcTreeCat(elemCache map[string]types.Element, elems map[string]types.Empty, lock *sync.RWMutex) (string, bool, string) {
 	// Commented out code is for profiling
 
 	/*runtime.GC()
 	cpuprof, _ := os.Create("cpuprof.pprof")
 	pprof.StartCPUProfile(cpuprof)*/
 
-	t := tree{
+	t := Tree{
 		text:      &strings.Builder{},
 		rawTxt:    &strings.Builder{},
 		elemCache: elemCache,
-		calced:    make(map[string]empty),
+		calced:    make(map[string]types.Empty),
 		num:       1,
 		lock:      lock,
 	}
 	for elem := range elems {
-		suc, msg := t.addElem(elem)
+		suc, msg := t.AddElem(elem)
 		if !suc {
 			return "", false, msg
 		}

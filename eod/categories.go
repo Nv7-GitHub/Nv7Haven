@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"strconv"
 	"strings"
+
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
 const alphabet = "abcdefghijklmnopqrstuvwxyz"
@@ -42,23 +44,23 @@ func (b *EoD) categorize(elem string, catName string, guild string) error {
 	if !exists {
 		return nil
 	}
-	dat.lock.RLock()
-	el, exists := dat.elemCache[strings.ToLower(elem)]
+	dat.Lock.RLock()
+	el, exists := dat.ElemCache[strings.ToLower(elem)]
 	if !exists {
 		return nil
 	}
-	dat.lock.RUnlock()
+	dat.Lock.RUnlock()
 
-	if dat.catCache == nil {
-		dat.catCache = make(map[string]category)
+	if dat.CatCache == nil {
+		dat.CatCache = make(map[string]types.Category)
 	}
 
-	cat, exists := dat.catCache[strings.ToLower(catName)]
+	cat, exists := dat.CatCache[strings.ToLower(catName)]
 	if !exists {
-		cat = category{
+		cat = types.Category{
 			Name:     catName,
 			Guild:    guild,
-			Elements: make(map[string]empty),
+			Elements: make(map[string]types.Empty),
 			Image:    "",
 		}
 
@@ -74,8 +76,8 @@ func (b *EoD) categorize(elem string, catName string, guild string) error {
 		}
 	}
 
-	cat.Elements[el.Name] = empty{}
-	dat.catCache[strings.ToLower(catName)] = cat
+	cat.Elements[el.Name] = types.Empty{}
+	dat.CatCache[strings.ToLower(catName)] = cat
 
 	els, err := json.Marshal(cat.Elements)
 	if err != nil {
@@ -101,30 +103,30 @@ func (b *EoD) unCategorize(elem string, catName string, guild string) error {
 	if !exists {
 		return nil
 	}
-	dat.lock.RLock()
-	el, exists := dat.elemCache[strings.ToLower(elem)]
+	dat.Lock.RLock()
+	el, exists := dat.ElemCache[strings.ToLower(elem)]
 	if !exists {
 		return nil
 	}
-	dat.lock.RUnlock()
+	dat.Lock.RUnlock()
 
-	if dat.catCache == nil {
-		dat.catCache = make(map[string]category)
+	if dat.CatCache == nil {
+		dat.CatCache = make(map[string]types.Category)
 	}
 
-	cat, exists := dat.catCache[strings.ToLower(catName)]
+	cat, exists := dat.CatCache[strings.ToLower(catName)]
 	if !exists {
 		return nil
 	}
 	delete(cat.Elements, el.Name)
-	dat.catCache[strings.ToLower(catName)] = cat
+	dat.CatCache[strings.ToLower(catName)] = cat
 
 	if len(cat.Elements) == 0 {
 		_, err := b.db.Exec("DELETE FROM eod_categories WHERE name=? AND guild=?", cat.Name, cat.Guild)
 		if err != nil {
 			return err
 		}
-		delete(dat.catCache, strings.ToLower(catName))
+		delete(dat.CatCache, strings.ToLower(catName))
 	} else {
 		data, err := json.Marshal(cat.Elements)
 		if err != nil {
@@ -150,13 +152,13 @@ func (b *EoD) catImage(guild string, catName string, image string, creator strin
 	if !exists {
 		return
 	}
-	cat, exists := dat.catCache[strings.ToLower(catName)]
+	cat, exists := dat.CatCache[strings.ToLower(catName)]
 	if !exists {
 		return
 	}
 
 	cat.Image = image
-	dat.catCache[strings.ToLower(cat.Name)] = cat
+	dat.CatCache[strings.ToLower(cat.Name)] = cat
 
 	lock.Lock()
 	b.dat[guild] = dat
@@ -164,14 +166,14 @@ func (b *EoD) catImage(guild string, catName string, image string, creator strin
 
 	b.db.Exec("UPDATE eod_categories SET image=? WHERE guild=? AND name=?", image, cat.Guild, cat.Name)
 	if creator != "" {
-		b.dg.ChannelMessageSend(dat.newsChannel, "📸 Added Category Image - **"+cat.Name+"** (By <@"+creator+">)")
+		b.dg.ChannelMessageSend(dat.NewsChannel, "📸 Added Category Image - **"+cat.Name+"** (By <@"+creator+">)")
 	}
 }
 
 func removeDuplicates(elems []string) []string {
-	mp := make(map[string]empty, len(elems))
+	mp := make(map[string]types.Empty, len(elems))
 	for _, elem := range elems {
-		mp[elem] = empty{}
+		mp[elem] = types.Empty{}
 	}
 	out := make([]string, len(mp))
 	i := 0

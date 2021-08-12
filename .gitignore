@@ -36,7 +36,8 @@ main
 files/*
 packs/*
 logs.txt
-eodlogs.txt
+createlogs.txt
+discordlogs.txt
 
 # Secret!
 password.txt
