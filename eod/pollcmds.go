@@ -90,6 +90,7 @@ func (b *EoD) imageCmd(elem string, image string, m types.Msg, rsp types.Rsp) {
 	// TEMPORARYL: OG LOCK
 	if el.Creator == "0" {
 		rsp.ErrorMessage("Image editing on OG elements has been temporarily locked!")
+		return
 	}
 	// TEMPORARY: OG LOCK
 
