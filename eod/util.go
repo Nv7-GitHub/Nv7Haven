@@ -348,3 +348,7 @@ func isFool(inp string) bool {
 func makeFoolResp(val string) string {
 	return fmt.Sprintf("**%s** doesn't satisfy me!", val)
 }
+
+func escapeElement(elem string) string {
+	return strings.ReplaceAll(elem, "\\", "\\\\")
+}

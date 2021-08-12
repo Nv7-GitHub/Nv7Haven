@@ -76,6 +76,8 @@ func obscure(val string) string {
 func (b *EoD) hintCmd(elem string, hasElem bool, inverse bool, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 
+	elem = escapeElement(elem)
+
 	rspInp := rsp
 	if !hasElem {
 		if inverse {
