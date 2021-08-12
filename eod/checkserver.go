@@ -12,6 +12,7 @@ var starterElements = []types.Element{
 	{
 		Name:       "Air",
 		Comment:    "The invisible gaseous substance surrounding the earth, a mixture mainly of oxygen and nitrogen.",
+		Image:      "https://cdn.discordapp.com/attachments/819077689775882252/819974778106282054/air.png",
 		Creator:    "",
 		Complexity: 0,
 		Difficulty: 0,
@@ -21,6 +22,7 @@ var starterElements = []types.Element{
 	{
 		Name:       "Earth",
 		Comment:    "The substance of the land surface; soil.",
+		Image:      "https://cdn.discordapp.com/attachments/819078122963861525/820507498737172490/Earth-Science-Facts-for-Kids-All-About-Whats-in-Soil-Image-of-Soil.png",
 		Creator:    "",
 		Complexity: 0,
 		Difficulty: 0,
@@ -30,6 +32,7 @@ var starterElements = []types.Element{
 	{
 		Name:       "Fire",
 		Comment:    "Combustion or burning, in which substances combine chemically with oxygen from the air and typically give out bright light, heat, and smoke.",
+		Image:      "https://cdn.discordapp.com/attachments/819078122963861525/820508007795916820/fire-flame-flames-heat-burn-hot-blaze-fiery-burning.png",
 		Creator:    "",
 		Complexity: 0,
 		Difficulty: 0,
@@ -39,6 +42,7 @@ var starterElements = []types.Element{
 	{
 		Name:       "Water",
 		Comment:    "A colorless, transparent, odorless liquid that forms the seas, lakes, rivers, and rain and is the basis of the fluids of living organisms.",
+		Image:      "https://cdn.discordapp.com/attachments/819078122963861525/820513012074151947/water.png",
 		Creator:    "",
 		Complexity: 0,
 		Difficulty: 0,
