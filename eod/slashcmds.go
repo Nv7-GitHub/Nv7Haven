@@ -588,6 +588,24 @@ var (
 			},
 		},
 		{
+			Name:        "info",
+			Description: "Get the info of an element!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "element",
+					Description: "Name of the element!",
+					Required:    false,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "id",
+					Description: "ID of the element!",
+					Required:    false,
+				},
+			},
+		},
+		{
 			Name:        "graph",
 			Description: "Create a graph of an element's tree!",
 			Options: []*discordgo.ApplicationCommandOption{
@@ -978,6 +996,32 @@ var (
 				}
 			}
 			bot.catGraphCmd(catName, layout, outputType, special, bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"info": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
+			elem := ""
+			var id int
+			isID := false
+			for _, opt := range resp.Options {
+				if opt.Name == "element" {
+					elem = opt.StringValue()
+				}
+
+				if opt.Name == "id" {
+					isID = true
+					id = int(opt.IntValue())
+				}
+			}
+			rsp := bot.newRespSlash(i)
+			if !isID && elem == "" {
+				rsp.ErrorMessage("You must input an element or an element's ID!")
+				return
+			}
+			if isID && elem != "" {
+				rsp.ErrorMessage("You can't input an element and an element's ID!")
+				return
+			}
+			bot.info(elem, id, isID, bot.newMsgSlash(i), rsp)
 		},
 	}
 )

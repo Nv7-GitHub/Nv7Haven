@@ -106,7 +106,7 @@ type catSortInfo struct {
 	Cnt  int
 }
 
-func (b *EoD) infoCmd(elem string, m types.Msg, rsp types.Rsp) {
+func (b *EoD) info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
 	if len(elem) == 0 {
 		return
 	}
@@ -119,14 +119,8 @@ func (b *EoD) infoCmd(elem string, m types.Msg, rsp types.Rsp) {
 	}
 
 	// Get Element name from ID
-	if elem[0] == '#' {
-		number, err := strconv.Atoi(elem[1:])
-		if err != nil {
-			rsp.ErrorMessage("Invalid Element ID!")
-			return
-		}
-
-		if number > len(dat.ElemCache) {
+	if isId {
+		if id > len(dat.ElemCache) {
 			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
 			return
 		}
@@ -134,7 +128,7 @@ func (b *EoD) infoCmd(elem string, m types.Msg, rsp types.Rsp) {
 		hasFound := false
 		dat.Lock.RLock()
 		for _, el := range dat.ElemCache {
-			if el.ID == number {
+			if el.ID == id {
 				hasFound = true
 				elem = el.Name
 			}
@@ -142,7 +136,7 @@ func (b *EoD) infoCmd(elem string, m types.Msg, rsp types.Rsp) {
 		dat.Lock.RUnlock()
 
 		if !hasFound {
-			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
+			rsp.ErrorMessage(fmt.Sprintf("Element **#%d** doesn't exist!", id))
 			return
 		}
 	}
@@ -266,4 +260,17 @@ func (b *EoD) infoCmd(elem string, m types.Msg, rsp types.Rsp) {
 	}
 
 	rsp.RawEmbed(emb)
+}
+
+func (b *EoD) infoCmd(elem string, m types.Msg, rsp types.Rsp) {
+	if elem[0] == '#' {
+		number, err := strconv.Atoi(elem[1:])
+		if err != nil {
+			rsp.ErrorMessage("Invalid Element ID!")
+			return
+		}
+		b.info("", number, true, m, rsp)
+		return
+	}
+	b.info(elem, 0, false, m, rsp)
 }

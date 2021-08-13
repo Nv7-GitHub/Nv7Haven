@@ -26,6 +26,7 @@ var noModCmds = map[string]types.Empty{
 	"elemsort":     {},
 	"breakdown":    {},
 	"catbreakdown": {},
+	"info":         {},
 }
 
 func (b *EoD) canRunCmd(cmd *discordgo.InteractionCreate) (bool, string) {
