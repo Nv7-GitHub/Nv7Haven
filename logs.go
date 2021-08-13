@@ -3,12 +3,25 @@ package main
 import (
 	"io"
 	"os"
+	"os/exec"
+	"runtime"
 	"runtime/debug"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func systemHandlers(app *fiber.App) {
+	if runtime.GOOS == "linux" {
+		app.Get("/temp", func(c *fiber.Ctx) error {
+			cmd := exec.Command("vcgencmd", "measure_temp")
+			output, err := cmd.Output()
+			if err != nil {
+				return err
+			}
+			c.WriteString(string(output))
+			return nil
+		})
+	}
 	app.Get("/freememory", func(c *fiber.Ctx) error {
 		debug.FreeOSMemory()
 		return nil
