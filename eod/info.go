@@ -107,7 +107,7 @@ type catSortInfo struct {
 }
 
 func (b *EoD) info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
-	if len(elem) == 0 {
+	if len(elem) == 0 && !isId {
 		return
 	}
 	lock.RLock()
@@ -121,7 +121,7 @@ func (b *EoD) info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
 	// Get Element name from ID
 	if isId {
 		if id > len(dat.ElemCache) {
-			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
+			rsp.ErrorMessage(fmt.Sprintf("Element **#%d** doesn't exist!", id))
 			return
 		}
 
