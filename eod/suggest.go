@@ -141,7 +141,6 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m types.Msg, rs
 	for _, val := range comb.Elems {
 		el, _ := dat.GetElement(val)
 		txt += el.Name + " + "
-		dat.Lock.RUnlock()
 	}
 	txt = txt[:len(txt)-3]
 	if len(comb.Elems) == 1 {
@@ -151,7 +150,6 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m types.Msg, rs
 	txt += " = " + suggestion + "** "
 
 	_, res = dat.GetElement(suggestion)
-	dat.Lock.RUnlock()
 	if !res.Exists {
 		txt += "✨"
 	} else {

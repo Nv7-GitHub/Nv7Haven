@@ -116,9 +116,7 @@ func (b *EoD) unCategorize(elem string, catName string, guild string) error {
 		if err != nil {
 			return err
 		}
-		dat.Lock.Lock()
-		delete(dat.Categories, strings.ToLower(catName))
-		dat.Lock.Unlock()
+		dat.DeleteCategory(catName)
 	} else {
 		data, err := json.Marshal(cat.Elements)
 		if err != nil {

@@ -180,16 +180,14 @@ func (b *EoD) ideaCmd(count int, catName string, hasCat bool, elemName string, h
 
 	id := rsp.Message(res, ideaCmp)
 
-	dat.Lock.Lock()
-	dat.ComponentMsgs[id] = &ideaComponent{
+	dat.AddComponentMsg(id, &ideaComponent{
 		catName:  catName,
 		count:    count,
 		hasCat:   hasCat,
 		elemName: elemName,
 		hasEl:    hasEl,
 		b:        b,
-	}
-	dat.Lock.Unlock()
+	})
 
 	lock.Lock()
 	b.dat[m.GuildID] = dat

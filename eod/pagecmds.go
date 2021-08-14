@@ -34,7 +34,6 @@ func (b *EoD) invCmd(user string, m types.Msg, rsp types.Rsp, sorter string) {
 
 	switch sorter {
 	case "id":
-		dat.Lock.RLock()
 		sort.Slice(items, func(i, j int) bool {
 			elem1, res := dat.GetElement(items[i], true)
 			if !res.Exists {
@@ -47,12 +46,10 @@ func (b *EoD) invCmd(user string, m types.Msg, rsp types.Rsp, sorter string) {
 			}
 			return elem1.CreatedOn.Before(elem2.CreatedOn)
 		})
-		dat.Lock.RUnlock()
 
 	case "madeby":
 		count := 0
 		outs := make([]string, len(items))
-		dat.Lock.RLock()
 		for _, val := range items {
 			creator := ""
 			elem, res := dat.GetElement(val, true)

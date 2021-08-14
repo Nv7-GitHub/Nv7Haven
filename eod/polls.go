@@ -178,9 +178,7 @@ func (b *EoD) createPoll(p types.Poll) error {
 		dat.Polls = make(map[string]types.Poll)
 	}
 
-	dat.Lock.Lock()
-	dat.Polls[p.Message] = p
-	dat.Lock.Unlock()
+	dat.SavePoll(p.Message, p)
 
 	lock.Lock()
 	b.dat[p.Guild] = dat
@@ -198,8 +196,8 @@ func (b *EoD) reactionHandler(s *discordgo.Session, r *discordgo.MessageReaction
 	if !exists {
 		return
 	}
-	p, exists := dat.Polls[r.MessageID]
-	if !exists {
+	p, res := dat.GetPoll(r.MessageID)
+	if !res.Exists {
 		return
 	}
 	if r.Emoji.Name == upArrow {

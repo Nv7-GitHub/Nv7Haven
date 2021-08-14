@@ -278,7 +278,7 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, in
 	}, "", true
 }
 
-func getHintText(elemTxt string, inv map[string]types.Empty, dat types.ServerData, inverse bool) (string, int) {
+func getHintText(elemTxt string, inv types.Container, dat types.ServerData, inverse bool) (string, int) {
 	if !inverse {
 		elems := strings.Split(elemTxt, "+")
 		hasElems := true
@@ -317,9 +317,7 @@ func getHintText(elemTxt string, inv map[string]types.Empty, dat types.ServerDat
 		return txt, ex
 	}
 
-	dat.Lock.RLock()
-	_, found := inv[strings.ToLower(elemTxt)]
-	dat.Lock.RUnlock()
+	found := inv.Contains(elemTxt)
 	txt := x
 	ex := 0
 	if found {

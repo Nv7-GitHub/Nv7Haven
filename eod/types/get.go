@@ -78,3 +78,29 @@ func (dat *ServerData) GetComb(id string) (Comb, GetResponse) {
 	}
 	return comb, GetResponse{Exists: true}
 }
+
+func (dat *ServerData) GetPageSwitcher(id string) (PageSwitcher, GetResponse) {
+	dat.Lock.RLock()
+	ps, exists := dat.PageSwitchers[id]
+	dat.Lock.RUnlock()
+	if !exists {
+		return PageSwitcher{}, GetResponse{
+			Exists:  false,
+			Message: "Page switcher doesn't exist!",
+		}
+	}
+	return ps, GetResponse{Exists: true}
+}
+
+func (dat *ServerData) GetPoll(id string) (Poll, GetResponse) {
+	dat.Lock.RLock()
+	poll, exists := dat.Polls[id]
+	dat.Lock.RUnlock()
+	if !exists {
+		return Poll{}, GetResponse{
+			Exists:  false,
+			Message: "Poll doesn't exist!",
+		}
+	}
+	return poll, GetResponse{Exists: true}
+}

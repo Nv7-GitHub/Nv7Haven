@@ -71,7 +71,6 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		if areUnique {
 			diff++
 		}
-		dat.Lock.RLock()
 		elem := types.Element{
 			ID:         len(dat.Elements) + 1,
 			Name:       name,
@@ -83,16 +82,13 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 			Complexity: compl,
 			Difficulty: diff,
 		}
-		dat.Lock.RUnlock()
 		postTxt = " - Element **#" + strconv.Itoa(elem.ID) + "**"
 
 		dat.SetElement(elem)
 
 		_, err = tx.Exec("INSERT INTO eod_elements VALUES ( ?,  ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), elems2txt(parents), elem.Complexity, elem.Difficulty, 0)
 		if err != nil {
-			dat.Lock.Lock()
-			delete(dat.Elements, strings.ToLower(elem.Name))
-			dat.Lock.Unlock()
+			dat.DeleteElement(elem.Name)
 
 			datafile.WriteString(err.Error() + "\n")
 			tx.Rollback()
@@ -118,9 +114,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 
 	_, err = tx.Exec("INSERT INTO eod_combos VALUES ( ?, ?, ? )", guild, data, name)
 	if err != nil {
-		dat.Lock.Lock()
-		delete(dat.Elements, strings.ToLower(name))
-		dat.Lock.Unlock()
+		dat.DeleteElement(name)
 
 		datafile.WriteString(err.Error() + "\n")
 		tx.Rollback()
@@ -141,9 +135,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		}
 		_, err = tx.Exec(query, k, guild)
 		if err != nil {
-			dat.Lock.Lock()
-			delete(dat.Elements, strings.ToLower(name))
-			dat.Lock.Unlock()
+			dat.DeleteElement(name)
 
 			datafile.WriteString(err.Error() + "\n")
 			tx.Rollback()
@@ -163,9 +155,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 
 	err = tx.Commit()
 	if err != nil {
-		dat.Lock.Lock()
-		delete(dat.Elements, strings.ToLower(name))
-		dat.Lock.Unlock()
+		dat.DeleteElement(name)
 
 		datafile.WriteString(err.Error() + "\n")
 		return

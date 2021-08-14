@@ -69,9 +69,7 @@ func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
 		if !hasElement {
 			_, res := dat.GetComb(m.Author.ID)
 			if res.Exists {
-				dat.Lock.Lock()
-				delete(dat.LastCombs, m.Author.ID)
-				dat.Lock.Unlock()
+				dat.DeleteComb(m.Author.ID)
 
 				lock.Lock()
 				b.dat[m.GuildID] = dat
@@ -89,9 +87,7 @@ func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
 
 			if len(notFound) == 1 {
 				el, _ := dat.GetElement(elem)
-				dat.Lock.RLock()
 				rsp.ErrorMessage(fmt.Sprintf("You don't have **%s**!", el.Name))
-				dat.Lock.RUnlock()
 				return
 			}
 

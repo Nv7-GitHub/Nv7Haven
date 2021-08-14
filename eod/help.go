@@ -96,11 +96,9 @@ func (b *EoD) helpCmd(m types.Msg, rsp types.Rsp) {
 		return
 	}
 
-	dat.Lock.Lock()
-	dat.ComponentMsgs[id] = &helpComponent{
+	dat.AddComponentMsg(id, &helpComponent{
 		b: b,
-	}
-	dat.Lock.Unlock()
+	})
 
 	lock.Lock()
 	b.dat[m.GuildID] = dat

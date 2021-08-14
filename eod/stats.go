@@ -37,9 +37,7 @@ func (b *EoD) statsCmd(m types.Msg, rsp types.Rsp) {
 	for _, val := range dat.Categories {
 		categorized += len(val.Elements)
 	}
-	dat.Lock.RUnlock()
 
-	dat.Lock.RLock()
 	rsp.Message(fmt.Sprintf("Element Count: **%s**\nCombination Count: **%s**\nMember Count: **%s**\nElements Found: **%s**\nElements Categorized: **%s**", formatInt(len(dat.Elements)), formatInt(cnt), formatInt(gd.MemberCount), formatInt(found), formatInt(categorized)), discordgo.ActionsRow{
 		Components: []discordgo.MessageComponent{
 			discordgo.Button{
