@@ -19,6 +19,11 @@ func elems2txt(elems []string) string {
 }
 
 func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
+	ok := b.checkServer(m, rsp)
+	if !ok {
+		return
+	}
+
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
