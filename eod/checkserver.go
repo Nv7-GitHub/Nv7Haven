@@ -111,12 +111,20 @@ func (b *EoD) checkServer(m types.Msg, rsp types.Rsp) bool {
 		dat.Lock.Lock()
 		dat.Categories = make(map[string]types.Category)
 		dat.Lock.Unlock()
+
+		lock.Lock()
+		b.dat[m.GuildID] = dat
+		lock.Unlock()
 	}
 
 	if dat.LastCombs == nil {
 		dat.Lock.Lock()
 		dat.LastCombs = make(map[string]types.Comb)
 		dat.Lock.Unlock()
+
+		lock.Lock()
+		b.dat[m.GuildID] = dat
+		lock.Unlock()
 	}
 
 	_, exists = dat.PlayChannels[m.ChannelID]
