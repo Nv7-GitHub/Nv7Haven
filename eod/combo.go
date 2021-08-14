@@ -57,7 +57,7 @@ func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
 			notExists := make(map[string]types.Empty)
 			for _, el := range elems {
 				_, res = dat.GetElement(el)
-				if !exists {
+				if !res.Exists {
 					notExists["**"+el+"**"] = types.Empty{}
 				}
 			}
