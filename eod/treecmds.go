@@ -3,7 +3,6 @@ package eod
 import (
 	"fmt"
 	"strings"
-	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -18,19 +17,16 @@ func (b *EoD) giveCmd(elem string, giveTree bool, user string, m types.Msg, rsp 
 	if !exists {
 		return
 	}
-	dat.Lock.RLock()
-	inv, exists := dat.InvCache[user]
-	dat.Lock.RUnlock()
-	if !exists {
-		rsp.ErrorMessage("You don't have an inventory!")
+
+	inv, res := dat.GetInv(user, true)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 
-	dat.Lock.RLock()
-	el, exists := dat.ElemCache[strings.ToLower(elem)]
-	dat.Lock.RUnlock()
-	if !exists {
-		rsp.Resp(fmt.Sprintf("Element **%s** doesn't exist!", elem))
+	el, res := dat.GetElement(elem)
+	if !res.Exists {
+		rsp.Resp(res.Message)
 		return
 	}
 
@@ -100,7 +96,7 @@ func (b *EoD) giveCatCmd(catName string, giveTree bool, user string, m types.Msg
 	rsp.Resp("Successfully gave all elements in category **" + cat.Name + "**!")
 }
 
-func giveElem(elemCache map[string]types.Element, giveTree bool, elem string, out *map[string]types.Empty, lock *sync.RWMutex) (string, bool) {
+func giveElem(dat types.ServerData, giveTree bool, elem string, out *map[string]types.Empty) (string, bool) {
 	lock.RLock()
 	el, exists := elemCache[strings.ToLower(elem)]
 	lock.RUnlock()

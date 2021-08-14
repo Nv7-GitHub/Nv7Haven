@@ -97,7 +97,7 @@ func (b *EoD) sortCmd(query string, order bool, m types.Msg, rsp types.Rsp) {
 		Title:      "Element Sort",
 		PageGetter: b.sortPageGetter,
 		Query:      quer,
-		Length:     len(dat.ElemCache),
+		Length:     len(dat.Elements),
 	}, m, rsp)
 }
 
@@ -120,14 +120,14 @@ func (b *EoD) info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
 
 	// Get Element name from ID
 	if isId {
-		if id > len(dat.ElemCache) {
+		if id > len(dat.Elements) {
 			rsp.ErrorMessage(fmt.Sprintf("Element **#%d** doesn't exist!", id))
 			return
 		}
 
 		hasFound := false
 		dat.Lock.RLock()
-		for _, el := range dat.ElemCache {
+		for _, el := range dat.Elements {
 			if el.ID == id {
 				hasFound = true
 				elem = el.Name
@@ -147,10 +147,8 @@ func (b *EoD) info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
 	}
 
 	// Get Element
-	dat.Lock.RLock()
-	el, exists := dat.ElemCache[strings.ToLower(elem)]
-	dat.Lock.RUnlock()
-	if !exists {
+	el, res := dat.GetElement(elem)
+	if !res.Exists {
 		// If what you said was "????", then stop
 		if strings.Contains(elem, "?") {
 			isValid := false
@@ -164,7 +162,7 @@ func (b *EoD) info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
 				return
 			}
 		}
-		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 	rsp.Acknowledge()
@@ -172,13 +170,9 @@ func (b *EoD) info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
 	// Get whether has element
 	has := ""
 	exists = false
-	if dat.InvCache != nil {
-		dat.Lock.RLock()
-		_, exists = dat.InvCache[m.Author.ID]
-		if exists {
-			_, exists = dat.InvCache[m.Author.ID][strings.ToLower(el.Name)]
-		}
-		dat.Lock.RUnlock()
+	inv, res := dat.GetInv(m.Author.ID, true)
+	if res.Exists {
+		exists = inv.Contains(el.Name)
 	}
 	if !exists {
 		has = "don't "
@@ -187,7 +181,7 @@ func (b *EoD) info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
 	// Get Categories
 	catsMap := make(map[catSortInfo]types.Empty)
 	dat.Lock.RLock()
-	for _, cat := range dat.CatCache {
+	for _, cat := range dat.Categories {
 		_, exists := cat.Elements[el.Name]
 		if exists {
 			catsMap[catSortInfo{

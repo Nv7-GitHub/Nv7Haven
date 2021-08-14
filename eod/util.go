@@ -62,9 +62,7 @@ func (b *EoD) saveInv(guild string, user string, newmade bool, recalculate ...bo
 		return
 	}
 
-	dat.Lock.RLock()
-	inv := dat.InvCache[user]
-	dat.Lock.RUnlock()
+	inv, _ := dat.GetInv(user, true)
 
 	dat.Lock.RLock()
 	data, err := json.Marshal(inv)
@@ -79,10 +77,9 @@ func (b *EoD) saveInv(guild string, user string, newmade bool, recalculate ...bo
 			count := 0
 			for val := range inv {
 				creator := ""
-				dat.Lock.RLock()
-				elem, exists := dat.ElemCache[strings.ToLower(val)]
-				dat.Lock.RUnlock()
-				if exists {
+
+				elem, res := dat.GetElement(val)
+				if res.Exists {
 					creator = elem.Creator
 				}
 				if creator == user {
@@ -105,15 +102,13 @@ func (b *EoD) mark(guild string, elem string, mark string, creator string) {
 	if !exists {
 		return
 	}
-	dat.Lock.RLock()
-	el, exists := dat.ElemCache[strings.ToLower(elem)]
-	dat.Lock.RUnlock()
-	if !exists {
+	el, res := dat.GetElement(elem)
+	if !res.Exists {
 		return
 	}
 
 	el.Comment = mark
-	dat.ElemCache[strings.ToLower(elem)] = el
+	dat.SetElement(el)
 
 	lock.Lock()
 	b.dat[guild] = dat
@@ -132,18 +127,13 @@ func (b *EoD) image(guild string, elem string, image string, creator string) {
 	if !exists {
 		return
 	}
-	dat.Lock.RLock()
-	el, exists := dat.ElemCache[strings.ToLower(elem)]
-	dat.Lock.RUnlock()
-	if !exists {
+	el, res := dat.GetElement(elem)
+	if !res.Exists {
 		return
 	}
 
 	el.Image = image
-
-	dat.Lock.Lock()
-	dat.ElemCache[strings.ToLower(elem)] = el
-	dat.Lock.Unlock()
+	dat.SetElement(el)
 
 	lock.Lock()
 	b.dat[guild] = dat

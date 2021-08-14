@@ -16,22 +16,17 @@ func (b *EoD) giveAllCmd(user string, m types.Msg, rsp types.Rsp) {
 	if !exists {
 		return
 	}
-	dat.Lock.RLock()
-	inv, exists := dat.InvCache[user]
-	dat.Lock.RUnlock()
-	if !exists {
-		rsp.ErrorMessage("You don't have an inventory!")
+	inv, res := dat.GetInv(user, user == m.Author.ID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
-	dat.Lock.RLock()
-	for k := range dat.ElemCache {
-		inv[k] = types.Empty{}
-	}
-	dat.Lock.RUnlock()
 
-	dat.Lock.Lock()
-	dat.InvCache[user] = inv
-	dat.Lock.Unlock()
+	for k := range dat.Elements {
+		inv.Add(k)
+	}
+
+	dat.SetInv(user, inv)
 
 	lock.Lock()
 	b.dat[m.GuildID] = dat
@@ -52,9 +47,7 @@ func (b *EoD) resetInvCmd(user string, m types.Msg, rsp types.Rsp) {
 		inv[strings.ToLower(v.Name)] = types.Empty{}
 	}
 
-	dat.Lock.Lock()
-	dat.InvCache[user] = inv
-	dat.Lock.Unlock()
+	dat.SetInv(user, inv)
 
 	lock.Lock()
 	b.dat[m.GuildID] = dat
@@ -72,20 +65,17 @@ func (b *EoD) downloadInvCmd(user string, sorter string, m types.Msg, rsp types.
 	if !exists {
 		return
 	}
-	inv, exists := dat.InvCache[user]
-	if !exists {
-		if user == m.Author.ID {
-			rsp.ErrorMessage("You don't have an inventory!")
-		} else {
-			rsp.ErrorMessage(fmt.Sprintf("User <@%s> doesn't have an inventory!", user))
-		}
+	inv, res := dat.GetInv(user, user == m.Author.ID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 	items := make([]string, len(inv))
 	i := 0
 	dat.Lock.RLock()
 	for k := range inv {
-		items[i] = dat.ElemCache[k].Name
+		el, _ := dat.GetElement(k, true)
+		items[i] = el.Name
 		i++
 	}
 	dat.Lock.RUnlock()
@@ -94,13 +84,13 @@ func (b *EoD) downloadInvCmd(user string, sorter string, m types.Msg, rsp types.
 	case "id":
 		sort.Slice(items, func(i, j int) bool {
 			dat.Lock.RLock()
-			elem1, exists := dat.ElemCache[strings.ToLower(items[i])]
-			if !exists {
+			elem1, res := dat.GetElement(items[i], true)
+			if !res.Exists {
 				return false
 			}
 
-			elem2, exists := dat.ElemCache[strings.ToLower(items[j])]
-			if !exists {
+			elem2, res := dat.GetElement(items[j], true)
+			if !res.Exists {
 				return false
 			}
 			dat.Lock.RUnlock()
@@ -112,10 +102,8 @@ func (b *EoD) downloadInvCmd(user string, sorter string, m types.Msg, rsp types.
 		outs := make([]string, len(items))
 		for _, val := range items {
 			creator := ""
-			dat.Lock.RLock()
-			elem, exists := dat.ElemCache[strings.ToLower(val)]
-			dat.Lock.RUnlock()
-			if exists {
+			elem, res := dat.GetElement(val)
+			if res.Exists {
 				creator = elem.Creator
 			}
 			if creator == user {

@@ -132,7 +132,6 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, in
 		return nil, res.Message, false
 	}
 	var el types.Element
-	var res types.GetResponse
 	if hasElem {
 		el, res = dat.GetElement(elem)
 		if !res.Exists {
@@ -327,8 +326,7 @@ func getHintText(elemTxt string, inv map[string]types.Empty, dat types.ServerDat
 		txt = check
 		ex = 1
 	}
-	dat.Lock.RLock()
-	txt += " " + dat.ElemCache[strings.ToLower(elemTxt)].Name
-	dat.Lock.RUnlock()
+	el, _ := dat.GetElement(elemTxt)
+	txt += " " + el.Name
 	return txt, ex
 }
