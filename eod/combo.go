@@ -26,11 +26,9 @@ func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 
-	dat.Lock.RLock()
-	inv, exists := dat.InvCache[m.Author.ID]
-	dat.Lock.RUnlock()
-	if !exists {
-		rsp.ErrorMessage("You don't have an inventory!")
+	inv, res := dat.GetInv(m.Author.ID, true)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 
@@ -49,18 +47,14 @@ func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
 	}
 
 	for _, elem := range elems {
-		dat.Lock.RLock()
-		_, exists := dat.ElemCache[strings.ToLower(elem)]
-		dat.Lock.RUnlock()
-		if !exists {
+		_, res := dat.GetElement(elem)
+		if !res.Exists {
 			notExists := make(map[string]types.Empty)
 			for _, el := range elems {
-				dat.Lock.RLock()
-				_, exists := dat.ElemCache[strings.ToLower(el)]
+				_, res = dat.GetElement(el)
 				if !exists {
 					notExists["**"+el+"**"] = types.Empty{}
 				}
-				dat.Lock.RUnlock()
 			}
 			if len(notExists) == 1 {
 				rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
@@ -73,33 +67,27 @@ func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
 
 		_, hasElement := inv[strings.ToLower(elem)]
 		if !hasElement {
-			dat.Lock.RLock()
-			_, exists := dat.CombCache[m.Author.ID]
-			if exists {
-				dat.Lock.RLock()
-				delete(dat.CombCache, m.Author.ID)
-				dat.Lock.RUnlock()
+			_, res := dat.GetComb(m.Author.ID)
+			if res.Exists {
+				dat.DeleteComb(m.Author.ID)
 
 				lock.Lock()
 				b.dat[m.GuildID] = dat
 				lock.Unlock()
 			}
-			dat.Lock.RUnlock()
 
 			notFound := make(map[string]types.Empty)
 			for _, el := range elems {
 				_, exists := inv[strings.ToLower(el)]
 				if !exists {
-					dat.Lock.RLock()
-					notFound["**"+dat.ElemCache[strings.ToLower(el)].Name+"**"] = types.Empty{}
-					dat.Lock.RUnlock()
+					elem, _ := dat.GetElement(el)
+					notFound["**"+elem.Name+"**"] = types.Empty{}
 				}
 			}
 
 			if len(notFound) == 1 {
-				dat.Lock.RLock()
-				rsp.ErrorMessage(fmt.Sprintf("You don't have **%s**!", dat.ElemCache[strings.ToLower(elem)].Name))
-				dat.Lock.RUnlock()
+				el, _ := dat.GetElement(elem)
+				rsp.ErrorMessage(fmt.Sprintf("You don't have **%s**!", el.Name))
 				return
 			}
 
@@ -126,24 +114,21 @@ func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
 		cont = false
 	}
 	if cont {
-		if dat.CombCache == nil {
-			dat.CombCache = make(map[string]types.Comb)
-		}
-
-		dat.Lock.Lock()
-		dat.CombCache[m.Author.ID] = types.Comb{
+		dat.SetComb(m.Author.ID, types.Comb{
 			Elems: elems,
 			Elem3: elem3,
-		}
-		dat.Lock.Unlock()
+		})
 
-		dat.Lock.RLock()
-		_, exists := dat.InvCache[m.Author.ID][strings.ToLower(elem3)]
-		dat.Lock.RUnlock()
+		inv, res := dat.GetInv(m.Author.ID, true)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+
+		exists = inv.Contains(elem3)
 		if !exists {
-			dat.Lock.Lock()
-			dat.InvCache[m.Author.ID][strings.ToLower(elem3)] = types.Empty{}
-			dat.Lock.Unlock()
+			inv.Add(elem3)
+			dat.SetInv(m.Author.ID, inv)
 			b.saveInv(m.GuildID, m.Author.ID, false)
 
 			rsp.Resp(fmt.Sprintf("You made **%s** "+newText, elem3))
@@ -158,16 +143,10 @@ func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 
-	if dat.CombCache == nil {
-		dat.CombCache = make(map[string]types.Comb)
-	}
-
-	dat.Lock.Lock()
-	dat.CombCache[m.Author.ID] = types.Comb{
+	dat.SetComb(m.Author.ID, types.Comb{
 		Elems: elems,
 		Elem3: "",
-	}
-	dat.Lock.Unlock()
+	})
 
 	lock.Lock()
 	b.dat[m.GuildID] = dat

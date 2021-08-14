@@ -14,18 +14,16 @@ func (b *EoD) markCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
 	if !exists {
 		return
 	}
-	dat.Lock.RLock()
-	el, exists := dat.ElemCache[strings.ToLower(elem)]
-	dat.Lock.RUnlock()
-	if !exists {
+
+	el, res := dat.GetElement(elem)
+	if !res.Exists {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
 		return
 	}
-	dat.Lock.RLock()
-	inv, exists := dat.InvCache[m.Author.ID]
-	dat.Lock.RUnlock()
-	if !exists {
-		rsp.ErrorMessage("You don't have an inventory!")
+
+	inv, res := dat.GetInv(m.Author.ID, true)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 	_, exists = inv[strings.ToLower(el.Name)]
@@ -66,19 +64,16 @@ func (b *EoD) imageCmd(elem string, image string, m types.Msg, rsp types.Rsp) {
 	if !exists {
 		return
 	}
-	dat.Lock.RLock()
-	el, exists := dat.ElemCache[strings.ToLower(elem)]
-	dat.Lock.RUnlock()
-	if !exists {
+
+	el, res := dat.GetElement(elem)
+	if !res.Exists {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
 		return
 	}
 
-	dat.Lock.RLock()
-	inv, exists := dat.InvCache[m.Author.ID]
-	dat.Lock.RUnlock()
-	if !exists {
-		rsp.ErrorMessage("You don't have an inventory!")
+	inv, res := dat.GetInv(m.Author.ID, true)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 	_, exists = inv[strings.ToLower(el.Name)]

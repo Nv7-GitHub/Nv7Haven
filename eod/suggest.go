@@ -91,12 +91,9 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m types.Msg, rs
 		return
 	}
 
-	if dat.CombCache == nil {
-		dat.CombCache = make(map[string]types.Comb)
-	}
-	comb, exists := dat.CombCache[m.Author.ID]
-	if !exists {
-		rsp.ErrorMessage("You haven't combined anything!")
+	comb, res := dat.GetComb(m.Author.ID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 
@@ -122,10 +119,8 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m types.Msg, rs
 		return
 	}
 
-	dat.Lock.RLock()
-	el, exists := dat.ElemCache[strings.ToLower(suggestion)]
-	dat.Lock.RUnlock()
-	if exists {
+	el, res := dat.GetElement(suggestion)
+	if res.Exists {
 		suggestion = el.Name
 	}
 
@@ -144,22 +139,18 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m types.Msg, rs
 	}
 	txt := "Suggested **"
 	for _, val := range comb.Elems {
-		dat.Lock.RLock()
-		txt += dat.ElemCache[strings.ToLower(val)].Name + " + "
-		dat.Lock.RUnlock()
+		el, _ := dat.GetElement(val)
+		txt += el.Name + " + "
 	}
 	txt = txt[:len(txt)-3]
 	if len(comb.Elems) == 1 {
-		dat.Lock.RLock()
-		txt += " + " + dat.ElemCache[strings.ToLower(comb.Elems[0])].Name
-		dat.Lock.RUnlock()
+		el, _ := dat.GetElement(comb.Elems[0])
+		txt += " + " + el.Name
 	}
 	txt += " = " + suggestion + "** "
 
-	dat.Lock.RLock()
-	_, exists = dat.ElemCache[strings.ToLower(suggestion)]
-	dat.Lock.RUnlock()
-	if !exists {
+	_, res = dat.GetElement(suggestion)
+	if !res.Exists {
 		txt += "✨"
 	} else {
 		txt += "🌟"

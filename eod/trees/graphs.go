@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"strings"
-	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/goccy/go-graphviz"
@@ -17,8 +16,7 @@ type Graph struct {
 	finished bool
 	special  *strings.Builder
 
-	lock      *sync.RWMutex
-	elemCache map[string]types.Element
+	dat types.ServerData
 }
 
 func NewGraph(dat types.ServerData) (*Graph, error) {
@@ -34,8 +32,7 @@ func NewGraph(dat types.ServerData) (*Graph, error) {
 		special:  &strings.Builder{},
 		finished: false,
 
-		elemCache: dat.ElemCache,
-		lock:      dat.Lock,
+		dat: dat,
 	}, nil
 }
 
@@ -53,11 +50,9 @@ func (g *Graph) AddElem(elem string, special bool) (string, bool) {
 	}
 
 	// Get Element
-	g.lock.RLock()
-	el, exists := g.elemCache[elem]
-	g.lock.RUnlock()
-	if !exists {
-		return fmt.Sprintf("Element **%s** doesn't exist!", elem), false
+	el, res := g.dat.GetElement(elem)
+	if !res.Exists {
+		return res.Message, false
 	}
 
 	// Create Node Style because top level
@@ -69,11 +64,9 @@ func (g *Graph) AddElem(elem string, special bool) (string, bool) {
 	for _, par := range el.Parents {
 		g.AddElem(par, false)
 
-		g.lock.RLock()
-		parEl, exists := g.elemCache[strings.ToLower(par)]
-		g.lock.RUnlock()
-		if !exists {
-			return fmt.Sprintf("Element **%s** doesn't exist!", elem), false
+		parEl, res := g.dat.GetElement(par)
+		if !res.Exists {
+			return res.Message, false
 		}
 
 		fmt.Fprintf(g.body, "\t\"%s\" -> \"%s\"\n", escapeGraphNode(el.Name), escapeGraphNode(parEl.Name))

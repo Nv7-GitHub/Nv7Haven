@@ -35,21 +35,17 @@ func (b *EoD) categoryCmd(elems []string, category string, m types.Msg, rsp type
 		return
 	}
 
-	dat.Lock.RLock()
-	cat, exists := dat.CatCache[strings.ToLower(category)]
-	dat.Lock.RUnlock()
-	if exists {
+	cat, res := dat.GetCategory(category)
+	if res.Exists {
 		category = cat.Name
 	}
 
 	suggestAdd := make([]string, 0)
 	added := make([]string, 0)
 	for _, val := range elems {
-		dat.Lock.RLock()
-		el, exists := dat.ElemCache[strings.ToLower(val)]
-		dat.Lock.RUnlock()
-		if !exists {
-			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", val))
+		el, res := dat.GetElement(val)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
 			return
 		}
 
@@ -104,10 +100,8 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m types.Msg, rsp ty
 
 	elems = removeDuplicates(elems)
 
-	dat.Lock.RLock()
-	cat, exists := dat.CatCache[strings.ToLower(category)]
-	dat.Lock.RUnlock()
-	if !exists {
+	cat, res := dat.GetCategory(category)
+	if !res.Exists {
 		rsp.ErrorMessage(fmt.Sprintf("Category **%s** doesn't exist!", category))
 		return
 	}
@@ -117,15 +111,13 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m types.Msg, rsp ty
 	suggestRm := make([]string, 0)
 	rmed := make([]string, 0)
 	for _, val := range elems {
-		dat.Lock.RLock()
-		el, exists := dat.ElemCache[strings.ToLower(val)]
-		dat.Lock.RUnlock()
-		if !exists {
-			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", val))
+		el, res := dat.GetElement(val)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
 			return
 		}
 
-		_, exists = cat.Elements[el.Name]
+		exists = cat.Elements.Contains(el.Name)
 		if !exists {
 			rsp.ErrorMessage(fmt.Sprintf("Element **%s** isn't in category **%s**!", el.Name, cat.Name))
 			return
@@ -180,9 +172,9 @@ func (b *EoD) catImgCmd(catName string, url string, m types.Msg, rsp types.Rsp) 
 		return
 	}
 
-	cat, exists := dat.CatCache[strings.ToLower(catName)]
-	if !exists {
-		rsp.ErrorMessage(fmt.Sprintf("Category **%s** doesn't exist!", catName))
+	cat, res := dat.GetCategory(catName)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 

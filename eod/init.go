@@ -139,11 +139,11 @@ func (b *EoD) init() {
 		//lock.RLock()
 		dat := b.dat[elem.Guild]
 		//lock.RUnlock()
-		if dat.ElemCache == nil {
-			dat.ElemCache = make(map[string]types.Element)
+		if dat.Elements == nil {
+			dat.Elements = make(map[string]types.Element)
 		}
-		elem.ID = len(dat.ElemCache) + 1
-		dat.ElemCache[strings.ToLower(elem.Name)] = elem
+		elem.ID = len(dat.Elements) + 1
+		dat.Elements[strings.ToLower(elem.Name)] = elem
 		//lock.Lock()
 		b.dat[elem.Guild] = dat
 		//lock.Unlock()
@@ -180,10 +180,10 @@ func (b *EoD) init() {
 		//lock.RLock()
 		dat := b.dat[guild]
 		//lock.RUnlock()
-		if dat.InvCache == nil {
-			dat.InvCache = make(map[string]map[string]types.Empty)
+		if dat.Inventories == nil {
+			dat.Inventories = make(map[string]types.Container)
 		}
-		dat.InvCache[user] = inv
+		dat.Inventories[user] = inv
 		//lock.Lock()
 		b.dat[guild] = dat
 		//lock.Unlock()
@@ -234,8 +234,8 @@ func (b *EoD) init() {
 	//lock.RLock()
 	for k, dat := range b.dat {
 		hasChanged := false
-		if dat.InvCache == nil {
-			dat.InvCache = make(map[string]map[string]types.Empty)
+		if dat.Inventories == nil {
+			dat.Inventories = make(map[string]types.Container)
 			hasChanged = true
 		}
 		if hasChanged {
@@ -272,8 +272,8 @@ func (b *EoD) init() {
 		//lock.RLock()
 		dat := b.dat[guild]
 		//lock.RUnlock()
-		if dat.CatCache == nil {
-			dat.CatCache = make(map[string]types.Category)
+		if dat.Categories == nil {
+			dat.Categories = make(map[string]types.Category)
 		}
 
 		cat.Elements = make(map[string]types.Empty)
@@ -282,7 +282,7 @@ func (b *EoD) init() {
 			panic(err)
 		}
 
-		dat.CatCache[strings.ToLower(cat.Name)] = cat
+		dat.Categories[strings.ToLower(cat.Name)] = cat
 		//lock.Lock()
 		b.dat[guild] = dat
 		//lock.Unlock()

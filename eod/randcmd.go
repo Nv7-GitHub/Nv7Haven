@@ -61,28 +61,23 @@ func (b *EoD) genIdea(count int, catName string, hasCat bool, elemName string, h
 		return "Guild not found", false
 	}
 
-	dat.Lock.RLock()
-	inv, exists := dat.InvCache[author]
-	dat.Lock.RUnlock()
-	if !exists {
-		return "You don't have an inventory!", false
+	inv, res := dat.GetInv(author, true)
+	if !res.Exists {
+		return res.Message, false
 	}
 
 	if hasEl {
 		elName := strings.ToLower(elemName)
-		dat.Lock.RLock()
-		el, exists := dat.ElemCache[elName]
-		dat.Lock.RUnlock()
-		if !exists {
-			return fmt.Sprintf("Element **%s** doesn't exist!", elemName), false
+
+		el, res := dat.GetElement(elName)
+		if !res.Exists {
+			return res.Message, false
 		} else {
 			elemName = elName
 			count--
 		}
 
-		dat.Lock.RLock()
-		_, exists = inv[elemName]
-		dat.Lock.RUnlock()
+		exists = inv.Contains(elemName)
 		if !exists {
 			return fmt.Sprintf("Element **%s** is not in your inventory!", el.Name), false
 		}
@@ -90,9 +85,9 @@ func (b *EoD) genIdea(count int, catName string, hasCat bool, elemName string, h
 
 	els := inv
 	if hasCat {
-		cat, exists := dat.CatCache[strings.ToLower(catName)]
-		if !exists {
-			return fmt.Sprintf("Category **%s** doesn't exist!", catName), false
+		cat, res := dat.GetCategory(catName)
+		if !res.Exists {
+			return res.Message, false
 		}
 		els = make(map[string]types.Empty)
 
@@ -149,23 +144,17 @@ func (b *EoD) genIdea(count int, catName string, hasCat bool, elemName string, h
 
 	text := ""
 	for i, el := range elems {
-		dat.Lock.RLock()
-		text += dat.ElemCache[strings.ToLower(el)].Name
-		dat.Lock.RUnlock()
+		el, _ := dat.GetElement(el)
+		text += el.Name
 		if i != len(elems)-1 {
 			text += " + "
 		}
 	}
 
-	if dat.CombCache == nil {
-		dat.CombCache = make(map[string]types.Comb)
-	}
-	dat.Lock.Lock()
-	dat.CombCache[author] = types.Comb{
+	dat.SetComb(author, types.Comb{
 		Elems: elems,
 		Elem3: "",
-	}
-	dat.Lock.Unlock()
+	})
 
 	lock.Lock()
 	b.dat[guild] = dat
@@ -191,16 +180,14 @@ func (b *EoD) ideaCmd(count int, catName string, hasCat bool, elemName string, h
 
 	id := rsp.Message(res, ideaCmp)
 
-	dat.Lock.Lock()
-	dat.ComponentMsgs[id] = &ideaComponent{
+	dat.AddComponentMsg(id, &ideaComponent{
 		catName:  catName,
 		count:    count,
 		hasCat:   hasCat,
 		elemName: elemName,
 		hasEl:    hasEl,
 		b:        b,
-	}
-	dat.Lock.Unlock()
+	})
 
 	lock.Lock()
 	b.dat[m.GuildID] = dat

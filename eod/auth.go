@@ -2,7 +2,6 @@ package eod
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
@@ -59,22 +58,17 @@ func (b *EoD) canRunCmd(cmd *discordgo.InteractionCreate) (bool, string) {
 	// If command is path or catpath, check if has element/all elements in cat
 	// path
 	if resp.Name == "path" || resp.Name == "graph" {
-		dat.Lock.RLock()
-		inv, exists := dat.InvCache[cmd.Member.User.ID]
-		dat.Lock.RUnlock()
-		if !exists {
-			return false, "You don't have an inventory!"
+		inv, res := dat.GetInv(cmd.Member.User.ID, true)
+		if !res.Exists {
+			return false, res.Message
 		}
 
-		name := strings.ToLower(resp.Options[0].StringValue())
-		dat.Lock.RLock()
-		el, exists := dat.ElemCache[name]
-		dat.Lock.RUnlock()
-		if !exists {
+		el, res := dat.GetElement(resp.Options[0].StringValue())
+		if !res.Exists {
 			return true, "" // If the element doesn't exist, the cat command will tell the user it doesn't exist
 		}
 
-		_, exists = inv[name]
+		exists = inv.Contains(el.Name)
 		if !exists {
 			return false, fmt.Sprintf("You must have element **%s** to get it's path!", el.Name)
 		}
@@ -83,20 +77,19 @@ func (b *EoD) canRunCmd(cmd *discordgo.InteractionCreate) (bool, string) {
 
 	// catpath
 	if resp.Name == "catpath" || resp.Name == "catgraph" {
-		dat.Lock.RLock()
-		inv, exists := dat.InvCache[cmd.Member.User.ID]
-		dat.Lock.RUnlock()
-		if !exists {
-			return false, "You don't have an inventory!"
+		inv, res := dat.GetInv(cmd.Member.User.ID, true)
+		if !res.Exists {
+			return false, res.Message
 		}
-		cat, exists := dat.CatCache[strings.ToLower(resp.Options[0].StringValue())]
-		if !exists {
+
+		cat, res := dat.GetCategory(resp.Options[0].StringValue())
+		if !res.Exists {
 			return true, "" // If the category doesn't exist, the cat command will tell the user it doesn't exist
 		}
 
 		// Check if user has all elements in category
 		for elem := range cat.Elements {
-			_, exists = inv[strings.ToLower(elem)]
+			exists = inv.Contains(elem)
 			if !exists {
 				return false, fmt.Sprintf("You must have all elements in category **%s** to get its path!", cat.Name)
 			}

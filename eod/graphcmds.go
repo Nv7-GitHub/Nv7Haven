@@ -157,11 +157,7 @@ func (b *EoD) elemGraphCmd(elem string, layout string, outputType string, distin
 	}
 	rsp.Acknowledge()
 
-	dat.Lock.RLock()
-	name := dat.ElemCache[strings.ToLower(elem)].Name
-	dat.Lock.RUnlock()
-
-	b.graphCmd(map[string]types.Empty{elem: {}}, dat, m, layout, outputType, name, distinctPrimary, rsp)
+	b.graphCmd(map[string]types.Empty{elem: {}}, dat, m, layout, outputType, elem, distinctPrimary, rsp)
 }
 
 func (b *EoD) catGraphCmd(catName, layout, outputType string, distinctPrimary bool, m types.Msg, rsp types.Rsp) {
@@ -172,9 +168,9 @@ func (b *EoD) catGraphCmd(catName, layout, outputType string, distinctPrimary bo
 		return
 	}
 	rsp.Acknowledge()
-	cat, exists := dat.CatCache[strings.ToLower(catName)]
-	if !exists {
-		rsp.ErrorMessage(fmt.Sprintf("Category **%s** doesn't exist!", catName))
+	cat, res := dat.GetCategory(catName)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 

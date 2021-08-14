@@ -40,10 +40,8 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		return
 	}
 
-	dat.Lock.RLock()
-	_, exists = dat.ElemCache[strings.ToLower(name)]
+	_, res := dat.GetElement(name)
 	text := "Combination"
-	dat.Lock.RUnlock()
 
 	createLock.Lock()
 	tx, err := b.db.BeginTx(context.Background(), nil)
@@ -53,14 +51,12 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	}
 
 	var postTxt string
-	if !exists {
+	if !res.Exists {
 		diff := -1
 		compl := -1
 		areUnique := false
 		for _, val := range parents {
-			dat.Lock.RLock()
-			elem := dat.ElemCache[strings.ToLower(val)]
-			dat.Lock.RUnlock()
+			elem, _ := dat.GetElement(val)
 			if elem.Difficulty > diff {
 				diff = elem.Difficulty
 			}
@@ -75,9 +71,8 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		if areUnique {
 			diff++
 		}
-		dat.Lock.RLock()
 		elem := types.Element{
-			ID:         len(dat.ElemCache) + 1,
+			ID:         len(dat.Elements) + 1,
 			Name:       name,
 			Guild:      guild,
 			Comment:    "None",
@@ -87,18 +82,13 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 			Complexity: compl,
 			Difficulty: diff,
 		}
-		dat.Lock.RUnlock()
 		postTxt = " - Element **#" + strconv.Itoa(elem.ID) + "**"
 
-		dat.Lock.Lock()
-		dat.ElemCache[strings.ToLower(elem.Name)] = elem
-		dat.Lock.Unlock()
+		dat.SetElement(elem)
 
 		_, err = tx.Exec("INSERT INTO eod_elements VALUES ( ?,  ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), elems2txt(parents), elem.Complexity, elem.Difficulty, 0)
 		if err != nil {
-			dat.Lock.RLock()
-			delete(dat.ElemCache, strings.ToLower(elem.Name))
-			dat.Lock.RUnlock()
+			dat.DeleteElement(elem.Name)
 
 			datafile.WriteString(err.Error() + "\n")
 			tx.Rollback()
@@ -106,10 +96,8 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		}
 		text = "Element"
 	} else {
-		dat.Lock.RLock()
-		el, exists := dat.ElemCache[strings.ToLower(name)]
-		dat.Lock.RUnlock()
-		if !exists {
+		el, res := dat.GetElement(name)
+		if !res.Exists {
 			datafile.WriteString("Doesn't exist\n")
 			tx.Rollback()
 			return
@@ -117,8 +105,8 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		name = el.Name
 
 		var id int
-		res := tx.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE guild=?", guild)
-		err = res.Scan(&id)
+		row := tx.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE guild=?", guild)
+		err = row.Scan(&id)
 		if err == nil {
 			postTxt = " - Combination **#" + strconv.Itoa(id) + "**"
 		}
@@ -126,9 +114,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 
 	_, err = tx.Exec("INSERT INTO eod_combos VALUES ( ?, ?, ? )", guild, data, name)
 	if err != nil {
-		dat.Lock.RLock()
-		delete(dat.ElemCache, strings.ToLower(name))
-		dat.Lock.RUnlock()
+		dat.DeleteElement(name)
 
 		datafile.WriteString(err.Error() + "\n")
 		tx.Rollback()
@@ -149,22 +135,18 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		}
 		_, err = tx.Exec(query, k, guild)
 		if err != nil {
-			dat.Lock.RLock()
-			delete(dat.ElemCache, strings.ToLower(name))
-			dat.Lock.RUnlock()
+			dat.DeleteElement(name)
 
 			datafile.WriteString(err.Error() + "\n")
 			tx.Rollback()
 			return
 		}
 
-		dat.Lock.RLock()
-		el := dat.ElemCache[strings.ToLower(k)]
-		dat.Lock.RUnlock()
-		el.UsedIn++
-		dat.Lock.Lock()
-		dat.ElemCache[strings.ToLower(k)] = el
-		dat.Lock.Unlock()
+		el, res := dat.GetElement(k)
+		if res.Exists {
+			el.UsedIn++
+			dat.SetElement(el)
+		}
 	}
 
 	txt := newText + " " + text + " - **" + name + "** (By <@" + creator + ">)" + postTxt
@@ -173,9 +155,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 
 	err = tx.Commit()
 	if err != nil {
-		dat.Lock.RLock()
-		delete(dat.ElemCache, strings.ToLower(name))
-		dat.Lock.RUnlock()
+		dat.DeleteElement(name)
 
 		datafile.WriteString(err.Error() + "\n")
 		return
@@ -184,9 +164,9 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	createLock.Unlock()
 
 	// Add Element to Inv
-	dat.Lock.Lock()
-	dat.InvCache[creator][strings.ToLower(name)] = types.Empty{}
-	dat.Lock.Unlock()
+	inv, _ := dat.GetInv(creator, true)
+	inv.Add(name)
+	dat.SetInv(creator, inv)
 
 	lock.Lock()
 	b.dat[guild] = dat

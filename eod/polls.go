@@ -52,15 +52,13 @@ func (b *EoD) createPoll(p types.Poll) error {
 			return errors.New("error: combo must have at least one element")
 		}
 		for _, val := range elems {
-			dat.Lock.RLock()
-			txt += dat.ElemCache[strings.ToLower(val)].Name + " + "
-			dat.Lock.RUnlock()
+			el, _ := dat.GetElement(val)
+			txt += el.Name + " + "
 		}
 		txt = txt[:len(txt)-2]
 		if len(elems) == 1 {
-			dat.Lock.RLock()
-			txt += " + " + dat.ElemCache[strings.ToLower(elems[0])].Name
-			dat.Lock.RUnlock()
+			el, _ := dat.GetElement(elems[0])
+			txt += " + " + el.Name
 		}
 		txt += " = " + p.Value3
 		m, err := b.dg.ChannelMessageSendEmbed(dat.VotingChannel, &discordgo.MessageEmbed{
@@ -180,9 +178,7 @@ func (b *EoD) createPoll(p types.Poll) error {
 		dat.Polls = make(map[string]types.Poll)
 	}
 
-	dat.Lock.Lock()
-	dat.Polls[p.Message] = p
-	dat.Lock.Unlock()
+	dat.SavePoll(p.Message, p)
 
 	lock.Lock()
 	b.dat[p.Guild] = dat
@@ -200,8 +196,8 @@ func (b *EoD) reactionHandler(s *discordgo.Session, r *discordgo.MessageReaction
 	if !exists {
 		return
 	}
-	p, exists := dat.Polls[r.MessageID]
-	if !exists {
+	p, res := dat.GetPoll(r.MessageID)
+	if !res.Exists {
 		return
 	}
 	if r.Emoji.Name == upArrow {

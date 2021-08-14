@@ -67,16 +67,13 @@ func (b *EoD) checkServer(m types.Msg, rsp types.Rsp) bool {
 		rsp.ErrorMessage("No news channel has been set!")
 		return false
 	}
-	if dat.ElemCache == nil {
-		dat.ElemCache = make(map[string]types.Element)
+	if dat.Elements == nil {
+		dat.Elements = make(map[string]types.Element)
 	}
-	if len(dat.ElemCache) < 4 {
+	if len(dat.Elements) < 4 {
 		for _, elem := range starterElements {
 			elem.Guild = m.GuildID
-			elem.CreatedOn = time.Now()
-			dat.Lock.Lock()
-			dat.ElemCache[strings.ToLower(elem.Name)] = elem
-			dat.Lock.Unlock()
+			dat.SetElement(elem)
 			_, err := b.db.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), "" /* Parents */, elem.Complexity, elem.Difficulty, elem.UsedIn)
 			rsp.Error(err)
 		}
@@ -85,23 +82,19 @@ func (b *EoD) checkServer(m types.Msg, rsp types.Rsp) bool {
 		lock.Unlock()
 	}
 
-	if dat.InvCache == nil {
-		dat.InvCache = make(map[string]map[string]types.Empty)
+	if dat.Inventories == nil {
+		dat.Inventories = make(map[string]types.Container)
 	}
-	dat.Lock.RLock()
-	_, exists = dat.InvCache[m.Author.ID]
-	dat.Lock.RUnlock()
-	if !exists {
+	_, res := dat.GetInv(m.Author.ID, true)
+	if !res.Exists {
 		dat.Lock.Lock()
-		dat.InvCache[m.Author.ID] = make(map[string]types.Empty)
+		dat.Inventories[m.Author.ID] = make(map[string]types.Empty)
 		for _, val := range starterElements {
-			dat.InvCache[m.Author.ID][strings.ToLower(val.Name)] = types.Empty{}
+			dat.Inventories[m.Author.ID][strings.ToLower(val.Name)] = types.Empty{}
 		}
 		dat.Lock.Unlock()
 
-		dat.Lock.RLock()
-		inv := dat.InvCache[m.Author.ID]
-		dat.Lock.RUnlock()
+		inv, _ := dat.GetInv(m.Author.ID, true)
 
 		data, err := json.Marshal(inv)
 		if rsp.Error(err) {
@@ -114,8 +107,16 @@ func (b *EoD) checkServer(m types.Msg, rsp types.Rsp) bool {
 		lock.Unlock()
 	}
 
-	if dat.CatCache == nil {
-		dat.CatCache = make(map[string]types.Category)
+	if dat.Categories == nil {
+		dat.Lock.Lock()
+		dat.Categories = make(map[string]types.Category)
+		dat.Lock.Unlock()
+	}
+
+	if dat.LastCombs == nil {
+		dat.Lock.Lock()
+		dat.LastCombs = make(map[string]types.Comb)
+		dat.Lock.Unlock()
 	}
 
 	_, exists = dat.PlayChannels[m.ChannelID]

@@ -44,19 +44,14 @@ func (b *EoD) categorize(elem string, catName string, guild string) error {
 	if !exists {
 		return nil
 	}
-	dat.Lock.RLock()
-	el, exists := dat.ElemCache[strings.ToLower(elem)]
-	if !exists {
+
+	el, res := dat.GetElement(elem)
+	if !res.Exists {
 		return nil
 	}
-	dat.Lock.RUnlock()
 
-	if dat.CatCache == nil {
-		dat.CatCache = make(map[string]types.Category)
-	}
-
-	cat, exists := dat.CatCache[strings.ToLower(catName)]
-	if !exists {
+	cat, res := dat.GetCategory(catName)
+	if !res.Exists {
 		cat = types.Category{
 			Name:     catName,
 			Guild:    guild,
@@ -77,7 +72,7 @@ func (b *EoD) categorize(elem string, catName string, guild string) error {
 	}
 
 	cat.Elements[el.Name] = types.Empty{}
-	dat.CatCache[strings.ToLower(catName)] = cat
+	dat.SetCategory(cat)
 
 	els, err := json.Marshal(cat.Elements)
 	if err != nil {
@@ -103,30 +98,25 @@ func (b *EoD) unCategorize(elem string, catName string, guild string) error {
 	if !exists {
 		return nil
 	}
-	dat.Lock.RLock()
-	el, exists := dat.ElemCache[strings.ToLower(elem)]
-	if !exists {
+
+	el, res := dat.GetElement(elem)
+	if !res.Exists {
 		return nil
 	}
-	dat.Lock.RUnlock()
 
-	if dat.CatCache == nil {
-		dat.CatCache = make(map[string]types.Category)
-	}
-
-	cat, exists := dat.CatCache[strings.ToLower(catName)]
-	if !exists {
+	cat, res := dat.GetCategory(catName)
+	if !res.Exists {
 		return nil
 	}
 	delete(cat.Elements, el.Name)
-	dat.CatCache[strings.ToLower(catName)] = cat
+	dat.SetCategory(cat)
 
 	if len(cat.Elements) == 0 {
 		_, err := b.db.Exec("DELETE FROM eod_categories WHERE name=? AND guild=?", cat.Name, cat.Guild)
 		if err != nil {
 			return err
 		}
-		delete(dat.CatCache, strings.ToLower(catName))
+		dat.DeleteCategory(catName)
 	} else {
 		data, err := json.Marshal(cat.Elements)
 		if err != nil {
@@ -152,13 +142,13 @@ func (b *EoD) catImage(guild string, catName string, image string, creator strin
 	if !exists {
 		return
 	}
-	cat, exists := dat.CatCache[strings.ToLower(catName)]
-	if !exists {
+	cat, res := dat.GetCategory(catName)
+	if !res.Exists {
 		return
 	}
 
 	cat.Image = image
-	dat.CatCache[strings.ToLower(cat.Name)] = cat
+	dat.SetCategory(cat)
 
 	lock.Lock()
 	b.dat[guild] = dat

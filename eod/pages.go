@@ -81,9 +81,7 @@ func (b *EoD) newPageSwitcher(ps types.PageSwitcher, m types.Msg, rsp types.Rsp)
 		dat.PageSwitchers = make(map[string]types.PageSwitcher)
 	}
 
-	dat.Lock.Lock()
-	dat.PageSwitchers[id] = ps
-	dat.Lock.Unlock()
+	dat.SavePageSwitcher(id, ps)
 
 	lock.Lock()
 	b.dat[m.GuildID] = dat
@@ -98,10 +96,8 @@ func (b *EoD) pageSwitchHandler(s *discordgo.Session, i *discordgo.InteractionCr
 		return
 	}
 
-	dat.Lock.RLock()
-	ps, exists := dat.PageSwitchers[i.Message.ID]
-	dat.Lock.RUnlock()
-	if !exists {
+	ps, res := dat.GetPageSwitcher(i.Message.ID)
+	if !res.Exists {
 		return
 	}
 
