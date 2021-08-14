@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -206,14 +205,10 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if !exists {
 			return
 		}
-		if dat.CombCache == nil {
-			dat.CombCache = make(map[string]types.Comb)
-		}
 
-		dat.Lock.RLock()
-		comb, exists := dat.CombCache[msg.Author.ID]
-		dat.Lock.RUnlock()
-		if !exists {
+		comb, res := dat.GetComb(msg.Author.ID)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
 			return
 		}
 		if comb.Elem3 != "" {

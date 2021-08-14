@@ -4,15 +4,13 @@ import (
 	"fmt"
 	"sort"
 	"strings"
-	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
 type breakDownTree struct {
-	lock      *sync.RWMutex
 	added     map[string]types.Empty
-	elemCache map[string]types.Element
+	dat       types.ServerData
 	breakdown map[string]int // map[userid]count
 	total     int
 	tree      bool
@@ -24,11 +22,9 @@ func (b *breakDownTree) addElem(elem string) (bool, string) {
 		return true, ""
 	}
 
-	b.lock.RLock()
-	el, exists := b.elemCache[strings.ToLower(elem)]
-	b.lock.RUnlock()
-	if !exists {
-		return false, fmt.Sprintf("Element **%s** doesn't exist!", elem)
+	el, res := b.dat.GetElement(elem)
+	if !res.Exists {
+		return false, res.Message
 	}
 
 	if b.tree {
@@ -85,17 +81,14 @@ func (b *EoD) elemBreakdownCmd(elem string, calcTree bool, m types.Msg, rsp type
 		return
 	}
 
-	dat.Lock.RLock()
-	el, exists := dat.ElemCache[strings.ToLower(elem)]
-	dat.Lock.RUnlock()
+	el, res := dat.GetElement(elem)
 	if !exists {
-		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 
 	tree := &breakDownTree{
-		lock:      dat.Lock,
-		elemCache: dat.ElemCache,
+		dat:       dat,
 		breakdown: make(map[string]int),
 		added:     make(map[string]types.Empty),
 		tree:      calcTree,
@@ -126,17 +119,14 @@ func (b *EoD) catBreakdownCmd(catName string, calcTree bool, m types.Msg, rsp ty
 		return
 	}
 
-	dat.Lock.RLock()
-	cat, exists := dat.CatCache[strings.ToLower(catName)]
-	dat.Lock.RUnlock()
-	if !exists {
-		rsp.ErrorMessage(fmt.Sprintf("Category **%s** doesn't exist!", catName))
+	cat, res := dat.GetCategory(catName)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 
 	tree := &breakDownTree{
-		lock:      dat.Lock,
-		elemCache: dat.ElemCache,
+		dat:       dat,
 		breakdown: make(map[string]int),
 		added:     make(map[string]types.Empty),
 		total:     0,

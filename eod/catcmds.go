@@ -31,23 +31,19 @@ func (b *EoD) catCmd(category string, sortKind int, hasUser bool, user string, m
 		return
 	}
 
-	msg := "You don't have an inventory!"
 	id := m.Author.ID
 	if hasUser {
 		id = user
-		msg = fmt.Sprintf("User <@%s> doesn't have an inventory!", user)
 	}
-	dat.Lock.RLock()
-	inv, exists := dat.InvCache[id]
-	dat.Lock.RUnlock()
-	if !exists {
-		rsp.ErrorMessage(msg)
+	inv, res := dat.GetInv(id, !hasUser)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 
-	cat, exists := dat.CatCache[strings.ToLower(category)]
-	if !exists {
-		rsp.ErrorMessage(fmt.Sprintf("Category **%s** doesn't exist!", category))
+	cat, res := dat.GetCategory(category)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 	category = cat.Name
@@ -133,24 +129,21 @@ func (b *EoD) allCatCmd(sortBy int, hasUser bool, user string, m types.Msg, rsp 
 		return
 	}
 
-	msg := "You don't have an inventory!"
 	id := m.Author.ID
 	if hasUser {
 		id = user
-		msg = fmt.Sprintf("User <@%s> doesn't have an inventory!", user)
 	}
-	dat.Lock.RLock()
-	inv, exists := dat.InvCache[id]
-	dat.Lock.RUnlock()
-	if !exists {
-		rsp.ErrorMessage(msg)
+	inv, res := dat.GetInv(id, !hasUser)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 
-	out := make([]catData, len(dat.CatCache))
+	dat.Lock.RLock()
+	out := make([]catData, len(dat.Categories))
 
 	i := 0
-	for _, cat := range dat.CatCache {
+	for _, cat := range dat.Categories {
 		count := 0
 		for elem := range cat.Elements {
 			_, exists := inv[strings.ToLower(elem)]
@@ -172,6 +165,7 @@ func (b *EoD) allCatCmd(sortBy int, hasUser bool, user string, m types.Msg, rsp 
 		}
 		i++
 	}
+	dat.Lock.RUnlock()
 
 	switch sortBy {
 	case catSortByFound:

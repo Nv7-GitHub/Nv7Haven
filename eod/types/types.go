@@ -1,6 +1,7 @@
 package types
 
 import (
+	"strings"
 	"sync"
 	"time"
 
@@ -38,19 +39,19 @@ type ComponentMsg interface {
 }
 
 type ServerData struct {
-	PlayChannels  map[string]Empty // channelID
+	PlayChannels  Container // channelID
 	VotingChannel string
 	NewsChannel   string
 	VoteCount     int
 	PollCount     int
-	ModRole       string                      // role ID
-	CombCache     map[string]Comb             // map[userID]comb
-	InvCache      map[string]map[string]Empty // map[userID]map[elementName]types.Empty
-	ElemCache     map[string]Element          //map[elementName]element
-	CatCache      map[string]Category         // map[catName]category
-	Polls         map[string]Poll             // map[messageid]poll
-	PageSwitchers map[string]PageSwitcher     // map[messageid]pageswitcher
-	ComponentMsgs map[string]ComponentMsg     // map[messageid]componentMsg
+	ModRole       string                  // role ID
+	LastCombs     map[string]Comb         // map[userID]comb
+	Inventories   map[string]Container    // map[userID]map[elementName]types.Empty
+	Elements      map[string]Element      //map[elementName]element
+	Categories    map[string]Category     // map[catName]category
+	Polls         map[string]Poll         // map[messageid]poll
+	PageSwitchers map[string]PageSwitcher // map[messageid]pageswitcher
+	ComponentMsgs map[string]ComponentMsg // map[messageid]componentMsg
 	Lock          *sync.RWMutex
 }
 
@@ -115,7 +116,7 @@ type Poll struct {
 type Category struct {
 	Name     string
 	Guild    string
-	Elements map[string]Empty
+	Elements Container
 	Image    string
 }
 
@@ -141,4 +142,15 @@ func NewServerData() ServerData {
 		Lock:          &sync.RWMutex{},
 		ComponentMsgs: make(map[string]ComponentMsg),
 	}
+}
+
+type Container map[string]Empty
+
+func (c Container) Contains(elem string) bool {
+	_, exists := c[strings.ToLower(elem)]
+	return exists
+}
+
+func (c Container) Add(elem string) {
+	c[strings.ToLower(elem)] = Empty{}
 }

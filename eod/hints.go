@@ -127,25 +127,22 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, in
 		return nil, "Guild not found", false
 	}
 
-	dat.Lock.RLock()
-	inv, exists := dat.InvCache[author]
-	dat.Lock.RUnlock()
+	inv, res := dat.GetInv(author, true)
 	if !exists {
-		return nil, "You don't have an inventory!", false
+		return nil, res.Message, false
 	}
 	var el types.Element
+	var res types.GetResponse
 	if hasElem {
-		dat.Lock.RLock()
-		el, exists = dat.ElemCache[strings.ToLower(elem)]
-		dat.Lock.RUnlock()
-		if !exists {
+		el, res = dat.GetElement(elem)
+		if !res.Exists {
 			return nil, fmt.Sprintf("No hints were found for **%s**!", elem), false
 		}
 	}
 	if !hasElem {
 		hasFound := false
 		dat.Lock.RLock()
-		for _, v := range dat.ElemCache {
+		for _, v := range dat.Elements {
 			_, exists := inv[strings.ToLower(v.Name)]
 			if !exists {
 				el = v
@@ -157,7 +154,7 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, in
 		dat.Lock.RUnlock()
 		if !hasFound {
 			dat.Lock.RLock()
-			for _, v := range dat.ElemCache {
+			for _, v := range dat.Elements {
 				el = v
 				elem = v.Name
 				hasFound = true
@@ -301,10 +298,10 @@ func getHintText(elemTxt string, inv map[string]types.Empty, dat types.ServerDat
 		prf := "%s"
 		params := make([]interface{}, len(elems))
 		i := 0
+		dat.Lock.RLock()
 		for _, k := range elems {
-			dat.Lock.RLock()
-			params[i] = interface{}(dat.ElemCache[strings.ToLower(k)].Name)
-			dat.Lock.RUnlock()
+			elem, _ := dat.GetElement(k, true)
+			params[i] = interface{}(elem.Name)
 
 			if i == 0 {
 				prf += " %s"
@@ -313,6 +310,7 @@ func getHintText(elemTxt string, inv map[string]types.Empty, dat types.ServerDat
 			}
 			i++
 		}
+		dat.Lock.RUnlock()
 
 		params = append([]interface{}{pref}, params...)
 		params[len(params)-1] = obscure(params[len(params)-1].(string))

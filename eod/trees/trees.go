@@ -3,19 +3,18 @@ package trees
 import (
 	"fmt"
 	"strings"
-	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
 // Tree calculator
 type Tree struct {
-	text      *strings.Builder
-	rawTxt    *strings.Builder
-	elemCache map[string]types.Element
-	calced    map[string]types.Empty
-	num       int
-	lock      *sync.RWMutex
+	text   *strings.Builder
+	rawTxt *strings.Builder
+	calced map[string]types.Empty
+	num    int
+
+	dat types.ServerData
 }
 
 func (t *Tree) AddElem(elem string) (bool, string) {
@@ -68,7 +67,7 @@ func (t *Tree) AddElem(elem string) (bool, string) {
 }
 
 // Tree calculation utilities
-func CalcTree(elemCache map[string]types.Element, elem string, lock *sync.RWMutex) (string, bool, string) {
+func CalcTree(dat types.ServerData, elem string) (string, bool, string) {
 	// Commented out code is for profiling
 
 	/*runtime.GC()
@@ -76,12 +75,11 @@ func CalcTree(elemCache map[string]types.Element, elem string, lock *sync.RWMute
 	pprof.StartCPUProfile(cpuprof)*/
 
 	t := Tree{
-		text:      &strings.Builder{},
-		rawTxt:    &strings.Builder{},
-		elemCache: elemCache,
-		calced:    make(map[string]types.Empty),
-		num:       1,
-		lock:      lock,
+		text:   &strings.Builder{},
+		rawTxt: &strings.Builder{},
+		calced: make(map[string]types.Empty),
+		num:    1,
+		dat:    dat,
 	}
 	suc, msg := t.AddElem(elem)
 
@@ -97,7 +95,7 @@ func CalcTree(elemCache map[string]types.Element, elem string, lock *sync.RWMute
 	return text, suc, msg
 }
 
-func CalcTreeCat(elemCache map[string]types.Element, elems map[string]types.Empty, lock *sync.RWMutex) (string, bool, string) {
+func CalcTreeCat(dat types.ServerData, elems types.Container) (string, bool, string) {
 	// Commented out code is for profiling
 
 	/*runtime.GC()
@@ -105,12 +103,11 @@ func CalcTreeCat(elemCache map[string]types.Element, elems map[string]types.Empt
 	pprof.StartCPUProfile(cpuprof)*/
 
 	t := Tree{
-		text:      &strings.Builder{},
-		rawTxt:    &strings.Builder{},
-		elemCache: elemCache,
-		calced:    make(map[string]types.Empty),
-		num:       1,
-		lock:      lock,
+		text:   &strings.Builder{},
+		rawTxt: &strings.Builder{},
+		calced: make(map[string]types.Empty),
+		num:    1,
+		dat:    dat,
 	}
 	for elem := range elems {
 		suc, msg := t.AddElem(elem)

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"strings"
-	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/goccy/go-graphviz"
@@ -17,8 +16,7 @@ type Graph struct {
 	finished bool
 	special  *strings.Builder
 
-	lock      *sync.RWMutex
-	elemCache map[string]types.Element
+	dat types.ServerData
 }
 
 func NewGraph(dat types.ServerData) (*Graph, error) {
@@ -34,8 +32,7 @@ func NewGraph(dat types.ServerData) (*Graph, error) {
 		special:  &strings.Builder{},
 		finished: false,
 
-		elemCache: dat.ElemCache,
-		lock:      dat.Lock,
+		dat: dat,
 	}, nil
 }
 
