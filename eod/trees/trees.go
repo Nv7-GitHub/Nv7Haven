@@ -20,10 +20,8 @@ type Tree struct {
 func (t *Tree) AddElem(elem string) (bool, string) {
 	_, exists := t.calced[strings.ToLower(elem)]
 	if !exists {
-		t.lock.RLock()
-		el, exists := t.elemCache[strings.ToLower(elem)]
-		t.lock.RUnlock()
-		if !exists {
+		el, res := t.dat.GetElement(elem)
+		if !res.Exists {
 			return false, elem
 		}
 		if len(el.Parents) == 1 {
@@ -49,9 +47,8 @@ func (t *Tree) AddElem(elem string) (bool, string) {
 			} else {
 				perf.WriteString(" + %s")
 			}
-			t.lock.RLock()
-			params[i] = interface{}(t.elemCache[strings.ToLower(val)].Name)
-			t.lock.RUnlock()
+			el, _ := t.dat.GetElement(val)
+			params[i] = interface{}(el.Name)
 		}
 		params = append([]interface{}{t.num}, params...)
 		params = append(params, el.Name)
