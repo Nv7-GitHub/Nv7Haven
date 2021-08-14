@@ -229,13 +229,13 @@ func (b *EoD) getColor(guild, id string) (int, error) {
 	return 0, errors.New("eod: color not found")
 }
 
-func isASCII(s string) bool {
+func isUnicode(s string) bool {
 	for i := 0; i < len(s); i++ {
 		if s[i] > unicode.MaxASCII {
-			return false
+			return true
 		}
 	}
-	return true
+	return false
 }
 
 var wildcards = map[rune]types.Empty{

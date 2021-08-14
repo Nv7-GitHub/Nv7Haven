@@ -127,8 +127,8 @@ func (b *EoD) genIdea(count int, catName string, hasCat bool, elemName string, h
 
 		query := "SELECT elem3 FROM eod_combos WHERE elems LIKE ? AND guild=?"
 		els := elems2txt(elems)
-		if isASCII(els) {
-			query = "SELECT elem3 FROM eod_combos WHERE CONVERT(elems USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND guild=CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci"
+		if isUnicode(els) {
+			query = "SELECT elem3 FROM eod_combos WHERE CONVERT(elems USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND guild=CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci"
 		}
 		row := b.db.QueryRow(query, els, guild)
 		err := row.Scan(&elem3)

@@ -169,8 +169,8 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, in
 	var args []interface{}
 	if !inverse {
 		query = "SELECT elems FROM eod_combos WHERE elem3 LIKE ? AND guild=?"
-		if isASCII(elem) {
-			query = "SELECT elems FROM eod_combos WHERE CONVERT(elem3 USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND guild=CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci"
+		if isUnicode(elem) {
+			query = "SELECT elems FROM eod_combos WHERE CONVERT(elem3 USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND guild=CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci"
 		}
 		args = []interface{}{elem, guild}
 		if isWildcard(elem) {

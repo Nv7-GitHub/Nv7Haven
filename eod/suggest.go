@@ -100,8 +100,8 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m types.Msg, rs
 	data := elems2txt(comb.Elems)
 	query := "SELECT COUNT(1) FROM eod_combos WHERE guild=? AND elems LIKE ?"
 
-	if isASCII(data) {
-		query = "SELECT COUNT(1) FROM eod_combos WHERE guild=CONVERT(? USING utf8mb4) AND CONVERT(elems USING utf8mb4) LIKE CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci"
+	if isUnicode(data) {
+		query = "SELECT COUNT(1) FROM eod_combos WHERE guild=CONVERT(? USING utf8mb4) AND CONVERT(elems USING utf8mb4) LIKE CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci"
 	}
 
 	if isWildcard(data) {
