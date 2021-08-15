@@ -13,6 +13,7 @@ var combs = []string{
 	"\n",
 	"+",
 	",",
+	"plus",
 }
 
 func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
