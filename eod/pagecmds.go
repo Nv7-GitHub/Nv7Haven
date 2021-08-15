@@ -121,6 +121,8 @@ func (b *EoD) foundCmd(elem string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 
+	rsp.Acknowledge()
+
 	el, res := dat.GetElement(elem)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
