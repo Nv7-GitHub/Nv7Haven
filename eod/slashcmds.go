@@ -717,6 +717,18 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "found",
+			Description: "See the user's who have found an element!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "element",
+					Description: "Name of the element!",
+					Required:    true,
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -1022,6 +1034,10 @@ var (
 				return
 			}
 			bot.info(elem, id, isID, bot.newMsgSlash(i), rsp)
+		},
+		"found": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
+			bot.foundCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )
