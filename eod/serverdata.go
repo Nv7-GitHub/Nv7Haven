@@ -270,7 +270,7 @@ func (b *EoD) setUserColor(color string, removeColor bool, m types.Msg, rsp type
 	}
 
 	if removeColor {
-		rsp.ErrorMessage("You don't have a color!!")
+		rsp.ErrorMessage("You don't have a color!")
 		return
 	}
 

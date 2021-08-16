@@ -143,6 +143,7 @@ func NewServerData() ServerData {
 	return ServerData{
 		Lock:          &sync.RWMutex{},
 		ComponentMsgs: make(map[string]ComponentMsg),
+		UserColors:    make(map[string]int),
 	}
 }
 
