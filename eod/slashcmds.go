@@ -1058,14 +1058,14 @@ var (
 		"setcolor": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			color := ""
-			hasColor := false
+			rmColor := true
 			for _, opt := range resp.Options {
 				if opt.Name == "color" {
-					hasColor = true
+					rmColor = false
 					color = opt.StringValue()
 				}
 			}
-			bot.setUserColor(color, hasColor, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.setUserColor(color, rmColor, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )
