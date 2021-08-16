@@ -257,6 +257,7 @@ func (b *EoD) info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
 }
 
 func (b *EoD) infoCmd(elem string, m types.Msg, rsp types.Rsp) {
+	elem = strings.TrimSpace(elem)
 	if elem[0] == '#' {
 		number, err := strconv.Atoi(elem[1:])
 		if err != nil {

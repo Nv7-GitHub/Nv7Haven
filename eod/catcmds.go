@@ -20,6 +20,8 @@ func (b *EoD) catCmd(category string, sortKind string, hasUser bool, user string
 		return
 	}
 
+	category = strings.TrimSpace(category)
+
 	if isFoolsMode && !isFool(category) {
 		rsp.ErrorMessage(makeFoolResp(category))
 		return

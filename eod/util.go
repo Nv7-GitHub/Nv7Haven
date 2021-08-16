@@ -301,3 +301,12 @@ func makeFoolResp(val string) string {
 func escapeElement(elem string) string {
 	return strings.ReplaceAll(elem, "\\", "\\\\")
 }
+
+func splitByCombs(inp string) []string {
+	for _, val := range combs {
+		if strings.Contains(inp, val) {
+			return strings.Split(inp, val)
+		}
+	}
+	return []string{inp}
+}

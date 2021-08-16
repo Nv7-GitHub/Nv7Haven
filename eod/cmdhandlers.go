@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -111,10 +112,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 
 			catName := strings.TrimSpace(txt[:sepPos])
-			elems := strings.Split(txt[sepPos+1:], ",")
-			for i, elem := range elems {
-				elems[i] = strings.TrimSpace(elem)
-			}
+			elems := util.TrimArray(splitByCombs(txt[sepPos+1:]))
 
 			b.categoryCmd(elems, catName, msg, rsp)
 			return
@@ -132,10 +130,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 
 			catName := strings.TrimSpace(txt[:sepPos])
-			elems := strings.Split(txt[sepPos+1:], ",")
-			for i, elem := range elems {
-				elems[i] = strings.TrimSpace(elem)
-			}
+			elems := util.TrimArray(splitByCombs(txt[sepPos+1:]))
 
 			b.rmCategoryCmd(elems, catName, msg, rsp)
 			return
