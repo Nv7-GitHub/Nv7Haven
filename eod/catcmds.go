@@ -11,14 +11,7 @@ import (
 const x = "❌"
 const check = "✅"
 
-const (
-	catSortAlphabetical   = 0
-	catSortByFound        = 1
-	catSortByNotFound     = 2
-	catSortByElementCount = 3
-)
-
-func (b *EoD) catCmd(category string, sortKind int, hasUser bool, user string, m types.Msg, rsp types.Rsp) {
+func (b *EoD) catCmd(category string, sortKind string, hasUser bool, user string, m types.Msg, rsp types.Rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -84,20 +77,23 @@ func (b *EoD) catCmd(category string, sortKind int, hasUser bool, user string, m
 	}
 
 	switch sortKind {
-	case catSortByFound:
+	case "catfound":
 		sort.Slice(out, func(i, j int) bool {
 			return out[i].found > out[j].found
 		})
 
-	case catSortByNotFound:
+	case "catnotfound":
 		sort.Slice(out, func(i, j int) bool {
 			return out[i].found < out[j].found
 		})
 
 	default:
+		sorter := sorts[sortKind]
+		dat.Lock.RLock()
 		sort.Slice(out, func(i, j int) bool {
-			return compareStrings(out[i].name, out[j].name)
+			return sorter(out[i].name, out[j].name, dat)
 		})
+		dat.Lock.RUnlock()
 	}
 
 	o := make([]string, len(out))
@@ -121,7 +117,7 @@ type catData struct {
 	count int
 }
 
-func (b *EoD) allCatCmd(sortBy int, hasUser bool, user string, m types.Msg, rsp types.Rsp) {
+func (b *EoD) allCatCmd(sortBy string, hasUser bool, user string, m types.Msg, rsp types.Rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -168,25 +164,28 @@ func (b *EoD) allCatCmd(sortBy int, hasUser bool, user string, m types.Msg, rsp 
 	dat.Lock.RUnlock()
 
 	switch sortBy {
-	case catSortByFound:
+	case "catfound":
 		sort.Slice(out, func(i, j int) bool {
 			return out[i].found > out[j].found
 		})
 
-	case catSortByNotFound:
+	case "catnotfound":
 		sort.Slice(out, func(i, j int) bool {
 			return out[i].found < out[j].found
 		})
 
-	case catSortAlphabetical:
-		sort.Slice(out, func(i, j int) bool {
-			return compareStrings(out[i].name, out[j].name)
-		})
-
-	case catSortByElementCount:
+	case "catelemcount":
 		sort.Slice(out, func(i, j int) bool {
 			return out[i].count > out[j].count
 		})
+
+	default:
+		sorter := sorts[sortBy]
+		dat.Lock.RLock()
+		sort.Slice(out, func(i, j int) bool {
+			return sorter(out[i].name, out[j].name, dat)
+		})
+		dat.Lock.RUnlock()
 	}
 
 	names := make([]string, len(out))

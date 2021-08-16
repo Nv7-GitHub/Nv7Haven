@@ -240,24 +240,20 @@ var (
 					Name:        "sort",
 					Description: "How to sort the elements of the category!",
 					Required:    false,
-					Choices: []*discordgo.ApplicationCommandOptionChoice{
-						{
-							Name:  "Alphabetical",
-							Value: catSortAlphabetical,
-						},
+					Choices: append([]*discordgo.ApplicationCommandOptionChoice{
 						{
 							Name:  "Found",
-							Value: catSortByFound,
+							Value: "catfound",
 						},
 						{
 							Name:  "Not Found",
-							Value: catSortByNotFound,
+							Value: "catnotfound",
 						},
 						{
 							Name:  "Element Count",
-							Value: catSortByElementCount,
+							Value: "catelemcount",
 						},
-					},
+					}, sortChoices...),
 				},
 				{
 					Type:        discordgo.ApplicationCommandOptionUser,
@@ -810,7 +806,7 @@ var (
 		"cat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			isAll := true
-			sort := catSortAlphabetical
+			sort := "name"
 			catName := ""
 			hasUser := false
 			var user string
@@ -821,7 +817,7 @@ var (
 				}
 
 				if val.Name == "sort" {
-					sort = int(val.IntValue())
+					sort = val.StringValue()
 				}
 
 				if val.Name == "user" {

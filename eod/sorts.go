@@ -99,9 +99,10 @@ func compareStrings(a, b string) bool {
 }
 
 func sortElemList(elems []string, sortName string, dat types.ServerData) {
+	sorter := sorts[sortName]
 	dat.Lock.RLock()
 	sort.Slice(elems, func(i, j int) bool {
-		return sorts[sortName](elems[i], elems[j], dat)
+		return sorter(elems[i], elems[j], dat)
 	})
 	dat.Lock.RUnlock()
 }
