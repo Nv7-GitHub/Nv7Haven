@@ -236,7 +236,7 @@ var (
 					Required:    false,
 				},
 				{
-					Type:        discordgo.ApplicationCommandOptionInteger,
+					Type:        discordgo.ApplicationCommandOptionString,
 					Name:        "sort",
 					Description: "How to sort the elements of the category!",
 					Required:    false,
