@@ -139,12 +139,25 @@ var (
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
 					Name:        "sortby",
-					Description: "How to sort the inventory",
+					Description: "How to sort the inventory!",
 					Required:    false,
-					Choices: append([]*discordgo.ApplicationCommandOptionChoice{{
-						Name:  "Made By",
-						Value: "madeby",
-					}}, sortChoices...),
+					Choices:     sortChoices,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "filter",
+					Description: "How to filter the inventory!",
+					Required:    false,
+					Choices: []*discordgo.ApplicationCommandOptionChoice{
+						{
+							Name:  "None",
+							Value: "none",
+						},
+						{
+							Name:  "Made By",
+							Value: "madeby",
+						},
+					},
 				},
 			},
 		},
@@ -502,12 +515,25 @@ var (
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
 					Name:        "sortby",
-					Description: "How to sort the inventory",
+					Description: "How to sort the inventory!",
 					Required:    false,
-					Choices: append([]*discordgo.ApplicationCommandOptionChoice{{
-						Name:  "Made By",
-						Value: "madeby",
-					}}, sortChoices...),
+					Choices:     sortChoices,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "filter",
+					Description: "How to filter the inventory!",
+					Required:    false,
+					Choices: []*discordgo.ApplicationCommandOptionChoice{
+						{
+							Name:  "None",
+							Value: "none",
+						},
+						{
+							Name:  "Made By",
+							Value: "madeby",
+						},
+					},
 				},
 			},
 		},
@@ -746,17 +772,22 @@ var (
 		"inv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			sortby := "name"
+			filter := "none"
 			id := i.Member.User.ID
 			for _, val := range resp.Options {
 				if val.Name == "sortby" {
 					sortby = val.StringValue()
 				}
 
+				if val.Name == "filter" {
+					filter = val.StringValue()
+				}
+
 				if val.Name == "user" {
 					id = val.UserValue(bot.dg).ID
 				}
 			}
-			bot.invCmd(id, bot.newMsgSlash(i), bot.newRespSlash(i), sortby)
+			bot.invCmd(id, bot.newMsgSlash(i), bot.newRespSlash(i), sortby, filter)
 		},
 		"lb": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -899,17 +930,22 @@ var (
 		"downloadinv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			sortby := "name"
+			filter := "none"
 			id := i.Member.User.ID
 			for _, val := range resp.Options {
 				if val.Name == "sortby" {
 					sortby = val.StringValue()
 				}
 
+				if val.Name == "filter" {
+					filter = val.StringValue()
+				}
+
 				if val.Name == "user" {
 					id = val.UserValue(bot.dg).ID
 				}
 			}
-			bot.downloadInvCmd(id, sortby, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.downloadInvCmd(id, sortby, filter, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"catpath": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()

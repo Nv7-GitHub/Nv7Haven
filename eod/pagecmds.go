@@ -6,7 +6,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
-func (b *EoD) invCmd(user string, m types.Msg, rsp types.Rsp, sorter string) {
+func (b *EoD) invCmd(user string, m types.Msg, rsp types.Rsp, sorter string, filter string) {
 	rsp.Acknowledge()
 
 	lock.RLock()
@@ -31,7 +31,7 @@ func (b *EoD) invCmd(user string, m types.Msg, rsp types.Rsp, sorter string) {
 		i++
 	}
 
-	switch sorter {
+	switch filter {
 	case "madeby":
 		count := 0
 		outs := make([]string, len(items))
@@ -47,11 +47,9 @@ func (b *EoD) invCmd(user string, m types.Msg, rsp types.Rsp, sorter string) {
 			}
 		}
 		outs = outs[:count]
-		sortStrings(outs)
 		items = outs
-	default:
-		sortElemList(items, sorter, dat)
 	}
+	sortElemList(items, sorter, dat)
 	dat.Lock.RUnlock()
 
 	name := m.Author.Username
