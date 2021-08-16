@@ -19,7 +19,7 @@ func (b *EoD) elemBreakdownCmd(elem string, calcTree bool, m types.Msg, rsp type
 	}
 
 	el, res := dat.GetElement(elem)
-	if !exists {
+	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
 		return
 	}
