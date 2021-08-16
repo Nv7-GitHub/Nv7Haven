@@ -11,5 +11,6 @@ Use **/elemsort** to view a sorted list of the elements in your server
 Use **/graph** or **/catgraph** to create a visual graph of an element
 Use **/found** to see the users who have found an element
 Use **/setcolor** to change your embed color
+Use **/invhint** to see what you can make with an element
 
 You can head over to the **Setup** section to learn how to set up the bot in your own discord server!
