@@ -87,6 +87,10 @@ func (b *EoD) catCmd(category string, sortKind string, hasUser bool, user string
 			return out[i].found < out[j].found
 		})
 
+	case "catelemcount":
+		rsp.ErrorMessage("Invalid sort!")
+		return
+
 	default:
 		sorter := sorts[sortKind]
 		dat.Lock.RLock()
@@ -180,12 +184,9 @@ func (b *EoD) allCatCmd(sortBy string, hasUser bool, user string, m types.Msg, r
 		})
 
 	default:
-		sorter := sorts[sortBy]
-		dat.Lock.RLock()
 		sort.Slice(out, func(i, j int) bool {
-			return sorter(out[i].name, out[j].name, dat)
+			return compareStrings(out[i].name, out[j].name)
 		})
-		dat.Lock.RUnlock()
 	}
 
 	names := make([]string, len(out))
