@@ -273,12 +273,6 @@ var (
 					Description: "Name of the element!",
 					Required:    false,
 				},
-				{
-					Type:        discordgo.ApplicationCommandOptionBoolean,
-					Name:        "inverse",
-					Description: "Whether its an inverse hint!",
-					Required:    false,
-				},
 			},
 		},
 		{
@@ -735,6 +729,18 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "invhint",
+			Description: "Get the inverse hint of an element!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "element",
+					Description: "Name of the element!",
+					Required:    true,
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -849,19 +855,14 @@ var (
 			resp := i.ApplicationCommandData()
 			hasElem := false
 			var elem string
-			inverse := false
 			for _, opt := range resp.Options {
 				if opt.Name == "element" {
 					hasElem = true
 					elem = opt.StringValue()
 				}
-
-				if opt.Name == "inverse" {
-					inverse = opt.BoolValue()
-				}
 			}
 
-			bot.hintCmd(elem, hasElem, inverse, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.hintCmd(elem, hasElem, false, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"stats": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.statsCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
@@ -1066,6 +1067,10 @@ var (
 				}
 			}
 			bot.setUserColor(color, rmColor, bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"invhint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
+			bot.hintCmd(resp.Options[0].StringValue(), true, true, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )
