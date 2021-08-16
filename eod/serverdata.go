@@ -248,7 +248,7 @@ func (b *EoD) setUserColor(color string, removeColor bool, m types.Msg, rsp type
 
 	// Remove color
 	if cnt == 1 && removeColor {
-		_, err = b.db.Exec("DELETE FROM eod_serverdata WHERE guild=? AND type=? AND value1=?", m.GuildID, types.PlayChannel, m.Author.ID)
+		_, err = b.db.Exec("DELETE FROM eod_serverdata WHERE guild=? AND type=? AND value1=?", m.GuildID, types.UserColor, m.Author.ID)
 		if rsp.Error(err) {
 			return
 		}
@@ -265,7 +265,7 @@ func (b *EoD) setUserColor(color string, removeColor bool, m types.Msg, rsp type
 		b.dat[m.GuildID] = dat
 		lock.Unlock()
 
-		rsp.Resp("Successfully reset color.")
+		rsp.Resp("Successfully reset color!")
 		return
 	}
 
@@ -289,12 +289,12 @@ func (b *EoD) setUserColor(color string, removeColor bool, m types.Msg, rsp type
 
 	// Update
 	if cnt == 1 {
-		_, err = b.db.Exec("UPDATE eod_serverdata SET intval=? WHERE guild=? AND type=? AND value1=?", int(col), m.GuildID, types.ModRole, m.Author.ID)
+		_, err = b.db.Exec("UPDATE eod_serverdata SET intval=? WHERE guild=? AND type=? AND value1=?", int(col), m.GuildID, types.UserColor, m.Author.ID)
 		if rsp.Error(err) {
 			return
 		}
 	} else {
-		_, err = b.db.Exec("INSERT INTO eod_serverdata VALUES ( ?, ?, ?, ? )", m.GuildID, types.ModRole, m.Author.ID, int(col))
+		_, err = b.db.Exec("INSERT INTO eod_serverdata VALUES ( ?, ?, ?, ? )", m.GuildID, types.UserColor, m.Author.ID, int(col))
 		if rsp.Error(err) {
 			return
 		}
@@ -314,5 +314,9 @@ func (b *EoD) setUserColor(color string, removeColor bool, m types.Msg, rsp type
 	b.dat[m.GuildID] = dat
 	lock.Unlock()
 
-	rsp.Resp("Succesfully marked channel as play channel!")
+	if cnt == 0 {
+		rsp.Resp("Successfully set color!")
+	} else {
+		rsp.Resp("Successfully updated color!")
+	}
 }
