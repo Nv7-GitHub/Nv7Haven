@@ -759,11 +759,11 @@ var (
 		},
 		"mark": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.markCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.markCmd(strings.TrimSpace(resp.Options[0].StringValue()), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"image": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.imageCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.imageCmd(strings.TrimSpace(resp.Options[0].StringValue()), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"inv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -795,10 +795,10 @@ var (
 		},
 		"addcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			suggestAdd := []string{resp.Options[1].StringValue()}
+			suggestAdd := []string{strings.TrimSpace(resp.Options[1].StringValue())}
 			if len(resp.Options) > 2 {
 				for _, val := range resp.Options[2:] {
-					suggestAdd = append(suggestAdd, val.StringValue())
+					suggestAdd = append(suggestAdd, strings.TrimSpace(val.StringValue()))
 				}
 			}
 			bot.categoryCmd(suggestAdd, resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
@@ -813,7 +813,7 @@ var (
 			for _, val := range resp.Options {
 				if val.Name == "category" {
 					isAll = false
-					catName = val.StringValue()
+					catName = strings.TrimSpace(val.StringValue())
 				}
 
 				if val.Name == "sort" {
@@ -841,7 +841,7 @@ var (
 			for _, opt := range resp.Options {
 				if opt.Name == "element" {
 					hasElem = true
-					elem = opt.StringValue()
+					elem = strings.TrimSpace(opt.StringValue())
 				}
 
 				if opt.Name == "inverse" {
@@ -872,7 +872,7 @@ var (
 		},
 		"path": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.calcTreeCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.calcTreeCmd(strings.TrimSpace(resp.Options[0].StringValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"elemsort": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -887,13 +887,13 @@ var (
 		},
 		"rmcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			suggestAdd := []string{resp.Options[1].StringValue()}
+			suggestAdd := []string{strings.TrimSpace(resp.Options[1].StringValue())}
 			if len(resp.Options) > 2 {
 				for _, val := range resp.Options[2:] {
 					suggestAdd = append(suggestAdd, val.StringValue())
 				}
 			}
-			bot.rmCategoryCmd(suggestAdd, resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.rmCategoryCmd(suggestAdd, strings.TrimSpace(resp.Options[0].StringValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"idea": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -909,19 +909,19 @@ var (
 
 				if opt.Name == "category" {
 					hasCat = true
-					catName = opt.StringValue()
+					catName = strings.TrimSpace(opt.StringValue())
 				}
 
 				if opt.Name == "element" {
 					hasEl = true
-					elName = opt.StringValue()
+					elName = strings.TrimSpace(opt.StringValue())
 				}
 			}
 			bot.ideaCmd(count, catName, hasCat, elName, hasEl, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"catimg": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.catImgCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.catImgCmd(strings.TrimSpace(resp.Options[0].StringValue()), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"downloadinv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -945,7 +945,7 @@ var (
 		},
 		"catpath": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.calcTreeCatCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.calcTreeCatCmd(strings.TrimSpace(resp.Options[0].StringValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"breakdown": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -953,7 +953,7 @@ var (
 			if len(resp.Options) > 1 {
 				calctree = resp.Options[1].BoolValue()
 			}
-			bot.elemBreakdownCmd(resp.Options[0].StringValue(), calctree, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.elemBreakdownCmd(strings.TrimSpace(resp.Options[0].StringValue()), calctree, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"catbreakdown": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -961,7 +961,7 @@ var (
 			if len(resp.Options) > 1 {
 				calctree = resp.Options[1].BoolValue()
 			}
-			bot.catBreakdownCmd(resp.Options[0].StringValue(), calctree, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.catBreakdownCmd(strings.TrimSpace(resp.Options[0].StringValue()), calctree, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"graph": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -971,7 +971,7 @@ var (
 			special := false
 			for _, opt := range resp.Options {
 				if opt.Name == "element" {
-					elem = opt.StringValue()
+					elem = strings.TrimSpace(opt.StringValue())
 				}
 
 				if opt.Name == "output_type" {
@@ -996,7 +996,7 @@ var (
 			special := false
 			for _, opt := range resp.Options {
 				if opt.Name == "category" {
-					catName = opt.StringValue()
+					catName = strings.TrimSpace(opt.StringValue())
 				}
 
 				if opt.Name == "output_type" {
@@ -1020,7 +1020,7 @@ var (
 			isID := false
 			for _, opt := range resp.Options {
 				if opt.Name == "element" {
-					elem = opt.StringValue()
+					elem = strings.TrimSpace(opt.StringValue())
 				}
 
 				if opt.Name == "id" {
@@ -1041,7 +1041,7 @@ var (
 		},
 		"found": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.foundCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.foundCmd(strings.TrimSpace(resp.Options[0].StringValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )
