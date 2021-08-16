@@ -728,7 +728,7 @@ var (
 			Description: "Set your embed color! If you don't provide a color, it will reset your color.",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionRole,
+					Type:        discordgo.ApplicationCommandOptionString,
 					Name:        "color",
 					Description: "Hex code to set your embed color too",
 					Required:    false,
