@@ -303,22 +303,6 @@ func toTitle(s string) string {
 	return strings.Join(words, " ")
 }
 
-// Less
-func compareStrings(a, b string) bool {
-	fl1, err := strconv.ParseFloat(a, 32)
-	fl2, err2 := strconv.ParseFloat(b, 32)
-	if err == nil && err2 == nil {
-		return fl1 < fl2
-	}
-	return a < b
-}
-
-func sortStrings(arr []string) {
-	sort.Slice(arr, func(i, j int) bool {
-		return compareStrings(arr[i], arr[j])
-	})
-}
-
 // FOOLS
 //go:embed fools.txt
 var foolsRaw string

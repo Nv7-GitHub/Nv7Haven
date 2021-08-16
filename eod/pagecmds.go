@@ -2,7 +2,6 @@ package eod
 
 import (
 	"fmt"
-	"sort"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
@@ -33,20 +32,6 @@ func (b *EoD) invCmd(user string, m types.Msg, rsp types.Rsp, sorter string) {
 	}
 
 	switch sorter {
-	case "id":
-		sort.Slice(items, func(i, j int) bool {
-			elem1, res := dat.GetElement(items[i], true)
-			if !res.Exists {
-				return false
-			}
-
-			elem2, res := dat.GetElement(items[j])
-			if !res.Exists {
-				return false
-			}
-			return elem1.CreatedOn.Before(elem2.CreatedOn)
-		})
-
 	case "madeby":
 		count := 0
 		outs := make([]string, len(items))
@@ -64,14 +49,8 @@ func (b *EoD) invCmd(user string, m types.Msg, rsp types.Rsp, sorter string) {
 		outs = outs[:count]
 		sortStrings(outs)
 		items = outs
-
-	case "length":
-		sort.Slice(items, func(i, j int) bool {
-			return len(items[i]) < len(items[j])
-		})
-
 	default:
-		sortStrings(items)
+		sortElemList(items, sorter, dat)
 	}
 	dat.Lock.RUnlock()
 

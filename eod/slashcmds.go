@@ -141,24 +141,10 @@ var (
 					Name:        "sortby",
 					Description: "How to sort the inventory",
 					Required:    false,
-					Choices: []*discordgo.ApplicationCommandOptionChoice{
-						{
-							Name:  "Name",
-							Value: "name",
-						},
-						{
-							Name:  "Element ID",
-							Value: "id",
-						},
-						{
-							Name:  "Made By",
-							Value: "madeby",
-						},
-						{
-							Name:  "Name Length",
-							Value: "length",
-						},
-					},
+					Choices: append([]*discordgo.ApplicationCommandOptionChoice{{
+						Name:  "Made By",
+						Value: "madeby",
+					}}, sortChoices...),
 				},
 			},
 		},
@@ -518,24 +504,10 @@ var (
 					Name:        "sortby",
 					Description: "How to sort the inventory",
 					Required:    false,
-					Choices: []*discordgo.ApplicationCommandOptionChoice{
-						{
-							Name:  "Name",
-							Value: "name",
-						},
-						{
-							Name:  "Element ID",
-							Value: "id",
-						},
-						{
-							Name:  "Made By",
-							Value: "madeby",
-						},
-						{
-							Name:  "Name Length",
-							Value: "length",
-						},
-					},
+					Choices: append([]*discordgo.ApplicationCommandOptionChoice{{
+						Name:  "Made By",
+						Value: "madeby",
+					}}, sortChoices...),
 				},
 			},
 		},
