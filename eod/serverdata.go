@@ -1,6 +1,8 @@
 package eod
 
 import (
+	"strconv"
+
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
@@ -234,4 +236,83 @@ func (b *EoD) setModRole(roleID string, msg types.Msg, rsp types.Rsp) {
 	lock.Unlock()
 
 	rsp.Resp("Succesfully updated mod role!")
+}
+
+func (b *EoD) setUserColor(color string, removeColor bool, m types.Msg, rsp types.Rsp) {
+	row := b.db.QueryRow("SELECT COUNT(1) FROM eod_serverdata WHERE guild=? AND type=? AND value1=?", m.GuildID, types.UserColor, m.Author.ID)
+	var cnt int
+	err := row.Scan(&cnt)
+	if rsp.Error(err) {
+		return
+	}
+
+	// Remove color
+	if cnt == 1 && removeColor {
+		_, err = b.db.Exec("DELETE FROM eod_serverdata WHERE guild=? AND type=? AND value1=?", m.GuildID, types.PlayChannel, m.Author.ID)
+		if rsp.Error(err) {
+			return
+		}
+
+		lock.RLock()
+		dat, exists := b.dat[m.GuildID]
+		lock.RUnlock()
+		if !exists {
+			rsp.ErrorMessage("Guild not set up yet!")
+			return
+		}
+		delete(dat.UserColors, m.Author.ID)
+		lock.Lock()
+		b.dat[m.GuildID] = dat
+		lock.Unlock()
+
+		rsp.Resp("Successfully reset color.")
+		return
+	}
+
+	if removeColor {
+		rsp.ErrorMessage("You don't have a color!!")
+		return
+	}
+
+	// Parse
+	if len(color) > 0 && color[0] == '#' {
+		color = color[1:]
+	}
+	if len(color) != 6 {
+		rsp.ErrorMessage("A hex color must be 6 characters long!")
+		return
+	}
+	col, err := strconv.ParseInt(color, 16, 64)
+	if rsp.Error(err) {
+		return
+	}
+
+	// Update
+	if cnt == 1 {
+		_, err = b.db.Exec("UPDATE eod_serverdata SET intval=? WHERE guild=? AND type=? AND value1=?", int(col), m.GuildID, types.ModRole, m.Author.ID)
+		if rsp.Error(err) {
+			return
+		}
+	} else {
+		_, err = b.db.Exec("INSERT INTO eod_serverdata VALUES ( ?, ?, ?, ? )", m.GuildID, types.ModRole, m.Author.ID, int(col))
+		if rsp.Error(err) {
+			return
+		}
+	}
+
+	lock.RLock()
+	dat, exists := b.dat[m.GuildID]
+	lock.RUnlock()
+	if !exists {
+		dat = types.NewServerData()
+	}
+	if dat.PlayChannels == nil {
+		dat.PlayChannels = make(map[string]types.Empty)
+	}
+	dat.UserColors[m.Author.ID] = int(col)
+	lock.Lock()
+	b.dat[m.GuildID] = dat
+	lock.Unlock()
+
+	rsp.Resp("Succesfully marked channel as play channel!")
 }

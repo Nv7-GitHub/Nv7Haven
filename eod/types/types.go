@@ -21,6 +21,7 @@ const (
 	VoteCount     = 3
 	PollCount     = 4
 	ModRole       = 5
+	UserColor     = 6
 
 	PollCombo        = 0
 	PollCategorize   = 1
@@ -40,6 +41,7 @@ type ComponentMsg interface {
 
 type ServerData struct {
 	PlayChannels  Container // channelID
+	UserColors    map[string]int
 	VotingChannel string
 	NewsChannel   string
 	VoteCount     int

@@ -723,6 +723,18 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "setcolor",
+			Description: "Set your embed color! If you don't provide a color, it will reset your color.",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionRole,
+					Name:        "color",
+					Description: "Hex code to set your embed color too",
+					Required:    false,
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -1042,6 +1054,18 @@ var (
 		"found": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			bot.foundCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"setcolor": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
+			color := ""
+			hasColor := false
+			for _, opt := range resp.Options {
+				if opt.Name == "color" {
+					hasColor = true
+					color = opt.StringValue()
+				}
+			}
+			bot.setUserColor(color, hasColor, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
 const x = "❌"
@@ -108,7 +109,7 @@ func (b *EoD) catCmd(category string, sortKind string, hasUser bool, user string
 	b.newPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
 		Thumbnail:  cat.Image,
-		Title:      fmt.Sprintf("%s (%d, %s%%)", category, len(out), formatFloat(float32(found)/float32(len(out))*100, 2)),
+		Title:      fmt.Sprintf("%s (%d, %s%%)", category, len(out), util.FormatFloat(float32(found)/float32(len(out))*100, 2)),
 		PageGetter: b.invPageGetter,
 		Items:      o,
 	}, m, rsp)
@@ -153,7 +154,7 @@ func (b *EoD) allCatCmd(sortBy string, hasUser bool, user string, m types.Msg, r
 		}
 
 		perc := float32(count) / float32(len(cat.Elements))
-		text := "(" + formatFloat(perc*100, 2) + "%)"
+		text := "(" + util.FormatFloat(perc*100, 2) + "%)"
 		if count == len(cat.Elements) {
 			text = check
 		}

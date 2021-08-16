@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -38,7 +39,7 @@ func (b *EoD) statsCmd(m types.Msg, rsp types.Rsp) {
 		categorized += len(val.Elements)
 	}
 
-	rsp.Message(fmt.Sprintf("Element Count: **%s**\nCombination Count: **%s**\nMember Count: **%s**\nElements Found: **%s**\nElements Categorized: **%s**", formatInt(len(dat.Elements)), formatInt(cnt), formatInt(gd.MemberCount), formatInt(found), formatInt(categorized)), discordgo.ActionsRow{
+	rsp.Message(fmt.Sprintf("Element Count: **%s**\nCombination Count: **%s**\nMember Count: **%s**\nElements Found: **%s**\nElements Categorized: **%s**", util.FormatInt(len(dat.Elements)), util.FormatInt(cnt), util.FormatInt(gd.MemberCount), util.FormatInt(found), util.FormatInt(categorized)), discordgo.ActionsRow{
 		Components: []discordgo.MessageComponent{
 			discordgo.Button{
 				Label: "View More Stats",

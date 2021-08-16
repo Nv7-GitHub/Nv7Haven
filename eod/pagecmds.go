@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
 func (b *EoD) invCmd(user string, m types.Msg, rsp types.Rsp, sorter string, filter string) {
@@ -62,7 +63,7 @@ func (b *EoD) invCmd(user string, m types.Msg, rsp types.Rsp, sorter string, fil
 	}
 	b.newPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
-		Title:      fmt.Sprintf("%s's Inventory (%d, %s%%)", name, len(items), formatFloat(float32(len(items))/float32(len(dat.Elements))*100, 2)),
+		Title:      fmt.Sprintf("%s's Inventory (%d, %s%%)", name, len(items), util.FormatFloat(float32(len(items))/float32(len(dat.Elements))*100, 2)),
 		PageGetter: b.invPageGetter,
 		Items:      items,
 	}, m, rsp)

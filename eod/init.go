@@ -102,6 +102,21 @@ func (b *EoD) init() {
 			//lock.Lock()
 			b.dat[guild] = dat
 			//lock.Unlock()
+
+		case types.UserColor:
+			//lock.RLock()
+			dat, exists := b.dat[guild]
+			//lock.RUnlock()
+			if !exists {
+				dat = types.NewServerData()
+			}
+			if dat.UserColors == nil {
+				dat.UserColors = make(map[string]int)
+			}
+			dat.UserColors[value1] = intval
+			//lock.Lock()
+			b.dat[guild] = dat
+			//lock.Unlock()
 		}
 	}
 
