@@ -33,6 +33,7 @@ const (
 	PageSwitchLdb      = 0
 	PageSwitchInv      = 1
 	PageSwitchElemSort = 2
+	PageSwitchSearch   = 3
 )
 
 type ComponentMsg interface {
@@ -75,6 +76,9 @@ type PageSwitcher struct {
 	// Element sorting
 	Query  string
 	Length int
+
+	// Search Sorting
+	Search string
 
 	// Don't need to set these
 	Guild string

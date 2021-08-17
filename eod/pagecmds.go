@@ -2,6 +2,7 @@ package eod
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
@@ -138,6 +139,33 @@ func (b *EoD) foundCmd(elem string, m types.Msg, rsp types.Rsp) {
 		Title:      fmt.Sprintf("%s Found (%d)", el.Name, len(out)),
 		PageGetter: b.invPageGetter,
 		Items:      out,
+		User:       m.Author.ID,
+	}, m, rsp)
+}
+
+func (b *EoD) elemSearchCmd(search string, m types.Msg, rsp types.Rsp) {
+	lock.RLock()
+	dat, exists := b.dat[m.GuildID]
+	lock.RUnlock()
+	if !exists {
+		return
+	}
+	_, res := dat.GetInv(m.Author.ID, true)
+	if !res.Exists {
+		rsp.ErrorMessage("You don't have an inventory!")
+		return
+	}
+	if isWildcard(search) {
+		for val := range wildcards {
+			search = strings.ReplaceAll(search, string([]rune{val}), string([]rune{'\\', val}))
+		}
+	}
+
+	b.newPageSwitcher(types.PageSwitcher{
+		Kind:       types.PageSwitchSearch,
+		Title:      "Top Most Elements",
+		PageGetter: b.searchPageGetter,
+		Search:     search,
 		User:       m.Author.ID,
 	}, m, rsp)
 }

@@ -86,3 +86,37 @@ func (b *EoD) lbPageGetter(p types.PageSwitcher) (string, int, int, error) {
 	}
 	return text, p.Page, length, nil
 }
+
+func (b *EoD) searchPageGetter(p types.PageSwitcher) (string, int, int, error) {
+	lock.RLock()
+	dat := b.dat[p.Guild]
+	lock.RUnlock()
+	count := len(dat.Elements)
+
+	length := int(math.Floor(float64(count-1) / float64(p.PageLength)))
+	if p.PageLength*p.Page > (count - 1) {
+		return "", 0, length, nil
+	}
+
+	if p.Page < 0 {
+		return "", length, length, nil
+	}
+
+	text := ""
+	res, err := b.db.Query("SELECT name FROM eod_elements WHERE guild=? AND LOWER(name) LIKE ? ORDER BY name ASC LIMIT ? OFFSET ?", p.Guild, "%"+escapeElement(strings.ToLower(p.Query))+"%", p.PageLength, p.Page*p.PageLength)
+	if err != nil {
+		return "", 0, 0, err
+	}
+	defer res.Close()
+	i := p.PageLength*p.Page + 1
+	var elem string
+	for res.Next() {
+		err = res.Scan(&elem)
+		if err != nil {
+			return "", 0, 0, err
+		}
+		text += elem + "\n"
+		i++
+	}
+	return text, p.Page, length, nil
+}
