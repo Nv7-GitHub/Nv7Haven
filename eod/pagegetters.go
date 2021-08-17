@@ -88,10 +88,13 @@ func (b *EoD) lbPageGetter(p types.PageSwitcher) (string, int, int, error) {
 }
 
 func (b *EoD) searchPageGetter(p types.PageSwitcher) (string, int, int, error) {
-	lock.RLock()
-	dat := b.dat[p.Guild]
-	lock.RUnlock()
-	count := len(dat.Elements)
+	wild := "%" + escapeElement(strings.ToLower(p.Search)) + "%"
+
+	var count int
+	err := b.db.QueryRow("SELECT COUNT(1) FROM eod_elements WHERE guild=? AND LOWER(name) LIKE ?", p.Guild, wild).Scan(&count)
+	if err != nil {
+		return "", 0, 0, err
+	}
 
 	length := int(math.Floor(float64(count-1) / float64(p.PageLength)))
 	if p.PageLength*p.Page > (count - 1) {
@@ -103,7 +106,7 @@ func (b *EoD) searchPageGetter(p types.PageSwitcher) (string, int, int, error) {
 	}
 
 	text := ""
-	res, err := b.db.Query("SELECT name FROM eod_elements WHERE guild=? AND LOWER(name) LIKE ? ORDER BY name ASC LIMIT ? OFFSET ?", p.Guild, "%"+escapeElement(strings.ToLower(p.Query))+"%", p.PageLength, p.Page*p.PageLength)
+	res, err := b.db.Query("SELECT name FROM eod_elements WHERE guild=? AND LOWER(name) LIKE ? ORDER BY name ASC LIMIT ? OFFSET ?", p.Guild, wild, p.PageLength, p.Page*p.PageLength)
 	if err != nil {
 		return "", 0, 0, err
 	}
