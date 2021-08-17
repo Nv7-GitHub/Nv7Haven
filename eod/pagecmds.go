@@ -163,7 +163,7 @@ func (b *EoD) elemSearchCmd(search string, m types.Msg, rsp types.Rsp) {
 
 	b.newPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchSearch,
-		Title:      "Top Most Elements",
+		Title:      "Element Search",
 		PageGetter: b.searchPageGetter,
 		Search:     search,
 		User:       m.Author.ID,
