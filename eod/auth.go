@@ -29,6 +29,7 @@ var noModCmds = map[string]types.Empty{
 	"found":        {},
 	"setcolor":     {},
 	"invhint":      {},
+	"elemsearch":   {},
 }
 
 func (b *EoD) canRunCmd(cmd *discordgo.InteractionCreate) (bool, string) {
