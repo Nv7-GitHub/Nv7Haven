@@ -187,14 +187,14 @@ func (b *EoD) init() {
 			return
 		}
 		//lock.RLock()
-		dat := b.dat[elem.Guild]
+		dat := b.dat[guild]
 		//lock.RUnlock()
 		if dat.Combos == nil {
 			dat.Combos = make(map[string]string)
 		}
 		dat.Combos[elemsVal] = elem3
 		//lock.Lock()
-		b.dat[elem.Guild] = dat
+		b.dat[guild] = dat
 		//lock.Unlock()
 
 		bar.Add(1)
