@@ -104,3 +104,15 @@ func (dat *ServerData) GetPoll(id string) (Poll, GetResponse) {
 	}
 	return poll, GetResponse{Exists: true}
 }
+
+func (dat *ServerData) GetCombo(elems string) (string, GetResponse) {
+	dat.Lock.RLock()
+	elem3, exists := dat.Combos[elems]
+	dat.Lock.RUnlock()
+	if !exists {
+		return "", GetResponse{
+			Exists: false,
+		}
+	}
+	return elem3, GetResponse{Exists: true}
+}

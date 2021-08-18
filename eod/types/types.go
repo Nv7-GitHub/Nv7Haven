@@ -51,6 +51,7 @@ type ServerData struct {
 	LastCombs     map[string]Comb         // map[userID]comb
 	Inventories   map[string]Container    // map[userID]map[elementName]types.Empty
 	Elements      map[string]Element      //map[elementName]element
+	Combos        map[string]string       // map[elems]elem3
 	Categories    map[string]Category     // map[catName]category
 	Polls         map[string]Poll         // map[messageid]poll
 	PageSwitchers map[string]PageSwitcher // map[messageid]pageswitcher

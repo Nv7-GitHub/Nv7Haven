@@ -61,3 +61,9 @@ func (dat *ServerData) SavePoll(id string, poll Poll) {
 	dat.Polls[id] = poll
 	dat.Lock.Unlock()
 }
+
+func (dat *ServerData) AddComb(elems string, elem3 string) {
+	dat.Lock.Lock()
+	dat.Combos[elems] = elem3
+	dat.Lock.Unlock()
+}

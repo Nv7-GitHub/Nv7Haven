@@ -167,6 +167,40 @@ func (b *EoD) init() {
 	}
 	bar.Finish()
 
+	err = b.db.QueryRow("SELECT COUNT(1) FROM eod_combos").Scan(&cnt)
+	if err != nil {
+		panic(err)
+	}
+
+	bar = progressbar.New(cnt)
+
+	combs, err := b.db.Query("SELECT * FROM `eod_combos`")
+	if err != nil {
+		panic(err)
+	}
+	defer combs.Close()
+	var elemsVal string
+	var elem3 string
+	for combs.Next() {
+		err = combs.Scan(&guild, &elemsVal, &elem3)
+		if err != nil {
+			return
+		}
+		//lock.RLock()
+		dat := b.dat[elem.Guild]
+		//lock.RUnlock()
+		if dat.Combos == nil {
+			dat.Combos = make(map[string]string)
+		}
+		dat.Combos[elemsVal] = elem3
+		//lock.Lock()
+		b.dat[elem.Guild] = dat
+		//lock.Unlock()
+
+		bar.Add(1)
+	}
+	bar.Finish()
+
 	err = b.db.QueryRow("SELECT COUNT(1) FROM eod_elements").Scan(&cnt)
 	if err != nil {
 		panic(err)

@@ -98,23 +98,8 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m types.Msg, rs
 	}
 
 	data := elems2txt(comb.Elems)
-	query := "SELECT COUNT(1) FROM eod_combos WHERE guild=? AND elems LIKE ?"
-
-	if isASCII(data) {
-		query = "SELECT COUNT(1) FROM eod_combos WHERE guild=CONVERT(? USING utf8mb4) AND CONVERT(elems USING utf8mb4) LIKE CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci"
-	}
-
-	if isWildcard(data) {
-		query = strings.ReplaceAll(query, " LIKE ", "=")
-	}
-
-	row := b.db.QueryRow(query, m.GuildID, data)
-	var count int
-	err := row.Scan(&count)
-	if rsp.Error(err) {
-		return
-	}
-	if count != 0 {
+	_, res = dat.GetCombo(data)
+	if res.Exists {
 		rsp.ErrorMessage("That combo already has a result!")
 		return
 	}
@@ -124,7 +109,7 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m types.Msg, rs
 		suggestion = el.Name
 	}
 
-	err = b.createPoll(types.Poll{
+	err := b.createPoll(types.Poll{
 		Channel:   dat.VotingChannel,
 		Guild:     m.GuildID,
 		Kind:      types.PollCombo,

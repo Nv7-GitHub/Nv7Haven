@@ -25,25 +25,12 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	}
 
 	data := elems2txt(parents)
-	query := "SELECT COUNT(1) FROM eod_combos WHERE elems LIKE ? AND guild=?"
-	if isASCII(data) {
-		query = "SELECT COUNT(1) FROM eod_combos WHERE CONVERT(elems USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND guild=CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci"
-	}
-	if isWildcard(data) {
-		query = strings.ReplaceAll(query, " LIKE ", "=")
-	}
-
-	row := b.db.QueryRow(query, guild, data)
-	var count int
-	err := row.Scan(&count)
-	if err != nil {
-		return
-	}
-	if count != 0 {
+	_, res := dat.GetCombo(data)
+	if res.Exists {
 		return
 	}
 
-	_, res := dat.GetElement(name)
+	_, res = dat.GetElement(name)
 	text := "Combination"
 
 	createLock.Lock()
@@ -107,9 +94,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		}
 		name = el.Name
 
-		var id int
-		row := tx.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE guild=?", guild)
-		err = row.Scan(&id)
+		id := len(dat.Combos)
 		if err == nil {
 			postTxt = " - Combination **#" + strconv.Itoa(id) + "**"
 		}
@@ -123,6 +108,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		tx.Rollback()
 		return
 	}
+	dat.AddComb(data, name)
 
 	params := make(map[string]types.Empty)
 	for _, val := range parents {
