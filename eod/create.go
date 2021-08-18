@@ -25,7 +25,10 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	}
 
 	data := elems2txt(parents)
-	query := "SELECT COUNT(1) FROM eod_combos WHERE guild=? AND elems LIKE ?"
+	query := "SELECT COUNT(1) FROM eod_combos WHERE elems LIKE ? AND guild=?"
+	if isASCII(data) {
+		query = "SELECT COUNT(1) FROM eod_combos WHERE CONVERT(elems USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND guild=CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci"
+	}
 	if isWildcard(data) {
 		query = strings.ReplaceAll(query, " LIKE ", "=")
 	}
