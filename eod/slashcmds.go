@@ -8,6 +8,7 @@ var (
 	commands = []*discordgo.ApplicationCommand{
 		{
 			Name:        "setvotes",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Sets the vote count required in the server",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -20,6 +21,7 @@ var (
 		},
 		{
 			Name:        "setpolls",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Sets the maximum amount of polls a user can make",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -32,6 +34,7 @@ var (
 		},
 		{
 			Name:        "setplaychannel",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Mark a channel as a play channel",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -50,6 +53,7 @@ var (
 		},
 		{
 			Name:        "setvotingchannel",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Set a channel to be a channel for polls",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -62,6 +66,7 @@ var (
 		},
 		{
 			Name:        "setnewschannel",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Set a channel to be a channel for news",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -74,6 +79,7 @@ var (
 		},
 		{
 			Name:        "suggest",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Create a suggestion!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -92,6 +98,7 @@ var (
 		},
 		{
 			Name:        "mark",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Suggest a creator mark, or add a creator mark to an element you created!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -110,6 +117,7 @@ var (
 		},
 		{
 			Name:        "image",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Suggest an image for an element, or add an image to an element you created!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -128,6 +136,7 @@ var (
 		},
 		{
 			Name:        "inv",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "See your elements!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -163,6 +172,7 @@ var (
 		},
 		{
 			Name:        "lb",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "See the leaderboard!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -185,6 +195,7 @@ var (
 		},
 		{
 			Name:        "addcat",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Suggest or add an element to a category!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -227,6 +238,7 @@ var (
 		},
 		{
 			Name:        "cat",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Get info on a category!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -265,6 +277,7 @@ var (
 		},
 		{
 			Name:        "hint",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Get a hint on an element!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -277,10 +290,12 @@ var (
 		},
 		{
 			Name:        "stats",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Get your server's stats!",
 		},
 		{
 			Name:        "giveall",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Give a user every element!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -293,6 +308,7 @@ var (
 		},
 		{
 			Name:        "resetinv",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Reset a user's inventory!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -305,6 +321,7 @@ var (
 		},
 		{
 			Name:        "give",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Give a user an element, and choose whether to give all the elements required to make that element!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -329,6 +346,7 @@ var (
 		},
 		{
 			Name:        "givecat",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Give a user all the elements in a category, and optionally give the tree!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -353,6 +371,7 @@ var (
 		},
 		{
 			Name:        "path",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Calculate the path of an element!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -365,6 +384,7 @@ var (
 		},
 		{
 			Name:        "elemsort",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Sort all the elements in this server!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -394,10 +414,12 @@ var (
 		},
 		{
 			Name:        "help",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Get help and learn about the bot!",
 		},
 		{
 			Name:        "setmodrole",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Set a role to be a role for moderators!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -410,6 +432,7 @@ var (
 		},
 		{
 			Name:        "rmcat",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Suggest or remove an element from a category!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -452,6 +475,7 @@ var (
 		},
 		{
 			Name:        "idea",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Get a random unused combination!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -476,6 +500,7 @@ var (
 		},
 		{
 			Name:        "catimg",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Add an image to a category!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -494,6 +519,7 @@ var (
 		},
 		{
 			Name:        "downloadinv",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Download your inventory!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -529,6 +555,7 @@ var (
 		},
 		{
 			Name:        "catpath",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Calculate the path of a category!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -541,6 +568,7 @@ var (
 		},
 		{
 			Name:        "breakdown",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Get an element's breakdown!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -559,6 +587,7 @@ var (
 		},
 		{
 			Name:        "catbreakdown",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Get the breakdown of a category!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -577,6 +606,7 @@ var (
 		},
 		{
 			Name:        "info",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Get the info of an element!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -595,6 +625,7 @@ var (
 		},
 		{
 			Name:        "graph",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Create a graph of an element's tree!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -651,6 +682,7 @@ var (
 		},
 		{
 			Name:        "catgraph",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Create a graph of a category's tree!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -707,6 +739,7 @@ var (
 		},
 		{
 			Name:        "found",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "See the user's who have found an element!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -719,6 +752,7 @@ var (
 		},
 		{
 			Name:        "setcolor",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Set your embed color! If you don't provide a color, it will reset your color.",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -731,6 +765,7 @@ var (
 		},
 		{
 			Name:        "invhint",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Get the inverse hint of an element!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -743,6 +778,7 @@ var (
 		},
 		{
 			Name:        "elemsearch",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Search for an element by name!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
