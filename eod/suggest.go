@@ -141,5 +141,10 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m types.Msg, rs
 		txt += "🌟"
 	}
 
-	rsp.Message(txt)
+	id := rsp.Message(txt)
+	dat.SetMsgElem(id, suggestion)
+
+	lock.Lock()
+	b.dat[m.GuildID] = dat
+	lock.Unlock()
 }

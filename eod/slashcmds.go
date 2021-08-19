@@ -790,8 +790,24 @@ var (
 			},
 		},
 		{
-			Name: "Get Inventory",
-			Type: discordgo.UserApplicationCommand,
+			Name:        "Get Inventory",
+			Description: "Get the user's inventory!",
+			Type:        discordgo.UserApplicationCommand,
+		},
+		{
+			Name:        "Get Info",
+			Description: "Get the info of the element in a message!",
+			Type:        discordgo.MessageApplicationCommand,
+		},
+		{
+			Name:        "Get Hint",
+			Description: "Get the hint of the element in a message!",
+			Type:        discordgo.MessageApplicationCommand,
+		},
+		{
+			Name:        "Get Inverse Hint",
+			Description: "Get the inverse hint of the element in a message!",
+			Type:        discordgo.MessageApplicationCommand,
 		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
@@ -1131,6 +1147,36 @@ var (
 		"Get Inventory": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			bot.invCmd(resp.TargetID, bot.newMsgSlash(i), bot.newRespSlash(i), "name", "none")
+		},
+		"Get Info": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
+			rsp := bot.newRespSlash(i)
+			res, suc := bot.getMessageElem(resp.TargetID)
+			if !suc {
+				rsp.ErrorMessage(res)
+				return
+			}
+			bot.infoCmd(res, bot.newMsgSlash(i), rsp)
+		},
+		"Get Hint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
+			rsp := bot.newRespSlash(i)
+			res, suc := bot.getMessageElem(resp.TargetID)
+			if !suc {
+				rsp.ErrorMessage(res)
+				return
+			}
+			bot.hintCmd(res, true, false, bot.newMsgSlash(i), rsp)
+		},
+		"Get Inverse Hint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
+			rsp := bot.newRespSlash(i)
+			res, suc := bot.getMessageElem(resp.TargetID)
+			if !suc {
+				rsp.ErrorMessage(res)
+				return
+			}
+			bot.hintCmd(res, true, true, bot.newMsgSlash(i), rsp)
 		},
 	}
 )

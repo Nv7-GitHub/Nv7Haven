@@ -67,3 +67,9 @@ func (dat *ServerData) AddComb(elems string, elem3 string) {
 	dat.Combos[elems] = elem3
 	dat.Lock.Unlock()
 }
+
+func (dat *ServerData) SetMsgElem(id string, elem string) {
+	dat.Lock.Lock()
+	dat.ElementMsgs[id] = strings.ToLower(elem)
+	dat.Lock.Unlock()
+}

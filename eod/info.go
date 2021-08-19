@@ -253,7 +253,8 @@ func (b *EoD) info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
 		emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{Name: "Categories", Value: catTxt.String(), Inline: false})
 	}
 
-	rsp.RawEmbed(emb)
+	msgId := rsp.RawEmbed(emb)
+	dat.SetMsgElem(msgId, el.Name)
 }
 
 func (b *EoD) infoCmd(elem string, m types.Msg, rsp types.Rsp) {

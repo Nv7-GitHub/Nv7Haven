@@ -140,11 +140,17 @@ func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
 			dat.SetInv(m.Author.ID, inv)
 			b.saveInv(m.GuildID, m.Author.ID, false)
 
-			rsp.Resp(fmt.Sprintf("You made **%s** "+newText, elem3))
+			id := rsp.Message(fmt.Sprintf("You made **%s** "+newText, elem3))
+			dat.SetMsgElem(id, elem3)
+
+			lock.Lock()
+			b.dat[m.GuildID] = dat
+			lock.Unlock()
 			return
 		}
 
-		rsp.Resp(fmt.Sprintf("You made **%s**, but already have it "+blueCircle, elem3))
+		id := rsp.Message(fmt.Sprintf("You made **%s**, but already have it "+blueCircle, elem3))
+		dat.SetMsgElem(id, elem3)
 
 		lock.Lock()
 		b.dat[m.GuildID] = dat

@@ -56,6 +56,7 @@ type ServerData struct {
 	Polls         map[string]Poll         // map[messageid]poll
 	PageSwitchers map[string]PageSwitcher // map[messageid]pageswitcher
 	ComponentMsgs map[string]ComponentMsg // map[messageid]componentMsg
+	ElementMsgs   map[string]string       // map[messageid]elemname
 	Lock          *sync.RWMutex
 }
 

@@ -137,6 +137,16 @@ func (b *EoD) checkServer(m types.Msg, rsp types.Rsp) bool {
 		lock.Unlock()
 	}
 
+	if dat.ElementMsgs == nil {
+		dat.Lock.Lock()
+		dat.ElementMsgs = make(map[string]string)
+		dat.Lock.Unlock()
+
+		lock.Lock()
+		b.dat[m.GuildID] = dat
+		lock.Unlock()
+	}
+
 	_, exists = dat.PlayChannels[m.ChannelID]
 	return exists
 }
