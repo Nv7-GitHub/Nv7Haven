@@ -77,9 +77,9 @@ func (b *EoD) lbCmd(m types.Msg, rsp types.Rsp, sort string, user string) {
 	if !exists {
 		return
 	}
-	_, res := dat.GetInv(user, true)
+	_, res := dat.GetInv(user, user == m.Author.ID)
 	if !res.Exists {
-		rsp.ErrorMessage("You don't have an inventory!")
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 
