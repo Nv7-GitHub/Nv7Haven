@@ -59,6 +59,7 @@ func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
 		_, res := dat.GetElement(elem)
 		if !res.Exists {
 			elExists = false
+			break
 		}
 
 		_, hasElement := inv[strings.ToLower(elem)]
