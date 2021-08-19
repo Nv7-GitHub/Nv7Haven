@@ -54,7 +54,12 @@ func (b *EoD) markCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
 	if rsp.Error(err) {
 		return
 	}
-	rsp.Message(fmt.Sprintf("Suggested a note for **%s** 🖊️", el.Name))
+	id := rsp.Message(fmt.Sprintf("Suggested a note for **%s** 🖊️", el.Name))
+	dat.SetMsgElem(id, el.Name)
+
+	lock.Lock()
+	b.dat[m.GuildID] = dat
+	lock.Unlock()
 }
 
 func (b *EoD) imageCmd(elem string, image string, m types.Msg, rsp types.Rsp) {
@@ -107,5 +112,10 @@ func (b *EoD) imageCmd(elem string, image string, m types.Msg, rsp types.Rsp) {
 	if rsp.Error(err) {
 		return
 	}
-	rsp.Message(fmt.Sprintf("Suggested an image for **%s** 📷", el.Name))
+	id := rsp.Message(fmt.Sprintf("Suggested an image for **%s** 📷", el.Name))
+	dat.SetMsgElem(id, el.Name)
+
+	lock.Lock()
+	b.dat[m.GuildID] = dat
+	lock.Unlock()
 }
