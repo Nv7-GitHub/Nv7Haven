@@ -70,6 +70,9 @@ func (dat *ServerData) AddComb(elems string, elem3 string) {
 
 func (dat *ServerData) SetMsgElem(id string, elem string) {
 	dat.Lock.Lock()
+	if dat.ElementMsgs == nil {
+		dat.ElementMsgs = make(map[string]string)
+	}
 	dat.ElementMsgs[id] = strings.ToLower(elem)
 	dat.Lock.Unlock()
 }
