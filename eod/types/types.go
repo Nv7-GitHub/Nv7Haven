@@ -123,7 +123,7 @@ type Poll struct {
 type Category struct {
 	Name     string
 	Guild    string
-	Elements Container
+	Elements map[string]Empty
 	Image    string
 }
 

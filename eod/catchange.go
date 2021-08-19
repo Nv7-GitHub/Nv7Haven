@@ -117,7 +117,7 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m types.Msg, rsp ty
 			return
 		}
 
-		exists = cat.Elements.Contains(el.Name)
+		_, exists = cat.Elements[el.Name]
 		if !exists {
 			rsp.ErrorMessage(fmt.Sprintf("Element **%s** isn't in category **%s**!", el.Name, cat.Name))
 			return
