@@ -790,24 +790,24 @@ var (
 			},
 		},
 		{
-			Name:        "Get Inventory",
-			Description: "Get the user's inventory!",
-			Type:        discordgo.UserApplicationCommand,
+			Name: "Get Inventory",
+			//Description: "Get the user's inventory!",
+			Type: discordgo.UserApplicationCommand,
 		},
 		{
-			Name:        "Get Info",
-			Description: "Get the info of the element in a message!",
-			Type:        discordgo.MessageApplicationCommand,
+			Name: "Get Info",
+			//Description: "Get the info of the element in a message!",
+			Type: discordgo.MessageApplicationCommand,
 		},
 		{
-			Name:        "Get Hint",
-			Description: "Get the hint of the element in a message!",
-			Type:        discordgo.MessageApplicationCommand,
+			Name: "Get Hint",
+			//Description: "Get the hint of the element in a message!",
+			Type: discordgo.MessageApplicationCommand,
 		},
 		{
-			Name:        "Get Inverse Hint",
-			Description: "Get the inverse hint of the element in a message!",
-			Type:        discordgo.MessageApplicationCommand,
+			Name: "Get Inverse Hint",
+			//Description: "Get the inverse hint of the element in a message!",
+			Type: discordgo.MessageApplicationCommand,
 		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
