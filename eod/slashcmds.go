@@ -194,6 +194,12 @@ var (
 						},
 					},
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionUser,
+					Name:        "user",
+					Description: "User to view the leaderboard from the POV of!",
+					Required:    false,
+				},
 			},
 		},
 		{
@@ -882,10 +888,17 @@ var (
 		"lb": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			sort := "count"
-			if len(resp.Options) > 0 {
-				sort = resp.Options[0].StringValue()
+			user := i.Member.User.ID
+			for _, opt := range resp.Options {
+				if opt.Name == "sortby" {
+					sort = resp.Options[0].StringValue()
+				}
+
+				if opt.Name == "user" {
+					user = opt.UserValue(bot.dg).ID
+				}
 			}
-			bot.lbCmd(bot.newMsgSlash(i), bot.newRespSlash(i), sort)
+			bot.lbCmd(bot.newMsgSlash(i), bot.newRespSlash(i), sort, user)
 		},
 		"addcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()

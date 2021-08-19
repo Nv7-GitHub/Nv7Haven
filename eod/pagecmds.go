@@ -70,7 +70,7 @@ func (b *EoD) invCmd(user string, m types.Msg, rsp types.Rsp, sorter string, fil
 	}, m, rsp)
 }
 
-func (b *EoD) lbCmd(m types.Msg, rsp types.Rsp, sort string) {
+func (b *EoD) lbCmd(m types.Msg, rsp types.Rsp, sort string, user string) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -88,7 +88,7 @@ func (b *EoD) lbCmd(m types.Msg, rsp types.Rsp, sort string) {
 		Title:      "Top Most Elements",
 		PageGetter: b.lbPageGetter,
 		Sort:       sort,
-		User:       m.Author.ID,
+		User:       user,
 	}, m, rsp)
 }
 

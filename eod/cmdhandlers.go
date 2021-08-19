@@ -142,7 +142,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		if cmd == "lb" {
-			b.lbCmd(msg, rsp, "count")
+			b.lbCmd(msg, rsp, "count", msg.Author.ID)
 			return
 		}
 
