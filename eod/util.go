@@ -311,9 +311,9 @@ func splitByCombs(inp string) []string {
 	return []string{inp}
 }
 
-func (b *EoD) getMessageElem(id string) (string, bool) {
+func (b *EoD) getMessageElem(id string, guild string) (string, bool) {
 	lock.RLock()
-	dat, exists := b.dat[id]
+	dat, exists := b.dat[guild]
 	lock.RUnlock()
 	if !exists {
 		return "Guild not setup yet!", false

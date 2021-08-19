@@ -1151,7 +1151,7 @@ var (
 		"Get Info": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			rsp := bot.newRespSlash(i)
-			res, suc := bot.getMessageElem(resp.TargetID)
+			res, suc := bot.getMessageElem(resp.TargetID, i.GuildID)
 			if !suc {
 				rsp.ErrorMessage(res)
 				return
@@ -1161,7 +1161,7 @@ var (
 		"Get Hint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			rsp := bot.newRespSlash(i)
-			res, suc := bot.getMessageElem(resp.TargetID)
+			res, suc := bot.getMessageElem(resp.TargetID, i.GuildID)
 			if !suc {
 				rsp.ErrorMessage(res)
 				return
@@ -1171,7 +1171,7 @@ var (
 		"Get Inverse Hint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			rsp := bot.newRespSlash(i)
-			res, suc := bot.getMessageElem(resp.TargetID)
+			res, suc := bot.getMessageElem(resp.TargetID, i.GuildID)
 			if !suc {
 				rsp.ErrorMessage(res)
 				return
