@@ -255,11 +255,10 @@ func (b *EoD) init() {
 	var po types.Poll
 	for polls.Next() {
 		var jsondat string
-		err = polls.Scan(&guild, &po.Channel, &po.Message, &po.Kind, &po.Value1, &po.Value2, &po.Value3, &po.Value4, &jsondat)
+		err = polls.Scan(&po.Guild, &po.Channel, &po.Message, &po.Kind, &po.Value1, &po.Value2, &po.Value3, &po.Value4, &jsondat)
 		if err != nil {
 			panic(err)
 		}
-		po.Guild = guild
 		err = json.Unmarshal([]byte(jsondat), &po.Data)
 		if err != nil {
 			panic(err)

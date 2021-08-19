@@ -202,7 +202,7 @@ func (b *EoD) reactionHandler(s *discordgo.Session, r *discordgo.MessageReaction
 	}
 	if r.Emoji.Name == upArrow {
 		p.Upvotes++
-		dat.Polls[r.MessageID] = p
+		dat.SavePoll(r.MessageID, p)
 		lock.Lock()
 		b.dat[r.GuildID] = dat
 		lock.Unlock()
@@ -218,7 +218,7 @@ func (b *EoD) reactionHandler(s *discordgo.Session, r *discordgo.MessageReaction
 		}
 	} else if r.Emoji.Name == downArrow {
 		p.Downvotes++
-		dat.Polls[r.MessageID] = p
+		dat.SavePoll(r.MessageID, p)
 		lock.Lock()
 		b.dat[r.GuildID] = dat
 		lock.Unlock()
