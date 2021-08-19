@@ -1,6 +1,9 @@
 package eod
 
 import (
+	"fmt"
+	"strconv"
+
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -809,6 +812,11 @@ var (
 			//Description: "Get the inverse hint of the element in a message!",
 			Type: discordgo.MessageApplicationCommand,
 		},
+		{
+			Name: "Get Color",
+			//Description: "Get a user's embed color!",
+			Type: discordgo.UserApplicationCommand,
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -1177,6 +1185,16 @@ var (
 				return
 			}
 			bot.hintCmd(res, true, true, bot.newMsgSlash(i), rsp)
+		},
+		"Get Color": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
+			rsp := bot.newRespSlash(i)
+			color, err := bot.getColor(i.GuildID, resp.TargetID)
+			if rsp.Error(err) {
+				return
+			}
+			hex := strconv.FormatInt(int64(color), 16)
+			rsp.Message(fmt.Sprintf("https://singlecolorimage.com/get/%s/100x100", hex))
 		},
 	}
 )
