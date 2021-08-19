@@ -2,6 +2,7 @@ package eod
 
 import (
 	"context"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -80,7 +81,8 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		if err != nil {
 			dat.DeleteElement(elem.Name)
 
-			datafile.WriteString(err.Error() + "\n")
+			log.SetOutput(datafile)
+			log.Println(err)
 			tx.Rollback()
 			return
 		}
@@ -104,7 +106,8 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	if err != nil {
 		dat.DeleteElement(name)
 
-		datafile.WriteString(err.Error() + "\n")
+		log.SetOutput(datafile)
+		log.Println(err)
 		tx.Rollback()
 		return
 	}
@@ -126,7 +129,8 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		if err != nil {
 			dat.DeleteElement(name)
 
-			datafile.WriteString(err.Error() + "\n")
+			log.SetOutput(datafile)
+			log.Println(err)
 			tx.Rollback()
 			return
 		}
@@ -146,7 +150,8 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	if err != nil {
 		dat.DeleteElement(name)
 
-		datafile.WriteString(err.Error() + "\n")
+		log.SetOutput(datafile)
+		log.Println(err)
 		return
 	}
 
@@ -164,7 +169,8 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 
 	err = b.autocategorize(name, guild)
 	if err != nil {
-		datafile.WriteString(err.Error() + "\n")
+		log.SetOutput(datafile)
+		log.Println(err)
 		return
 	}
 }

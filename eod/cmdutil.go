@@ -22,6 +22,7 @@ func (n *normalResp) Error(err error) bool {
 		_, err := n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" Error: "+err.Error()+" "+redCircle)
 		if err != nil {
 			log.SetOutput(discordlogs)
+			log.Println(err)
 		}
 		return true
 	}
