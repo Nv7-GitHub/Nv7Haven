@@ -35,6 +35,7 @@ var noModCmds = map[string]types.Empty{
 	"Get Hint":         {},
 	"Get Inverse Hint": {},
 	"Get Color":        {},
+	"View Leaderboard": {},
 }
 
 func (b *EoD) canRunCmd(cmd *discordgo.InteractionCreate) (bool, string) {

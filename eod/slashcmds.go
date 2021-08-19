@@ -823,6 +823,11 @@ var (
 			//Description: "Get a user's embed color!",
 			Type: discordgo.UserApplicationCommand,
 		},
+		{
+			Name: "View Leaderboard",
+			//Description: "View the leaderboard from the user's point of view!",
+			Type: discordgo.UserApplicationCommand,
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -1208,6 +1213,10 @@ var (
 			}
 			hex := strconv.FormatInt(int64(color), 16)
 			rsp.Message(fmt.Sprintf("https://singlecolorimage.com/get/%s/100x100", hex))
+		},
+		"View Leaderboard": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
+			bot.lbCmd(bot.newMsgSlash(i), bot.newRespSlash(i), "count", resp.TargetID)
 		},
 	}
 )
