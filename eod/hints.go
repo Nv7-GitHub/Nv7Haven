@@ -213,18 +213,18 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, in
 		return out[i].exists > out[j].exists
 	})
 
+	inverseTitle := ""
+	if inverse {
+		inverseTitle = "Inverse "
+	}
+	title := fmt.Sprintf("%sHints for %s", inverseTitle, el.Name)
+
 	text := &strings.Builder{}
 	for _, val := range out {
 		text.WriteString(val.text)
 		text.WriteString("\n")
 	}
 	val := text.String()
-
-	inverseTitle := ""
-	if inverse {
-		inverseTitle = "Inverse "
-	}
-	title := fmt.Sprintf("%sHints for %s", inverseTitle, el.Name)
 
 	txt := "Don't "
 	_, hasElem = inv[strings.ToLower(el.Name)]
@@ -233,36 +233,35 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, in
 	}
 	footer := fmt.Sprintf("%d Hints • You %sHave This", len(out), txt)
 
-	// Too long
-	if len(val) > 2000 {
-		if rsp == nil {
-			// If can't do page switcher, shorten it (cant do pageswitcher if its in a random hint)
-			text = &strings.Builder{}
-			length := 0
-			for _, val := range out {
-				if length+len(val.text) > 2000 {
-					break
-				}
+	isPlayChannel := dat.PlayChannels.Contains(m.ChannelID)
 
-				length += len(val.text)
-				text.WriteString(val.text)
+	if len(val) > 2000 && rsp == nil {
+		// If can't do page switcher, shorten it (cant do pageswitcher if its in a random hint)
+		text = &strings.Builder{}
+		length := 0
+		for _, val := range out {
+			if length+len(val.text) > 2000 {
+				break
 			}
-			val = text.String()
-		} else {
-			vals := make([]string, len(out))
-			for i, v := range out {
-				vals[i] = v.text
-			}
-			b.newPageSwitcher(types.PageSwitcher{
-				Kind:       types.PageSwitchInv,
-				Title:      title,
-				PageGetter: b.invPageGetter,
-				Items:      vals,
-				Thumbnail:  el.Image,
-				Footer:     footer,
-			}, m, rsp)
-			return nil, "", false
+
+			length += len(val.text)
+			text.WriteString(val.text)
 		}
+		val = text.String()
+	} else if (len(val) > 2000) || (!isPlayChannel && len(out) > defaultPageLength) || (isPlayChannel && len(out) > playPageLength) {
+		vals := make([]string, len(out))
+		for i, v := range out {
+			vals[i] = v.text
+		}
+		b.newPageSwitcher(types.PageSwitcher{
+			Kind:       types.PageSwitchInv,
+			Title:      title,
+			PageGetter: b.invPageGetter,
+			Items:      vals,
+			Thumbnail:  el.Image,
+			Footer:     footer,
+		}, m, rsp)
+		return nil, "", false
 	}
 
 	return &discordgo.MessageEmbed{
