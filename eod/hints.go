@@ -96,13 +96,6 @@ func (b *EoD) hintCmd(elem string, hasElem bool, inverse bool, m types.Msg, rsp 
 		return
 	}
 
-	if hasElem {
-		rsp.Embed(hint)
-		return
-	}
-
-	id := rsp.Embed(hint, hintCmp)
-
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -110,9 +103,15 @@ func (b *EoD) hintCmd(elem string, hasElem bool, inverse bool, m types.Msg, rsp 
 		return
 	}
 
-	dat.Lock.Lock()
-	dat.ComponentMsgs[id] = &hintComponent{b: b}
-	dat.Lock.Unlock()
+	if hasElem {
+		id := rsp.Embed(hint)
+		dat.SetMsgElem(id, elem)
+		return
+	}
+
+	id := rsp.Embed(hint, hintCmp)
+
+	dat.AddComponentMsg(id, &hintComponent{b: b})
 
 	lock.Lock()
 	b.dat[m.GuildID] = dat
