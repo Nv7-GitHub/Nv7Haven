@@ -113,7 +113,11 @@ func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
 				el = k
 				break
 			}
-			rsp.ErrorMessage(fmt.Sprintf("You don't have **%s**!", el))
+			id := rsp.ErrorMessage(fmt.Sprintf("You don't have **%s**!", el))
+			dat.SetMsgElem(id, el)
+			lock.Lock()
+			b.dat[m.GuildID] = dat
+			lock.Unlock()
 			return
 		}
 
