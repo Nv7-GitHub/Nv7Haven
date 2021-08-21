@@ -68,6 +68,10 @@ func (b *EoD) initHandlers() {
 	}
 
 	b.dg.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		if i.Member == nil {
+			return
+		}
+
 		// Command
 		if i.Type == discordgo.InteractionApplicationCommand {
 			rsp := b.newRespSlash(i)

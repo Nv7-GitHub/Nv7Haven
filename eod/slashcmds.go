@@ -874,9 +874,6 @@ var (
 			resp := i.ApplicationCommandData()
 			sortby := "name"
 			filter := "none"
-			if i.Member == nil {
-				return
-			}
 			id := i.Member.User.ID
 			for _, val := range resp.Options {
 				if val.Name == "sortby" {
