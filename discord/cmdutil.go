@@ -132,6 +132,9 @@ func (s *slashResp) Embed(emb *discordgo.MessageEmbed) string {
 }
 
 func (b *Bot) newMsgSlash(i *discordgo.InteractionCreate) msg {
+	if i.Member == nil {
+		return msg{}
+	}
 	return msg{
 		Author:    i.Member.User,
 		ChannelID: i.ChannelID,
