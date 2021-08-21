@@ -38,6 +38,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	tx, err := b.db.BeginTx(context.Background(), nil)
 	if err != nil {
 		tx.Rollback()
+		createLock.Unlock()
 		return
 	}
 
@@ -90,8 +91,11 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	} else {
 		el, res := dat.GetElement(name)
 		if !res.Exists {
-			datafile.WriteString("Doesn't exist\n")
+			log.SetOutput(datafile)
+			log.Println("Doesn't exist")
+
 			tx.Rollback()
+			createLock.Unlock()
 			return
 		}
 		name = el.Name
@@ -105,6 +109,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	_, err = tx.Exec("INSERT INTO eod_combos VALUES ( ?, ?, ? )", guild, data, name)
 	if err != nil {
 		dat.DeleteElement(name)
+		createLock.Unlock()
 
 		log.SetOutput(datafile)
 		log.Println(err)
@@ -128,6 +133,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		_, err = tx.Exec(query, k, guild)
 		if err != nil {
 			dat.DeleteElement(name)
+			createLock.Unlock()
 
 			log.SetOutput(datafile)
 			log.Println(err)
@@ -149,6 +155,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	err = tx.Commit()
 	if err != nil {
 		dat.DeleteElement(name)
+		createLock.Unlock()
 
 		log.SetOutput(datafile)
 		log.Println(err)
