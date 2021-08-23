@@ -38,6 +38,8 @@ packs/*
 logs.txt
 createlogs.txt
 discordlogs.txt
+mysqlogs.txt
+eod/other/parecalc/prof.pprof
 
 # Secret!
 password.txt
@@ -49,3 +51,4 @@ backups/*
 nvmail/*.json
 token.json
 eod/fools.txt
+eod/other/parecalc/data.gob
