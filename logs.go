@@ -80,7 +80,7 @@ func systemHandlers(app *fiber.App) {
 	}
 	defer mysqlogs.Close()
 	mysql.SetLogger(&Logger{})
-	app.Get("/mysqllogs", func(c *fiber.Ctx) error {
+	app.Get("/mysqlogs", func(c *fiber.Ctx) error {
 		file, err := os.Open("mysqlogs.txt")
 		if err != nil {
 			return err
