@@ -100,7 +100,7 @@ func (b *EoD) imageCmd(elem string, image string, m types.Msg, rsp types.Rsp) {
 
 	if el.Creator == m.Author.ID {
 		b.image(m.GuildID, elem, image, "")
-		rsp.Resp(fmt.Sprintf("You added an image to **%s**! 📷", el.Name))
+		rsp.Message(fmt.Sprintf("You added an image to **%s**! 📷", el.Name))
 		return
 	}
 
