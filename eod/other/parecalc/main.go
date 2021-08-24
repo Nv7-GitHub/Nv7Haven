@@ -82,7 +82,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	end("Connected to Db")
+	end("Connected to DB")
 	loadData(true) // false to load from cache
 	end("Loaded data")
 	recalcPars()
