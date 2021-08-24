@@ -8,7 +8,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -232,6 +234,12 @@ func (b *EoD) info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
 		return
 	}
 
+	suc, msg, tree := trees.CalcElemInfo(elem, m.Author.ID, dat)
+	if !suc {
+		rsp.ErrorMessage(msg)
+		return
+	}
+
 	emb := &discordgo.MessageEmbed{
 		Title:       el.Name + " Info",
 		Description: fmt.Sprintf("Element **#%d**\n<@%s> **You %shave this.**", el.ID, m.Author.ID, has),
@@ -244,10 +252,18 @@ func (b *EoD) info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
 			{Name: "Created On", Value: fmt.Sprintf("<t:%d>", el.CreatedOn.Unix()), Inline: true},
 			{Name: "Complexity", Value: strconv.Itoa(el.Complexity), Inline: true},
 			{Name: "Difficulty", Value: strconv.Itoa(el.Difficulty), Inline: true},
+			{Name: "Tree Size", Value: strconv.Itoa(tree.Total), Inline: true},
 		},
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
 			URL: el.Image,
 		},
+	}
+	if has != "" {
+		emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{
+			Name:   "Progress",
+			Value:  fmt.Sprintf("%s%%", util.FormatFloat(float32(tree.Found)/float32(tree.Total)*100, 2)),
+			Inline: true,
+		})
 	}
 	if len(cats) > 0 {
 		emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{Name: "Categories", Value: catTxt.String(), Inline: false})
