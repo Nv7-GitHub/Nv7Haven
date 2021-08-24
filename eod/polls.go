@@ -169,14 +169,24 @@ func (b *EoD) createPoll(p types.Poll) error {
 		}
 		p.Message = m.ID
 	}
-	err := b.dg.MessageReactionAdd(p.Channel, p.Message, upArrow)
+
+	if !isFoolsMode {
+		err := b.dg.MessageReactionAdd(p.Channel, p.Message, upArrow)
+		if err != nil {
+			return err
+		}
+	}
+	err := b.dg.MessageReactionAdd(p.Channel, p.Message, downArrow)
 	if err != nil {
 		return err
 	}
-	err = b.dg.MessageReactionAdd(p.Channel, p.Message, downArrow)
-	if err != nil {
-		return err
+	if isFoolsMode {
+		err := b.dg.MessageReactionAdd(p.Channel, p.Message, upArrow)
+		if err != nil {
+			return err
+		}
 	}
+
 	cnt, err := json.Marshal(p.Data)
 	if err != nil {
 		return err
