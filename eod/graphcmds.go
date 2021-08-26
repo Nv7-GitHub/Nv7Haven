@@ -193,5 +193,5 @@ func (b *EoD) catGraphCmd(catName, layout, outputType string, distinctPrimary bo
 	}
 	dat.Lock.RUnlock()
 
-	b.graphCmd(vals, dat, m, layout, outputType, catName, distinctPrimary, rsp)
+	b.graphCmd( /* cat.Elements */ vals, dat, m, layout, outputType, catName, distinctPrimary, rsp)
 }
