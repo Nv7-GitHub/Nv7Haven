@@ -180,11 +180,18 @@ func (b *EoD) catGraphCmd(catName, layout, outputType string, distinctPrimary bo
 		return
 	}
 	rsp.Acknowledge()
-	cat, res := dat.GetCategory(catName)
+	/*cat, res := dat.GetCategory(catName)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
 		return
-	}
+	}*/
 
-	b.graphCmd(cat.Elements, dat, m, layout, outputType, catName, distinctPrimary, rsp)
+	vals := make(map[string]types.Empty, len(dat.Elements))
+	dat.Lock.RLock()
+	for k := range dat.Elements {
+		vals[k] = types.Empty{}
+	}
+	dat.Lock.RUnlock()
+
+	b.graphCmd(vals, dat, m, layout, outputType, catName, distinctPrimary, rsp)
 }
