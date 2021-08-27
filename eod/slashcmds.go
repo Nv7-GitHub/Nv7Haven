@@ -10,73 +10,79 @@ import (
 var (
 	commands = []*discordgo.ApplicationCommand{
 		{
-			Name:        "setvotes",
-			Type:        discordgo.ChatApplicationCommand,
-			Description: "Sets the vote count required in the server",
+			Name: "set",
+			Type: discordgo.ChatApplicationCommand,
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionInteger,
-					Name:        "votecount",
-					Description: "The number of votes required for a poll to be completed.",
-					Required:    true,
-				},
-			},
-		},
-		{
-			Name:        "setpolls",
-			Type:        discordgo.ChatApplicationCommand,
-			Description: "Sets the maximum amount of polls a user can make",
-			Options: []*discordgo.ApplicationCommandOption{
-				{
-					Type:        discordgo.ApplicationCommandOptionInteger,
-					Name:        "pollcount",
-					Description: "The maximum number of polls a user can make",
-					Required:    true,
-				},
-			},
-		},
-		{
-			Name:        "setplaychannel",
-			Type:        discordgo.ChatApplicationCommand,
-			Description: "Mark a channel as a play channel",
-			Options: []*discordgo.ApplicationCommandOption{
-				{
-					Type:        discordgo.ApplicationCommandOptionChannel,
-					Name:        "channel",
-					Description: "Channel to mark as a play channel",
-					Required:    true,
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "votes",
+					Description: "Sets the vote count required in the server",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionInteger,
+							Name:        "votecount",
+							Description: "The number of votes required for a poll to be completed.",
+							Required:    true,
+						},
+					},
 				},
 				{
-					Type:        discordgo.ApplicationCommandOptionBoolean,
-					Name:        "isplaychannel",
-					Description: "Is it a play channel? If not given, defaults to true.",
-					Required:    false,
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "polls",
+					Description: "Sets the maximum amount of polls a user can make",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionInteger,
+							Name:        "pollcount",
+							Description: "The maximum number of polls a user can make",
+							Required:    true,
+						},
+					},
 				},
-			},
-		},
-		{
-			Name:        "setvotingchannel",
-			Type:        discordgo.ChatApplicationCommand,
-			Description: "Set a channel to be a channel for polls",
-			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionChannel,
-					Name:        "channel",
-					Description: "Channel to set as a voting channel",
-					Required:    true,
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "playchannel",
+					Description: "Mark a channel as a play channel",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionChannel,
+							Name:        "channel",
+							Description: "Channel to mark as a play channel",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionBoolean,
+							Name:        "isplaychannel",
+							Description: "Is it a play channel? If not given, defaults to true.",
+							Required:    false,
+						},
+					},
 				},
-			},
-		},
-		{
-			Name:        "setnewschannel",
-			Type:        discordgo.ChatApplicationCommand,
-			Description: "Set a channel to be a channel for news",
-			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionChannel,
-					Name:        "channel",
-					Description: "Channel to set as a news channel",
-					Required:    true,
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "votingchannel",
+					Description: "Set a channel to be a channel for polls",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionChannel,
+							Name:        "channel",
+							Description: "Channel to set as a voting channel",
+							Required:    true,
+						},
+					},
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "newschannel",
+					Description: "Set a channel to be a channel for news",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionChannel,
+							Name:        "channel",
+							Description: "Channel to set as a news channel",
+							Required:    true,
+						},
+					},
 				},
 			},
 		},
@@ -857,29 +863,24 @@ var (
 		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
-		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			bot.setNewsChannel(resp.Options[0].ChannelValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
-		},
-		"setvotingchannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			bot.setVotingChannel(resp.Options[0].ChannelValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
-		},
-		"setvotes": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			bot.setVoteCount(int(resp.Options[0].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
-		},
-		"setpolls": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			bot.setPollCount(int(resp.Options[0].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
-		},
-		"setplaychannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			isPlayChannel := true
-			if len(resp.Options) > 1 {
-				isPlayChannel = resp.Options[1].BoolValue()
+		"set": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData().Options[0]
+			switch resp.Name {
+			case "newschannel":
+				bot.setNewsChannel(resp.Options[0].ChannelValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+			case "votingchannel":
+				bot.setVotingChannel(resp.Options[0].ChannelValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+			case "votes":
+				bot.setVoteCount(int(resp.Options[0].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
+			case "polls":
+				bot.setPollCount(int(resp.Options[0].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
+			case "playchannel":
+				isPlayChannel := true
+				if len(resp.Options) > 1 {
+					isPlayChannel = resp.Options[1].BoolValue()
+				}
+				bot.setPlayChannel(resp.Options[0].ChannelValue(bot.dg).ID, isPlayChannel, bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
-			bot.setPlayChannel(resp.Options[0].ChannelValue(bot.dg).ID, isPlayChannel, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"suggest": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()

@@ -12,6 +12,16 @@ const (
 	guild    = "" // 819077688371314718
 )
 
+type empty struct{}
+
+var toDelete = map[string]empty{
+	"setvotes":         {},
+	"setpolls":         {},
+	"setplaychannel":   {},
+	"setvotingchannel": {},
+	"setnewschannel":   {},
+}
+
 func main() {
 	tok, err := ioutil.ReadFile("../../token.txt")
 	if err != nil {
@@ -36,7 +46,8 @@ func main() {
 	}
 
 	for _, cmd := range cmds {
-		if cmd.Name == "downloadinv" {
+		_, exists := toDelete[cmd.Name]
+		if exists {
 			fmt.Println(cmd.ID, cmd.Name)
 			dg.ApplicationCommandDelete(clientID, guild, cmd.ID)
 		}
