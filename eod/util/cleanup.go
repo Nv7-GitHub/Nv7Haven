@@ -8,3 +8,7 @@ func TrimArray(vals []string) []string {
 	}
 	return vals
 }
+
+func EscapeElement(elem string) string {
+	return strings.ReplaceAll(elem, "\\", "\\\\")
+}

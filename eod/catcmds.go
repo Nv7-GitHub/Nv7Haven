@@ -7,6 +7,7 @@ import (
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
+	"github.com/bwmarrin/discordgo"
 )
 
 const x = "❌"
@@ -203,4 +204,54 @@ func (b *EoD) allCatCmd(sortBy string, hasUser bool, user string, m types.Msg, r
 		PageGetter: b.invPageGetter,
 		Items:      names,
 	}, m, rsp)
+}
+
+func (b *EoD) downloadCatCmd(catName string, sort string, m types.Msg, rsp types.Rsp) {
+	lock.RLock()
+	dat, exists := b.dat[m.GuildID]
+	lock.RUnlock()
+	if !exists {
+		return
+	}
+
+	cat, res := dat.GetCategory(catName)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
+		return
+	}
+
+	dat.Lock.RLock()
+	elems := make([]string, len(cat.Elements))
+	i := 0
+
+	for elem := range cat.Elements {
+		elems[i] = elem
+		i++
+	}
+	dat.Lock.RUnlock()
+
+	sortElemList(elems, sort, dat)
+
+	out := &strings.Builder{}
+	for _, elem := range elems {
+		out.WriteString(elem + "\n")
+	}
+	buf := strings.NewReader(out.String())
+
+	channel, err := b.dg.UserChannelCreate(m.Author.ID)
+	if rsp.Error(err) {
+		return
+	}
+
+	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
+		Content: fmt.Sprintf("Category **%s**:", cat.Name),
+		Files: []*discordgo.File{
+			{
+				Name:        "cat.txt",
+				ContentType: "text/plain",
+				Reader:      buf,
+			},
+		},
+	})
+	rsp.Message("Sent category in DMs!")
 }

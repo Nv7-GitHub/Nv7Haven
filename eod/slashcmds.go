@@ -527,36 +527,64 @@ var (
 			},
 		},
 		{
-			Name:        "downloadinv",
+			Name:        "download",
 			Type:        discordgo.ChatApplicationCommand,
-			Description: "Download your inventory!",
+			Description: "Download an inventory or category!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionUser,
-					Name:        "user",
-					Description: "Optionally, download the inventory of another user!",
-					Required:    false,
-				},
-				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "sortby",
-					Description: "How to sort the inventory!",
-					Required:    false,
-					Choices:     sortChoices,
-				},
-				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "filter",
-					Description: "How to filter the inventory!",
-					Required:    false,
-					Choices: []*discordgo.ApplicationCommandOptionChoice{
+					Name:        "inv",
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Description: "Download a user's inventory!",
+					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Name:  "None",
-							Value: "none",
+							Type:        discordgo.ApplicationCommandOptionUser,
+							Name:        "user",
+							Description: "Optionally, download the inventory of another user!",
+							Required:    false,
 						},
 						{
-							Name:  "Made By",
-							Value: "madeby",
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "sortby",
+							Description: "How to sort the inventory!",
+							Required:    false,
+							Choices:     sortChoices,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "filter",
+							Description: "How to filter the inventory!",
+							Required:    false,
+							Choices: []*discordgo.ApplicationCommandOptionChoice{
+								{
+									Name:  "None",
+									Value: "none",
+								},
+								{
+									Name:  "Made By",
+									Value: "madeby",
+								},
+							},
+						},
+					},
+				},
+				{
+					Name:        "cat",
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Description: "Download a category!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "category",
+							Description: "Which category to download!",
+							Required:    false,
+							Choices:     sortChoices,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "sortby",
+							Description: "How to sort the category!",
+							Required:    false,
+							Choices:     sortChoices,
 						},
 					},
 				},
@@ -1030,25 +1058,47 @@ var (
 			resp := i.ApplicationCommandData()
 			bot.catImgCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
-		"downloadinv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		"download": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			sortby := "name"
-			filter := "none"
-			id := i.Member.User.ID
-			for _, val := range resp.Options {
-				if val.Name == "sortby" {
-					sortby = val.StringValue()
-				}
 
-				if val.Name == "filter" {
-					filter = val.StringValue()
-				}
+			switch resp.Options[0].Name {
+			case "inv":
+				opts := resp.Options[0]
+				sortby := "name"
+				filter := "none"
+				id := i.Member.User.ID
+				for _, val := range opts.Options {
+					if val.Name == "sortby" {
+						sortby = val.StringValue()
+					}
 
-				if val.Name == "user" {
-					id = val.UserValue(bot.dg).ID
+					if val.Name == "filter" {
+						filter = val.StringValue()
+					}
+
+					if val.Name == "user" {
+						id = val.UserValue(bot.dg).ID
+					}
 				}
+				bot.downloadInvCmd(id, sortby, filter, bot.newMsgSlash(i), bot.newRespSlash(i))
+				return
+
+			case "cat":
+				opts := resp.Options[0]
+				sortby := "name"
+				catName := ""
+				for _, val := range opts.Options {
+					if val.Name == "category" {
+						catName = val.StringValue()
+					}
+
+					if val.Name == "sortby" {
+						sortby = val.StringValue()
+					}
+				}
+				bot.downloadCatCmd(catName, sortby, bot.newMsgSlash(i), bot.newRespSlash(i))
+				return
 			}
-			bot.downloadInvCmd(id, sortby, filter, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"catpath": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
 const ldbQuery = `
@@ -88,7 +89,7 @@ func (b *EoD) lbPageGetter(p types.PageSwitcher) (string, int, int, error) {
 }
 
 func (b *EoD) searchPageGetter(p types.PageSwitcher) (string, int, int, error) {
-	wild := "%" + escapeElement(strings.ToLower(p.Search)) + "%"
+	wild := "%" + util.EscapeElement(strings.ToLower(p.Search)) + "%"
 
 	var count int
 	err := b.db.QueryRow("SELECT COUNT(1) FROM eod_elements WHERE guild=? AND LOWER(name) LIKE ?", p.Guild, wild).Scan(&count)
