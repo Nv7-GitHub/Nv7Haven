@@ -10,8 +10,9 @@ import (
 var (
 	commands = []*discordgo.ApplicationCommand{
 		{
-			Name: "set",
-			Type: discordgo.ChatApplicationCommand,
+			Name:        "set",
+			Type:        discordgo.ChatApplicationCommand,
+			Description: "Updates server data!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
 					Type:        discordgo.ApplicationCommandOptionSubCommand,
@@ -80,6 +81,19 @@ var (
 							Type:        discordgo.ApplicationCommandOptionChannel,
 							Name:        "channel",
 							Description: "Channel to set as a news channel",
+							Required:    true,
+						},
+					},
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "modrole",
+					Description: "Set a role to be a role for moderators!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionRole,
+							Name:        "role",
+							Description: "Role to be set as moderator role",
 							Required:    true,
 						},
 					},
@@ -431,19 +445,6 @@ var (
 			Name:        "help",
 			Type:        discordgo.ChatApplicationCommand,
 			Description: "Get help and learn about the bot!",
-		},
-		{
-			Name:        "setmodrole",
-			Type:        discordgo.ChatApplicationCommand,
-			Description: "Set a role to be a role for moderators!",
-			Options: []*discordgo.ApplicationCommandOption{
-				{
-					Type:        discordgo.ApplicationCommandOptionRole,
-					Name:        "role",
-					Description: "Role to be set as moderator role",
-					Required:    true,
-				},
-			},
 		},
 		{
 			Name:        "rmcat",
@@ -874,6 +875,8 @@ var (
 				bot.setVoteCount(int(resp.Options[0].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
 			case "polls":
 				bot.setPollCount(int(resp.Options[0].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
+			case "modrole":
+				bot.setModRole(resp.Options[0].RoleValue(bot.dg, i.GuildID).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 			case "playchannel":
 				isPlayChannel := true
 				if len(resp.Options) > 1 {
@@ -1015,10 +1018,6 @@ var (
 		},
 		"help": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.helpCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
-		},
-		"setmodrole": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			bot.setModRole(resp.Options[0].RoleValue(bot.dg, i.GuildID).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"rmcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()

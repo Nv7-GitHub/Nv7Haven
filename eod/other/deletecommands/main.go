@@ -20,6 +20,7 @@ var toDelete = map[string]empty{
 	"setplaychannel":   {},
 	"setvotingchannel": {},
 	"setnewschannel":   {},
+	"setmodrole":       {},
 }
 
 func main() {
