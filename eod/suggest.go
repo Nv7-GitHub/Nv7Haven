@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
 var invalidNames = []string{
@@ -37,7 +38,7 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m types.Msg, rs
 	}
 
 	if autocapitalize && strings.ToLower(suggestion) == suggestion {
-		suggestion = toTitle(suggestion)
+		suggestion = util.ToTitle(suggestion)
 	}
 
 	if strings.HasPrefix(suggestion, "?") {

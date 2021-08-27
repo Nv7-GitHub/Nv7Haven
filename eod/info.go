@@ -219,10 +219,10 @@ func (b *EoD) info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
 
 	// Get SQL Stats
 	quer := `SELECT a.cnt, b.cnt FROM (SELECT COUNT(1) AS cnt FROM eod_combos WHERE elem3 LIKE ? AND guild=?) a, (SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT('$."', LOWER(?), '"')) IS NOT NULL)) b`
-	if isASCII(elem) {
+	if util.IsASCII(elem) {
 		quer = `SELECT a.cnt, b.cnt FROM (SELECT COUNT(1) AS cnt FROM eod_combos WHERE CONVERT(elem3 USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND guild=CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci) a, (SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT('$."', LOWER(?), '"')) IS NOT NULL)) b`
 	}
-	if isWildcard(elem) {
+	if util.IsWildcard(elem) {
 		quer = strings.ReplaceAll(quer, " LIKE ", "=")
 	}
 

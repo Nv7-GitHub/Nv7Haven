@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"unicode"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
@@ -234,80 +233,6 @@ func (b *EoD) getColor(guild, id string) (int, error) {
 	}
 
 	return 0, errors.New("eod: color not found")
-}
-
-func isASCII(s string) bool {
-	for i := 0; i < len(s); i++ {
-		if s[i] > unicode.MaxASCII {
-			return false
-		}
-	}
-	return true
-}
-
-var wildcards = map[rune]types.Empty{
-	'%': {},
-	'*': {},
-	'?': {},
-	'[': {},
-	']': {},
-	'!': {},
-	'-': {},
-	'#': {},
-	'^': {},
-	'_': {},
-}
-
-func isWildcard(s string) bool {
-	for _, char := range s {
-		_, exists := wildcards[char]
-		if exists {
-			return true
-		}
-	}
-	return false
-}
-
-var smallWords = map[string]types.Empty{
-	"of":  {},
-	"an":  {},
-	"on":  {},
-	"the": {},
-	"to":  {},
-}
-
-func toTitle(s string) string {
-	words := strings.Split(strings.ToLower(s), " ")
-	for i, word := range words {
-		if len(word) < 1 {
-			continue
-		}
-		w := []rune(word)
-		ind := -1
-
-		if w[0] > unicode.MaxASCII {
-			continue
-		}
-
-		if i == 0 {
-			ind = 0
-		} else {
-			_, exists := smallWords[word]
-			if !exists {
-				ind = 0
-			}
-		}
-
-		if w[0] == '(' {
-			ind = 1
-		}
-
-		if ind != -1 {
-			w[ind] = rune(strings.ToUpper(string(word[ind]))[0])
-			words[i] = string(w)
-		}
-	}
-	return strings.Join(words, " ")
 }
 
 // FOOLS

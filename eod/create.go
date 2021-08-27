@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
 const newText = "🆕"
@@ -124,10 +125,10 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	}
 	for k := range params {
 		query := "UPDATE eod_elements SET usedin=usedin+1 WHERE name LIKE ? AND guild LIKE ?"
-		if isASCII(k) {
+		if util.IsASCII(k) {
 			query = "UPDATE eod_elements SET usedin=usedin+1 WHERE CONVERT(name USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND CONVERT(guild USING utf8mb4) LIKE CONVERT(? USING utf8mb4)"
 		}
-		if isWildcard(k) {
+		if util.IsWildcard(k) {
 			query = strings.ReplaceAll(query, " LIKE ", "=")
 		}
 		_, err = tx.Exec(query, k, guild)

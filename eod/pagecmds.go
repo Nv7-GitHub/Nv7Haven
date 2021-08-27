@@ -155,8 +155,8 @@ func (b *EoD) elemSearchCmd(search string, m types.Msg, rsp types.Rsp) {
 		rsp.ErrorMessage("You don't have an inventory!")
 		return
 	}
-	if isWildcard(search) {
-		for val := range wildcards {
+	if util.IsWildcard(search) {
+		for val := range util.Wildcards {
 			search = strings.ReplaceAll(search, string([]rune{val}), string([]rune{'\\', val}))
 		}
 	}

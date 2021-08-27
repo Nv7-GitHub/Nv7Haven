@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -168,17 +169,17 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, in
 	var args []interface{}
 	if !inverse {
 		query = "SELECT elems FROM eod_combos WHERE elem3 LIKE ? AND guild=?"
-		if isASCII(elem) {
+		if util.IsASCII(elem) {
 			query = "SELECT elems FROM eod_combos WHERE CONVERT(elem3 USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND guild=CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci"
 		}
 		args = []interface{}{elem, guild}
-		if isWildcard(elem) {
+		if util.IsWildcard(elem) {
 			query = strings.ReplaceAll(query, " LIKE ", "=")
 		}
 	} else {
 		query = `SELECT DISTINCT elem3 FROM eod_combos WHERE ((elems LIKE CONCAT("%+", LOWER(?), "+%")) OR (elems LIKE CONCAT(LOWER(?), "+%")) OR (elems LIKE CONCAT("%+", LOWER(?)))) AND guild=?`
-		if isWildcard(elem) {
-			for val := range wildcards {
+		if util.IsWildcard(elem) {
+			for val := range util.Wildcards {
 				elem = strings.ReplaceAll(elem, string([]rune{val}), string([]rune{'\\', val}))
 			}
 		}

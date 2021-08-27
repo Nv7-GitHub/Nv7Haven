@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
 func (b *EoD) categoryCmd(elems []string, category string, m types.Msg, rsp types.Rsp) {
@@ -38,6 +39,8 @@ func (b *EoD) categoryCmd(elems []string, category string, m types.Msg, rsp type
 	cat, res := dat.GetCategory(category)
 	if res.Exists {
 		category = cat.Name
+	} else if strings.ToLower(category) == category {
+		category = util.ToTitle(category)
 	}
 
 	suggestAdd := make([]string, 0)
