@@ -120,8 +120,13 @@ func commandsAreEqual(a *discordgo.ApplicationCommand, b *discordgo.ApplicationC
 	if a.Name != b.Name || a.Description != b.Description || len(a.Options) != len(b.Options) {
 		return false
 	}
-	for i, o1 := range a.Options {
-		o2 := b.Options[i]
+
+	return optionsArrEqual(a.Options, b.Options)
+}
+
+func optionsArrEqual(a []*discordgo.ApplicationCommandOption, b []*discordgo.ApplicationCommandOption) bool {
+	for i, o1 := range a {
+		o2 := b[i]
 		if o1.Type != o2.Type || o1.Name != o2.Name || o1.Description != o2.Description || len(o1.Choices) != len(o2.Choices) {
 			return false
 		}
@@ -134,6 +139,14 @@ func commandsAreEqual(a *discordgo.ApplicationCommand, b *discordgo.ApplicationC
 		for i, c1 := range o1.Choices {
 			c2 := o2.Choices[i]
 			if c1.Name != c2.Name || fmt.Sprintf("%v", c1.Value) != fmt.Sprintf("%v", c2.Value) {
+				return false
+			}
+		}
+		if len(o1.Options) != len(o2.Options) {
+			return false
+		}
+		if len(o1.Options) > 0 {
+			if !optionsArrEqual(o1.Options, o2.Options) {
 				return false
 			}
 		}
