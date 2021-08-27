@@ -576,8 +576,7 @@ var (
 							Type:        discordgo.ApplicationCommandOptionString,
 							Name:        "category",
 							Description: "Which category to download!",
-							Required:    false,
-							Choices:     sortChoices,
+							Required:    true,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionString,
