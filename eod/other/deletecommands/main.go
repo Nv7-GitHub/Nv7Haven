@@ -13,7 +13,7 @@ const (
 )
 
 func main() {
-	tok, err := ioutil.ReadFile("../token.txt")
+	tok, err := ioutil.ReadFile("../../token.txt")
 	if err != nil {
 		panic(err)
 	}
@@ -36,7 +36,7 @@ func main() {
 	}
 
 	for _, cmd := range cmds {
-		if cmd.Name == "about" {
+		if cmd.Name == "downloadinv" {
 			fmt.Println(cmd.ID, cmd.Name)
 			dg.ApplicationCommandDelete(clientID, guild, cmd.ID)
 		}
