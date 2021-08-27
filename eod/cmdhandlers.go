@@ -2,6 +2,7 @@ package eod
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
@@ -180,6 +181,18 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 			b.infoCmd(strings.TrimSpace(m.Content[len(cmd)+2:]), msg, rsp)
 			return
+		}
+		if cmd == "kill" && m.GuildID == "705084182673621033" {
+			user, err := b.dg.GuildMember(msg.GuildID, msg.Author.ID)
+			if rsp.Error(err) {
+				return
+			}
+			for _, roleID := range user.Roles {
+				if roleID == "752558195138101329" {
+					rsp.Message("Killing...")
+					os.Exit(2)
+				}
+			}
 		}
 	}
 

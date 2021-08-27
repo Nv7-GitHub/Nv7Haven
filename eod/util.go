@@ -15,6 +15,38 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+// Unneeded for now
+/*func (b *EoD) getRoles(userID string, guild string) ([]*discordgo.Role, error) {
+	user, err := b.dg.GuildMember(guild, userID)
+	if err != nil {
+		return nil, err
+	}
+	hasLoadedRoles := false
+	var roles []*discordgo.Role
+	out := make([]*discordgo.Role, len(user.Roles))
+
+	for i, roleID := range user.Roles {
+		role, err := b.dg.State.Role(guild, roleID)
+		if err != nil {
+			if !hasLoadedRoles {
+				roles, err = b.dg.GuildRoles(guild)
+				if err != nil {
+					return nil, err
+				}
+			}
+
+			for _, role := range roles {
+				if role.ID == roleID {
+					roles[i] = role
+				}
+			}
+		} else {
+			roles[i] = role
+		}
+	}
+	return out, nil
+}*/
+
 func (b *EoD) isMod(userID string, guildID string, m types.Msg) (bool, error) {
 	lock.RLock()
 	dat, inited := b.dat[guildID]
