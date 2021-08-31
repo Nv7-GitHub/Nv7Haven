@@ -781,15 +781,35 @@ var (
 			},
 		},
 		{
-			Name:        "found",
+			Name:        "get",
 			Type:        discordgo.ChatApplicationCommand,
-			Description: "See the user's who have found an element!",
+			Description: "Get a value of an element!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "element",
-					Description: "Name of the element!",
-					Required:    true,
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "found",
+					Description: "See the user's who have found an element!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "element",
+							Description: "Name of the element!",
+							Required:    true,
+						},
+					},
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "categories",
+					Description: "See the categories an element is in!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "element",
+							Description: "Name of the element!",
+							Required:    true,
+						},
+					},
 				},
 			},
 		},
@@ -1195,9 +1215,15 @@ var (
 			}
 			bot.info(elem, id, isID, bot.newMsgSlash(i), rsp)
 		},
-		"found": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			bot.foundCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+		"get": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			opt := i.ApplicationCommandData().Options[0]
+			switch opt.Name {
+			case "found":
+				bot.foundCmd(opt.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+
+			case "categories":
+				bot.categoriesCmd(opt.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			}
 		},
 		"setcolor": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()

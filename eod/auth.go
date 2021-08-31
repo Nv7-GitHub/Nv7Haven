@@ -26,7 +26,7 @@ var noModCmds = map[string]types.Empty{
 	"breakdown":        {},
 	"catbreakdown":     {},
 	"info":             {},
-	"found":            {},
+	"get":              {},
 	"setcolor":         {},
 	"invhint":          {},
 	"elemsearch":       {},

@@ -52,10 +52,12 @@ func (b *EoD) initHandlers() {
 	for _, cmd := range cmds {
 		cms[cmd.Name] = cmd
 	}
+	idealCmds := make(map[string]*discordgo.ApplicationCommand)
 	for _, val := range commands {
 		if val.Name == "elemsort" {
 			val.Options[0].Choices = infoChoices
 		}
+		idealCmds[val.Name] = val
 		cmd, exists := cms[val.Name]
 		if !exists || !commandsAreEqual(cmd, val) {
 			_, err := b.dg.ApplicationCommandCreate(clientID, guild, val)
@@ -63,6 +65,17 @@ func (b *EoD) initHandlers() {
 				fmt.Printf("Failed to update command %s\n", val.Name)
 			} else {
 				fmt.Printf("Updated command %s\n", val.Name)
+			}
+		}
+	}
+	for _, cmd := range cmds {
+		_, exists := idealCmds[cmd.Name]
+		if !exists {
+			err = b.dg.ApplicationCommandDelete(clientID, guild, cmd.ID)
+			if err != nil {
+				fmt.Printf("Failed to delete command %s\n", cmd.Name)
+			} else {
+				fmt.Printf("Deleted command %s\n", cmd.Name)
 			}
 		}
 	}
