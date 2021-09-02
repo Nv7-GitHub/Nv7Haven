@@ -98,16 +98,11 @@ func compareStrings(a, b string) bool {
 	return a < b
 }
 
-func sortStrings(arr []string) {
-	sort.Slice(arr, func(i, j int) bool {
-		return compareStrings(arr[i], arr[j])
-	})
-}
-
 func sortElemList(elems []string, sortName string, dat types.ServerData) {
+	sorter := sorts[sortName]
 	dat.Lock.RLock()
 	sort.Slice(elems, func(i, j int) bool {
-		return sorts[sortName](elems[i], elems[j], dat)
+		return sorter(elems[i], elems[j], dat)
 	})
 	dat.Lock.RUnlock()
 }

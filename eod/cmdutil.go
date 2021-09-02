@@ -22,14 +22,20 @@ func (n *normalResp) Error(err error) bool {
 		_, err := n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" Error: "+err.Error()+" "+redCircle)
 		if err != nil {
 			log.SetOutput(discordlogs)
+			log.Println(err)
 		}
 		return true
 	}
 	return false
 }
 
-func (n *normalResp) ErrorMessage(msg string) {
-	n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" "+msg+" "+redCircle)
+func (n *normalResp) ErrorMessage(msg string) string {
+	m, err := n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" "+msg+" "+redCircle)
+	if err != nil {
+		log.SetOutput(discordlogs)
+		log.Println(err)
+	}
+	return m.ID
 }
 
 func (n *normalResp) Resp(msg string, components ...discordgo.MessageComponent) {
@@ -160,11 +166,16 @@ func (s *slashResp) Error(err error) bool {
 	return false
 }
 
-func (s *slashResp) ErrorMessage(msg string) {
+func (s *slashResp) ErrorMessage(msg string) string {
 	if s.isFollowup {
-		s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
+		m, err := s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
 			Content: "Error: " + msg,
 		})
+		if err != nil {
+			log.SetOutput(discordlogs)
+			log.Println(err)
+		}
+		return m.ID
 	}
 
 	s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
@@ -174,6 +185,7 @@ func (s *slashResp) ErrorMessage(msg string) {
 			Content: "Error: " + msg,
 		},
 	})
+	return ""
 }
 
 func (s *slashResp) Resp(msg string, components ...discordgo.MessageComponent) {

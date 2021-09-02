@@ -55,7 +55,7 @@ func (b *EoD) resetInvCmd(user string, m types.Msg, rsp types.Rsp) {
 	rsp.Resp("Successfully reset <@" + user + ">'s inventory!")
 }
 
-func (b *EoD) downloadInvCmd(user string, sorter string, m types.Msg, rsp types.Rsp) {
+func (b *EoD) downloadInvCmd(user string, sorter string, filter string, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 
 	lock.RLock()
@@ -79,7 +79,7 @@ func (b *EoD) downloadInvCmd(user string, sorter string, m types.Msg, rsp types.
 	}
 	dat.Lock.RUnlock()
 
-	switch sorter {
+	switch filter {
 	case "madeby":
 		count := 0
 		outs := make([]string, len(items))
@@ -95,11 +95,9 @@ func (b *EoD) downloadInvCmd(user string, sorter string, m types.Msg, rsp types.
 			}
 		}
 		outs = outs[:count]
-		sortStrings(outs)
 		items = outs
-	default:
-		sortElemList(items, sorter, dat)
 	}
+	sortElemList(items, sorter, dat)
 
 	out := &strings.Builder{}
 	for _, val := range items {

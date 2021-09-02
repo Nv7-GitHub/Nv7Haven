@@ -2,11 +2,13 @@ package eod
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
-func (b *EoD) invCmd(user string, m types.Msg, rsp types.Rsp, sorter string) {
+func (b *EoD) invCmd(user string, m types.Msg, rsp types.Rsp, sorter string, filter string) {
 	rsp.Acknowledge()
 
 	lock.RLock()
@@ -31,7 +33,7 @@ func (b *EoD) invCmd(user string, m types.Msg, rsp types.Rsp, sorter string) {
 		i++
 	}
 
-	switch sorter {
+	switch filter {
 	case "madeby":
 		count := 0
 		outs := make([]string, len(items))
@@ -47,11 +49,9 @@ func (b *EoD) invCmd(user string, m types.Msg, rsp types.Rsp, sorter string) {
 			}
 		}
 		outs = outs[:count]
-		sortStrings(outs)
 		items = outs
-	default:
-		sortElemList(items, sorter, dat)
 	}
+	sortElemList(items, sorter, dat)
 	dat.Lock.RUnlock()
 
 	name := m.Author.Username
@@ -64,13 +64,35 @@ func (b *EoD) invCmd(user string, m types.Msg, rsp types.Rsp, sorter string) {
 	}
 	b.newPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
-		Title:      fmt.Sprintf("%s's Inventory (%d, %s%%)", name, len(items), formatFloat(float32(len(items))/float32(len(dat.Elements))*100, 2)),
+		Title:      fmt.Sprintf("%s's Inventory (%d, %s%%)", name, len(items), util.FormatFloat(float32(len(items))/float32(len(dat.Elements))*100, 2)),
 		PageGetter: b.invPageGetter,
 		Items:      items,
 	}, m, rsp)
 }
 
-func (b *EoD) lbCmd(m types.Msg, rsp types.Rsp, sort string) {
+func (b *EoD) lbCmd(m types.Msg, rsp types.Rsp, sort string, user string) {
+	lock.RLock()
+	dat, exists := b.dat[m.GuildID]
+	lock.RUnlock()
+	if !exists {
+		return
+	}
+	_, res := dat.GetInv(user, user == m.Author.ID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
+		return
+	}
+
+	b.newPageSwitcher(types.PageSwitcher{
+		Kind:       types.PageSwitchLdb,
+		Title:      "Top Most Elements",
+		PageGetter: b.lbPageGetter,
+		Sort:       sort,
+		User:       user,
+	}, m, rsp)
+}
+
+func (b *EoD) elemSearchCmd(search string, m types.Msg, rsp types.Rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -82,63 +104,17 @@ func (b *EoD) lbCmd(m types.Msg, rsp types.Rsp, sort string) {
 		rsp.ErrorMessage("You don't have an inventory!")
 		return
 	}
-
-	b.newPageSwitcher(types.PageSwitcher{
-		Kind:       types.PageSwitchLdb,
-		Title:      "Top Most Elements",
-		PageGetter: b.lbPageGetter,
-		Sort:       sort,
-		User:       m.Author.ID,
-	}, m, rsp)
-}
-
-func (b *EoD) foundCmd(elem string, m types.Msg, rsp types.Rsp) {
-	lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
-	if !exists {
-		return
-	}
-
-	rsp.Acknowledge()
-
-	el, res := dat.GetElement(elem)
-	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
-	}
-
-	var foundCnt int
-	err := b.db.QueryRow(`SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT('$."', LOWER(?), '"')) IS NOT NULL)`, m.GuildID, el.Name).Scan(&foundCnt)
-	if rsp.Error(err) {
-		return
-	}
-
-	found, err := b.db.Query(`SELECT user as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT('$."', LOWER(?), '"')) IS NOT NULL)`, m.GuildID, el.Name)
-	if rsp.Error(err) {
-		return
-	}
-	defer found.Close()
-
-	out := make([]string, foundCnt)
-	i := 0
-
-	var user string
-	for found.Next() {
-		err = found.Scan(&user)
-		if rsp.Error(err) {
-			return
+	if util.IsWildcard(search) {
+		for val := range util.Wildcards {
+			search = strings.ReplaceAll(search, string([]rune{val}), string([]rune{'\\', val}))
 		}
-
-		out[i] = fmt.Sprintf("<@%s>", user)
-		i++
 	}
 
 	b.newPageSwitcher(types.PageSwitcher{
-		Kind:       types.PageSwitchInv,
-		Title:      fmt.Sprintf("%s Found (%d)", el.Name, len(out)),
-		PageGetter: b.invPageGetter,
-		Items:      out,
+		Kind:       types.PageSwitchSearch,
+		Title:      "Element Search",
+		PageGetter: b.searchPageGetter,
+		Search:     search,
 		User:       m.Author.ID,
 	}, m, rsp)
 }

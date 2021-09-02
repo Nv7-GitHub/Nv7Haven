@@ -6,25 +6,22 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
+	"github.com/bwmarrin/discordgo"
 )
 
 const x = "❌"
 const check = "✅"
 
-const (
-	catSortAlphabetical   = 0
-	catSortByFound        = 1
-	catSortByNotFound     = 2
-	catSortByElementCount = 3
-)
-
-func (b *EoD) catCmd(category string, sortKind int, hasUser bool, user string, m types.Msg, rsp types.Rsp) {
+func (b *EoD) catCmd(category string, sortKind string, hasUser bool, user string, m types.Msg, rsp types.Rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
 	if !exists {
 		return
 	}
+
+	category = strings.TrimSpace(category)
 
 	if isFoolsMode && !isFool(category) {
 		rsp.ErrorMessage(makeFoolResp(category))
@@ -84,20 +81,27 @@ func (b *EoD) catCmd(category string, sortKind int, hasUser bool, user string, m
 	}
 
 	switch sortKind {
-	case catSortByFound:
+	case "catfound":
 		sort.Slice(out, func(i, j int) bool {
 			return out[i].found > out[j].found
 		})
 
-	case catSortByNotFound:
+	case "catnotfound":
 		sort.Slice(out, func(i, j int) bool {
 			return out[i].found < out[j].found
 		})
 
+	case "catelemcount":
+		rsp.ErrorMessage("Invalid sort!")
+		return
+
 	default:
+		sorter := sorts[sortKind]
+		dat.Lock.RLock()
 		sort.Slice(out, func(i, j int) bool {
-			return compareStrings(out[i].name, out[j].name)
+			return sorter(out[i].name, out[j].name, dat)
 		})
+		dat.Lock.RUnlock()
 	}
 
 	o := make([]string, len(out))
@@ -108,7 +112,7 @@ func (b *EoD) catCmd(category string, sortKind int, hasUser bool, user string, m
 	b.newPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
 		Thumbnail:  cat.Image,
-		Title:      fmt.Sprintf("%s (%d, %s%%)", category, len(out), formatFloat(float32(found)/float32(len(out))*100, 2)),
+		Title:      fmt.Sprintf("%s (%d, %s%%)", category, len(out), util.FormatFloat(float32(found)/float32(len(out))*100, 2)),
 		PageGetter: b.invPageGetter,
 		Items:      o,
 	}, m, rsp)
@@ -121,7 +125,7 @@ type catData struct {
 	count int
 }
 
-func (b *EoD) allCatCmd(sortBy int, hasUser bool, user string, m types.Msg, rsp types.Rsp) {
+func (b *EoD) allCatCmd(sortBy string, hasUser bool, user string, m types.Msg, rsp types.Rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -153,7 +157,7 @@ func (b *EoD) allCatCmd(sortBy int, hasUser bool, user string, m types.Msg, rsp 
 		}
 
 		perc := float32(count) / float32(len(cat.Elements))
-		text := "(" + formatFloat(perc*100, 2) + "%)"
+		text := "(" + util.FormatFloat(perc*100, 2) + "%)"
 		if count == len(cat.Elements) {
 			text = check
 		}
@@ -168,24 +172,24 @@ func (b *EoD) allCatCmd(sortBy int, hasUser bool, user string, m types.Msg, rsp 
 	dat.Lock.RUnlock()
 
 	switch sortBy {
-	case catSortByFound:
+	case "catfound":
 		sort.Slice(out, func(i, j int) bool {
 			return out[i].found > out[j].found
 		})
 
-	case catSortByNotFound:
+	case "catnotfound":
 		sort.Slice(out, func(i, j int) bool {
 			return out[i].found < out[j].found
 		})
 
-	case catSortAlphabetical:
-		sort.Slice(out, func(i, j int) bool {
-			return compareStrings(out[i].name, out[j].name)
-		})
-
-	case catSortByElementCount:
+	case "catelemcount":
 		sort.Slice(out, func(i, j int) bool {
 			return out[i].count > out[j].count
+		})
+
+	default:
+		sort.Slice(out, func(i, j int) bool {
+			return compareStrings(out[i].name, out[j].name)
 		})
 	}
 
@@ -200,4 +204,54 @@ func (b *EoD) allCatCmd(sortBy int, hasUser bool, user string, m types.Msg, rsp 
 		PageGetter: b.invPageGetter,
 		Items:      names,
 	}, m, rsp)
+}
+
+func (b *EoD) downloadCatCmd(catName string, sort string, m types.Msg, rsp types.Rsp) {
+	lock.RLock()
+	dat, exists := b.dat[m.GuildID]
+	lock.RUnlock()
+	if !exists {
+		return
+	}
+
+	cat, res := dat.GetCategory(catName)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
+		return
+	}
+
+	dat.Lock.RLock()
+	elems := make([]string, len(cat.Elements))
+	i := 0
+
+	for elem := range cat.Elements {
+		elems[i] = elem
+		i++
+	}
+	dat.Lock.RUnlock()
+
+	sortElemList(elems, sort, dat)
+
+	out := &strings.Builder{}
+	for _, elem := range elems {
+		out.WriteString(elem + "\n")
+	}
+	buf := strings.NewReader(out.String())
+
+	channel, err := b.dg.UserChannelCreate(m.Author.ID)
+	if rsp.Error(err) {
+		return
+	}
+
+	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
+		Content: fmt.Sprintf("Category **%s**:", cat.Name),
+		Files: []*discordgo.File{
+			{
+				Name:        "cat.txt",
+				ContentType: "text/plain",
+				Reader:      buf,
+			},
+		},
+	})
+	rsp.Message("Sent category in DMs!")
 }

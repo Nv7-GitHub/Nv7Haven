@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
 func (b *EoD) categoryCmd(elems []string, category string, m types.Msg, rsp types.Rsp) {
@@ -38,6 +39,8 @@ func (b *EoD) categoryCmd(elems []string, category string, m types.Msg, rsp type
 	cat, res := dat.GetCategory(category)
 	if res.Exists {
 		category = cat.Name
+	} else if strings.ToLower(category) == category {
+		category = util.ToTitle(category)
 	}
 
 	suggestAdd := make([]string, 0)
@@ -45,7 +48,24 @@ func (b *EoD) categoryCmd(elems []string, category string, m types.Msg, rsp type
 	for _, val := range elems {
 		el, res := dat.GetElement(val)
 		if !res.Exists {
-			rsp.ErrorMessage(res.Message)
+			notExists := make(map[string]types.Empty)
+			for _, el := range elems {
+				_, res = dat.GetElement(el)
+				if !res.Exists {
+					notExists["**"+el+"**"] = types.Empty{}
+				}
+			}
+			if len(notExists) == 1 {
+				el := ""
+				for k := range notExists {
+					el = k
+					break
+				}
+				rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", el))
+				return
+			}
+
+			rsp.ErrorMessage("Elements " + joinTxt(notExists, "and") + " don't exist!")
 			return
 		}
 
@@ -108,6 +128,79 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m types.Msg, rsp ty
 
 	category = cat.Name
 
+	// Error messages
+	notincat := false
+	elExists := true
+	for _, val := range elems {
+		el, res := dat.GetElement(val)
+		if !res.Exists {
+			elExists = false
+			break
+		}
+
+		_, cont := cat.Elements[el.Name]
+		if !cont {
+			notincat = true
+		}
+	}
+
+	if !elExists {
+		notExists := make(map[string]types.Empty)
+		for _, el := range elems {
+			_, res = dat.GetElement(el)
+			if !res.Exists {
+				notExists["**"+el+"**"] = types.Empty{}
+			}
+		}
+		if len(notExists) == 1 {
+			el := ""
+			for k := range notExists {
+				el = k
+				break
+			}
+			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", el))
+			return
+		}
+
+		rsp.ErrorMessage("Elements " + joinTxt(notExists, "and") + " don't exist!")
+		return
+	}
+
+	if notincat {
+		_, res := dat.GetComb(m.Author.ID)
+		if res.Exists {
+			dat.DeleteComb(m.Author.ID)
+
+			lock.Lock()
+			b.dat[m.GuildID] = dat
+			lock.Unlock()
+		}
+
+		notFound := make(map[string]types.Empty)
+		for _, el := range elems {
+			elem, _ := dat.GetElement(el)
+			_, exists := cat.Elements[elem.Name]
+			if !exists {
+				elem, _ := dat.GetElement(el)
+				notFound["**"+elem.Name+"**"] = types.Empty{}
+			}
+		}
+
+		if len(notFound) == 1 {
+			el := ""
+			for k := range notFound {
+				el = k
+				break
+			}
+			rsp.ErrorMessage(fmt.Sprintf("Element **%s** isn't in category **%s**!", el, cat.Name))
+			return
+		}
+
+		rsp.ErrorMessage(fmt.Sprintf("Elements %s aren't in category **%s**!", joinTxt(notFound, "and"), cat.Name))
+		return
+	}
+
+	// Actually remove
 	suggestRm := make([]string, 0)
 	rmed := make([]string, 0)
 	for _, val := range elems {
@@ -117,7 +210,7 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m types.Msg, rsp ty
 			return
 		}
 
-		exists = cat.Elements.Contains(el.Name)
+		_, exists = cat.Elements[el.Name]
 		if !exists {
 			rsp.ErrorMessage(fmt.Sprintf("Element **%s** isn't in category **%s**!", el.Name, cat.Name))
 			return

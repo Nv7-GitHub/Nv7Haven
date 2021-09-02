@@ -8,6 +8,7 @@ var (
 	commands = []*discordgo.ApplicationCommand{
 		{
 			Name:        "givenum",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Give yourself a number!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -20,6 +21,7 @@ var (
 		},
 		{
 			Name:        "getnum",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Get your number or someone else's number!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -32,22 +34,27 @@ var (
 		},
 		{
 			Name:        "randselect",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Select a random number out of all the numbers people have and congratulate them!",
 		},
 		{
 			Name:        "meme",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Get a meme fresh off of reddit! (r/memes)",
 		},
 		{
 			Name:        "cmeme",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Get a clean meme fresh off of reddit! (r/cleanmemes)",
 		},
 		{
 			Name:        "pmeme",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Get a programming meme fresh off of reddit! (r/ProgrammerHumor)",
 		},
 		{
 			Name:        "warn",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Warn a user",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -66,6 +73,7 @@ var (
 		},
 		{
 			Name:        "warns",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Get a user's warnings, or if no user is given, every warning in the server!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -78,6 +86,7 @@ var (
 		},
 		{
 			Name:        "ping",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Confirm the bot is alive, and find out how laggy discord is!",
 		},
 	}

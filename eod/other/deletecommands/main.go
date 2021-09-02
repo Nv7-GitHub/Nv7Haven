@@ -12,8 +12,19 @@ const (
 	guild    = "" // 819077688371314718
 )
 
+type empty struct{}
+
+var toDelete = map[string]empty{
+	"setvotes":         {},
+	"setpolls":         {},
+	"setplaychannel":   {},
+	"setvotingchannel": {},
+	"setnewschannel":   {},
+	"setmodrole":       {},
+}
+
 func main() {
-	tok, err := ioutil.ReadFile("../token.txt")
+	tok, err := ioutil.ReadFile("../../token.txt")
 	if err != nil {
 		panic(err)
 	}
@@ -36,7 +47,8 @@ func main() {
 	}
 
 	for _, cmd := range cmds {
-		if cmd.Name == "about" {
+		_, exists := toDelete[cmd.Name]
+		if exists {
 			fmt.Println(cmd.ID, cmd.Name)
 			dg.ApplicationCommandDelete(clientID, guild, cmd.ID)
 		}

@@ -9,11 +9,42 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"unicode"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
+
+// Unneeded for now
+/*func (b *EoD) getRoles(userID string, guild string) ([]*discordgo.Role, error) {
+	user, err := b.dg.GuildMember(guild, userID)
+	if err != nil {
+		return nil, err
+	}
+	hasLoadedRoles := false
+	var roles []*discordgo.Role
+	out := make([]*discordgo.Role, len(user.Roles))
+
+	for i, roleID := range user.Roles {
+		role, err := b.dg.State.Role(guild, roleID)
+		if err != nil {
+			if !hasLoadedRoles {
+				roles, err = b.dg.GuildRoles(guild)
+				if err != nil {
+					return nil, err
+				}
+			}
+
+			for _, role := range roles {
+				if role.ID == roleID {
+					roles[i] = role
+				}
+			}
+		} else {
+			roles[i] = role
+		}
+	}
+	return out, nil
+}*/
 
 func (b *EoD) isMod(userID string, guildID string, m types.Msg) (bool, error) {
 	lock.RLock()
@@ -24,6 +55,10 @@ func (b *EoD) isMod(userID string, guildID string, m types.Msg) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	if (user.Permissions * discordgo.PermissionAdministrator) == discordgo.PermissionAdministrator {
+		return true, nil
+	}
+
 	hasLoadedRoles := false
 	var roles []*discordgo.Role
 
@@ -145,41 +180,6 @@ func (b *EoD) image(guild string, elem string, image string, creator string) {
 	}
 }
 
-func formatFloat(num float32, prc int) string {
-	var (
-		zero, dot = "0", "."
-
-		str = fmt.Sprintf("%."+strconv.Itoa(prc)+"f", num)
-	)
-
-	return strings.TrimRight(strings.TrimRight(str, zero), dot)
-}
-
-func formatInt(n int) string {
-	in := strconv.FormatInt(int64(n), 10)
-	numOfDigits := len(in)
-	if n < 0 {
-		numOfDigits-- // First character is the - sign (not a digit)
-	}
-	numOfCommas := (numOfDigits - 1) / 3
-
-	out := make([]byte, len(in)+numOfCommas)
-	if n < 0 {
-		in, out[0] = in[1:], '-'
-	}
-
-	for i, j, k := len(in)-1, len(out)-1, 0; ; i, j = i-1, j-1 {
-		out[j] = in[i]
-		if i == 0 {
-			return string(out)
-		}
-		if k++; k == 3 {
-			j, k = j-1, 0
-			out[j] = ','
-		}
-	}
-}
-
 func (b *EoD) getRole(id string, guild string) (*discordgo.Role, error) {
 	role, err := b.dg.State.Role(guild, id)
 	if err == nil {
@@ -201,6 +201,16 @@ func (b *EoD) getRole(id string, guild string) (*discordgo.Role, error) {
 }
 
 func (b *EoD) getColor(guild, id string) (int, error) {
+	lock.RLock()
+	dat, exists := b.dat[guild]
+	lock.RUnlock()
+	if exists {
+		col, exists := dat.UserColors[id]
+		if exists {
+			return col, nil
+		}
+	}
+
 	mem, err := b.dg.State.Member(guild, id)
 	if err != nil {
 		mem, err = b.dg.GuildMember(guild, id)
@@ -229,80 +239,6 @@ func (b *EoD) getColor(guild, id string) (int, error) {
 	return 0, errors.New("eod: color not found")
 }
 
-func isASCII(s string) bool {
-	for i := 0; i < len(s); i++ {
-		if s[i] > unicode.MaxASCII {
-			return false
-		}
-	}
-	return true
-}
-
-var wildcards = map[rune]types.Empty{
-	'%': {},
-	'*': {},
-	'?': {},
-	'[': {},
-	']': {},
-	'!': {},
-	'-': {},
-	'#': {},
-	'^': {},
-	'_': {},
-}
-
-func isWildcard(s string) bool {
-	for _, char := range s {
-		_, exists := wildcards[char]
-		if exists {
-			return true
-		}
-	}
-	return false
-}
-
-var smallWords = map[string]types.Empty{
-	"of":  {},
-	"an":  {},
-	"on":  {},
-	"the": {},
-	"to":  {},
-}
-
-func toTitle(s string) string {
-	words := strings.Split(strings.ToLower(s), " ")
-	for i, word := range words {
-		if len(word) < 1 {
-			continue
-		}
-		w := []rune(word)
-		ind := -1
-
-		if w[0] > unicode.MaxASCII {
-			continue
-		}
-
-		if i == 0 {
-			ind = 0
-		} else {
-			_, exists := smallWords[word]
-			if !exists {
-				ind = 0
-			}
-		}
-
-		if w[0] == '(' {
-			ind = 1
-		}
-
-		if ind != -1 {
-			w[ind] = rune(strings.ToUpper(string(word[ind]))[0])
-			words[i] = string(w)
-		}
-	}
-	return strings.Join(words, " ")
-}
-
 // FOOLS
 //go:embed fools.txt
 var foolsRaw string
@@ -323,6 +259,25 @@ func makeFoolResp(val string) string {
 	return fmt.Sprintf("**%s** doesn't satisfy me!", val)
 }
 
-func escapeElement(elem string) string {
-	return strings.ReplaceAll(elem, "\\", "\\\\")
+func splitByCombs(inp string) []string {
+	for _, val := range combs {
+		if strings.Contains(inp, val) {
+			return strings.Split(inp, val)
+		}
+	}
+	return []string{inp}
+}
+
+func (b *EoD) getMessageElem(id string, guild string) (string, bool) {
+	lock.RLock()
+	dat, exists := b.dat[guild]
+	lock.RUnlock()
+	if !exists {
+		return "Guild not setup yet!", false
+	}
+	el, res := dat.GetMsgElem(id)
+	if !res.Exists {
+		return res.Message, false
+	}
+	return el, true
 }

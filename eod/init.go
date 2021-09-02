@@ -102,6 +102,21 @@ func (b *EoD) init() {
 			//lock.Lock()
 			b.dat[guild] = dat
 			//lock.Unlock()
+
+		case types.UserColor:
+			//lock.RLock()
+			dat, exists := b.dat[guild]
+			//lock.RUnlock()
+			if !exists {
+				dat = types.NewServerData()
+			}
+			if dat.UserColors == nil {
+				dat.UserColors = make(map[string]int)
+			}
+			dat.UserColors[value1] = intval
+			//lock.Lock()
+			b.dat[guild] = dat
+			//lock.Unlock()
 		}
 	}
 
@@ -146,6 +161,40 @@ func (b *EoD) init() {
 		dat.Elements[strings.ToLower(elem.Name)] = elem
 		//lock.Lock()
 		b.dat[elem.Guild] = dat
+		//lock.Unlock()
+
+		bar.Add(1)
+	}
+	bar.Finish()
+
+	err = b.db.QueryRow("SELECT COUNT(1) FROM eod_combos").Scan(&cnt)
+	if err != nil {
+		panic(err)
+	}
+
+	bar = progressbar.New(cnt)
+
+	combs, err := b.db.Query("SELECT * FROM `eod_combos`")
+	if err != nil {
+		panic(err)
+	}
+	defer combs.Close()
+	var elemsVal string
+	var elem3 string
+	for combs.Next() {
+		err = combs.Scan(&guild, &elemsVal, &elem3)
+		if err != nil {
+			return
+		}
+		//lock.RLock()
+		dat := b.dat[guild]
+		//lock.RUnlock()
+		if dat.Combos == nil {
+			dat.Combos = make(map[string]string)
+		}
+		dat.Combos[elemsVal] = elem3
+		//lock.Lock()
+		b.dat[guild] = dat
 		//lock.Unlock()
 
 		bar.Add(1)
@@ -206,11 +255,11 @@ func (b *EoD) init() {
 	var po types.Poll
 	for polls.Next() {
 		var jsondat string
-		err = polls.Scan(&guild, &po.Channel, &po.Message, &po.Kind, &po.Value1, &po.Value2, &po.Value3, &po.Value4, &jsondat)
+		po.Data = nil
+		err = polls.Scan(&po.Guild, &po.Channel, &po.Message, &po.Kind, &po.Value1, &po.Value2, &po.Value3, &po.Value4, &jsondat)
 		if err != nil {
 			panic(err)
 		}
-		po.Guild = guild
 		err = json.Unmarshal([]byte(jsondat), &po.Data)
 		if err != nil {
 			panic(err)

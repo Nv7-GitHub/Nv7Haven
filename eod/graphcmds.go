@@ -135,7 +135,19 @@ func (b *EoD) graphCmd(elems map[string]types.Empty, dat types.ServerData, m typ
 		}
 	}
 
-	rsp.Message(txt)
+	id := rsp.Message(txt)
+	if len(elems) == 1 {
+		var elem string
+		for k := range elems {
+			elem = k
+			break
+		}
+
+		dat.SetMsgElem(id, elem)
+		lock.Lock()
+		b.dat[m.GuildID] = dat
+		lock.Unlock()
+	}
 
 	channel, err := b.dg.UserChannelCreate(m.Author.ID)
 	if rsp.Error(err) {

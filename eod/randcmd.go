@@ -104,11 +104,10 @@ func (b *EoD) genIdea(count int, catName string, hasCat bool, elemName string, h
 		}
 	}
 
-	var elem3 string
-	cont := true
+	res = types.GetResponse{Exists: true}
 	var elems []string
 	tries := 0
-	for cont {
+	for res.Exists {
 		elems = make([]string, count)
 		for i := range elems {
 			cnt := rand.Intn(len(els))
@@ -125,19 +124,10 @@ func (b *EoD) genIdea(count int, catName string, hasCat bool, elemName string, h
 			elems = append([]string{elemName}, elems...)
 		}
 
-		query := "SELECT elem3 FROM eod_combos WHERE elems LIKE ? AND guild=?"
-		els := elems2txt(elems)
-		if isASCII(els) {
-			query = "SELECT elem3 FROM eod_combos WHERE CONVERT(elems USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND guild=CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci"
-		}
-		row := b.db.QueryRow(query, els, guild)
-		err := row.Scan(&elem3)
-		if err != nil {
-			cont = false
-		}
+		_, res = dat.GetCombo(elems2txt(elems))
 		tries++
 
-		if tries > 10 {
+		if tries > 21 {
 			return "Couldn't find a random unused combination, maybe try again later?", false
 		}
 	}

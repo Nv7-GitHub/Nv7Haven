@@ -15,6 +15,8 @@ func (b *EoD) markCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 
+	rsp.Acknowledge()
+
 	el, res := dat.GetElement(elem)
 	if !res.Exists {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
@@ -54,7 +56,12 @@ func (b *EoD) markCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
 	if rsp.Error(err) {
 		return
 	}
-	rsp.Message(fmt.Sprintf("Suggested a note for **%s** 🖊️", el.Name))
+	id := rsp.Message(fmt.Sprintf("Suggested a note for **%s** 🖊️", el.Name))
+	dat.SetMsgElem(id, el.Name)
+
+	lock.Lock()
+	b.dat[m.GuildID] = dat
+	lock.Unlock()
 }
 
 func (b *EoD) imageCmd(elem string, image string, m types.Msg, rsp types.Rsp) {
@@ -64,6 +71,8 @@ func (b *EoD) imageCmd(elem string, image string, m types.Msg, rsp types.Rsp) {
 	if !exists {
 		return
 	}
+
+	rsp.Acknowledge()
 
 	el, res := dat.GetElement(elem)
 	if !res.Exists {
@@ -91,7 +100,7 @@ func (b *EoD) imageCmd(elem string, image string, m types.Msg, rsp types.Rsp) {
 
 	if el.Creator == m.Author.ID {
 		b.image(m.GuildID, elem, image, "")
-		rsp.Resp(fmt.Sprintf("You added an image to **%s**! 📷", el.Name))
+		rsp.Message(fmt.Sprintf("You added an image to **%s**! 📷", el.Name))
 		return
 	}
 
@@ -107,5 +116,10 @@ func (b *EoD) imageCmd(elem string, image string, m types.Msg, rsp types.Rsp) {
 	if rsp.Error(err) {
 		return
 	}
-	rsp.Message(fmt.Sprintf("Suggested an image for **%s** 📷", el.Name))
+	id := rsp.Message(fmt.Sprintf("Suggested an image for **%s** 📷", el.Name))
+	dat.SetMsgElem(id, el.Name)
+
+	lock.Lock()
+	b.dat[m.GuildID] = dat
+	lock.Unlock()
 }

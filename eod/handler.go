@@ -52,10 +52,12 @@ func (b *EoD) initHandlers() {
 	for _, cmd := range cmds {
 		cms[cmd.Name] = cmd
 	}
+	idealCmds := make(map[string]*discordgo.ApplicationCommand)
 	for _, val := range commands {
 		if val.Name == "elemsort" {
 			val.Options[0].Choices = infoChoices
 		}
+		idealCmds[val.Name] = val
 		cmd, exists := cms[val.Name]
 		if !exists || !commandsAreEqual(cmd, val) {
 			_, err := b.dg.ApplicationCommandCreate(clientID, guild, val)
@@ -66,8 +68,23 @@ func (b *EoD) initHandlers() {
 			}
 		}
 	}
+	for _, cmd := range cmds {
+		_, exists := idealCmds[cmd.Name]
+		if !exists {
+			err = b.dg.ApplicationCommandDelete(clientID, guild, cmd.ID)
+			if err != nil {
+				fmt.Printf("Failed to delete command %s\n", cmd.Name)
+			} else {
+				fmt.Printf("Deleted command %s\n", cmd.Name)
+			}
+		}
+	}
 
 	b.dg.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		if i.Member == nil {
+			return
+		}
+
 		// Command
 		if i.Type == discordgo.InteractionApplicationCommand {
 			rsp := b.newRespSlash(i)
@@ -116,8 +133,13 @@ func commandsAreEqual(a *discordgo.ApplicationCommand, b *discordgo.ApplicationC
 	if a.Name != b.Name || a.Description != b.Description || len(a.Options) != len(b.Options) {
 		return false
 	}
-	for i, o1 := range a.Options {
-		o2 := b.Options[i]
+
+	return optionsArrEqual(a.Options, b.Options)
+}
+
+func optionsArrEqual(a []*discordgo.ApplicationCommandOption, b []*discordgo.ApplicationCommandOption) bool {
+	for i, o1 := range a {
+		o2 := b[i]
 		if o1.Type != o2.Type || o1.Name != o2.Name || o1.Description != o2.Description || len(o1.Choices) != len(o2.Choices) {
 			return false
 		}
@@ -130,6 +152,14 @@ func commandsAreEqual(a *discordgo.ApplicationCommand, b *discordgo.ApplicationC
 		for i, c1 := range o1.Choices {
 			c2 := o2.Choices[i]
 			if c1.Name != c2.Name || fmt.Sprintf("%v", c1.Value) != fmt.Sprintf("%v", c2.Value) {
+				return false
+			}
+		}
+		if len(o1.Options) != len(o2.Options) {
+			return false
+		}
+		if len(o1.Options) > 0 {
+			if !optionsArrEqual(o1.Options, o2.Options) {
 				return false
 			}
 		}

@@ -104,3 +104,28 @@ func (dat *ServerData) GetPoll(id string) (Poll, GetResponse) {
 	}
 	return poll, GetResponse{Exists: true}
 }
+
+func (dat *ServerData) GetCombo(elems string) (string, GetResponse) {
+	dat.Lock.RLock()
+	elem3, exists := dat.Combos[elems]
+	dat.Lock.RUnlock()
+	if !exists {
+		return "", GetResponse{
+			Exists: false,
+		}
+	}
+	return elem3, GetResponse{Exists: true}
+}
+
+func (dat *ServerData) GetMsgElem(id string) (string, GetResponse) {
+	dat.Lock.RLock()
+	elem, exists := dat.ElementMsgs[id]
+	dat.Lock.RUnlock()
+	if !exists {
+		return "", GetResponse{
+			Exists:  false,
+			Message: "Message doesn't have an element!",
+		}
+	}
+	return elem, GetResponse{Exists: true}
+}

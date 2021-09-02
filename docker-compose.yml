@@ -1,6 +1,7 @@
 version: '3'
 
-# Needs environment variables set: PORT, PHP_PORT, PASSWORD
+# Needs environment variables set: PHP_PORT, PASSWORD
+# Nv7haven needs PORT env var too
 
 services:
   db:

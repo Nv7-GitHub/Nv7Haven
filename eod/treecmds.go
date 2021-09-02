@@ -127,11 +127,22 @@ func (b *EoD) calcTreeCmd(elem string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 	if len(txt) <= 2000 {
-		rsp.Message("Sent path in DMs!")
+		id := rsp.Message("Sent path in DMs!")
+
+		dat.SetMsgElem(id, elem)
+		lock.Lock()
+		b.dat[m.GuildID] = dat
+		lock.Unlock()
+
 		rsp.DM(txt)
 		return
 	}
-	rsp.Message("The path was too long! Sending it as a file in DMs!")
+	id := rsp.Message("The path was too long! Sending it as a file in DMs!")
+
+	dat.SetMsgElem(id, elem)
+	lock.Lock()
+	b.dat[m.GuildID] = dat
+	lock.Unlock()
 
 	channel, err := b.dg.UserChannelCreate(m.Author.ID)
 	if rsp.Error(err) {

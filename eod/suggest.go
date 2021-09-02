@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
 var invalidNames = []string{
@@ -37,7 +38,7 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m types.Msg, rs
 	}
 
 	if autocapitalize && strings.ToLower(suggestion) == suggestion {
-		suggestion = toTitle(suggestion)
+		suggestion = util.ToTitle(suggestion)
 	}
 
 	if strings.HasPrefix(suggestion, "?") {
@@ -98,23 +99,8 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m types.Msg, rs
 	}
 
 	data := elems2txt(comb.Elems)
-	query := "SELECT COUNT(1) FROM eod_combos WHERE guild=? AND elems LIKE ?"
-
-	if isASCII(data) {
-		query = "SELECT COUNT(1) FROM eod_combos WHERE guild=CONVERT(? USING utf8mb4) AND CONVERT(elems USING utf8mb4) LIKE CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci"
-	}
-
-	if isWildcard(data) {
-		query = strings.ReplaceAll(query, " LIKE ", "=")
-	}
-
-	row := b.db.QueryRow(query, m.GuildID, data)
-	var count int
-	err := row.Scan(&count)
-	if rsp.Error(err) {
-		return
-	}
-	if count != 0 {
+	_, res = dat.GetCombo(data)
+	if res.Exists {
 		rsp.ErrorMessage("That combo already has a result!")
 		return
 	}
@@ -124,7 +110,7 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m types.Msg, rs
 		suggestion = el.Name
 	}
 
-	err = b.createPoll(types.Poll{
+	err := b.createPoll(types.Poll{
 		Channel:   dat.VotingChannel,
 		Guild:     m.GuildID,
 		Kind:      types.PollCombo,
@@ -156,5 +142,10 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m types.Msg, rs
 		txt += "🌟"
 	}
 
-	rsp.Message(txt)
+	id := rsp.Message(txt)
+	dat.SetMsgElem(id, suggestion)
+
+	lock.Lock()
+	b.dat[m.GuildID] = dat
+	lock.Unlock()
 }

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -75,8 +76,8 @@ func obscure(val string) string {
 
 func (b *EoD) hintCmd(elem string, hasElem bool, inverse bool, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
-
-	elem = escapeElement(elem)
+	elem = strings.TrimSpace(elem)
+	elem = util.EscapeElement(elem)
 
 	rspInp := rsp
 	if !hasElem {
@@ -96,13 +97,6 @@ func (b *EoD) hintCmd(elem string, hasElem bool, inverse bool, m types.Msg, rsp 
 		return
 	}
 
-	if hasElem {
-		rsp.Embed(hint)
-		return
-	}
-
-	id := rsp.Embed(hint, hintCmp)
-
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -110,9 +104,15 @@ func (b *EoD) hintCmd(elem string, hasElem bool, inverse bool, m types.Msg, rsp 
 		return
 	}
 
-	dat.Lock.Lock()
-	dat.ComponentMsgs[id] = &hintComponent{b: b}
-	dat.Lock.Unlock()
+	if hasElem {
+		id := rsp.Embed(hint)
+		dat.SetMsgElem(id, elem)
+		return
+	}
+
+	id := rsp.Embed(hint, hintCmp)
+
+	dat.AddComponentMsg(id, &hintComponent{b: b})
 
 	lock.Lock()
 	b.dat[m.GuildID] = dat
@@ -169,17 +169,17 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, in
 	var args []interface{}
 	if !inverse {
 		query = "SELECT elems FROM eod_combos WHERE elem3 LIKE ? AND guild=?"
-		if isASCII(elem) {
+		if util.IsASCII(elem) {
 			query = "SELECT elems FROM eod_combos WHERE CONVERT(elem3 USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND guild=CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci"
 		}
 		args = []interface{}{elem, guild}
-		if isWildcard(elem) {
+		if util.IsWildcard(elem) {
 			query = strings.ReplaceAll(query, " LIKE ", "=")
 		}
 	} else {
 		query = `SELECT DISTINCT elem3 FROM eod_combos WHERE ((elems LIKE CONCAT("%+", LOWER(?), "+%")) OR (elems LIKE CONCAT(LOWER(?), "+%")) OR (elems LIKE CONCAT("%+", LOWER(?)))) AND guild=?`
-		if isWildcard(elem) {
-			for val := range wildcards {
+		if util.IsWildcard(elem) {
+			for val := range util.Wildcards {
 				elem = strings.ReplaceAll(elem, string([]rune{val}), string([]rune{'\\', val}))
 			}
 		}
@@ -214,18 +214,18 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, in
 		return out[i].exists > out[j].exists
 	})
 
+	inverseTitle := ""
+	if inverse {
+		inverseTitle = "Inverse "
+	}
+	title := fmt.Sprintf("%sHints for %s", inverseTitle, el.Name)
+
 	text := &strings.Builder{}
 	for _, val := range out {
 		text.WriteString(val.text)
 		text.WriteString("\n")
 	}
 	val := text.String()
-
-	inverseTitle := ""
-	if inverse {
-		inverseTitle = "Inverse "
-	}
-	title := fmt.Sprintf("%sHints for %s", inverseTitle, el.Name)
 
 	txt := "Don't "
 	_, hasElem = inv[strings.ToLower(el.Name)]
@@ -234,36 +234,35 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, in
 	}
 	footer := fmt.Sprintf("%d Hints • You %sHave This", len(out), txt)
 
-	// Too long
-	if len(val) > 2000 {
-		if rsp == nil {
-			// If can't do page switcher, shorten it (cant do pageswitcher if its in a random hint)
-			text = &strings.Builder{}
-			length := 0
-			for _, val := range out {
-				if length+len(val.text) > 2000 {
-					break
-				}
+	isPlayChannel := dat.PlayChannels.Contains(m.ChannelID)
 
-				length += len(val.text)
-				text.WriteString(val.text)
+	if len(val) > 2000 && rsp == nil {
+		// If can't do page switcher, shorten it (cant do pageswitcher if its in a random hint)
+		text = &strings.Builder{}
+		length := 0
+		for _, val := range out {
+			if length+len(val.text) > 2000 {
+				break
 			}
-			val = text.String()
-		} else {
-			vals := make([]string, len(out))
-			for i, v := range out {
-				vals[i] = v.text
-			}
-			b.newPageSwitcher(types.PageSwitcher{
-				Kind:       types.PageSwitchInv,
-				Title:      title,
-				PageGetter: b.invPageGetter,
-				Items:      vals,
-				Thumbnail:  el.Image,
-				Footer:     footer,
-			}, m, rsp)
-			return nil, "", false
+
+			length += len(val.text)
+			text.WriteString(val.text)
 		}
+		val = text.String()
+	} else if (len(val) > 2000) || (!isPlayChannel && len(out) > defaultPageLength) || (isPlayChannel && len(out) > playPageLength) {
+		vals := make([]string, len(out))
+		for i, v := range out {
+			vals[i] = v.text
+		}
+		b.newPageSwitcher(types.PageSwitcher{
+			Kind:       types.PageSwitchInv,
+			Title:      title,
+			PageGetter: b.invPageGetter,
+			Items:      vals,
+			Thumbnail:  el.Image,
+			Footer:     footer,
+		}, m, rsp)
+		return nil, "", false
 	}
 
 	return &discordgo.MessageEmbed{

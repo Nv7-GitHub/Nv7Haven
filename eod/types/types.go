@@ -21,6 +21,7 @@ const (
 	VoteCount     = 3
 	PollCount     = 4
 	ModRole       = 5
+	UserColor     = 6
 
 	PollCombo        = 0
 	PollCategorize   = 1
@@ -32,6 +33,7 @@ const (
 	PageSwitchLdb      = 0
 	PageSwitchInv      = 1
 	PageSwitchElemSort = 2
+	PageSwitchSearch   = 3
 )
 
 type ComponentMsg interface {
@@ -40,6 +42,7 @@ type ComponentMsg interface {
 
 type ServerData struct {
 	PlayChannels  Container // channelID
+	UserColors    map[string]int
 	VotingChannel string
 	NewsChannel   string
 	VoteCount     int
@@ -48,10 +51,12 @@ type ServerData struct {
 	LastCombs     map[string]Comb         // map[userID]comb
 	Inventories   map[string]Container    // map[userID]map[elementName]types.Empty
 	Elements      map[string]Element      //map[elementName]element
+	Combos        map[string]string       // map[elems]elem3
 	Categories    map[string]Category     // map[catName]category
 	Polls         map[string]Poll         // map[messageid]poll
 	PageSwitchers map[string]PageSwitcher // map[messageid]pageswitcher
 	ComponentMsgs map[string]ComponentMsg // map[messageid]componentMsg
+	ElementMsgs   map[string]string       // map[messageid]elemname
 	Lock          *sync.RWMutex
 }
 
@@ -73,6 +78,9 @@ type PageSwitcher struct {
 	// Element sorting
 	Query  string
 	Length int
+
+	// Search Sorting
+	Search string
 
 	// Don't need to set these
 	Guild string
@@ -116,7 +124,7 @@ type Poll struct {
 type Category struct {
 	Name     string
 	Guild    string
-	Elements Container
+	Elements map[string]Empty
 	Image    string
 }
 
@@ -128,7 +136,7 @@ type Msg struct {
 
 type Rsp interface {
 	Error(err error) bool
-	ErrorMessage(msg string)
+	ErrorMessage(msg string) string
 	Message(msg string, components ...discordgo.MessageComponent) string
 	Embed(emb *discordgo.MessageEmbed, components ...discordgo.MessageComponent) string
 	RawEmbed(emb *discordgo.MessageEmbed) string
@@ -141,6 +149,7 @@ func NewServerData() ServerData {
 	return ServerData{
 		Lock:          &sync.RWMutex{},
 		ComponentMsgs: make(map[string]ComponentMsg),
+		UserColors:    make(map[string]int),
 	}
 }
 

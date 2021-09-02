@@ -8,7 +8,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -217,10 +219,10 @@ func (b *EoD) info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
 
 	// Get SQL Stats
 	quer := `SELECT a.cnt, b.cnt FROM (SELECT COUNT(1) AS cnt FROM eod_combos WHERE elem3 LIKE ? AND guild=?) a, (SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT('$."', LOWER(?), '"')) IS NOT NULL)) b`
-	if isASCII(elem) {
+	if util.IsASCII(elem) {
 		quer = `SELECT a.cnt, b.cnt FROM (SELECT COUNT(1) AS cnt FROM eod_combos WHERE CONVERT(elem3 USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND guild=CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci) a, (SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT('$."', LOWER(?), '"')) IS NOT NULL)) b`
 	}
-	if isWildcard(elem) {
+	if util.IsWildcard(elem) {
 		quer = strings.ReplaceAll(quer, " LIKE ", "=")
 	}
 
@@ -229,6 +231,12 @@ func (b *EoD) info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
 	var foundby int
 	err := row.Scan(&madeby, &foundby)
 	if rsp.Error(err) {
+		return
+	}
+
+	suc, msg, tree := trees.CalcElemInfo(elem, m.Author.ID, dat)
+	if !suc {
+		rsp.ErrorMessage(msg)
 		return
 	}
 
@@ -242,6 +250,7 @@ func (b *EoD) info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
 			{Name: "Found By", Value: strconv.Itoa(foundby), Inline: true},
 			{Name: "Created By", Value: fmt.Sprintf("<@%s>", el.Creator), Inline: true},
 			{Name: "Created On", Value: fmt.Sprintf("<t:%d>", el.CreatedOn.Unix()), Inline: true},
+			{Name: "Tree Size", Value: strconv.Itoa(tree.Total), Inline: true},
 			{Name: "Complexity", Value: strconv.Itoa(el.Complexity), Inline: true},
 			{Name: "Difficulty", Value: strconv.Itoa(el.Difficulty), Inline: true},
 		},
@@ -249,14 +258,23 @@ func (b *EoD) info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
 			URL: el.Image,
 		},
 	}
+	if has != "" {
+		emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{
+			Name:   "Progress",
+			Value:  fmt.Sprintf("%s%%", util.FormatFloat(float32(tree.Found)/float32(tree.Total)*100, 2)),
+			Inline: true,
+		})
+	}
 	if len(cats) > 0 {
 		emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{Name: "Categories", Value: catTxt.String(), Inline: false})
 	}
 
-	rsp.RawEmbed(emb)
+	msgId := rsp.RawEmbed(emb)
+	dat.SetMsgElem(msgId, el.Name)
 }
 
 func (b *EoD) infoCmd(elem string, m types.Msg, rsp types.Rsp) {
+	elem = strings.TrimSpace(elem)
 	if elem[0] == '#' {
 		number, err := strconv.Atoi(elem[1:])
 		if err != nil {

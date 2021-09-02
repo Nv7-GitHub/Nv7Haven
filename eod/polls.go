@@ -87,9 +87,13 @@ func (b *EoD) createPoll(p types.Poll) error {
 		p.Message = m.ID
 
 	case types.PollImage:
+		description := fmt.Sprintf("**%s**\n[New Image](%s)\n[Old Image](%s)\n\nSuggested by <@%s>", p.Value1, p.Value2, p.Value3, p.Value4)
+		if p.Value3 == "" {
+			description = fmt.Sprintf("**%s**\n[New Image](%s)\n\nSuggested by <@%s>", p.Value1, p.Value2, p.Value4)
+		}
 		m, err := b.dg.ChannelMessageSendEmbed(dat.VotingChannel, &discordgo.MessageEmbed{
 			Title:       "Add Image",
-			Description: fmt.Sprintf("**%s**\n[New Image](%s)\n[Old Image](%s)\n\nSuggested by <@%s>", p.Value1, p.Value2, p.Value3, p.Value4),
+			Description: description,
 			Footer: &discordgo.MessageEmbedFooter{
 				Text: "You can change your vote",
 			},
@@ -146,9 +150,13 @@ func (b *EoD) createPoll(p types.Poll) error {
 		p.Message = m.ID
 
 	case types.PollCatImage:
+		description := fmt.Sprintf("**%s**\n[New Image](%s)\n[Old Image](%s)\n\nSuggested by <@%s>", p.Value1, p.Value2, p.Value3, p.Value4)
+		if p.Value3 == "" {
+			description = fmt.Sprintf("**%s**\n[New Image](%s)\n\nSuggested by <@%s>", p.Value1, p.Value2, p.Value4)
+		}
 		m, err := b.dg.ChannelMessageSendEmbed(dat.VotingChannel, &discordgo.MessageEmbed{
 			Title:       "Add Category Image",
-			Description: fmt.Sprintf("**%s**\n[New Image](%s)\n[Old Image](%s)\n\nSuggested by <@%s>", p.Value1, p.Value2, p.Value3, p.Value4),
+			Description: description,
 			Footer: &discordgo.MessageEmbedFooter{
 				Text: "You can change your vote",
 			},
@@ -161,14 +169,24 @@ func (b *EoD) createPoll(p types.Poll) error {
 		}
 		p.Message = m.ID
 	}
-	err := b.dg.MessageReactionAdd(p.Channel, p.Message, upArrow)
+
+	if !isFoolsMode {
+		err := b.dg.MessageReactionAdd(p.Channel, p.Message, upArrow)
+		if err != nil {
+			return err
+		}
+	}
+	err := b.dg.MessageReactionAdd(p.Channel, p.Message, downArrow)
 	if err != nil {
 		return err
 	}
-	err = b.dg.MessageReactionAdd(p.Channel, p.Message, downArrow)
-	if err != nil {
-		return err
+	if isFoolsMode {
+		err := b.dg.MessageReactionAdd(p.Channel, p.Message, upArrow)
+		if err != nil {
+			return err
+		}
 	}
+
 	cnt, err := json.Marshal(p.Data)
 	if err != nil {
 		return err
@@ -202,7 +220,7 @@ func (b *EoD) reactionHandler(s *discordgo.Session, r *discordgo.MessageReaction
 	}
 	if r.Emoji.Name == upArrow {
 		p.Upvotes++
-		dat.Polls[r.MessageID] = p
+		dat.SavePoll(r.MessageID, p)
 		lock.Lock()
 		b.dat[r.GuildID] = dat
 		lock.Unlock()
@@ -218,7 +236,7 @@ func (b *EoD) reactionHandler(s *discordgo.Session, r *discordgo.MessageReaction
 		}
 	} else if r.Emoji.Name == downArrow {
 		p.Downvotes++
-		dat.Polls[r.MessageID] = p
+		dat.SavePoll(r.MessageID, p)
 		lock.Lock()
 		b.dat[r.GuildID] = dat
 		lock.Unlock()

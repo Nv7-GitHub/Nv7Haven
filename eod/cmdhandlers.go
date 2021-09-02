@@ -2,8 +2,10 @@ package eod
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -111,10 +113,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 
 			catName := strings.TrimSpace(txt[:sepPos])
-			elems := strings.Split(txt[sepPos+1:], ",")
-			for i, elem := range elems {
-				elems[i] = strings.TrimSpace(elem)
-			}
+			elems := util.TrimArray(splitByCombs(txt[sepPos+1:]))
 
 			b.categoryCmd(elems, catName, msg, rsp)
 			return
@@ -132,34 +131,31 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 
 			catName := strings.TrimSpace(txt[:sepPos])
-			elems := strings.Split(txt[sepPos+1:], ",")
-			for i, elem := range elems {
-				elems[i] = strings.TrimSpace(elem)
-			}
+			elems := util.TrimArray(splitByCombs(txt[sepPos+1:]))
 
 			b.rmCategoryCmd(elems, catName, msg, rsp)
 			return
 		}
 
 		if cmd == "inv" {
-			b.invCmd(m.Author.ID, msg, rsp, "")
+			b.invCmd(m.Author.ID, msg, rsp, "name", "none")
 			return
 		}
 
 		if cmd == "lb" {
-			b.lbCmd(msg, rsp, "count")
+			b.lbCmd(msg, rsp, "count", msg.Author.ID)
 			return
 		}
 
 		if cmd == "cat" {
 			if len(m.Content) <= len(cmd)+2 {
-				bot.allCatCmd(catSortAlphabetical, false, "", msg, rsp)
+				bot.allCatCmd("name", false, "", msg, rsp)
 				return
 			}
 			suggestion := m.Content[len(cmd)+2:]
 			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
 
-			b.catCmd(suggestion, catSortAlphabetical, false, "", msg, rsp)
+			b.catCmd(suggestion, "name", false, "", msg, rsp)
 			return
 		}
 
@@ -185,6 +181,18 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 			b.infoCmd(strings.TrimSpace(m.Content[len(cmd)+2:]), msg, rsp)
 			return
+		}
+		if cmd == "kill" && m.GuildID == "705084182673621033" {
+			user, err := b.dg.GuildMember(msg.GuildID, msg.Author.ID)
+			if rsp.Error(err) {
+				return
+			}
+			for _, roleID := range user.Roles {
+				if roleID == "752558195138101329" {
+					rsp.Message("Killing...")
+					os.Exit(2)
+				}
+			}
 		}
 	}
 

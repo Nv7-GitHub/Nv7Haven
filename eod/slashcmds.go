@@ -1,79 +1,108 @@
 package eod
 
 import (
+	"fmt"
+	"strconv"
+
 	"github.com/bwmarrin/discordgo"
 )
 
 var (
 	commands = []*discordgo.ApplicationCommand{
 		{
-			Name:        "setvotes",
-			Description: "Sets the vote count required in the server",
+			Name:        "set",
+			Type:        discordgo.ChatApplicationCommand,
+			Description: "Updates server data!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionInteger,
-					Name:        "votecount",
-					Description: "The number of votes required for a poll to be completed.",
-					Required:    true,
-				},
-			},
-		},
-		{
-			Name:        "setpolls",
-			Description: "Sets the maximum amount of polls a user can make",
-			Options: []*discordgo.ApplicationCommandOption{
-				{
-					Type:        discordgo.ApplicationCommandOptionInteger,
-					Name:        "pollcount",
-					Description: "The maximum number of polls a user can make",
-					Required:    true,
-				},
-			},
-		},
-		{
-			Name:        "setplaychannel",
-			Description: "Mark a channel as a play channel",
-			Options: []*discordgo.ApplicationCommandOption{
-				{
-					Type:        discordgo.ApplicationCommandOptionChannel,
-					Name:        "channel",
-					Description: "Channel to mark as a play channel",
-					Required:    true,
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "votes",
+					Description: "Sets the vote count required in the server",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionInteger,
+							Name:        "votecount",
+							Description: "The number of votes required for a poll to be completed.",
+							Required:    true,
+						},
+					},
 				},
 				{
-					Type:        discordgo.ApplicationCommandOptionBoolean,
-					Name:        "isplaychannel",
-					Description: "Is it a play channel? If not given, defaults to true.",
-					Required:    false,
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "polls",
+					Description: "Sets the maximum amount of polls a user can make",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionInteger,
+							Name:        "pollcount",
+							Description: "The maximum number of polls a user can make",
+							Required:    true,
+						},
+					},
 				},
-			},
-		},
-		{
-			Name:        "setvotingchannel",
-			Description: "Set a channel to be a channel for polls",
-			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionChannel,
-					Name:        "channel",
-					Description: "Channel to set as a voting channel",
-					Required:    true,
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "playchannel",
+					Description: "Mark a channel as a play channel",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionChannel,
+							Name:        "channel",
+							Description: "Channel to mark as a play channel",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionBoolean,
+							Name:        "isplaychannel",
+							Description: "Is it a play channel? If not given, defaults to true.",
+							Required:    false,
+						},
+					},
 				},
-			},
-		},
-		{
-			Name:        "setnewschannel",
-			Description: "Set a channel to be a channel for news",
-			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionChannel,
-					Name:        "channel",
-					Description: "Channel to set as a news channel",
-					Required:    true,
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "votingchannel",
+					Description: "Set a channel to be a channel for polls",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionChannel,
+							Name:        "channel",
+							Description: "Channel to set as a voting channel",
+							Required:    true,
+						},
+					},
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "newschannel",
+					Description: "Set a channel to be a channel for news",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionChannel,
+							Name:        "channel",
+							Description: "Channel to set as a news channel",
+							Required:    true,
+						},
+					},
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "modrole",
+					Description: "Set a role to be a role for moderators!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionRole,
+							Name:        "role",
+							Description: "Role to be set as moderator role",
+							Required:    true,
+						},
+					},
 				},
 			},
 		},
 		{
 			Name:        "suggest",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Create a suggestion!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -92,6 +121,7 @@ var (
 		},
 		{
 			Name:        "mark",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Suggest a creator mark, or add a creator mark to an element you created!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -110,6 +140,7 @@ var (
 		},
 		{
 			Name:        "image",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Suggest an image for an element, or add an image to an element you created!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -128,6 +159,7 @@ var (
 		},
 		{
 			Name:        "inv",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "See your elements!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -139,17 +171,31 @@ var (
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
 					Name:        "sortby",
-					Description: "How to sort the inventory",
+					Description: "How to sort the inventory!",
 					Required:    false,
-					Choices: append([]*discordgo.ApplicationCommandOptionChoice{{
-						Name:  "Made By",
-						Value: "madeby",
-					}}, sortChoices...),
+					Choices:     sortChoices,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "filter",
+					Description: "How to filter the inventory!",
+					Required:    false,
+					Choices: []*discordgo.ApplicationCommandOptionChoice{
+						{
+							Name:  "None",
+							Value: "none",
+						},
+						{
+							Name:  "Made By",
+							Value: "madeby",
+						},
+					},
 				},
 			},
 		},
 		{
 			Name:        "lb",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "See the leaderboard!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -168,10 +214,17 @@ var (
 						},
 					},
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionUser,
+					Name:        "user",
+					Description: "User to view the leaderboard from the POV of!",
+					Required:    false,
+				},
 			},
 		},
 		{
 			Name:        "addcat",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Suggest or add an element to a category!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -214,6 +267,7 @@ var (
 		},
 		{
 			Name:        "cat",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Get info on a category!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -223,28 +277,24 @@ var (
 					Required:    false,
 				},
 				{
-					Type:        discordgo.ApplicationCommandOptionInteger,
+					Type:        discordgo.ApplicationCommandOptionString,
 					Name:        "sort",
 					Description: "How to sort the elements of the category!",
 					Required:    false,
-					Choices: []*discordgo.ApplicationCommandOptionChoice{
-						{
-							Name:  "Alphabetical",
-							Value: catSortAlphabetical,
-						},
+					Choices: append([]*discordgo.ApplicationCommandOptionChoice{
 						{
 							Name:  "Found",
-							Value: catSortByFound,
+							Value: "catfound",
 						},
 						{
 							Name:  "Not Found",
-							Value: catSortByNotFound,
+							Value: "catnotfound",
 						},
 						{
 							Name:  "Element Count",
-							Value: catSortByElementCount,
+							Value: "catelemcount",
 						},
-					},
+					}, sortChoices...),
 				},
 				{
 					Type:        discordgo.ApplicationCommandOptionUser,
@@ -256,6 +306,7 @@ var (
 		},
 		{
 			Name:        "hint",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Get a hint on an element!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -264,20 +315,16 @@ var (
 					Description: "Name of the element!",
 					Required:    false,
 				},
-				{
-					Type:        discordgo.ApplicationCommandOptionBoolean,
-					Name:        "inverse",
-					Description: "Whether its an inverse hint!",
-					Required:    false,
-				},
 			},
 		},
 		{
 			Name:        "stats",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Get your server's stats!",
 		},
 		{
 			Name:        "giveall",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Give a user every element!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -290,6 +337,7 @@ var (
 		},
 		{
 			Name:        "resetinv",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Reset a user's inventory!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -302,6 +350,7 @@ var (
 		},
 		{
 			Name:        "give",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Give a user an element, and choose whether to give all the elements required to make that element!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -326,6 +375,7 @@ var (
 		},
 		{
 			Name:        "givecat",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Give a user all the elements in a category, and optionally give the tree!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -350,6 +400,7 @@ var (
 		},
 		{
 			Name:        "path",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Calculate the path of an element!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -362,6 +413,7 @@ var (
 		},
 		{
 			Name:        "elemsort",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Sort all the elements in this server!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -391,22 +443,12 @@ var (
 		},
 		{
 			Name:        "help",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Get help and learn about the bot!",
 		},
 		{
-			Name:        "setmodrole",
-			Description: "Set a role to be a role for moderators!",
-			Options: []*discordgo.ApplicationCommandOption{
-				{
-					Type:        discordgo.ApplicationCommandOptionRole,
-					Name:        "role",
-					Description: "Role to be set as moderator role",
-					Required:    true,
-				},
-			},
-		},
-		{
 			Name:        "rmcat",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Suggest or remove an element from a category!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -449,6 +491,7 @@ var (
 		},
 		{
 			Name:        "idea",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Get a random unused combination!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -473,6 +516,7 @@ var (
 		},
 		{
 			Name:        "catimg",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Add an image to a category!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -490,29 +534,71 @@ var (
 			},
 		},
 		{
-			Name:        "downloadinv",
-			Description: "Download your inventory!",
+			Name:        "download",
+			Type:        discordgo.ChatApplicationCommand,
+			Description: "Download an inventory or category!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionUser,
-					Name:        "user",
-					Description: "Optionally, download the inventory of another user!",
-					Required:    false,
+					Name:        "inv",
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Description: "Download a user's inventory!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionUser,
+							Name:        "user",
+							Description: "Optionally, download the inventory of another user!",
+							Required:    false,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "sortby",
+							Description: "How to sort the inventory!",
+							Required:    false,
+							Choices:     sortChoices,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "filter",
+							Description: "How to filter the inventory!",
+							Required:    false,
+							Choices: []*discordgo.ApplicationCommandOptionChoice{
+								{
+									Name:  "None",
+									Value: "none",
+								},
+								{
+									Name:  "Made By",
+									Value: "madeby",
+								},
+							},
+						},
+					},
 				},
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "sortby",
-					Description: "How to sort the inventory",
-					Required:    false,
-					Choices: append([]*discordgo.ApplicationCommandOptionChoice{{
-						Name:  "Made By",
-						Value: "madeby",
-					}}, sortChoices...),
+					Name:        "cat",
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Description: "Download a category!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "category",
+							Description: "Which category to download!",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "sortby",
+							Description: "How to sort the category!",
+							Required:    false,
+							Choices:     sortChoices,
+						},
+					},
 				},
 			},
 		},
 		{
 			Name:        "catpath",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Calculate the path of a category!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -525,6 +611,7 @@ var (
 		},
 		{
 			Name:        "breakdown",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Get an element's breakdown!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -543,6 +630,7 @@ var (
 		},
 		{
 			Name:        "catbreakdown",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Get the breakdown of a category!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -561,6 +649,7 @@ var (
 		},
 		{
 			Name:        "info",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Get the info of an element!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -579,6 +668,7 @@ var (
 		},
 		{
 			Name:        "graph",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Create a graph of an element's tree!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -635,6 +725,7 @@ var (
 		},
 		{
 			Name:        "catgraph",
+			Type:        discordgo.ChatApplicationCommand,
 			Description: "Create a graph of a category's tree!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
@@ -690,8 +781,55 @@ var (
 			},
 		},
 		{
-			Name:        "found",
-			Description: "See the user's who have found an element!",
+			Name:        "get",
+			Type:        discordgo.ChatApplicationCommand,
+			Description: "Get a value of an element!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "found",
+					Description: "See the user's who have found an element!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "element",
+							Description: "Name of the element!",
+							Required:    true,
+						},
+					},
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "categories",
+					Description: "See the categories an element is in!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "element",
+							Description: "Name of the element!",
+							Required:    true,
+						},
+					},
+				},
+			},
+		},
+		{
+			Name:        "setcolor",
+			Type:        discordgo.ChatApplicationCommand,
+			Description: "Set your embed color! If you don't provide a color, it will reset your color.",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "color",
+					Description: "Hex code to set your embed color too",
+					Required:    false,
+				},
+			},
+		},
+		{
+			Name:        "invhint",
+			Type:        discordgo.ChatApplicationCommand,
+			Description: "Get the inverse hint of an element!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
@@ -701,31 +839,71 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "elemsearch",
+			Type:        discordgo.ChatApplicationCommand,
+			Description: "Search for an element by name!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "query",
+					Description: "The query to search with!",
+					Required:    true,
+				},
+			},
+		},
+		{
+			Name: "Get Inventory",
+			//Description: "Get the user's inventory!",
+			Type: discordgo.UserApplicationCommand,
+		},
+		{
+			Name: "Get Info",
+			//Description: "Get the info of the element in a message!",
+			Type: discordgo.MessageApplicationCommand,
+		},
+		{
+			Name: "Get Hint",
+			//Description: "Get the hint of the element in a message!",
+			Type: discordgo.MessageApplicationCommand,
+		},
+		{
+			Name: "Get Inverse Hint",
+			//Description: "Get the inverse hint of the element in a message!",
+			Type: discordgo.MessageApplicationCommand,
+		},
+		{
+			Name: "Get Color",
+			//Description: "Get a user's embed color!",
+			Type: discordgo.UserApplicationCommand,
+		},
+		{
+			Name: "View Leaderboard",
+			//Description: "View the leaderboard from the user's point of view!",
+			Type: discordgo.UserApplicationCommand,
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
-		"setnewschannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			bot.setNewsChannel(resp.Options[0].ChannelValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
-		},
-		"setvotingchannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			bot.setVotingChannel(resp.Options[0].ChannelValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
-		},
-		"setvotes": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			bot.setVoteCount(int(resp.Options[0].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
-		},
-		"setpolls": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			bot.setPollCount(int(resp.Options[0].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
-		},
-		"setplaychannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			isPlayChannel := true
-			if len(resp.Options) > 1 {
-				isPlayChannel = resp.Options[1].BoolValue()
+		"set": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData().Options[0]
+			switch resp.Name {
+			case "newschannel":
+				bot.setNewsChannel(resp.Options[0].ChannelValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+			case "votingchannel":
+				bot.setVotingChannel(resp.Options[0].ChannelValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+			case "votes":
+				bot.setVoteCount(int(resp.Options[0].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
+			case "polls":
+				bot.setPollCount(int(resp.Options[0].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
+			case "modrole":
+				bot.setModRole(resp.Options[0].RoleValue(bot.dg, i.GuildID).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+			case "playchannel":
+				isPlayChannel := true
+				if len(resp.Options) > 1 {
+					isPlayChannel = resp.Options[1].BoolValue()
+				}
+				bot.setPlayChannel(resp.Options[0].ChannelValue(bot.dg).ID, isPlayChannel, bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
-			bot.setPlayChannel(resp.Options[0].ChannelValue(bot.dg).ID, isPlayChannel, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"suggest": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -746,25 +924,37 @@ var (
 		"inv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			sortby := "name"
+			filter := "none"
 			id := i.Member.User.ID
 			for _, val := range resp.Options {
 				if val.Name == "sortby" {
 					sortby = val.StringValue()
 				}
 
+				if val.Name == "filter" {
+					filter = val.StringValue()
+				}
+
 				if val.Name == "user" {
 					id = val.UserValue(bot.dg).ID
 				}
 			}
-			bot.invCmd(id, bot.newMsgSlash(i), bot.newRespSlash(i), sortby)
+			bot.invCmd(id, bot.newMsgSlash(i), bot.newRespSlash(i), sortby, filter)
 		},
 		"lb": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			sort := "count"
-			if len(resp.Options) > 0 {
-				sort = resp.Options[0].StringValue()
+			user := i.Member.User.ID
+			for _, opt := range resp.Options {
+				if opt.Name == "sortby" {
+					sort = resp.Options[0].StringValue()
+				}
+
+				if opt.Name == "user" {
+					user = opt.UserValue(bot.dg).ID
+				}
 			}
-			bot.lbCmd(bot.newMsgSlash(i), bot.newRespSlash(i), sort)
+			bot.lbCmd(bot.newMsgSlash(i), bot.newRespSlash(i), sort, user)
 		},
 		"addcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -779,7 +969,7 @@ var (
 		"cat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			isAll := true
-			sort := catSortAlphabetical
+			sort := "name"
 			catName := ""
 			hasUser := false
 			var user string
@@ -790,7 +980,7 @@ var (
 				}
 
 				if val.Name == "sort" {
-					sort = int(val.IntValue())
+					sort = val.StringValue()
 				}
 
 				if val.Name == "user" {
@@ -810,19 +1000,14 @@ var (
 			resp := i.ApplicationCommandData()
 			hasElem := false
 			var elem string
-			inverse := false
 			for _, opt := range resp.Options {
 				if opt.Name == "element" {
 					hasElem = true
 					elem = opt.StringValue()
 				}
-
-				if opt.Name == "inverse" {
-					inverse = opt.BoolValue()
-				}
 			}
 
-			bot.hintCmd(elem, hasElem, inverse, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.hintCmd(elem, hasElem, false, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"stats": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.statsCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
@@ -853,10 +1038,6 @@ var (
 		},
 		"help": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.helpCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
-		},
-		"setmodrole": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			bot.setModRole(resp.Options[0].RoleValue(bot.dg, i.GuildID).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"rmcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -896,20 +1077,47 @@ var (
 			resp := i.ApplicationCommandData()
 			bot.catImgCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
-		"downloadinv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		"download": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			sortby := "name"
-			id := i.Member.User.ID
-			for _, val := range resp.Options {
-				if val.Name == "sortby" {
-					sortby = val.StringValue()
-				}
 
-				if val.Name == "user" {
-					id = val.UserValue(bot.dg).ID
+			switch resp.Options[0].Name {
+			case "inv":
+				opts := resp.Options[0]
+				sortby := "name"
+				filter := "none"
+				id := i.Member.User.ID
+				for _, val := range opts.Options {
+					if val.Name == "sortby" {
+						sortby = val.StringValue()
+					}
+
+					if val.Name == "filter" {
+						filter = val.StringValue()
+					}
+
+					if val.Name == "user" {
+						id = val.UserValue(bot.dg).ID
+					}
 				}
+				bot.downloadInvCmd(id, sortby, filter, bot.newMsgSlash(i), bot.newRespSlash(i))
+				return
+
+			case "cat":
+				opts := resp.Options[0]
+				sortby := "name"
+				catName := ""
+				for _, val := range opts.Options {
+					if val.Name == "category" {
+						catName = val.StringValue()
+					}
+
+					if val.Name == "sortby" {
+						sortby = val.StringValue()
+					}
+				}
+				bot.downloadCatCmd(catName, sortby, bot.newMsgSlash(i), bot.newRespSlash(i))
+				return
 			}
-			bot.downloadInvCmd(id, sortby, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"catpath": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -1007,9 +1215,83 @@ var (
 			}
 			bot.info(elem, id, isID, bot.newMsgSlash(i), rsp)
 		},
-		"found": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		"get": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			opt := i.ApplicationCommandData().Options[0]
+			switch opt.Name {
+			case "found":
+				bot.foundCmd(opt.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+
+			case "categories":
+				bot.categoriesCmd(opt.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			}
+		},
+		"setcolor": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.foundCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			color := ""
+			rmColor := true
+			for _, opt := range resp.Options {
+				if opt.Name == "color" {
+					rmColor = false
+					color = opt.StringValue()
+				}
+			}
+			bot.setUserColor(color, rmColor, bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"invhint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
+			bot.hintCmd(resp.Options[0].StringValue(), true, true, bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"elemsearch": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
+			bot.elemSearchCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"Get Inventory": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
+			bot.invCmd(resp.TargetID, bot.newMsgSlash(i), bot.newRespSlash(i), "name", "none")
+		},
+		"Get Info": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
+			rsp := bot.newRespSlash(i)
+			res, suc := bot.getMessageElem(resp.TargetID, i.GuildID)
+			if !suc {
+				rsp.ErrorMessage(res)
+				return
+			}
+			bot.infoCmd(res, bot.newMsgSlash(i), rsp)
+		},
+		"Get Hint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
+			rsp := bot.newRespSlash(i)
+			res, suc := bot.getMessageElem(resp.TargetID, i.GuildID)
+			if !suc {
+				rsp.ErrorMessage(res)
+				return
+			}
+			bot.hintCmd(res, true, false, bot.newMsgSlash(i), rsp)
+		},
+		"Get Inverse Hint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
+			rsp := bot.newRespSlash(i)
+			res, suc := bot.getMessageElem(resp.TargetID, i.GuildID)
+			if !suc {
+				rsp.ErrorMessage(res)
+				return
+			}
+			bot.hintCmd(res, true, true, bot.newMsgSlash(i), rsp)
+		},
+		"Get Color": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
+			rsp := bot.newRespSlash(i)
+			color, err := bot.getColor(i.GuildID, resp.TargetID)
+			if rsp.Error(err) {
+				return
+			}
+			hex := strconv.FormatInt(int64(color), 16)
+			rsp.Message(fmt.Sprintf("https://singlecolorimage.com/get/%s/100x100", hex))
+		},
+		"View Leaderboard": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
+			bot.lbCmd(bot.newMsgSlash(i), bot.newRespSlash(i), "count", resp.TargetID)
 		},
 	}
 )

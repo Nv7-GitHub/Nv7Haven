@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
 const ldbQuery = `
@@ -83,6 +84,43 @@ func (b *EoD) lbPageGetter(p types.PageSwitcher) (string, int, int, error) {
 	}
 	if !((p.PageLength*p.Page <= ps) && (ps <= (p.Page+1)*p.PageLength)) {
 		text += fmt.Sprintf("\n%d. <@%s> *You* - %d\n", ps, u, ucnt)
+	}
+	return text, p.Page, length, nil
+}
+
+func (b *EoD) searchPageGetter(p types.PageSwitcher) (string, int, int, error) {
+	wild := "%" + util.EscapeElement(strings.ToLower(p.Search)) + "%"
+
+	var count int
+	err := b.db.QueryRow("SELECT COUNT(1) FROM eod_elements WHERE guild=? AND LOWER(name) LIKE ?", p.Guild, wild).Scan(&count)
+	if err != nil {
+		return "", 0, 0, err
+	}
+
+	length := int(math.Floor(float64(count-1) / float64(p.PageLength)))
+	if p.PageLength*p.Page > (count - 1) {
+		return "", 0, length, nil
+	}
+
+	if p.Page < 0 {
+		return "", length, length, nil
+	}
+
+	text := ""
+	res, err := b.db.Query("SELECT name FROM eod_elements WHERE guild=? AND LOWER(name) LIKE ? ORDER BY name ASC LIMIT ? OFFSET ?", p.Guild, wild, p.PageLength, p.Page*p.PageLength)
+	if err != nil {
+		return "", 0, 0, err
+	}
+	defer res.Close()
+	i := p.PageLength*p.Page + 1
+	var elem string
+	for res.Next() {
+		err = res.Scan(&elem)
+		if err != nil {
+			return "", 0, 0, err
+		}
+		text += elem + "\n"
+		i++
 	}
 	return text, p.Page, length, nil
 }

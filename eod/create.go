@@ -2,6 +2,7 @@ package eod
 
 import (
 	"context"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
 const newText = "🆕"
@@ -25,28 +27,19 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	}
 
 	data := elems2txt(parents)
-	query := "SELECT COUNT(1) FROM eod_combos WHERE guild=? AND elems LIKE ?"
-	if isWildcard(data) {
-		query = strings.ReplaceAll(query, " LIKE ", "=")
-	}
-
-	row := b.db.QueryRow(query, guild, data)
-	var count int
-	err := row.Scan(&count)
-	if err != nil {
-		return
-	}
-	if count != 0 {
+	_, res := dat.GetCombo(data)
+	if res.Exists {
 		return
 	}
 
-	_, res := dat.GetElement(name)
+	_, res = dat.GetElement(name)
 	text := "Combination"
 
 	createLock.Lock()
 	tx, err := b.db.BeginTx(context.Background(), nil)
 	if err != nil {
 		tx.Rollback()
+		createLock.Unlock()
 		return
 	}
 
@@ -90,7 +83,8 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		if err != nil {
 			dat.DeleteElement(elem.Name)
 
-			datafile.WriteString(err.Error() + "\n")
+			log.SetOutput(datafile)
+			log.Println(err)
 			tx.Rollback()
 			return
 		}
@@ -98,15 +92,16 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	} else {
 		el, res := dat.GetElement(name)
 		if !res.Exists {
-			datafile.WriteString("Doesn't exist\n")
+			log.SetOutput(datafile)
+			log.Println("Doesn't exist")
+
 			tx.Rollback()
+			createLock.Unlock()
 			return
 		}
 		name = el.Name
 
-		var id int
-		row := tx.QueryRow("SELECT COUNT(1) FROM eod_combos WHERE guild=?", guild)
-		err = row.Scan(&id)
+		id := len(dat.Combos)
 		if err == nil {
 			postTxt = " - Combination **#" + strconv.Itoa(id) + "**"
 		}
@@ -115,11 +110,14 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	_, err = tx.Exec("INSERT INTO eod_combos VALUES ( ?, ?, ? )", guild, data, name)
 	if err != nil {
 		dat.DeleteElement(name)
+		createLock.Unlock()
 
-		datafile.WriteString(err.Error() + "\n")
+		log.SetOutput(datafile)
+		log.Println(err)
 		tx.Rollback()
 		return
 	}
+	dat.AddComb(data, name)
 
 	params := make(map[string]types.Empty)
 	for _, val := range parents {
@@ -127,17 +125,19 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	}
 	for k := range params {
 		query := "UPDATE eod_elements SET usedin=usedin+1 WHERE name LIKE ? AND guild LIKE ?"
-		if isASCII(k) {
+		if util.IsASCII(k) {
 			query = "UPDATE eod_elements SET usedin=usedin+1 WHERE CONVERT(name USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND CONVERT(guild USING utf8mb4) LIKE CONVERT(? USING utf8mb4)"
 		}
-		if isWildcard(k) {
+		if util.IsWildcard(k) {
 			query = strings.ReplaceAll(query, " LIKE ", "=")
 		}
 		_, err = tx.Exec(query, k, guild)
 		if err != nil {
 			dat.DeleteElement(name)
+			createLock.Unlock()
 
-			datafile.WriteString(err.Error() + "\n")
+			log.SetOutput(datafile)
+			log.Println(err)
 			tx.Rollback()
 			return
 		}
@@ -156,8 +156,10 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 	err = tx.Commit()
 	if err != nil {
 		dat.DeleteElement(name)
+		createLock.Unlock()
 
-		datafile.WriteString(err.Error() + "\n")
+		log.SetOutput(datafile)
+		log.Println(err)
 		return
 	}
 
@@ -175,7 +177,8 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 
 	err = b.autocategorize(name, guild)
 	if err != nil {
-		datafile.WriteString(err.Error() + "\n")
+		log.SetOutput(datafile)
+		log.Println(err)
 		return
 	}
 }
