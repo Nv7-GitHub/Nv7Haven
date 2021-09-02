@@ -7,7 +7,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-const maxComboLength = 20
+const maxComboLength = 21
 
 var combs = []string{
 	"\n",
