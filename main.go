@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/Nv7-Github/Nv7Haven/anarchy"
 	"github.com/Nv7-Github/Nv7Haven/discord"
 	"github.com/Nv7-Github/Nv7Haven/elemental"
 	"github.com/Nv7-Github/Nv7Haven/eod"
@@ -87,6 +88,7 @@ func main() {
 	single.InitSingle(app, db)
 	b := discord.InitDiscord(db, e)
 	eod := eod.InitEoD(db)
+	anarchy.InitAnarchy(db, grpc)
 	gdo.InitGDO(app)
 
 	go func() {
@@ -120,7 +122,6 @@ func main() {
 		panic(err)
 	}
 
-	e.Close()
 	b.Close()
 	eod.Close()
 	db.Close()

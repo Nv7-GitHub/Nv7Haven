@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "../Nv7haven/pb"; // Workaround to add a slash
+package anarchy;
+
+service Anarchy {
+    // Elements
+    rpc GetElem(google.protobuf.StringValue) returns (AnarchyElement) {}
+    rpc GetCombination(AnarchyCombination) returns (AnarchyCombinationResult) {}
+
+    // Savefile
+    rpc GetInv(google.protobuf.StringValue) returns (AnarchyInventory) {}
+    rpc AddFound(AnarchyUserRequest) returns (google.protobuf.Empty) {}
+}
+
+message AnarchyElement {
+    string Color = 1;
+    string Comment = 2;
+    int64 CreatedOn = 3;
+    string Creator = 4;
+    string Name = 5;
+    repeated string Parents = 6;
+    int64 Uses = 8;
+    int64 FoundBy = 9;
+    int64 Complexity = 10;
+}
+
+message AnarchyCombination {
+    string elem1 = 1;
+    string elem2 = 2;
+}
+
+message AnarchyCombinationResult {
+    string data = 1;
+    bool exists = 2;
+}
+
+message AnarchyInventory {
+    repeated string Found = 1;
+}
+
+message AnarchyUserRequest {
+    string uid = 1;
+    string element = 2;
+}

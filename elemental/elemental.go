@@ -53,6 +53,7 @@ func (e *Elemental) init() {
 
 		bar.Add(1)
 	}
+	bar.Finish()
 }
 
 func (e *Elemental) routing(app *fiber.App) {
@@ -83,9 +84,4 @@ func InitElemental(app *fiber.App, db *sql.DB, grpc *grpc.Server) (*Elemental, e
 	pb.RegisterElementalServer(grpc, e)
 
 	return e, nil
-}
-
-// Close cleans up elemental
-func (e *Elemental) Close() {
-	e.db.Close()
 }
