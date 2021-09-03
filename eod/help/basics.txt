@@ -1,5 +1,5 @@
 You can combine elements in any play channel by seperating element names by a **+**, **,**, a **line break**, or **plus**.
-You can combine up to 20 elements, and element names can be up to 240 characters long!
+You can combine up to 21 elements, and element names can be up to 240 characters long!
 For example, you can do **air, earth, fire, water**.
 You can see the information on an element with **?<element name>**, and **?#<element id>** to get info by ID
 Add elements to categories with **/addcat** and remove elements from categories with **/rmcat**
