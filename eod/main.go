@@ -35,6 +35,9 @@ func InitEoD(db *sql.DB) EoD {
 	for i, val := range fools {
 		fools[i] = strings.TrimSpace(val)
 	}
+	if isFoolsMode {
+		maxComboLength = 2
+	}
 
 	// Discord bot
 	dg, err := discordgo.New("Bot " + strings.TrimSpace(token))
