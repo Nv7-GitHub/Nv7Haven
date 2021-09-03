@@ -16,7 +16,7 @@ import (
 // CloseElemental cleans up elemental
 var CloseElemental func()
 
-// Elemental is the "Nv7's Elemental" server at https://elemental4.net, the elemental.json is at https://nv7haven.tk/elemental
+// Elemental is the default server at https://elem7.tk
 type Elemental struct {
 	*pb.UnimplementedElementalServer
 

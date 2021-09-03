@@ -15,7 +15,7 @@ func (s *Single) routing(app *fiber.App) {
 	app.Get("/single_download/:id/:uid", s.download)
 }
 
-// Single is the Nv7 Singleplayer server for elemental 4 (https://elemental4.net)
+// Single is the Nv7 Singleplayer server for elemental 7 (https://elem7.tk)
 type Single struct {
 	db *sql.DB
 }
