@@ -33,8 +33,8 @@ func (b *EoD) markCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** is not in your inventory!", el.Name))
 		return
 	}
-	if len(mark) >= 2400 {
-		rsp.ErrorMessage("Creator marks must be under 2400 characters!")
+	if len(mark) >= 1025 {
+		rsp.ErrorMessage("Creator marks are limited to 1024 characters!")
 		return
 	}
 
