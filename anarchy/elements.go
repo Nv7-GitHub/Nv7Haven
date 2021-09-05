@@ -2,12 +2,16 @@ package anarchy
 
 import (
 	"context"
-	"errors"
-	"time"
+	"encoding/json"
 
 	"github.com/Nv7-Github/Nv7Haven/pb"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
+)
+
+const (
+	minBatchCount = 60
+	batchCount    = 10
 )
 
 // GetElement gets an element from the database
@@ -36,99 +40,75 @@ func (a *Anarchy) GetCombination(ctx context.Context, combo *pb.AnarchyCombinati
 	return &pb.AnarchyCombinationResult{Exists: true, Data: elem3}, nil
 }
 
-func (a *Anarchy) CreateElement(ctx context.Context, req *pb.AnarchyElementCreate) (*emptypb.Empty, error) {
-	// Check for exist
-	lock.RLock()
-	_, exists := a.cache[req.Elem1]
-	lock.RUnlock()
-	if !exists {
-		return &emptypb.Empty{}, errors.New("anarchy: elem1 doesn't exist")
-	}
-	lock.RLock()
-	_, exists = a.cache[req.Elem1]
-	lock.RUnlock()
-	if !exists {
-		return &emptypb.Empty{}, errors.New("anarchy: elem2 doesn't exist")
-	}
+type empty struct{}
 
-	// Check for combination
-	res, err := a.GetCombination(ctx, &pb.AnarchyCombination{Elem1: req.Elem1, Elem2: req.Elem2})
-	if err == nil && res.Exists {
-		return &emptypb.Empty{}, errors.New("anarchy: combination already exists")
-	}
-
-	// Get creator name
-	var creator string
-	err = a.db.QueryRow("SELECT name FROM users WHERE uid=?", req.Uid).Scan(&creator)
+func (a *Anarchy) GetAll(uid *wrapperspb.StringValue, stream pb.Anarchy_GetAllServer) error {
+	res, err := a.db.Query("SELECT inv FROM users WHERE uid=?", uid.Value)
 	if err != nil {
-		return &emptypb.Empty{}, err
+		return err
 	}
-
-	// Calc stats
-	lock.RLock()
-	par1 := a.cache[req.Elem1]
-	lock.RUnlock()
-	lock.RLock()
-	par2 := a.cache[req.Elem2]
-	lock.RUnlock()
-	var complexity int
-	if par1.Complexity > par2.Complexity {
-		complexity = int(par1.Complexity)
-	} else {
-		complexity = int(par2.Complexity)
-	}
-	complexity++
-
-	// Create element
-	createdon := time.Now().Unix()
-	_, err = a.db.Exec("INSERT INTO anarchy_elements VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", req.Elem3, req.Color, req.Comment, req.Elem1, req.Elem2, creator, createdon, complexity, 0, 0)
+	defer res.Close()
+	var data string
+	res.Next()
+	err = res.Scan(&data)
 	if err != nil {
-		return &emptypb.Empty{}, err
+		return err
+	}
+	var found []string
+	err = json.Unmarshal([]byte(data), &found)
+	if err != nil {
+		return err
 	}
 
-	// Update cache
-	el := &pb.AnarchyElement{
-		Name:       req.Elem3,
-		Color:      req.Color,
-		Comment:    req.Comment,
-		Parents:    []string{req.Elem1, req.Elem2},
-		Creator:    creator,
-		CreatedOn:  createdon,
-		Complexity: int64(complexity),
-		Uses:       0,
-		FoundBy:    0,
+	recents, err := a.GetRecents(context.Background(), &emptypb.Empty{})
+	if err != nil {
+		return err
 	}
-	lock.Lock()
-	a.cache[req.Elem3] = el
-	lock.Unlock()
 
-	// Update usedin
-	for _, par := range el.Parents {
+	req := make(map[string]empty)
+	for _, val := range found {
+		req[val] = empty{}
+	}
+	for _, rec := range recents.Recents {
+		req[rec.Elem1] = empty{}
+		req[rec.Elem2] = empty{}
+		req[rec.Elem3] = empty{}
+	}
+
+	total := int64(len(req))
+
+	getAllBatchSize := minBatchCount
+	if total/batchCount > int64(getAllBatchSize) {
+		getAllBatchSize = int(total / batchCount)
+	}
+
+	batch := make([]*pb.AnarchyElement, 0, getAllBatchSize)
+
+	i := 0
+	for k := range req {
 		lock.RLock()
-		parEl := a.cache[par]
+		elem := a.cache[k]
 		lock.RUnlock()
-
-		parEl.Uses++
-
-		lock.Lock()
-		a.cache[par] = parEl
-		lock.Unlock()
-
-		_, err = a.db.Exec("UPDATE anarchy_elements SET uses=? WHERE name=?", parEl.Uses, par)
-		if err != nil {
-			return &emptypb.Empty{}, err
+		batch = append(batch, elem)
+		if i == getAllBatchSize {
+			err = stream.Send(&pb.AnarchyGetAllChunk{
+				Count:    total,
+				Elements: batch,
+			})
+			if err != nil {
+				return err
+			}
+			batch = make([]*pb.AnarchyElement, 0, getAllBatchSize)
+			i = 0
 		}
+		i++
 	}
-
-	// Create recent
-	_, err = a.db.Exec("INSERT INTO anarchy_recents VALUES (?, ?, ?, ?)", req.Elem1, req.Elem2, req.Elem3, time.Now().Unix())
-	if err != nil {
-		return &emptypb.Empty{}, err
+	if len(batch) > 0 {
+		err = stream.Send(&pb.AnarchyGetAllChunk{
+			Count:    total,
+			Elements: batch,
+		})
+		return err
 	}
-
-	a.recents.L.Lock()
-	a.recents.Broadcast()
-	a.recents.L.Unlock()
-
-	return &emptypb.Empty{}, nil
+	return nil
 }

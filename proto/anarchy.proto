@@ -10,7 +10,7 @@ service Anarchy {
     // Elements
     rpc GetElem(google.protobuf.StringValue) returns (AnarchyElement) {}
     rpc GetCombination(AnarchyCombination) returns (AnarchyCombinationResult) {}
-    rpc GetAll(google.protobuf.StringValue) returns (stream AnarchyGetAllChunk) {} // TODO
+    rpc GetAll(google.protobuf.StringValue) returns (stream AnarchyGetAllChunk) {}
     rpc CreateElement(AnarchyElementCreate) returns (google.protobuf.Empty) {}
 
     // Savefile
