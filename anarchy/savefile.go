@@ -14,11 +14,12 @@ func (a *Anarchy) GetInv(ctx context.Context, uid *wrapperspb.StringValue) (*pb.
 	var data string
 	err := a.db.QueryRow("SELECT inv FROM users WHERE uid=?", uid.Value).Scan(&data)
 	if err != nil {
-		return &pb.AnarchyInventory{}, err
-	}
-	err = json.Unmarshal([]byte(data), &found)
-	if err != nil {
-		return &pb.AnarchyInventory{}, err
+		found = []string{"Air", "Earth", "Fire", "Water"}
+	} else {
+		err = json.Unmarshal([]byte(data), &found)
+		if err != nil {
+			return &pb.AnarchyInventory{}, err
+		}
 	}
 	return &pb.AnarchyInventory{
 		Found: found,
