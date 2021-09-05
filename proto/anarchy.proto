@@ -10,10 +10,16 @@ service Anarchy {
     // Elements
     rpc GetElem(google.protobuf.StringValue) returns (AnarchyElement) {}
     rpc GetCombination(AnarchyCombination) returns (AnarchyCombinationResult) {}
+    rpc GetAll(google.protobuf.StringValue) returns (stream AnarchyGetAllChunk) {} // TODO
+    rpc CreateElement(AnarchyElementCreate) returns (google.protobuf.Empty) {}
 
     // Savefile
     rpc GetInv(google.protobuf.StringValue) returns (AnarchyInventory) {}
     rpc AddFound(AnarchyUserRequest) returns (google.protobuf.Empty) {}
+
+    // Recents
+    rpc GetRecents(google.protobuf.Empty) returns (AnarchyRecents) {} // TODO
+    rpc WaitForNextRecent(google.protobuf.Empty) returns (stream google.protobuf.Empty) {} // TODO
 }
 
 message AnarchyElement {
@@ -45,4 +51,29 @@ message AnarchyInventory {
 message AnarchyUserRequest {
     string uid = 1;
     string element = 2;
+}
+
+message AnarchyGetAllChunk {
+    repeated AnarchyElement Elements = 1;
+    int64 count = 2;
+}
+
+
+message AnarchyRecentCombination {
+    string Elem1 = 1;
+    string Elem2 = 2;
+    string Elem3 = 3;
+}
+
+message AnarchyRecents {
+    repeated AnarchyRecentCombination Recents = 1;
+}
+
+message AnarchyElementCreate {
+    string Elem1 = 1;
+    string Elem2 = 2;
+    string Elem3 = 3;
+    string Uid = 4;
+    string Color = 5;
+    string Comment = 6;
 }
