@@ -33,6 +33,20 @@ func (a *Anarchy) AddFound(ctx context.Context, req *pb.AnarchyUserRequest) (*em
 		found = &pb.AnarchyInventory{
 			Found: []string{"Air", "Earth", "Fire", "Water"},
 		}
+		// Updated foundby for those
+		for _, elem := range found.Found {
+			lock.RLock()
+			el := a.cache[elem]
+			lock.RUnlock()
+			el.FoundBy++
+			lock.Lock()
+			a.cache[elem] = el
+			lock.Unlock()
+
+			_, err = a.db.Exec("UPDATE anarchy_elements SET foundby=? WHERE element=?", el.FoundBy, elem)
+			return &emptypb.Empty{}, err
+		}
+		// Add found to DB
 		dat, err := json.Marshal(found.Found)
 		if err != nil {
 			return &emptypb.Empty{}, err
