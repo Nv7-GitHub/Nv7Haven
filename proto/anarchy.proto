@@ -18,8 +18,8 @@ service Anarchy {
     rpc AddFound(AnarchyUserRequest) returns (google.protobuf.Empty) {}
 
     // Recents
-    rpc GetRecents(google.protobuf.Empty) returns (AnarchyRecents) {} // TODO
-    rpc WaitForNextRecent(google.protobuf.Empty) returns (stream google.protobuf.Empty) {} // TODO
+    rpc GetRecents(google.protobuf.Empty) returns (AnarchyRecents) {}
+    rpc WaitForNextRecent(google.protobuf.Empty) returns (stream google.protobuf.Empty) {}
 }
 
 message AnarchyElement {
