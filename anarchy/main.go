@@ -21,14 +21,14 @@ type Anarchy struct {
 
 func (a *Anarchy) init() {
 	var cnt int
-	err := a.db.QueryRow(`SELECT COUNT(1) FROM elements`).Scan(&cnt)
+	err := a.db.QueryRow(`SELECT COUNT(1) FROM anarchy_elements`).Scan(&cnt)
 	if err != nil {
 		panic(err)
 	}
 
 	bar := progressbar.New(cnt)
 
-	res, err := a.db.Query("SELECT * FROM elements WHERE 1")
+	res, err := a.db.Query("SELECT * FROM anarchy_elements WHERE 1")
 	if err != nil {
 		panic(err)
 	}
