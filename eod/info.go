@@ -239,24 +239,51 @@ func (b *EoD) info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
 		rsp.ErrorMessage(msg)
 		return
 	}
+	
+	if len(el.Comment) < 1024 {
+		msg := fmt.Sprintf("Element **#%d**\n<@%s> **You %shave this.**", el.ID, m.Author.ID, has)
+		emb := &discordgo.MessageEmbed{
+			Title:       el.Name + " Info",
+			Description: msg,
+			Fields: []*discordgo.MessageEmbedField{
+				{Name: "Creator Mark", Value: el.Comment, Inline: false},
+				{Name: "Used In", Value: strconv.Itoa(el.UsedIn), Inline: true},
+				{Name: "Made With", Value: strconv.Itoa(madeby), Inline: true},
+				{Name: "Found By", Value: strconv.Itoa(foundby), Inline: true},
+				{Name: "Created By", Value: fmt.Sprintf("<@%s>", el.Creator), Inline: true},
+				{Name: "Created On", Value: fmt.Sprintf("<t:%d>", el.CreatedOn.Unix()), Inline: true},
+				{Name: "Tree Size", Value: strconv.Itoa(tree.Total), Inline: true},
+				{Name: "Complexity", Value: strconv.Itoa(el.Complexity), Inline: true},
+				{Name: "Difficulty", Value: strconv.Itoa(el.Difficulty), Inline: true},
+			},
+			Thumbnail: &discordgo.MessageEmbedThumbnail{
+				URL: el.Image,
+			}
+		}
+	
+	}
+	else {
+		msg := fmt.Sprintf("Element **#%d**\n<@%s> **You %shave this.**\n%mark", el.ID, m.Author.ID, has, el.Comment)
+		emb := &discordgo.MessageEmbed{
+			Title:       el.Name + " Info",
+			Description: msg,
+			Fields: []*discordgo.MessageEmbedField{
+				{Name: "Creator Mark", Value: el.Comment, Inline: false},
+				{Name: "Used In", Value: strconv.Itoa(el.UsedIn), Inline: true},
+				{Name: "Made With", Value: strconv.Itoa(madeby), Inline: true},
+				{Name: "Found By", Value: strconv.Itoa(foundby), Inline: true},
+				{Name: "Created By", Value: fmt.Sprintf("<@%s>", el.Creator), Inline: true},
+				{Name: "Created On", Value: fmt.Sprintf("<t:%d>", el.CreatedOn.Unix()), Inline: true},
+				{Name: "Tree Size", Value: strconv.Itoa(tree.Total), Inline: true},
+				{Name: "Complexity", Value: strconv.Itoa(el.Complexity), Inline: true},
+				{Name: "Difficulty", Value: strconv.Itoa(el.Difficulty), Inline: true},
+			},
+			Thumbnail: &discordgo.MessageEmbedThumbnail{
+				URL: el.Image,
+			}
+		}
+	}
 
-	emb := &discordgo.MessageEmbed{
-		Title:       el.Name + " Info",
-		Description: fmt.Sprintf("Element **#%d**\n<@%s> **You %shave this.**", el.ID, m.Author.ID, has),
-		Fields: []*discordgo.MessageEmbedField{
-			{Name: "Creator Mark", Value: el.Comment, Inline: false},
-			{Name: "Used In", Value: strconv.Itoa(el.UsedIn), Inline: true},
-			{Name: "Made With", Value: strconv.Itoa(madeby), Inline: true},
-			{Name: "Found By", Value: strconv.Itoa(foundby), Inline: true},
-			{Name: "Created By", Value: fmt.Sprintf("<@%s>", el.Creator), Inline: true},
-			{Name: "Created On", Value: fmt.Sprintf("<t:%d>", el.CreatedOn.Unix()), Inline: true},
-			{Name: "Tree Size", Value: strconv.Itoa(tree.Total), Inline: true},
-			{Name: "Complexity", Value: strconv.Itoa(el.Complexity), Inline: true},
-			{Name: "Difficulty", Value: strconv.Itoa(el.Difficulty), Inline: true},
-		},
-		Thumbnail: &discordgo.MessageEmbedThumbnail{
-			URL: el.Image,
-		},
 	}
 	if has != "" {
 		emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{
