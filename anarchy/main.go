@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-var lock *sync.RWMutex
+var lock = &sync.RWMutex{}
 
 type Anarchy struct {
 	*pb.UnimplementedAnarchyServer

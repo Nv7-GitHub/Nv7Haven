@@ -11,7 +11,7 @@ const recentsLength = 30
 
 func (a *Anarchy) GetRecents(ctx context.Context, _ *emptypb.Empty) (*pb.AnarchyRecents, error) {
 	recents := make([]*pb.AnarchyRecentCombination, 0, recentsLength)
-	res, err := a.db.Query("SELECT elem1, elem2, elem3 FROM recents ORDER BY createdon DESC LIMIT ?", recentsLength)
+	res, err := a.db.Query("SELECT elem1, elem2, elem3 FROM anarchy_recents ORDER BY createdon DESC LIMIT ?", recentsLength)
 	if err != nil {
 		return nil, err
 	}

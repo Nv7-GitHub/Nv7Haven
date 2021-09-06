@@ -14,7 +14,7 @@ const (
 	batchCount    = 10
 )
 
-// GetElement gets an element from the database
+// GetElem gets an element from the database
 func (a *Anarchy) GetElem(ctx context.Context, name *wrapperspb.StringValue) (*pb.AnarchyElement, error) {
 	lock.RLock()
 	val := a.cache[name.Value]
@@ -80,6 +80,9 @@ func (a *Anarchy) GetAll(uid *wrapperspb.StringValue, stream pb.Anarchy_GetAllSe
 	getAllBatchSize := minBatchCount
 	if total/batchCount > int64(getAllBatchSize) {
 		getAllBatchSize = int(total / batchCount)
+	}
+	if getAllBatchSize > int(total) {
+		getAllBatchSize = int(total)
 	}
 
 	batch := make([]*pb.AnarchyElement, 0, getAllBatchSize)

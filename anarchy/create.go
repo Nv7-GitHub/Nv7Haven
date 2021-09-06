@@ -54,7 +54,7 @@ func (a *Anarchy) CreateElement(ctx context.Context, req *pb.AnarchyElementCreat
 
 	// Create element
 	createdon := time.Now().Unix()
-	_, err = a.db.Exec("INSERT INTO anarchy_elements VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", req.Elem3, req.Color, req.Comment, req.Elem1, req.Elem2, creator, createdon, complexity, 0, 0)
+	_, err = a.db.Exec("INSERT INTO anarchy_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", req.Elem3, req.Color, req.Comment, req.Elem1, req.Elem2, creator, createdon, complexity, 0, 0)
 	if err != nil {
 		return &emptypb.Empty{}, err
 	}
@@ -74,6 +74,12 @@ func (a *Anarchy) CreateElement(ctx context.Context, req *pb.AnarchyElementCreat
 	lock.Lock()
 	a.cache[req.Elem3] = el
 	lock.Unlock()
+
+	// Create Combo
+	_, err = a.db.Exec("INSERT INTO anarchy_combos VALUES ( ?, ?, ? )", req.Elem1, req.Elem2, req.Elem3)
+	if err != nil {
+		return &emptypb.Empty{}, err
+	}
 
 	// Update usedin
 	for _, par := range el.Parents {

@@ -12,7 +12,7 @@ import (
 func (a *Anarchy) GetInv(ctx context.Context, uid *wrapperspb.StringValue) (*pb.AnarchyInventory, error) {
 	var found []string
 	var data string
-	err := a.db.QueryRow("SELECT inv FROM users WHERE uid=?", uid.Value).Scan(&data)
+	err := a.db.QueryRow("SELECT inv FROM anarchy_inv WHERE uid=?", uid.Value).Scan(&data)
 	if err != nil {
 		found = []string{"Air", "Earth", "Fire", "Water"}
 	} else {
@@ -23,12 +23,17 @@ func (a *Anarchy) GetInv(ctx context.Context, uid *wrapperspb.StringValue) (*pb.
 	}
 	return &pb.AnarchyInventory{
 		Found: found,
-	}, err
+	}, nil
 }
 
 func (a *Anarchy) AddFound(ctx context.Context, req *pb.AnarchyUserRequest) (*emptypb.Empty, error) {
-	found, err := a.GetInv(ctx, &wrapperspb.StringValue{Value: req.Uid})
+	var cnt int
+	var found *pb.AnarchyInventory
+	err := a.db.QueryRow("SELECT COUNT(1) FROM anarchy_inv WHERE uid=?", req.Uid).Scan(&cnt)
 	if err != nil {
+		return &emptypb.Empty{}, err
+	}
+	if cnt == 0 {
 		// Create if not exists
 		found = &pb.AnarchyInventory{
 			Found: []string{"Air", "Earth", "Fire", "Water"},
@@ -43,8 +48,10 @@ func (a *Anarchy) AddFound(ctx context.Context, req *pb.AnarchyUserRequest) (*em
 			a.cache[elem] = el
 			lock.Unlock()
 
-			_, err = a.db.Exec("UPDATE anarchy_elements SET foundby=? WHERE element=?", el.FoundBy, elem)
-			return &emptypb.Empty{}, err
+			_, err = a.db.Exec("UPDATE anarchy_elements SET foundby=? WHERE name=?", el.FoundBy, elem)
+			if err != nil {
+				return &emptypb.Empty{}, err
+			}
 		}
 		// Add found to DB
 		dat, err := json.Marshal(found.Found)
@@ -52,6 +59,11 @@ func (a *Anarchy) AddFound(ctx context.Context, req *pb.AnarchyUserRequest) (*em
 			return &emptypb.Empty{}, err
 		}
 		_, err = a.db.Exec("INSERT INTO anarchy_inv VALUES ( ?, ? )", req.Uid, string(dat))
+		if err != nil {
+			return &emptypb.Empty{}, err
+		}
+	} else {
+		found, err = a.GetInv(ctx, &wrapperspb.StringValue{Value: req.Uid})
 		if err != nil {
 			return &emptypb.Empty{}, err
 		}
@@ -84,6 +96,6 @@ func (a *Anarchy) AddFound(ctx context.Context, req *pb.AnarchyUserRequest) (*em
 	a.cache[req.Element] = el
 	lock.Unlock()
 
-	_, err = a.db.Exec("UPDATE anarchy_elements SET foundby=? WHERE element=?", el.FoundBy, req.Element)
+	_, err = a.db.Exec("UPDATE anarchy_elements SET foundby=? WHERE name=?", el.FoundBy, req.Element)
 	return &emptypb.Empty{}, err
 }
