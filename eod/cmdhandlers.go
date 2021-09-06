@@ -13,6 +13,7 @@ var maxComboLength = 21
 
 var combs = []string{
 	"\n",
+	"\n\n",
 	"+",
 	",",
 	"plus",
