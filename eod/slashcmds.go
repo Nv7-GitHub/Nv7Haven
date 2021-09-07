@@ -141,19 +141,43 @@ var (
 		{
 			Name:        "image",
 			Type:        discordgo.ChatApplicationCommand,
-			Description: "Suggest an image for an element, or add an image to an element you created!",
+			Description: "Suggest an image for an element or category!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
 					Name:        "element",
-					Description: "The name of the element to add the image to!",
-					Required:    true,
-				},
-				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "imageurl",
-					Description: "URL of an image to add to the element! You can also upload an image and then put the link here.",
-					Required:    true,
+					Description: "Suggest an image for an element or add an image to an element you created.",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "element",
+							Description: "The name of the element to add the image to!",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "imageurl",
+							Description: "URL of an image to add to the element! You can also upload an image and then put the link here.",
+							Required:    true,
+						},
+					},
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "category",
+					Description: "Suggest an image for a category.",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "category",
+							Description: "The name of the category to add the image to!",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "imageurl",
+							Description: "URL of an image to add to the element! You can also upload an image and then put the link here.",
+							Required:    true,
+						},
+					},
 				},
 			},
 		},
@@ -919,7 +943,12 @@ var (
 		},
 		"image": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.imageCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			switch resp.Name {
+			case "element":
+				bot.imageCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			case "category":
+				bot.catImgCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			}
 		},
 		"inv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -1072,10 +1101,6 @@ var (
 				}
 			}
 			bot.ideaCmd(count, catName, hasCat, elName, hasEl, bot.newMsgSlash(i), bot.newRespSlash(i))
-		},
-		"catimg": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			bot.catImgCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"download": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
