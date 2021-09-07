@@ -11,7 +11,7 @@ func websockets(app *fiber.App) {
 	app.Use("/ws", func(c *fiber.Ctx) error {
 		fmt.Println(c.Get("Connection"))
 		fmt.Println(c.Get("Upgrade"))
-		if websocket.IsWebSocketUpgrade(c) {
+		if true { //websocket.IsWebSocketUpgrade(c) {
 			c.Locals("allowed", true)
 			return c.Next()
 		}
