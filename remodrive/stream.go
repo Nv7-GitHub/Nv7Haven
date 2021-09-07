@@ -31,6 +31,8 @@ func (r *RemoDrive) Drive(stream pb.RemoDrive_DriveServer) error {
 }
 
 func (r *RemoDrive) Host(room *wrapperspb.StringValue, stream pb.RemoDrive_HostServer) error {
+	r.CloseRoomByName(room.Value)
+
 	msgs := make(chan *pb.DriverMessage)
 
 	lock.Lock()

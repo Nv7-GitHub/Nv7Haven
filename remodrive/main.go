@@ -29,19 +29,23 @@ func InitRemoDrive(grpc *grpc.Server) {
 	pb.RegisterRemoDriveServer(grpc, rd)
 }
 
-func (r *RemoDrive) CloseRoom(ctx context.Context, roomName *wrapperspb.StringValue) (*emptypb.Empty, error) {
+func (r *RemoDrive) CloseRoomByName(name string) error {
 	lock.RLock()
-	room, exists := r.Rooms[roomName.Value]
+	room, exists := r.Rooms[name]
 	lock.RUnlock()
 	if !exists {
-		return &emptypb.Empty{}, fmt.Errorf("remodrive: room %s doesn't exist", roomName.Value)
+		return fmt.Errorf("remodrive: room %s doesn't exist", name)
 	}
 
 	close(room.Msgs)
 
 	lock.Lock()
-	delete(r.Rooms, roomName.Value)
+	delete(r.Rooms, name)
 	lock.Unlock()
 
-	return &emptypb.Empty{}, nil
+	return nil
+}
+
+func (r *RemoDrive) CloseRoom(ctx context.Context, roomName *wrapperspb.StringValue) (*emptypb.Empty, error) {
+	return &emptypb.Empty{}, r.CloseRoomByName(roomName.Value)
 }
