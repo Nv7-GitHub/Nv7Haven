@@ -9,6 +9,7 @@ import (
 
 func websockets(app *fiber.App) {
 	app.Use("/ws", func(c *fiber.Ctx) error {
+		fmt.Println(c.Get("Connection"))
 		if websocket.IsWebSocketUpgrade(c) {
 			c.Locals("allowed", true)
 			return c.Next()
