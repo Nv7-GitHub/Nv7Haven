@@ -3,7 +3,7 @@ syntax = "proto3";
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
 
-option go_package = "../Nv7haven/pb"; // Workaround to add a slash
+option go_package = "../pb"; // Workaround to add a slash
 package elemental;
 
 

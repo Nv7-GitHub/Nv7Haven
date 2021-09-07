@@ -412,5 +412,5 @@ var Anarchy_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "proto/anarchy.proto",
+	Metadata: "anarchy.proto",
 }

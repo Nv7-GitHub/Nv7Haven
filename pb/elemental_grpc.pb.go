@@ -668,5 +668,5 @@ var Elemental_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "proto/elemental.proto",
+	Metadata: "elemental.proto",
 }

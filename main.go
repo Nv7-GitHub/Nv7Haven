@@ -14,6 +14,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod"
 	"github.com/Nv7-Github/Nv7Haven/gdo"
 	"github.com/Nv7-Github/Nv7Haven/nv7haven"
+	"github.com/Nv7-Github/Nv7Haven/remodrive"
 	"github.com/Nv7-Github/Nv7Haven/single"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"google.golang.org/grpc"
@@ -57,7 +58,7 @@ func main() {
 	systemHandlers(app)
 
 	// gRPC
-	lis, err := net.Listen("tcp", ":"+os.Getenv("GRPC_PORT"))
+	lis, err := net.Listen("tcp", ":"+os.Getenv("RPC_PORT"))
 	if err != nil {
 		panic(err)
 	}
@@ -90,6 +91,7 @@ func main() {
 	eod := eod.InitEoD(db)
 	anarchy.InitAnarchy(db, grpc)
 	gdo.InitGDO(app)
+	remodrive.InitRemoDrive(grpc)
 
 	go func() {
 		wrapped := grpcweb.WrapServer(grpc)
@@ -105,6 +107,17 @@ func main() {
 		defer httpS.Close()
 
 		err = httpS.Serve(lis)
+		if err != nil {
+			panic(err)
+		}
+	}()
+
+	go func() {
+		lis, err := net.Listen("tcp", ":"+os.Getenv("GRPC_PORT"))
+		if err != nil {
+			panic(err)
+		}
+		err = grpc.Serve(lis)
 		if err != nil {
 			panic(err)
 		}
