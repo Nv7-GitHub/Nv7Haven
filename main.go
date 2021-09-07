@@ -8,6 +8,13 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/Nv7-Github/Nv7Haven/anarchy"
+	"github.com/Nv7-Github/Nv7Haven/discord"
+	"github.com/Nv7-Github/Nv7Haven/elemental"
+	"github.com/Nv7-Github/Nv7Haven/eod"
+	"github.com/Nv7-Github/Nv7Haven/gdo"
+	"github.com/Nv7-Github/Nv7Haven/nv7haven"
+	"github.com/Nv7-Github/Nv7Haven/single"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"google.golang.org/grpc"
 
@@ -68,7 +75,7 @@ func main() {
 
 	//mysqlsetup.Mysqlsetup()
 
-	/*e, err := elemental.InitElemental(app, db, grpc)
+	e, err := elemental.InitElemental(app, db, grpc)
 	if err != nil {
 		panic(err)
 	}
@@ -82,7 +89,7 @@ func main() {
 	b := discord.InitDiscord(db, e)
 	eod := eod.InitEoD(db)
 	anarchy.InitAnarchy(db, grpc)
-	gdo.InitGDO(app)*/
+	gdo.InitGDO(app)
 
 	go func() {
 		wrapped := grpcweb.WrapServer(grpc)
@@ -115,7 +122,7 @@ func main() {
 		panic(err)
 	}
 
-	//b.Close()
-	//eod.Close()
+	b.Close()
+	eod.Close()
 	db.Close()
 }
