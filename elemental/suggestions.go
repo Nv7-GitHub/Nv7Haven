@@ -14,7 +14,7 @@ import (
 )
 
 const minVotes = -1
-const maxVotes = 3
+const maxVotes = 2
 const anarchyDay = time.Friday
 
 func (e *Elemental) getSugg(id string) (*pb.Suggestion, error) {
