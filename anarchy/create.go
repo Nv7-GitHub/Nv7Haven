@@ -52,15 +52,24 @@ func (a *Anarchy) CreateElement(ctx context.Context, req *pb.AnarchyElementCreat
 	}
 	complexity++
 
-	// Create element
-	createdon := time.Now().Unix()
-	_, err = a.db.Exec("INSERT INTO anarchy_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", req.Elem3, req.Color, req.Comment, req.Elem1, req.Elem2, creator, createdon, complexity, 0, 0)
-	if err != nil {
-		return &emptypb.Empty{}, err
+	// Create element if not exists
+	lock.RLock()
+	el, exists := a.cache[req.Elem3]
+	lock.RUnlock()
+
+	var createdon int64
+	if !exists {
+		createdon = time.Now().Unix()
+		_, err = a.db.Exec("INSERT INTO anarchy_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", req.Elem3, req.Color, req.Comment, req.Elem1, req.Elem2, creator, createdon, complexity, 0, 0)
+		if err != nil {
+			return &emptypb.Empty{}, err
+		}
+	} else {
+		createdon = el.CreatedOn
 	}
 
 	// Update cache
-	el := &pb.AnarchyElement{
+	el = &pb.AnarchyElement{
 		Name:       req.Elem3,
 		Color:      req.Color,
 		Comment:    req.Comment,
