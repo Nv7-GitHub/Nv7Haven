@@ -26,10 +26,13 @@
 
 # For pprof
 out.png
+
 # For gource
 movie.mp4
+
 # Compiled stuff
 elemental/giveall/giveall
+anarchy/giveall/giveall
 main
 
 # Data
