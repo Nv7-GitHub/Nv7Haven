@@ -1,15 +1,12 @@
 package eod
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
 )
-
-var maxComboLength = 21
 
 var combs = []string{
 	"\n",
@@ -239,10 +236,6 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 			for i, part := range parts {
 				parts[i] = strings.TrimSpace(strings.Replace(part, "\\", "", -1))
-			}
-			if len(parts) > maxComboLength {
-				rsp.ErrorMessage(fmt.Sprintf("You can only combine up to %d elements!", maxComboLength))
-				return
 			}
 			b.combine(parts, msg, rsp)
 			return

@@ -8,6 +8,8 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
+var maxComboLength = 21
+
 const blueCircle = "🔵"
 
 func elems2txt(elems []string) string {
@@ -41,6 +43,7 @@ func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
 	validElems := make([]string, len(elems))
 	validCnt := 0
 	for _, elem := range elems {
+		elem = strings.ReplaceAll(elem, "\n", "") // Remove newlines
 		if len(elem) > 0 {
 			validElems[validCnt] = elem
 			validCnt++
@@ -49,6 +52,10 @@ func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
 	elems = validElems[:validCnt]
 	if len(elems) == 1 {
 		rsp.ErrorMessage("You must combine at least 2 elements!")
+		return
+	}
+	if len(elems) > maxComboLength {
+		rsp.ErrorMessage(fmt.Sprintf("You can only combine up to %d elements!", maxComboLength))
 		return
 	}
 
