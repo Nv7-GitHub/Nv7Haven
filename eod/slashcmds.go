@@ -122,18 +122,18 @@ var (
 		{
 			Name:        "mark",
 			Type:        discordgo.ChatApplicationCommand,
-			Description: "Suggest a creator mark, or add a creator mark to an element you created!",
+			Description: "Suggest a mark, or add a mark to an element you created!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
 					Name:        "element",
-					Description: "The name of the element to add a creator mark to!",
+					Description: "The name of the element to add a mark to!",
 					Required:    true,
 				},
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
 					Name:        "mark",
-					Description: "What the new creator mark should be!",
+					Description: "What the new mark should be!",
 					Required:    true,
 				},
 			},
