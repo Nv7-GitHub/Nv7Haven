@@ -91,13 +91,6 @@ func (b *EoD) imageCmd(elem string, image string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 
-	// TEMPORARYL: OG LOCK
-	if el.Creator == "" {
-		rsp.ErrorMessage("Image editing on OG elements has been temporarily locked!")
-		return
-	}
-	// TEMPORARY: OG LOCK
-
 	if el.Creator == m.Author.ID {
 		b.image(m.GuildID, elem, image, "")
 		rsp.Message(fmt.Sprintf("You added an image to **%s**! 📷", el.Name))
