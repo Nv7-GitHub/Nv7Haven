@@ -1,14 +1,16 @@
 EoD servers have **play channels** where they combine elements. You can add more channels to have a less laggy experience. 
-Make a new channel and use **/setplaychannel** to mark a channel as a play channel.
+Make a new channel and use **/set playchannel** to mark a channel as a play channel.
 
 In addition to play channels, EoDE requires a **voting channel** and a **news channel**.
 
 In a voting channel, polls are created to vote on whether a suggestion should be accepted. 
-Use **/setvotes** to set the number of votes required for a poll to be deleted or accepted.
-use **/setvotingchannel** to set the channel where polls should be sent.
-Use **/setpolls** to set the maximum number of polls a user can create.
+Use **/set votes** to set the number of votes required for a poll to be deleted or accepted.
+use **/set votingchannel** to set the channel where polls should be sent.
+Use **/set polls** to set the maximum number of polls a user can create.
 
-In a news channel, a log of polls accepted is sent. Use **/setnewschannel** to set the news channel.
+In a news channel, a log of polls accepted is sent. Use **/set newschannel** to set the news channel.
+
+Use **/set modrole** to set a role that can use administrative commands.
 
 For a simple EoD server, check out the **Official EoD Server Template**:
 https://discord.new/QKrwgdtSK4jC
