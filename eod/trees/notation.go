@@ -51,9 +51,13 @@ func (n *notationTree) AddElem(elem string) (string, bool) {
 			if !suc {
 				return msg, suc
 			}
-			n.WriteString("(")
-			n.WriteString(msg)
-			n.WriteString(")")
+			if len(msg) > 1 {
+				n.WriteString("{")
+				n.WriteString(msg)
+				n.WriteString("}")
+			} else {
+				n.WriteString(msg)
+			}
 		} else {
 			n.WriteString(val)
 		}

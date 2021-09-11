@@ -237,7 +237,7 @@ func (b *EoD) notationCmd(elem string, m types.Msg, rsp types.Rsp) {
 		rsp.DM(txt)
 		return
 	}
-	id := rsp.Message("The path was too long! Sending it as a file in DMs!")
+	id := rsp.Message("The notation was too long! Sending it as a file in DMs!")
 
 	dat.SetMsgElem(id, elem)
 	lock.Lock()
