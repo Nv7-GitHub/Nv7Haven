@@ -244,7 +244,9 @@ func (b *EoD) reactionHandler(s *discordgo.Session, r *discordgo.MessageReaction
 			delete(dat.Polls, r.MessageID)
 			b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", p.Guild, p.Channel, p.Message)
 			b.dg.ChannelMessageDelete(p.Channel, p.Message)
-			b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("%s **Poll Rejected** (By <@%s>)", x, p.Value4))
+			if r.UserID != p.Value4 {
+				b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("%s **Poll Rejected** (By <@%s>)", x, p.Value4))
+			}
 
 			lock.Lock()
 			b.dat[r.GuildID] = dat
@@ -358,6 +360,7 @@ func (b *EoD) unReactionHandler(s *discordgo.Session, r *discordgo.MessageReacti
 			delete(dat.Polls, r.MessageID)
 			b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", p.Guild, p.Channel, p.Message)
 			b.dg.ChannelMessageDelete(p.Channel, p.Message)
+			b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("%s **Poll Rejected** (By <@%s>)", x, p.Value4))
 
 			lock.Lock()
 			b.dat[r.GuildID] = dat
