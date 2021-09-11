@@ -215,7 +215,10 @@ func (b *EoD) notationCmd(elem string, m types.Msg, rsp types.Rsp) {
 	}
 	rsp.Acknowledge()
 	tree := trees.NewNotationTree(dat)
+
+	dat.Lock.RLock()
 	txt, suc := tree.GetNotation(elem)
+	dat.Lock.RUnlock()
 	if !suc {
 		rsp.ErrorMessage(txt)
 		return
