@@ -29,12 +29,7 @@ func NewNotationTree(dat types.ServerData) *notationTree {
 //IMPORTANT: RLock before getting notation
 func (n *notationTree) GetNotation(elem string) (string, bool) {
 	elem = strings.ToLower(elem)
-
-	notation, exists := elemNotations[elem]
-	if exists {
-		return notation, true
-	}
-	notation, exists = n.notations[elem]
+	notation, exists := n.notations[elem]
 	if exists {
 		return notation, true
 	}
@@ -45,16 +40,23 @@ func (n *notationTree) GetNotation(elem string) (string, bool) {
 	}
 
 	out := &strings.Builder{}
+	outOthers := &strings.Builder{}
 	for _, par := range el.Parents {
-		notation, suc := n.GetNotation(par)
-		if !suc {
-			return notation, suc
-		}
+		notation, exists = elemNotations[elem]
+		if exists {
+			out.WriteString(notation)
+		} else {
+			notation, suc := n.GetNotation(par)
+			if !suc {
+				return notation, suc
+			}
 
-		out.WriteString("(")
-		out.WriteString(notation)
-		out.WriteString(")")
+			outOthers.WriteString("(")
+			outOthers.WriteString(notation)
+			outOthers.WriteString(")")
+		}
 	}
+	out.WriteString(outOthers.String())
 
 	n.notations[elem] = out.String()
 	return out.String(), true
