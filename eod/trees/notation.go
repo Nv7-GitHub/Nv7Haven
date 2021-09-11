@@ -1,6 +1,7 @@
 package trees
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -56,6 +57,7 @@ func (n *notationTree) GetNotation(elem string) (string, bool) {
 			outOthers.WriteString(")")
 		}
 	}
+	fmt.Println(elem, out, outOthers)
 	out.WriteString(outOthers.String())
 
 	n.notations[elem] = out.String()
