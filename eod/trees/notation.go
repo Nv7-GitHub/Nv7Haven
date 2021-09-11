@@ -43,6 +43,16 @@ func (n *notationTree) AddElem(elem string) (string, bool) {
 		return res.Message, res.Exists
 	}
 
+	for _, par := range el.Parents {
+		_, exists := elemNotations[strings.ToLower(par)]
+		if !exists {
+			msg, suc := n.AddElem(par)
+			if !suc {
+				return msg, suc
+			}
+		}
+	}
+
 	n.WriteString("(")
 	for _, par := range el.Parents {
 		val, exists := elemNotations[strings.ToLower(par)]
