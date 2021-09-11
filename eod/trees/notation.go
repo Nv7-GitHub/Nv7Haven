@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
 var elemNotations = map[string]string{
@@ -14,50 +15,58 @@ var elemNotations = map[string]string{
 }
 
 type notationTree struct {
-	notations map[string]string
+	*strings.Builder
+
+	added map[string]string
+	num   int
 
 	dat types.ServerData
 }
 
 func NewNotationTree(dat types.ServerData) *notationTree {
 	return &notationTree{
-		notations: make(map[string]string),
-		dat:       dat,
+		added:   make(map[string]string),
+		Builder: &strings.Builder{},
+		num:     0,
+		dat:     dat,
 	}
 }
 
-//IMPORTANT: RLock before getting notation
-func (n *notationTree) GetNotation(elem string) (string, bool) {
-	elem = strings.ToLower(elem)
-	notation, exists := n.notations[elem]
+func (n *notationTree) AddElem(elem string) (string, bool) {
+	val, exists := n.added[elem]
 	if exists {
-		return notation, true
+		return val, true
 	}
 
-	el, res := n.dat.GetElement(elem, true)
+	el, res := n.dat.GetElement(elem)
 	if !res.Exists {
 		return res.Message, res.Exists
 	}
 
-	out := &strings.Builder{}
-	outOthers := &strings.Builder{}
+	n.WriteString("(")
 	for _, par := range el.Parents {
-		notation, exists = elemNotations[par]
-		if exists {
-			out.WriteString(notation)
-		} else {
-			notation, suc := n.GetNotation(par)
+		val, exists := elemNotations[strings.ToLower(par)]
+		if !exists {
+			msg, suc := n.AddElem(par)
 			if !suc {
-				return notation, suc
+				return msg, suc
 			}
-
-			outOthers.WriteString("(")
-			outOthers.WriteString(notation)
-			outOthers.WriteString(")")
+			n.WriteString("(")
+			n.WriteString(msg)
+			n.WriteString(")")
+		} else {
+			n.WriteString(val)
 		}
 	}
-	out.WriteString(outOthers.String())
+	n.WriteString(")")
 
-	n.notations[elem] = out.String()
-	return out.String(), true
+	val = util.Num2Char(n.num)
+	n.num++
+
+	n.WriteString("[")
+	n.WriteString(val)
+	n.WriteString("]")
+
+	n.added[strings.ToLower(elem)] = val
+	return val, true
 }

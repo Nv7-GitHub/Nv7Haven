@@ -217,12 +217,14 @@ func (b *EoD) notationCmd(elem string, m types.Msg, rsp types.Rsp) {
 	tree := trees.NewNotationTree(dat)
 
 	dat.Lock.RLock()
-	txt, suc := tree.GetNotation(elem)
+	msg, suc := tree.AddElem(elem)
 	dat.Lock.RUnlock()
 	if !suc {
-		rsp.ErrorMessage(txt)
+		rsp.ErrorMessage(msg)
 		return
 	}
+
+	txt := tree.String()
 
 	if len(txt) <= 2000 {
 		id := rsp.Message("Sent notation in DMs!")
