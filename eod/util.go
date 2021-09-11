@@ -130,7 +130,7 @@ func (b *EoD) saveInv(guild string, user string, newmade bool, recalculate ...bo
 	b.db.Exec("UPDATE eod_inv SET inv=?, count=? WHERE guild=? AND user=?", data, len(inv), guild, user)
 }
 
-func (b *EoD) mark(guild string, elem string, mark string, creator string) {
+func (b *EoD) mark(guild string, elem string, mark string, creator string, controversial string) {
 	lock.RLock()
 	dat, exists := b.dat[guild]
 	lock.RUnlock()
@@ -151,11 +151,11 @@ func (b *EoD) mark(guild string, elem string, mark string, creator string) {
 
 	b.db.Exec("UPDATE eod_elements SET comment=? WHERE guild=? AND name=?", mark, guild, el.Name)
 	if creator != "" {
-		b.dg.ChannelMessageSend(dat.NewsChannel, "📝 Signed - **"+el.Name+"** (By <@"+creator+">)")
+		b.dg.ChannelMessageSend(dat.NewsChannel, "📝 Signed - **"+el.Name+"** (By <@"+creator+">)"+controversial)
 	}
 }
 
-func (b *EoD) image(guild string, elem string, image string, creator string) {
+func (b *EoD) image(guild string, elem string, image string, creator string, controversial string) {
 	lock.RLock()
 	dat, exists := b.dat[guild]
 	lock.RUnlock()
@@ -176,7 +176,7 @@ func (b *EoD) image(guild string, elem string, image string, creator string) {
 
 	b.db.Exec("UPDATE eod_elements SET image=? WHERE guild=? AND name=?", image, guild, el.Name)
 	if creator != "" {
-		b.dg.ChannelMessageSend(dat.NewsChannel, "📸 Added Image - **"+el.Name+"** (By <@"+creator+">)")
+		b.dg.ChannelMessageSend(dat.NewsChannel, "📸 Added Image - **"+el.Name+"** (By <@"+creator+">)"+controversial)
 	}
 }
 

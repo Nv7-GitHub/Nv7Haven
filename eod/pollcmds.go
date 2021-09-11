@@ -39,7 +39,7 @@ func (b *EoD) markCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
 	}
 
 	if el.Creator == m.Author.ID {
-		b.mark(m.GuildID, elem, mark, "")
+		b.mark(m.GuildID, elem, mark, "", "")
 		rsp.Message(fmt.Sprintf("You have signed **%s**! 🖋️", el.Name))
 		return
 	}
@@ -99,7 +99,7 @@ func (b *EoD) imageCmd(elem string, image string, m types.Msg, rsp types.Rsp) {
 	// TEMPORARY: OG LOCK
 
 	if el.Creator == m.Author.ID {
-		b.image(m.GuildID, elem, image, "")
+		b.image(m.GuildID, elem, image, "", "")
 		rsp.Message(fmt.Sprintf("You added an image to **%s**! 📷", el.Name))
 		return
 	}

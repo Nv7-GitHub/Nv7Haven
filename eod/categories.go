@@ -135,7 +135,7 @@ func (b *EoD) unCategorize(elem string, catName string, guild string) error {
 	return nil
 }
 
-func (b *EoD) catImage(guild string, catName string, image string, creator string) {
+func (b *EoD) catImage(guild string, catName string, image string, creator string, controversial string) {
 	lock.RLock()
 	dat, exists := b.dat[guild]
 	lock.RUnlock()
@@ -156,7 +156,7 @@ func (b *EoD) catImage(guild string, catName string, image string, creator strin
 
 	b.db.Exec("UPDATE eod_categories SET image=? WHERE guild=? AND name=?", image, cat.Guild, cat.Name)
 	if creator != "" {
-		b.dg.ChannelMessageSend(dat.NewsChannel, "📸 Added Category Image - **"+cat.Name+"** (By <@"+creator+">)")
+		b.dg.ChannelMessageSend(dat.NewsChannel, "📸 Added Category Image - **"+cat.Name+"** (By <@"+creator+">)"+controversial)
 	}
 }
 

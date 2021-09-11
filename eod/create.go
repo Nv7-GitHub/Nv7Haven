@@ -18,7 +18,7 @@ const newText = "🆕"
 var datafile *os.File
 var createLock = &sync.Mutex{}
 
-func (b *EoD) elemCreate(name string, parents []string, creator string, guild string) {
+func (b *EoD) elemCreate(name string, parents []string, creator string, controversial string, guild string) {
 	lock.RLock()
 	dat, exists := b.dat[guild]
 	lock.RUnlock()
@@ -149,7 +149,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, guild st
 		}
 	}
 
-	txt := newText + " " + text + " - **" + name + "** (By <@" + creator + ">)" + postTxt
+	txt := newText + " " + text + " - **" + name + "** (By <@" + creator + ">)" + postTxt + controversial
 
 	b.dg.ChannelMessageSend(dat.NewsChannel, txt)
 

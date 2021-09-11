@@ -244,6 +244,7 @@ func (b *EoD) reactionHandler(s *discordgo.Session, r *discordgo.MessageReaction
 			delete(dat.Polls, r.MessageID)
 			b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", p.Guild, p.Channel, p.Message)
 			b.dg.ChannelMessageDelete(p.Channel, p.Message)
+			b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("%s **Poll Rejected** (By <@%s>)", x, p.Value4))
 
 			lock.Lock()
 			b.dat[r.GuildID] = dat
@@ -263,6 +264,13 @@ func (b *EoD) handlePollSuccess(p types.Poll) {
 	if !exists {
 		return
 	}
+
+	controversial := dat.VoteCount != 0 && float32(p.Downvotes)/float32(dat.VoteCount) >= 0.3
+	controversialTxt := ""
+	if controversial {
+		controversialTxt = "🌩️"
+	}
+
 	switch p.Kind {
 	case types.PollCombo:
 		els, ok := p.Data["elems"].([]string)
@@ -273,11 +281,11 @@ func (b *EoD) handlePollSuccess(p types.Poll) {
 				els[i] = val.(string)
 			}
 		}
-		b.elemCreate(p.Value3, els, p.Value4, p.Guild)
+		b.elemCreate(p.Value3, els, p.Value4, controversialTxt, p.Guild)
 	case types.PollSign:
-		b.mark(p.Guild, p.Value1, p.Value2, p.Value4)
+		b.mark(p.Guild, p.Value1, p.Value2, p.Value4, controversialTxt)
 	case types.PollImage:
-		b.image(p.Guild, p.Value1, p.Value2, p.Value4)
+		b.image(p.Guild, p.Value1, p.Value2, p.Value4, controversialTxt)
 	case types.PollCategorize:
 		els, ok := p.Data["elems"].([]string)
 		if !ok {
@@ -291,9 +299,9 @@ func (b *EoD) handlePollSuccess(p types.Poll) {
 			b.categorize(val, p.Value1, p.Guild)
 		}
 		if len(els) == 1 {
-			b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("🗃️ Added **%s** to **%s** (By <@%s>)", els[0], p.Value1, p.Value4))
+			b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("🗃️ Added **%s** to **%s** (By <@%s>)%s", els[0], p.Value1, p.Value4, controversialTxt))
 		} else {
-			b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("🗃️ Added **%d elements** to **%s** (By <@%s>)", len(els), p.Value1, p.Value4))
+			b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("🗃️ Added **%d elements** to **%s** (By <@%s>)%s", len(els), p.Value1, p.Value4, controversialTxt))
 		}
 	case types.PollUnCategorize:
 		els := p.Data["elems"].([]string)
@@ -301,12 +309,12 @@ func (b *EoD) handlePollSuccess(p types.Poll) {
 			b.unCategorize(val, p.Value1, p.Guild)
 		}
 		if len(els) == 1 {
-			b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("🗃️ Removed **%s** from **%s** (By <@%s>)", els[0], p.Value1, p.Value4))
+			b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("🗃️ Removed **%s** from **%s** (By <@%s>)%s", els[0], p.Value1, p.Value4, controversialTxt))
 		} else {
-			b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("🗃️ Removed **%d elements** from **%s** (By <@%s>)", len(els), p.Value1, p.Value4))
+			b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("🗃️ Removed **%d elements** from **%s** (By <@%s>)%s", len(els), p.Value1, p.Value4, controversialTxt))
 		}
 	case types.PollCatImage:
-		b.catImage(p.Guild, p.Value1, p.Value2, p.Value4)
+		b.catImage(p.Guild, p.Value1, p.Value2, p.Value4, controversialTxt)
 	}
 }
 
