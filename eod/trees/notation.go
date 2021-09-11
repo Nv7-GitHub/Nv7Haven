@@ -42,6 +42,9 @@ func (n *notationTree) AddElem(elem string) (string, bool) {
 	if !res.Exists {
 		return res.Message, res.Exists
 	}
+	if len(el.Parents) == 1 {
+		el.Parents = append(el.Parents, el.Parents[0])
+	}
 
 	for _, par := range el.Parents {
 		_, exists := elemNotations[strings.ToLower(par)]
