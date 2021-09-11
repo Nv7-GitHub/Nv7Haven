@@ -1,7 +1,6 @@
 package trees
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -43,9 +42,8 @@ func (n *notationTree) GetNotation(elem string) (string, bool) {
 	out := &strings.Builder{}
 	outOthers := &strings.Builder{}
 	for _, par := range el.Parents {
-		notation, exists = elemNotations[elem]
+		notation, exists = elemNotations[par]
 		if exists {
-			fmt.Println("Notation", elem, notation)
 			out.WriteString(notation)
 		} else {
 			notation, suc := n.GetNotation(par)
@@ -58,7 +56,6 @@ func (n *notationTree) GetNotation(elem string) (string, bool) {
 			outOthers.WriteString(")")
 		}
 	}
-	fmt.Println(elem, out, outOthers)
 	out.WriteString(outOthers.String())
 
 	n.notations[elem] = out.String()
