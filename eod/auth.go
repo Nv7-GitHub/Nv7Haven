@@ -67,7 +67,7 @@ func (b *EoD) canRunCmd(cmd *discordgo.InteractionCreate) (bool, string) {
 
 	// If command is path or catpath, check if has element/all elements in cat
 	// path
-	if resp.Name == "path" || resp.Name == "graph" {
+	if resp.Name == "path" || resp.Name == "graph" || resp.Name == "notation" {
 		inv, res := dat.GetInv(cmd.Member.User.ID, true)
 		if !res.Exists {
 			return false, res.Message

@@ -882,6 +882,19 @@ var (
 			//Description: "View the leaderboard from the user's point of view!",
 			Type: discordgo.UserApplicationCommand,
 		},
+		{
+			Name:        "notation",
+			Type:        discordgo.ChatApplicationCommand,
+			Description: "Calculate the notation of an element!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "element",
+					Description: "Name of the element!",
+					Required:    true,
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"set": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -1292,6 +1305,10 @@ var (
 		"View Leaderboard": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			bot.lbCmd(bot.newMsgSlash(i), bot.newRespSlash(i), "count", resp.TargetID)
+		},
+		"notation": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
+			bot.notationCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )

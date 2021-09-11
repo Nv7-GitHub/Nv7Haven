@@ -205,3 +205,54 @@ func (b *EoD) calcTreeCatCmd(catName string, m types.Msg, rsp types.Rsp) {
 		},
 	})
 }
+
+func (b *EoD) notationCmd(elem string, m types.Msg, rsp types.Rsp) {
+	lock.RLock()
+	dat, exists := b.dat[m.GuildID]
+	lock.RUnlock()
+	if !exists {
+		return
+	}
+	rsp.Acknowledge()
+	tree := trees.NewNotationTree(dat)
+	txt, suc := tree.GetNotation(elem)
+	if !suc {
+		rsp.ErrorMessage(txt)
+		return
+	}
+
+	if len(txt) <= 2000 {
+		id := rsp.Message("Sent notation in DMs!")
+
+		dat.SetMsgElem(id, elem)
+		lock.Lock()
+		b.dat[m.GuildID] = dat
+		lock.Unlock()
+
+		rsp.DM(txt)
+		return
+	}
+	id := rsp.Message("The path was too long! Sending it as a file in DMs!")
+
+	dat.SetMsgElem(id, elem)
+	lock.Lock()
+	b.dat[m.GuildID] = dat
+	lock.Unlock()
+
+	channel, err := b.dg.UserChannelCreate(m.Author.ID)
+	if rsp.Error(err) {
+		return
+	}
+	buf := strings.NewReader(txt)
+	el, _ := dat.GetElement(elem)
+	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
+		Content: fmt.Sprintf("Notation for **%s**:", el.Name),
+		Files: []*discordgo.File{
+			{
+				Name:        "notation.txt",
+				ContentType: "text/plain",
+				Reader:      buf,
+			},
+		},
+	})
+}
