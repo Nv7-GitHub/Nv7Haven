@@ -45,6 +45,7 @@ func (n *notationTree) GetNotation(elem string) (string, bool) {
 	for _, par := range el.Parents {
 		notation, exists = elemNotations[elem]
 		if exists {
+			fmt.Println("Notation", elem, notation)
 			out.WriteString(notation)
 		} else {
 			notation, suc := n.GetNotation(par)
