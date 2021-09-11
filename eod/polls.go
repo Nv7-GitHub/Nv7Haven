@@ -270,7 +270,7 @@ func (b *EoD) handlePollSuccess(p types.Poll) {
 	controversial := dat.VoteCount != 0 && float32(p.Downvotes)/float32(dat.VoteCount) >= 0.3
 	controversialTxt := ""
 	if controversial {
-		controversialTxt = "🌩️"
+		controversialTxt = " 🌩️"
 	}
 
 	switch p.Kind {
