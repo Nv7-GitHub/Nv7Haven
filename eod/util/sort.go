@@ -149,10 +149,10 @@ func SortElemList(elems []string, sortName string, dat types.ServerData) {
 	getter, exists := getters[sortName]
 	lock.RUnlock()
 	if exists {
-		for i, el := range elems {
-			el, res := dat.GetElement(el, true)
+		for i, val := range elems {
+			el, res := dat.GetElement(val, true)
 			if res.Exists {
-				elems[i] = getter(el)
+				elems[i] = val + getter(el)
 			}
 		}
 	}
