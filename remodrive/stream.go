@@ -45,15 +45,15 @@ func (r *RemoDrive) Drive(w http.ResponseWriter, req *http.Request) {
 
 func (r *RemoDrive) Host(w http.ResponseWriter, req *http.Request) {
 	conn, err := upgrader.Upgrade(w, req, nil)
+	fmt.Println(err)
 	if err != nil {
-		fmt.Println(err)
 		return
 	}
 	defer conn.Close()
 
 	_, roomName, err := conn.ReadMessage()
+	fmt.Println(err)
 	if err != nil {
-		fmt.Println(err)
 		return
 	}
 
@@ -67,8 +67,8 @@ func (r *RemoDrive) Host(w http.ResponseWriter, req *http.Request) {
 
 	for msg := range room.Msgs {
 		err := conn.WriteMessage(websocket.TextMessage, []byte(msg))
+		fmt.Println(err)
 		if err != nil {
-			fmt.Println(err)
 			return
 		}
 	}
