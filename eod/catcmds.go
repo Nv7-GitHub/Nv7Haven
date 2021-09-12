@@ -80,6 +80,8 @@ func (b *EoD) catCmd(category string, sortKind string, hasUser bool, user string
 		i++
 	}
 
+	var o []string
+	var createO = true
 	switch sortKind {
 	case "catfound":
 		sort.Slice(out, func(i, j int) bool {
@@ -96,17 +98,18 @@ func (b *EoD) catCmd(category string, sortKind string, hasUser bool, user string
 		return
 
 	default:
-		sorter := sorts[sortKind]
-		dat.Lock.RLock()
-		sort.Slice(out, func(i, j int) bool {
-			return sorter(out[i].name, out[j].name, dat)
-		})
-		dat.Lock.RUnlock()
+		o := make([]string, len(out))
+		for i, dat := range out {
+			o[i] = dat.text
+		}
+		util.SortElemList(o, sortKind, dat)
+		createO = false
 	}
 
-	o := make([]string, len(out))
-	for i, val := range out {
-		o[i] = val.text
+	if createO {
+		for i, val := range out {
+			o[i] = val.text
+		}
 	}
 
 	b.newPageSwitcher(types.PageSwitcher{
@@ -189,7 +192,7 @@ func (b *EoD) allCatCmd(sortBy string, hasUser bool, user string, m types.Msg, r
 
 	default:
 		sort.Slice(out, func(i, j int) bool {
-			return compareStrings(out[i].name, out[j].name)
+			return util.CompareStrings(out[i].name, out[j].name)
 		})
 	}
 
@@ -230,7 +233,7 @@ func (b *EoD) downloadCatCmd(catName string, sort string, m types.Msg, rsp types
 	}
 	dat.Lock.RUnlock()
 
-	sortElemList(elems, sort, dat)
+	util.SortElemList(elems, sort, dat)
 
 	out := &strings.Builder{}
 	for _, elem := range elems {

@@ -51,7 +51,7 @@ func (b *EoD) invCmd(user string, m types.Msg, rsp types.Rsp, sorter string, fil
 		outs = outs[:count]
 		items = outs
 	}
-	sortElemList(items, sorter, dat)
+	util.SortElemList(items, sorter, dat)
 	dat.Lock.RUnlock()
 
 	name := m.Author.Username

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -173,7 +174,7 @@ var (
 					Name:        "sortby",
 					Description: "How to sort the inventory!",
 					Required:    false,
-					Choices:     sortChoices,
+					Choices:     util.SortChoices,
 				},
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
@@ -294,7 +295,7 @@ var (
 							Name:  "Element Count",
 							Value: "catelemcount",
 						},
-					}, sortChoices...),
+					}, util.SortChoices...),
 				},
 				{
 					Type:        discordgo.ApplicationCommandOptionUser,
@@ -554,7 +555,7 @@ var (
 							Name:        "sortby",
 							Description: "How to sort the inventory!",
 							Required:    false,
-							Choices:     sortChoices,
+							Choices:     util.SortChoices,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionString,
@@ -590,7 +591,7 @@ var (
 							Name:        "sortby",
 							Description: "How to sort the category!",
 							Required:    false,
-							Choices:     sortChoices,
+							Choices:     util.SortChoices,
 						},
 					},
 				},

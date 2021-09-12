@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -97,7 +98,7 @@ func (b *EoD) downloadInvCmd(user string, sorter string, filter string, m types.
 		outs = outs[:count]
 		items = outs
 	}
-	sortElemList(items, sorter, dat)
+	util.SortElemList(items, sorter, dat)
 
 	out := &strings.Builder{}
 	for _, val := range items {

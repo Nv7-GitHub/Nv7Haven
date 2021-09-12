@@ -1,14 +1,18 @@
-package eod
+package util
 
 import (
+	"fmt"
 	"sort"
 	"strconv"
+	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
 
-var sortChoices = []*discordgo.ApplicationCommandOptionChoice{
+var lock *sync.RWMutex
+
+var SortChoices = []*discordgo.ApplicationCommandOptionChoice{
 	{
 		Name:  "Name",
 		Value: "name",
@@ -37,6 +41,10 @@ var sortChoices = []*discordgo.ApplicationCommandOptionChoice{
 		Name:  "Creator",
 		Value: "creator",
 	},
+	{
+		Name:  "ID",
+		Value: "id",
+	},
 }
 
 var sorts = map[string]func(a, b string, dat types.ServerData) bool{
@@ -44,7 +52,7 @@ var sorts = map[string]func(a, b string, dat types.ServerData) bool{
 		return len(a) < len(b)
 	},
 	"name": func(a, b string, dat types.ServerData) bool {
-		return compareStrings(a, b)
+		return CompareStrings(a, b)
 	},
 	"createdon": func(a, b string, dat types.ServerData) bool {
 		el1, res := dat.GetElement(a, true)
@@ -53,6 +61,14 @@ var sorts = map[string]func(a, b string, dat types.ServerData) bool{
 			return false
 		}
 		return el1.CreatedOn.Before(el2.CreatedOn)
+	},
+	"id": func(a, b string, dat types.ServerData) bool {
+		el1, res := dat.GetElement(a, true)
+		el2, res2 := dat.GetElement(b, true)
+		if !res.Exists || !res2.Exists {
+			return false
+		}
+		return el1.ID < el2.ID
 	},
 	"complexity": func(a, b string, dat types.ServerData) bool {
 		el1, res := dat.GetElement(a, true)
@@ -88,8 +104,29 @@ var sorts = map[string]func(a, b string, dat types.ServerData) bool{
 	},
 }
 
+var getters = map[string]func(el types.Element) string{
+	"createdon": func(el types.Element) string {
+		return fmt.Sprintf(" - <t:%d>", el.CreatedOn.Unix())
+	},
+	"id": func(el types.Element) string {
+		return fmt.Sprintf(" - #%d", el.ID)
+	},
+	"complexity": func(el types.Element) string {
+		return fmt.Sprintf(" - %d", el.Complexity)
+	},
+	"difficulty": func(el types.Element) string {
+		return fmt.Sprintf(" - %d", el.Difficulty)
+	},
+	"usedin": func(el types.Element) string {
+		return fmt.Sprintf(" - %d", el.UsedIn)
+	},
+	"creator": func(el types.Element) string {
+		return fmt.Sprintf(" - <@%s>", el.Creator)
+	},
+}
+
 // Less
-func compareStrings(a, b string) bool {
+func CompareStrings(a, b string) bool {
 	fl1, err := strconv.ParseFloat(a, 32)
 	fl2, err2 := strconv.ParseFloat(b, 32)
 	if err == nil && err2 == nil {
@@ -98,11 +135,26 @@ func compareStrings(a, b string) bool {
 	return a < b
 }
 
-func sortElemList(elems []string, sortName string, dat types.ServerData) {
+func SortElemList(elems []string, sortName string, dat types.ServerData) {
+	lock.RLock()
 	sorter := sorts[sortName]
+	lock.RUnlock()
+
 	dat.Lock.RLock()
 	sort.Slice(elems, func(i, j int) bool {
 		return sorter(elems[i], elems[j], dat)
 	})
+
+	lock.RLock()
+	getter, exists := getters[sortName]
+	lock.RUnlock()
+	if exists {
+		for i, el := range elems {
+			el, res := dat.GetElement(el, true)
+			if res.Exists {
+				elems[i] = getter(el)
+			}
+		}
+	}
 	dat.Lock.RUnlock()
 }
