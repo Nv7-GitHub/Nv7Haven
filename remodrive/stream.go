@@ -1,7 +1,6 @@
 package remodrive
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/websocket"
@@ -45,14 +44,12 @@ func (r *RemoDrive) Drive(w http.ResponseWriter, req *http.Request) {
 
 func (r *RemoDrive) Host(w http.ResponseWriter, req *http.Request) {
 	conn, err := upgrader.Upgrade(w, req, nil)
-	fmt.Println(err)
 	if err != nil {
 		return
 	}
 	defer conn.Close()
 
 	_, roomName, err := conn.ReadMessage()
-	fmt.Println(err)
 	if err != nil {
 		return
 	}
@@ -60,14 +57,12 @@ func (r *RemoDrive) Host(w http.ResponseWriter, req *http.Request) {
 	lock.RLock()
 	room, exists := r.Rooms[string(roomName)]
 	lock.RUnlock()
-	fmt.Println(exists)
 	if !exists {
 		return
 	}
 
 	for msg := range room.Msgs {
 		err := conn.WriteMessage(websocket.TextMessage, []byte(msg))
-		fmt.Println(err)
 		if err != nil {
 			return
 		}
