@@ -9,7 +9,7 @@ Use **/giveall** to give a user every element
 Reset a user's inventory to only the Starter Elements by using **/resetinv**
 Use **/elemsort** to view a sorted list of the elements in your server and **/elemsearch** to search for an element
 Use **/graph** or **/catgraph** to create a visual graph of an element
-Use **/found** to see the users who have found an element
+Use **/get found** to see the users who have found an element
 Use **/setcolor** to change your embed color
 Use **/invhint** to see what you can make with an element
 
