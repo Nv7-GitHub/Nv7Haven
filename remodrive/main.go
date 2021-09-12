@@ -1,6 +1,7 @@
 package remodrive
 
 import (
+	"fmt"
 	"net/http"
 	"sync"
 
@@ -37,6 +38,7 @@ func (r *RemoDrive) Handlers(app *fiber.App) {
 		return r.CloseRoomByName(string(ctx.Body()))
 	})
 	app.Post("/new_room", func(ctx *fiber.Ctx) error {
+		fmt.Println("new room")
 		r.NewRoom(string(ctx.Body()))
 		return nil
 	})
