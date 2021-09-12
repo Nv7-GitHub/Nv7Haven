@@ -394,31 +394,6 @@ var (
 				{
 					Type:        discordgo.ApplicationCommandOptionSubCommand,
 					Name:        "all",
-					Description: "Give a user all the elements in a category, and optionally give the tree!",
-					Options: []*discordgo.ApplicationCommandOption{
-						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "category",
-							Description: "Name of the category!",
-							Required:    true,
-						},
-						{
-							Type:        discordgo.ApplicationCommandOptionBoolean,
-							Name:        "givetree",
-							Description: "Give all the elements required to make the elements?",
-							Required:    true,
-						},
-						{
-							Type:        discordgo.ApplicationCommandOptionUser,
-							Name:        "user",
-							Description: "User to give the elemenst (and maybe the elements required) to!",
-							Required:    true,
-						},
-					},
-				},
-				{
-					Type:        discordgo.ApplicationCommandOptionSubCommand,
-					Name:        "all",
 					Description: "Give a user every element!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
