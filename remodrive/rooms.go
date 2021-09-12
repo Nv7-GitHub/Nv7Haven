@@ -31,5 +31,7 @@ func (r *RemoDrive) NewRoom(name string) error {
 	}
 	lock.Unlock()
 
+	fmt.Println("made room")
+
 	return nil
 }
