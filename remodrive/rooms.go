@@ -22,9 +22,12 @@ func (r *RemoDrive) CloseRoomByName(name string) error {
 }
 
 func (r *RemoDrive) NewRoom(name string) error {
+	fmt.Println(name)
 	r.CloseRoomByName(name)
 
 	msgs := make(chan string, maxBufLen)
+	fmt.Println(msgs)
+
 	lock.Lock()
 	r.Rooms[name] = Room{
 		Msgs: msgs,
