@@ -103,7 +103,7 @@ func (b *EoD) catCmd(category string, sortKind string, hasUser bool, user string
 			}
 			return out[index].text
 		}, func(index int, val string) {
-			out[index].text += val
+			out[index].text = val
 		}, sortKind, dat)
 	}
 
