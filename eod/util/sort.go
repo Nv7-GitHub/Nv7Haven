@@ -10,7 +10,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-var lock *sync.RWMutex
+var lock = &sync.RWMutex{}
 
 var SortChoices = []*discordgo.ApplicationCommandOptionChoice{
 	{
