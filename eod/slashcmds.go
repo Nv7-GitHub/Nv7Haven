@@ -649,25 +649,6 @@ var (
 			},
 		},
 		{
-			Name:        "info",
-			Type:        discordgo.ChatApplicationCommand,
-			Description: "Get the info of an element!",
-			Options: []*discordgo.ApplicationCommandOption{
-				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "element",
-					Description: "Name of the element!",
-					Required:    false,
-				},
-				{
-					Type:        discordgo.ApplicationCommandOptionInteger,
-					Name:        "id",
-					Description: "ID of the element!",
-					Required:    false,
-				},
-			},
-		},
-		{
 			Name:        "graph",
 			Type:        discordgo.ChatApplicationCommand,
 			Description: "Create a graph of an element's tree!",
@@ -809,6 +790,25 @@ var (
 							Name:        "element",
 							Description: "Name of the element!",
 							Required:    true,
+						},
+					},
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "info",
+					Description: "Get the info of an element!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "element",
+							Description: "Name of the element!",
+							Required:    false,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionInteger,
+							Name:        "id",
+							Description: "ID of the element!",
+							Required:    false,
 						},
 					},
 				},
@@ -1203,40 +1203,40 @@ var (
 			}
 			bot.catGraphCmd(catName, layout, outputType, special, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
-		"info": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			elem := ""
-			var id int
-			isID := false
-			for _, opt := range resp.Options {
-				if opt.Name == "element" {
-					elem = opt.StringValue()
-				}
-
-				if opt.Name == "id" {
-					isID = true
-					id = int(opt.IntValue())
-				}
-			}
-			rsp := bot.newRespSlash(i)
-			if !isID && elem == "" {
-				rsp.ErrorMessage("You must input an element or an element's ID!")
-				return
-			}
-			if isID && elem != "" {
-				rsp.ErrorMessage("You can't input an element and an element's ID!")
-				return
-			}
-			bot.info(elem, id, isID, bot.newMsgSlash(i), rsp)
-		},
 		"get": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			opt := i.ApplicationCommandData().Options[0]
-			switch opt.Name {
+			resp := i.ApplicationCommandData().Options[0]
+			switch resp.Name {
 			case "found":
-				bot.foundCmd(opt.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.foundCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 
 			case "categories":
-				bot.categoriesCmd(opt.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.categoriesCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+
+			case "info":
+				resp := i.ApplicationCommandData()
+				elem := ""
+				var id int
+				isID := false
+				for _, opt := range resp.Options {
+					if opt.Name == "element" {
+						elem = opt.StringValue()
+					}
+
+					if opt.Name == "id" {
+						isID = true
+						id = int(opt.IntValue())
+					}
+				}
+				rsp := bot.newRespSlash(i)
+				if !isID && elem == "" {
+					rsp.ErrorMessage("You must input an element or an element's ID!")
+					return
+				}
+				if isID && elem != "" {
+					rsp.ErrorMessage("You can't input an element and an element's ID!")
+					return
+				}
+				bot.info(elem, id, isID, bot.newMsgSlash(i), rsp)
 			}
 		},
 		"setcolor": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
