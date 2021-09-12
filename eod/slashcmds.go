@@ -1213,7 +1213,6 @@ var (
 				bot.categoriesCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 
 			case "info":
-				resp := i.ApplicationCommandData()
 				elem := ""
 				var id int
 				isID := false
