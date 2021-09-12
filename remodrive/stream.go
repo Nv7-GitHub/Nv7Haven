@@ -1,51 +1,70 @@
 package remodrive
 
 import (
-	"fmt"
-	"io"
+	"net/http"
 
-	"github.com/Nv7-Github/Nv7Haven/pb"
-	"google.golang.org/protobuf/types/known/emptypb"
-	"google.golang.org/protobuf/types/known/wrapperspb"
+	"github.com/gorilla/websocket"
 )
 
-func (r *RemoDrive) Drive(stream pb.RemoDrive_DriveServer) error {
+func (r *RemoDrive) Drive(w http.ResponseWriter, req *http.Request) {
+	conn, err := upgrader.Upgrade(w, req, nil)
+	if err != nil {
+		return
+	}
+	defer conn.Close()
+
+	room := ""
+
 	for {
-		msg, err := stream.Recv()
-		if err == io.EOF {
-			return stream.SendAndClose(&emptypb.Empty{})
-		}
+		_, message, err := conn.ReadMessage()
 		if err != nil {
-			return err
+			return
+		}
+
+		if room == "" {
+			room = string(message)
+			continue
 		}
 
 		lock.RLock()
-		room, exists := r.Rooms[msg.Room]
+		room, exists := r.Rooms[room]
 		lock.RUnlock()
 		if !exists {
-			return fmt.Errorf("remodrive: room %s doesn't exist", msg.Room)
+			return
 		}
 
-		room.Msgs <- msg
+		room.Msgs <- string(message)
+
+		err = conn.WriteMessage(websocket.TextMessage, []byte("recv"))
+		if err != nil {
+			return
+		}
 	}
 }
 
-func (r *RemoDrive) Host(room *wrapperspb.StringValue, stream pb.RemoDrive_HostServer) error {
-	r.CloseRoomByName(room.Value)
-
-	msgs := make(chan *pb.DriverMessage)
-
-	lock.Lock()
-	r.Rooms[room.Value] = Room{
-		Msgs: msgs,
+func (r *RemoDrive) Host(w http.ResponseWriter, req *http.Request) {
+	conn, err := upgrader.Upgrade(w, req, nil)
+	if err != nil {
+		return
 	}
-	lock.Unlock()
+	defer conn.Close()
 
-	for msg := range msgs {
-		if err := stream.Send(msg); err != nil {
-			return err
+	_, roomName, err := conn.ReadMessage()
+	if err != nil {
+		return
+	}
+
+	lock.RLock()
+	room, exists := r.Rooms[string(roomName)]
+	lock.RUnlock()
+	if !exists {
+		return
+	}
+
+	for msg := range room.Msgs {
+		err := conn.WriteMessage(websocket.TextMessage, []byte(msg))
+		if err != nil {
+			return
 		}
 	}
-
-	return nil
 }
