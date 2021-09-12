@@ -81,7 +81,6 @@ func (b *EoD) catCmd(category string, sortKind string, hasUser bool, user string
 	}
 
 	var o []string
-	var createO = true
 	switch sortKind {
 	case "catfound":
 		sort.Slice(out, func(i, j int) bool {
@@ -98,18 +97,19 @@ func (b *EoD) catCmd(category string, sortKind string, hasUser bool, user string
 		return
 
 	default:
-		o := make([]string, len(out))
-		for i, dat := range out {
-			o[i] = dat.text
-		}
-		util.SortElemList(o, sortKind, dat)
-		createO = false
+		util.SortElemObj(out, len(out), func(index int, sort bool) string {
+			if sort {
+				return out[index].name
+			}
+			return out[index].text
+		}, func(index int, val string) {
+			out[index].text += val
+		}, sortKind, dat)
 	}
 
-	if createO {
-		for i, val := range out {
-			o[i] = val.text
-		}
+	o = make([]string, len(out))
+	for i, val := range out {
+		o[i] = val.text
 	}
 
 	b.newPageSwitcher(types.PageSwitcher{

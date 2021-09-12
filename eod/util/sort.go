@@ -158,3 +158,27 @@ func SortElemList(elems []string, sortName string, dat types.ServerData) {
 	}
 	dat.Lock.RUnlock()
 }
+
+func SortElemObj(vals interface{}, length int, elemGet func(index int, sort bool) string, elemSet func(index int, val string), sortName string, dat types.ServerData) {
+	lock.RLock()
+	sorter := sorts[sortName]
+	lock.RUnlock()
+
+	dat.Lock.RLock()
+	sort.Slice(vals, func(i, j int) bool {
+		return sorter(elemGet(i, true), elemGet(j, true), dat)
+	})
+
+	lock.RLock()
+	getter, exists := getters[sortName]
+	lock.RUnlock()
+	if exists {
+		for i := 0; i < length; i++ {
+			el, res := dat.GetElement(elemGet(i, true), true)
+			if res.Exists {
+				elemSet(i, elemGet(i, false)+getter(el))
+			}
+		}
+	}
+	dat.Lock.RUnlock()
+}
