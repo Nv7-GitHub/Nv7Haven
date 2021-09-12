@@ -16,6 +16,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/nv7haven"
 	"github.com/Nv7-Github/Nv7Haven/remodrive"
 	"github.com/Nv7-Github/Nv7Haven/single"
+	"github.com/gorilla/websocket"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"google.golang.org/grpc"
 
@@ -33,6 +34,11 @@ const (
 	dbUser = "root"
 	dbName = "nv7haven"
 )
+
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
 
 func main() {
 	logFile, err := os.OpenFile("logs.txt", os.O_WRONLY|os.O_CREATE, os.ModePerm)
@@ -64,9 +70,6 @@ func main() {
 	}
 	grpc := grpc.NewServer()
 
-	/* Testing*/
-	websockets(app)
-
 	app.Static("/", "./index.html")
 
 	db, err := sql.Open("mysql", dbUser+":"+os.Getenv("PASSWORD")+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
@@ -92,6 +95,29 @@ func main() {
 	anarchy.InitAnarchy(db, grpc)
 	gdo.InitGDO(app)
 	remodrive.InitRemoDrive(grpc)
+
+	go func() {
+		http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+			conn, err := upgrader.Upgrade(w, r, nil)
+			if err != nil {
+				return
+			}
+			defer conn.Close()
+
+			for {
+				_, message, err := conn.ReadMessage()
+				if err != nil {
+					return
+				}
+				fmt.Println(string(message))
+			}
+		})
+
+		err := http.ListenAndServe(":"+os.Getenv("HTTP_PORT"), nil)
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	go func() {
 		wrapped := grpcweb.WrapServer(grpc)
