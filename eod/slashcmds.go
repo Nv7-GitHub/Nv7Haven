@@ -324,19 +324,6 @@ var (
 			Description: "Get your server's stats!",
 		},
 		{
-			Name:        "giveall",
-			Type:        discordgo.ChatApplicationCommand,
-			Description: "Give a user every element!",
-			Options: []*discordgo.ApplicationCommandOption{
-				{
-					Type:        discordgo.ApplicationCommandOptionUser,
-					Name:        "user",
-					Description: "The user to give every element to!",
-					Required:    true,
-				},
-			},
-		},
-		{
 			Name:        "resetinv",
 			Type:        discordgo.ChatApplicationCommand,
 			Description: "Reset a user's inventory!",
@@ -352,50 +339,95 @@ var (
 		{
 			Name:        "give",
 			Type:        discordgo.ChatApplicationCommand,
-			Description: "Give a user an element, and choose whether to give all the elements required to make that element!",
+			Description: "Give elements to a user!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
 					Name:        "element",
-					Description: "Name of the element!",
-					Required:    true,
+					Description: "Give a user an element, and choose whether to give all the elements required to make that element!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "element",
+							Description: "Name of the element!",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionBoolean,
+							Name:        "givetree",
+							Description: "Give all the elements required to make that element?",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionUser,
+							Name:        "user",
+							Description: "User to give the element (and maybe the elements required) to!",
+							Required:    true,
+						},
+					},
 				},
 				{
-					Type:        discordgo.ApplicationCommandOptionBoolean,
-					Name:        "givetree",
-					Description: "Give all the elements required to make that element?",
-					Required:    true,
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "cat",
+					Description: "Give a user all the elements in a category, and optionally give the tree!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "category",
+							Description: "Name of the category!",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionBoolean,
+							Name:        "givetree",
+							Description: "Give all the elements required to make the elements?",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionUser,
+							Name:        "user",
+							Description: "User to give the elemenst (and maybe the elements required) to!",
+							Required:    true,
+						},
+					},
 				},
 				{
-					Type:        discordgo.ApplicationCommandOptionUser,
-					Name:        "user",
-					Description: "User to give the element (and maybe the elements required) to!",
-					Required:    true,
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "all",
+					Description: "Give a user all the elements in a category, and optionally give the tree!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "category",
+							Description: "Name of the category!",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionBoolean,
+							Name:        "givetree",
+							Description: "Give all the elements required to make the elements?",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionUser,
+							Name:        "user",
+							Description: "User to give the elemenst (and maybe the elements required) to!",
+							Required:    true,
+						},
+					},
 				},
-			},
-		},
-		{
-			Name:        "givecat",
-			Type:        discordgo.ChatApplicationCommand,
-			Description: "Give a user all the elements in a category, and optionally give the tree!",
-			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "category",
-					Description: "Name of the category!",
-					Required:    true,
-				},
-				{
-					Type:        discordgo.ApplicationCommandOptionBoolean,
-					Name:        "givetree",
-					Description: "Give all the elements required to make the elements?",
-					Required:    true,
-				},
-				{
-					Type:        discordgo.ApplicationCommandOptionUser,
-					Name:        "user",
-					Description: "User to give the elemenst (and maybe the elements required) to!",
-					Required:    true,
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "all",
+					Description: "Give a user every element!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionUser,
+							Name:        "user",
+							Description: "The user to give every element to!",
+							Required:    true,
+						},
+					},
 				},
 			},
 		},
@@ -1026,21 +1058,21 @@ var (
 		"stats": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.statsCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
-		"giveall": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			bot.giveAllCmd(resp.Options[0].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
-		},
 		"resetinv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			bot.resetInvCmd(resp.Options[0].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"give": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			bot.giveCmd(resp.Options[0].StringValue(), resp.Options[1].BoolValue(), resp.Options[2].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
-		},
-		"givecat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			bot.giveCatCmd(resp.Options[0].StringValue(), resp.Options[1].BoolValue(), resp.Options[2].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+			resp := i.ApplicationCommandData().Options[0]
+			switch resp.Name {
+			case "element":
+				bot.giveCmd(resp.Options[0].StringValue(), resp.Options[1].BoolValue(), resp.Options[2].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+			case "cat":
+				bot.giveCatCmd(resp.Options[0].StringValue(), resp.Options[1].BoolValue(), resp.Options[2].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+			case "all":
+				bot.giveAllCmd(resp.Options[0].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+			}
+
 		},
 		"path": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
