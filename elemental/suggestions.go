@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/pb"
+	"github.com/finnbear/moderation"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -160,6 +161,10 @@ func (e *Elemental) NewSugg(ctx context.Context, req *pb.NewSuggestionRequest) (
 
 // NewSuggestion makes a new suggestion
 func (e *Elemental) NewSuggestion(elem1, elem2 string, suggestion *pb.Suggestion) (bool, error) {
+	if moderation.IsInappropriate(suggestion.Name) {
+		return false, errors.New("no innapropriate suggestions are allowed")
+	}
+
 	voted, _ := json.Marshal(suggestion.Voted)
 	color := fmt.Sprintf("%s_%f_%f", suggestion.Color.Base, suggestion.Color.Saturation, suggestion.Color.Lightness)
 	_, err := e.db.Exec("INSERT INTO suggestions VALUES( ?, ?, ?, ?, ? )", suggestion.Name, color, suggestion.Creator, voted, suggestion.Votes)

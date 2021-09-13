@@ -8,6 +8,7 @@ require (
 	github.com/Nv7-Github/firebase v0.0.0-20201012033747-47c56e1d869d
 	github.com/bwmarrin/discordgo v0.23.3-0.20210818201646-9d9602318a29
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
+	github.com/finnbear/moderation v0.11.4
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/goccy/go-graphviz v0.0.9
 	github.com/gofiber/fiber/v2 v2.13.0
