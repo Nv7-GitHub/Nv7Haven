@@ -258,6 +258,13 @@ func (b *EoD) info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
 			URL: el.Image,
 		},
 	}
+	if m.Author.ID == "567132457820749842" {
+		for _, elem := range starterElements {
+			if elem.Name == el.Name {
+				emb.Thumbnail.URL = elem.Image
+			}
+		}
+	}
 	if has != "" {
 		emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{
 			Name:   "Progress",
