@@ -668,6 +668,25 @@ var (
 						},
 					},
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "inv",
+					Description: "Get the breakdown of a user's inventory!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionUser,
+							Name:        "user",
+							Description: "Which user's inventory to breakdown!",
+							Required:    false,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionBoolean,
+							Name:        "calctree",
+							Description: "Whether to include the tree of the elements in the category!",
+							Required:    false,
+						},
+					},
+				},
 			},
 		},
 		{
@@ -1116,6 +1135,20 @@ var (
 					calctree = resp.Options[1].BoolValue()
 				}
 				bot.catBreakdownCmd(resp.Options[0].StringValue(), calctree, bot.newMsgSlash(i), bot.newRespSlash(i))
+
+			case "inv":
+				user := i.Member.User.ID
+				calcTree := true
+				for _, opt := range resp.Options {
+					if opt.Name == "user" {
+						user = opt.UserValue(bot.dg).ID
+					}
+
+					if opt.Name == "calctree" {
+						calcTree = opt.BoolValue()
+					}
+				}
+				bot.invBreakdownCmd(user, calcTree, bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
 		},
 		"graph": func(s *discordgo.Session, i *discordgo.InteractionCreate) {

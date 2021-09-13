@@ -85,3 +85,44 @@ func (b *EoD) catBreakdownCmd(catName string, calcTree bool, m types.Msg, rsp ty
 		Items:      tree.GetStringArr(),
 	}, m, rsp)
 }
+
+func (b *EoD) invBreakdownCmd(user string, calcTree bool, m types.Msg, rsp types.Rsp) {
+	rsp.Acknowledge()
+
+	lock.RLock()
+	dat, exists := b.dat[m.GuildID]
+	lock.RUnlock()
+	if !exists {
+		rsp.ErrorMessage("Guild isn't setup yet!")
+		return
+	}
+
+	inv, res := dat.GetInv(user, user == m.Author.ID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
+		return
+	}
+
+	tree := &trees.BreakDownTree{
+		Dat:       dat,
+		Breakdown: make(map[string]int),
+		Added:     make(map[string]types.Empty),
+		Tree:      calcTree,
+		Total:     0,
+	}
+
+	for elem := range inv {
+		suc, err := tree.AddElem(elem)
+		if !suc {
+			rsp.ErrorMessage(err)
+			return
+		}
+	}
+
+	b.newPageSwitcher(types.PageSwitcher{
+		Kind:       types.PageSwitchInv,
+		Title:      fmt.Sprintf("<@%s> Inventory Breakdown (%d)", user, tree.Total),
+		PageGetter: b.invPageGetter,
+		Items:      tree.GetStringArr(),
+	}, m, rsp)
+}
