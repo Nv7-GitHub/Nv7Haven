@@ -88,7 +88,7 @@ func (b *EoD) canRunCmd(cmd *discordgo.InteractionCreate) (bool, string) {
 				return false, res.Message
 			}
 
-			cat, res := dat.GetCategory(resp.Options[0].StringValue())
+			cat, res := dat.GetCategory(resp.Options[0].Options[0].StringValue())
 			if !res.Exists {
 				return true, "" // If the category doesn't exist, the cat command will tell the user it doesn't exist
 			}
