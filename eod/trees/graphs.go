@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/bwmarrin/discordgo"
 	"github.com/goccy/go-graphviz"
 )
 
@@ -119,4 +120,51 @@ func (g *Graph) Render(special bool, layout graphviz.Layout, format graphviz.For
 
 func (g *Graph) NodeCount() int {
 	return len(g.added)
+}
+
+var GraphOpts = []*discordgo.ApplicationCommandOption{
+	{
+		Type:        discordgo.ApplicationCommandOptionString,
+		Name:        "output_type",
+		Description: "The output type of the graph!",
+		Required:    false,
+		Choices: []*discordgo.ApplicationCommandOptionChoice{
+			{
+				Name:  "PNG",
+				Value: "PNG",
+			},
+			{
+				Name:  "SVG",
+				Value: "SVG",
+			},
+			{
+				Name:  "Text",
+				Value: "Text",
+			},
+			{
+				Name:  "DOT",
+				Value: "DOT",
+			},
+		},
+	},
+	{
+		Type:        discordgo.ApplicationCommandOptionString,
+		Name:        "layout",
+		Description: "The layout engine to use for rendering images!",
+		Choices: []*discordgo.ApplicationCommandOptionChoice{
+			{
+				Name:  "Dot",
+				Value: "Dot",
+			},
+			{
+				Name:  "Twopi",
+				Value: "Twopi",
+			},
+		},
+	},
+	{
+		Type:        discordgo.ApplicationCommandOptionBoolean,
+		Name:        "distinct",
+		Description: "Whether to style the primary elements of the graph differently",
+	},
 }

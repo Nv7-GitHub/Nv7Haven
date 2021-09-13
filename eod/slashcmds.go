@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
 )
@@ -409,13 +410,33 @@ var (
 		{
 			Name:        "path",
 			Type:        discordgo.ChatApplicationCommand,
-			Description: "Calculate the path of an element!",
+			Description: "Calculate paths!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
 					Name:        "element",
-					Description: "Name of the element!",
-					Required:    true,
+					Description: "Calculate the path of an element!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "element",
+							Description: "Name of the element!",
+							Required:    true,
+						},
+					},
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "category",
+					Description: "Calculate the path of a category!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "category",
+							Description: "Name of the category!",
+							Required:    true,
+						},
+					},
 				},
 			},
 		},
@@ -605,167 +626,80 @@ var (
 			},
 		},
 		{
-			Name:        "catpath",
-			Type:        discordgo.ChatApplicationCommand,
-			Description: "Calculate the path of a category!",
-			Options: []*discordgo.ApplicationCommandOption{
-				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "category",
-					Description: "Name of the category!",
-					Required:    true,
-				},
-			},
-		},
-		{
 			Name:        "breakdown",
 			Type:        discordgo.ChatApplicationCommand,
-			Description: "Get an element's breakdown!",
+			Description: "Breakdown elements!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
 					Name:        "element",
-					Description: "Name of the element!",
-					Required:    true,
+					Description: "Get an element's breakdown!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "element",
+							Description: "Name of the element!",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionBoolean,
+							Name:        "calctree",
+							Description: "Whether to include the tree of that element!",
+							Required:    false,
+						},
+					},
 				},
 				{
-					Type:        discordgo.ApplicationCommandOptionBoolean,
-					Name:        "calctree",
-					Description: "Whether to include the tree of that element!",
-					Required:    false,
-				},
-			},
-		},
-		{
-			Name:        "catbreakdown",
-			Type:        discordgo.ChatApplicationCommand,
-			Description: "Get the breakdown of a category!",
-			Options: []*discordgo.ApplicationCommandOption{
-				{
-					Type:        discordgo.ApplicationCommandOptionString,
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
 					Name:        "category",
-					Description: "Name of the category!",
-					Required:    true,
-				},
-				{
-					Type:        discordgo.ApplicationCommandOptionBoolean,
-					Name:        "calctree",
-					Description: "Whether to include the tree of the elements in the category!",
-					Required:    false,
+					Description: "Get the breakdown of a category!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "category",
+							Description: "Name of the category!",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionBoolean,
+							Name:        "calctree",
+							Description: "Whether to include the tree of the elements in the category!",
+							Required:    false,
+						},
+					},
 				},
 			},
 		},
 		{
 			Name:        "graph",
 			Type:        discordgo.ChatApplicationCommand,
-			Description: "Create a graph of an element's tree!",
+			Description: "Graph element trees!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
 					Name:        "element",
-					Description: "Name of the element!",
-					Required:    true,
+					Description: "Create a graph of an element's tree!",
+					Options: append([]*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "element",
+							Description: "Name of the element!",
+							Required:    true,
+						},
+					}, trees.GraphOpts...),
 				},
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "output_type",
-					Description: "The output type of the graph!",
-					Required:    false,
-					Choices: []*discordgo.ApplicationCommandOptionChoice{
-						{
-							Name:  "PNG",
-							Value: "PNG",
-						},
-						{
-							Name:  "SVG",
-							Value: "SVG",
-						},
-						{
-							Name:  "Text",
-							Value: "Text",
-						},
-						{
-							Name:  "DOT",
-							Value: "DOT",
-						},
-					},
-				},
-				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "layout",
-					Description: "The layout engine to use for rendering images!",
-					Choices: []*discordgo.ApplicationCommandOptionChoice{
-						{
-							Name:  "Dot",
-							Value: "Dot",
-						},
-						{
-							Name:  "Twopi",
-							Value: "Twopi",
-						},
-					},
-				},
-				{
-					Type:        discordgo.ApplicationCommandOptionBoolean,
-					Name:        "distinct",
-					Description: "Whether to style the primary elements of the graph differently",
-				},
-			},
-		},
-		{
-			Name:        "catgraph",
-			Type:        discordgo.ChatApplicationCommand,
-			Description: "Create a graph of a category's tree!",
-			Options: []*discordgo.ApplicationCommandOption{
-				{
-					Type:        discordgo.ApplicationCommandOptionString,
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
 					Name:        "category",
-					Description: "Name of the category!",
-					Required:    true,
-				},
-				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "output_type",
-					Description: "The output type of the graph!",
-					Required:    false,
-					Choices: []*discordgo.ApplicationCommandOptionChoice{
+					Description: "Create a graph of an element's tree!",
+					Options: append([]*discordgo.ApplicationCommandOption{
 						{
-							Name:  "PNG",
-							Value: "PNG",
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "category",
+							Description: "Name of the category!",
+							Required:    true,
 						},
-						{
-							Name:  "SVG",
-							Value: "SVG",
-						},
-						{
-							Name:  "Text",
-							Value: "Text",
-						},
-						{
-							Name:  "DOT",
-							Value: "DOT",
-						},
-					},
-				},
-				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "layout",
-					Description: "The layout engine to use for rendering images!",
-					Choices: []*discordgo.ApplicationCommandOptionChoice{
-						{
-							Name:  "Dot",
-							Value: "Dot",
-						},
-						{
-							Name:  "Twopi",
-							Value: "Twopi",
-						},
-					},
-				},
-				{
-					Type:        discordgo.ApplicationCommandOptionBoolean,
-					Name:        "distinct",
-					Description: "Whether to style the primary elements of the graph differently",
+					}, trees.GraphOpts...),
 				},
 			},
 		},
@@ -893,13 +827,33 @@ var (
 		{
 			Name:        "notation",
 			Type:        discordgo.ChatApplicationCommand,
-			Description: "Calculate the notation of an element!",
+			Description: "Calculate notations!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
 					Name:        "element",
-					Description: "Name of the element!",
-					Required:    true,
+					Description: "Calculate the notation of an element!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "element",
+							Description: "Name of the element!",
+							Required:    true,
+						},
+					},
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "category",
+					Description: "Calculate the notation of a category!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "category",
+							Description: "Name of the category!",
+							Required:    true,
+						},
+					},
 				},
 			},
 		},
@@ -1050,8 +1004,14 @@ var (
 
 		},
 		"path": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			bot.calcTreeCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			resp := i.ApplicationCommandData().Options[0]
+			switch resp.Name {
+			case "element":
+				bot.calcTreeCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+
+			case "category":
+				bot.calcTreeCatCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			}
 		},
 		"elemsort": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -1140,75 +1100,77 @@ var (
 				return
 			}
 		},
-		"catpath": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			bot.calcTreeCatCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
-		},
 		"breakdown": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			calctree := true
-			if len(resp.Options) > 1 {
-				calctree = resp.Options[1].BoolValue()
+			resp := i.ApplicationCommandData().Options[0]
+			switch resp.Name {
+			case "element":
+				calctree := true
+				if len(resp.Options) > 1 {
+					calctree = resp.Options[1].BoolValue()
+				}
+				bot.elemBreakdownCmd(resp.Options[0].StringValue(), calctree, bot.newMsgSlash(i), bot.newRespSlash(i))
+
+			case "category":
+				calctree := true
+				if len(resp.Options) > 1 {
+					calctree = resp.Options[1].BoolValue()
+				}
+				bot.catBreakdownCmd(resp.Options[0].StringValue(), calctree, bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
-			bot.elemBreakdownCmd(resp.Options[0].StringValue(), calctree, bot.newMsgSlash(i), bot.newRespSlash(i))
-		},
-		"catbreakdown": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			calctree := true
-			if len(resp.Options) > 1 {
-				calctree = resp.Options[1].BoolValue()
-			}
-			bot.catBreakdownCmd(resp.Options[0].StringValue(), calctree, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"graph": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			var elem string
-			outputType := ""
-			layout := ""
-			special := false
-			for _, opt := range resp.Options {
-				if opt.Name == "element" {
-					elem = opt.StringValue()
-				}
+			resp := i.ApplicationCommandData().Options[0]
 
-				if opt.Name == "output_type" {
-					outputType = opt.StringValue()
-				}
+			switch resp.Name {
+			case "element":
+				var elem string
+				outputType := ""
+				layout := ""
+				special := false
+				for _, opt := range resp.Options {
+					if opt.Name == "element" {
+						elem = opt.StringValue()
+					}
 
-				if opt.Name == "layout" {
-					layout = opt.StringValue()
-				}
+					if opt.Name == "output_type" {
+						outputType = opt.StringValue()
+					}
 
-				if opt.Name == "distinct" {
-					special = opt.BoolValue()
+					if opt.Name == "layout" {
+						layout = opt.StringValue()
+					}
+
+					if opt.Name == "distinct" {
+						special = opt.BoolValue()
+					}
 				}
+				bot.elemGraphCmd(elem, layout, outputType, special, bot.newMsgSlash(i), bot.newRespSlash(i))
+
+			case "category":
+				var catName string
+				outputType := ""
+				layout := ""
+				special := false
+				for _, opt := range resp.Options {
+					if opt.Name == "category" {
+						catName = opt.StringValue()
+					}
+
+					if opt.Name == "output_type" {
+						outputType = opt.StringValue()
+					}
+
+					if opt.Name == "layout" {
+						layout = opt.StringValue()
+					}
+
+					if opt.Name == "distinct" {
+						special = opt.BoolValue()
+					}
+				}
+				bot.catGraphCmd(catName, layout, outputType, special, bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
-			bot.elemGraphCmd(elem, layout, outputType, special, bot.newMsgSlash(i), bot.newRespSlash(i))
-		},
-		"catgraph": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			var catName string
-			outputType := ""
-			layout := ""
-			special := false
-			for _, opt := range resp.Options {
-				if opt.Name == "category" {
-					catName = opt.StringValue()
-				}
 
-				if opt.Name == "output_type" {
-					outputType = opt.StringValue()
-				}
-
-				if opt.Name == "layout" {
-					layout = opt.StringValue()
-				}
-
-				if opt.Name == "distinct" {
-					special = opt.BoolValue()
-				}
-			}
-			bot.catGraphCmd(catName, layout, outputType, special, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"get": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData().Options[0]
@@ -1314,8 +1276,14 @@ var (
 			bot.lbCmd(bot.newMsgSlash(i), bot.newRespSlash(i), "count", resp.TargetID)
 		},
 		"notation": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			bot.notationCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			resp := i.ApplicationCommandData().Options[0]
+			switch resp.Name {
+			case "element":
+				bot.notationCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+
+			case "category":
+				bot.catNotationCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			}
 		},
 	}
 )

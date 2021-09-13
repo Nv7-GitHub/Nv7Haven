@@ -24,7 +24,6 @@ var noModCmds = map[string]types.Empty{
 	"download":         {},
 	"elemsort":         {},
 	"breakdown":        {},
-	"catbreakdown":     {},
 	"get":              {},
 	"setcolor":         {},
 	"invhint":          {},
@@ -67,44 +66,43 @@ func (b *EoD) canRunCmd(cmd *discordgo.InteractionCreate) (bool, string) {
 	// If command is path or catpath, check if has element/all elements in cat
 	// path
 	if resp.Name == "path" || resp.Name == "graph" || resp.Name == "notation" {
-		inv, res := dat.GetInv(cmd.Member.User.ID, true)
-		if !res.Exists {
-			return false, res.Message
-		}
-
-		el, res := dat.GetElement(resp.Options[0].StringValue())
-		if !res.Exists {
-			return true, "" // If the element doesn't exist, the cat command will tell the user it doesn't exist
-		}
-
-		exists = inv.Contains(el.Name)
-		if !exists {
-			return false, fmt.Sprintf("You must have element **%s** to get it's path!", el.Name)
-		}
-		return true, ""
-	}
-
-	// catpath
-	if resp.Name == "catpath" || resp.Name == "catgraph" {
-		inv, res := dat.GetInv(cmd.Member.User.ID, true)
-		if !res.Exists {
-			return false, res.Message
-		}
-
-		cat, res := dat.GetCategory(resp.Options[0].StringValue())
-		if !res.Exists {
-			return true, "" // If the category doesn't exist, the cat command will tell the user it doesn't exist
-		}
-
-		// Check if user has all elements in category
-		for elem := range cat.Elements {
-			exists = inv.Contains(elem)
-			if !exists {
-				return false, fmt.Sprintf("You must have all elements in category **%s** to get its path!", cat.Name)
+		if resp.Options[0].Name == "element" {
+			inv, res := dat.GetInv(cmd.Member.User.ID, true)
+			if !res.Exists {
+				return false, res.Message
 			}
-		}
 
-		return true, ""
+			el, res := dat.GetElement(resp.Options[0].StringValue())
+			if !res.Exists {
+				return true, "" // If the element doesn't exist, the cat command will tell the user it doesn't exist
+			}
+
+			exists = inv.Contains(el.Name)
+			if !exists {
+				return false, fmt.Sprintf("You must have element **%s** to get it's path!", el.Name)
+			}
+			return true, ""
+		} else {
+			inv, res := dat.GetInv(cmd.Member.User.ID, true)
+			if !res.Exists {
+				return false, res.Message
+			}
+
+			cat, res := dat.GetCategory(resp.Options[0].StringValue())
+			if !res.Exists {
+				return true, "" // If the category doesn't exist, the cat command will tell the user it doesn't exist
+			}
+
+			// Check if user has all elements in category
+			for elem := range cat.Elements {
+				exists = inv.Contains(elem)
+				if !exists {
+					return false, fmt.Sprintf("You must have all elements in category **%s** to get its path!", cat.Name)
+				}
+			}
+
+			return true, ""
+		}
 	}
 
 	return false, falseMsg
