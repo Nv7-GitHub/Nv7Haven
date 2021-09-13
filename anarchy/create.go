@@ -6,10 +6,16 @@ import (
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/pb"
+	"github.com/finnbear/moderation"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 func (a *Anarchy) CreateElement(ctx context.Context, req *pb.AnarchyElementCreate) (*emptypb.Empty, error) {
+	// Check if innapropriate
+	if moderation.IsInappropriate(req.Elem3) {
+		return &emptypb.Empty{}, errors.New("no innapropriate suggestions are allowed")
+	}
+
 	// Check for exist
 	lock.RLock()
 	_, exists := a.cache[req.Elem1]
