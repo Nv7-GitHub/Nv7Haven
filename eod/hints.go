@@ -1,7 +1,6 @@
 package eod
 
 import (
-	"database/sql"
 	"fmt"
 	"sort"
 	"strings"
@@ -163,51 +162,37 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, in
 		}
 	}
 
-	var combs *sql.Rows
-	var err error
-	var query string
-	var args []interface{}
+	vals := make(map[string]types.Empty)
 	if !inverse {
-		query = "SELECT elems FROM eod_combos WHERE elem3 LIKE ? AND guild=?"
-		if util.IsASCII(elem) {
-			query = "SELECT elems FROM eod_combos WHERE CONVERT(elem3 USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND guild=CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci"
-		}
-		args = []interface{}{elem, guild}
-		if util.IsWildcard(elem) {
-			query = strings.ReplaceAll(query, " LIKE ", "=")
-		}
-	} else {
-		query = `SELECT DISTINCT elem3 FROM eod_combos WHERE ((elems LIKE CONCAT("%+", LOWER(?), "+%")) OR (elems LIKE CONCAT(LOWER(?), "+%")) OR (elems LIKE CONCAT("%+", LOWER(?)))) AND guild=?`
-		if util.IsWildcard(elem) {
-			for val := range util.Wildcards {
-				elem = strings.ReplaceAll(elem, string([]rune{val}), string([]rune{'\\', val}))
+		for elems, elem3 := range dat.Combos {
+			if strings.EqualFold(elem3, elem) {
+				vals[elems] = types.Empty{}
 			}
 		}
-		args = []interface{}{elem, elem, elem, guild}
-	}
-
-	combs, err = b.db.Query(query, args...)
-	if err != nil {
-		return nil, err.Error(), false
-	}
-	defer combs.Close()
-	out := make([]hintCombo, 0)
-	var elemTxt string
-
-	length := 0
-	for combs.Next() {
-		err = combs.Scan(&elemTxt)
-		if err != nil {
-			return nil, err.Error(), false
+	} else {
+		for elems, elem3 := range dat.Combos {
+			parts := strings.Split(elems, "+")
+			for _, part := range parts {
+				if strings.EqualFold(part, elem) {
+					vals[elem3] = types.Empty{}
+					break
+				}
+			}
 		}
+	}
 
-		txt, ex := getHintText(elemTxt, inv, dat, inverse)
-		out = append(out, hintCombo{
+	out := make([]hintCombo, len(vals))
+	length := 0
+	i := 0
+	for val := range vals {
+		txt, ex := getHintText(val, inv, dat, inverse)
+		out[i] = hintCombo{
 			exists: ex,
 			text:   txt,
-		})
+		}
 
 		length += len(txt)
+		i++
 	}
 
 	sort.Slice(out, func(i, j int) bool {
