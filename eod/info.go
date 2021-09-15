@@ -277,7 +277,7 @@ func (b *EoD) info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
 	}
 	if len(el.Comment) > 1024 {
 		emb.Fields = emb.Fields[1:]
-		emb.Description = fmt.Sprintf("%s\n\n**Creator Mark**\n%s", emb.Description, el.Comment)
+		emb.Description = fmt.Sprintf("%s\n\n**Mark**\n%s", emb.Description, el.Comment)
 	}
 
 	msgId := rsp.RawEmbed(emb)

@@ -1,4 +1,4 @@
-Add a creator mark to an element with **/mark**
+Add a note to an element with **/mark**
 Add an image to an element with **/image**, and to a category with **/catimg**
 Use **/idea** to get a random unused combination
 Use **/path** to get the path for an element, or **/catpath** to get the path for all elements in a category
