@@ -36,7 +36,8 @@ func (b *EoD) restart(m types.Msg, rsp types.Rsp) {
 }
 
 func (b *EoD) update(m types.Msg, rsp types.Rsp) {
-	b.dg.ChannelMessageSend(m.ChannelID, "Downloading updates...")
+	ping := fmt.Sprintf("<@%s> ", m.Author.ID)
+	b.dg.ChannelMessageSend(m.ChannelID, ping+"Downloading updates...")
 
 	cmd := exec.Command("git", "pull")
 	err := cmd.Run()
@@ -49,7 +50,7 @@ func (b *EoD) update(m types.Msg, rsp types.Rsp) {
 		cmdStr += ` -tags="arm_logs"`
 	}
 
-	b.dg.ChannelMessageSend(m.ChannelID, "Installing updates...")
+	b.dg.ChannelMessageSend(m.ChannelID, ping+"Installing updates...")
 	cmd = exec.Command("sh", "-c", cmdStr)
 	buf := bytes.NewBuffer(nil)
 	cmd.Stdout = buf
