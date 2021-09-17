@@ -342,6 +342,7 @@ func (b *EoD) init() {
 	bar.Finish()
 
 	b.initHandlers()
+	b.start()
 
 	// Start stats saving
 	go func() {

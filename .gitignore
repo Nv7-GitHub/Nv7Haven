@@ -55,3 +55,4 @@ nvmail/*.json
 token.json
 eod/fools.txt
 eod/other/parecalc/data.gob
+restartinfo.gob
