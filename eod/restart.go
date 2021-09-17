@@ -36,6 +36,8 @@ func (b *EoD) restart(m types.Msg, rsp types.Rsp) {
 }
 
 func (b *EoD) update(m types.Msg, rsp types.Rsp) {
+	b.dg.ChannelMessage(m.ChannelID, "Downloading updates...")
+
 	cmd := exec.Command("git", "pull")
 	err := cmd.Run()
 	if rsp.Error(err) {
@@ -47,6 +49,7 @@ func (b *EoD) update(m types.Msg, rsp types.Rsp) {
 		args = append(args, `-tags="arm_logs"`)
 	}
 
+	b.dg.ChannelMessage(m.ChannelID, "Installing updates...")
 	cmd = exec.Command("go", args...)
 	buf := bytes.NewBuffer(nil)
 	cmd.Stdout = buf
