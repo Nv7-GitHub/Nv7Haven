@@ -72,7 +72,8 @@ func (b *EoD) update(m types.Msg, rsp types.Rsp) {
 }
 
 func (b *EoD) start() {
-	if _, err := os.Stat("restartinfo.gob"); os.IsExist(err) {
+	_, err := os.Stat("restartinfo.gob")
+	if err == nil {
 		f, err := os.Open("restartinfo.gob")
 		if err != nil {
 			return
