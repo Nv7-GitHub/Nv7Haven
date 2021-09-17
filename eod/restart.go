@@ -36,7 +36,7 @@ func (b *EoD) restart(m types.Msg, rsp types.Rsp) {
 }
 
 func (b *EoD) update(m types.Msg, rsp types.Rsp) {
-	b.dg.ChannelMessage(m.ChannelID, "Downloading updates...")
+	b.dg.ChannelMessageSend(m.ChannelID, "Downloading updates...")
 
 	cmd := exec.Command("git", "pull")
 	err := cmd.Run()
@@ -44,20 +44,28 @@ func (b *EoD) update(m types.Msg, rsp types.Rsp) {
 		return
 	}
 
-	args := []string{"build", "-o", "main", `-ldflags="-s -w"`}
+	cmdStr := `go build -o main -ldflags="-s -w"`
 	if strings.HasPrefix(runtime.GOARCH, "arm") {
-		args = append(args, `-tags="arm_logs"`)
+		cmdStr += ` -tags="arm_logs"`
 	}
 
-	b.dg.ChannelMessage(m.ChannelID, "Installing updates...")
-	cmd = exec.Command("go", args...)
+	b.dg.ChannelMessageSend(m.ChannelID, "Installing updates...")
+	cmd = exec.Command("sh", "-c", cmdStr)
 	buf := bytes.NewBuffer(nil)
 	cmd.Stdout = buf
 	cmd.Stderr = buf
 	err = cmd.Run()
 	if err != nil {
 		rsp.ErrorMessage(buf.String())
+		return
 	}
+
+	// Clear logs file
+	f, err := os.Create("logs.txt")
+	if rsp.Error(err) {
+		return
+	}
+	f.Close()
 
 	b.restart(m, rsp)
 }
