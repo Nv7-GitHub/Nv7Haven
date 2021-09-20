@@ -87,5 +87,7 @@ func (b *EoD) start() {
 		}
 
 		b.dg.ChannelMessageSend(data.Channel, fmt.Sprintf("<@%s> Restarted!", data.User))
+
+		os.Remove("restartinfo.gob")
 	}
 }
