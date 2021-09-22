@@ -3,10 +3,13 @@ package util
 import "strings"
 
 func TrimArray(vals []string) []string {
-	for i, val := range vals {
-		vals[i] = strings.TrimSpace(val)
+	var trimmedVals []string
+	for _, val := range vals {
+		if len(val) > 0{
+			trimmedVals = append(trimmedVals,strings.TrimSpace(val))
+		}	
 	}
-	return vals
+	return trimmedVals
 }
 
 func EscapeElement(elem string) string {
