@@ -164,11 +164,13 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, in
 
 	vals := make(map[string]types.Empty)
 	if !inverse {
+		dat.Lock.RLock()
 		for elems, elem3 := range dat.Combos {
 			if strings.EqualFold(elem3, elem) {
 				vals[elems] = types.Empty{}
 			}
 		}
+		dat.Lock.RUnlock()
 	} else {
 		for elems, elem3 := range dat.Combos {
 			parts := strings.Split(elems, "+")
