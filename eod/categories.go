@@ -23,7 +23,6 @@ var autocats = map[string]func(string) bool{
 	},
 	"Vukkies":              func(s string) bool { return strings.Contains(strings.ToLower(s), "vukky") },
 	"All \"All\" Elements": func(s string) bool { return strings.HasPrefix(strings.ToLower(s), "all ") },
-	"Amogus in a...": func(s string) bool { return strings.HasPrefix(strings.ToLower(s), "amogus in a ") }
 }
 
 func (b *EoD) autocategorize(elem string, guild string) error {
