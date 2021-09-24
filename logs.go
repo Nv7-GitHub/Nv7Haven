@@ -13,16 +13,19 @@ import (
 )
 
 var mysqlogs *os.File
+var monitors = [][]string{{"measure_temp"}, {"measure_volts"}, {"get_mem", "arm"} /*, {"get_mem", "gpu"}, {"get_throttled"}*/} // Commented out part 1 gets VRAM, commented out part 2 gets if throttled
 
 func systemHandlers(app *fiber.App) {
 	if runtime.GOOS == "linux" {
 		app.Get("/temp", func(c *fiber.Ctx) error {
-			cmd := exec.Command("vcgencmd", "measure_temp")
-			output, err := cmd.Output()
-			if err != nil {
-				return err
+			for _, m := range monitors {
+				cmd := exec.Command("vcgenmd", m...)
+				cmd.Stdout = c
+				err := cmd.Run()
+				if err != nil {
+					return err
+				}
 			}
-			c.WriteString(string(output))
 			return nil
 		})
 	}
