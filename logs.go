@@ -19,7 +19,7 @@ func systemHandlers(app *fiber.App) {
 	if runtime.GOOS == "linux" {
 		app.Get("/temp", func(c *fiber.Ctx) error {
 			for _, m := range monitors {
-				cmd := exec.Command("vcgenmd", m...)
+				cmd := exec.Command("vcgencmd", m...)
 				cmd.Stdout = c
 				err := cmd.Run()
 				if err != nil {
