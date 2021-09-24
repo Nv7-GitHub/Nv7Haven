@@ -178,7 +178,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			b.infoCmd(strings.TrimSpace(m.Content[len(cmd)+2:]), msg, rsp)
 			return
 		}
-		if cmd == "kill" || cmd == "update" {
+		if cmd == "restart" || cmd == "update" {
 			if m.GuildID == "705084182673621033" {
 				user, err := b.dg.GuildMember(msg.GuildID, msg.Author.ID)
 				if rsp.Error(err) {
