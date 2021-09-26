@@ -1,6 +1,7 @@
 package eod
 
 import (
+	"strconv"
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
@@ -205,7 +206,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "*2") {
+	if strings.HasPrefix(m.Content, "*") && len(m.Content) > 1 {
 		if !b.checkServer(msg, rsp) {
 			return
 		}
@@ -216,13 +217,27 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
+		length, err := strconv.Atoi(m.Content[1:])
+		if err != nil {
+			return
+		}
+		if length > maxComboLength {
+			length = maxComboLength + 1 // This way it triggers the error message in the combo command
+		}
+
 		comb, res := dat.GetComb(msg.Author.ID)
 		if !res.Exists {
 			rsp.ErrorMessage(res.Message)
 			return
 		}
+
+		elems := make([]string, length)
+		for i := range elems {
+			elems[i] = comb.Elem3
+		}
+
 		if comb.Elem3 != "" {
-			b.combine([]string{comb.Elem3, comb.Elem3}, msg, rsp)
+			b.combine(elems, msg, rsp)
 			return
 		}
 		b.combine(comb.Elems, msg, rsp)
