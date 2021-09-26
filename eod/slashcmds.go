@@ -851,6 +851,11 @@ var (
 			Type: discordgo.UserApplicationCommand,
 		},
 		{
+			Name: "View Inventory Breakdown",
+			//Description: "View a user's inventory breakdown!",
+			Type: discordgo.UserApplicationCommand,
+		},
+		{
 			Name:        "notation",
 			Type:        discordgo.ChatApplicationCommand,
 			Description: "Calculate notations!",
@@ -1326,6 +1331,9 @@ var (
 			case "category":
 				bot.catNotationCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
+		},
+		"View Inventory Breakdown": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.invBreakdownCmd(i.ApplicationCommandData().TargetID, true, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )
