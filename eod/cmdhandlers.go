@@ -224,6 +224,9 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if length > maxComboLength {
 			length = maxComboLength + 1 // This way it triggers the error message in the combo command
 		}
+		if length < 2 {
+			length = 1
+		}
 
 		comb, res := dat.GetComb(msg.Author.ID)
 		if !res.Exists {
