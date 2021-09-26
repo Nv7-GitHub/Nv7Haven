@@ -10,7 +10,7 @@ import (
 	"github.com/schollz/progressbar/v3"
 )
 
-const recalcAutocats = false
+const recalcAutocats = true
 
 func (b *EoD) init() {
 	res, err := b.db.Query("SELECT * FROM eod_serverdata WHERE 1")
