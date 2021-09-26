@@ -20,7 +20,6 @@ var noModCmds = map[string]types.Empty{
 	"idea":             {},
 	"help":             {},
 	"rmcat":            {},
-	"catimg":           {},
 	"download":         {},
 	"elemsort":         {},
 	"breakdown":        {},
