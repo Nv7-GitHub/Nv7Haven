@@ -2,6 +2,7 @@ package eod
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -23,6 +24,7 @@ var autocats = map[string]func(string) bool{
 	},
 	"Vukkies":              func(s string) bool { return strings.Contains(strings.ToLower(s), "vukky") },
 	"All \"All\" Elements": func(s string) bool { return strings.HasPrefix(strings.ToLower(s), "all ") },
+	"Amogus in a...":       func(s string) bool { return strings.HasPrefix(s, "Amogus in a") },
 }
 
 func (b *EoD) autocategorize(elem string, guild string) error {
@@ -77,6 +79,10 @@ func (b *EoD) categorize(elem string, catName string, guild string) error {
 	els, err := json.Marshal(cat.Elements)
 	if err != nil {
 		return err
+	}
+
+	if recalcAutocats {
+		fmt.Println(el.Name)
 	}
 
 	_, err = b.db.Exec("UPDATE eod_categories SET elements=? WHERE guild=? AND name=?", string(els), cat.Guild, cat.Name)

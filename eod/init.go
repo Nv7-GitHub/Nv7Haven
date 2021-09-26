@@ -10,6 +10,8 @@ import (
 	"github.com/schollz/progressbar/v3"
 )
 
+const recalcAutocats = false
+
 func (b *EoD) init() {
 	res, err := b.db.Query("SELECT * FROM eod_serverdata WHERE 1")
 	if err != nil {
@@ -352,4 +354,13 @@ func (b *EoD) init() {
 			b.saveStats()
 		}
 	}()
+
+	// Recalc autocats?
+	if recalcAutocats {
+		for id, gld := range b.dat {
+			for elem := range gld.Elements {
+				b.autocategorize(elem, id)
+			}
+		}
+	}
 }
