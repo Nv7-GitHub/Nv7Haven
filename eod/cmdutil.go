@@ -13,11 +13,15 @@ const redCircle = "🔴"
 var discordlogs *os.File
 
 type normalResp struct {
-	msg *discordgo.MessageCreate
-	b   *EoD
+	msg    *discordgo.MessageCreate
+	b      *EoD
+	typing bool
 }
 
 func (n *normalResp) Error(err error) bool {
+	if n.typing {
+		n.b.dg.ChannelTyping(n.msg.ChannelID)
+	}
 	if err != nil {
 		_, err := n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" Error: "+err.Error()+" "+redCircle)
 		if err != nil {
@@ -30,6 +34,9 @@ func (n *normalResp) Error(err error) bool {
 }
 
 func (n *normalResp) ErrorMessage(msg string) string {
+	if n.typing {
+		n.b.dg.ChannelTyping(n.msg.ChannelID)
+	}
 	m, err := n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" "+msg+" "+redCircle)
 	if err != nil {
 		log.SetOutput(discordlogs)
@@ -39,10 +46,16 @@ func (n *normalResp) ErrorMessage(msg string) string {
 }
 
 func (n *normalResp) Resp(msg string, components ...discordgo.MessageComponent) {
+	if n.typing {
+		n.b.dg.ChannelTyping(n.msg.ChannelID)
+	}
 	n.Message(msg, components...)
 }
 
 func (n *normalResp) Message(msg string, components ...discordgo.MessageComponent) string {
+	if n.typing {
+		n.b.dg.ChannelTyping(n.msg.ChannelID)
+	}
 	var err error
 	var m *discordgo.Message
 
@@ -65,6 +78,9 @@ func (n *normalResp) Message(msg string, components ...discordgo.MessageComponen
 }
 
 func (n *normalResp) DM(msg string) {
+	if n.typing {
+		n.b.dg.ChannelTyping(n.msg.ChannelID)
+	}
 	channel, err := n.b.dg.UserChannelCreate(n.msg.Author.ID)
 	if err != nil {
 		log.SetOutput(discordlogs)
@@ -78,6 +94,9 @@ func (n *normalResp) DM(msg string) {
 }
 
 func (n *normalResp) Embed(emb *discordgo.MessageEmbed, components ...discordgo.MessageComponent) string {
+	if n.typing {
+		n.b.dg.ChannelTyping(n.msg.ChannelID)
+	}
 	color, err := n.b.getColor(n.msg.GuildID, n.msg.Author.ID)
 	if err == nil {
 		emb.Color = color
@@ -98,6 +117,9 @@ func (n *normalResp) Embed(emb *discordgo.MessageEmbed, components ...discordgo.
 }
 
 func (n *normalResp) RawEmbed(emb *discordgo.MessageEmbed) string {
+	if n.typing {
+		n.b.dg.ChannelTyping(n.msg.ChannelID)
+	}
 	color, err := n.b.getColor(n.msg.GuildID, n.msg.Author.ID)
 	if err == nil {
 		emb.Color = color
@@ -115,7 +137,9 @@ func (n *normalResp) RawEmbed(emb *discordgo.MessageEmbed) string {
 	return msg.ID
 }
 
-func (n *normalResp) Acknowledge() {}
+func (n *normalResp) Acknowledge() {
+	n.b.dg.ChannelTyping(n.msg.ChannelID)
+}
 
 func (b *EoD) newMsgNormal(m *discordgo.MessageCreate) types.Msg {
 	return types.Msg{
