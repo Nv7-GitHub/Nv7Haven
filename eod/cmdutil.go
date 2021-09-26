@@ -27,6 +27,7 @@ func (n *normalResp) Error(err error) bool {
 		if err != nil {
 			log.SetOutput(discordlogs)
 			log.Println(err)
+			return false
 		}
 		return true
 	}
@@ -41,6 +42,7 @@ func (n *normalResp) ErrorMessage(msg string) string {
 	if err != nil {
 		log.SetOutput(discordlogs)
 		log.Println(err)
+		return ""
 	}
 	return m.ID
 }
@@ -85,11 +87,13 @@ func (n *normalResp) DM(msg string) {
 	if err != nil {
 		log.SetOutput(discordlogs)
 		log.Println(err)
+		return
 	}
 	_, err = n.b.dg.ChannelMessageSend(channel.ID, msg)
 	if err != nil {
 		log.SetOutput(discordlogs)
 		log.Println(err)
+		return
 	}
 }
 
@@ -110,6 +114,7 @@ func (n *normalResp) Embed(emb *discordgo.MessageEmbed, components ...discordgo.
 		if err != nil {
 			log.SetOutput(discordlogs)
 			log.Println(err)
+			return ""
 		}
 		return ""
 	}
@@ -130,6 +135,7 @@ func (n *normalResp) RawEmbed(emb *discordgo.MessageEmbed) string {
 		if err != nil {
 			log.SetOutput(discordlogs)
 			log.Println(err)
+			return ""
 		}
 		return ""
 	}
@@ -171,6 +177,7 @@ func (s *slashResp) Error(err error) bool {
 			if err != nil {
 				log.SetOutput(discordlogs)
 				log.Println(err)
+				return false
 			}
 		} else {
 			err := s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
@@ -183,6 +190,7 @@ func (s *slashResp) Error(err error) bool {
 			if err != nil {
 				log.SetOutput(discordlogs)
 				log.Println(err)
+				return false
 			}
 		}
 		return true
@@ -198,6 +206,7 @@ func (s *slashResp) ErrorMessage(msg string) string {
 		if err != nil {
 			log.SetOutput(discordlogs)
 			log.Println(err)
+			return ""
 		}
 		return m.ID
 	}
@@ -233,6 +242,7 @@ func (s *slashResp) Message(msg string, components ...discordgo.MessageComponent
 			if err != nil {
 				log.SetOutput(discordlogs)
 				log.Println(err)
+				return ""
 			}
 			return ""
 		}
@@ -248,6 +258,7 @@ func (s *slashResp) Message(msg string, components ...discordgo.MessageComponent
 	if err != nil {
 		log.SetOutput(discordlogs)
 		log.Println(err)
+		return ""
 	}
 	return ""
 }
@@ -266,6 +277,7 @@ func (s *slashResp) Embed(emb *discordgo.MessageEmbed, components ...discordgo.M
 			if err != nil {
 				log.SetOutput(discordlogs)
 				log.Println(err)
+				return ""
 			}
 			return ""
 		}
@@ -281,6 +293,7 @@ func (s *slashResp) Embed(emb *discordgo.MessageEmbed, components ...discordgo.M
 	if err != nil {
 		log.SetOutput(discordlogs)
 		log.Println(err)
+		return ""
 	}
 	return ""
 }
@@ -302,6 +315,7 @@ func (s *slashResp) DM(msg string) {
 		if err != nil {
 			log.SetOutput(discordlogs)
 			log.Println(err)
+			return
 		}
 	}
 	_, err = s.b.dg.ChannelMessageSend(channel.ID, msg)
@@ -309,6 +323,7 @@ func (s *slashResp) DM(msg string) {
 		if err != nil {
 			log.SetOutput(discordlogs)
 			log.Println(err)
+			return
 		}
 	}
 }
