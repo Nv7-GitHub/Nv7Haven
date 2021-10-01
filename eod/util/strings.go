@@ -10,7 +10,7 @@ import (
 func ToTitle(s string) string {
 	words := strings.Split(strings.ToLower(s), " ")
 	for i, word := range words {
-		if len(word) < 1 {
+		if len(word) < 1 || (w[0] == '(' && len(word) < 2) {
 			continue
 		}
 		w := []rune(word)
