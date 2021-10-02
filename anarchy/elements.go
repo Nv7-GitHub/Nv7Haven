@@ -43,7 +43,7 @@ func (a *Anarchy) GetCombination(_ context.Context, combo *pb.AnarchyCombination
 type empty struct{}
 
 func (a *Anarchy) GetAll(uid *wrapperspb.StringValue, stream pb.Anarchy_GetAllServer) error {
-	res, err := a.db.Query("SELECT inv FROM users WHERE uid=?", uid.Value)
+	res, err := a.db.Query("SELECT inv FROM anarchy_inv WHERE uid=?", uid.Value)
 	if err != nil {
 		return err
 	}
