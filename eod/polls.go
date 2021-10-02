@@ -220,12 +220,14 @@ func (b *EoD) reactionHandler(_ *discordgo.Session, r *discordgo.MessageReaction
 		return
 	}
 
+	log.Println("reaction print 2")
+
 	p, res := dat.GetPoll(r.MessageID)
 	if !res.Exists {
 		return
 	}
 
-	log.Println("reaction print 2")
+	log.Println("reaction print 3")
 
 	if r.Emoji.Name == upArrow {
 		p.Upvotes++
