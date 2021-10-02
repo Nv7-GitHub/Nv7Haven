@@ -185,7 +185,7 @@ func (b *EoD) image(guild string, elem string, image string, creator string, con
 
 	query := "UPDATE eod_elements SET image=? WHERE guild=? AND name=?"
 	if util.IsASCII(el.Name) {
-		query = "UPDATE eod_elements SET image=? WHERE CONVERT(guild USING utf8mb4)=? AND CONVERT(name USING utf8mb4)=?"
+		query = "UPDATE eod_elements SET image=? WHERE CONVERT(guild USING utf8mb4)=? AND CONVERT(name USING utf8mb4)=? COLLATE utf8mb4_general_ci"
 	}
 	if util.IsWildcard(el.Name) {
 		query = strings.ReplaceAll(query, " LIKE ", "=")
