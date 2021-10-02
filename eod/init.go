@@ -243,45 +243,6 @@ func (b *EoD) init() {
 	}
 	bar.Finish()
 
-	err = b.db.QueryRow("SELECT COUNT(1) FROM eod_polls").Scan(&cnt)
-	if err != nil {
-		panic(err)
-	}
-	bar = progressbar.New(cnt)
-
-	polls, err := b.db.Query("SELECT * FROM eod_polls")
-	if err != nil {
-		panic(err)
-	}
-	defer polls.Close()
-	var po types.Poll
-	for polls.Next() {
-		var jsondat string
-		po.Data = nil
-		err = polls.Scan(&po.Guild, &po.Channel, &po.Message, &po.Kind, &po.Value1, &po.Value2, &po.Value3, &po.Value4, &jsondat)
-		if err != nil {
-			panic(err)
-		}
-		err = json.Unmarshal([]byte(jsondat), &po.Data)
-		if err != nil {
-			panic(err)
-		}
-
-		_, err = b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", po.Guild, po.Channel, po.Message)
-		if err != nil {
-			panic(err)
-		}
-
-		b.dg.ChannelMessageDelete(po.Channel, po.Message)
-		err = b.createPoll(po)
-		if err != nil {
-			fmt.Println(err)
-		}
-		bar.Add(1)
-	}
-
-	bar.Finish()
-
 	//lock.RLock()
 	for k, dat := range b.dat {
 		hasChanged := false
@@ -338,6 +299,45 @@ func (b *EoD) init() {
 		b.dat[guild] = dat
 		//lock.Unlock()
 
+		bar.Add(1)
+	}
+
+	bar.Finish()
+
+	err = b.db.QueryRow("SELECT COUNT(1) FROM eod_polls").Scan(&cnt)
+	if err != nil {
+		panic(err)
+	}
+	bar = progressbar.New(cnt)
+
+	polls, err := b.db.Query("SELECT * FROM eod_polls")
+	if err != nil {
+		panic(err)
+	}
+	defer polls.Close()
+	var po types.Poll
+	for polls.Next() {
+		var jsondat string
+		po.Data = nil
+		err = polls.Scan(&po.Guild, &po.Channel, &po.Message, &po.Kind, &po.Value1, &po.Value2, &po.Value3, &po.Value4, &jsondat)
+		if err != nil {
+			panic(err)
+		}
+		err = json.Unmarshal([]byte(jsondat), &po.Data)
+		if err != nil {
+			panic(err)
+		}
+
+		_, err = b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", po.Guild, po.Channel, po.Message)
+		if err != nil {
+			panic(err)
+		}
+
+		b.dg.ChannelMessageDelete(po.Channel, po.Message)
+		err = b.createPoll(po)
+		if err != nil {
+			fmt.Println(err)
+		}
 		bar.Add(1)
 	}
 

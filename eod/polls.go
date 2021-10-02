@@ -220,7 +220,7 @@ func (b *EoD) reactionHandler(_ *discordgo.Session, r *discordgo.MessageReaction
 		return
 	}
 
-	log.Println("reaction print 2")
+	log.Println("reaction print 2", dat.Polls, r.MessageID)
 
 	p, res := dat.GetPoll(r.MessageID)
 	if !res.Exists {
@@ -238,7 +238,9 @@ func (b *EoD) reactionHandler(_ *discordgo.Session, r *discordgo.MessageReaction
 		if (p.Upvotes - p.Downvotes) >= dat.VoteCount {
 			b.dg.ChannelMessageDelete(p.Channel, p.Message)
 			b.handlePollSuccess(p)
+			dat.Lock.Lock()
 			delete(dat.Polls, r.MessageID)
+			dat.Lock.Unlock()
 			b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", p.Guild, p.Channel, p.Message)
 			lock.Lock()
 			b.dat[r.GuildID] = dat
@@ -252,7 +254,9 @@ func (b *EoD) reactionHandler(_ *discordgo.Session, r *discordgo.MessageReaction
 		b.dat[r.GuildID] = dat
 		lock.Unlock()
 		if ((p.Downvotes - p.Upvotes) >= dat.VoteCount) || (r.UserID == p.Value4) {
+			dat.Lock.Lock()
 			delete(dat.Polls, r.MessageID)
+			dat.Lock.Unlock()
 			b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", p.Guild, p.Channel, p.Message)
 			b.dg.ChannelMessageDelete(p.Channel, p.Message)
 			if r.UserID != p.Value4 {
@@ -341,13 +345,13 @@ func (b *EoD) unReactionHandler(_ *discordgo.Session, r *discordgo.MessageReacti
 	if !exists {
 		return
 	}
-	p, exists := dat.Polls[r.MessageID]
-	if !exists {
+	p, res := dat.GetPoll(r.MessageID)
+	if !res.Exists {
 		return
 	}
 	if r.Emoji.Name == downArrow {
 		p.Downvotes--
-		dat.Polls[r.MessageID] = p
+		dat.SavePoll(r.MessageID, p)
 		lock.Lock()
 		b.dat[r.GuildID] = dat
 		lock.Unlock()
@@ -363,7 +367,7 @@ func (b *EoD) unReactionHandler(_ *discordgo.Session, r *discordgo.MessageReacti
 		}
 	} else if r.Emoji.Name == upArrow {
 		p.Upvotes--
-		dat.Polls[r.MessageID] = p
+		dat.SavePoll(r.MessageID, p)
 		lock.Lock()
 		b.dat[r.GuildID] = dat
 		lock.Unlock()
