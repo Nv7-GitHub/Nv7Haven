@@ -1144,7 +1144,7 @@ var (
 				bot.elemBreakdownCmd(resp.Options[0].StringValue(), calctree, bot.newMsgSlash(i), bot.newRespSlash(i))
 
 			case "category":
-				calctree := true
+				calctree := false
 				if len(resp.Options) > 1 {
 					calctree = resp.Options[1].BoolValue()
 				}

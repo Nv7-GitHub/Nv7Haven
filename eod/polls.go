@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
+	"os"
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -208,6 +210,9 @@ func (b *EoD) reactionHandler(s *discordgo.Session, r *discordgo.MessageReaction
 	if r.UserID == b.dg.State.User.ID {
 		return
 	}
+	log.SetOutput(os.Stdout)
+	log.Println("reaction")
+
 	lock.RLock()
 	dat, exists := b.dat[r.GuildID]
 	lock.RUnlock()
