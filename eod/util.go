@@ -73,6 +73,7 @@ func (b *EoD) isMod(userID string, guildID string, m types.Msg) (bool, error) {
 				if err != nil {
 					return false, err
 				}
+				hasLoadedRoles = true
 			}
 
 			for _, role := range roles {

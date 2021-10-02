@@ -132,7 +132,7 @@ func (b *EoD) init() {
 
 	bar := progressbar.New(cnt)
 
-	elems, err := b.db.Query("SELECT name, image, guild, comment, creator, createdon, parents, complexity, difficulty, usedin FROM `eod_elements` ORDER BY (CASE WHEN createdon=1637536881 THEN 1605988759 ELSE createdon END) ASC")
+	elems, err := b.db.Query("SELECT name, image, guild, comment, creator, createdon, parents, complexity, difficulty, usedin FROM `eod_elements` ORDER BY (IF(createdon=1637536881, 1605988759, createdon)) ")
 	if err != nil {
 		panic(err)
 	}

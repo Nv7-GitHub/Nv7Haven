@@ -13,9 +13,6 @@ import (
 	"google.golang.org/grpc"
 )
 
-// CloseElemental cleans up elemental
-var CloseElemental func()
-
 // Elemental is the default server at https://elem7.tk
 type Elemental struct {
 	*pb.UnimplementedElementalServer

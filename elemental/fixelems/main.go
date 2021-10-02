@@ -25,13 +25,6 @@ type Element struct {
 	Complexity int      `json:"complexity"`
 }
 
-// Color has the data for a suggestion's color
-type Color struct {
-	Base       string  `json:"base"`
-	Lightness  float32 `json:"lightness"`
-	Saturation float32 `json:"saturation"`
-}
-
 const (
 	dbUser = "root"
 	dbName = "nv7haven"

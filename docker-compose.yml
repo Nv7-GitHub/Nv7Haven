@@ -6,7 +6,6 @@ version: '3'
 services:
   db:
     image: mariadb
-    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${PASSWORD}
       MYSQL_DATABASE: nv7haven
