@@ -48,11 +48,11 @@ func (e *Elemental) RefreshElement(elemName string) (*pb.Element, error) {
 	return elem, nil
 }
 
-func (e *Elemental) GetElem(ctx context.Context, inp *wrapperspb.StringValue) (*pb.Element, error) {
+func (e *Elemental) GetElem(_ context.Context, inp *wrapperspb.StringValue) (*pb.Element, error) {
 	return e.GetElement(inp.Value)
 }
 
-func (e *Elemental) GetCombination(ctx context.Context, inp *pb.Combination) (*pb.CombinationResult, error) {
+func (e *Elemental) GetCombination(_ context.Context, inp *pb.Combination) (*pb.CombinationResult, error) {
 	comb, suc, err := e.GetCombo(inp.Elem1, inp.Elem2)
 
 	return &pb.CombinationResult{

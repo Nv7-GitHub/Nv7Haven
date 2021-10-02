@@ -223,7 +223,7 @@ func (b *Bot) downvoteCmd(name string, m msg, rsp rsp) {
 	rsp.Resp("Succesfully downvoted suggestion!")
 }
 
-func (b *Bot) createCmd(elem1 string, elem2 string, username string, id string, uid string, m msg, rsp rsp) {
+func (b *Bot) createCmd(elem1 string, elem2 string, username string, id string, uid string, _ msg, rsp rsp) {
 	suc, msg := b.e.CreateSuggestion("None", username, elem1, elem2, id)
 	if !suc {
 		rsp.ErrorMessage(msg)

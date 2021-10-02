@@ -59,7 +59,7 @@ type helpComponent struct {
 	b *EoD
 }
 
-func (h *helpComponent) Handler(s *discordgo.Session, i *discordgo.InteractionCreate) {
+func (h *helpComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCreate) {
 	var txt string
 
 	val := i.MessageComponentData().Values[0]

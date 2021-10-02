@@ -24,7 +24,7 @@ type hintComponent struct {
 	b *EoD
 }
 
-func (h *hintComponent) Handler(s *discordgo.Session, i *discordgo.InteractionCreate) {
+func (h *hintComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCreate) {
 	hint, msg, suc := h.b.getHint("", false, i.Member.User.ID, i.GuildID, false, h.b.newMsgSlash(i), nil)
 	if !suc {
 		h.b.dg.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{

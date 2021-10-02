@@ -110,7 +110,7 @@ func (b *Bot) getuser(m *discordgo.MessageCreate, usr string) (user, bool) {
 	}, true
 }
 
-func (b *Bot) getUser(m msg, rsp rsp, usr string) (user, bool) {
+func (b *Bot) getUser(_ msg, rsp rsp, usr string) (user, bool) {
 	res, err := b.db.Query("SELECT * FROM currency WHERE user=?", usr)
 	if rsp.Error(err) {
 		return user{}, false

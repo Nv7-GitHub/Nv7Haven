@@ -206,7 +206,7 @@ func (b *EoD) createPoll(p types.Poll) error {
 	return err
 }
 
-func (b *EoD) reactionHandler(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (b *EoD) reactionHandler(_ *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	if r.UserID == b.dg.State.User.ID {
 		return
 	}
@@ -325,7 +325,7 @@ func (b *EoD) handlePollSuccess(p types.Poll) {
 	}
 }
 
-func (b *EoD) unReactionHandler(s *discordgo.Session, r *discordgo.MessageReactionRemove) {
+func (b *EoD) unReactionHandler(_ *discordgo.Session, r *discordgo.MessageReactionRemove) {
 	if r.UserID == b.dg.State.User.ID {
 		return
 	}

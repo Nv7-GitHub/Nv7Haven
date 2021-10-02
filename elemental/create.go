@@ -10,7 +10,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (e *Elemental) CreateSugg(ctx context.Context, req *pb.CreateRequest) (*emptypb.Empty, error) {
+func (e *Elemental) CreateSugg(_ context.Context, req *pb.CreateRequest) (*emptypb.Empty, error) {
 	suc, msg := e.CreateSuggestion(req.Mark, req.Pioneer, req.Elem1, req.Elem2, req.Id)
 	if !suc {
 		return &emptypb.Empty{}, errors.New(msg)

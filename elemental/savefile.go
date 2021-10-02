@@ -27,14 +27,14 @@ func (e *Elemental) GetFound(uid string) ([]string, error) {
 	return found, nil
 }
 
-func (e *Elemental) GetInv(ctx context.Context, uid *wrapperspb.StringValue) (*pb.Inventory, error) {
+func (e *Elemental) GetInv(_ context.Context, uid *wrapperspb.StringValue) (*pb.Inventory, error) {
 	res, err := e.GetFound(uid.Value)
 	return &pb.Inventory{
 		Found: res,
 	}, err
 }
 
-func (e *Elemental) AddFound(ctx context.Context, req *pb.SuggestionRequest) (*emptypb.Empty, error) {
+func (e *Elemental) AddFound(_ context.Context, req *pb.SuggestionRequest) (*emptypb.Empty, error) {
 	return &emptypb.Empty{}, e.NewFound(req.Element, req.Uid)
 }
 

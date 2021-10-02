@@ -9,7 +9,7 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
-func (a *Anarchy) GetInv(ctx context.Context, uid *wrapperspb.StringValue) (*pb.AnarchyInventory, error) {
+func (a *Anarchy) GetInv(_ context.Context, uid *wrapperspb.StringValue) (*pb.AnarchyInventory, error) {
 	var found []string
 	var data string
 	err := a.db.QueryRow("SELECT inv FROM anarchy_inv WHERE uid=?", uid.Value).Scan(&data)

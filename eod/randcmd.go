@@ -28,7 +28,7 @@ type ideaComponent struct {
 	b        *EoD
 }
 
-func (c *ideaComponent) Handler(s *discordgo.Session, i *discordgo.InteractionCreate) {
+func (c *ideaComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCreate) {
 	res, suc := c.b.genIdea(c.count, c.catName, c.hasCat, c.elemName, c.hasEl, i.GuildID, i.Member.User.ID)
 	if !suc {
 		res += " " + redCircle

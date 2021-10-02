@@ -15,14 +15,14 @@ const (
 )
 
 // GetElem gets an element from the database
-func (a *Anarchy) GetElem(ctx context.Context, name *wrapperspb.StringValue) (*pb.AnarchyElement, error) {
+func (a *Anarchy) GetElem(_ context.Context, name *wrapperspb.StringValue) (*pb.AnarchyElement, error) {
 	lock.RLock()
 	val := a.cache[name.Value]
 	lock.RUnlock()
 	return val, nil
 }
 
-func (a *Anarchy) GetCombination(ctx context.Context, combo *pb.AnarchyCombination) (*pb.AnarchyCombinationResult, error) {
+func (a *Anarchy) GetCombination(_ context.Context, combo *pb.AnarchyCombination) (*pb.AnarchyCombinationResult, error) {
 	var cnt int
 	err := a.db.QueryRow("SELECT COUNT(1) FROM anarchy_combos WHERE (elem1=? AND elem2=?) OR (elem1=? AND elem2=?)", combo.Elem1, combo.Elem2, combo.Elem2, combo.Elem1).Scan(&cnt)
 	if err != nil {

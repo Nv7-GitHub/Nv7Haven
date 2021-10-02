@@ -37,7 +37,7 @@ func (e *Elemental) randomSuggestion(where string, uid string) ([]string, error)
 	return []string{elem1, elem2}, nil
 }
 
-func (e *Elemental) RandomLonely(ctx context.Context, req *wrapperspb.StringValue) (*pb.RandomCombinationResponse, error) {
+func (e *Elemental) RandomLonely(_ context.Context, req *wrapperspb.StringValue) (*pb.RandomCombinationResponse, error) {
 	ans, err := e.RandomLonelySuggestion(req.Value)
 	return &pb.RandomCombinationResponse{
 		Elements: ans,
@@ -45,7 +45,7 @@ func (e *Elemental) RandomLonely(ctx context.Context, req *wrapperspb.StringValu
 }
 
 // Pretty much the same, just different first line
-func (e *Elemental) UpAndComing(ctx context.Context, req *wrapperspb.StringValue) (*pb.RandomCombinationResponse, error) {
+func (e *Elemental) UpAndComing(_ context.Context, req *wrapperspb.StringValue) (*pb.RandomCombinationResponse, error) {
 	ans, err := e.UpAndComingSuggestion(req.Value)
 	return &pb.RandomCombinationResponse{
 		Elements: ans,

@@ -91,9 +91,9 @@ func main() {
 		fl, err := files[0].file.Open()
 		handle(err)
 		defer fl.Close()
-		csv := csv.NewReader(fl)
+		csvF := csv.NewReader(fl)
 		for {
-			vals, err := csv.Read()
+			vals, err := csvF.Read()
 			if vals == nil {
 				break
 			}

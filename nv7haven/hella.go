@@ -16,7 +16,7 @@ func (d *Nv7Haven) calcHella(c *fiber.Ctx) error {
 	}
 	doc, _ := prose.NewDocument(input)
 
-	done := []string{}
+	done := make([]string, 0)
 
 	// Iterate over the doc's tokens:
 	for _, tok := range doc.Tokens() {

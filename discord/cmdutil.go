@@ -146,7 +146,7 @@ func (b *Bot) newRespSlash(i *discordgo.InteractionCreate) rsp {
 	}
 }
 
-func (b *Bot) pageSwitchHandler(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (b *Bot) pageSwitchHandler(_ *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	handler, exists := b.pages[r.MessageID]
 	if exists {
 		if r.UserID == b.dg.State.User.ID {

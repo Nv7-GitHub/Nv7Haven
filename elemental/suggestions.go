@@ -53,7 +53,7 @@ func (e *Elemental) getSugg(id string) (*pb.Suggestion, error) {
 	return suggestion, nil
 }
 
-func (e *Elemental) GetSuggestion(ctx context.Context, id *wrapperspb.StringValue) (*pb.Suggestion, error) {
+func (e *Elemental) GetSuggestion(_ context.Context, id *wrapperspb.StringValue) (*pb.Suggestion, error) {
 	suggestion, err := e.getSugg(id.Value)
 	if err != nil {
 		if err.Error() == "null" {
@@ -63,14 +63,14 @@ func (e *Elemental) GetSuggestion(ctx context.Context, id *wrapperspb.StringValu
 	return suggestion, err
 }
 
-func (e *Elemental) GetSuggestionCombos(ctx context.Context, req *pb.Combination) (*pb.SuggestionCombinationResponse, error) {
+func (e *Elemental) GetSuggestionCombos(_ context.Context, req *pb.Combination) (*pb.SuggestionCombinationResponse, error) {
 	data, err := e.GetSuggestions(req.Elem1, req.Elem2)
 	return &pb.SuggestionCombinationResponse{
 		Suggestions: data,
 	}, err
 }
 
-func (e *Elemental) DownSuggestion(ctx context.Context, req *pb.SuggestionRequest) (*pb.VoteResponse, error) {
+func (e *Elemental) DownSuggestion(_ context.Context, req *pb.SuggestionRequest) (*pb.VoteResponse, error) {
 	suc, msg := e.DownvoteSuggestion(req.Element, req.Uid)
 	if !suc {
 		return &pb.VoteResponse{}, errors.New(msg)
@@ -109,7 +109,7 @@ func (e *Elemental) DownvoteSuggestion(id, uid string) (bool, string) {
 	return true, ""
 }
 
-func (e *Elemental) UpSuggestion(ctx context.Context, req *pb.SuggestionRequest) (*pb.VoteResponse, error) {
+func (e *Elemental) UpSuggestion(_ context.Context, req *pb.SuggestionRequest) (*pb.VoteResponse, error) {
 	create, suc, msg := e.UpvoteSuggestion(req.Element, req.Uid)
 	if !suc {
 		return &pb.VoteResponse{}, errors.New(msg)
@@ -152,7 +152,7 @@ func (e *Elemental) UpvoteSuggestion(id, uid string) (bool, bool, string) {
 	return false, true, ""
 }
 
-func (e *Elemental) NewSugg(ctx context.Context, req *pb.NewSuggestionRequest) (*pb.VoteResponse, error) {
+func (e *Elemental) NewSugg(_ context.Context, req *pb.NewSuggestionRequest) (*pb.VoteResponse, error) {
 	create, err := e.NewSuggestion(req.Elem1, req.Elem2, req.Suggestion)
 	return &pb.VoteResponse{
 		Create: create,

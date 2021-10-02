@@ -43,7 +43,7 @@ func (e *Elemental) NewRecent(recent *pb.RecentCombination) error {
 	return nil
 }
 
-func (e *Elemental) GetRec(ctx context.Context, _ *emptypb.Empty) (*pb.Recents, error) {
+func (e *Elemental) GetRec(_ context.Context, _ *emptypb.Empty) (*pb.Recents, error) {
 	recents, err := e.GetRecents()
 	if err != nil {
 		return &pb.Recents{}, err
