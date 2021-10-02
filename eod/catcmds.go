@@ -246,7 +246,7 @@ func (b *EoD) downloadCatCmd(catName string, sort string, m types.Msg, rsp types
 		return
 	}
 
-	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
+	_, err = b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
 		Content: fmt.Sprintf("Category **%s**:", cat.Name),
 		Files: []*discordgo.File{
 			{
@@ -256,5 +256,8 @@ func (b *EoD) downloadCatCmd(catName string, sort string, m types.Msg, rsp types
 			},
 		},
 	})
+	if rsp.Error(err) {
+		return
+	}
 	rsp.Message("Sent category in DMs!")
 }

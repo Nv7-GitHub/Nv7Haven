@@ -38,7 +38,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, controve
 	createLock.Lock()
 	tx, err := b.db.BeginTx(context.Background(), nil)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		createLock.Unlock()
 		return
 	}
@@ -85,7 +85,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, controve
 
 			log.SetOutput(datafile)
 			log.Println(err)
-			tx.Rollback()
+			_ = tx.Rollback()
 			return
 		}
 		text = "Element"
@@ -95,7 +95,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, controve
 			log.SetOutput(datafile)
 			log.Println("Doesn't exist")
 
-			tx.Rollback()
+			_ = tx.Rollback()
 			createLock.Unlock()
 			return
 		}
@@ -114,7 +114,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, controve
 
 		log.SetOutput(datafile)
 		log.Println(err)
-		tx.Rollback()
+		_ = tx.Rollback()
 		return
 	}
 	dat.AddComb(data, name)
@@ -138,7 +138,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, controve
 
 			log.SetOutput(datafile)
 			log.Println(err)
-			tx.Rollback()
+			_ = tx.Rollback()
 			return
 		}
 
@@ -151,7 +151,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, controve
 
 	txt := newText + " " + text + " - **" + name + "** (By <@" + creator + ">)" + postTxt + controversial
 
-	b.dg.ChannelMessageSend(dat.NewsChannel, txt)
+	_, _ = b.dg.ChannelMessageSend(dat.NewsChannel, txt)
 
 	err = tx.Commit()
 	if err != nil {
