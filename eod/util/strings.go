@@ -29,7 +29,7 @@ func ToTitle(s string) string {
 			}
 		}
 
-		if w[0] == '(' {
+		if w[0] == '(' && len(word) > 1 {
 			ind = 1
 		}
 
