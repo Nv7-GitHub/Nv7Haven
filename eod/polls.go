@@ -219,10 +219,14 @@ func (b *EoD) reactionHandler(_ *discordgo.Session, r *discordgo.MessageReaction
 	if !exists {
 		return
 	}
+
 	p, res := dat.GetPoll(r.MessageID)
 	if !res.Exists {
 		return
 	}
+
+	log.Println("reaction print 2")
+
 	if r.Emoji.Name == upArrow {
 		p.Upvotes++
 		dat.SavePoll(r.MessageID, p)
