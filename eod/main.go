@@ -54,7 +54,7 @@ func InitEoD(db *sql.DB) EoD {
 	bot = EoD{
 		dg:  dg,
 		db:  db,
-		dat: make((map[string]types.ServerData)),
+		dat: make(map[string]types.ServerData),
 	}
 
 	dg.UpdateGameStatus(0, status)

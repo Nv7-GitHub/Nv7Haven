@@ -21,7 +21,7 @@ type category struct {
 	Image    string
 }
 
-var tm time.Time = time.Now()
+var tm = time.Now()
 
 func endTimer(print string) {
 	newtime := time.Now()

@@ -36,7 +36,7 @@ const (
 	dbName = "nv7haven"
 )
 
-var tm time.Time = time.Now()
+var tm = time.Now()
 
 func endTimer(print string) {
 	newtime := time.Now()
