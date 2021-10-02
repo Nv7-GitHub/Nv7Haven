@@ -29,7 +29,7 @@ func main() {
 
 	fmt.Println("Connected")
 
-	res, err := db.Query("SELECT name FROM elements ORDER BY createdOn ASC")
+	res, err := db.Query("SELECT name FROM elements ORDER BY createdOn ")
 	handle(err)
 	defer res.Close()
 

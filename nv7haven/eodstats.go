@@ -25,7 +25,7 @@ type eodStats struct {
 }
 
 func (n *Nv7Haven) refreshStats() {
-	res, err := n.sql.Query("SELECT * FROM eod_stats WHERE time > ? ORDER BY time ASC", n.eodStats.refreshTime.Unix())
+	res, err := n.sql.Query("SELECT * FROM eod_stats WHERE time > ? ORDER BY time ", n.eodStats.refreshTime.Unix())
 	if err != nil {
 		fmt.Println(err)
 	}

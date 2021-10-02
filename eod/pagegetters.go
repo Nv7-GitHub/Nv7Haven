@@ -107,7 +107,7 @@ func (b *EoD) searchPageGetter(p types.PageSwitcher) (string, int, int, error) {
 	}
 
 	text := ""
-	res, err := b.db.Query("SELECT name FROM eod_elements WHERE guild=? AND LOWER(name) LIKE ? ORDER BY name ASC LIMIT ? OFFSET ?", p.Guild, wild, p.PageLength, p.Page*p.PageLength)
+	res, err := b.db.Query("SELECT name FROM eod_elements WHERE guild=? AND LOWER(name) LIKE ? ORDER BY name LIMIT ? OFFSET ?", p.Guild, wild, p.PageLength, p.Page*p.PageLength)
 	if err != nil {
 		return "", 0, 0, err
 	}

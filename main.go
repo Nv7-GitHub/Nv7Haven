@@ -62,7 +62,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	grpc := grpc.NewServer()
+	grpcS := grpc.NewServer()
 
 	app.Static("/", "./index.html")
 
@@ -73,7 +73,7 @@ func main() {
 
 	//mysqlsetup.Mysqlsetup()
 
-	e, err := elemental.InitElemental(app, db, grpc)
+	e, err := elemental.InitElemental(app, db, grpcS)
 	if err != nil {
 		panic(err)
 	}
@@ -85,8 +85,8 @@ func main() {
 
 	single.InitSingle(app, db)
 	b := discord.InitDiscord(db, e)
-	eod := eod.InitEoD(db)
-	anarchy.InitAnarchy(db, grpc)
+	eodB := eod.InitEoD(db)
+	anarchy.InitAnarchy(db, grpcS)
 	gdo.InitGDO(app)
 	remodrive.InitRemoDrive(app)
 
@@ -98,7 +98,7 @@ func main() {
 	}()
 
 	go func() {
-		wrapped := grpcweb.WrapServer(grpc)
+		wrapped := grpcweb.WrapServer(grpcS)
 		httpS := &http.Server{
 			Handler: http.HandlerFunc(func(resp http.ResponseWriter, req *http.Request) {
 				// CORS
@@ -121,7 +121,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		err = grpc.Serve(lis)
+		err = grpcS.Serve(lis)
 		if err != nil {
 			panic(err)
 		}
@@ -140,6 +140,6 @@ func main() {
 	}
 
 	b.Close()
-	eod.Close()
+	eodB.Close()
 	db.Close()
 }

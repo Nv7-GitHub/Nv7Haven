@@ -40,7 +40,7 @@ func main() {
 	fmt.Println("Connected")
 
 	// Get elements
-	res, err := db.Query("SELECT name, (CASE WHEN createdon=1637536881 THEN 1605988759 ELSE createdon END) FROM `eod_elements` WHERE createdon>100 ORDER BY (CASE WHEN createdon=1637536881 THEN 1605988759 ELSE createdon END) ASC")
+	res, err := db.Query("SELECT name, (IF(createdon=1637536881, 1605988759, createdon)) FROM `eod_elements` WHERE createdon>100 ORDER BY (IF(createdon=1637536881, 1605988759, createdon)) ")
 	handle(err)
 	defer res.Close()
 
