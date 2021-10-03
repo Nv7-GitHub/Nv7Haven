@@ -1333,7 +1333,7 @@ var (
 			}
 		},
 		"View Inventory Breakdown": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.invBreakdownCmd(i.ApplicationCommandData().TargetID, true, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.invBreakdownCmd(i.ApplicationCommandData().TargetID, false, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 )
