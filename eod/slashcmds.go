@@ -821,13 +821,13 @@ var (
 			},
 		},
 		{
-			Name: "Get Inventory",
-			//Description: "Get the user's inventory!",
+			Name: "View Inventory",
+			//Description: "View the user's inventory!",
 			Type: discordgo.UserApplicationCommand,
 		},
 		{
-			Name: "Get Info",
-			//Description: "Get the info of the element in a message!",
+			Name: "View Info",
+			//Description: "View the info of the element in a message!",
 			Type: discordgo.MessageApplicationCommand,
 		},
 		{
