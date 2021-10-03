@@ -1274,11 +1274,11 @@ var (
 			resp := i.ApplicationCommandData()
 			bot.elemSearchCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
-		"Get Inventory": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		"View Inventory": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			bot.invCmd(resp.TargetID, bot.newMsgSlash(i), bot.newRespSlash(i), "name", "none")
 		},
-		"Get Info": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		"View Info": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			rsp := bot.newRespSlash(i)
 			res, suc := bot.getMessageElem(resp.TargetID, i.GuildID)
