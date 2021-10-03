@@ -1,6 +1,10 @@
 package types
 
-import "strings"
+import (
+	"log"
+	"os"
+	"strings"
+)
 
 func (dat *ServerData) SetCategory(cat Category) {
 	dat.Lock.Lock()
@@ -57,6 +61,8 @@ func (dat *ServerData) SavePageSwitcher(id string, ps PageSwitcher) {
 }
 
 func (dat *ServerData) SavePoll(id string, poll Poll) {
+	log.SetOutput(os.Stdout)
+	log.Println("save poll", id)
 	dat.Lock.Lock()
 	dat.Polls[id] = poll
 	dat.Lock.Unlock()

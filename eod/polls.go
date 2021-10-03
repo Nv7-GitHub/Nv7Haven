@@ -195,6 +195,8 @@ func (b *EoD) createPoll(p types.Poll) error {
 	}
 	_, err = b.db.Exec("INSERT INTO eod_polls VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ? )", p.Guild, p.Channel, p.Message, p.Kind, p.Value1, p.Value2, p.Value3, p.Value4, string(cnt))
 	if dat.Polls == nil {
+		log.SetOutput(os.Stdout)
+		log.Println("clear polls")
 		dat.Polls = make(map[string]types.Poll)
 	}
 
