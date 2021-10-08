@@ -116,3 +116,56 @@ func (b *EoD) imageCmd(elem string, image string, m types.Msg, rsp types.Rsp) {
 	b.dat[m.GuildID] = dat
 	lock.Unlock()
 }
+
+func (b *EoD) colorCmd(elem string, color int, m types.Msg, rsp types.Rsp) {
+	lock.RLock()
+	dat, exists := b.dat[m.GuildID]
+	lock.RUnlock()
+	if !exists {
+		return
+	}
+
+	rsp.Acknowledge()
+
+	el, res := dat.GetElement(elem)
+	if !res.Exists {
+		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
+		return
+	}
+
+	inv, res := dat.GetInv(m.Author.ID, true)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
+		return
+	}
+	_, exists = inv[strings.ToLower(el.Name)]
+	if !exists {
+		rsp.ErrorMessage(fmt.Sprintf("Element **%s** is not in your inventory!", el.Name))
+		return
+	}
+
+	if el.Creator == m.Author.ID {
+		b.color(m.GuildID, elem, color, "", "")
+		rsp.Message(fmt.Sprintf("You have set the color of **%s**! 🖌️", el.Name))
+		return
+	}
+
+	err := b.createPoll(types.Poll{
+		Channel: dat.VotingChannel,
+		Guild:   m.GuildID,
+		Kind:    types.PollColor,
+		Value1:  el.Name,
+		Value3:  el.Image,
+		Value4:  m.Author.ID,
+		Data:    map[string]interface{}{"color": color},
+	})
+	if rsp.Error(err) {
+		return
+	}
+	id := rsp.Message(fmt.Sprintf("Suggested a color for **%s** 🖌️", el.Name))
+	dat.SetMsgElem(id, el.Name)
+
+	lock.Lock()
+	b.dat[m.GuildID] = dat
+	lock.Unlock()
+}

@@ -29,6 +29,7 @@ const (
 	PollImage        = 3
 	PollUnCategorize = 4
 	PollCatImage     = 5
+	PollColor        = 6
 
 	PageSwitchLdb      = 0
 	PageSwitchInv      = 1
@@ -128,6 +129,7 @@ type Category struct {
 	Guild    string
 	Elements map[string]Empty
 	Image    string
+	Color    int
 }
 
 type Msg struct {

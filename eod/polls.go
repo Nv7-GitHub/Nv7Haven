@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -164,6 +165,20 @@ func (b *EoD) createPoll(p types.Poll) error {
 			},
 			Thumbnail: &discordgo.MessageEmbedThumbnail{
 				URL: p.Value2,
+			},
+		})
+		if err != nil {
+			return err
+		}
+		p.Message = m.ID
+
+	case types.PollColor:
+		m, err := b.dg.ChannelMessageSendEmbed(dat.VotingChannel, &discordgo.MessageEmbed{
+			Title:       "Set Color",
+			Description: fmt.Sprintf("**%s**\n#%s (Shown on Left)\n\nSuggested by <@%s>", p.Value1, util.FormatHex(p.Data["color"].(int)), p.Value4),
+			Color:       p.Data["color"].(int),
+			Footer: &discordgo.MessageEmbedFooter{
+				Text: "You can change your vote",
 			},
 		})
 		if err != nil {
@@ -334,6 +349,8 @@ func (b *EoD) handlePollSuccess(p types.Poll) {
 		}
 	case types.PollCatImage:
 		b.catImage(p.Guild, p.Value1, p.Value2, p.Value4, controversialTxt)
+	case types.PollColor:
+		b.color(p.Guild, p.Value1, p.Data["color"].(int), p.Value4, controversialTxt)
 	}
 }
 
