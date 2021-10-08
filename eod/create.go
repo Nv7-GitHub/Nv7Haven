@@ -12,7 +12,6 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
-	"github.com/lucasb-eyer/go-colorful"
 )
 
 const newText = "🆕"
@@ -68,7 +67,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, controve
 		if areUnique {
 			diff++
 		}
-		col, err := mixColors(parColors)
+		col, err := util.MixColors(parColors)
 		if err != nil {
 			log.SetOutput(datafile)
 			log.Println(err)
@@ -203,32 +202,4 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, controve
 		log.Println(err)
 		return
 	}
-}
-
-func mixColors(colors []int) (int, error) {
-	cls := make([]colorful.Color, len(colors))
-	var err error
-	for i, color := range colors {
-		hex := strconv.FormatInt(int64(color), 16)
-		cls[i], err = colorful.Hex(hex)
-		if err != nil {
-			return 0, err
-		}
-	}
-
-	var h, s, v float64
-	for _, val := range cls {
-		hv, sv, vv := val.Hsv()
-		h += hv
-		s += sv
-		v += vv
-	}
-	length := float64(len(colors))
-	h /= length
-	s /= length
-	v /= length
-
-	out := colorful.Hsv(h, s, v)
-	outv, err := strconv.ParseInt(out.Hex()[1:], 16, 64)
-	return int(outv), err
 }
