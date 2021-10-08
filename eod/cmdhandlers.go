@@ -217,7 +217,16 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		length, err := strconv.Atoi(m.Content[1:])
+		cont := m.Content[1:]
+		split := strings.Contains(cont, " ")
+		var items []string
+		if split {
+			items = strings.Split(cont, " ")
+		} else {
+			items = []string{cont}
+		}
+
+		length, err := strconv.Atoi(items[0])
 		if err != nil {
 			return
 		}
@@ -228,22 +237,29 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			length = 1
 		}
 
-		comb, res := dat.GetComb(msg.Author.ID)
-		if !res.Exists {
-			rsp.ErrorMessage(res.Message)
-			return
+		var last string
+		if split {
+			last = items[1]
+		} else {
+			comb, res := dat.GetComb(msg.Author.ID)
+			if !res.Exists {
+				rsp.ErrorMessage(res.Message)
+				return
+			}
+			last = comb.Elem3
+
+			if comb.Elem3 == "" {
+				b.combine(comb.Elems, msg, rsp)
+				return
+			}
 		}
 
 		elems := make([]string, length)
 		for i := range elems {
-			elems[i] = comb.Elem3
+			elems[i] = last
 		}
 
-		if comb.Elem3 != "" {
-			b.combine(elems, msg, rsp)
-			return
-		}
-		b.combine(comb.Elems, msg, rsp)
+		b.combine(elems, msg, rsp)
 		return
 	}
 
