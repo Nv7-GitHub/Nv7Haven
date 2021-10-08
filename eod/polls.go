@@ -187,14 +187,24 @@ func (b *EoD) createPoll(p types.Poll) error {
 		p.Message = m.ID
 
 	case types.PollCatColor:
-		m, err := b.dg.ChannelMessageSendEmbed(dat.VotingChannel, &discordgo.MessageEmbed{
-			Title:       "Set Category Color",
-			Description: fmt.Sprintf("**%s**\n%s (Shown on Left)\n\nSuggested by <@%s>", p.Value1, util.FormatHex(p.Data["color"].(int)), p.Value4),
-			Color:       p.Data["color"].(int),
+		emb := &discordgo.MessageEmbed{
+			Title:       "Reset Category Color",
+			Description: fmt.Sprintf("**%s**)\n\nSuggested by <@%s>", p.Value1, p.Value4),
 			Footer: &discordgo.MessageEmbedFooter{
 				Text: "You can change your vote",
 			},
-		})
+		}
+		if p.Data["color"].(int) != 0 {
+			emb = &discordgo.MessageEmbed{
+				Title:       "Set Category Color",
+				Description: fmt.Sprintf("**%s**\n%s (Shown on Left)\n\nSuggested by <@%s>", p.Value1, util.FormatHex(p.Data["color"].(int)), p.Value4),
+				Color:       p.Data["color"].(int),
+				Footer: &discordgo.MessageEmbedFooter{
+					Text: "You can change your vote",
+				},
+			}
+		}
+		m, err := b.dg.ChannelMessageSendEmbed(dat.VotingChannel, emb)
 		if err != nil {
 			return err
 		}
