@@ -10,10 +10,13 @@ import (
 )
 
 func (b *EoD) statsCmd(m types.Msg, rsp types.Rsp) {
+	rsp.Acknowledge()
+
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
 	if !exists {
+		rsp.ErrorMessage("Guild not setup yet!")
 		return
 	}
 	gd, err := b.dg.State.Guild(m.GuildID)
