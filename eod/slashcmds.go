@@ -919,7 +919,7 @@ var (
 					Options: []*discordgo.ApplicationCommandOption{
 						{
 							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "element",
+							Name:        "category",
 							Description: "The name of the category to set the color of!",
 							Required:    true,
 						},
