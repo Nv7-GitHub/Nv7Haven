@@ -45,6 +45,10 @@ var SortChoices = []*discordgo.ApplicationCommandOptionChoice{
 		Name:  "ID",
 		Value: "id",
 	},
+	{
+		Name:  "Tree Size",
+		Value: "treesize",
+	},
 }
 
 var sorts = map[string]func(a, b string, dat types.ServerData) bool{
@@ -102,6 +106,14 @@ var sorts = map[string]func(a, b string, dat types.ServerData) bool{
 		}
 		return el1.Creator < el2.Creator
 	},
+	"treesize": func(a, b string, dat types.ServerData) bool {
+		el1, res := dat.GetElement(a, true)
+		el2, res2 := dat.GetElement(b, true)
+		if !res.Exists || !res2.Exists {
+			return false
+		}
+		return el1.TreeSize < el2.TreeSize
+	},
 }
 
 var getters = map[string]func(el types.Element) string{
@@ -122,6 +134,9 @@ var getters = map[string]func(el types.Element) string{
 	},
 	"creator": func(el types.Element) string {
 		return fmt.Sprintf(" - <@%s>", el.Creator)
+	},
+	"treesize": func(el types.Element) string {
+		return fmt.Sprintf(" - %d", el.TreeSize)
 	},
 }
 
