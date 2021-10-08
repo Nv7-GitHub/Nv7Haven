@@ -24,8 +24,8 @@ func editDB() {
 			if elem.CreatedOn.Unix() < 0 {
 				elem.CreatedOn = time.Now()
 			}
-			args = append(args, elem.Name, elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), elems2txt(elem.Parents), elem.Complexity, elem.Difficulty, elem.UsedIn)
-			query += "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?),"
+			args = append(args, elem.Name, elem.Image, elem.Color, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), elems2txt(elem.Parents), elem.Complexity, elem.Difficulty, elem.UsedIn, elem.TreeSize)
+			query += "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?),"
 
 			if (times % 5000) == 0 {
 				query = query[:len(query)-1]

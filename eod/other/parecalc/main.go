@@ -25,6 +25,7 @@ type Element struct {
 	ID         int
 	Name       string
 	Image      string
+	Color      int
 	Guild      string
 	Comment    string
 	Creator    string
@@ -33,6 +34,7 @@ type Element struct {
 	Complexity int
 	Difficulty int
 	UsedIn     int
+	TreeSize   int
 }
 
 type empty struct{}
@@ -89,5 +91,7 @@ func main() {
 	end("Recalculated parents")
 	recalcStats()
 	end("Recalculated stats")
+	recalcTreeSize()
+	end("Recalculated tree size")
 	editDB()
 }

@@ -35,7 +35,7 @@ func loadData(refresh bool) {
 
 	bar := progressbar.New(cnt)
 	for res.Next() {
-		err = res.Scan(&elem.Name, &elem.Image, &elem.Guild, &elem.Comment, &elem.Creator, &createdon, &parents, &elem.Complexity, &elem.Difficulty, &elem.UsedIn)
+		err = res.Scan(&elem.Name, &elem.Image, &elem.Color, &elem.Guild, &elem.Comment, &elem.Creator, &createdon, &parents, &elem.Complexity, &elem.Difficulty, &elem.UsedIn, &elem.TreeSize)
 		handle(err)
 		elem.CreatedOn = time.Unix(createdon, 0)
 
