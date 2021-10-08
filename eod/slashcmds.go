@@ -927,7 +927,7 @@ var (
 							Type:        discordgo.ApplicationCommandOptionString,
 							Name:        "color",
 							Description: "The new hex color of the element.",
-							Required:    true,
+							Required:    false,
 						},
 					},
 				},
