@@ -188,10 +188,13 @@ func (b *EoD) catColor(guild string, catName string, color int, creator string, 
 
 	b.db.Exec("UPDATE eod_categories SET color=? WHERE guild=? AND name=?", color, cat.Guild, cat.Name)
 	if creator != "" {
+		if color == 0 {
+			b.dg.ChannelMessageSend(dat.NewsChannel, "Reset Category Color - **"+cat.Name+"** (By <@"+creator+">)"+controversial)
+		}
 		emoji, err := util.GetEmoji(color)
 		if err != nil {
 			emoji = redCircle
 		}
-		b.dg.ChannelMessageSend(dat.NewsChannel, emoji+" Set Color - **"+cat.Name+"** (By <@"+creator+">)"+controversial)
+		b.dg.ChannelMessageSend(dat.NewsChannel, emoji+" Set Category Color - **"+cat.Name+"** (By <@"+creator+">)"+controversial)
 	}
 }
