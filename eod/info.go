@@ -252,6 +252,7 @@ func (b *EoD) info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
 			{Name: "Found By", Value: strconv.Itoa(foundby), Inline: true},
 			{Name: "Created By", Value: fmt.Sprintf("<@%s>", el.Creator), Inline: true},
 			{Name: "Created On", Value: fmt.Sprintf("<t:%d>", el.CreatedOn.Unix()), Inline: true},
+			{Name: "Color", Value: util.FormatHex(el.Color), Inline: true},
 			{Name: "Tree Size", Value: strconv.Itoa(tree.Total), Inline: true},
 			{Name: "Complexity", Value: strconv.Itoa(el.Complexity), Inline: true},
 			{Name: "Difficulty", Value: strconv.Itoa(el.Difficulty), Inline: true},
