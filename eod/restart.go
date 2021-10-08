@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/bwmarrin/discordgo"
 )
 
 type Data struct {
@@ -76,6 +77,16 @@ func (b *EoD) start() {
 	if err == nil {
 		f, err := os.Open("restartinfo.gob")
 		if err != nil {
+			// File doesn't exist, send logs
+			logs, err := os.ReadFile("logs.txt")
+			if err != nil {
+				return
+			}
+			b.dg.ChannelMessageSendEmbed("840344139870371920", &discordgo.MessageEmbed{
+				Title:       "Bot Crash!",
+				Description: fmt.Sprintf("```\n%s\n```", string(logs)),
+			})
+			os.Create("logs.txt") // Reset logs
 			return
 		}
 
