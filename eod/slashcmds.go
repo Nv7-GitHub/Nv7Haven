@@ -901,7 +901,7 @@ var (
 						{
 							Type:        discordgo.ApplicationCommandOptionString,
 							Name:        "element",
-							Description: "The name of the element to add the image to!",
+							Description: "The name of the element to set the color of!",
 							Required:    true,
 						},
 						{
@@ -920,7 +920,7 @@ var (
 						{
 							Type:        discordgo.ApplicationCommandOptionString,
 							Name:        "element",
-							Description: "The name of the element to add the image to!",
+							Description: "The name of the category to set the color of!",
 							Required:    true,
 						},
 						{
