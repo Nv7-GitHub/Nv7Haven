@@ -30,6 +30,7 @@ const (
 	PollUnCategorize = 4
 	PollCatImage     = 5
 	PollColor        = 6
+	PollCatColor     = 7
 
 	PageSwitchLdb      = 0
 	PageSwitchInv      = 1

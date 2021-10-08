@@ -185,6 +185,20 @@ func (b *EoD) createPoll(p types.Poll) error {
 			return err
 		}
 		p.Message = m.ID
+
+	case types.PollCatColor:
+		m, err := b.dg.ChannelMessageSendEmbed(dat.VotingChannel, &discordgo.MessageEmbed{
+			Title:       "Set Category Color",
+			Description: fmt.Sprintf("**%s**\n#%s (Shown on Left)\n\nSuggested by <@%s>", p.Value1, util.FormatHex(p.Data["color"].(int)), p.Value4),
+			Color:       p.Data["color"].(int),
+			Footer: &discordgo.MessageEmbedFooter{
+				Text: "You can change your vote",
+			},
+		})
+		if err != nil {
+			return err
+		}
+		p.Message = m.ID
 	}
 
 	if !isFoolsMode {
@@ -351,6 +365,8 @@ func (b *EoD) handlePollSuccess(p types.Poll) {
 		b.catImage(p.Guild, p.Value1, p.Value2, p.Value4, controversialTxt)
 	case types.PollColor:
 		b.color(p.Guild, p.Value1, p.Data["color"].(int), p.Value4, controversialTxt)
+	case types.PollCatColor:
+		b.catColor(p.Guild, p.Value1, p.Data["color"].(int), p.Value4, controversialTxt)
 	}
 }
 

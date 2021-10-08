@@ -61,7 +61,7 @@ func (b *EoD) categorize(elem string, catName string, guild string) error {
 			Image:    "",
 		}
 
-		_, err := b.db.Exec("INSERT INTO eod_categories VALUES (?, ?, ?, ?)", guild, cat.Name, "{}", cat.Image)
+		_, err := b.db.Exec("INSERT INTO eod_categories VALUES (?, ?, ?, ?, ?)", guild, cat.Name, "{}", cat.Image, cat.Color)
 		if err != nil {
 			return err
 		}
@@ -166,16 +166,27 @@ func (b *EoD) catImage(guild string, catName string, image string, creator strin
 	}
 }
 
-func removeDuplicates(elems []string) []string {
-	mp := make(map[string]types.Empty, len(elems))
-	for _, elem := range elems {
-		mp[elem] = types.Empty{}
+func (b *EoD) catColor(guild string, catName string, color int, creator string, controversial string) {
+	lock.RLock()
+	dat, exists := b.dat[guild]
+	lock.RUnlock()
+	if !exists {
+		return
 	}
-	out := make([]string, len(mp))
-	i := 0
-	for k := range mp {
-		out[i] = k
-		i++
+	cat, res := dat.GetCategory(catName)
+	if !res.Exists {
+		return
 	}
-	return out
+
+	cat.Color = color
+	dat.SetCategory(cat)
+
+	lock.Lock()
+	b.dat[guild] = dat
+	lock.Unlock()
+
+	b.db.Exec("UPDATE eod_categories SET color=? WHERE guild=? AND name=?", color, cat.Guild, cat.Name)
+	if creator != "" {
+		b.dg.ChannelMessageSend(dat.NewsChannel, "📸 Added Category Image - **"+cat.Name+"** (By <@"+creator+">)"+controversial)
+	}
 }

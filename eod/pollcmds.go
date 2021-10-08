@@ -169,3 +169,60 @@ func (b *EoD) colorCmd(elem string, color int, m types.Msg, rsp types.Rsp) {
 	b.dat[m.GuildID] = dat
 	lock.Unlock()
 }
+
+func (b *EoD) catImgCmd(catName string, url string, m types.Msg, rsp types.Rsp) {
+	lock.RLock()
+	dat, exists := b.dat[m.GuildID]
+	lock.RUnlock()
+	if !exists {
+		return
+	}
+
+	cat, res := dat.GetCategory(catName)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
+		return
+	}
+
+	err := b.createPoll(types.Poll{
+		Channel: dat.VotingChannel,
+		Guild:   m.GuildID,
+		Kind:    types.PollCatImage,
+		Value1:  cat.Name,
+		Value2:  url,
+		Value3:  cat.Image,
+		Value4:  m.Author.ID,
+	})
+	if rsp.Error(err) {
+		return
+	}
+	rsp.Message(fmt.Sprintf("Suggested an image for category **%s** 📷", cat.Name))
+}
+
+func (b *EoD) catColorCmd(catName string, color int, m types.Msg, rsp types.Rsp) {
+	lock.RLock()
+	dat, exists := b.dat[m.GuildID]
+	lock.RUnlock()
+	if !exists {
+		return
+	}
+
+	cat, res := dat.GetCategory(catName)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
+		return
+	}
+
+	err := b.createPoll(types.Poll{
+		Channel: dat.VotingChannel,
+		Guild:   m.GuildID,
+		Kind:    types.PollCatImage,
+		Value1:  cat.Name,
+		Value4:  m.Author.ID,
+		Data:    map[string]interface{}{"color": color},
+	})
+	if rsp.Error(err) {
+		return
+	}
+	rsp.Message(fmt.Sprintf("Suggested a color for category **%s** 🖌️", cat.Name))
+}

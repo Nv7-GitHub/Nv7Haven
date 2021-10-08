@@ -16,7 +16,7 @@ func (b *EoD) categoryCmd(elems []string, category string, m types.Msg, rsp type
 		return
 	}
 
-	elems = removeDuplicates(elems)
+	elems = util.RemoveDuplicates(elems)
 
 	category = strings.TrimSpace(category)
 
@@ -118,7 +118,7 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m types.Msg, rsp ty
 		return
 	}
 
-	elems = removeDuplicates(elems)
+	elems = util.RemoveDuplicates(elems)
 
 	cat, res := dat.GetCategory(category)
 	if !res.Exists {
@@ -255,33 +255,4 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m types.Msg, rsp ty
 	} else {
 		rsp.Message("Successfully un-categorized! 🗃️")
 	}
-}
-
-func (b *EoD) catImgCmd(catName string, url string, m types.Msg, rsp types.Rsp) {
-	lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
-	if !exists {
-		return
-	}
-
-	cat, res := dat.GetCategory(catName)
-	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
-	}
-
-	err := b.createPoll(types.Poll{
-		Channel: dat.VotingChannel,
-		Guild:   m.GuildID,
-		Kind:    types.PollCatImage,
-		Value1:  cat.Name,
-		Value2:  url,
-		Value3:  cat.Image,
-		Value4:  m.Author.ID,
-	})
-	if rsp.Error(err) {
-		return
-	}
-	rsp.Message(fmt.Sprintf("Suggested an image for category **%s** 📷", cat.Name))
 }

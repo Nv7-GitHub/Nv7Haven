@@ -274,7 +274,7 @@ func (b *EoD) init() {
 	var elemDat string
 	cat := types.Category{}
 	for cats.Next() {
-		err = cats.Scan(&guild, &cat.Name, &elemDat, &cat.Image)
+		err = cats.Scan(&guild, &cat.Name, &elemDat, &cat.Image, &cat.Color)
 		if err != nil {
 			return
 		}
