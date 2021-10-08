@@ -29,6 +29,7 @@ var infoQuerys = map[string]string{
 	"Creator":   "SELECT name FROM eod_elements WHERE guild=? ORDER BY creator %s LIMIT ? OFFSET ?",
 	"Length":    `SELECT name FROM eod_elements WHERE guild=? ORDER BY LENGTH(name) %s LIMIT ? OFFSET ?`,
 	"Tree Size": `SELECT name FROM eod_elements WHERE guild=? ORDER BY treesize %s LIMIT ? OFFSET ?`,
+	"Color":     `SELECT name FROM eod_elements WHERE guild=? ORDER BY color %s LIMIT ? OFFSET ?`,
 }
 
 func (b *EoD) initInfoChoices() {
