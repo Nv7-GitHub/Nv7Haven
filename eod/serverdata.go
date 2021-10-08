@@ -37,7 +37,7 @@ func (b *EoD) setNewsChannel(channelID string, msg types.Msg, rsp types.Rsp) {
 	b.dat[msg.GuildID] = dat
 	lock.Unlock()
 
-	rsp.Resp("Succesfully updated news channel!")
+	rsp.Message("Succesfully updated news channel!")
 }
 
 func (b *EoD) setVotingChannel(channelID string, msg types.Msg, rsp types.Rsp) {
@@ -71,7 +71,7 @@ func (b *EoD) setVotingChannel(channelID string, msg types.Msg, rsp types.Rsp) {
 	b.dat[msg.GuildID] = dat
 	lock.Unlock()
 
-	rsp.Resp("Succesfully updated voting channel!")
+	rsp.Message("Succesfully updated voting channel!")
 }
 
 func (b *EoD) setVoteCount(count int, msg types.Msg, rsp types.Rsp) {
@@ -108,7 +108,7 @@ func (b *EoD) setVoteCount(count int, msg types.Msg, rsp types.Rsp) {
 	b.dat[msg.GuildID] = dat
 	lock.Unlock()
 
-	rsp.Resp("Succesfully updated vote count!")
+	rsp.Message("Succesfully updated vote count!")
 }
 
 func (b *EoD) setPollCount(count int, msg types.Msg, rsp types.Rsp) {
@@ -145,7 +145,7 @@ func (b *EoD) setPollCount(count int, msg types.Msg, rsp types.Rsp) {
 	b.dat[msg.GuildID] = dat
 	lock.Unlock()
 
-	rsp.Resp("Succesfully updated poll count!")
+	rsp.Message("Succesfully updated poll count!")
 }
 
 func (b *EoD) setPlayChannel(channelID string, isPlayChannel bool, msg types.Msg, rsp types.Rsp) {
@@ -173,7 +173,7 @@ func (b *EoD) setPlayChannel(channelID string, isPlayChannel bool, msg types.Msg
 		b.dat[msg.GuildID] = dat
 		lock.Unlock()
 
-		rsp.Resp("Succesfully marked channel as not a play channel.")
+		rsp.Message("Succesfully marked channel as not a play channel.")
 		return
 	}
 
@@ -201,7 +201,7 @@ func (b *EoD) setPlayChannel(channelID string, isPlayChannel bool, msg types.Msg
 	b.dat[msg.GuildID] = dat
 	lock.Unlock()
 
-	rsp.Resp("Succesfully marked channel as play channel!")
+	rsp.Message("Succesfully marked channel as play channel!")
 }
 
 func (b *EoD) setModRole(roleID string, msg types.Msg, rsp types.Rsp) {
@@ -235,7 +235,7 @@ func (b *EoD) setModRole(roleID string, msg types.Msg, rsp types.Rsp) {
 	b.dat[msg.GuildID] = dat
 	lock.Unlock()
 
-	rsp.Resp("Succesfully updated mod role!")
+	rsp.Message("Succesfully updated mod role!")
 }
 
 func (b *EoD) setUserColor(color string, removeColor bool, m types.Msg, rsp types.Rsp) {
@@ -265,7 +265,7 @@ func (b *EoD) setUserColor(color string, removeColor bool, m types.Msg, rsp type
 		b.dat[m.GuildID] = dat
 		lock.Unlock()
 
-		rsp.Resp("Successfully reset color!")
+		rsp.Message("Successfully reset color!")
 		return
 	}
 
@@ -315,8 +315,8 @@ func (b *EoD) setUserColor(color string, removeColor bool, m types.Msg, rsp type
 	lock.Unlock()
 
 	if cnt == 0 {
-		rsp.Resp("Successfully set color!")
+		rsp.Message("Successfully set color!")
 	} else {
-		rsp.Resp("Successfully updated color!")
+		rsp.Message("Successfully updated color!")
 	}
 }
