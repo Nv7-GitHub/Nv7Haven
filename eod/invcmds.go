@@ -56,7 +56,7 @@ func (b *EoD) resetInvCmd(user string, m types.Msg, rsp types.Rsp) {
 	rsp.Resp("Successfully reset <@" + user + ">'s inventory!")
 }
 
-func (b *EoD) downloadInvCmd(user string, sorter string, filter string, m types.Msg, rsp types.Rsp) {
+func (b *EoD) downloadInvCmd(user string, sorter string, filter string, postfix bool, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 
 	lock.RLock()
@@ -98,7 +98,12 @@ func (b *EoD) downloadInvCmd(user string, sorter string, filter string, m types.
 		outs = outs[:count]
 		items = outs
 	}
-	util.SortElemList(items, sorter, dat)
+
+	if postfix {
+		util.SortElemList(items, sorter, dat, true)
+	} else {
+		util.SortElemList(items, sorter, dat)
+	}
 
 	out := &strings.Builder{}
 	for _, val := range items {

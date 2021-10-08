@@ -210,7 +210,7 @@ func (b *EoD) allCatCmd(sortBy string, hasUser bool, user string, m types.Msg, r
 	}, m, rsp)
 }
 
-func (b *EoD) downloadCatCmd(catName string, sort string, m types.Msg, rsp types.Rsp) {
+func (b *EoD) downloadCatCmd(catName string, sort string, postfix bool, m types.Msg, rsp types.Rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	lock.RUnlock()
@@ -234,7 +234,11 @@ func (b *EoD) downloadCatCmd(catName string, sort string, m types.Msg, rsp types
 	}
 	dat.Lock.RUnlock()
 
-	util.SortElemList(elems, sort, dat)
+	if postfix {
+		util.SortElemList(elems, sort, dat, true)
+	} else {
+		util.SortElemList(elems, sort, dat)
+	}
 
 	out := &strings.Builder{}
 	for _, elem := range elems {

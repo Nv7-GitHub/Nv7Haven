@@ -608,6 +608,12 @@ var (
 								},
 							},
 						},
+						{
+							Type:        discordgo.ApplicationCommandOptionBoolean,
+							Name:        "postfix",
+							Description: "Whether to put the value after the element!",
+							Required:    false,
+						},
 					},
 				},
 				{
@@ -627,6 +633,12 @@ var (
 							Description: "How to sort the category!",
 							Required:    false,
 							Choices:     util.SortChoices,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionBoolean,
+							Name:        "postfix",
+							Description: "Whether to put the value after the element!",
+							Required:    false,
 						},
 					},
 				},
@@ -1145,6 +1157,7 @@ var (
 				sortby := "name"
 				filter := "none"
 				id := i.Member.User.ID
+				postfix := false
 				for _, val := range opts.Options {
 					if val.Name == "sortby" {
 						sortby = val.StringValue()
@@ -1157,14 +1170,19 @@ var (
 					if val.Name == "user" {
 						id = val.UserValue(bot.dg).ID
 					}
+
+					if val.Name == "postfix" {
+						postfix = val.BoolValue()
+					}
 				}
-				bot.downloadInvCmd(id, sortby, filter, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.downloadInvCmd(id, sortby, filter, postfix, bot.newMsgSlash(i), bot.newRespSlash(i))
 				return
 
 			case "cat":
 				opts := resp.Options[0]
 				sortby := "name"
 				catName := ""
+				postfix := false
 				for _, val := range opts.Options {
 					if val.Name == "category" {
 						catName = val.StringValue()
@@ -1173,8 +1191,12 @@ var (
 					if val.Name == "sortby" {
 						sortby = val.StringValue()
 					}
+
+					if val.Name == "postfix" {
+						postfix = val.BoolValue()
+					}
 				}
-				bot.downloadCatCmd(catName, sortby, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.downloadCatCmd(catName, sortby, postfix, bot.newMsgSlash(i), bot.newRespSlash(i))
 				return
 			}
 		},

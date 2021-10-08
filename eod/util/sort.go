@@ -169,7 +169,7 @@ func CompareStrings(a, b string) bool {
 	return a < b
 }
 
-func SortElemList(elems []string, sortName string, dat types.ServerData) {
+func SortElemList(elems []string, sortName string, dat types.ServerData, noget ...bool) {
 	lock.RLock()
 	sorter := sorts[sortName]
 	lock.RUnlock()
@@ -179,21 +179,23 @@ func SortElemList(elems []string, sortName string, dat types.ServerData) {
 		return sorter(elems[i], elems[j], dat)
 	})
 
-	lock.RLock()
-	getter, exists := getters[sortName]
-	lock.RUnlock()
-	if exists {
-		for i, val := range elems {
-			el, res := dat.GetElement(val, true)
-			if res.Exists {
-				elems[i] = val + getter(el)
+	if len(noget) == 0 {
+		lock.RLock()
+		getter, exists := getters[sortName]
+		lock.RUnlock()
+		if exists {
+			for i, val := range elems {
+				el, res := dat.GetElement(val, true)
+				if res.Exists {
+					elems[i] = val + getter(el)
+				}
 			}
 		}
 	}
 	dat.Lock.RUnlock()
 }
 
-func SortElemObj(vals interface{}, length int, elemGet func(index int, sort bool) string, elemSet func(index int, val string), sortName string, dat types.ServerData) {
+func SortElemObj(vals interface{}, length int, elemGet func(index int, sort bool) string, elemSet func(index int, val string), sortName string, dat types.ServerData, noget ...bool) {
 	lock.RLock()
 	sorter := sorts[sortName]
 	lock.RUnlock()
@@ -203,14 +205,16 @@ func SortElemObj(vals interface{}, length int, elemGet func(index int, sort bool
 		return sorter(elemGet(i, true), elemGet(j, true), dat)
 	})
 
-	lock.RLock()
-	getter, exists := getters[sortName]
-	lock.RUnlock()
-	if exists {
-		for i := 0; i < length; i++ {
-			el, res := dat.GetElement(elemGet(i, true), true)
-			if res.Exists {
-				elemSet(i, elemGet(i, false)+getter(el))
+	if len(noget) == 0 {
+		lock.RLock()
+		getter, exists := getters[sortName]
+		lock.RUnlock()
+		if exists {
+			for i := 0; i < length; i++ {
+				el, res := dat.GetElement(elemGet(i, true), true)
+				if res.Exists {
+					elemSet(i, elemGet(i, false)+getter(el))
+				}
 			}
 		}
 	}
