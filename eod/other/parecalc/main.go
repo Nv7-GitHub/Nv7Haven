@@ -43,6 +43,7 @@ type Guild struct {
 	Combos   map[int]Combo
 	Elements map[string]Element
 	Finished map[string]empty
+	Colors   map[string]int
 }
 
 func NewGuild() Guild {
@@ -50,6 +51,7 @@ func NewGuild() Guild {
 		Combos:   make(map[int]Combo),
 		Elements: make(map[string]Element),
 		Finished: make(map[string]empty),
+		Colors:   make(map[string]int),
 	}
 }
 
@@ -86,6 +88,7 @@ func main() {
 	}
 	end("Connected to DB")
 	loadData(true) // false to load from cache
+	delete(glds, "835468462578335784")
 	end("Loaded data")
 	recalcPars()
 	end("Recalculated parents")
