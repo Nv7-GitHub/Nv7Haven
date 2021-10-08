@@ -96,6 +96,7 @@ type Element struct {
 	ID         int
 	Name       string
 	Image      string
+	Color      int
 	Guild      string
 	Comment    string
 	Creator    string
@@ -104,6 +105,7 @@ type Element struct {
 	Complexity int
 	Difficulty int
 	UsedIn     int
+	TreeSize   int
 }
 
 type Poll struct {

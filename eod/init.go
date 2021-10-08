@@ -141,7 +141,7 @@ func (b *EoD) init() {
 	var createdon int64
 	var parentDat string
 	for elems.Next() {
-		err = elems.Scan(&elem.Name, &elem.Image, &elem.Guild, &elem.Comment, &elem.Creator, &createdon, &parentDat, &elem.Complexity, &elem.Difficulty, &elem.UsedIn)
+		err = elems.Scan(&elem.Name, &elem.Image, &elem.Color, &elem.Guild, &elem.Comment, &elem.Creator, &createdon, &parentDat, &elem.Complexity, &elem.Difficulty, &elem.UsedIn, &elem.TreeSize)
 		if err != nil {
 			return
 		}

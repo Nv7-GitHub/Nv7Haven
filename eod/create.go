@@ -9,8 +9,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
+	"github.com/lucasb-eyer/go-colorful"
 )
 
 const newText = "🆕"
@@ -48,7 +50,8 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, controve
 		diff := -1
 		compl := -1
 		areUnique := false
-		for _, val := range parents {
+		parColors := make([]int, len(parents))
+		for j, val := range parents {
 			elem, _ := dat.GetElement(val)
 			if elem.Difficulty > diff {
 				diff = elem.Difficulty
@@ -59,10 +62,27 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, controve
 			if !strings.EqualFold(parents[0], val) {
 				areUnique = true
 			}
+			parColors[j] = elem.Color
 		}
 		compl++
 		if areUnique {
 			diff++
+		}
+		col, err := mixColors(parColors)
+		if err != nil {
+			log.SetOutput(datafile)
+			log.Println(err)
+			tx.Rollback()
+			createLock.Unlock()
+			return
+		}
+		size, suc, msg := trees.ElemCreateSize(parents, dat)
+		if !suc {
+			log.SetOutput(datafile)
+			log.Println(msg)
+			tx.Rollback()
+			createLock.Unlock()
+			return
 		}
 		elem := types.Element{
 			ID:         len(dat.Elements) + 1,
@@ -74,18 +94,20 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, controve
 			Parents:    parents,
 			Complexity: compl,
 			Difficulty: diff,
+			Color:      col,
+			TreeSize:   size,
 		}
 		postTxt = " - Element **#" + strconv.Itoa(elem.ID) + "**"
-
 		dat.SetElement(elem)
 
-		_, err = tx.Exec("INSERT INTO eod_elements VALUES ( ?,  ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, elem.Image, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), elems2txt(parents), elem.Complexity, elem.Difficulty, 0)
+		_, err = tx.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, elem.Image, elem.Color, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), elems2txt(parents), elem.Complexity, elem.Difficulty, 0, elem.TreeSize)
 		if err != nil {
 			dat.DeleteElement(elem.Name)
 
 			log.SetOutput(datafile)
 			log.Println(err)
 			_ = tx.Rollback()
+			createLock.Unlock()
 			return
 		}
 		text = "Element"
@@ -181,4 +203,32 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, controve
 		log.Println(err)
 		return
 	}
+}
+
+func mixColors(colors []int) (int, error) {
+	cls := make([]colorful.Color, len(colors))
+	var err error
+	for i, color := range colors {
+		hex := strconv.FormatInt(int64(color), 16)
+		cls[i], err = colorful.Hex(hex)
+		if err != nil {
+			return 0, err
+		}
+	}
+
+	var h, s, v float64
+	for _, val := range cls {
+		hv, sv, vv := val.Hsv()
+		h += hv
+		s += sv
+		v += vv
+	}
+	length := float64(len(colors))
+	h /= length
+	s /= length
+	v /= length
+
+	out := colorful.Hsv(h, s, v)
+	outv, err := strconv.ParseInt(out.Hex()[1:], 16, 64)
+	return int(outv), err
 }
