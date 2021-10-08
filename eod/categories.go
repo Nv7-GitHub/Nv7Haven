@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
 const alphabet = "abcdefghijklmnopqrstuvwxyz"
@@ -187,6 +188,10 @@ func (b *EoD) catColor(guild string, catName string, color int, creator string, 
 
 	b.db.Exec("UPDATE eod_categories SET color=? WHERE guild=? AND name=?", color, cat.Guild, cat.Name)
 	if creator != "" {
-		b.dg.ChannelMessageSend(dat.NewsChannel, "📸 Added Category Image - **"+cat.Name+"** (By <@"+creator+">)"+controversial)
+		emoji, err := util.GetEmoji(color)
+		if err != nil {
+			emoji = redCircle
+		}
+		b.dg.ChannelMessageSend(dat.NewsChannel, emoji+" Set Color - **"+cat.Name+"** (By <@"+creator+">)"+controversial)
 	}
 }
