@@ -257,6 +257,7 @@ func (b *EoD) info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
 			URL: el.Image,
 		},
+		Color: el.Color,
 	}
 	if m.Author.ID == "567132457820749842" {
 		for _, elem := range starterElements {

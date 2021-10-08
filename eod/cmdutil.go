@@ -101,9 +101,11 @@ func (n *normalResp) Embed(emb *discordgo.MessageEmbed, components ...discordgo.
 	if n.typing {
 		n.b.dg.ChannelTyping(n.msg.ChannelID)
 	}
-	color, err := n.b.getColor(n.msg.GuildID, n.msg.Author.ID)
-	if err == nil {
-		emb.Color = color
+	if emb.Color == 0 {
+		color, err := n.b.getColor(n.msg.GuildID, n.msg.Author.ID)
+		if err == nil {
+			emb.Color = color
+		}
 	}
 	m := &discordgo.MessageSend{
 		Embed:      emb,
@@ -125,9 +127,11 @@ func (n *normalResp) RawEmbed(emb *discordgo.MessageEmbed) string {
 	if n.typing {
 		n.b.dg.ChannelTyping(n.msg.ChannelID)
 	}
-	color, err := n.b.getColor(n.msg.GuildID, n.msg.Author.ID)
-	if err == nil {
-		emb.Color = color
+	if emb.Color == 0 {
+		color, err := n.b.getColor(n.msg.GuildID, n.msg.Author.ID)
+		if err == nil {
+			emb.Color = color
+		}
 	}
 
 	msg, err := n.b.dg.ChannelMessageSendEmbed(n.msg.ChannelID, emb)
@@ -264,9 +268,11 @@ func (s *slashResp) Message(msg string, components ...discordgo.MessageComponent
 }
 
 func (s *slashResp) Embed(emb *discordgo.MessageEmbed, components ...discordgo.MessageComponent) string {
-	color, err := bot.getColor(s.i.GuildID, s.i.Member.User.ID)
-	if err == nil {
-		emb.Color = color
+	if emb.Color == 0 {
+		color, err := bot.getColor(s.i.GuildID, s.i.Member.User.ID)
+		if err == nil {
+			emb.Color = color
+		}
 	}
 	if s.isFollowup {
 		msg, err := s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
@@ -283,7 +289,7 @@ func (s *slashResp) Embed(emb *discordgo.MessageEmbed, components ...discordgo.M
 		}
 		return msg.ID
 	}
-	err = s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
+	err := s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
 			Embeds:     []*discordgo.MessageEmbed{emb},
