@@ -118,6 +118,7 @@ func (b *EoD) catCmd(category string, sortKind string, hasUser bool, user string
 		Title:      fmt.Sprintf("%s (%d, %s%%)", category, len(out), util.FormatFloat(float32(found)/float32(len(out))*100, 2)),
 		PageGetter: b.invPageGetter,
 		Items:      o,
+		Color:      cat.Color,
 	}, m, rsp)
 }
 

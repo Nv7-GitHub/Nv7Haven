@@ -178,7 +178,7 @@ var (
 						{
 							Type:        discordgo.ApplicationCommandOptionString,
 							Name:        "imageurl",
-							Description: "URL of an image to add to the element! You can also upload an image and then put the link here.",
+							Description: "URL of an image to add to the category! You can also upload an image and then put the link here.",
 							Required:    true,
 						},
 					},
@@ -888,6 +888,51 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "color",
+			Type:        discordgo.ChatApplicationCommand,
+			Description: "Set the color of an element or category!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "element",
+					Description: "Suggest the color for an element, or set the color of an element you created!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "element",
+							Description: "The name of the element to add the image to!",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "color",
+							Description: "The new hex color of the element.",
+							Required:    true,
+						},
+					},
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "category",
+					Description: "Add an image to a category!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "element",
+							Description: "The name of the element to add the image to!",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "color",
+							Description: "The new hex color of the element.",
+							Required:    true,
+						},
+					},
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"set": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -1334,6 +1379,29 @@ var (
 		},
 		"View Inventory Breakdown": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.invBreakdownCmd(i.ApplicationCommandData().TargetID, false, bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"color": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData().Options[0]
+			rsp := bot.newRespSlash(i)
+			switch resp.Name {
+			case "element":
+				color, err := strconv.ParseInt(resp.Options[1].StringValue(), 16, 64)
+				if rsp.Error(err) {
+					return
+				}
+				bot.colorCmd(resp.Options[0].StringValue(), int(color), bot.newMsgSlash(i), rsp)
+
+			case "category":
+				var color int64 = 0
+				if len(resp.Options) > 1 {
+					var err error
+					color, err = strconv.ParseInt(resp.Options[1].StringValue(), 16, 64)
+					if rsp.Error(err) {
+						return
+					}
+				}
+				bot.catColorCmd(resp.Options[0].StringValue(), int(color), bot.newMsgSlash(i), bot.newRespSlash(i))
+			}
 		},
 	}
 )

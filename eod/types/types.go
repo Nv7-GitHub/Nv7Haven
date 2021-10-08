@@ -69,6 +69,7 @@ type PageSwitcher struct {
 	Thumbnail  string
 	Footer     string
 	PageLength int
+	Color      int
 
 	// Inv
 	Items []string
