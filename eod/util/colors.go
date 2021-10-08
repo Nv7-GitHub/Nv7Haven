@@ -1,6 +1,7 @@
 package util
 
 import (
+	"math"
 	"strconv"
 
 	"github.com/lucasb-eyer/go-colorful"
@@ -72,7 +73,7 @@ func GetEmoji(color int) (string, error) {
 
 	i := 0
 	for k, val := range emojiColors {
-		currDist := (h-k[0])/120 + (s-k[1])/1 + (v-k[2])/1
+		currDist := math.Abs((h-k[0])/120) + math.Abs((s-k[1])/1) + math.Abs((v-k[2])/1) // H is only divided by 120 instead of 360 so that Hue is biased more
 		if currDist < dist || dist == -1 {
 			curr = val
 			dist = currDist
