@@ -222,7 +222,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		var items []string
 		if split {
 			pos := strings.Index(cont, " ")
-			items = []string{cont[:pos], cont[pos:]}
+			items = []string{cont[:pos+1], cont[pos+1:]}
 		} else {
 			items = []string{cont}
 		}
