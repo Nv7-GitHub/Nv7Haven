@@ -175,7 +175,7 @@ func (b *EoD) createPoll(p types.Poll) error {
 	case types.PollColor:
 		m, err := b.dg.ChannelMessageSendEmbed(dat.VotingChannel, &discordgo.MessageEmbed{
 			Title:       "Set Color",
-			Description: fmt.Sprintf("**%s**\n#%s (Shown on Left)\n\nSuggested by <@%s>", p.Value1, util.FormatHex(p.Data["color"].(int)), p.Value4),
+			Description: fmt.Sprintf("**%s**\n%s (Shown on Left)\n\nSuggested by <@%s>", p.Value1, util.FormatHex(p.Data["color"].(int)), p.Value4),
 			Color:       p.Data["color"].(int),
 			Footer: &discordgo.MessageEmbedFooter{
 				Text: "You can change your vote",
@@ -189,7 +189,7 @@ func (b *EoD) createPoll(p types.Poll) error {
 	case types.PollCatColor:
 		m, err := b.dg.ChannelMessageSendEmbed(dat.VotingChannel, &discordgo.MessageEmbed{
 			Title:       "Set Category Color",
-			Description: fmt.Sprintf("**%s**\n#%s (Shown on Left)\n\nSuggested by <@%s>", p.Value1, util.FormatHex(p.Data["color"].(int)), p.Value4),
+			Description: fmt.Sprintf("**%s**\n%s (Shown on Left)\n\nSuggested by <@%s>", p.Value1, util.FormatHex(p.Data["color"].(int)), p.Value4),
 			Color:       p.Data["color"].(int),
 			Footer: &discordgo.MessageEmbedFooter{
 				Text: "You can change your vote",
