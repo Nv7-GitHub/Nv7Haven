@@ -216,7 +216,7 @@ func (b *EoD) catColorCmd(catName string, color int, m types.Msg, rsp types.Rsp)
 	err := b.createPoll(types.Poll{
 		Channel: dat.VotingChannel,
 		Guild:   m.GuildID,
-		Kind:    types.PollCatImage,
+		Kind:    types.PollCatColor,
 		Value1:  cat.Name,
 		Value4:  m.Author.ID,
 		Data:    map[string]interface{}{"color": color},
