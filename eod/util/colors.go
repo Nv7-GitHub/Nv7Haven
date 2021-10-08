@@ -59,6 +59,7 @@ var emojiColors = map[[3]float64]string{
 	{0, 0, 1}:         "⚪",
 	{59, 1, 1}:        "🟡",
 	{112, 55, 0}:      "🟤",
+	{270, 0.4, 1}:     "🟣",
 }
 
 func GetEmoji(color int) (string, error) {
