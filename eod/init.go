@@ -154,8 +154,12 @@ func (b *EoD) init() {
 		}
 
 		//lock.RLock()
-		dat := b.dat[elem.Guild]
+		dat, exists := b.dat[elem.Guild]
 		//lock.RUnlock()
+		if !exists {
+			dat = types.NewServerData()
+		}
+
 		elem.ID = len(dat.Elements) + 1
 		dat.Elements[strings.ToLower(elem.Name)] = elem
 		//lock.Lock()
@@ -186,8 +190,11 @@ func (b *EoD) init() {
 			return
 		}
 		//lock.RLock()
-		dat := b.dat[guild]
+		dat, exists := b.dat[guild]
 		//lock.RUnlock()
+		if !exists {
+			dat = types.NewServerData()
+		}
 		dat.Combos[elemsVal] = elem3
 		//lock.Lock()
 		b.dat[guild] = dat
@@ -223,8 +230,11 @@ func (b *EoD) init() {
 			panic(err)
 		}
 		//lock.RLock()
-		dat := b.dat[guild]
+		dat, exists := b.dat[guild]
 		//lock.RUnlock()
+		if !exists {
+			dat = types.NewServerData()
+		}
 		dat.Inventories[user] = inv
 		//lock.Lock()
 		b.dat[guild] = dat
@@ -256,8 +266,11 @@ func (b *EoD) init() {
 		cat.Guild = guild
 
 		//lock.RLock()
-		dat := b.dat[guild]
+		dat, exists := b.dat[guild]
 		//lock.RUnlock()
+		if !exists {
+			dat = types.NewServerData()
+		}
 
 		cat.Elements = make(map[string]types.Empty)
 		err := json.Unmarshal([]byte(elemDat), &cat.Elements)
