@@ -100,9 +100,9 @@ func (b *EoD) downloadInvCmd(user string, sorter string, filter string, postfix 
 	}
 
 	if postfix {
-		util.SortElemList(items, sorter, dat, true)
-	} else {
 		util.SortElemList(items, sorter, dat)
+	} else {
+		util.SortElemList(items, sorter, dat, true)
 	}
 
 	out := &strings.Builder{}

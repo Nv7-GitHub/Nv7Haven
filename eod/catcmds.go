@@ -235,9 +235,9 @@ func (b *EoD) downloadCatCmd(catName string, sort string, postfix bool, m types.
 	dat.Lock.RUnlock()
 
 	if postfix {
-		util.SortElemList(elems, sort, dat, true)
-	} else {
 		util.SortElemList(elems, sort, dat)
+	} else {
+		util.SortElemList(elems, sort, dat, true)
 	}
 
 	out := &strings.Builder{}
