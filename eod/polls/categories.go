@@ -1,4 +1,4 @@
-package eod
+package polls
 
 import (
 	"encoding/json"
@@ -28,10 +28,10 @@ var autocats = map[string]func(string) bool{
 	"Amogus in a...":       func(s string) bool { return strings.HasPrefix(s, "Amogus in a") },
 }
 
-func (b *EoD) autocategorize(elem string, guild string) error {
+func (b *Polls) Autocategorize(elem string, guild string) error {
 	for catName, catFn := range autocats {
 		if catFn(elem) {
-			err := b.categorize(elem, catName, guild)
+			err := b.Categorize(elem, catName, guild)
 			if err != nil {
 				return err
 			}
@@ -40,10 +40,10 @@ func (b *EoD) autocategorize(elem string, guild string) error {
 	return nil
 }
 
-func (b *EoD) categorize(elem string, catName string, guild string) error {
-	lock.RLock()
+func (b *Polls) Categorize(elem string, catName string, guild string) error {
+	b.lock.RLock()
 	dat, exists := b.dat[guild]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return nil
 	}
@@ -82,7 +82,7 @@ func (b *EoD) categorize(elem string, catName string, guild string) error {
 		return err
 	}
 
-	if recalcAutocats {
+	if types.RecalcAutocats {
 		fmt.Println(el.Name)
 	}
 
@@ -91,17 +91,17 @@ func (b *EoD) categorize(elem string, catName string, guild string) error {
 		return err
 	}
 
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[guild] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 
 	return nil
 }
 
-func (b *EoD) unCategorize(elem string, catName string, guild string) error {
-	lock.RLock()
+func (b *Polls) UnCategorize(elem string, catName string, guild string) error {
+	b.lock.RLock()
 	dat, exists := b.dat[guild]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return nil
 	}
@@ -135,17 +135,17 @@ func (b *EoD) unCategorize(elem string, catName string, guild string) error {
 		}
 	}
 
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[guild] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 
 	return nil
 }
 
-func (b *EoD) catImage(guild string, catName string, image string, creator string, controversial string) {
-	lock.RLock()
+func (b *Polls) catImage(guild string, catName string, image string, creator string, controversial string) {
+	b.lock.RLock()
 	dat, exists := b.dat[guild]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return
 	}
@@ -157,9 +157,9 @@ func (b *EoD) catImage(guild string, catName string, image string, creator strin
 	cat.Image = image
 	dat.SetCategory(cat)
 
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[guild] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 
 	b.db.Exec("UPDATE eod_categories SET image=? WHERE guild=? AND name=?", image, cat.Guild, cat.Name)
 	if creator != "" {
@@ -167,10 +167,10 @@ func (b *EoD) catImage(guild string, catName string, image string, creator strin
 	}
 }
 
-func (b *EoD) catColor(guild string, catName string, color int, creator string, controversial string) {
-	lock.RLock()
+func (b *Polls) catColor(guild string, catName string, color int, creator string, controversial string) {
+	b.lock.RLock()
 	dat, exists := b.dat[guild]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return
 	}
@@ -182,9 +182,9 @@ func (b *EoD) catColor(guild string, catName string, color int, creator string, 
 	cat.Color = color
 	dat.SetCategory(cat)
 
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[guild] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 
 	b.db.Exec("UPDATE eod_categories SET color=? WHERE guild=? AND name=?", color, cat.Guild, cat.Name)
 	if creator != "" {
@@ -193,7 +193,7 @@ func (b *EoD) catColor(guild string, catName string, color int, creator string, 
 		}
 		emoji, err := util.GetEmoji(color)
 		if err != nil {
-			emoji = redCircle
+			emoji = types.RedCircle
 		}
 		b.dg.ChannelMessageSend(dat.NewsChannel, emoji+" Set Category Color - **"+cat.Name+"** (By <@"+creator+">)"+controversial)
 	}

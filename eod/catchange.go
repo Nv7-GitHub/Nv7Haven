@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
@@ -21,13 +22,13 @@ func (b *EoD) categoryCmd(elems []string, category string, m types.Msg, rsp type
 	category = strings.TrimSpace(category)
 
 	for _, elem := range elems {
-		if isFoolsMode && !isFool(elem) {
-			rsp.ErrorMessage(makeFoolResp(elem))
+		if base.IsFoolsMode && !base.IsFool(elem) {
+			rsp.ErrorMessage(base.MakeFoolResp(elem))
 			return
 		}
 	}
-	if isFoolsMode && !isFool(category) {
-		rsp.ErrorMessage(makeFoolResp(category))
+	if base.IsFoolsMode && !base.IsFool(category) {
+		rsp.ErrorMessage(base.MakeFoolResp(category))
 		return
 	}
 
@@ -71,7 +72,7 @@ func (b *EoD) categoryCmd(elems []string, category string, m types.Msg, rsp type
 
 		if el.Creator == m.Author.ID {
 			added = append(added, el.Name)
-			err := b.categorize(el.Name, category, m.GuildID)
+			err := b.polls.Categorize(el.Name, category, m.GuildID)
 			rsp.Error(err)
 		} else {
 			suggestAdd = append(suggestAdd, el.Name)
@@ -83,7 +84,7 @@ func (b *EoD) categoryCmd(elems []string, category string, m types.Msg, rsp type
 		lock.Unlock()
 	}
 	if len(suggestAdd) > 0 {
-		err := b.createPoll(types.Poll{
+		err := b.polls.CreatePoll(types.Poll{
 			Channel: dat.VotingChannel,
 			Guild:   m.GuildID,
 			Kind:    types.PollCategorize,
@@ -218,7 +219,7 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m types.Msg, rsp ty
 
 		if el.Creator == m.Author.ID {
 			rmed = append(rmed, el.Name)
-			err := b.unCategorize(el.Name, category, m.GuildID)
+			err := b.polls.UnCategorize(el.Name, category, m.GuildID)
 			rsp.Error(err)
 		} else {
 			suggestRm = append(suggestRm, el.Name)
@@ -230,7 +231,7 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m types.Msg, rsp ty
 		lock.Unlock()
 	}
 	if len(suggestRm) > 0 {
-		err := b.createPoll(types.Poll{
+		err := b.polls.CreatePoll(types.Poll{
 			Channel: dat.VotingChannel,
 			Guild:   m.GuildID,
 			Kind:    types.PollUnCategorize,

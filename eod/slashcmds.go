@@ -978,16 +978,16 @@ var (
 		},
 		"mark": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.markCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.polls.MarkCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"image": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData().Options[0]
 			switch resp.Name {
 			case "element":
-				bot.imageCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.polls.ImageCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 
 			case "category":
-				bot.catImgCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.polls.CatImgCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
 		},
 		"inv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -1411,7 +1411,7 @@ var (
 				if rsp.Error(err) {
 					return
 				}
-				bot.colorCmd(resp.Options[0].StringValue(), int(color), bot.newMsgSlash(i), rsp)
+				bot.polls.ColorCmd(resp.Options[0].StringValue(), int(color), bot.newMsgSlash(i), rsp)
 
 			case "category":
 				var color int64 = 0
@@ -1422,7 +1422,7 @@ var (
 						return
 					}
 				}
-				bot.catColorCmd(resp.Options[0].StringValue(), int(color), bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.polls.CatColorCmd(resp.Options[0].StringValue(), int(color), bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
 		},
 	}

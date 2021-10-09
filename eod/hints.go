@@ -275,10 +275,10 @@ func getHintText(elemTxt string, inv types.Container, dat types.ServerData, inve
 				hasElems = false
 			}
 		}
-		pref := x
+		pref := types.X
 		ex := 0
 		if hasElems {
-			pref = check
+			pref = types.Check
 			ex = 1
 		}
 		prf := "%s"
@@ -305,10 +305,10 @@ func getHintText(elemTxt string, inv types.Container, dat types.ServerData, inve
 	}
 
 	found := inv.Contains(elemTxt)
-	txt := x
+	txt := types.X
 	ex := 0
 	if found {
-		txt = check
+		txt = types.Check
 		ex = 1
 	}
 	el, _ := dat.GetElement(elemTxt)

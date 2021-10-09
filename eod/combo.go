@@ -6,19 +6,12 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
 var maxComboLength = 21
 
 const blueCircle = "🔵"
-
-func elems2txt(elems []string) string {
-	for i, elem := range elems {
-		elems[i] = strings.ToLower(elem)
-	}
-	sort.Strings(elems)
-	return strings.Join(elems, "+")
-}
 
 func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
 	ok := b.checkServer(m, rsp)
@@ -133,7 +126,7 @@ func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
 	}
 
 	// Combine elements
-	elem3, res := dat.GetCombo(elems2txt(elems))
+	elem3, res := dat.GetCombo(util.Elems2Txt(elems))
 	if res.Exists {
 		dat.SetComb(m.Author.ID, types.Comb{
 			Elems: elems,
@@ -152,7 +145,7 @@ func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
 			dat.SetInv(m.Author.ID, inv)
 			b.base.SaveInv(m.GuildID, m.Author.ID, false)
 
-			id := rsp.Message(fmt.Sprintf("You made **%s** "+newText, elem3))
+			id := rsp.Message(fmt.Sprintf("You made **%s** "+types.NewText, elem3))
 			dat.SetMsgElem(id, elem3)
 
 			lock.Lock()
@@ -178,7 +171,7 @@ func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
 	lock.Lock()
 	b.dat[m.GuildID] = dat
 	lock.Unlock()
-	rsp.Resp("That combination doesn't exist! " + redCircle + "\n 	Suggest it by typing **/suggest**")
+	rsp.Resp("That combination doesn't exist! " + types.RedCircle + "\n 	Suggest it by typing **/suggest**")
 }
 
 func joinTxt(elemDat map[string]types.Empty, ending string) string {

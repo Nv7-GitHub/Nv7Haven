@@ -8,12 +8,11 @@ import (
 
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/logs"
+	"github.com/Nv7-Github/Nv7Haven/eod/polls"
 	"github.com/Nv7-Github/Nv7Haven/eod/treecmds"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/schollz/progressbar/v3"
 )
-
-const recalcAutocats = false
 
 func (b *EoD) init() {
 	res, err := b.db.Query("SELECT * FROM eod_serverdata WHERE 1")
@@ -297,6 +296,12 @@ func (b *EoD) init() {
 	}
 	bar = progressbar.New(cnt)
 
+	// Initialize subsystems
+	logs.InitEoDLogs()
+	b.base = base.NewBase(b.db, b.dat, b.dg, lock)
+	b.treecmds = treecmds.NewTreeCmds(b.dat, b.dg, b.base, lock)
+	b.polls = polls.NewPolls(b.dat, b.dg, b.db, b.base, lock)
+
 	polls, err := b.db.Query("SELECT * FROM eod_polls")
 	if err != nil {
 		panic(err)
@@ -321,7 +326,7 @@ func (b *EoD) init() {
 		}
 
 		b.dg.ChannelMessageDelete(po.Channel, po.Message)
-		err = b.createPoll(po)
+		err = b.polls.CreatePoll(po)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -343,16 +348,11 @@ func (b *EoD) init() {
 	}()
 
 	// Recalc autocats?
-	if recalcAutocats {
+	if types.RecalcAutocats {
 		for id, gld := range b.dat {
 			for elem := range gld.Elements {
-				b.autocategorize(elem, id)
+				b.polls.Autocategorize(elem, id)
 			}
 		}
 	}
-
-	// Initialize subsystems
-	logs.InitEoDLogs()
-	b.base = base.NewBase(b.db, b.dat, b.dg, lock)
-	b.treecmds = treecmds.NewTreeCmds(b.dat, b.dg, b.base, lock)
 }

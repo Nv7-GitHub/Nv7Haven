@@ -1,13 +1,12 @@
-package eod
+package polls
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
-	"os"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
@@ -16,10 +15,10 @@ import (
 const upArrow = "⬆️"
 const downArrow = "⬇️"
 
-func (b *EoD) createPoll(p types.Poll) error {
-	lock.RLock()
+func (b *Polls) CreatePoll(p types.Poll) error {
+	b.lock.RLock()
 	dat, exists := b.dat[p.Guild]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return nil
 	}
@@ -211,7 +210,7 @@ func (b *EoD) createPoll(p types.Poll) error {
 		p.Message = m.ID
 	}
 
-	if !isFoolsMode {
+	if !base.IsFoolsMode {
 		err := b.dg.MessageReactionAdd(p.Channel, p.Message, upArrow)
 		if err != nil {
 			return err
@@ -221,7 +220,7 @@ func (b *EoD) createPoll(p types.Poll) error {
 	if err != nil {
 		return err
 	}
-	if isFoolsMode {
+	if base.IsFoolsMode {
 		err := b.dg.MessageReactionAdd(p.Channel, p.Message, upArrow)
 		if err != nil {
 			return err
@@ -236,193 +235,8 @@ func (b *EoD) createPoll(p types.Poll) error {
 
 	dat.SavePoll(p.Message, p)
 
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[p.Guild] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 	return err
-}
-
-func (b *EoD) reactionHandler(_ *discordgo.Session, r *discordgo.MessageReactionAdd) {
-	if r.UserID == b.dg.State.User.ID {
-		return
-	}
-
-	lock.RLock()
-	dat, exists := b.dat[r.GuildID]
-	lock.RUnlock()
-	if !exists {
-		return
-	}
-
-	if len(dat.Polls) == 0 {
-		log.SetOutput(os.Stdout)
-		log.Println("no polls", r.GuildID)
-	}
-
-	p, res := dat.GetPoll(r.MessageID)
-	if !res.Exists {
-		return
-	}
-
-	if r.Emoji.Name == upArrow {
-		p.Upvotes++
-		dat.SavePoll(r.MessageID, p)
-		lock.Lock()
-		b.dat[r.GuildID] = dat
-		lock.Unlock()
-		if (p.Upvotes - p.Downvotes) >= dat.VoteCount {
-			b.dg.ChannelMessageDelete(p.Channel, p.Message)
-			b.handlePollSuccess(p)
-			dat.Lock.Lock()
-			delete(dat.Polls, r.MessageID)
-			dat.Lock.Unlock()
-			b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", p.Guild, p.Channel, p.Message)
-			lock.Lock()
-			b.dat[r.GuildID] = dat
-			lock.Unlock()
-			return
-		}
-	} else if r.Emoji.Name == downArrow {
-		p.Downvotes++
-		dat.SavePoll(r.MessageID, p)
-		lock.Lock()
-		b.dat[r.GuildID] = dat
-		lock.Unlock()
-		if ((p.Downvotes - p.Upvotes) >= dat.VoteCount) || (r.UserID == p.Value4) {
-			dat.Lock.Lock()
-			delete(dat.Polls, r.MessageID)
-			dat.Lock.Unlock()
-			b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", p.Guild, p.Channel, p.Message)
-			b.dg.ChannelMessageDelete(p.Channel, p.Message)
-			if r.UserID != p.Value4 {
-				b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("%s **Poll Rejected** (By <@%s>)", x, p.Value4))
-			}
-
-			lock.Lock()
-			b.dat[r.GuildID] = dat
-			lock.Unlock()
-			return
-		}
-	}
-	lock.Lock()
-	b.dat[r.GuildID] = dat
-	lock.Unlock()
-}
-
-func (b *EoD) handlePollSuccess(p types.Poll) {
-	lock.RLock()
-	dat, exists := b.dat[p.Guild]
-	lock.RUnlock()
-	if !exists {
-		return
-	}
-
-	controversial := dat.VoteCount != 0 && float32(p.Downvotes)/float32(dat.VoteCount) >= 0.3
-	controversialTxt := ""
-	if controversial {
-		controversialTxt = " 🌩️"
-	}
-
-	switch p.Kind {
-	case types.PollCombo:
-		els, ok := p.Data["elems"].([]string)
-		if !ok {
-			dat := p.Data["elems"].([]interface{})
-			els = make([]string, len(dat))
-			for i, val := range dat {
-				els[i] = val.(string)
-			}
-		}
-		b.elemCreate(p.Value3, els, p.Value4, controversialTxt, p.Guild)
-	case types.PollSign:
-		b.mark(p.Guild, p.Value1, p.Value2, p.Value4, controversialTxt)
-	case types.PollImage:
-		b.image(p.Guild, p.Value1, p.Value2, p.Value4, controversialTxt)
-	case types.PollCategorize:
-		els, ok := p.Data["elems"].([]string)
-		if !ok {
-			dat := p.Data["elems"].([]interface{})
-			els := make([]string, len(dat))
-			for i, val := range dat {
-				els[i] = val.(string)
-			}
-		}
-		for _, val := range els {
-			b.categorize(val, p.Value1, p.Guild)
-		}
-		if len(els) == 1 {
-			b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("🗃️ Added **%s** to **%s** (By <@%s>)%s", els[0], p.Value1, p.Value4, controversialTxt))
-		} else {
-			b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("🗃️ Added **%d elements** to **%s** (By <@%s>)%s", len(els), p.Value1, p.Value4, controversialTxt))
-		}
-	case types.PollUnCategorize:
-		els := p.Data["elems"].([]string)
-		for _, val := range els {
-			b.unCategorize(val, p.Value1, p.Guild)
-		}
-		if len(els) == 1 {
-			b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("🗃️ Removed **%s** from **%s** (By <@%s>)%s", els[0], p.Value1, p.Value4, controversialTxt))
-		} else {
-			b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("🗃️ Removed **%d elements** from **%s** (By <@%s>)%s", len(els), p.Value1, p.Value4, controversialTxt))
-		}
-	case types.PollCatImage:
-		b.catImage(p.Guild, p.Value1, p.Value2, p.Value4, controversialTxt)
-	case types.PollColor:
-		b.color(p.Guild, p.Value1, p.Data["color"].(int), p.Value4, controversialTxt)
-	case types.PollCatColor:
-		b.catColor(p.Guild, p.Value1, p.Data["color"].(int), p.Value4, controversialTxt)
-	}
-}
-
-func (b *EoD) unReactionHandler(_ *discordgo.Session, r *discordgo.MessageReactionRemove) {
-	if r.UserID == b.dg.State.User.ID {
-		return
-	}
-	lock.RLock()
-	dat, exists := b.dat[r.GuildID]
-	lock.RUnlock()
-	if !exists {
-		return
-	}
-	p, res := dat.GetPoll(r.MessageID)
-	if !res.Exists {
-		return
-	}
-	if r.Emoji.Name == downArrow {
-		p.Downvotes--
-		dat.SavePoll(r.MessageID, p)
-		lock.Lock()
-		b.dat[r.GuildID] = dat
-		lock.Unlock()
-		if (p.Upvotes - p.Downvotes) >= dat.VoteCount {
-			b.dg.ChannelMessageDelete(p.Channel, p.Message)
-			b.handlePollSuccess(p)
-			delete(dat.Polls, r.MessageID)
-			b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", p.Guild, p.Channel, p.Message)
-			lock.Lock()
-			b.dat[r.GuildID] = dat
-			lock.Unlock()
-			return
-		}
-	} else if r.Emoji.Name == upArrow {
-		p.Upvotes--
-		dat.SavePoll(r.MessageID, p)
-		lock.Lock()
-		b.dat[r.GuildID] = dat
-		lock.Unlock()
-		if (p.Downvotes - p.Upvotes) >= dat.VoteCount {
-			delete(dat.Polls, r.MessageID)
-			b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", p.Guild, p.Channel, p.Message)
-			b.dg.ChannelMessageDelete(p.Channel, p.Message)
-			b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("%s **Poll Rejected** (By <@%s>)", x, p.Value4))
-
-			lock.Lock()
-			b.dat[r.GuildID] = dat
-			lock.Unlock()
-			return
-		}
-	}
-	lock.Lock()
-	b.dat[r.GuildID] = dat
-	lock.Unlock()
 }

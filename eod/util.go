@@ -2,9 +2,7 @@ package eod
 
 import (
 	_ "embed"
-	"fmt"
 	"strings"
-	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
@@ -86,26 +84,6 @@ func (b *EoD) isMod(userID string, guildID string, m types.Msg) (bool, error) {
 	return false, nil
 }
 
-// FOOLS
-//go:embed fools.txt
-var foolsRaw string
-var fools []string
-
-var isFoolsMode = time.Now().Month() == time.April && time.Now().Day() == 1
-
-func isFool(inp string) bool {
-	for _, val := range fools {
-		if strings.Contains(inp, val) {
-			return true
-		}
-	}
-	return false
-}
-
-func makeFoolResp(val string) string {
-	return fmt.Sprintf("**%s** doesn't satisfy me!", val)
-}
-
 func splitByCombs(inp string) []string {
 	for _, val := range combs {
 		if strings.Contains(inp, val) {
@@ -128,3 +106,6 @@ func (b *EoD) getMessageElem(id string, guild string) (string, bool) {
 	}
 	return el, true
 }
+
+//go:embed fools.txt
+var foolsRaw string

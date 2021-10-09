@@ -1,4 +1,4 @@
-package eod
+package polls
 
 import (
 	"fmt"
@@ -7,10 +7,10 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
-func (b *EoD) markCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
-	lock.RLock()
+func (b *Polls) MarkCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return
 	}
@@ -44,7 +44,7 @@ func (b *EoD) markCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 
-	err := b.createPoll(types.Poll{
+	err := b.CreatePoll(types.Poll{
 		Channel: dat.VotingChannel,
 		Guild:   m.GuildID,
 		Kind:    types.PollSign,
@@ -59,15 +59,15 @@ func (b *EoD) markCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
 	id := rsp.Message(fmt.Sprintf("Suggested a note for **%s** 🖊️", el.Name))
 	dat.SetMsgElem(id, el.Name)
 
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[m.GuildID] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 }
 
-func (b *EoD) imageCmd(elem string, image string, m types.Msg, rsp types.Rsp) {
-	lock.RLock()
+func (b *Polls) ImageCmd(elem string, image string, m types.Msg, rsp types.Rsp) {
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return
 	}
@@ -97,7 +97,7 @@ func (b *EoD) imageCmd(elem string, image string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 
-	err := b.createPoll(types.Poll{
+	err := b.CreatePoll(types.Poll{
 		Channel: dat.VotingChannel,
 		Guild:   m.GuildID,
 		Kind:    types.PollImage,
@@ -112,15 +112,15 @@ func (b *EoD) imageCmd(elem string, image string, m types.Msg, rsp types.Rsp) {
 	id := rsp.Message(fmt.Sprintf("Suggested an image for **%s** 📷", el.Name))
 	dat.SetMsgElem(id, el.Name)
 
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[m.GuildID] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 }
 
-func (b *EoD) colorCmd(elem string, color int, m types.Msg, rsp types.Rsp) {
-	lock.RLock()
+func (b *Polls) ColorCmd(elem string, color int, m types.Msg, rsp types.Rsp) {
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return
 	}
@@ -150,7 +150,7 @@ func (b *EoD) colorCmd(elem string, color int, m types.Msg, rsp types.Rsp) {
 		return
 	}
 
-	err := b.createPoll(types.Poll{
+	err := b.CreatePoll(types.Poll{
 		Channel: dat.VotingChannel,
 		Guild:   m.GuildID,
 		Kind:    types.PollColor,
@@ -165,15 +165,15 @@ func (b *EoD) colorCmd(elem string, color int, m types.Msg, rsp types.Rsp) {
 	id := rsp.Message(fmt.Sprintf("Suggested a color for **%s** 🖌️", el.Name))
 	dat.SetMsgElem(id, el.Name)
 
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[m.GuildID] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 }
 
-func (b *EoD) catImgCmd(catName string, url string, m types.Msg, rsp types.Rsp) {
-	lock.RLock()
+func (b *Polls) CatImgCmd(catName string, url string, m types.Msg, rsp types.Rsp) {
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return
 	}
@@ -184,7 +184,7 @@ func (b *EoD) catImgCmd(catName string, url string, m types.Msg, rsp types.Rsp) 
 		return
 	}
 
-	err := b.createPoll(types.Poll{
+	err := b.CreatePoll(types.Poll{
 		Channel: dat.VotingChannel,
 		Guild:   m.GuildID,
 		Kind:    types.PollCatImage,
@@ -199,10 +199,10 @@ func (b *EoD) catImgCmd(catName string, url string, m types.Msg, rsp types.Rsp) 
 	rsp.Message(fmt.Sprintf("Suggested an image for category **%s** 📷", cat.Name))
 }
 
-func (b *EoD) catColorCmd(catName string, color int, m types.Msg, rsp types.Rsp) {
-	lock.RLock()
+func (b *Polls) CatColorCmd(catName string, color int, m types.Msg, rsp types.Rsp) {
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return
 	}
@@ -213,7 +213,7 @@ func (b *EoD) catColorCmd(catName string, color int, m types.Msg, rsp types.Rsp)
 		return
 	}
 
-	err := b.createPoll(types.Poll{
+	err := b.CreatePoll(types.Poll{
 		Channel: dat.VotingChannel,
 		Guild:   m.GuildID,
 		Kind:    types.PollCatColor,

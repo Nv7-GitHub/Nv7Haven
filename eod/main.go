@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
+	"github.com/Nv7-Github/Nv7Haven/eod/polls"
 	"github.com/Nv7-Github/Nv7Haven/eod/treecmds"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
@@ -32,19 +33,11 @@ type EoD struct {
 	// Subsystems
 	base     *base.Base
 	treecmds *treecmds.TreeCmds
+	polls    *polls.Polls
 }
 
 // InitEoD initializes the EoD bot
 func InitEoD(db *sql.DB) EoD {
-	// FOOLS
-	fools = strings.Split(foolsRaw, "\n")
-	for i, val := range fools {
-		fools[i] = strings.TrimSpace(val)
-	}
-	if isFoolsMode {
-		maxComboLength = 2
-	}
-
 	// Discord bot
 	dg, err := discordgo.New("Bot " + strings.TrimSpace(token))
 	if err != nil {
@@ -65,6 +58,13 @@ func InitEoD(db *sql.DB) EoD {
 
 	dg.UpdateGameStatus(0, status)
 	bot.init()
+
+	// FOOLS
+	bot.base.InitFools(foolsRaw)
+	if base.IsFoolsMode {
+		maxComboLength = 2
+	}
+
 	return bot
 }
 

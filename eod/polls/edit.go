@@ -1,15 +1,16 @@
-package eod
+package polls
 
 import (
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
-func (b *EoD) mark(guild string, elem string, mark string, creator string, controversial string) {
-	lock.RLock()
+func (b *Polls) mark(guild string, elem string, mark string, creator string, controversial string) {
+	b.lock.RLock()
 	dat, exists := b.dat[guild]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return
 	}
@@ -21,9 +22,9 @@ func (b *EoD) mark(guild string, elem string, mark string, creator string, contr
 	el.Comment = mark
 	dat.SetElement(el)
 
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[guild] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 
 	query := "UPDATE eod_elements SET comment=? WHERE guild=? AND name LIKE ?"
 	if util.IsASCII(el.Name) {
@@ -38,10 +39,10 @@ func (b *EoD) mark(guild string, elem string, mark string, creator string, contr
 	}
 }
 
-func (b *EoD) image(guild string, elem string, image string, creator string, controversial string) {
-	lock.RLock()
+func (b *Polls) image(guild string, elem string, image string, creator string, controversial string) {
+	b.lock.RLock()
 	dat, exists := b.dat[guild]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return
 	}
@@ -53,9 +54,9 @@ func (b *EoD) image(guild string, elem string, image string, creator string, con
 	el.Image = image
 	dat.SetElement(el)
 
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[guild] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 
 	query := "UPDATE eod_elements SET image=? WHERE guild=? AND name=?"
 	if util.IsASCII(el.Name) {
@@ -70,10 +71,10 @@ func (b *EoD) image(guild string, elem string, image string, creator string, con
 	}
 }
 
-func (b *EoD) color(guild string, elem string, color int, creator string, controversial string) {
-	lock.RLock()
+func (b *Polls) color(guild string, elem string, color int, creator string, controversial string) {
+	b.lock.RLock()
 	dat, exists := b.dat[guild]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return
 	}
@@ -85,9 +86,9 @@ func (b *EoD) color(guild string, elem string, color int, creator string, contro
 	el.Color = color
 	dat.SetElement(el)
 
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[guild] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 
 	query := "UPDATE eod_elements SET color=? WHERE guild=? AND name LIKE ?"
 	if util.IsASCII(el.Name) {
@@ -100,7 +101,7 @@ func (b *EoD) color(guild string, elem string, color int, creator string, contro
 	if creator != "" {
 		emoji, err := util.GetEmoji(color)
 		if err != nil {
-			emoji = redCircle
+			emoji = types.RedCircle
 		}
 		b.dg.ChannelMessageSend(dat.NewsChannel, emoji+" Set Color - **"+el.Name+"** (By <@"+creator+">)"+controversial)
 	}

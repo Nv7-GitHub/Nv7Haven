@@ -2,6 +2,7 @@ package util
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -39,4 +40,12 @@ func FormatInt(n int) string {
 			out[j] = ','
 		}
 	}
+}
+
+func Elems2Txt(elems []string) string {
+	for i, elem := range elems {
+		elems[i] = strings.ToLower(elem)
+	}
+	sort.Strings(elems)
+	return strings.Join(elems, "+")
 }

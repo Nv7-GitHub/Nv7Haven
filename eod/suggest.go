@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
@@ -32,8 +33,8 @@ var remove = []string{"\uFE0E", "\uFE0F", "\u200B", "\u200E", "\u200F", "\u2060"
 func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 
-	if isFoolsMode && !isFool(suggestion) {
-		rsp.ErrorMessage(makeFoolResp(suggestion))
+	if base.IsFoolsMode && !base.IsFool(suggestion) {
+		rsp.ErrorMessage(base.MakeFoolResp(suggestion))
 		return
 	}
 
@@ -98,7 +99,7 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m types.Msg, rs
 		return
 	}
 
-	data := elems2txt(comb.Elems)
+	data := util.Elems2Txt(comb.Elems)
 	_, res = dat.GetCombo(data)
 	if res.Exists {
 		rsp.ErrorMessage("That combo already has a result!")
@@ -110,7 +111,7 @@ func (b *EoD) suggestCmd(suggestion string, autocapitalize bool, m types.Msg, rs
 		suggestion = el.Name
 	}
 
-	err := b.createPoll(types.Poll{
+	err := b.polls.CreatePoll(types.Poll{
 		Channel:   dat.VotingChannel,
 		Guild:     m.GuildID,
 		Kind:      types.PollCombo,

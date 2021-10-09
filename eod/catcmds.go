@@ -5,13 +5,11 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
 )
-
-const x = "❌"
-const check = "✅"
 
 func (b *EoD) catCmd(category string, sortKind string, hasUser bool, user string, m types.Msg, rsp types.Rsp) {
 	lock.RLock()
@@ -23,8 +21,8 @@ func (b *EoD) catCmd(category string, sortKind string, hasUser bool, user string
 
 	category = strings.TrimSpace(category)
 
-	if isFoolsMode && !isFool(category) {
-		rsp.ErrorMessage(makeFoolResp(category))
+	if base.IsFoolsMode && !base.IsFool(category) {
+		rsp.ErrorMessage(base.MakeFoolResp(category))
 		return
 	}
 
@@ -59,11 +57,11 @@ func (b *EoD) catCmd(category string, sortKind string, hasUser bool, user string
 	for name := range cat.Elements {
 		_, exists := inv[strings.ToLower(name)]
 		if exists {
-			text = name + " " + check
+			text = name + " " + types.Check
 			found++
 			fnd = 1
 		} else {
-			text = name + " " + x
+			text = name + " " + types.X
 			fnd = 0
 		}
 
@@ -163,7 +161,7 @@ func (b *EoD) allCatCmd(sortBy string, hasUser bool, user string, m types.Msg, r
 		perc := float32(count) / float32(len(cat.Elements))
 		text := "(" + util.FormatFloat(perc*100, 2) + "%)"
 		if count == len(cat.Elements) {
-			text = check
+			text = types.Check
 		}
 		out[i] = catData{
 			text:  fmt.Sprintf("%s %s", cat.Name, text),

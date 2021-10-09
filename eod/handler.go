@@ -116,8 +116,8 @@ func (b *EoD) initHandlers() {
 		}
 	})
 	b.dg.AddHandler(b.cmdHandler)
-	b.dg.AddHandler(b.reactionHandler)
-	b.dg.AddHandler(b.unReactionHandler)
+	b.dg.AddHandler(b.polls.ReactionHandler)
+	b.dg.AddHandler(b.polls.UnReactionHandler)
 }
 
 func commandsAreEqual(a *discordgo.ApplicationCommand, b *discordgo.ApplicationCommand) bool {

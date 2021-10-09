@@ -67,7 +67,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 				rsp.ErrorMessage("You must attach an image!")
 				return
 			}
-			b.imageCmd(suggestion, m.Attachments[0].URL, msg, rsp)
+			b.polls.ImageCmd(suggestion, m.Attachments[0].URL, msg, rsp)
 			return
 		}
 
@@ -82,7 +82,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 				rsp.ErrorMessage("You must attach an image!")
 				return
 			}
-			b.catImgCmd(suggestion, m.Attachments[0].URL, msg, rsp)
+			b.polls.CatImgCmd(suggestion, m.Attachments[0].URL, msg, rsp)
 			return
 		}
 
@@ -169,7 +169,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 			elem := strings.TrimSpace(txt[:sepPos])
 			mark := strings.TrimSpace(txt[sepPos+1:])
-			b.markCmd(elem, mark, msg, rsp)
+			b.polls.MarkCmd(elem, mark, msg, rsp)
 			return
 		}
 		if cmd == "info" || cmd == "get" {

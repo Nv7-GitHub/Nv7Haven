@@ -1,4 +1,4 @@
-package eod
+package polls
 
 import (
 	"context"
@@ -14,19 +14,17 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
-const newText = "🆕"
-
 var createLock = &sync.Mutex{}
 
-func (b *EoD) elemCreate(name string, parents []string, creator string, controversial string, guild string) {
-	lock.RLock()
+func (b *Polls) elemCreate(name string, parents []string, creator string, controversial string, guild string) {
+	b.lock.RLock()
 	dat, exists := b.dat[guild]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return
 	}
 
-	data := elems2txt(parents)
+	data := util.Elems2Txt(parents)
 	_, res := dat.GetCombo(data)
 	if res.Exists {
 		return
@@ -98,7 +96,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, controve
 		postTxt = " - Element **#" + strconv.Itoa(elem.ID) + "**"
 		dat.SetElement(elem)
 
-		_, err = tx.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, elem.Image, elem.Color, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), elems2txt(parents), elem.Complexity, elem.Difficulty, 0, elem.TreeSize)
+		_, err = tx.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, elem.Image, elem.Color, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), util.Elems2Txt(parents), elem.Complexity, elem.Difficulty, 0, elem.TreeSize)
 		if err != nil {
 			dat.DeleteElement(elem.Name)
 
@@ -169,7 +167,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, controve
 		}
 	}
 
-	txt := newText + " " + text + " - **" + name + "** (By <@" + creator + ">)" + postTxt + controversial
+	txt := types.NewText + " " + text + " - **" + name + "** (By <@" + creator + ">)" + postTxt + controversial
 
 	_, _ = b.dg.ChannelMessageSend(dat.NewsChannel, txt)
 
@@ -190,12 +188,12 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, controve
 	inv.Add(name)
 	dat.SetInv(creator, inv)
 
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[guild] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 	b.base.SaveInv(guild, creator, true)
 
-	err = b.autocategorize(name, guild)
+	err = b.Autocategorize(name, guild)
 	if err != nil {
 		log.SetOutput(logs.DataFile)
 		log.Println(err)

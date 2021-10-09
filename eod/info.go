@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
@@ -145,8 +146,8 @@ func (b *EoD) info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
 		}
 	}
 
-	if isFoolsMode && !isFool(elem) {
-		rsp.ErrorMessage(makeFoolResp(elem))
+	if base.IsFoolsMode && !base.IsFool(elem) {
+		rsp.ErrorMessage(base.MakeFoolResp(elem))
 		return
 	}
 

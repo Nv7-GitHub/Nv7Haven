@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -31,7 +32,7 @@ type ideaComponent struct {
 func (c *ideaComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCreate) {
 	res, suc := c.b.genIdea(c.count, c.catName, c.hasCat, c.elemName, c.hasEl, i.GuildID, i.Member.User.ID)
 	if !suc {
-		res += " " + redCircle
+		res += " " + types.RedCircle
 	}
 	err := c.b.dg.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseUpdateMessage,
@@ -124,7 +125,7 @@ func (b *EoD) genIdea(count int, catName string, hasCat bool, elemName string, h
 			elems = append([]string{elemName}, elems...)
 		}
 
-		_, res = dat.GetCombo(elems2txt(elems))
+		_, res = dat.GetCombo(util.Elems2Txt(elems))
 		tries++
 
 		if tries > 21 {
