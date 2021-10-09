@@ -8,11 +8,11 @@ import (
 	"runtime"
 	"runtime/debug"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/logs"
 	"github.com/go-sql-driver/mysql"
 	"github.com/gofiber/fiber/v2"
 )
 
-var mysqlogs *os.File
 var monitors = [][]string{{"measure_temp"}, {"measure_volts"}, {"get_mem", "arm"} /*, {"get_mem", "gpu"}, {"get_throttled"}*/} // Commented out part 1 gets VRAM, commented out part 2 gets if throttled
 
 func systemHandlers(app *fiber.App) {
@@ -76,12 +76,6 @@ func systemHandlers(app *fiber.App) {
 		return nil
 	})
 
-	var err error
-	mysqlogs, err = os.Create("mysqlogs.txt")
-	if err != nil {
-		panic(err)
-	}
-	defer mysqlogs.Close()
 	mysql.SetLogger(&Logger{})
 	app.Get("/mysqlogs", func(c *fiber.Ctx) error {
 		file, err := os.Open("mysqlogs.txt")
@@ -100,6 +94,6 @@ func systemHandlers(app *fiber.App) {
 type Logger struct{}
 
 func (l *Logger) Print(args ...interface{}) {
-	log.SetOutput(mysqlogs)
+	log.SetOutput(logs.MysqLogs)
 	log.Print(args...)
 }

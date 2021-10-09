@@ -96,7 +96,7 @@ func (b *EoD) sortCmd(query string, order bool, m types.Msg, rsp types.Rsp) {
 		ord = "ASC"
 	}
 	quer = fmt.Sprintf(quer, ord)
-	b.newPageSwitcher(types.PageSwitcher{
+	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchElemSort,
 		Title:      "Element Sort",
 		PageGetter: b.sortPageGetter,

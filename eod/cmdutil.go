@@ -2,15 +2,13 @@ package eod
 
 import (
 	"log"
-	"os"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/logs"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
 
 const redCircle = "🔴"
-
-var discordlogs *os.File
 
 type normalResp struct {
 	msg    *discordgo.MessageCreate
@@ -25,7 +23,7 @@ func (n *normalResp) Error(err error) bool {
 	if err != nil {
 		_, err := n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" Error: "+err.Error()+" "+redCircle)
 		if err != nil {
-			log.SetOutput(discordlogs)
+			log.SetOutput(logs.DiscordLogs)
 			log.Println(err)
 			return false
 		}
@@ -40,7 +38,7 @@ func (n *normalResp) ErrorMessage(msg string) string {
 	}
 	m, err := n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" "+msg+" "+redCircle)
 	if err != nil {
-		log.SetOutput(discordlogs)
+		log.SetOutput(logs.DiscordLogs)
 		log.Println(err)
 		return ""
 	}
@@ -72,7 +70,7 @@ func (n *normalResp) Message(msg string, components ...discordgo.MessageComponen
 	}
 
 	if err != nil {
-		log.SetOutput(discordlogs)
+		log.SetOutput(logs.DiscordLogs)
 		log.Println(err)
 		return ""
 	}
@@ -85,13 +83,13 @@ func (n *normalResp) DM(msg string) {
 	}
 	channel, err := n.b.dg.UserChannelCreate(n.msg.Author.ID)
 	if err != nil {
-		log.SetOutput(discordlogs)
+		log.SetOutput(logs.DiscordLogs)
 		log.Println(err)
 		return
 	}
 	_, err = n.b.dg.ChannelMessageSend(channel.ID, msg)
 	if err != nil {
-		log.SetOutput(discordlogs)
+		log.SetOutput(logs.DiscordLogs)
 		log.Println(err)
 		return
 	}
@@ -102,7 +100,7 @@ func (n *normalResp) Embed(emb *discordgo.MessageEmbed, components ...discordgo.
 		n.b.dg.ChannelTyping(n.msg.ChannelID)
 	}
 	if emb.Color == 0 {
-		color, err := n.b.getColor(n.msg.GuildID, n.msg.Author.ID)
+		color, err := n.b.base.GetColor(n.msg.GuildID, n.msg.Author.ID)
 		if err == nil {
 			emb.Color = color
 		}
@@ -114,7 +112,7 @@ func (n *normalResp) Embed(emb *discordgo.MessageEmbed, components ...discordgo.
 	msg, err := n.b.dg.ChannelMessageSendComplex(n.msg.ChannelID, m)
 	if err != nil {
 		if err != nil {
-			log.SetOutput(discordlogs)
+			log.SetOutput(logs.DiscordLogs)
 			log.Println(err)
 			return ""
 		}
@@ -128,7 +126,7 @@ func (n *normalResp) RawEmbed(emb *discordgo.MessageEmbed) string {
 		n.b.dg.ChannelTyping(n.msg.ChannelID)
 	}
 	if emb.Color == 0 {
-		color, err := n.b.getColor(n.msg.GuildID, n.msg.Author.ID)
+		color, err := n.b.base.GetColor(n.msg.GuildID, n.msg.Author.ID)
 		if err == nil {
 			emb.Color = color
 		}
@@ -137,7 +135,7 @@ func (n *normalResp) RawEmbed(emb *discordgo.MessageEmbed) string {
 	msg, err := n.b.dg.ChannelMessageSendEmbed(n.msg.ChannelID, emb)
 	if err != nil {
 		if err != nil {
-			log.SetOutput(discordlogs)
+			log.SetOutput(logs.DiscordLogs)
 			log.Println(err)
 			return ""
 		}
@@ -179,7 +177,7 @@ func (s *slashResp) Error(err error) bool {
 				Content: "Error: " + err.Error(),
 			})
 			if err != nil {
-				log.SetOutput(discordlogs)
+				log.SetOutput(logs.DiscordLogs)
 				log.Println(err)
 				return false
 			}
@@ -192,7 +190,7 @@ func (s *slashResp) Error(err error) bool {
 				},
 			})
 			if err != nil {
-				log.SetOutput(discordlogs)
+				log.SetOutput(logs.DiscordLogs)
 				log.Println(err)
 				return false
 			}
@@ -208,7 +206,7 @@ func (s *slashResp) ErrorMessage(msg string) string {
 			Content: "Error: " + msg,
 		})
 		if err != nil {
-			log.SetOutput(discordlogs)
+			log.SetOutput(logs.DiscordLogs)
 			log.Println(err)
 			return ""
 		}
@@ -244,7 +242,7 @@ func (s *slashResp) Message(msg string, components ...discordgo.MessageComponent
 		})
 		if err != nil {
 			if err != nil {
-				log.SetOutput(discordlogs)
+				log.SetOutput(logs.DiscordLogs)
 				log.Println(err)
 				return ""
 			}
@@ -260,7 +258,7 @@ func (s *slashResp) Message(msg string, components ...discordgo.MessageComponent
 		},
 	})
 	if err != nil {
-		log.SetOutput(discordlogs)
+		log.SetOutput(logs.DiscordLogs)
 		log.Println(err)
 		return ""
 	}
@@ -269,7 +267,7 @@ func (s *slashResp) Message(msg string, components ...discordgo.MessageComponent
 
 func (s *slashResp) Embed(emb *discordgo.MessageEmbed, components ...discordgo.MessageComponent) string {
 	if emb.Color == 0 {
-		color, err := bot.getColor(s.i.GuildID, s.i.Member.User.ID)
+		color, err := bot.base.GetColor(s.i.GuildID, s.i.Member.User.ID)
 		if err == nil {
 			emb.Color = color
 		}
@@ -281,7 +279,7 @@ func (s *slashResp) Embed(emb *discordgo.MessageEmbed, components ...discordgo.M
 		})
 		if err != nil {
 			if err != nil {
-				log.SetOutput(discordlogs)
+				log.SetOutput(logs.DiscordLogs)
 				log.Println(err)
 				return ""
 			}
@@ -297,7 +295,7 @@ func (s *slashResp) Embed(emb *discordgo.MessageEmbed, components ...discordgo.M
 		},
 	})
 	if err != nil {
-		log.SetOutput(discordlogs)
+		log.SetOutput(logs.DiscordLogs)
 		log.Println(err)
 		return ""
 	}
@@ -319,7 +317,7 @@ func (s *slashResp) DM(msg string) {
 	channel, err := s.b.dg.UserChannelCreate(s.i.Member.User.ID)
 	if err != nil {
 		if err != nil {
-			log.SetOutput(discordlogs)
+			log.SetOutput(logs.DiscordLogs)
 			log.Println(err)
 			return
 		}
@@ -327,7 +325,7 @@ func (s *slashResp) DM(msg string) {
 	_, err = s.b.dg.ChannelMessageSend(channel.ID, msg)
 	if err != nil {
 		if err != nil {
-			log.SetOutput(discordlogs)
+			log.SetOutput(logs.DiscordLogs)
 			log.Println(err)
 			return
 		}

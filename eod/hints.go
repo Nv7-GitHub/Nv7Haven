@@ -5,6 +5,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
@@ -236,15 +237,15 @@ func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, in
 			text.WriteString(val.text)
 		}
 		val = text.String()
-	} else if (len(val) > 2000) || (!isPlayChannel && len(out) > defaultPageLength) || (isPlayChannel && len(out) > playPageLength) {
+	} else if (len(val) > 2000) || (!isPlayChannel && len(out) > base.DefaultPageLength) || (isPlayChannel && len(out) > base.PlayPageLength) {
 		vals := make([]string, len(out))
 		for i, v := range out {
 			vals[i] = v.text
 		}
-		b.newPageSwitcher(types.PageSwitcher{
+		b.base.NewPageSwitcher(types.PageSwitcher{
 			Kind:       types.PageSwitchInv,
 			Title:      title,
-			PageGetter: b.invPageGetter,
+			PageGetter: b.base.InvPageGetter,
 			Items:      vals,
 			Thumbnail:  el.Image,
 			Footer:     footer,

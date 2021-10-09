@@ -3,12 +3,12 @@ package eod
 import (
 	"context"
 	"log"
-	"os"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/logs"
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
@@ -16,7 +16,6 @@ import (
 
 const newText = "🆕"
 
-var datafile *os.File
 var createLock = &sync.Mutex{}
 
 func (b *EoD) elemCreate(name string, parents []string, creator string, controversial string, guild string) {
@@ -69,7 +68,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, controve
 		}
 		col, err := util.MixColors(parColors)
 		if err != nil {
-			log.SetOutput(datafile)
+			log.SetOutput(logs.DataFile)
 			log.Println(err)
 			tx.Rollback()
 			createLock.Unlock()
@@ -77,7 +76,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, controve
 		}
 		size, suc, msg := trees.ElemCreateSize(parents, dat)
 		if !suc {
-			log.SetOutput(datafile)
+			log.SetOutput(logs.DataFile)
 			log.Println(msg)
 			tx.Rollback()
 			createLock.Unlock()
@@ -103,7 +102,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, controve
 		if err != nil {
 			dat.DeleteElement(elem.Name)
 
-			log.SetOutput(datafile)
+			log.SetOutput(logs.DataFile)
 			log.Println(err)
 			_ = tx.Rollback()
 			createLock.Unlock()
@@ -113,7 +112,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, controve
 	} else {
 		el, res := dat.GetElement(name)
 		if !res.Exists {
-			log.SetOutput(datafile)
+			log.SetOutput(logs.DataFile)
 			log.Println("Doesn't exist")
 
 			_ = tx.Rollback()
@@ -133,7 +132,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, controve
 		dat.DeleteElement(name)
 		createLock.Unlock()
 
-		log.SetOutput(datafile)
+		log.SetOutput(logs.DataFile)
 		log.Println(err)
 		_ = tx.Rollback()
 		return
@@ -157,7 +156,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, controve
 			dat.DeleteElement(name)
 			createLock.Unlock()
 
-			log.SetOutput(datafile)
+			log.SetOutput(logs.DataFile)
 			log.Println(err)
 			_ = tx.Rollback()
 			return
@@ -179,7 +178,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, controve
 		dat.DeleteElement(name)
 		createLock.Unlock()
 
-		log.SetOutput(datafile)
+		log.SetOutput(logs.DataFile)
 		log.Println(err)
 		return
 	}
@@ -198,7 +197,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, controve
 
 	err = b.autocategorize(name, guild)
 	if err != nil {
-		log.SetOutput(datafile)
+		log.SetOutput(logs.DataFile)
 		log.Println(err)
 		return
 	}

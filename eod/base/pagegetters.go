@@ -1,4 +1,4 @@
-package eod
+package base
 
 import (
 	"fmt"
@@ -20,7 +20,7 @@ FROM (
 WHERE sub.user=?
 `
 
-func (b *EoD) invPageGetter(p types.PageSwitcher) (string, int, int, error) {
+func (b *Base) InvPageGetter(p types.PageSwitcher) (string, int, int, error) {
 	length := int(math.Floor(float64(len(p.Items)-1) / float64(p.PageLength)))
 	if p.PageLength*p.Page > (len(p.Items) - 1) {
 		return "", 0, length, nil
@@ -37,7 +37,7 @@ func (b *EoD) invPageGetter(p types.PageSwitcher) (string, int, int, error) {
 	return strings.Join(items, "\n"), p.Page, length, nil
 }
 
-func (b *EoD) lbPageGetter(p types.PageSwitcher) (string, int, int, error) {
+func (b *Base) LbPageGetter(p types.PageSwitcher) (string, int, int, error) {
 	cnt := b.db.QueryRow("SELECT COUNT(1) FROM eod_inv WHERE guild=?", p.Guild)
 	pos := b.db.QueryRow(fmt.Sprintf(ldbQuery, p.Sort, p.Sort, p.Sort), p.Guild, p.User)
 	var count int
@@ -88,7 +88,7 @@ func (b *EoD) lbPageGetter(p types.PageSwitcher) (string, int, int, error) {
 	return text, p.Page, length, nil
 }
 
-func (b *EoD) searchPageGetter(p types.PageSwitcher) (string, int, int, error) {
+func (b *Base) SearchPageGetter(p types.PageSwitcher) (string, int, int, error) {
 	wild := "%" + util.EscapeElement(strings.ToLower(p.Search)) + "%"
 
 	var count int

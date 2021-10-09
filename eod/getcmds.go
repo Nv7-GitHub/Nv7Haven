@@ -49,10 +49,10 @@ func (b *EoD) foundCmd(elem string, m types.Msg, rsp types.Rsp) {
 		i++
 	}
 
-	b.newPageSwitcher(types.PageSwitcher{
+	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
 		Title:      fmt.Sprintf("%s Found (%d)", el.Name, len(out)),
-		PageGetter: b.invPageGetter,
+		PageGetter: b.base.InvPageGetter,
 		Items:      out,
 		User:       m.Author.ID,
 	}, m, rsp)
@@ -105,10 +105,10 @@ func (b *EoD) categoriesCmd(elem string, m types.Msg, rsp types.Rsp) {
 		out[i] = cat.Name
 	}
 
-	b.newPageSwitcher(types.PageSwitcher{
+	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
 		Title:      fmt.Sprintf("%s Categories (%d)", el.Name, len(out)),
-		PageGetter: b.invPageGetter,
+		PageGetter: b.base.InvPageGetter,
 		Items:      out,
 		User:       m.Author.ID,
 	}, m, rsp)

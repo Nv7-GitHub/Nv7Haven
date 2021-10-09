@@ -1378,7 +1378,7 @@ var (
 		"Get Color": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			rsp := bot.newRespSlash(i)
-			color, err := bot.getColor(i.GuildID, resp.TargetID)
+			color, err := bot.base.GetColor(i.GuildID, resp.TargetID)
 			if rsp.Error(err) {
 				return
 			}

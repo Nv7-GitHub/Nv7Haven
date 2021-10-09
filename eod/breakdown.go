@@ -37,10 +37,10 @@ func (b *EoD) elemBreakdownCmd(elem string, calcTree bool, m types.Msg, rsp type
 		return
 	}
 
-	b.newPageSwitcher(types.PageSwitcher{
+	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
 		Title:      fmt.Sprintf("%s Breakdown (%d)", el.Name, tree.Total),
-		PageGetter: b.invPageGetter,
+		PageGetter: b.base.InvPageGetter,
 		Items:      tree.GetStringArr(),
 	}, m, rsp)
 }
@@ -78,10 +78,10 @@ func (b *EoD) catBreakdownCmd(catName string, calcTree bool, m types.Msg, rsp ty
 		}
 	}
 
-	b.newPageSwitcher(types.PageSwitcher{
+	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
 		Title:      fmt.Sprintf("%s Breakdown (%d)", cat.Name, tree.Total),
-		PageGetter: b.invPageGetter,
+		PageGetter: b.base.InvPageGetter,
 		Items:      tree.GetStringArr(),
 	}, m, rsp)
 }
@@ -119,10 +119,10 @@ func (b *EoD) invBreakdownCmd(user string, calcTree bool, m types.Msg, rsp types
 		}
 	}
 
-	b.newPageSwitcher(types.PageSwitcher{
+	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
 		Title:      fmt.Sprintf("<@%s> Inventory Breakdown (%d)", user, tree.Total),
-		PageGetter: b.invPageGetter,
+		PageGetter: b.base.InvPageGetter,
 		Items:      tree.GetStringArr(),
 	}, m, rsp)
 }

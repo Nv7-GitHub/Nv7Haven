@@ -112,11 +112,11 @@ func (b *EoD) catCmd(category string, sortKind string, hasUser bool, user string
 		o[i] = val.text
 	}
 
-	b.newPageSwitcher(types.PageSwitcher{
+	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
 		Thumbnail:  cat.Image,
 		Title:      fmt.Sprintf("%s (%d, %s%%)", category, len(out), util.FormatFloat(float32(found)/float32(len(out))*100, 2)),
-		PageGetter: b.invPageGetter,
+		PageGetter: b.base.InvPageGetter,
 		Items:      o,
 		Color:      cat.Color,
 	}, m, rsp)
@@ -202,10 +202,10 @@ func (b *EoD) allCatCmd(sortBy string, hasUser bool, user string, m types.Msg, r
 		names[i] = dat.text
 	}
 
-	b.newPageSwitcher(types.PageSwitcher{
+	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
 		Title:      fmt.Sprintf("All Categories (%d)", len(out)),
-		PageGetter: b.invPageGetter,
+		PageGetter: b.base.InvPageGetter,
 		Items:      names,
 	}, m, rsp)
 }

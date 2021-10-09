@@ -62,10 +62,10 @@ func (b *EoD) invCmd(user string, m types.Msg, rsp types.Rsp, sorter string, fil
 		}
 		name = u.Username
 	}
-	b.newPageSwitcher(types.PageSwitcher{
+	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
 		Title:      fmt.Sprintf("%s's Inventory (%d, %s%%)", name, len(items), util.FormatFloat(float32(len(items))/float32(len(dat.Elements))*100, 2)),
-		PageGetter: b.invPageGetter,
+		PageGetter: b.base.InvPageGetter,
 		Items:      items,
 	}, m, rsp)
 }
@@ -83,10 +83,10 @@ func (b *EoD) lbCmd(m types.Msg, rsp types.Rsp, sort string, user string) {
 		return
 	}
 
-	b.newPageSwitcher(types.PageSwitcher{
+	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchLdb,
 		Title:      "Top Most Elements",
-		PageGetter: b.lbPageGetter,
+		PageGetter: b.base.LbPageGetter,
 		Sort:       sort,
 		User:       user,
 	}, m, rsp)
@@ -110,10 +110,10 @@ func (b *EoD) elemSearchCmd(search string, m types.Msg, rsp types.Rsp) {
 		}
 	}
 
-	b.newPageSwitcher(types.PageSwitcher{
+	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchSearch,
 		Title:      "Element Search",
-		PageGetter: b.searchPageGetter,
+		PageGetter: b.base.SearchPageGetter,
 		Search:     search,
 		User:       m.Author.ID,
 	}, m, rsp)

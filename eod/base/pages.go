@@ -1,15 +1,16 @@
-package eod
+package base
 
 import (
 	"fmt"
 	"log"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/logs"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
 
-const defaultPageLength = 10
-const playPageLength = 30
+const DefaultPageLength = 10
+const PlayPageLength = 30
 
 var btnRow = discordgo.ActionsRow{
 	Components: []discordgo.MessageComponent{
@@ -32,7 +33,7 @@ var btnRow = discordgo.ActionsRow{
 	},
 }
 
-func (b *EoD) newPageSwitcher(ps types.PageSwitcher, m types.Msg, rsp types.Rsp) {
+func (b *Base) NewPageSwitcher(ps types.PageSwitcher, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 	// Get emojis for guild to find their ID
 	/*ems, _ := b.dg.GuildEmojis("819077688371314718")
@@ -40,9 +41,9 @@ func (b *EoD) newPageSwitcher(ps types.PageSwitcher, m types.Msg, rsp types.Rsp)
 		fmt.Println(emoji)
 	}*/
 
-	lock.RLock()
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage("Guild isn't setup yet!")
 		return
@@ -50,10 +51,10 @@ func (b *EoD) newPageSwitcher(ps types.PageSwitcher, m types.Msg, rsp types.Rsp)
 
 	ps.Guild = m.GuildID
 	ps.Page = 0
-	ps.PageLength = defaultPageLength
+	ps.PageLength = DefaultPageLength
 	_, exists = dat.PlayChannels[m.ChannelID]
 	if exists {
-		ps.PageLength = playPageLength
+		ps.PageLength = PlayPageLength
 	}
 
 	cont, _, length, err := ps.PageGetter(ps)
@@ -80,15 +81,15 @@ func (b *EoD) newPageSwitcher(ps types.PageSwitcher, m types.Msg, rsp types.Rsp)
 
 	dat.SavePageSwitcher(id, ps)
 
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[m.GuildID] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 }
 
-func (b *EoD) pageSwitchHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	lock.RLock()
+func (b *Base) PageSwitchHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	b.lock.RLock()
 	dat, exists := b.dat[i.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return
 	}
@@ -126,7 +127,7 @@ func (b *EoD) pageSwitchHandler(s *discordgo.Session, i *discordgo.InteractionCr
 
 	color := ps.Color
 	if color == 0 {
-		color, _ = b.getColor(i.GuildID, i.Member.User.ID)
+		color, _ = b.GetColor(i.GuildID, i.Member.User.ID)
 	}
 	err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseUpdateMessage,
@@ -148,12 +149,12 @@ func (b *EoD) pageSwitchHandler(s *discordgo.Session, i *discordgo.InteractionCr
 		},
 	})
 	if err != nil {
-		log.SetOutput(discordlogs)
+		log.SetOutput(logs.DiscordLogs)
 		log.Println(err)
 	}
 	dat.PageSwitchers[i.Message.ID] = ps
 
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[i.GuildID] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 }

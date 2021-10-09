@@ -3,11 +3,11 @@ package eod
 import (
 	"fmt"
 	"log"
-	"os"
 	"runtime"
 	"sort"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/logs"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -15,15 +15,6 @@ const guild = "" // 819077688371314718 for testing
 
 func (b *EoD) initHandlers() {
 	// Debugging
-	var err error
-	datafile, err = os.OpenFile("createlogs.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, os.ModePerm)
-	if err != nil {
-		panic(err)
-	}
-	discordlogs, err = os.OpenFile("discordlogs.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, os.ModePerm)
-	if err != nil {
-		panic(err)
-	}
 	discordgo.Logger = func(msgL, caller int, format string, a ...interface{}) {
 		// This code is a slightly modified version of https://github.com/bwmarrin/discordgo/blob/577e7dd4f6ccf1beb10acdb1871300c7638b84c4/logging.go#L46
 		pc, file, line, _ := runtime.Caller(caller)
@@ -37,7 +28,7 @@ func (b *EoD) initHandlers() {
 
 		msg := fmt.Sprintf(format, a...)
 
-		log.SetOutput(discordlogs)
+		log.SetOutput(logs.DiscordLogs)
 		log.Printf("[DG%d] %s:%d:%s() %s\n", msgL, file, line, name, msg)
 	}
 
@@ -112,7 +103,7 @@ func (b *EoD) initHandlers() {
 			// Check if page switch handler or component handler
 			_, exists = dat.PageSwitchers[i.Message.ID]
 			if exists {
-				b.pageSwitchHandler(s, i)
+				b.base.PageSwitchHandler(s, i)
 				return
 			}
 
