@@ -156,9 +156,6 @@ func (b *EoD) init() {
 		//lock.RLock()
 		dat := b.dat[elem.Guild]
 		//lock.RUnlock()
-		if dat.Elements == nil {
-			dat.Elements = make(map[string]types.Element)
-		}
 		elem.ID = len(dat.Elements) + 1
 		dat.Elements[strings.ToLower(elem.Name)] = elem
 		//lock.Lock()
@@ -191,9 +188,6 @@ func (b *EoD) init() {
 		//lock.RLock()
 		dat := b.dat[guild]
 		//lock.RUnlock()
-		if dat.Combos == nil {
-			dat.Combos = make(map[string]string)
-		}
 		dat.Combos[elemsVal] = elem3
 		//lock.Lock()
 		b.dat[guild] = dat
@@ -231,9 +225,6 @@ func (b *EoD) init() {
 		//lock.RLock()
 		dat := b.dat[guild]
 		//lock.RUnlock()
-		if dat.Inventories == nil {
-			dat.Inventories = make(map[string]types.Container)
-		}
 		dat.Inventories[user] = inv
 		//lock.Lock()
 		b.dat[guild] = dat
@@ -242,23 +233,6 @@ func (b *EoD) init() {
 		bar.Add(1)
 	}
 	bar.Finish()
-
-	//lock.RLock()
-	for k, dat := range b.dat {
-		hasChanged := false
-		if dat.Inventories == nil {
-			dat.Inventories = make(map[string]types.Container)
-			hasChanged = true
-		}
-		if hasChanged {
-			//lock.RUnlock()
-			//lock.Lock()
-			b.dat[k] = dat
-			//lock.Unlock()
-			//lock.RLock()
-		}
-	}
-	//lock.RUnlock()
 
 	err = b.db.QueryRow("SELECT COUNT(1) FROM eod_categories").Scan(&cnt)
 	if err != nil {
@@ -284,9 +258,6 @@ func (b *EoD) init() {
 		//lock.RLock()
 		dat := b.dat[guild]
 		//lock.RUnlock()
-		if dat.Categories == nil {
-			dat.Categories = make(map[string]types.Category)
-		}
 
 		cat.Elements = make(map[string]types.Empty)
 		err := json.Unmarshal([]byte(elemDat), &cat.Elements)

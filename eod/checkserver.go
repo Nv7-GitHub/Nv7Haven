@@ -71,9 +71,6 @@ func (b *EoD) checkServer(m types.Msg, rsp types.Rsp) bool {
 		rsp.ErrorMessage("No news channel has been set!")
 		return false
 	}
-	if dat.Elements == nil {
-		dat.Elements = make(map[string]types.Element)
-	}
 	if len(dat.Elements) < 4 {
 		for _, elem := range starterElements {
 			elem.Guild = m.GuildID
@@ -86,9 +83,6 @@ func (b *EoD) checkServer(m types.Msg, rsp types.Rsp) bool {
 		lock.Unlock()
 	}
 
-	if dat.Inventories == nil {
-		dat.Inventories = make(map[string]types.Container)
-	}
 	_, res := dat.GetInv(m.Author.ID, true)
 	if !res.Exists {
 		dat.Lock.Lock()
@@ -106,46 +100,6 @@ func (b *EoD) checkServer(m types.Msg, rsp types.Rsp) bool {
 		}
 		_, err = b.db.Exec("INSERT INTO eod_inv VALUES ( ?, ?, ?, ?, ? )", m.GuildID, m.Author.ID, string(data), len(inv), 0) // Guild ID, User ID, inventory, elements found, made by (0 so far)
 		rsp.Error(err)
-		lock.Lock()
-		b.dat[m.GuildID] = dat
-		lock.Unlock()
-	}
-
-	if dat.Categories == nil {
-		dat.Lock.Lock()
-		dat.Categories = make(map[string]types.Category)
-		dat.Lock.Unlock()
-
-		lock.Lock()
-		b.dat[m.GuildID] = dat
-		lock.Unlock()
-	}
-
-	if dat.LastCombs == nil {
-		dat.Lock.Lock()
-		dat.LastCombs = make(map[string]types.Comb)
-		dat.Lock.Unlock()
-
-		lock.Lock()
-		b.dat[m.GuildID] = dat
-		lock.Unlock()
-	}
-
-	if dat.Combos == nil {
-		dat.Lock.Lock()
-		dat.Combos = make(map[string]string)
-		dat.Lock.Unlock()
-
-		lock.Lock()
-		b.dat[m.GuildID] = dat
-		lock.Unlock()
-	}
-
-	if dat.ElementMsgs == nil {
-		dat.Lock.Lock()
-		dat.ElementMsgs = make(map[string]string)
-		dat.Lock.Unlock()
-
 		lock.Lock()
 		b.dat[m.GuildID] = dat
 		lock.Unlock()

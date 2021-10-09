@@ -156,6 +156,13 @@ func NewServerData() ServerData {
 		Lock:          &sync.RWMutex{},
 		ComponentMsgs: make(map[string]ComponentMsg),
 		UserColors:    make(map[string]int),
+		Polls:         make(map[string]Poll),
+		PageSwitchers: make(map[string]PageSwitcher),
+		Elements:      make(map[string]Element),
+		Combos:        make(map[string]string),
+		Categories:    make(map[string]Category),
+		Inventories:   make(map[string]Container),
+		LastCombs:     make(map[string]Comb),
 	}
 }
 

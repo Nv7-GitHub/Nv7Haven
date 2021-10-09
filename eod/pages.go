@@ -78,10 +78,6 @@ func (b *EoD) newPageSwitcher(ps types.PageSwitcher, m types.Msg, rsp types.Rsp)
 		},
 	}, btnRow)
 
-	if dat.PageSwitchers == nil {
-		dat.PageSwitchers = make(map[string]types.PageSwitcher)
-	}
-
 	dat.SavePageSwitcher(id, ps)
 
 	lock.Lock()
