@@ -1,4 +1,4 @@
-package eod
+package treecmds
 
 import (
 	"fmt"
@@ -7,12 +7,12 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
-func (b *EoD) elemBreakdownCmd(elem string, calcTree bool, m types.Msg, rsp types.Rsp) {
+func (b *TreeCmds) ElemBreakdownCmd(elem string, calcTree bool, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 
-	lock.RLock()
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage("Guild isn't setup yet!")
 		return
@@ -45,12 +45,12 @@ func (b *EoD) elemBreakdownCmd(elem string, calcTree bool, m types.Msg, rsp type
 	}, m, rsp)
 }
 
-func (b *EoD) catBreakdownCmd(catName string, calcTree bool, m types.Msg, rsp types.Rsp) {
+func (b *TreeCmds) CatBreakdownCmd(catName string, calcTree bool, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 
-	lock.RLock()
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage("Guild isn't setup yet!")
 		return
@@ -86,12 +86,12 @@ func (b *EoD) catBreakdownCmd(catName string, calcTree bool, m types.Msg, rsp ty
 	}, m, rsp)
 }
 
-func (b *EoD) invBreakdownCmd(user string, calcTree bool, m types.Msg, rsp types.Rsp) {
+func (b *TreeCmds) InvBreakdownCmd(user string, calcTree bool, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 
-	lock.RLock()
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage("Guild isn't setup yet!")
 		return

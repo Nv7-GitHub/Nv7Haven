@@ -1089,11 +1089,11 @@ var (
 			resp := i.ApplicationCommandData().Options[0]
 			switch resp.Name {
 			case "element":
-				bot.giveCmd(resp.Options[0].StringValue(), resp.Options[1].BoolValue(), resp.Options[2].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.treecmds.GiveCmd(resp.Options[0].StringValue(), resp.Options[1].BoolValue(), resp.Options[2].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 			case "cat":
-				bot.giveCatCmd(resp.Options[0].StringValue(), resp.Options[1].BoolValue(), resp.Options[2].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.treecmds.GiveCatCmd(resp.Options[0].StringValue(), resp.Options[1].BoolValue(), resp.Options[2].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 			case "all":
-				bot.giveAllCmd(resp.Options[0].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.treecmds.GiveAllCmd(resp.Options[0].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
 
 		},
@@ -1101,10 +1101,10 @@ var (
 			resp := i.ApplicationCommandData().Options[0]
 			switch resp.Name {
 			case "element":
-				bot.calcTreeCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.treecmds.CalcTreeCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 
 			case "category":
-				bot.calcTreeCatCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.treecmds.CalcTreeCatCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
 		},
 		"elemsort": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -1208,14 +1208,14 @@ var (
 				if len(resp.Options) > 1 {
 					calctree = resp.Options[1].BoolValue()
 				}
-				bot.elemBreakdownCmd(resp.Options[0].StringValue(), calctree, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.treecmds.ElemBreakdownCmd(resp.Options[0].StringValue(), calctree, bot.newMsgSlash(i), bot.newRespSlash(i))
 
 			case "category":
 				calctree := false
 				if len(resp.Options) > 1 {
 					calctree = resp.Options[1].BoolValue()
 				}
-				bot.catBreakdownCmd(resp.Options[0].StringValue(), calctree, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.treecmds.CatBreakdownCmd(resp.Options[0].StringValue(), calctree, bot.newMsgSlash(i), bot.newRespSlash(i))
 
 			case "inv":
 				user := i.Member.User.ID
@@ -1229,7 +1229,7 @@ var (
 						calcTree = opt.BoolValue()
 					}
 				}
-				bot.invBreakdownCmd(user, calcTree, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.treecmds.InvBreakdownCmd(user, calcTree, bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
 		},
 		"graph": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -1258,7 +1258,7 @@ var (
 						special = opt.BoolValue()
 					}
 				}
-				bot.elemGraphCmd(elem, layout, outputType, special, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.treecmds.ElemGraphCmd(elem, layout, outputType, special, bot.newMsgSlash(i), bot.newRespSlash(i))
 
 			case "category":
 				var catName string
@@ -1282,7 +1282,7 @@ var (
 						special = opt.BoolValue()
 					}
 				}
-				bot.catGraphCmd(catName, layout, outputType, special, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.treecmds.CatGraphCmd(catName, layout, outputType, special, bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
 
 		},
@@ -1393,14 +1393,14 @@ var (
 			resp := i.ApplicationCommandData().Options[0]
 			switch resp.Name {
 			case "element":
-				bot.notationCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.treecmds.NotationCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 
 			case "category":
-				bot.catNotationCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.treecmds.CatNotationCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
 		},
 		"View Inventory Breakdown": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.invBreakdownCmd(i.ApplicationCommandData().TargetID, false, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.treecmds.InvBreakdownCmd(i.ApplicationCommandData().TargetID, false, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"color": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData().Options[0]

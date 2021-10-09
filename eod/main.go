@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
+	"github.com/Nv7-Github/Nv7Haven/eod/treecmds"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
@@ -29,7 +30,8 @@ type EoD struct {
 	dat map[string]types.ServerData // map[guild]data
 
 	// Subsystems
-	base *base.Base
+	base     *base.Base
+	treecmds *treecmds.TreeCmds
 }
 
 // InitEoD initializes the EoD bot

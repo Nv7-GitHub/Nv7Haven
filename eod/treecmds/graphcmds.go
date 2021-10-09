@@ -1,4 +1,4 @@
-package eod
+package treecmds
 
 import (
 	"bytes"
@@ -23,7 +23,7 @@ var outputTypes = map[string]types.Empty{
 	"DOT":  {},
 }
 
-func (b *EoD) graphCmd(elems map[string]types.Empty, dat types.ServerData, m types.Msg, layout string, outputType string, name string, distinctPrimary bool, rsp types.Rsp) {
+func (b *TreeCmds) graphCmd(elems map[string]types.Empty, dat types.ServerData, m types.Msg, layout string, outputType string, name string, distinctPrimary bool, rsp types.Rsp) {
 	// Create graph
 	graph, err := trees.NewGraph(dat)
 	if rsp.Error(err) {
@@ -144,9 +144,9 @@ func (b *EoD) graphCmd(elems map[string]types.Empty, dat types.ServerData, m typ
 		}
 
 		dat.SetMsgElem(id, elem)
-		lock.Lock()
+		b.lock.Lock()
 		b.dat[m.GuildID] = dat
-		lock.Unlock()
+		b.lock.Unlock()
 	}
 
 	channel, err := b.dg.UserChannelCreate(m.Author.ID)
@@ -160,10 +160,10 @@ func (b *EoD) graphCmd(elems map[string]types.Empty, dat types.ServerData, m typ
 	})
 }
 
-func (b *EoD) elemGraphCmd(elem string, layout string, outputType string, distinctPrimary bool, m types.Msg, rsp types.Rsp) {
-	lock.RLock()
+func (b *TreeCmds) ElemGraphCmd(elem string, layout string, outputType string, distinctPrimary bool, m types.Msg, rsp types.Rsp) {
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return
 	}
@@ -172,10 +172,10 @@ func (b *EoD) elemGraphCmd(elem string, layout string, outputType string, distin
 	b.graphCmd(map[string]types.Empty{elem: {}}, dat, m, layout, outputType, elem, distinctPrimary, rsp)
 }
 
-func (b *EoD) catGraphCmd(catName, layout, outputType string, distinctPrimary bool, m types.Msg, rsp types.Rsp) {
-	lock.RLock()
+func (b *TreeCmds) CatGraphCmd(catName, layout, outputType string, distinctPrimary bool, m types.Msg, rsp types.Rsp) {
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return
 	}

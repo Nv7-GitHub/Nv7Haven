@@ -1,4 +1,4 @@
-package eod
+package treecmds
 
 import (
 	"fmt"
@@ -9,10 +9,10 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-func (b *EoD) notationCmd(elem string, m types.Msg, rsp types.Rsp) {
-	lock.RLock()
+func (b *TreeCmds) NotationCmd(elem string, m types.Msg, rsp types.Rsp) {
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return
 	}
@@ -33,9 +33,9 @@ func (b *EoD) notationCmd(elem string, m types.Msg, rsp types.Rsp) {
 		id := rsp.Message("Sent notation in DMs!")
 
 		dat.SetMsgElem(id, elem)
-		lock.Lock()
+		b.lock.Lock()
 		b.dat[m.GuildID] = dat
-		lock.Unlock()
+		b.lock.Unlock()
 
 		rsp.DM(txt)
 		return
@@ -43,9 +43,9 @@ func (b *EoD) notationCmd(elem string, m types.Msg, rsp types.Rsp) {
 	id := rsp.Message("The notation was too long! Sending it as a file in DMs!")
 
 	dat.SetMsgElem(id, elem)
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[m.GuildID] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 
 	channel, err := b.dg.UserChannelCreate(m.Author.ID)
 	if rsp.Error(err) {
@@ -65,10 +65,10 @@ func (b *EoD) notationCmd(elem string, m types.Msg, rsp types.Rsp) {
 	})
 }
 
-func (b *EoD) catNotationCmd(catName string, m types.Msg, rsp types.Rsp) {
-	lock.RLock()
+func (b *TreeCmds) CatNotationCmd(catName string, m types.Msg, rsp types.Rsp) {
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return
 	}
@@ -101,9 +101,9 @@ func (b *EoD) catNotationCmd(catName string, m types.Msg, rsp types.Rsp) {
 	}
 	rsp.Message("The notation was too long! Sending it as a file in DMs!")
 
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[m.GuildID] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 
 	channel, err := b.dg.UserChannelCreate(m.Author.ID)
 	if rsp.Error(err) {

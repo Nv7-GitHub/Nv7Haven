@@ -193,7 +193,7 @@ func (b *EoD) elemCreate(name string, parents []string, creator string, controve
 	lock.Lock()
 	b.dat[guild] = dat
 	lock.Unlock()
-	b.saveInv(guild, creator, true)
+	b.base.SaveInv(guild, creator, true)
 
 	err = b.autocategorize(name, guild)
 	if err != nil {

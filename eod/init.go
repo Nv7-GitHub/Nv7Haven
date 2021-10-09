@@ -8,6 +8,7 @@ import (
 
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/logs"
+	"github.com/Nv7-Github/Nv7Haven/eod/treecmds"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/schollz/progressbar/v3"
 )
@@ -352,6 +353,6 @@ func (b *EoD) init() {
 
 	// Initialize subsystems
 	logs.InitEoDLogs()
-	base := base.NewBase(b.db, b.dat, b.dg, lock)
-	b.base = base
+	b.base = base.NewBase(b.db, b.dat, b.dg, lock)
+	b.treecmds = treecmds.NewTreeCmds(b.dat, b.dg, b.base, lock)
 }

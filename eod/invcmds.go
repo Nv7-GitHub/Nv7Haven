@@ -9,32 +9,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-func (b *EoD) giveAllCmd(user string, m types.Msg, rsp types.Rsp) {
-	lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
-	if !exists {
-		return
-	}
-	inv, res := dat.GetInv(user, user == m.Author.ID)
-	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
-	}
-
-	for k := range dat.Elements {
-		inv.Add(k)
-	}
-
-	dat.SetInv(user, inv)
-
-	lock.Lock()
-	b.dat[m.GuildID] = dat
-	lock.Unlock()
-	b.saveInv(m.GuildID, user, true, true)
-	rsp.Resp("Successfully gave every element to <@" + user + ">!")
-}
-
 func (b *EoD) resetInvCmd(user string, m types.Msg, rsp types.Rsp) {
 	lock.RLock()
 	dat, exists := b.dat[m.GuildID]
@@ -52,7 +26,7 @@ func (b *EoD) resetInvCmd(user string, m types.Msg, rsp types.Rsp) {
 	lock.Lock()
 	b.dat[m.GuildID] = dat
 	lock.Unlock()
-	b.saveInv(m.GuildID, user, true, true)
+	b.base.SaveInv(m.GuildID, user, true, true)
 	rsp.Resp("Successfully reset <@" + user + ">'s inventory!")
 }
 

@@ -2,9 +2,7 @@ package eod
 
 import (
 	_ "embed"
-	"encoding/json"
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 
@@ -86,47 +84,6 @@ func (b *EoD) isMod(userID string, guildID string, m types.Msg) (bool, error) {
 		}
 	}
 	return false, nil
-}
-
-func (b *EoD) saveInv(guild string, user string, newmade bool, recalculate ...bool) {
-	lock.RLock()
-	dat, exists := b.dat[guild]
-	lock.RUnlock()
-	if !exists {
-		return
-	}
-
-	inv, _ := dat.GetInv(user, true)
-
-	dat.Lock.RLock()
-	data, err := json.Marshal(inv)
-	dat.Lock.RUnlock()
-	if err != nil {
-		return
-	}
-
-	if newmade {
-		m := "made+1"
-		if len(recalculate) > 0 {
-			count := 0
-			for val := range inv {
-				creator := ""
-
-				elem, res := dat.GetElement(val)
-				if res.Exists {
-					creator = elem.Creator
-				}
-				if creator == user {
-					count++
-				}
-			}
-			m = strconv.Itoa(count)
-		}
-		b.db.Exec(fmt.Sprintf("UPDATE eod_inv SET inv=?, count=?, made=%s WHERE guild=? AND user=?", m), data, len(inv), guild, user)
-		return
-	}
-
-	b.db.Exec("UPDATE eod_inv SET inv=?, count=? WHERE guild=? AND user=?", data, len(inv), guild, user)
 }
 
 // FOOLS

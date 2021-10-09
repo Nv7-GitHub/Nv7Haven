@@ -150,7 +150,7 @@ func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
 		if !exists {
 			inv.Add(elem3)
 			dat.SetInv(m.Author.ID, inv)
-			b.saveInv(m.GuildID, m.Author.ID, false)
+			b.base.SaveInv(m.GuildID, m.Author.ID, false)
 
 			id := rsp.Message(fmt.Sprintf("You made **%s** "+newText, elem3))
 			dat.SetMsgElem(id, elem3)
