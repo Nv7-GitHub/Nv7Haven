@@ -251,7 +251,6 @@ func (b *EoD) reactionHandler(_ *discordgo.Session, r *discordgo.MessageReaction
 	if r.UserID == b.dg.State.User.ID {
 		return
 	}
-	log.SetOutput(os.Stdout)
 
 	lock.RLock()
 	dat, exists := b.dat[r.GuildID]
@@ -260,7 +259,10 @@ func (b *EoD) reactionHandler(_ *discordgo.Session, r *discordgo.MessageReaction
 		return
 	}
 
-	log.Println("no polls", r.GuildID)
+	if len(dat.Polls) == 0 {
+		log.SetOutput(os.Stdout)
+		log.Println("no polls", r.GuildID)
+	}
 
 	p, res := dat.GetPoll(r.MessageID)
 	if !res.Exists {
