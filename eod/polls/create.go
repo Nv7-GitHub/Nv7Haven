@@ -34,7 +34,7 @@ func (b *Polls) elemCreate(name string, parents []string, creator string, contro
 	text := "Combination"
 
 	createLock.Lock()
-	tx, err := b.db.BeginTx(context.Background(), nil)
+	tx, err := b.db.GetSqlDB().BeginTx(context.Background(), nil)
 	if err != nil {
 		_ = tx.Rollback()
 		createLock.Unlock()

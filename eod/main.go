@@ -7,6 +7,8 @@ import (
 	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
+	"github.com/Nv7-Github/Nv7Haven/eod/db"
+	eodb "github.com/Nv7-Github/Nv7Haven/eod/db"
 	"github.com/Nv7-Github/Nv7Haven/eod/polls"
 	"github.com/Nv7-Github/Nv7Haven/eod/treecmds"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -27,7 +29,7 @@ var lock = &sync.RWMutex{}
 // EoD contains the data for an EoD bot
 type EoD struct {
 	dg  *discordgo.Session
-	db  *sql.DB
+	db  *db.DB
 	dat map[string]types.ServerData // map[guild]data
 
 	// Subsystems
@@ -52,7 +54,7 @@ func InitEoD(db *sql.DB) EoD {
 
 	bot = EoD{
 		dg:  dg,
-		db:  db,
+		db:  eodb.NewDB(db),
 		dat: make(map[string]types.ServerData),
 	}
 
@@ -70,5 +72,6 @@ func InitEoD(db *sql.DB) EoD {
 
 // Close cleans up
 func (b *EoD) Close() {
+	b.db.Close()
 	b.dg.Close()
 }
