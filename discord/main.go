@@ -1,7 +1,6 @@
 package discord
 
 import (
-	"database/sql"
 	"io/ioutil"
 	"math/rand"
 	"strings"
@@ -9,6 +8,7 @@ import (
 
 	_ "embed"
 
+	"github.com/Nv7-Github/Nv7Haven/db"
 	"github.com/Nv7-Github/Nv7Haven/elemental"
 	"github.com/bwmarrin/discordgo"
 )
@@ -27,7 +27,7 @@ var bot Bot
 // Bot is a discord bot
 type Bot struct {
 	dg    *discordgo.Session
-	db    *sql.DB
+	db    *db.DB
 	props map[string]property
 
 	memerefreshtime time.Time
@@ -83,7 +83,7 @@ func (b *Bot) handlers() {
 }
 
 // InitDiscord creates a discord bot
-func InitDiscord(db *sql.DB, e *elemental.Elemental) Bot {
+func InitDiscord(db *db.DB, e *elemental.Elemental) Bot {
 	// Init
 	rand.Seed(time.Now().UnixNano())
 

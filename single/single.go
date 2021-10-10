@@ -1,9 +1,9 @@
 package single
 
 import (
-	"database/sql"
 	"os"
 
+	"github.com/Nv7-Github/Nv7Haven/db"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -17,11 +17,11 @@ func (s *Single) routing(app *fiber.App) {
 
 // Single is the Nv7 Singleplayer server for elemental 7 (https://elem7.tk)
 type Single struct {
-	db *sql.DB
+	db *db.DB
 }
 
 // InitSingle initializes all of Nv7 Single's handlers on the app.
-func InitSingle(app *fiber.App, db *sql.DB) {
+func InitSingle(app *fiber.App, db *db.DB) {
 	if _, err := os.Stat("packs"); os.IsNotExist(err) {
 		err = os.Mkdir("packs", 0777)
 		if err != nil && os.Getenv("MYSQL_HOST") != "host.kiwatech.net" {

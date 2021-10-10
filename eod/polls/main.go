@@ -3,8 +3,8 @@ package polls
 import (
 	"sync"
 
+	"github.com/Nv7-Github/Nv7Haven/db"
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
-	"github.com/Nv7-Github/Nv7Haven/eod/db"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )

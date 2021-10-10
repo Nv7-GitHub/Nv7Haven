@@ -1,17 +1,17 @@
 package eod
 
 import (
-	"database/sql"
 	_ "embed"
 	"strings"
 	"sync"
 
+	eodb "github.com/Nv7-Github/Nv7Haven/db"
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/basecmds"
-	eodb "github.com/Nv7-Github/Nv7Haven/eod/db"
 	"github.com/Nv7-Github/Nv7Haven/eod/polls"
 	"github.com/Nv7-Github/Nv7Haven/eod/treecmds"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -40,7 +40,7 @@ type EoD struct {
 }
 
 // InitEoD initializes the EoD bot
-func InitEoD(db *sql.DB) EoD {
+func InitEoD(db *eodb.DB) EoD {
 	// Discord bot
 	dg, err := discordgo.New("Bot " + strings.TrimSpace(token))
 	if err != nil {
@@ -55,7 +55,7 @@ func InitEoD(db *sql.DB) EoD {
 
 	bot = EoD{
 		dg:  dg,
-		db:  eodb.NewDB(db),
+		db:  db,
 		dat: make(map[string]types.ServerData),
 	}
 

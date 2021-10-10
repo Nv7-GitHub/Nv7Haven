@@ -1,9 +1,9 @@
 package anarchy
 
 import (
-	"database/sql"
 	"sync"
 
+	"github.com/Nv7-Github/Nv7Haven/db"
 	"github.com/Nv7-Github/Nv7Haven/pb"
 	"github.com/schollz/progressbar/v3"
 	"google.golang.org/grpc"
@@ -14,7 +14,7 @@ var lock = &sync.RWMutex{}
 type Anarchy struct {
 	*pb.UnimplementedAnarchyServer
 
-	db      *sql.DB
+	db      *db.DB
 	cache   map[string]*pb.AnarchyElement
 	recents *sync.Cond
 }
@@ -51,7 +51,7 @@ func (a *Anarchy) init() {
 }
 
 // InitAnarchy initializes Elemental 7's Anarchy server
-func InitAnarchy(db *sql.DB, grpc *grpc.Server) *Anarchy {
+func InitAnarchy(db *db.DB, grpc *grpc.Server) *Anarchy {
 	a := &Anarchy{
 		db:      db,
 		cache:   make(map[string]*pb.AnarchyElement),
