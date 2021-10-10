@@ -1008,7 +1008,7 @@ var (
 					id = val.UserValue(bot.dg).ID
 				}
 			}
-			bot.invCmd(id, bot.newMsgSlash(i), bot.newRespSlash(i), sortby, filter)
+			bot.basecmds.InvCmd(id, bot.newMsgSlash(i), bot.newRespSlash(i), sortby, filter)
 		},
 		"lb": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -1023,7 +1023,7 @@ var (
 					user = opt.UserValue(bot.dg).ID
 				}
 			}
-			bot.lbCmd(bot.newMsgSlash(i), bot.newRespSlash(i), sort, user)
+			bot.basecmds.LbCmd(bot.newMsgSlash(i), bot.newRespSlash(i), sort, user)
 		},
 		"addcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -1290,7 +1290,7 @@ var (
 			resp := i.ApplicationCommandData().Options[0]
 			switch resp.Name {
 			case "found":
-				bot.foundCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.basecmds.FoundCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 
 			case "categories":
 				bot.categoriesCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
@@ -1339,11 +1339,11 @@ var (
 		},
 		"elemsearch": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.elemSearchCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.basecmds.ElemSearchCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"View Inventory": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.invCmd(resp.TargetID, bot.newMsgSlash(i), bot.newRespSlash(i), "name", "none")
+			bot.basecmds.InvCmd(resp.TargetID, bot.newMsgSlash(i), bot.newRespSlash(i), "name", "none")
 		},
 		"View Info": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -1387,7 +1387,7 @@ var (
 		},
 		"View Leaderboard": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.lbCmd(bot.newMsgSlash(i), bot.newRespSlash(i), "count", resp.TargetID)
+			bot.basecmds.LbCmd(bot.newMsgSlash(i), bot.newRespSlash(i), "count", resp.TargetID)
 		},
 		"notation": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData().Options[0]

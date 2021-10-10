@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
-	"github.com/Nv7-Github/Nv7Haven/eod/db"
+	"github.com/Nv7-Github/Nv7Haven/eod/basecmds"
 	eodb "github.com/Nv7-Github/Nv7Haven/eod/db"
 	"github.com/Nv7-Github/Nv7Haven/eod/polls"
 	"github.com/Nv7-Github/Nv7Haven/eod/treecmds"
@@ -29,13 +29,14 @@ var lock = &sync.RWMutex{}
 // EoD contains the data for an EoD bot
 type EoD struct {
 	dg  *discordgo.Session
-	db  *db.DB
+	db  *eodb.DB
 	dat map[string]types.ServerData // map[guild]data
 
 	// Subsystems
 	base     *base.Base
 	treecmds *treecmds.TreeCmds
 	polls    *polls.Polls
+	basecmds *basecmds.BaseCmds
 }
 
 // InitEoD initializes the EoD bot
@@ -64,7 +65,7 @@ func InitEoD(db *sql.DB) EoD {
 	// FOOLS
 	bot.base.InitFools(foolsRaw)
 	if base.IsFoolsMode {
-		maxComboLength = 2
+		types.MaxComboLength = 2
 	}
 
 	return bot

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
+	"github.com/Nv7-Github/Nv7Haven/eod/basecmds"
 	"github.com/Nv7-Github/Nv7Haven/eod/logs"
 	"github.com/Nv7-Github/Nv7Haven/eod/polls"
 	"github.com/Nv7-Github/Nv7Haven/eod/treecmds"
@@ -301,6 +302,7 @@ func (b *EoD) init() {
 	b.base = base.NewBase(b.db, b.dat, b.dg, lock)
 	b.treecmds = treecmds.NewTreeCmds(b.dat, b.dg, b.base, lock)
 	b.polls = polls.NewPolls(b.dat, b.dg, b.db, b.base, lock)
+	b.basecmds = basecmds.NewBaseCmds(b.dat, b.base, b.dg, b.db, lock)
 
 	polls, err := b.db.Query("SELECT * FROM eod_polls")
 	if err != nil {

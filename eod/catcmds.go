@@ -264,3 +264,59 @@ func (b *EoD) downloadCatCmd(catName string, sort string, postfix bool, m types.
 	}
 	rsp.Message("Sent category in DMs!")
 }
+
+func (b *EoD) categoriesCmd(elem string, m types.Msg, rsp types.Rsp) {
+	lock.RLock()
+	dat, exists := b.dat[m.GuildID]
+	lock.RUnlock()
+	if !exists {
+		return
+	}
+
+	rsp.Acknowledge()
+
+	el, res := dat.GetElement(elem)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
+		return
+	}
+
+	// Get Categories
+	catsMap := make(map[catSortInfo]types.Empty)
+	dat.Lock.RLock()
+	for _, cat := range dat.Categories {
+		_, exists := cat.Elements[el.Name]
+		if exists {
+			catsMap[catSortInfo{
+				Name: cat.Name,
+				Cnt:  len(cat.Elements),
+			}] = types.Empty{}
+		}
+	}
+	dat.Lock.RUnlock()
+	cats := make([]catSortInfo, len(catsMap))
+	i := 0
+	for k := range catsMap {
+		cats[i] = k
+		i++
+	}
+
+	// Sort categories by count
+	sort.Slice(cats, func(i, j int) bool {
+		return cats[i].Cnt > cats[j].Cnt
+	})
+
+	// Convert to array
+	out := make([]string, len(cats))
+	for i, cat := range cats {
+		out[i] = cat.Name
+	}
+
+	b.base.NewPageSwitcher(types.PageSwitcher{
+		Kind:       types.PageSwitchInv,
+		Title:      fmt.Sprintf("%s Categories (%d)", el.Name, len(out)),
+		PageGetter: b.base.InvPageGetter,
+		Items:      out,
+		User:       m.Author.ID,
+	}, m, rsp)
+}

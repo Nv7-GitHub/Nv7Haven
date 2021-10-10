@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
 )
@@ -135,12 +136,12 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		if cmd == "inv" {
-			b.invCmd(m.Author.ID, msg, rsp, "name", "none")
+			b.basecmds.InvCmd(m.Author.ID, msg, rsp, "name", "none")
 			return
 		}
 
 		if cmd == "lb" {
-			b.lbCmd(msg, rsp, "count", msg.Author.ID)
+			b.basecmds.LbCmd(msg, rsp, "count", msg.Author.ID)
 			return
 		}
 
@@ -207,7 +208,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if strings.HasPrefix(m.Content, "*") && len(m.Content) > 1 {
-		if !b.checkServer(msg, rsp) {
+		if !b.base.CheckServer(msg, rsp) {
 			return
 		}
 		lock.RLock()
@@ -231,8 +232,8 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if err != nil {
 			return
 		}
-		if length > maxComboLength {
-			length = maxComboLength + 1 // This way it triggers the error message in the combo command
+		if length > types.MaxComboLength {
+			length = types.MaxComboLength + 1 // This way it triggers the error message in the combo command
 		}
 		if length < 2 {
 			length = 1
@@ -250,7 +251,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			last = comb.Elem3
 
 			if comb.Elem3 == "" {
-				b.combine(comb.Elems, msg, rsp)
+				b.basecmds.Combine(comb.Elems, msg, rsp)
 				return
 			}
 		}
@@ -260,13 +261,13 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			elems[i] = last
 		}
 
-		b.combine(elems, msg, rsp)
+		b.basecmds.Combine(elems, msg, rsp)
 		return
 	}
 
 	for _, comb := range combs {
 		if strings.Contains(m.Content, comb) {
-			if !b.checkServer(msg, rsp) {
+			if !b.base.CheckServer(msg, rsp) {
 				return
 			}
 			parts := strings.Split(m.Content, comb)
@@ -276,7 +277,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			for i, part := range parts {
 				parts[i] = strings.TrimSpace(strings.Replace(part, "\\", "", -1))
 			}
-			b.combine(parts, msg, rsp)
+			b.basecmds.Combine(parts, msg, rsp)
 			return
 		}
 	}

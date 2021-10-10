@@ -1,6 +1,7 @@
 package util
 
 import (
+	"sort"
 	"strings"
 	"unicode"
 
@@ -47,4 +48,30 @@ var smallWords = map[string]types.Empty{
 	"on":  {},
 	"the": {},
 	"to":  {},
+}
+
+func JoinTxt(elemDat map[string]types.Empty, ending string) string {
+	elems := make([]string, len(elemDat))
+	i := 0
+	for k := range elemDat {
+		elems[i] = k
+		i++
+	}
+	sort.Strings(elems)
+
+	out := ""
+	for i, elem := range elems {
+		out += elem
+		if i != len(elems)-1 && len(elems) != 2 {
+			out += ", "
+		} else if i != len(elems)-1 {
+			out += " "
+		}
+
+		if i == len(elems)-2 {
+			out += ending + " "
+		}
+	}
+
+	return out
 }

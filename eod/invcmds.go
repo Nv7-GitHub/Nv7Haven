@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
@@ -17,7 +18,7 @@ func (b *EoD) resetInvCmd(user string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 	inv := make(map[string]types.Empty)
-	for _, v := range starterElements {
+	for _, v := range base.StarterElements {
 		inv[strings.ToLower(v.Name)] = types.Empty{}
 	}
 

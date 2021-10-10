@@ -66,7 +66,7 @@ func (b *EoD) categoryCmd(elems []string, category string, m types.Msg, rsp type
 				return
 			}
 
-			rsp.ErrorMessage("Elements " + joinTxt(notExists, "and") + " don't exist!")
+			rsp.ErrorMessage("Elements " + util.JoinTxt(notExists, "and") + " don't exist!")
 			return
 		}
 
@@ -163,7 +163,7 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m types.Msg, rsp ty
 			return
 		}
 
-		rsp.ErrorMessage("Elements " + joinTxt(notExists, "and") + " don't exist!")
+		rsp.ErrorMessage("Elements " + util.JoinTxt(notExists, "and") + " don't exist!")
 		return
 	}
 
@@ -197,7 +197,7 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m types.Msg, rsp ty
 			return
 		}
 
-		rsp.ErrorMessage(fmt.Sprintf("Elements %s aren't in category **%s**!", joinTxt(notFound, "and"), cat.Name))
+		rsp.ErrorMessage(fmt.Sprintf("Elements %s aren't in category **%s**!", util.JoinTxt(notFound, "and"), cat.Name))
 		return
 	}
 

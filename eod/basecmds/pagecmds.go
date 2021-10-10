@@ -1,4 +1,4 @@
-package eod
+package basecmds
 
 import (
 	"fmt"
@@ -8,12 +8,12 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
-func (b *EoD) invCmd(user string, m types.Msg, rsp types.Rsp, sorter string, filter string) {
+func (b *BaseCmds) InvCmd(user string, m types.Msg, rsp types.Rsp, sorter string, filter string) {
 	rsp.Acknowledge()
 
-	lock.RLock()
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage("Guild not setup!")
 		return
@@ -70,10 +70,10 @@ func (b *EoD) invCmd(user string, m types.Msg, rsp types.Rsp, sorter string, fil
 	}, m, rsp)
 }
 
-func (b *EoD) lbCmd(m types.Msg, rsp types.Rsp, sort string, user string) {
-	lock.RLock()
+func (b *BaseCmds) LbCmd(m types.Msg, rsp types.Rsp, sort string, user string) {
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return
 	}
@@ -92,10 +92,10 @@ func (b *EoD) lbCmd(m types.Msg, rsp types.Rsp, sort string, user string) {
 	}, m, rsp)
 }
 
-func (b *EoD) elemSearchCmd(search string, m types.Msg, rsp types.Rsp) {
-	lock.RLock()
+func (b *BaseCmds) ElemSearchCmd(search string, m types.Msg, rsp types.Rsp) {
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return
 	}

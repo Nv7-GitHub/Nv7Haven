@@ -47,8 +47,8 @@ func (c *ideaComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCr
 }
 
 func (b *EoD) genIdea(count int, catName string, hasCat bool, elemName string, hasEl bool, guild string, author string) (string, bool) {
-	if count > maxComboLength {
-		return fmt.Sprintf("You can only combine up to %d elements!", maxComboLength), false
+	if count > types.MaxComboLength {
+		return fmt.Sprintf("You can only combine up to %d elements!", types.MaxComboLength), false
 	}
 
 	if count < 2 {

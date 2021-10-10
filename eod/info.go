@@ -264,7 +264,7 @@ func (b *EoD) info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
 		Color: el.Color,
 	}
 	if m.Author.ID == "567132457820749842" {
-		for _, elem := range starterElements {
+		for _, elem := range base.StarterElements {
 			if elem.Name == el.Name {
 				emb.Thumbnail.URL = elem.Image
 			}
