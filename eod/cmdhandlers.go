@@ -31,7 +31,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		suggestion := m.Content[1:]
 
 		suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
-		b.suggestCmd(suggestion, true, msg, rsp)
+		b.elements.SuggestCmd(suggestion, true, msg, rsp)
 		return
 	}
 
@@ -48,12 +48,12 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			suggestion := m.Content[len(cmd)+2:]
 
 			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
-			b.suggestCmd(suggestion, true, msg, rsp)
+			b.elements.SuggestCmd(suggestion, true, msg, rsp)
 			return
 		}
 
 		if cmd == "stats" {
-			b.statsCmd(msg, rsp)
+			b.basecmds.StatsCmd(msg, rsp)
 			return
 		}
 
@@ -89,13 +89,13 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		if cmd == "hint" || cmd == "h" {
 			if len(m.Content) <= len(cmd)+2 {
-				b.hintCmd("", false, false, msg, rsp)
+				b.elements.HintCmd("", false, false, msg, rsp)
 				return
 			}
 			suggestion := m.Content[len(cmd)+2:]
 			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
 
-			b.hintCmd(suggestion, true, false, msg, rsp)
+			b.elements.HintCmd(suggestion, true, false, msg, rsp)
 			return
 		}
 
@@ -113,7 +113,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			catName := strings.TrimSpace(txt[:sepPos])
 			elems := util.TrimArray(splitByCombs(txt[sepPos+1:]))
 
-			b.categoryCmd(elems, catName, msg, rsp)
+			b.categories.CategoryCmd(elems, catName, msg, rsp)
 			return
 		}
 
@@ -131,29 +131,29 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			catName := strings.TrimSpace(txt[:sepPos])
 			elems := util.TrimArray(splitByCombs(txt[sepPos+1:]))
 
-			b.rmCategoryCmd(elems, catName, msg, rsp)
+			b.categories.RmCategoryCmd(elems, catName, msg, rsp)
 			return
 		}
 
 		if cmd == "inv" {
-			b.basecmds.InvCmd(m.Author.ID, msg, rsp, "name", "none")
+			b.elements.InvCmd(m.Author.ID, msg, rsp, "name", "none")
 			return
 		}
 
 		if cmd == "lb" {
-			b.basecmds.LbCmd(msg, rsp, "count", msg.Author.ID)
+			b.elements.LbCmd(msg, rsp, "count", msg.Author.ID)
 			return
 		}
 
 		if cmd == "cat" {
 			if len(m.Content) <= len(cmd)+2 {
-				bot.allCatCmd("name", false, "", msg, rsp)
+				bot.categories.AllCatCmd("name", false, "", msg, rsp)
 				return
 			}
 			suggestion := m.Content[len(cmd)+2:]
 			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
 
-			b.catCmd(suggestion, "name", false, "", msg, rsp)
+			b.categories.CatCmd(suggestion, "name", false, "", msg, rsp)
 			return
 		}
 
@@ -177,7 +177,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			if len(m.Content) <= len(cmd)+2 {
 				return
 			}
-			b.infoCmd(strings.TrimSpace(m.Content[len(cmd)+2:]), msg, rsp)
+			b.elements.InfoCmd(strings.TrimSpace(m.Content[len(cmd)+2:]), msg, rsp)
 			return
 		}
 		if cmd == "restart" || cmd == "update" {
@@ -203,7 +203,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if len(m.Content) < 2 {
 			return
 		}
-		b.infoCmd(strings.TrimSpace(m.Content[1:]), msg, rsp)
+		b.elements.InfoCmd(strings.TrimSpace(m.Content[1:]), msg, rsp)
 		return
 	}
 

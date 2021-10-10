@@ -1,4 +1,4 @@
-package eod
+package basecmds
 
 import (
 	"strconv"
@@ -6,7 +6,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
-func (b *EoD) setNewsChannel(channelID string, msg types.Msg, rsp types.Rsp) {
+func (b *BaseCmds) SetNewsChannel(channelID string, msg types.Msg, rsp types.Rsp) {
 	row := b.db.QueryRow("SELECT COUNT(1) FROM eod_serverdata WHERE guild=? AND type=?", msg.GuildID, types.NewsChannel)
 	var count int
 	err := row.Scan(&count)
@@ -26,21 +26,21 @@ func (b *EoD) setNewsChannel(channelID string, msg types.Msg, rsp types.Rsp) {
 		}
 	}
 
-	lock.RLock()
+	b.lock.RLock()
 	dat, exists := b.dat[msg.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		dat = types.NewServerData()
 	}
 	dat.NewsChannel = channelID
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[msg.GuildID] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 
 	rsp.Message("Succesfully updated news channel!")
 }
 
-func (b *EoD) setVotingChannel(channelID string, msg types.Msg, rsp types.Rsp) {
+func (b *BaseCmds) SetVotingChannel(channelID string, msg types.Msg, rsp types.Rsp) {
 	row := b.db.QueryRow("SELECT COUNT(1) FROM eod_serverdata WHERE guild=? AND type=?", msg.GuildID, types.VotingChannel)
 	var count int
 	err := row.Scan(&count)
@@ -60,21 +60,21 @@ func (b *EoD) setVotingChannel(channelID string, msg types.Msg, rsp types.Rsp) {
 		}
 	}
 
-	lock.RLock()
+	b.lock.RLock()
 	dat, exists := b.dat[msg.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		dat = types.NewServerData()
 	}
 	dat.VotingChannel = channelID
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[msg.GuildID] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 
 	rsp.Message("Succesfully updated voting channel!")
 }
 
-func (b *EoD) setVoteCount(count int, msg types.Msg, rsp types.Rsp) {
+func (b *BaseCmds) SetVoteCount(count int, msg types.Msg, rsp types.Rsp) {
 	if count < 0 {
 		count *= -1
 	}
@@ -97,21 +97,21 @@ func (b *EoD) setVoteCount(count int, msg types.Msg, rsp types.Rsp) {
 		}
 	}
 
-	lock.RLock()
+	b.lock.RLock()
 	dat, exists := b.dat[msg.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		dat = types.NewServerData()
 	}
 	dat.VoteCount = count
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[msg.GuildID] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 
 	rsp.Message("Succesfully updated vote count!")
 }
 
-func (b *EoD) setPollCount(count int, msg types.Msg, rsp types.Rsp) {
+func (b *BaseCmds) SetPollCount(count int, msg types.Msg, rsp types.Rsp) {
 	if count < 0 {
 		count *= -1
 	}
@@ -134,21 +134,21 @@ func (b *EoD) setPollCount(count int, msg types.Msg, rsp types.Rsp) {
 		}
 	}
 
-	lock.RLock()
+	b.lock.RLock()
 	dat, exists := b.dat[msg.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		dat = types.NewServerData()
 	}
 	dat.PollCount = count
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[msg.GuildID] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 
 	rsp.Message("Succesfully updated poll count!")
 }
 
-func (b *EoD) setPlayChannel(channelID string, isPlayChannel bool, msg types.Msg, rsp types.Rsp) {
+func (b *BaseCmds) SetPlayChannel(channelID string, isPlayChannel bool, msg types.Msg, rsp types.Rsp) {
 	row := b.db.QueryRow("SELECT COUNT(1) FROM eod_serverdata WHERE guild=? AND type=? AND value1=?", msg.GuildID, types.PlayChannel, channelID)
 	var cnt int
 	err := row.Scan(&cnt)
@@ -162,16 +162,16 @@ func (b *EoD) setPlayChannel(channelID string, isPlayChannel bool, msg types.Msg
 			return
 		}
 
-		lock.RLock()
+		b.lock.RLock()
 		dat, exists := b.dat[msg.GuildID]
-		lock.RUnlock()
+		b.lock.RUnlock()
 		if !exists {
 			dat = types.NewServerData()
 		}
 		delete(dat.PlayChannels, channelID)
-		lock.Lock()
+		b.lock.Lock()
 		b.dat[msg.GuildID] = dat
-		lock.Unlock()
+		b.lock.Unlock()
 
 		rsp.Message("Succesfully marked channel as not a play channel.")
 		return
@@ -187,9 +187,9 @@ func (b *EoD) setPlayChannel(channelID string, isPlayChannel bool, msg types.Msg
 		return
 	}
 
-	lock.RLock()
+	b.lock.RLock()
 	dat, exists := b.dat[msg.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		dat = types.NewServerData()
 	}
@@ -197,14 +197,14 @@ func (b *EoD) setPlayChannel(channelID string, isPlayChannel bool, msg types.Msg
 		dat.PlayChannels = make(map[string]types.Empty)
 	}
 	dat.PlayChannels[channelID] = types.Empty{}
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[msg.GuildID] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 
 	rsp.Message("Succesfully marked channel as play channel!")
 }
 
-func (b *EoD) setModRole(roleID string, msg types.Msg, rsp types.Rsp) {
+func (b *BaseCmds) SetModRole(roleID string, msg types.Msg, rsp types.Rsp) {
 	row := b.db.QueryRow("SELECT COUNT(1) FROM eod_serverdata WHERE guild=? AND type=?", msg.GuildID, types.ModRole)
 	var count int
 	err := row.Scan(&count)
@@ -224,21 +224,21 @@ func (b *EoD) setModRole(roleID string, msg types.Msg, rsp types.Rsp) {
 		}
 	}
 
-	lock.RLock()
+	b.lock.RLock()
 	dat, exists := b.dat[msg.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		dat = types.NewServerData()
 	}
 	dat.ModRole = roleID
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[msg.GuildID] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 
 	rsp.Message("Succesfully updated mod role!")
 }
 
-func (b *EoD) setUserColor(color string, removeColor bool, m types.Msg, rsp types.Rsp) {
+func (b *BaseCmds) SetUserColor(color string, removeColor bool, m types.Msg, rsp types.Rsp) {
 	row := b.db.QueryRow("SELECT COUNT(1) FROM eod_serverdata WHERE guild=? AND type=? AND value1=?", m.GuildID, types.UserColor, m.Author.ID)
 	var cnt int
 	err := row.Scan(&cnt)
@@ -253,17 +253,17 @@ func (b *EoD) setUserColor(color string, removeColor bool, m types.Msg, rsp type
 			return
 		}
 
-		lock.RLock()
+		b.lock.RLock()
 		dat, exists := b.dat[m.GuildID]
-		lock.RUnlock()
+		b.lock.RUnlock()
 		if !exists {
 			rsp.ErrorMessage("Guild not set up yet!")
 			return
 		}
 		delete(dat.UserColors, m.Author.ID)
-		lock.Lock()
+		b.lock.Lock()
 		b.dat[m.GuildID] = dat
-		lock.Unlock()
+		b.lock.Unlock()
 
 		rsp.Message("Successfully reset color!")
 		return
@@ -300,9 +300,9 @@ func (b *EoD) setUserColor(color string, removeColor bool, m types.Msg, rsp type
 		}
 	}
 
-	lock.RLock()
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		dat = types.NewServerData()
 	}
@@ -310,9 +310,9 @@ func (b *EoD) setUserColor(color string, removeColor bool, m types.Msg, rsp type
 		dat.PlayChannels = make(map[string]types.Empty)
 	}
 	dat.UserColors[m.Author.ID] = int(col)
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[m.GuildID] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 
 	if cnt == 0 {
 		rsp.Message("Successfully set color!")

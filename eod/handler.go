@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/elements"
 	"github.com/Nv7-Github/Nv7Haven/eod/logs"
 	"github.com/bwmarrin/discordgo"
 )
@@ -33,7 +34,7 @@ func (b *EoD) initHandlers() {
 	}
 
 	// Handlers
-	b.initInfoChoices()
+	b.elements.InitInfoChoices()
 
 	cmds, err := b.dg.ApplicationCommands(clientID, guild)
 	if err != nil {
@@ -46,7 +47,7 @@ func (b *EoD) initHandlers() {
 	idealCmds := make(map[string]*discordgo.ApplicationCommand)
 	for _, val := range commands {
 		if val.Name == "elemsort" {
-			val.Options[0].Choices = infoChoices
+			val.Options[0].Choices = elements.InfoChoices
 		}
 		idealCmds[val.Name] = val
 		cmd, exists := cms[val.Name]

@@ -1,4 +1,4 @@
-package eod
+package elements
 
 import (
 	"fmt"
@@ -22,11 +22,16 @@ var hintCmp = discordgo.ActionsRow{
 }
 
 type hintComponent struct {
-	b *EoD
+	b *Elements
 }
 
 func (h *hintComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCreate) {
-	hint, msg, suc := h.b.getHint("", false, i.Member.User.ID, i.GuildID, false, h.b.newMsgSlash(i), nil)
+	m := types.Msg{
+		Author:    i.Member.User,
+		ChannelID: i.ChannelID,
+		GuildID:   i.GuildID,
+	}
+	hint, msg, suc := h.b.getHint("", false, i.Member.User.ID, i.GuildID, false, m, nil)
 	if !suc {
 		h.b.dg.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseUpdateMessage,
@@ -52,29 +57,7 @@ type hintCombo struct {
 	text   string
 }
 
-var noObscure = map[rune]types.Empty{
-	' ': {},
-	'.': {},
-	'-': {},
-	'_': {},
-}
-
-func obscure(val string) string {
-	out := make([]rune, len([]rune(val)))
-	i := 0
-	for _, char := range val {
-		_, exists := noObscure[char]
-		if exists {
-			out[i] = char
-		} else {
-			out[i] = '?'
-		}
-		i++
-	}
-	return string(out)
-}
-
-func (b *EoD) hintCmd(elem string, hasElem bool, inverse bool, m types.Msg, rsp types.Rsp) {
+func (b *Elements) HintCmd(elem string, hasElem bool, inverse bool, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 	elem = strings.TrimSpace(elem)
 	elem = util.EscapeElement(elem)
@@ -97,9 +80,9 @@ func (b *EoD) hintCmd(elem string, hasElem bool, inverse bool, m types.Msg, rsp 
 		return
 	}
 
-	lock.RLock()
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return
 	}
@@ -114,15 +97,15 @@ func (b *EoD) hintCmd(elem string, hasElem bool, inverse bool, m types.Msg, rsp 
 
 	dat.AddComponentMsg(id, &hintComponent{b: b})
 
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[m.GuildID] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 }
 
-func (b *EoD) getHint(elem string, hasElem bool, author string, guild string, inverse bool, m types.Msg, rsp types.Rsp) (*discordgo.MessageEmbed, string, bool) {
-	lock.RLock()
+func (b *Elements) getHint(elem string, hasElem bool, author string, guild string, inverse bool, m types.Msg, rsp types.Rsp) (*discordgo.MessageEmbed, string, bool) {
+	b.lock.RLock()
 	dat, exists := b.dat[guild]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return nil, "Guild not found", false
 	}
@@ -299,7 +282,7 @@ func getHintText(elemTxt string, inv types.Container, dat types.ServerData, inve
 		dat.Lock.RUnlock()
 
 		params = append([]interface{}{pref}, params...)
-		params[len(params)-1] = obscure(params[len(params)-1].(string))
+		params[len(params)-1] = util.Obscure(params[len(params)-1].(string))
 		txt := fmt.Sprintf(prf, params...)
 		return txt, ex
 	}

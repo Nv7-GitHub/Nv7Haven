@@ -1,4 +1,4 @@
-package basecmds
+package elements
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
-func (b *BaseCmds) FoundCmd(elem string, m types.Msg, rsp types.Rsp) {
+func (b *Elements) FoundCmd(elem string, m types.Msg, rsp types.Rsp) {
 	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	b.lock.RUnlock()

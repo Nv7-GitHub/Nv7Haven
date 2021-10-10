@@ -1,4 +1,4 @@
-package basecmds
+package elements
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
-func (b *BaseCmds) InvCmd(user string, m types.Msg, rsp types.Rsp, sorter string, filter string) {
+func (b *Elements) InvCmd(user string, m types.Msg, rsp types.Rsp, sorter string, filter string) {
 	rsp.Acknowledge()
 
 	b.lock.RLock()
@@ -70,7 +70,7 @@ func (b *BaseCmds) InvCmd(user string, m types.Msg, rsp types.Rsp, sorter string
 	}, m, rsp)
 }
 
-func (b *BaseCmds) LbCmd(m types.Msg, rsp types.Rsp, sort string, user string) {
+func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sort string, user string) {
 	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	b.lock.RUnlock()
@@ -92,7 +92,7 @@ func (b *BaseCmds) LbCmd(m types.Msg, rsp types.Rsp, sort string, user string) {
 	}, m, rsp)
 }
 
-func (b *BaseCmds) ElemSearchCmd(search string, m types.Msg, rsp types.Rsp) {
+func (b *Elements) ElemSearchCmd(search string, m types.Msg, rsp types.Rsp) {
 	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	b.lock.RUnlock()

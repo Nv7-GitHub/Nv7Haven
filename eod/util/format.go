@@ -5,6 +5,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
 func FormatFloat(num float32, prc int) string {
@@ -48,4 +50,26 @@ func Elems2Txt(elems []string) string {
 	}
 	sort.Strings(elems)
 	return strings.Join(elems, "+")
+}
+
+var noObscure = map[rune]types.Empty{
+	' ': {},
+	'.': {},
+	'-': {},
+	'_': {},
+}
+
+func Obscure(val string) string {
+	out := make([]rune, len([]rune(val)))
+	i := 0
+	for _, char := range val {
+		_, exists := noObscure[char]
+		if exists {
+			out[i] = char
+		} else {
+			out[i] = '?'
+		}
+		i++
+	}
+	return string(out)
 }

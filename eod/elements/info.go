@@ -1,4 +1,4 @@
-package eod
+package elements
 
 import (
 	"database/sql"
@@ -17,7 +17,7 @@ import (
 
 const catInfoCount = 3
 
-var infoChoices []*discordgo.ApplicationCommandOptionChoice
+var InfoChoices []*discordgo.ApplicationCommandOptionChoice
 var infoQuerys = map[string]string{
 	"Name":         "SELECT name FROM eod_elements WHERE guild=? ORDER BY name %s LIMIT ? OFFSET ?",
 	"Date Created": "SELECT name FROM eod_elements WHERE guild=? ORDER BY createdon %s LIMIT ? OFFSET ?",
@@ -33,11 +33,11 @@ var infoQuerys = map[string]string{
 	"Color":     `SELECT name FROM eod_elements WHERE guild=? ORDER BY color %s LIMIT ? OFFSET ?`,
 }
 
-func (b *EoD) initInfoChoices() {
-	infoChoices = make([]*discordgo.ApplicationCommandOptionChoice, len(infoQuerys))
+func (b *Elements) InitInfoChoices() {
+	InfoChoices = make([]*discordgo.ApplicationCommandOptionChoice, len(infoQuerys))
 	i := 0
 	for k := range infoQuerys {
-		infoChoices[i] = &discordgo.ApplicationCommandOptionChoice{
+		InfoChoices[i] = &discordgo.ApplicationCommandOptionChoice{
 			Name:  k,
 			Value: k,
 		}
@@ -45,7 +45,7 @@ func (b *EoD) initInfoChoices() {
 	}
 }
 
-func (b *EoD) sortPageGetter(p types.PageSwitcher) (string, int, int, error) {
+func (b *Elements) sortPageGetter(p types.PageSwitcher) (string, int, int, error) {
 	length := int(math.Floor(float64(p.Length-1) / float64(p.PageLength)))
 	if p.PageLength*p.Page > (p.Length - 1) {
 		return "", 0, length, nil
@@ -80,10 +80,10 @@ func (b *EoD) sortPageGetter(p types.PageSwitcher) (string, int, int, error) {
 	return out, p.Page, length, nil
 }
 
-func (b *EoD) sortCmd(query string, order bool, m types.Msg, rsp types.Rsp) {
-	lock.RLock()
+func (b *Elements) SortCmd(query string, order bool, m types.Msg, rsp types.Rsp) {
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return
 	}
@@ -111,13 +111,13 @@ type catSortInfo struct {
 	Cnt  int
 }
 
-func (b *EoD) info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
+func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
 	if len(elem) == 0 && !isId {
 		return
 	}
-	lock.RLock()
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage("Guild isn't setup yet!")
 		return
@@ -289,7 +289,7 @@ func (b *EoD) info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
 	dat.SetMsgElem(msgId, el.Name)
 }
 
-func (b *EoD) infoCmd(elem string, m types.Msg, rsp types.Rsp) {
+func (b *Elements) InfoCmd(elem string, m types.Msg, rsp types.Rsp) {
 	elem = strings.TrimSpace(elem)
 	if elem[0] == '#' {
 		number, err := strconv.Atoi(elem[1:])
@@ -297,8 +297,8 @@ func (b *EoD) infoCmd(elem string, m types.Msg, rsp types.Rsp) {
 			rsp.ErrorMessage("Invalid Element ID!")
 			return
 		}
-		b.info("", number, true, m, rsp)
+		b.Info("", number, true, m, rsp)
 		return
 	}
-	b.info(elem, 0, false, m, rsp)
+	b.Info(elem, 0, false, m, rsp)
 }

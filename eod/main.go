@@ -8,6 +8,8 @@ import (
 	eodb "github.com/Nv7-Github/Nv7Haven/db"
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/basecmds"
+	"github.com/Nv7-Github/Nv7Haven/eod/categories"
+	"github.com/Nv7-Github/Nv7Haven/eod/elements"
 	"github.com/Nv7-Github/Nv7Haven/eod/polls"
 	"github.com/Nv7-Github/Nv7Haven/eod/treecmds"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -33,10 +35,12 @@ type EoD struct {
 	dat map[string]types.ServerData // map[guild]data
 
 	// Subsystems
-	base     *base.Base
-	treecmds *treecmds.TreeCmds
-	polls    *polls.Polls
-	basecmds *basecmds.BaseCmds
+	base       *base.Base
+	treecmds   *treecmds.TreeCmds
+	polls      *polls.Polls
+	basecmds   *basecmds.BaseCmds
+	categories *categories.Categories
+	elements   *elements.Elements
 }
 
 // InitEoD initializes the EoD bot

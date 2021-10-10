@@ -1,4 +1,4 @@
-package eod
+package elements
 
 import (
 	"fmt"
@@ -26,7 +26,7 @@ type ideaComponent struct {
 	elemName string
 	hasEl    bool
 	count    int
-	b        *EoD
+	b        *Elements
 }
 
 func (c *ideaComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -46,7 +46,7 @@ func (c *ideaComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCr
 	}
 }
 
-func (b *EoD) genIdea(count int, catName string, hasCat bool, elemName string, hasEl bool, guild string, author string) (string, bool) {
+func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName string, hasEl bool, guild string, author string) (string, bool) {
 	if count > types.MaxComboLength {
 		return fmt.Sprintf("You can only combine up to %d elements!", types.MaxComboLength), false
 	}
@@ -55,9 +55,9 @@ func (b *EoD) genIdea(count int, catName string, hasCat bool, elemName string, h
 		return "You must combine at least 2 elements!", false
 	}
 
-	lock.RLock()
+	b.lock.RLock()
 	dat, exists := b.dat[guild]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return "Guild not found", false
 	}
@@ -147,13 +147,13 @@ func (b *EoD) genIdea(count int, catName string, hasCat bool, elemName string, h
 		Elem3: "",
 	})
 
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[guild] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 
 	return fmt.Sprintf("Your random unused combination is... **%s**\n 	Suggest it by typing **/suggest**", text), true
 }
-func (b *EoD) ideaCmd(count int, catName string, hasCat bool, elemName string, hasEl bool, m types.Msg, rsp types.Rsp) {
+func (b *Elements) IdeaCmd(count int, catName string, hasCat bool, elemName string, hasEl bool, m types.Msg, rsp types.Rsp) {
 	res, suc := b.genIdea(count, catName, hasCat, elemName, hasEl, m.GuildID, m.Author.ID)
 	if !suc {
 		rsp.ErrorMessage(res)
@@ -161,9 +161,9 @@ func (b *EoD) ideaCmd(count int, catName string, hasCat bool, elemName string, h
 	}
 	rsp.Acknowledge()
 
-	lock.Lock()
+	b.lock.Lock()
 	dat, exists := b.dat[m.GuildID]
-	lock.Unlock()
+	b.lock.Unlock()
 	if !exists {
 		rsp.ErrorMessage("Guild not found")
 		return
@@ -180,7 +180,7 @@ func (b *EoD) ideaCmd(count int, catName string, hasCat bool, elemName string, h
 		b:        b,
 	})
 
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[m.GuildID] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 }
