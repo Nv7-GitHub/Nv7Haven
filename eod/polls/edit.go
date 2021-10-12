@@ -27,9 +27,6 @@ func (b *Polls) mark(guild string, elem string, mark string, creator string, con
 	b.lock.Unlock()
 
 	query := "UPDATE eod_elements SET comment=? WHERE guild=? AND name LIKE ?"
-	if util.IsASCII(el.Name) {
-		query = "UPDATE eod_elements SET comment=? WHERE CONVERT(guild USING utf8mb4)=CONVERT(? using utf8mb4) AND CONVERT(name USING utf8mb4) LIKE CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci"
-	}
 	if util.IsWildcard(el.Name) {
 		query = strings.ReplaceAll(query, " LIKE ", "=")
 	}
@@ -58,10 +55,7 @@ func (b *Polls) image(guild string, elem string, image string, creator string, c
 	b.dat[guild] = dat
 	b.lock.Unlock()
 
-	query := "UPDATE eod_elements SET image=? WHERE guild=? AND name=?"
-	if util.IsASCII(el.Name) {
-		query = "UPDATE eod_elements SET image=? WHERE CONVERT(guild USING utf8mb4)=? AND CONVERT(name USING utf8mb4)=? COLLATE utf8mb4_general_ci"
-	}
+	query := "UPDATE eod_elements SET image=? WHERE guild=? AND name LIKE ?"
 	if util.IsWildcard(el.Name) {
 		query = strings.ReplaceAll(query, " LIKE ", "=")
 	}
@@ -91,9 +85,6 @@ func (b *Polls) color(guild string, elem string, color int, creator string, cont
 	b.lock.Unlock()
 
 	query := "UPDATE eod_elements SET color=? WHERE guild=? AND name LIKE ?"
-	if util.IsASCII(el.Name) {
-		query = "UPDATE eod_elements SET color=? WHERE CONVERT(guild USING utf8mb4)=CONVERT(? using utf8mb4) AND CONVERT(name USING utf8mb4) LIKE CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci"
-	}
 	if util.IsWildcard(el.Name) {
 		query = strings.ReplaceAll(query, " LIKE ", "=")
 	}
