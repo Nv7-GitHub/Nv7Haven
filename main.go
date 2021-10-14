@@ -9,6 +9,7 @@ import (
 	"os/signal"
 
 	"github.com/Nv7-Github/Nv7Haven/anarchy"
+	"github.com/Nv7-Github/Nv7Haven/db"
 	"github.com/Nv7-Github/Nv7Haven/discord"
 	"github.com/Nv7-Github/Nv7Haven/elemental"
 	"github.com/Nv7-Github/Nv7Haven/eod"
@@ -66,10 +67,11 @@ func main() {
 
 	app.Static("/", "./index.html")
 
-	db, err := sql.Open("mysql", dbUser+":"+os.Getenv("PASSWORD")+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
+	mysqldb, err := sql.Open("mysql", dbUser+":"+os.Getenv("PASSWORD")+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
 	if err != nil {
 		panic(err)
 	}
+	db := db.NewDB(mysqldb)
 
 	//mysqlsetup.Mysqlsetup()
 

@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
 )
@@ -30,7 +31,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		suggestion := m.Content[1:]
 
 		suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
-		b.suggestCmd(suggestion, true, msg, rsp)
+		b.elements.SuggestCmd(suggestion, true, msg, rsp)
 		return
 	}
 
@@ -47,12 +48,12 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			suggestion := m.Content[len(cmd)+2:]
 
 			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
-			b.suggestCmd(suggestion, true, msg, rsp)
+			b.elements.SuggestCmd(suggestion, true, msg, rsp)
 			return
 		}
 
 		if cmd == "stats" {
-			b.statsCmd(msg, rsp)
+			b.basecmds.StatsCmd(msg, rsp)
 			return
 		}
 
@@ -88,13 +89,13 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		if cmd == "hint" || cmd == "h" {
 			if len(m.Content) <= len(cmd)+2 {
-				b.hintCmd("", false, false, msg, rsp)
+				b.elements.HintCmd("", false, false, msg, rsp)
 				return
 			}
 			suggestion := m.Content[len(cmd)+2:]
 			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
 
-			b.hintCmd(suggestion, true, false, msg, rsp)
+			b.elements.HintCmd(suggestion, true, false, msg, rsp)
 			return
 		}
 
@@ -112,7 +113,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			catName := strings.TrimSpace(txt[:sepPos])
 			elems := util.TrimArray(splitByCombs(txt[sepPos+1:]))
 
-			b.categoryCmd(elems, catName, msg, rsp)
+			b.categories.CategoryCmd(elems, catName, msg, rsp)
 			return
 		}
 
@@ -130,29 +131,29 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			catName := strings.TrimSpace(txt[:sepPos])
 			elems := util.TrimArray(splitByCombs(txt[sepPos+1:]))
 
-			b.rmCategoryCmd(elems, catName, msg, rsp)
+			b.categories.RmCategoryCmd(elems, catName, msg, rsp)
 			return
 		}
 
 		if cmd == "inv" {
-			b.invCmd(m.Author.ID, msg, rsp, "name", "none")
+			b.elements.InvCmd(m.Author.ID, msg, rsp, "name", "none")
 			return
 		}
 
 		if cmd == "lb" {
-			b.lbCmd(msg, rsp, "count", msg.Author.ID)
+			b.elements.LbCmd(msg, rsp, "count", msg.Author.ID)
 			return
 		}
 
 		if cmd == "cat" {
 			if len(m.Content) <= len(cmd)+2 {
-				bot.allCatCmd("name", false, "", msg, rsp)
+				bot.categories.AllCatCmd("name", false, "", msg, rsp)
 				return
 			}
 			suggestion := m.Content[len(cmd)+2:]
 			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
 
-			b.catCmd(suggestion, "name", false, "", msg, rsp)
+			b.categories.CatCmd(suggestion, "name", false, "", msg, rsp)
 			return
 		}
 
@@ -176,7 +177,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			if len(m.Content) <= len(cmd)+2 {
 				return
 			}
-			b.infoCmd(strings.TrimSpace(m.Content[len(cmd)+2:]), msg, rsp)
+			b.elements.InfoCmd(strings.TrimSpace(m.Content[len(cmd)+2:]), msg, rsp)
 			return
 		}
 		if cmd == "restart" || cmd == "update" {
@@ -202,12 +203,12 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if len(m.Content) < 2 {
 			return
 		}
-		b.infoCmd(strings.TrimSpace(m.Content[1:]), msg, rsp)
+		b.elements.InfoCmd(strings.TrimSpace(m.Content[1:]), msg, rsp)
 		return
 	}
 
 	if strings.HasPrefix(m.Content, "*") && len(m.Content) > 1 {
-		if !b.checkServer(msg, rsp) {
+		if !b.base.CheckServer(msg, rsp) {
 			return
 		}
 		lock.RLock()
@@ -231,8 +232,8 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if err != nil {
 			return
 		}
-		if length > maxComboLength {
-			length = maxComboLength + 1 // This way it triggers the error message in the combo command
+		if length > types.MaxComboLength {
+			length = types.MaxComboLength + 1 // This way it triggers the error message in the combo command
 		}
 		if length < 2 {
 			length = 1
@@ -250,7 +251,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			last = comb.Elem3
 
 			if comb.Elem3 == "" {
-				b.combine(comb.Elems, msg, rsp)
+				b.basecmds.Combine(comb.Elems, msg, rsp)
 				return
 			}
 		}
@@ -260,13 +261,13 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			elems[i] = last
 		}
 
-		b.combine(elems, msg, rsp)
+		b.basecmds.Combine(elems, msg, rsp)
 		return
 	}
 
 	for _, comb := range combs {
 		if strings.Contains(m.Content, comb) {
-			if !b.checkServer(msg, rsp) {
+			if !b.base.CheckServer(msg, rsp) {
 				return
 			}
 			parts := strings.Split(m.Content, comb)
@@ -276,7 +277,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			for i, part := range parts {
 				parts[i] = strings.TrimSpace(strings.Replace(part, "\\", "", -1))
 			}
-			b.combine(parts, msg, rsp)
+			b.basecmds.Combine(parts, msg, rsp)
 			return
 		}
 	}

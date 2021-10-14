@@ -1,4 +1,4 @@
-package polls
+package basecmds
 
 import (
 	"sync"
@@ -9,20 +9,20 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-type Polls struct {
+type BaseCmds struct {
 	dat  map[string]types.ServerData
 	lock *sync.RWMutex
+	base *base.Base
 	dg   *discordgo.Session
 	db   *db.DB
-	base *base.Base
 }
 
-func NewPolls(dat map[string]types.ServerData, dg *discordgo.Session, db *db.DB, base *base.Base, lock *sync.RWMutex) *Polls {
-	return &Polls{
+func NewBaseCmds(dat map[string]types.ServerData, base *base.Base, dg *discordgo.Session, db *db.DB, lock *sync.RWMutex) *BaseCmds {
+	return &BaseCmds{
 		dat:  dat,
 		lock: lock,
+		base: base,
 		dg:   dg,
 		db:   db,
-		base: base,
 	}
 }

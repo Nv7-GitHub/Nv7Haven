@@ -1,10 +1,9 @@
 package nv7haven
 
 import (
-	"database/sql"
-
 	_ "embed"
 
+	"github.com/Nv7-Github/Nv7Haven/db"
 	"github.com/Nv7-Github/firebase"
 	database "github.com/Nv7-Github/firebase/db"
 	"github.com/gofiber/fiber/v2"
@@ -16,7 +15,7 @@ var serviceAccount string
 // Nv7Haven is the backend for https://nv7haven.tk
 type Nv7Haven struct {
 	db  *database.Db
-	sql *sql.DB
+	sql *db.DB
 
 	eodStats eodStats
 }
@@ -57,7 +56,7 @@ func (c *Nv7Haven) routing(app *fiber.App) {
 }
 
 // InitNv7Haven initializes the handlers for Nv7Haven
-func InitNv7Haven(app *fiber.App, sql *sql.DB) error {
+func InitNv7Haven(app *fiber.App, sql *db.DB) error {
 	// Firebase DB
 	fireapp, err := firebase.CreateAppWithServiceAccount("https://nv7haven.firebaseio.com", "AIzaSyA8ySJ5bATo7OADU75TMfbtnvKmx_g5rSs", []byte(serviceAccount))
 	if err != nil {

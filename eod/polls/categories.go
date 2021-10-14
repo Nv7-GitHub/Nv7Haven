@@ -161,7 +161,11 @@ func (b *Polls) catImage(guild string, catName string, image string, creator str
 	b.dat[guild] = dat
 	b.lock.Unlock()
 
-	b.db.Exec("UPDATE eod_categories SET image=? WHERE guild=? AND name=?", image, cat.Guild, cat.Name)
+	query := "UPDATE eod_categories SET image=? WHERE guild=? AND name LIKE ?"
+	if util.IsWildcard(cat.Name) {
+		query = strings.ReplaceAll(query, " LIKE ", "=")
+	}
+	b.db.Exec(query, image, cat.Guild, cat.Name)
 	if creator != "" {
 		b.dg.ChannelMessageSend(dat.NewsChannel, "📸 Added Category Image - **"+cat.Name+"** (By <@"+creator+">)"+controversial)
 	}
@@ -186,7 +190,11 @@ func (b *Polls) catColor(guild string, catName string, color int, creator string
 	b.dat[guild] = dat
 	b.lock.Unlock()
 
-	b.db.Exec("UPDATE eod_categories SET color=? WHERE guild=? AND name=?", color, cat.Guild, cat.Name)
+	query := "UPDATE eod_categories SET color=? WHERE guild=? AND name LIKE ?"
+	if util.IsWildcard(cat.Name) {
+		query = strings.ReplaceAll(query, " LIKE ", "=")
+	}
+	b.db.Exec(query, color, cat.Guild, cat.Name)
 	if creator != "" {
 		if color == 0 {
 			b.dg.ChannelMessageSend(dat.NewsChannel, "Reset Category Color - **"+cat.Name+"** (By <@"+creator+">)"+controversial)

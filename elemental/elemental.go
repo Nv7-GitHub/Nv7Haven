@@ -1,11 +1,11 @@
 package elemental
 
 import (
-	"database/sql"
 	"sync"
 
 	_ "embed"
 
+	"github.com/Nv7-Github/Nv7Haven/db"
 	"github.com/Nv7-Github/Nv7Haven/pb"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
@@ -17,7 +17,7 @@ import (
 type Elemental struct {
 	*pb.UnimplementedElementalServer
 
-	db      *sql.DB
+	db      *db.DB
 	cache   map[string]*pb.Element
 	recents *sync.Cond
 }
@@ -69,7 +69,7 @@ func (e *Elemental) routing(app *fiber.App) {
 }
 
 // InitElemental initializes all of Elemental's handlers on the app.
-func InitElemental(app *fiber.App, db *sql.DB, grpc *grpc.Server) (*Elemental, error) {
+func InitElemental(app *fiber.App, db *db.DB, grpc *grpc.Server) (*Elemental, error) {
 	e := &Elemental{
 		db:      db,
 		cache:   make(map[string]*pb.Element),

@@ -1,4 +1,4 @@
-package eod
+package base
 
 import (
 	"encoding/json"
@@ -8,7 +8,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
-var starterElements = []types.Element{
+var StarterElements = []types.Element{
 	{
 		Name:       "Air",
 		Comment:    "The invisible gaseous substance surrounding the earth, a mixture mainly of oxygen and nitrogen.",
@@ -55,10 +55,10 @@ var starterElements = []types.Element{
 	},
 }
 
-func (b *EoD) checkServer(m types.Msg, rsp types.Rsp) bool {
-	lock.RLock()
+func (b *Base) CheckServer(m types.Msg, rsp types.Rsp) bool {
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage("No voting or news channel has been set!")
 		return false
@@ -72,22 +72,22 @@ func (b *EoD) checkServer(m types.Msg, rsp types.Rsp) bool {
 		return false
 	}
 	if len(dat.Elements) < 4 {
-		for _, elem := range starterElements {
+		for _, elem := range StarterElements {
 			elem.Guild = m.GuildID
 			dat.SetElement(elem)
 			_, err := b.db.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, elem.Image, elem.Color, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), "" /* Parents */, elem.Complexity, elem.Difficulty, elem.UsedIn, elem.TreeSize)
 			rsp.Error(err)
 		}
-		lock.Lock()
+		b.lock.Lock()
 		b.dat[m.GuildID] = dat
-		lock.Unlock()
+		b.lock.Unlock()
 	}
 
 	_, res := dat.GetInv(m.Author.ID, true)
 	if !res.Exists {
 		dat.Lock.Lock()
 		dat.Inventories[m.Author.ID] = make(map[string]types.Empty)
-		for _, val := range starterElements {
+		for _, val := range StarterElements {
 			dat.Inventories[m.Author.ID][strings.ToLower(val.Name)] = types.Empty{}
 		}
 		dat.Lock.Unlock()
@@ -100,9 +100,9 @@ func (b *EoD) checkServer(m types.Msg, rsp types.Rsp) bool {
 		}
 		_, err = b.db.Exec("INSERT INTO eod_inv VALUES ( ?, ?, ?, ?, ? )", m.GuildID, m.Author.ID, string(data), len(inv), 0) // Guild ID, User ID, inventory, elements found, made by (0 so far)
 		rsp.Error(err)
-		lock.Lock()
+		b.lock.Lock()
 		b.dat[m.GuildID] = dat
-		lock.Unlock()
+		b.lock.Unlock()
 	}
 
 	_, exists = dat.PlayChannels[m.ChannelID]

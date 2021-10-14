@@ -1,4 +1,4 @@
-package eod
+package basecmds
 
 import (
 	"fmt"
@@ -9,12 +9,12 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-func (b *EoD) statsCmd(m types.Msg, rsp types.Rsp) {
+func (b *BaseCmds) StatsCmd(m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 
-	lock.RLock()
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		rsp.ErrorMessage("Guild not setup yet!")
 		return
@@ -50,7 +50,7 @@ func (b *EoD) statsCmd(m types.Msg, rsp types.Rsp) {
 // takes time, found, categorized
 var saveStatsQuery = `INSERT INTO eod_stats VALUES (?, (SELECT COUNT(1) FROM eod_elements), (SELECT COUNT(1) FROM eod_combos), (SELECT COUNT(DISTINCT user) FROM eod_inv), ?, ?, (SELECT COUNT(DISTINCT guild) FROM eod_serverdata))`
 
-func (b *EoD) saveStats() {
+func (b *BaseCmds) SaveStats() {
 	var lastTime int64
 	err := b.db.QueryRow("SELECT time FROM eod_stats ORDER BY time DESC LIMIT 1").Scan(&lastTime)
 	if err != nil {
@@ -58,7 +58,7 @@ func (b *EoD) saveStats() {
 	}
 
 	if time.Since(time.Unix(lastTime, 0)).Hours() > 24 {
-		lock.RLock()
+		b.lock.RLock()
 		categorized := 0
 		found := 0
 		for _, dat := range b.dat {
@@ -69,7 +69,7 @@ func (b *EoD) saveStats() {
 				found += len(val)
 			}
 		}
-		lock.RUnlock()
+		b.lock.RUnlock()
 
 		_, err = b.db.Exec(saveStatsQuery, time.Now().Unix(), found, categorized)
 		if err != nil {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/elements"
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
@@ -476,7 +477,7 @@ var (
 					Name:        "sortby",
 					Description: "How to sort the elements",
 					Required:    true,
-					Choices:     infoChoices,
+					Choices:     elements.InfoChoices,
 				},
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
@@ -951,21 +952,21 @@ var (
 			resp := i.ApplicationCommandData().Options[0]
 			switch resp.Name {
 			case "newschannel":
-				bot.setNewsChannel(resp.Options[0].ChannelValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.basecmds.SetNewsChannel(resp.Options[0].ChannelValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 			case "votingchannel":
-				bot.setVotingChannel(resp.Options[0].ChannelValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.basecmds.SetVotingChannel(resp.Options[0].ChannelValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 			case "votes":
-				bot.setVoteCount(int(resp.Options[0].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.basecmds.SetVoteCount(int(resp.Options[0].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
 			case "polls":
-				bot.setPollCount(int(resp.Options[0].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.basecmds.SetPollCount(int(resp.Options[0].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
 			case "modrole":
-				bot.setModRole(resp.Options[0].RoleValue(bot.dg, i.GuildID).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.basecmds.SetModRole(resp.Options[0].RoleValue(bot.dg, i.GuildID).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 			case "playchannel":
 				isPlayChannel := true
 				if len(resp.Options) > 1 {
 					isPlayChannel = resp.Options[1].BoolValue()
 				}
-				bot.setPlayChannel(resp.Options[0].ChannelValue(bot.dg).ID, isPlayChannel, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.basecmds.SetPlayChannel(resp.Options[0].ChannelValue(bot.dg).ID, isPlayChannel, bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
 		},
 		"suggest": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -974,7 +975,7 @@ var (
 			if len(resp.Options) > 1 {
 				autocapitalize = resp.Options[1].BoolValue()
 			}
-			bot.suggestCmd(resp.Options[0].StringValue(), autocapitalize, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.elements.SuggestCmd(resp.Options[0].StringValue(), autocapitalize, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"mark": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -1008,7 +1009,7 @@ var (
 					id = val.UserValue(bot.dg).ID
 				}
 			}
-			bot.invCmd(id, bot.newMsgSlash(i), bot.newRespSlash(i), sortby, filter)
+			bot.elements.InvCmd(id, bot.newMsgSlash(i), bot.newRespSlash(i), sortby, filter)
 		},
 		"lb": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -1023,7 +1024,7 @@ var (
 					user = opt.UserValue(bot.dg).ID
 				}
 			}
-			bot.lbCmd(bot.newMsgSlash(i), bot.newRespSlash(i), sort, user)
+			bot.elements.LbCmd(bot.newMsgSlash(i), bot.newRespSlash(i), sort, user)
 		},
 		"addcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -1033,7 +1034,7 @@ var (
 					suggestAdd = append(suggestAdd, val.StringValue())
 				}
 			}
-			bot.categoryCmd(suggestAdd, resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.categories.CategoryCmd(suggestAdd, resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"cat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -1059,11 +1060,11 @@ var (
 			}
 
 			if isAll {
-				bot.allCatCmd(sort, hasUser, user, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.categories.AllCatCmd(sort, hasUser, user, bot.newMsgSlash(i), bot.newRespSlash(i))
 				return
 			}
 
-			bot.catCmd(catName, sort, hasUser, user, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.categories.CatCmd(catName, sort, hasUser, user, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"hint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -1076,14 +1077,14 @@ var (
 				}
 			}
 
-			bot.hintCmd(elem, hasElem, false, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.elements.HintCmd(elem, hasElem, false, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"stats": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.statsCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.basecmds.StatsCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"resetinv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.resetInvCmd(resp.Options[0].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.elements.ResetInvCmd(resp.Options[0].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"give": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData().Options[0]
@@ -1109,10 +1110,10 @@ var (
 		},
 		"elemsort": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.sortCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue() == "1", bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.elements.SortCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue() == "1", bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"help": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.helpCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.basecmds.HelpCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"rmcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -1122,7 +1123,7 @@ var (
 					suggestAdd = append(suggestAdd, val.StringValue())
 				}
 			}
-			bot.rmCategoryCmd(suggestAdd, resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.categories.RmCategoryCmd(suggestAdd, resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"idea": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -1146,7 +1147,7 @@ var (
 					elName = opt.StringValue()
 				}
 			}
-			bot.ideaCmd(count, catName, hasCat, elName, hasEl, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.elements.IdeaCmd(count, catName, hasCat, elName, hasEl, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"download": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -1175,7 +1176,7 @@ var (
 						postfix = val.BoolValue()
 					}
 				}
-				bot.downloadInvCmd(id, sortby, filter, postfix, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.elements.DownloadInvCmd(id, sortby, filter, postfix, bot.newMsgSlash(i), bot.newRespSlash(i))
 				return
 
 			case "cat":
@@ -1196,7 +1197,7 @@ var (
 						postfix = val.BoolValue()
 					}
 				}
-				bot.downloadCatCmd(catName, sortby, postfix, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.categories.DownloadCatCmd(catName, sortby, postfix, bot.newMsgSlash(i), bot.newRespSlash(i))
 				return
 			}
 		},
@@ -1290,10 +1291,10 @@ var (
 			resp := i.ApplicationCommandData().Options[0]
 			switch resp.Name {
 			case "found":
-				bot.foundCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.elements.FoundCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 
 			case "categories":
-				bot.categoriesCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.categories.CategoriesCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 
 			case "info":
 				elem := ""
@@ -1318,7 +1319,7 @@ var (
 					rsp.ErrorMessage("You can't input an element and an element's ID!")
 					return
 				}
-				bot.info(elem, id, isID, bot.newMsgSlash(i), rsp)
+				bot.elements.Info(elem, id, isID, bot.newMsgSlash(i), rsp)
 			}
 		},
 		"setcolor": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -1331,19 +1332,19 @@ var (
 					color = opt.StringValue()
 				}
 			}
-			bot.setUserColor(color, rmColor, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.basecmds.SetUserColor(color, rmColor, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"invhint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.hintCmd(resp.Options[0].StringValue(), true, true, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.elements.HintCmd(resp.Options[0].StringValue(), true, true, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"elemsearch": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.elemSearchCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.elements.ElemSearchCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"View Inventory": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.invCmd(resp.TargetID, bot.newMsgSlash(i), bot.newRespSlash(i), "name", "none")
+			bot.elements.InvCmd(resp.TargetID, bot.newMsgSlash(i), bot.newRespSlash(i), "name", "none")
 		},
 		"View Info": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -1353,7 +1354,7 @@ var (
 				rsp.ErrorMessage(res)
 				return
 			}
-			bot.infoCmd(res, bot.newMsgSlash(i), rsp)
+			bot.elements.InfoCmd(res, bot.newMsgSlash(i), rsp)
 		},
 		"Get Hint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -1363,7 +1364,7 @@ var (
 				rsp.ErrorMessage(res)
 				return
 			}
-			bot.hintCmd(res, true, false, bot.newMsgSlash(i), rsp)
+			bot.elements.HintCmd(res, true, false, bot.newMsgSlash(i), rsp)
 		},
 		"Get Inverse Hint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -1373,7 +1374,7 @@ var (
 				rsp.ErrorMessage(res)
 				return
 			}
-			bot.hintCmd(res, true, true, bot.newMsgSlash(i), rsp)
+			bot.elements.HintCmd(res, true, true, bot.newMsgSlash(i), rsp)
 		},
 		"Get Color": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -1387,7 +1388,7 @@ var (
 		},
 		"View Leaderboard": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.lbCmd(bot.newMsgSlash(i), bot.newRespSlash(i), "count", resp.TargetID)
+			bot.elements.LbCmd(bot.newMsgSlash(i), bot.newRespSlash(i), "count", resp.TargetID)
 		},
 		"notation": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData().Options[0]

@@ -1,4 +1,4 @@
-package eod
+package categories
 
 import (
 	"fmt"
@@ -9,10 +9,10 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
-func (b *EoD) categoryCmd(elems []string, category string, m types.Msg, rsp types.Rsp) {
-	lock.RLock()
+func (b *Categories) CategoryCmd(elems []string, category string, m types.Msg, rsp types.Rsp) {
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return
 	}
@@ -66,7 +66,7 @@ func (b *EoD) categoryCmd(elems []string, category string, m types.Msg, rsp type
 				return
 			}
 
-			rsp.ErrorMessage("Elements " + joinTxt(notExists, "and") + " don't exist!")
+			rsp.ErrorMessage("Elements " + util.JoinTxt(notExists, "and") + " don't exist!")
 			return
 		}
 
@@ -79,9 +79,9 @@ func (b *EoD) categoryCmd(elems []string, category string, m types.Msg, rsp type
 		}
 	}
 	if len(added) > 0 {
-		lock.Lock()
+		b.lock.Lock()
 		b.dat[m.GuildID] = dat
-		lock.Unlock()
+		b.lock.Unlock()
 	}
 	if len(suggestAdd) > 0 {
 		err := b.polls.CreatePoll(types.Poll{
@@ -111,10 +111,10 @@ func (b *EoD) categoryCmd(elems []string, category string, m types.Msg, rsp type
 	}
 }
 
-func (b *EoD) rmCategoryCmd(elems []string, category string, m types.Msg, rsp types.Rsp) {
-	lock.RLock()
+func (b *Categories) RmCategoryCmd(elems []string, category string, m types.Msg, rsp types.Rsp) {
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return
 	}
@@ -163,7 +163,7 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m types.Msg, rsp ty
 			return
 		}
 
-		rsp.ErrorMessage("Elements " + joinTxt(notExists, "and") + " don't exist!")
+		rsp.ErrorMessage("Elements " + util.JoinTxt(notExists, "and") + " don't exist!")
 		return
 	}
 
@@ -172,9 +172,9 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m types.Msg, rsp ty
 		if res.Exists {
 			dat.DeleteComb(m.Author.ID)
 
-			lock.Lock()
+			b.lock.Lock()
 			b.dat[m.GuildID] = dat
-			lock.Unlock()
+			b.lock.Unlock()
 		}
 
 		notFound := make(map[string]types.Empty)
@@ -197,7 +197,7 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m types.Msg, rsp ty
 			return
 		}
 
-		rsp.ErrorMessage(fmt.Sprintf("Elements %s aren't in category **%s**!", joinTxt(notFound, "and"), cat.Name))
+		rsp.ErrorMessage(fmt.Sprintf("Elements %s aren't in category **%s**!", util.JoinTxt(notFound, "and"), cat.Name))
 		return
 	}
 
@@ -226,9 +226,9 @@ func (b *EoD) rmCategoryCmd(elems []string, category string, m types.Msg, rsp ty
 		}
 	}
 	if len(rmed) > 0 {
-		lock.Lock()
+		b.lock.Lock()
 		b.dat[m.GuildID] = dat
-		lock.Unlock()
+		b.lock.Unlock()
 	}
 	if len(suggestRm) > 0 {
 		err := b.polls.CreatePoll(types.Poll{

@@ -1,27 +1,24 @@
-package eod
+package basecmds
 
 import (
 	"fmt"
-	"sort"
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
-var maxComboLength = 21
-
 const blueCircle = "🔵"
 
-func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
-	ok := b.checkServer(m, rsp)
+func (b *BaseCmds) Combine(elems []string, m types.Msg, rsp types.Rsp) {
+	ok := b.base.CheckServer(m, rsp)
 	if !ok {
 		return
 	}
 
-	lock.RLock()
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return
 	}
@@ -47,8 +44,8 @@ func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
 		rsp.ErrorMessage("You must combine at least 2 elements!")
 		return
 	}
-	if len(elems) > maxComboLength {
-		rsp.ErrorMessage(fmt.Sprintf("You can only combine up to %d elements!", maxComboLength))
+	if len(elems) > types.MaxComboLength {
+		rsp.ErrorMessage(fmt.Sprintf("You can only combine up to %d elements!", types.MaxComboLength))
 		return
 	}
 
@@ -85,7 +82,7 @@ func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
 			return
 		}
 
-		rsp.ErrorMessage("Elements " + joinTxt(notExists, "and") + " don't exist!")
+		rsp.ErrorMessage("Elements " + util.JoinTxt(notExists, "and") + " don't exist!")
 		return
 	}
 	if donthave {
@@ -93,9 +90,9 @@ func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
 		if res.Exists {
 			dat.DeleteComb(m.Author.ID)
 
-			lock.Lock()
+			b.lock.Lock()
 			b.dat[m.GuildID] = dat
-			lock.Unlock()
+			b.lock.Unlock()
 		}
 
 		notFound := make(map[string]types.Empty)
@@ -115,13 +112,13 @@ func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
 			}
 			id := rsp.ErrorMessage(fmt.Sprintf("You don't have **%s**!", el))
 			dat.SetMsgElem(id, el[2:len(el)-2])
-			lock.Lock()
+			b.lock.Lock()
 			b.dat[m.GuildID] = dat
-			lock.Unlock()
+			b.lock.Unlock()
 			return
 		}
 
-		rsp.ErrorMessage("You don't have " + joinTxt(notFound, "or") + "!")
+		rsp.ErrorMessage("You don't have " + util.JoinTxt(notFound, "or") + "!")
 		return
 	}
 
@@ -148,18 +145,18 @@ func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
 			id := rsp.Message(fmt.Sprintf("You made **%s** "+types.NewText, elem3))
 			dat.SetMsgElem(id, elem3)
 
-			lock.Lock()
+			b.lock.Lock()
 			b.dat[m.GuildID] = dat
-			lock.Unlock()
+			b.lock.Unlock()
 			return
 		}
 
 		id := rsp.Message(fmt.Sprintf("You made **%s**, but already have it "+blueCircle, elem3))
 		dat.SetMsgElem(id, elem3)
 
-		lock.Lock()
+		b.lock.Lock()
 		b.dat[m.GuildID] = dat
-		lock.Unlock()
+		b.lock.Unlock()
 		return
 	}
 
@@ -168,34 +165,8 @@ func (b *EoD) combine(elems []string, m types.Msg, rsp types.Rsp) {
 		Elem3: "",
 	})
 
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[m.GuildID] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 	rsp.Resp("That combination doesn't exist! " + types.RedCircle + "\n 	Suggest it by typing **/suggest**")
-}
-
-func joinTxt(elemDat map[string]types.Empty, ending string) string {
-	elems := make([]string, len(elemDat))
-	i := 0
-	for k := range elemDat {
-		elems[i] = k
-		i++
-	}
-	sort.Strings(elems)
-
-	out := ""
-	for i, elem := range elems {
-		out += elem
-		if i != len(elems)-1 && len(elems) != 2 {
-			out += ", "
-		} else if i != len(elems)-1 {
-			out += " "
-		}
-
-		if i == len(elems)-2 {
-			out += ending + " "
-		}
-	}
-
-	return out
 }

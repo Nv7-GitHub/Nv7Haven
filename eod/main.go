@@ -1,17 +1,19 @@
 package eod
 
 import (
-	"database/sql"
 	_ "embed"
 	"strings"
 	"sync"
 
+	eodb "github.com/Nv7-Github/Nv7Haven/db"
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
-	"github.com/Nv7-Github/Nv7Haven/eod/db"
-	eodb "github.com/Nv7-Github/Nv7Haven/eod/db"
+	"github.com/Nv7-Github/Nv7Haven/eod/basecmds"
+	"github.com/Nv7-Github/Nv7Haven/eod/categories"
+	"github.com/Nv7-Github/Nv7Haven/eod/elements"
 	"github.com/Nv7-Github/Nv7Haven/eod/polls"
 	"github.com/Nv7-Github/Nv7Haven/eod/treecmds"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -29,17 +31,20 @@ var lock = &sync.RWMutex{}
 // EoD contains the data for an EoD bot
 type EoD struct {
 	dg  *discordgo.Session
-	db  *db.DB
+	db  *eodb.DB
 	dat map[string]types.ServerData // map[guild]data
 
 	// Subsystems
-	base     *base.Base
-	treecmds *treecmds.TreeCmds
-	polls    *polls.Polls
+	base       *base.Base
+	treecmds   *treecmds.TreeCmds
+	polls      *polls.Polls
+	basecmds   *basecmds.BaseCmds
+	categories *categories.Categories
+	elements   *elements.Elements
 }
 
 // InitEoD initializes the EoD bot
-func InitEoD(db *sql.DB) EoD {
+func InitEoD(db *eodb.DB) EoD {
 	// Discord bot
 	dg, err := discordgo.New("Bot " + strings.TrimSpace(token))
 	if err != nil {
@@ -54,7 +59,7 @@ func InitEoD(db *sql.DB) EoD {
 
 	bot = EoD{
 		dg:  dg,
-		db:  eodb.NewDB(db),
+		db:  db,
 		dat: make(map[string]types.ServerData),
 	}
 
@@ -64,7 +69,7 @@ func InitEoD(db *sql.DB) EoD {
 	// FOOLS
 	bot.base.InitFools(foolsRaw)
 	if base.IsFoolsMode {
-		maxComboLength = 2
+		types.MaxComboLength = 2
 	}
 
 	return bot

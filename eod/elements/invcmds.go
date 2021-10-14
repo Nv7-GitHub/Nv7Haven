@@ -1,41 +1,42 @@
-package eod
+package elements
 
 import (
 	"fmt"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
 )
 
-func (b *EoD) resetInvCmd(user string, m types.Msg, rsp types.Rsp) {
-	lock.RLock()
+func (b *Elements) ResetInvCmd(user string, m types.Msg, rsp types.Rsp) {
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return
 	}
 	inv := make(map[string]types.Empty)
-	for _, v := range starterElements {
+	for _, v := range base.StarterElements {
 		inv[strings.ToLower(v.Name)] = types.Empty{}
 	}
 
 	dat.SetInv(user, inv)
 
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[m.GuildID] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 	b.base.SaveInv(m.GuildID, user, true, true)
 	rsp.Resp("Successfully reset <@" + user + ">'s inventory!")
 }
 
-func (b *EoD) downloadInvCmd(user string, sorter string, filter string, postfix bool, m types.Msg, rsp types.Rsp) {
+func (b *Elements) DownloadInvCmd(user string, sorter string, filter string, postfix bool, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 
-	lock.RLock()
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return
 	}

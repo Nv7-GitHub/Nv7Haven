@@ -1,4 +1,4 @@
-package eod
+package basecmds
 
 import (
 	_ "embed"
@@ -56,7 +56,7 @@ func makeHelpComponents(selected string) discordgo.ActionsRow {
 }
 
 type helpComponent struct {
-	b *EoD
+	b *BaseCmds
 }
 
 func (h *helpComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -85,13 +85,13 @@ func (h *helpComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCr
 	})
 }
 
-func (b *EoD) helpCmd(m types.Msg, rsp types.Rsp) {
+func (b *BaseCmds) HelpCmd(m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 	id := rsp.Message(helpAbout, makeHelpComponents("about"))
 
-	lock.RLock()
+	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
-	lock.RUnlock()
+	b.lock.RUnlock()
 	if !exists {
 		return
 	}
@@ -100,7 +100,7 @@ func (b *EoD) helpCmd(m types.Msg, rsp types.Rsp) {
 		b: b,
 	})
 
-	lock.Lock()
+	b.lock.Lock()
 	b.dat[m.GuildID] = dat
-	lock.Unlock()
+	b.lock.Unlock()
 }
