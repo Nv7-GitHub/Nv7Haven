@@ -2,6 +2,7 @@ package polls
 
 import (
 	"context"
+	"errors"
 	"log"
 	"strconv"
 	"strings"
@@ -41,8 +42,16 @@ func (b *Polls) elemCreate(name string, parents []string, creator string, contro
 		return
 	}
 
+	handle := func(err error) {
+		log.SetOutput(logs.DataFile)
+		log.Println(err)
+		tx.Rollback()
+		createLock.Unlock()
+	}
+
 	var postTxt string
 	if !res.Exists {
+		// Element doesnt exist
 		diff := -1
 		compl := -1
 		areUnique := false
@@ -66,18 +75,12 @@ func (b *Polls) elemCreate(name string, parents []string, creator string, contro
 		}
 		col, err := util.MixColors(parColors)
 		if err != nil {
-			log.SetOutput(logs.DataFile)
-			log.Println(err)
-			tx.Rollback()
-			createLock.Unlock()
+			handle(err)
 			return
 		}
 		size, suc, msg := trees.ElemCreateSize(parents, dat)
 		if !suc {
-			log.SetOutput(logs.DataFile)
-			log.Println(msg)
-			tx.Rollback()
-			createLock.Unlock()
+			handle(errors.New(msg))
 			return
 		}
 		elem := types.Element{
@@ -100,10 +103,7 @@ func (b *Polls) elemCreate(name string, parents []string, creator string, contro
 		if err != nil {
 			dat.DeleteElement(elem.Name)
 
-			log.SetOutput(logs.DataFile)
-			log.Println(err)
-			_ = tx.Rollback()
-			createLock.Unlock()
+			handle(err)
 			return
 		}
 		text = "Element"
