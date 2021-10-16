@@ -17,7 +17,7 @@ type BreakDownTree struct {
 	Tree      bool
 }
 
-func (b *BreakDownTree) AddElem(elem string) (bool, string) {
+func (b *BreakDownTree) AddElem(elem string, noerror ...bool) (bool, string) {
 	_, exists := b.Added[strings.ToLower(elem)]
 	if exists {
 		return true, ""
@@ -31,7 +31,7 @@ func (b *BreakDownTree) AddElem(elem string) (bool, string) {
 	if b.Tree {
 		for _, par := range el.Parents {
 			suc, err := b.AddElem(par)
-			if !suc {
+			if !suc && len(noerror) == 0 {
 				return suc, err
 			}
 		}

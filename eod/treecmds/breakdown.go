@@ -112,11 +112,11 @@ func (b *TreeCmds) InvBreakdownCmd(user string, calcTree bool, m types.Msg, rsp 
 	}
 
 	for elem := range inv {
-		suc, err := tree.AddElem(elem)
-		if !suc {
+		/*suc, err :=*/ tree.AddElem(elem, true)
+		/*	if !suc {
 			rsp.ErrorMessage(err)
 			return
-		}
+		}*/
 	}
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
