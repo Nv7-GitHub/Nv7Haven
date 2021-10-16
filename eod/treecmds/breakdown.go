@@ -119,9 +119,17 @@ func (b *TreeCmds) InvBreakdownCmd(user string, calcTree bool, m types.Msg, rsp 
 		}*/
 	}
 
+	name := m.Author.Username
+	if m.Author.ID != user {
+		u, err := b.dg.User(user)
+		if rsp.Error(err) {
+			return
+		}
+		name = u.Username
+	}
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
-		Title:      fmt.Sprintf("<@%s> Inventory Breakdown (%d)", user, tree.Total),
+		Title:      fmt.Sprintf("%s's Inventory Breakdown (%d)", name, tree.Total),
 		PageGetter: b.base.InvPageGetter,
 		Items:      tree.GetStringArr(),
 	}, m, rsp)
