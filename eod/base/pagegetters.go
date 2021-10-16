@@ -28,7 +28,7 @@ func (b *Base) InvPageGetter(p types.PageSwitcher) (string, int, int, error) {
 
 func (b *Base) LbPageGetter(p types.PageSwitcher) (string, int, int, error) {
 	length := int(math.Floor(float64(len(p.Users)-1) / float64(p.PageLength)))
-	if p.PageLength*p.Page > (len(p.Items) - 1) { // If you go past the max page, bring you to 0
+	if p.PageLength*p.Page > (len(p.Users) - 1) { // If you go past the max page, bring you to 0
 		return "", 0, length, nil
 	}
 
