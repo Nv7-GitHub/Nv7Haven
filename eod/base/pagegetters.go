@@ -9,20 +9,9 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
-const ldbQuery = `
-SELECT rw, ` + "user" + `, ` + "%s" + `
-FROM (
-    SELECT 
-         ROW_NUMBER() OVER (ORDER BY ` + "%s" + ` DESC) AS rw,
-         ` + "user" + `, ` + "%s" + `
-    FROM eod_inv WHERE guild=?
-) sub
-WHERE sub.user=?
-`
-
 func (b *Base) InvPageGetter(p types.PageSwitcher) (string, int, int, error) {
 	length := int(math.Floor(float64(len(p.Items)-1) / float64(p.PageLength)))
-	if p.PageLength*p.Page > (len(p.Items) - 1) {
+	if p.PageLength*p.Page > (len(p.Items) - 1) { // If you go past the max page, bring you to 0
 		return "", 0, length, nil
 	}
 
@@ -38,54 +27,40 @@ func (b *Base) InvPageGetter(p types.PageSwitcher) (string, int, int, error) {
 }
 
 func (b *Base) LbPageGetter(p types.PageSwitcher) (string, int, int, error) {
-	cnt := b.db.QueryRow("SELECT COUNT(1) FROM eod_inv WHERE guild=?", p.Guild)
-	pos := b.db.QueryRow(fmt.Sprintf(ldbQuery, p.Sort, p.Sort, p.Sort), p.Guild, p.User)
-	var count int
-	var ps int
-	var u string
-	var ucnt int
-	err := pos.Scan(&ps, &u, &ucnt)
-	if err != nil {
-		return "", 0, 0, err
-	}
-	cnt.Scan(&count)
-	length := int(math.Floor(float64(count-1) / float64(p.PageLength)))
-	if err != nil {
-		return "", 0, 0, err
-	}
-	if p.PageLength*p.Page > (count - 1) {
+	length := int(math.Floor(float64(len(p.Users)-1) / float64(p.PageLength)))
+	if p.PageLength*p.Page > (len(p.Items) - 1) { // If you go past the max page, bring you to 0
 		return "", 0, length, nil
 	}
 
-	if p.Page < 0 {
+	if p.Page < 0 { // If you go before the first page, go to the last one
 		return "", length, length, nil
 	}
 
-	text := ""
-	res, err := b.db.Query(fmt.Sprintf("SELECT %s, `user` FROM eod_inv WHERE guild=? ORDER BY %s DESC LIMIT ? OFFSET ?", p.Sort, p.Sort), p.Guild, p.PageLength, p.Page*p.PageLength)
-	if err != nil {
-		return "", 0, 0, err
+	txt := &strings.Builder{}
+
+	// Get the range
+	first := p.PageLength * p.Page
+	users := p.Users[first:]
+	if len(users) > p.PageLength {
+		users = users[:p.PageLength]
 	}
-	defer res.Close()
-	i := p.PageLength*p.Page + 1
-	var user string
-	var ct int
-	for res.Next() {
-		err = res.Scan(&ct, &user)
-		if err != nil {
-			return "", 0, 0, err
+	max := first + len(users)
+
+	// Create the text
+	containsYou := false
+	for i := first; i < max; i++ {
+		ft := "%d. <@%s> - %d\n"
+		if p.Users[i] == p.User {
+			ft = "%d. <@%s> *You* - %d\n"
+			containsYou = true
 		}
-		you := ""
-		if user == u {
-			you = " *You*"
-		}
-		text += fmt.Sprintf("%d. <@%s>%s - %d\n", i, user, you, ct)
-		i++
+		fmt.Fprintf(txt, ft, i+1, p.Users[i], p.Cnts[i])
 	}
-	if !((p.PageLength*p.Page <= ps) && (ps <= (p.Page+1)*p.PageLength)) {
-		text += fmt.Sprintf("\n%d. <@%s> *You* - %d\n", ps, u, ucnt)
+
+	if !containsYou {
+		fmt.Fprintf(txt, "\n%d. <@%s> *You* - %d", p.UserPos+1, p.Users[p.UserPos], p.Cnts[p.UserPos])
 	}
-	return text, p.Page, length, nil
+	return txt.String(), p.Page, length, nil
 }
 
 func (b *Base) SearchPageGetter(p types.PageSwitcher) (string, int, int, error) {

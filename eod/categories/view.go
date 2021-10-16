@@ -59,7 +59,7 @@ func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user
 	var text string
 
 	for name := range cat.Elements {
-		_, exists := inv[strings.ToLower(name)]
+		exists := inv.Elements.Contains(name)
 		if exists {
 			text = name + " " + types.Check
 			found++
@@ -156,7 +156,7 @@ func (b *Categories) AllCatCmd(sortBy string, hasUser bool, user string, m types
 	for _, cat := range dat.Categories {
 		count := 0
 		for elem := range cat.Elements {
-			_, exists := inv[strings.ToLower(elem)]
+			exists := inv.Elements.Contains(elem)
 			if exists {
 				count++
 			}

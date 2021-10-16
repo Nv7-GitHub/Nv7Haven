@@ -51,7 +51,7 @@ type ServerData struct {
 	PollCount     int
 	ModRole       string                  // role ID
 	LastCombs     map[string]Comb         // map[userID]comb
-	Inventories   map[string]Container    // map[userID]map[elementName]types.Empty
+	Inventories   map[string]Inventory    // map[userID]map[elementName]types.Empty
 	Elements      map[string]Element      //map[elementName]element
 	Combos        map[string]string       // map[elems]elem3
 	Categories    map[string]Category     // map[catName]category
@@ -75,8 +75,10 @@ type PageSwitcher struct {
 	Items []string
 
 	// Ldb
-	User string
-	Sort string
+	Users   []string
+	Cnts    []int
+	UserPos int
+	User    string
 
 	// Element sorting
 	Query  string
@@ -140,6 +142,12 @@ type Msg struct {
 	GuildID   string
 }
 
+type Inventory struct {
+	Elements Container
+	MadeCnt  int
+	User     string
+}
+
 type Rsp interface {
 	Error(err error) bool
 	ErrorMessage(msg string) string
@@ -161,7 +169,7 @@ func NewServerData() ServerData {
 		Elements:      make(map[string]Element),
 		Combos:        make(map[string]string),
 		Categories:    make(map[string]Category),
-		Inventories:   make(map[string]Container),
+		Inventories:   make(map[string]Inventory),
 		LastCombs:     make(map[string]Comb),
 	}
 }
@@ -175,4 +183,11 @@ func (c Container) Contains(elem string) bool {
 
 func (c Container) Add(elem string) {
 	c[strings.ToLower(elem)] = Empty{}
+}
+
+func NewInventory(user string) Inventory {
+	return Inventory{
+		Elements: make(map[string]Empty),
+		User:     user,
+	}
 }

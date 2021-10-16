@@ -27,7 +27,7 @@ func (dat *ServerData) GetElement(name string, noLock ...bool) (Element, GetResp
 	return el, GetResponse{Exists: true}
 }
 
-func (dat *ServerData) GetInv(id string, you bool) (Container, GetResponse) {
+func (dat *ServerData) GetInv(id string, you bool) (Inventory, GetResponse) {
 	dat.Lock.RLock()
 	inv, exists := dat.Inventories[id]
 	dat.Lock.RUnlock()
@@ -44,7 +44,7 @@ func (dat *ServerData) GetInv(id string, you bool) (Container, GetResponse) {
 				Message: fmt.Sprintf("User <@%s> doesn't have an inventory!", id),
 			}
 		}
-		return nil, response
+		return Inventory{}, response
 	}
 	return inv, GetResponse{Exists: true}
 }

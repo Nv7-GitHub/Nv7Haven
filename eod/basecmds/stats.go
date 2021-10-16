@@ -27,7 +27,7 @@ func (b *BaseCmds) StatsCmd(m types.Msg, rsp types.Rsp) {
 	found := 0
 	dat.Lock.RLock()
 	for _, val := range dat.Inventories {
-		found += len(val)
+		found += len(val.Elements)
 	}
 
 	categorized := 0
@@ -66,7 +66,7 @@ func (b *BaseCmds) SaveStats() {
 				categorized += len(val.Elements)
 			}
 			for _, val := range dat.Inventories {
-				found += len(val)
+				found += len(val.Elements)
 			}
 		}
 		b.lock.RUnlock()

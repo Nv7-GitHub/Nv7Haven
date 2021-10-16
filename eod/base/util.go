@@ -90,7 +90,7 @@ func (b *Base) SaveInv(guild string, user string, newmade bool, recalculate ...b
 		m := "made+1"
 		if len(recalculate) > 0 {
 			count := 0
-			for val := range inv {
+			for val := range inv.Elements {
 				creator := ""
 
 				elem, res := dat.GetElement(val)
@@ -102,10 +102,15 @@ func (b *Base) SaveInv(guild string, user string, newmade bool, recalculate ...b
 				}
 			}
 			m = strconv.Itoa(count)
+
+			inv.MadeCnt = count
+		} else {
+			inv.MadeCnt++
 		}
-		b.db.Exec(fmt.Sprintf("UPDATE eod_inv SET inv=?, count=?, made=%s WHERE guild=? AND user=?", m), data, len(inv), guild, user)
+		dat.SetInv(user, inv)
+		b.db.Exec(fmt.Sprintf("UPDATE eod_inv SET inv=?, count=?, made=%s WHERE guild=? AND user=?", m), data, len(inv.Elements), guild, user)
 		return
 	}
 
-	b.db.Exec("UPDATE eod_inv SET inv=?, count=? WHERE guild=? AND user=?", data, len(inv), guild, user)
+	b.db.Exec("UPDATE eod_inv SET inv=?, count=? WHERE guild=? AND user=?", data, len(inv.Elements), guild, user)
 }

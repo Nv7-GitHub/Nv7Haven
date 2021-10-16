@@ -2,7 +2,6 @@ package base
 
 import (
 	"encoding/json"
-	"strings"
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -85,20 +84,18 @@ func (b *Base) CheckServer(m types.Msg, rsp types.Rsp) bool {
 
 	_, res := dat.GetInv(m.Author.ID, true)
 	if !res.Exists {
-		dat.Lock.Lock()
-		dat.Inventories[m.Author.ID] = make(map[string]types.Empty)
+		inv := types.NewInventory(m.Author.ID)
 		for _, val := range StarterElements {
-			dat.Inventories[m.Author.ID][strings.ToLower(val.Name)] = types.Empty{}
+			inv.Elements.Add(val.Name)
 		}
-		dat.Lock.Unlock()
 
-		inv, _ := dat.GetInv(m.Author.ID, true)
+		dat.SetInv(m.Author.ID, inv)
 
-		data, err := json.Marshal(inv)
+		data, err := json.Marshal(inv.Elements)
 		if rsp.Error(err) {
 			return false
 		}
-		_, err = b.db.Exec("INSERT INTO eod_inv VALUES ( ?, ?, ?, ?, ? )", m.GuildID, m.Author.ID, string(data), len(inv), 0) // Guild ID, User ID, inventory, elements found, made by (0 so far)
+		_, err = b.db.Exec("INSERT INTO eod_inv VALUES ( ?, ?, ?, ?, ? )", m.GuildID, m.Author.ID, string(data), len(inv.Elements), 0) // Guild ID, User ID, inventory, elements found, made by (0 so far)
 		rsp.Error(err)
 		b.lock.Lock()
 		b.dat[m.GuildID] = dat

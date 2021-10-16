@@ -185,7 +185,7 @@ func (b *Polls) elemCreate(name string, parents []string, creator string, contro
 
 	// Add Element to Inv
 	inv, _ := dat.GetInv(creator, true)
-	inv.Add(name)
+	inv.Elements.Add(name)
 	dat.SetInv(creator, inv)
 
 	b.lock.Lock()

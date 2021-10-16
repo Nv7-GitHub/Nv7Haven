@@ -55,7 +55,7 @@ func CalcElemInfo(elem string, user string, dat types.ServerData) (bool, string,
 		Found: 0,
 		dat:   dat,
 		added: make(map[string]types.Empty),
-		inv:   inv,
+		inv:   inv.Elements,
 	}
 	suc, msg := i.AddElem(elem)
 	if !suc {

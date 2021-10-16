@@ -78,7 +78,7 @@ func (b *EoD) canRunCmd(cmd *discordgo.InteractionCreate) (bool, string) {
 				return true, "" // If the element doesn't exist, the cat command will tell the user it doesn't exist
 			}
 
-			exists = inv.Contains(el.Name)
+			exists = inv.Elements.Contains(el.Name)
 			if !exists {
 				return false, fmt.Sprintf("You must have element **%s** to get it's path!", el.Name)
 			}
@@ -96,7 +96,7 @@ func (b *EoD) canRunCmd(cmd *discordgo.InteractionCreate) (bool, string) {
 
 			// Check if user has all elements in category
 			for elem := range cat.Elements {
-				exists = inv.Contains(elem)
+				exists = inv.Elements.Contains(elem)
 				if !exists {
 					return false, fmt.Sprintf("You must have all elements in category **%s** to get its path!", cat.Name)
 				}

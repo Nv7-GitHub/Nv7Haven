@@ -125,7 +125,7 @@ func (b *Elements) getHint(elem string, hasElem bool, author string, guild strin
 		hasFound := false
 		dat.Lock.RLock()
 		for _, v := range dat.Elements {
-			_, exists := inv[strings.ToLower(v.Name)]
+			exists := inv.Elements.Contains(v.Name)
 			if !exists {
 				el = v
 				elem = v.Name
@@ -199,7 +199,7 @@ func (b *Elements) getHint(elem string, hasElem bool, author string, guild strin
 	val := text.String()
 
 	txt := "Don't "
-	_, hasElem = inv[strings.ToLower(el.Name)]
+	hasElem = inv.Elements.Contains(el.Name)
 	if hasElem {
 		txt = ""
 	}
@@ -248,12 +248,12 @@ func (b *Elements) getHint(elem string, hasElem bool, author string, guild strin
 	}, "", true
 }
 
-func getHintText(elemTxt string, inv types.Container, dat types.ServerData, inverse bool) (string, int) {
+func getHintText(elemTxt string, inv types.Inventory, dat types.ServerData, inverse bool) (string, int) {
 	if !inverse {
 		elems := strings.Split(elemTxt, "+")
 		hasElems := true
 		for _, val := range elems {
-			_, exists := inv[strings.ToLower(val)]
+			exists := inv.Elements.Contains(val)
 			if !exists {
 				hasElems = false
 			}
@@ -287,7 +287,7 @@ func getHintText(elemTxt string, inv types.Container, dat types.ServerData, inve
 		return txt, ex
 	}
 
-	found := inv.Contains(elemTxt)
+	found := inv.Elements.Contains(elemTxt)
 	txt := types.X
 	ex := 0
 	if found {

@@ -59,7 +59,7 @@ func (b *BaseCmds) Combine(elems []string, m types.Msg, rsp types.Rsp) {
 			break
 		}
 
-		_, hasElement := inv[strings.ToLower(elem)]
+		hasElement := inv.Elements.Contains(elem)
 		if !hasElement {
 			donthave = true
 		}
@@ -97,7 +97,7 @@ func (b *BaseCmds) Combine(elems []string, m types.Msg, rsp types.Rsp) {
 
 		notFound := make(map[string]types.Empty)
 		for _, el := range elems {
-			_, exists := inv[strings.ToLower(el)]
+			exists := inv.Elements.Contains(el)
 			if !exists {
 				elem, _ := dat.GetElement(el)
 				notFound["**"+elem.Name+"**"] = types.Empty{}
@@ -136,9 +136,9 @@ func (b *BaseCmds) Combine(elems []string, m types.Msg, rsp types.Rsp) {
 			return
 		}
 
-		exists = inv.Contains(elem3)
+		exists = inv.Elements.Contains(elem3)
 		if !exists {
-			inv.Add(elem3)
+			inv.Elements.Add(elem3)
 			dat.SetInv(m.Author.ID, inv)
 			b.base.SaveInv(m.GuildID, m.Author.ID, false)
 

@@ -17,9 +17,9 @@ func (b *Elements) ResetInvCmd(user string, m types.Msg, rsp types.Rsp) {
 	if !exists {
 		return
 	}
-	inv := make(map[string]types.Empty)
+	inv := types.NewInventory(user)
 	for _, v := range base.StarterElements {
-		inv[strings.ToLower(v.Name)] = types.Empty{}
+		inv.Elements.Add(v.Name)
 	}
 
 	dat.SetInv(user, inv)
@@ -45,10 +45,10 @@ func (b *Elements) DownloadInvCmd(user string, sorter string, filter string, pos
 		rsp.ErrorMessage(res.Message)
 		return
 	}
-	items := make([]string, len(inv))
+	items := make([]string, len(inv.Elements))
 	i := 0
 	dat.Lock.RLock()
-	for k := range inv {
+	for k := range inv.Elements {
 		el, _ := dat.GetElement(k, true)
 		items[i] = el.Name
 		i++

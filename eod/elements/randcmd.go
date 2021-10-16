@@ -78,13 +78,13 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 			count--
 		}
 
-		exists = inv.Contains(elemName)
+		exists = inv.Elements.Contains(elemName)
 		if !exists {
 			return fmt.Sprintf("Element **%s** is not in your inventory!", el.Name), false
 		}
 	}
 
-	els := inv
+	els := inv.Elements
 	if hasCat {
 		cat, res := dat.GetCategory(catName)
 		if !res.Exists {
@@ -93,10 +93,9 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 		els = make(map[string]types.Empty)
 
 		for el := range cat.Elements {
-			l := strings.ToLower(el)
-			_, exists := inv[l]
+			exists := inv.Elements.Contains(el)
 			if exists {
-				els[l] = types.Empty{}
+				els[strings.ToLower(el)] = types.Empty{}
 			}
 		}
 

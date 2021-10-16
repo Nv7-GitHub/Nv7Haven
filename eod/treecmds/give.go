@@ -87,7 +87,7 @@ func (b *TreeCmds) GiveCatCmd(catName string, giveTree bool, user string, m type
 	rsp.Resp("Successfully gave all elements in category **" + cat.Name + "**!")
 }
 
-func giveElem(dat types.ServerData, giveTree bool, elem string, out *types.Container) (string, bool) {
+func giveElem(dat types.ServerData, giveTree bool, elem string, out *types.Inventory) (string, bool) {
 	el, res := dat.GetElement(elem)
 	if !res.Exists {
 		return elem, false
@@ -97,7 +97,7 @@ func giveElem(dat types.ServerData, giveTree bool, elem string, out *types.Conta
 			if len(strings.TrimSpace(parent)) == 0 {
 				continue
 			}
-			_, exists := (*out)[strings.ToLower(parent)]
+			exists := out.Elements.Contains(parent)
 			if !exists {
 				msg, suc := giveElem(dat, giveTree, parent, out)
 				if !suc {
@@ -106,7 +106,7 @@ func giveElem(dat types.ServerData, giveTree bool, elem string, out *types.Conta
 			}
 		}
 	}
-	(*out)[strings.ToLower(el.Name)] = types.Empty{}
+	(*out).Elements.Add(el.Name)
 	return "", true
 }
 
@@ -124,7 +124,7 @@ func (b *TreeCmds) GiveAllCmd(user string, m types.Msg, rsp types.Rsp) {
 	}
 
 	for k := range dat.Elements {
-		inv.Add(k)
+		inv.Elements.Add(k)
 	}
 
 	dat.SetInv(user, inv)

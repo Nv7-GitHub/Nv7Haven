@@ -22,7 +22,7 @@ func (dat *ServerData) SetComb(id string, comb Comb) {
 	dat.Lock.Unlock()
 }
 
-func (dat *ServerData) SetInv(id string, inv Container) {
+func (dat *ServerData) SetInv(id string, inv Inventory) {
 	dat.Lock.Lock()
 	dat.Inventories[id] = inv
 	dat.Lock.Unlock()

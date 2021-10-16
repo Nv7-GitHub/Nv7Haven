@@ -177,7 +177,7 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 	exists = false
 	inv, res := dat.GetInv(m.Author.ID, true)
 	if res.Exists {
-		exists = inv.Contains(el.Name)
+		exists = inv.Elements.Contains(el.Name)
 	}
 	if !exists {
 		has = "don't "

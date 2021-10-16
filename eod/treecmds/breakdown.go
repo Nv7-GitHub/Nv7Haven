@@ -111,7 +111,7 @@ func (b *TreeCmds) InvBreakdownCmd(user string, calcTree bool, m types.Msg, rsp 
 		Total:     0,
 	}
 
-	for elem := range inv {
+	for elem := range inv.Elements {
 		/*suc, err :=*/ tree.AddElem(elem, true)
 		/*	if !suc {
 			rsp.ErrorMessage(err)

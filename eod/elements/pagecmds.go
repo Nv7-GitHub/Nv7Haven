@@ -2,6 +2,7 @@ package elements
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -24,10 +25,10 @@ func (b *Elements) InvCmd(user string, m types.Msg, rsp types.Rsp, sorter string
 		rsp.ErrorMessage(res.Message)
 		return
 	}
-	items := make([]string, len(inv))
+	items := make([]string, len(inv.Elements))
 	i := 0
 	dat.Lock.RLock()
-	for k := range inv {
+	for k := range inv.Elements {
 		el, _ := dat.GetElement(k, true)
 		items[i] = el.Name
 		i++
@@ -70,25 +71,61 @@ func (b *Elements) InvCmd(user string, m types.Msg, rsp types.Rsp, sorter string
 	}, m, rsp)
 }
 
-func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sort string, user string) {
+func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string) {
 	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	b.lock.RUnlock()
 	if !exists {
 		return
 	}
-	_, res := dat.GetInv(user, user == m.Author.ID)
+	_, res := dat.GetInv(user, user == m.Author.ID) // Check if user exists
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
 		return
+	}
+
+	// Sort invs
+	invs := make([]types.Inventory, len(dat.Inventories))
+	i := 0
+	for _, v := range dat.Inventories {
+		invs[i] = v
+		i++
+	}
+	sortFn := func(a, b int) bool {
+		return len(invs[a].Elements) > len(invs[b].Elements)
+	}
+	if sorter == "made" {
+		sortFn = func(a, b int) bool {
+			return invs[a].MadeCnt > invs[b].MadeCnt
+		}
+	}
+	sort.Slice(invs, sortFn)
+
+	// Convert to right format
+	users := make([]string, len(invs))
+	cnts := make([]int, len(invs))
+	userpos := 0
+	for i, v := range invs {
+		users[i] = v.User
+		if sorter == "count" {
+			cnts[i] = len(v.Elements)
+		} else {
+			cnts[i] = v.MadeCnt
+		}
+		if v.User == user {
+			userpos = i
+		}
 	}
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchLdb,
 		Title:      "Top Most Elements",
 		PageGetter: b.base.LbPageGetter,
-		Sort:       sort,
-		User:       user,
+
+		User:    user,
+		Users:   users,
+		UserPos: userpos,
+		Cnts:    cnts,
 	}, m, rsp)
 }
 

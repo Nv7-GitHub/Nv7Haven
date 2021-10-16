@@ -216,7 +216,7 @@ func (b *EoD) init() {
 
 	bar = progressbar.New(cnt)
 
-	invs, err := b.db.Query("SELECT guild, user, inv FROM eod_inv WHERE 1")
+	invs, err := b.db.Query("SELECT guild, user, inv, made FROM eod_inv WHERE 1")
 	if err != nil {
 		panic(err)
 	}
@@ -224,9 +224,10 @@ func (b *EoD) init() {
 	var invDat string
 	var user string
 	var inv map[string]types.Empty
+	var madecnt int
 	for invs.Next() {
 		inv = make(map[string]types.Empty)
-		err = invs.Scan(&guild, &user, &invDat)
+		err = invs.Scan(&guild, &user, &invDat, &madecnt)
 		if err != nil {
 			panic(err)
 		}
@@ -240,7 +241,7 @@ func (b *EoD) init() {
 		if !exists {
 			dat = types.NewServerData()
 		}
-		dat.Inventories[user] = inv
+		dat.Inventories[user] = types.Inventory{Elements: inv, MadeCnt: madecnt, User: user}
 		//lock.Lock()
 		b.dat[guild] = dat
 		//lock.Unlock()

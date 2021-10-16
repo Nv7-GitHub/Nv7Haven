@@ -2,7 +2,6 @@ package polls
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
@@ -28,7 +27,7 @@ func (b *Polls) MarkCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
 		rsp.ErrorMessage(res.Message)
 		return
 	}
-	_, exists = inv[strings.ToLower(el.Name)]
+	exists = inv.Elements.Contains(el.Name)
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** is not in your inventory!", el.Name))
 		return
@@ -85,7 +84,7 @@ func (b *Polls) ImageCmd(elem string, image string, m types.Msg, rsp types.Rsp) 
 		rsp.ErrorMessage(res.Message)
 		return
 	}
-	_, exists = inv[strings.ToLower(el.Name)]
+	exists = inv.Elements.Contains(el.Name)
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** is not in your inventory!", el.Name))
 		return
@@ -138,7 +137,7 @@ func (b *Polls) ColorCmd(elem string, color int, m types.Msg, rsp types.Rsp) {
 		rsp.ErrorMessage(res.Message)
 		return
 	}
-	_, exists = inv[strings.ToLower(el.Name)]
+	exists = inv.Elements.Contains(el.Name)
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** is not in your inventory!", el.Name))
 		return
