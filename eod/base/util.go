@@ -80,7 +80,7 @@ func (b *Base) SaveInv(guild string, user string, newmade bool, recalculate ...b
 	inv, _ := dat.GetInv(user, true)
 
 	dat.Lock.RLock()
-	data, err := json.Marshal(inv)
+	data, err := json.Marshal(inv.Elements)
 	dat.Lock.RUnlock()
 	if err != nil {
 		return
