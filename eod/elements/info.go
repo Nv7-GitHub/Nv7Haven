@@ -23,6 +23,8 @@ func (b *Elements) SortCmd(sort string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 
+	rsp.Acknowledge()
+
 	items := make([]string, len(dat.Elements))
 	i := 0
 	for _, el := range dat.Elements {
