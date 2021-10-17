@@ -149,15 +149,16 @@ func (b *Elements) ElemSearchCmd(search string, regex bool, m types.Msg, rsp typ
 		if rsp.Error(err) {
 			return
 		}
-		for e, el := range dat.Elements {
-			m := reg.Find([]byte(e))
+		for _, el := range dat.Elements {
+			m := reg.Find([]byte(el.Name))
 			if m != nil {
 				items[el.Name] = types.Empty{}
 			}
 		}
 	} else {
+		s := strings.ToLower(search)
 		for e, el := range dat.Elements {
-			if strings.Contains(e, search) {
+			if strings.Contains(e, s) {
 				items[el.Name] = types.Empty{}
 			}
 		}
