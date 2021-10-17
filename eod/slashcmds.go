@@ -831,6 +831,12 @@ var (
 					Description: "The query to search with!",
 					Required:    true,
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionBoolean,
+					Name:        "regex",
+					Description: "Whether to use a RegEx!",
+					Required:    false,
+				},
 			},
 		},
 		{
@@ -1340,7 +1346,11 @@ var (
 		},
 		"elemsearch": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.elements.ElemSearchCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			regex := false
+			if len(resp.Options) > 1 {
+				regex = resp.Options[1].BoolValue()
+			}
+			bot.elements.ElemSearchCmd(resp.Options[0].StringValue(), regex, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"View Inventory": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()

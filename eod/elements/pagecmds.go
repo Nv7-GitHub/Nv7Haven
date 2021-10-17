@@ -2,6 +2,7 @@ package elements
 
 import (
 	"fmt"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -129,7 +130,7 @@ func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string)
 	}, m, rsp)
 }
 
-func (b *Elements) ElemSearchCmd(search string, m types.Msg, rsp types.Rsp) {
+func (b *Elements) ElemSearchCmd(search string, regex bool, m types.Msg, rsp types.Rsp) {
 	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	b.lock.RUnlock()
@@ -141,17 +142,42 @@ func (b *Elements) ElemSearchCmd(search string, m types.Msg, rsp types.Rsp) {
 		rsp.ErrorMessage("You don't have an inventory!")
 		return
 	}
-	if util.IsWildcard(search) {
-		for val := range util.Wildcards {
-			search = strings.ReplaceAll(search, string([]rune{val}), string([]rune{'\\', val}))
+
+	items := make(map[string]types.Empty)
+	if regex {
+		reg, err := regexp.Compile(search)
+		if rsp.Error(err) {
+			return
+		}
+		for e, el := range dat.Elements {
+			m := reg.Find([]byte(e))
+			if m != nil {
+				items[el.Name] = types.Empty{}
+			}
+		}
+	} else {
+		for e, el := range dat.Elements {
+			if strings.Contains(e, search) {
+				items[el.Name] = types.Empty{}
+			}
 		}
 	}
 
+	txt := make([]string, len(items))
+	i := 0
+	for k := range items {
+		txt[i] = k
+		i++
+	}
+	sort.Slice(txt, func(a, b int) bool {
+		return util.CompareStrings(txt[a], txt[b])
+	})
+
 	b.base.NewPageSwitcher(types.PageSwitcher{
-		Kind:       types.PageSwitchSearch,
+		Kind:       types.PageSwitchInv,
 		Title:      "Element Search",
-		PageGetter: b.base.SearchPageGetter,
-		Search:     search,
+		PageGetter: b.base.InvPageGetter,
+		Items:      txt,
 		User:       m.Author.ID,
 	}, m, rsp)
 }
