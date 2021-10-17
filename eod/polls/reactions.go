@@ -9,7 +9,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-func (b *Polls) RejectPoll(dat types.ServerData, p types.Poll, messageid string) types.ServerData {
+func (b *Polls) RejectPoll(dat types.ServerData, p types.Poll, messageid, user string) types.ServerData {
 	dat.Lock.Lock()
 	delete(dat.Polls, messageid)
 	dat.Lock.Unlock()
@@ -18,25 +18,27 @@ func (b *Polls) RejectPoll(dat types.ServerData, p types.Poll, messageid string)
 	b.dg.ChannelMessageDelete(p.Channel, p.Message)
 	b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("%s **Poll Rejected** (By <@%s>)", types.X, p.Value4))
 
-	chn, err := b.dg.UserChannelCreate(p.Value4)
-	if err == nil {
-		servname, err := b.dg.Guild(p.Guild)
+	if user != p.Value4 {
+		chn, err := b.dg.UserChannelCreate(p.Value4)
 		if err == nil {
-			pollemb, err := b.GetPollEmbed(dat, p)
+			servname, err := b.dg.Guild(p.Guild)
 			if err == nil {
-				upvotes := ""
-				downvotes := ""
-				if p.Upvotes > 1 {
-					upvotes = "s"
-				}
-				if p.Downvotes > 1 {
-					downvotes = "s"
-				}
+				pollemb, err := b.GetPollEmbed(dat, p)
+				if err == nil {
+					upvotes := ""
+					downvotes := ""
+					if p.Upvotes > 1 {
+						upvotes = "s"
+					}
+					if p.Downvotes > 1 {
+						downvotes = "s"
+					}
 
-				b.dg.ChannelMessageSendComplex(chn.ID, &discordgo.MessageSend{
-					Content: fmt.Sprintf("Your poll in **%s** was rejected with **%d upvote%s** and **%d downvote%s**.\n\n**Your Poll**:", servname.Name, p.Upvotes, upvotes, p.Downvotes, downvotes),
-					Embed:   pollemb,
-				})
+					b.dg.ChannelMessageSendComplex(chn.ID, &discordgo.MessageSend{
+						Content: fmt.Sprintf("Your poll in **%s** was rejected with **%d upvote%s** and **%d downvote%s**.\n\n**Your Poll**:", servname.Name, p.Upvotes, upvotes, p.Downvotes, downvotes),
+						Embed:   pollemb,
+					})
+				}
 			}
 		}
 	}
@@ -80,7 +82,7 @@ func (b *Polls) UnReactionHandler(_ *discordgo.Session, r *discordgo.MessageReac
 		b.dat[r.GuildID] = dat
 		b.lock.Unlock()
 		if (p.Downvotes - p.Upvotes) >= dat.VoteCount {
-			dat = b.RejectPoll(dat, p, r.MessageID)
+			dat = b.RejectPoll(dat, p, r.MessageID, r.UserID)
 
 			b.lock.Lock()
 			b.dat[r.GuildID] = dat
@@ -140,7 +142,7 @@ func (b *Polls) ReactionHandler(_ *discordgo.Session, r *discordgo.MessageReacti
 		b.dat[r.GuildID] = dat
 		b.lock.Unlock()
 		if ((p.Downvotes - p.Upvotes) >= dat.VoteCount) || (r.UserID == p.Value4) {
-			dat = b.RejectPoll(dat, p, r.MessageID)
+			dat = b.RejectPoll(dat, p, r.MessageID, r.UserID)
 
 			b.lock.Lock()
 			b.dat[r.GuildID] = dat
