@@ -137,6 +137,7 @@ func (b *Elements) ElemSearchCmd(search string, sort string, regex bool, m types
 	if !exists {
 		return
 	}
+	rsp.Acknowledge()
 	_, res := dat.GetInv(m.Author.ID, true)
 	if !res.Exists {
 		rsp.ErrorMessage("You don't have an inventory!")
