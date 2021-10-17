@@ -148,8 +148,8 @@ func (b *Elements) SearchCmd(search string, sort string, source string, opt stri
 	switch source {
 	case "elements":
 		list = make(map[string]types.Empty, len(dat.Elements))
-		for el := range dat.Elements {
-			list[el] = types.Empty{}
+		for _, el := range dat.Elements {
+			list[el.Name] = types.Empty{}
 		}
 
 	case "inventory":
