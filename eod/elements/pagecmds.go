@@ -164,8 +164,8 @@ func (b *Elements) SearchCmd(search string, sort string, source string, opt stri
 		for el := range inv.Elements {
 			elem, res := dat.GetElement(el, true)
 			if !res.Exists {
-				rsp.ErrorMessage(res.Message)
-				return
+				list[el] = types.Empty{}
+				continue
 			}
 			list[elem.Name] = types.Empty{}
 		}
