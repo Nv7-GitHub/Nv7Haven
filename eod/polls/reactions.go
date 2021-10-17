@@ -16,9 +16,10 @@ func (b *Polls) RejectPoll(dat types.ServerData, p types.Poll, messageid, user s
 
 	b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", p.Guild, p.Channel, p.Message)
 	b.dg.ChannelMessageDelete(p.Channel, p.Message)
-	b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("%s **Poll Rejected** (By <@%s>)", types.X, p.Value4))
 
 	if user != p.Value4 {
+		b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("%s **Poll Rejected** (By <@%s>)", types.X, p.Value4))
+
 		chn, err := b.dg.UserChannelCreate(p.Value4)
 		if err == nil {
 			servname, err := b.dg.Guild(p.Guild)
