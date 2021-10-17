@@ -51,6 +51,29 @@ func (b *Polls) UnReactionHandler(_ *discordgo.Session, r *discordgo.MessageReac
 			b.dg.ChannelMessageDelete(p.Channel, p.Message)
 			b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("%s **Poll Rejected** (By <@%s>)", types.X, p.Value4))
 
+			chn, err := b.dg.UserChannelCreate(p.Value4)
+			if err == nil {
+				servname, err := b.dg.Guild(p.Guild)
+				if err == nil {
+					pollemb, err := b.GetPollEmbed(dat, p)
+					if err == nil {
+						upvotes := ""
+						downvotes := ""
+						if p.Upvotes > 1 {
+							upvotes = "s"
+						}
+						if p.Downvotes > 1 {
+							downvotes = "s"
+						}
+
+						b.dg.ChannelMessageSendComplex(chn.ID, &discordgo.MessageSend{
+							Content: fmt.Sprintf("Your poll in **%s** was rejected with **%d upvote%s** and **%d downvote%s**.\n\n**Your Poll**:", servname.Name, p.Upvotes, upvotes, p.Downvotes, downvotes),
+							Embed:   pollemb,
+						})
+					}
+				}
+			}
+
 			b.lock.Lock()
 			b.dat[r.GuildID] = dat
 			b.lock.Unlock()
