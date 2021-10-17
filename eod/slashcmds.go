@@ -832,6 +832,13 @@ var (
 					Required:    true,
 				},
 				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "sort",
+					Description: "How to sort the results!",
+					Choices:     util.SortChoices,
+					Required:    false,
+				},
+				{
 					Type:        discordgo.ApplicationCommandOptionBoolean,
 					Name:        "regex",
 					Description: "Whether to use a RegEx!",
@@ -1347,10 +1354,17 @@ var (
 		"elemsearch": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			regex := false
-			if len(resp.Options) > 1 {
-				regex = resp.Options[1].BoolValue()
+			sort := "name"
+			for _, opt := range resp.Options {
+				if opt.Name == "regex" {
+					regex = opt.BoolValue()
+				}
+
+				if opt.Name == "sort" {
+					sort = opt.StringValue()
+				}
 			}
-			bot.elements.ElemSearchCmd(resp.Options[0].StringValue(), regex, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.elements.ElemSearchCmd(resp.Options[0].StringValue(), sort, regex, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"View Inventory": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()

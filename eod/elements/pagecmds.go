@@ -130,7 +130,7 @@ func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string)
 	}, m, rsp)
 }
 
-func (b *Elements) ElemSearchCmd(search string, regex bool, m types.Msg, rsp types.Rsp) {
+func (b *Elements) ElemSearchCmd(search string, sort string, regex bool, m types.Msg, rsp types.Rsp) {
 	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	b.lock.RUnlock()
@@ -170,9 +170,7 @@ func (b *Elements) ElemSearchCmd(search string, regex bool, m types.Msg, rsp typ
 		txt[i] = k
 		i++
 	}
-	sort.Slice(txt, func(a, b int) bool {
-		return util.CompareStrings(txt[a], txt[b])
-	})
+	util.SortElemList(txt, sort, dat)
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
