@@ -804,28 +804,99 @@ var (
 			},
 		},
 		{
-			Name:        "elemsearch",
+			Name:        "search",
 			Type:        discordgo.ChatApplicationCommand,
 			Description: "Search for an element by name!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "query",
-					Description: "The query to search with!",
-					Required:    true,
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "elements",
+					Description: "Search for an element by name!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "query",
+							Description: "The query to search with!",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "sort",
+							Description: "How to sort the results!",
+							Choices:     util.SortChoices,
+							Required:    false,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionBoolean,
+							Name:        "regex",
+							Description: "Whether to use a RegEx!",
+							Required:    false,
+						},
+					},
 				},
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "sort",
-					Description: "How to sort the results!",
-					Choices:     util.SortChoices,
-					Required:    false,
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "inventory",
+					Description: "Search for an element by name in an inventory!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "query",
+							Description: "The query to search with!",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionUser,
+							Name:        "user",
+							Description: "The user who's inventory to search!",
+							Required:    false,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "sort",
+							Description: "How to sort the results!",
+							Choices:     util.SortChoices,
+							Required:    false,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionBoolean,
+							Name:        "regex",
+							Description: "Whether to use a RegEx!",
+							Required:    false,
+						},
+					},
 				},
 				{
-					Type:        discordgo.ApplicationCommandOptionBoolean,
-					Name:        "regex",
-					Description: "Whether to use a RegEx!",
-					Required:    false,
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "category",
+					Description: "Search for an element by name in a category!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "query",
+							Description: "The query to search with!",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionUser,
+							Name:        "category",
+							Description: "The category to search in!",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "sort",
+							Description: "How to sort the results!",
+							Choices:     util.SortChoices,
+							Required:    false,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionBoolean,
+							Name:        "regex",
+							Description: "Whether to use a RegEx!",
+							Required:    false,
+						},
+					},
 				},
 			},
 		},
@@ -1334,20 +1405,63 @@ var (
 			resp := i.ApplicationCommandData()
 			bot.elements.HintCmd(resp.Options[0].StringValue(), true, true, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
-		"elemsearch": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			regex := false
-			sort := "name"
-			for _, opt := range resp.Options {
-				if opt.Name == "regex" {
-					regex = opt.BoolValue()
-				}
+		"search": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData().Options[0]
+			switch resp.Name {
+			case "elements":
+				regex := false
+				sort := "name"
+				for _, opt := range resp.Options {
+					if opt.Name == "regex" {
+						regex = opt.BoolValue()
+					}
 
-				if opt.Name == "sort" {
-					sort = opt.StringValue()
+					if opt.Name == "sort" {
+						sort = opt.StringValue()
+					}
 				}
+				bot.elements.SearchCmd(resp.Options[0].StringValue(), sort, "elements", "", regex, bot.newMsgSlash(i), bot.newRespSlash(i))
+
+			case "inventory":
+				regex := false
+				sort := "name"
+				m := bot.newMsgSlash(i)
+				user := m.Author.ID
+				for _, opt := range resp.Options {
+					if opt.Name == "regex" {
+						regex = opt.BoolValue()
+					}
+
+					if opt.Name == "sort" {
+						sort = opt.StringValue()
+					}
+
+					if opt.Name == "user" {
+						user = opt.UserValue(bot.dg).ID
+					}
+				}
+				bot.elements.SearchCmd(resp.Options[0].StringValue(), sort, "inventory", user, regex, m, bot.newRespSlash(i))
+
+			case "category":
+				regex := false
+				sort := "name"
+				m := bot.newMsgSlash(i)
+				var category string
+				for _, opt := range resp.Options {
+					if opt.Name == "regex" {
+						regex = opt.BoolValue()
+					}
+
+					if opt.Name == "sort" {
+						sort = opt.StringValue()
+					}
+
+					if opt.Name == "category" {
+						category = opt.StringValue()
+					}
+				}
+				bot.elements.SearchCmd(resp.Options[0].StringValue(), sort, "category", category, regex, m, bot.newRespSlash(i))
 			}
-			bot.elements.ElemSearchCmd(resp.Options[0].StringValue(), sort, regex, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"View Inventory": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()

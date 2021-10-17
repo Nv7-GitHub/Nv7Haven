@@ -130,7 +130,7 @@ func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string)
 	}, m, rsp)
 }
 
-func (b *Elements) ElemSearchCmd(search string, sort string, regex bool, m types.Msg, rsp types.Rsp) {
+func (b *Elements) SearchCmd(search string, sort string, source string, opt string, regex bool, m types.Msg, rsp types.Rsp) {
 	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	b.lock.RUnlock()
@@ -140,8 +140,44 @@ func (b *Elements) ElemSearchCmd(search string, sort string, regex bool, m types
 	rsp.Acknowledge()
 	_, res := dat.GetInv(m.Author.ID, true)
 	if !res.Exists {
-		rsp.ErrorMessage("You don't have an inventory!")
+		rsp.ErrorMessage(res.Message)
 		return
+	}
+
+	var list map[string]types.Empty
+	switch source {
+	case "elements":
+		list = make(map[string]types.Empty, len(dat.Elements))
+		for el := range dat.Elements {
+			list[el] = types.Empty{}
+		}
+
+	case "inventory":
+		inv, res := dat.GetInv(opt, m.Author.ID == opt)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+
+		list = make(map[string]types.Empty, len(inv.Elements))
+		dat.Lock.RLock()
+		for el := range inv.Elements {
+			elem, res := dat.GetElement(el, true)
+			if !res.Exists {
+				rsp.ErrorMessage(res.Message)
+				return
+			}
+			list[elem.Name] = types.Empty{}
+		}
+		dat.Lock.RUnlock()
+
+	case "category":
+		cat, res := dat.GetCategory(opt)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		list = cat.Elements
 	}
 
 	items := make(map[string]types.Empty)
@@ -150,10 +186,10 @@ func (b *Elements) ElemSearchCmd(search string, sort string, regex bool, m types
 		if rsp.Error(err) {
 			return
 		}
-		for _, el := range dat.Elements {
-			m := reg.Find([]byte(el.Name))
+		for el := range list {
+			m := reg.Find([]byte(el))
 			if m != nil {
-				items[el.Name] = types.Empty{}
+				items[el] = types.Empty{}
 			}
 		}
 	} else {
