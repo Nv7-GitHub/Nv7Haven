@@ -9,6 +9,40 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+func (b *Polls) RejectPoll(dat types.ServerData, p types.Poll, messageid string) types.ServerData {
+	dat.Lock.Lock()
+	delete(dat.Polls, messageid)
+	dat.Lock.Unlock()
+
+	b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", p.Guild, p.Channel, p.Message)
+	b.dg.ChannelMessageDelete(p.Channel, p.Message)
+	b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("%s **Poll Rejected** (By <@%s>)", types.X, p.Value4))
+
+	chn, err := b.dg.UserChannelCreate(p.Value4)
+	if err == nil {
+		servname, err := b.dg.Guild(p.Guild)
+		if err == nil {
+			pollemb, err := b.GetPollEmbed(dat, p)
+			if err == nil {
+				upvotes := ""
+				downvotes := ""
+				if p.Upvotes > 1 {
+					upvotes = "s"
+				}
+				if p.Downvotes > 1 {
+					downvotes = "s"
+				}
+
+				b.dg.ChannelMessageSendComplex(chn.ID, &discordgo.MessageSend{
+					Content: fmt.Sprintf("Your poll in **%s** was rejected with **%d upvote%s** and **%d downvote%s**.\n\n**Your Poll**:", servname.Name, p.Upvotes, upvotes, p.Downvotes, downvotes),
+					Embed:   pollemb,
+				})
+			}
+		}
+	}
+	return dat
+}
+
 func (b *Polls) UnReactionHandler(_ *discordgo.Session, r *discordgo.MessageReactionRemove) {
 	if r.UserID == b.dg.State.User.ID {
 		return
@@ -46,33 +80,7 @@ func (b *Polls) UnReactionHandler(_ *discordgo.Session, r *discordgo.MessageReac
 		b.dat[r.GuildID] = dat
 		b.lock.Unlock()
 		if (p.Downvotes - p.Upvotes) >= dat.VoteCount {
-			delete(dat.Polls, r.MessageID)
-			b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", p.Guild, p.Channel, p.Message)
-			b.dg.ChannelMessageDelete(p.Channel, p.Message)
-			b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("%s **Poll Rejected** (By <@%s>)", types.X, p.Value4))
-
-			chn, err := b.dg.UserChannelCreate(p.Value4)
-			if err == nil {
-				servname, err := b.dg.Guild(p.Guild)
-				if err == nil {
-					pollemb, err := b.GetPollEmbed(dat, p)
-					if err == nil {
-						upvotes := ""
-						downvotes := ""
-						if p.Upvotes > 1 {
-							upvotes = "s"
-						}
-						if p.Downvotes > 1 {
-							downvotes = "s"
-						}
-
-						b.dg.ChannelMessageSendComplex(chn.ID, &discordgo.MessageSend{
-							Content: fmt.Sprintf("Your poll in **%s** was rejected with **%d upvote%s** and **%d downvote%s**.\n\n**Your Poll**:", servname.Name, p.Upvotes, upvotes, p.Downvotes, downvotes),
-							Embed:   pollemb,
-						})
-					}
-				}
-			}
+			dat = b.RejectPoll(dat, p, r.MessageID)
 
 			b.lock.Lock()
 			b.dat[r.GuildID] = dat
@@ -132,14 +140,7 @@ func (b *Polls) ReactionHandler(_ *discordgo.Session, r *discordgo.MessageReacti
 		b.dat[r.GuildID] = dat
 		b.lock.Unlock()
 		if ((p.Downvotes - p.Upvotes) >= dat.VoteCount) || (r.UserID == p.Value4) {
-			dat.Lock.Lock()
-			delete(dat.Polls, r.MessageID)
-			dat.Lock.Unlock()
-			b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", p.Guild, p.Channel, p.Message)
-			b.dg.ChannelMessageDelete(p.Channel, p.Message)
-			if r.UserID != p.Value4 {
-				b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("%s **Poll Rejected** (By <@%s>)", types.X, p.Value4))
-			}
+			dat = b.RejectPoll(dat, p, r.MessageID)
 
 			b.lock.Lock()
 			b.dat[r.GuildID] = dat
