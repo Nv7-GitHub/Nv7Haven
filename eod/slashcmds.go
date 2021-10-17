@@ -878,7 +878,7 @@ var (
 							Required:    true,
 						},
 						{
-							Type:        discordgo.ApplicationCommandOptionUser,
+							Type:        discordgo.ApplicationCommandOptionString,
 							Name:        "category",
 							Description: "The category to search in!",
 							Required:    true,
