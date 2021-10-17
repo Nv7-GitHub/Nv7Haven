@@ -186,10 +186,11 @@ func (b *Polls) CreatePoll(p types.Poll) error {
 	if err != nil {
 		return err
 	}
-	_, err = b.dg.ChannelMessageSendEmbed(dat.VotingChannel, emb)
+	m, err := b.dg.ChannelMessageSendEmbed(dat.VotingChannel, emb)
 	if err != nil {
 		return err
 	}
+	p.Message = m.ID
 
 	if !base.IsFoolsMode {
 		err := b.dg.MessageReactionAdd(p.Channel, p.Message, upArrow)
