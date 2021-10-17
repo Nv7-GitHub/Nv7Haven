@@ -40,8 +40,13 @@ func (b *Polls) GetPollEmbed(dat types.ServerData, p types.Poll) (*discordgo.Mes
 			txt += " + " + el.Name
 		}
 		txt += " = " + p.Value3
+
+		title := "Element"
+		if p.Data["exists"].(bool) {
+			title = "Combination"
+		}
 		return &discordgo.MessageEmbed{
-			Title:       "Combination",
+			Title:       title,
 			Description: txt + "\n\n" + "Suggested by <@" + p.Value4 + ">",
 			Footer: &discordgo.MessageEmbedFooter{
 				Text: "You can change your vote",

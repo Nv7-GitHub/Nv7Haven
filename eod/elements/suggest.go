@@ -111,19 +111,21 @@ func (b *Elements) SuggestCmd(suggestion string, autocapitalize bool, m types.Ms
 		suggestion = el.Name
 	}
 
+	_, res = dat.GetElement(suggestion)
 	err := b.polls.CreatePoll(types.Poll{
 		Channel:   dat.VotingChannel,
 		Guild:     m.GuildID,
 		Kind:      types.PollCombo,
 		Value3:    suggestion,
 		Value4:    m.Author.ID,
-		Data:      map[string]interface{}{"elems": comb.Elems},
+		Data:      map[string]interface{}{"elems": comb.Elems, "exists": res.Exists},
 		Upvotes:   0,
 		Downvotes: 0,
 	})
 	if rsp.Error(err) {
 		return
 	}
+
 	txt := "Suggested **"
 	for _, val := range comb.Elems {
 		el, _ := dat.GetElement(val)
@@ -136,7 +138,6 @@ func (b *Elements) SuggestCmd(suggestion string, autocapitalize bool, m types.Ms
 	}
 	txt += " = " + suggestion + "** "
 
-	_, res = dat.GetElement(suggestion)
 	if !res.Exists {
 		txt += "✨"
 	} else {
