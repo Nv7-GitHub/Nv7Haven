@@ -1,9 +1,7 @@
 package elements
 
 import (
-	"database/sql"
 	"fmt"
-	"math"
 	"sort"
 	"strconv"
 	"strings"
@@ -17,91 +15,27 @@ import (
 
 const catInfoCount = 3
 
-var InfoChoices []*discordgo.ApplicationCommandOptionChoice
-var infoQuerys = map[string]string{
-	"Name":         "SELECT name FROM eod_elements WHERE guild=? ORDER BY name %s LIMIT ? OFFSET ?",
-	"Date Created": "SELECT name FROM eod_elements WHERE guild=? ORDER BY createdon %s LIMIT ? OFFSET ?",
-	"Complexity":   "SELECT name FROM eod_elements WHERE guild=? ORDER BY complexity %s LIMIT ? OFFSET ?",
-	"Difficulty":   "SELECT name FROM eod_elements WHERE guild=? ORDER BY difficulty %s LIMIT ? OFFSET ?",
-	"Used In":      `SELECT name FROM eod_elements WHERE guild=? ORDER BY usedin %s LIMIT ? OFFSET ?`,
-	// Ones below are commented out due to being extremely slow
-	//"Made By":      "SELECT name FROM eod_elements WHERE guild=? ORDER BY (SELECT COUNT(1) AS cnt FROM eod_combos WHERE elem3 LIKE name AND guild=?) %s LIMIT ? OFFSET ?",
-	//"Found By":     `SELECT name FROM eod_elements WHERE guild=?  ORDER BY (SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT('$."', LOWER(name), '"')) IS NOT NULL)) %s LIMIT ? OFFSET ?`,
-	"Creator":   "SELECT name FROM eod_elements WHERE guild=? ORDER BY creator %s LIMIT ? OFFSET ?",
-	"Length":    `SELECT name FROM eod_elements WHERE guild=? ORDER BY LENGTH(name) %s LIMIT ? OFFSET ?`,
-	"Tree Size": `SELECT name FROM eod_elements WHERE guild=? ORDER BY treesize %s LIMIT ? OFFSET ?`,
-	"Color":     `SELECT name FROM eod_elements WHERE guild=? ORDER BY color %s LIMIT ? OFFSET ?`,
-}
-
-func (b *Elements) InitInfoChoices() {
-	InfoChoices = make([]*discordgo.ApplicationCommandOptionChoice, len(infoQuerys))
-	i := 0
-	for k := range infoQuerys {
-		InfoChoices[i] = &discordgo.ApplicationCommandOptionChoice{
-			Name:  k,
-			Value: k,
-		}
-		i++
-	}
-}
-
-func (b *Elements) sortPageGetter(p types.PageSwitcher) (string, int, int, error) {
-	length := int(math.Floor(float64(p.Length-1) / float64(p.PageLength)))
-	if p.PageLength*p.Page > (p.Length - 1) {
-		return "", 0, length, nil
-	}
-	if p.Page < 0 {
-		return "", length, length, nil
-	}
-	var res *sql.Rows
-	var err error
-	cnt := strings.Count(p.Query, "?")
-	if cnt == 3 {
-		res, err = b.db.Query(p.Query, p.Guild, p.PageLength, p.Page*p.PageLength)
-		if err != nil {
-			return "", length, length, err
-		}
-	} else {
-		res, err = b.db.Query(p.Query, p.Guild, p.Guild, p.PageLength, p.Page*p.PageLength)
-		if err != nil {
-			return "", length, length, err
-		}
-	}
-	defer res.Close()
-	out := ""
-	var name string
-	for res.Next() {
-		err = res.Scan(&name)
-		if err != nil {
-			return "", length, length, err
-		}
-		out += name + "\n"
-	}
-	return out, p.Page, length, nil
-}
-
-func (b *Elements) SortCmd(query string, order bool, m types.Msg, rsp types.Rsp) {
+func (b *Elements) SortCmd(sort string, m types.Msg, rsp types.Rsp) {
 	b.lock.RLock()
 	dat, exists := b.dat[m.GuildID]
 	b.lock.RUnlock()
 	if !exists {
 		return
 	}
-	quer, exists := infoQuerys[query]
-	if !exists {
-		rsp.ErrorMessage("Invalid query type!")
-		return
+
+	items := make([]string, len(dat.Elements))
+	i := 0
+	for _, el := range dat.Elements {
+		items[i] = el.Name
+		i++
 	}
-	ord := "DESC"
-	if order {
-		ord = "ASC"
-	}
-	quer = fmt.Sprintf(quer, ord)
+	util.SortElemList(items, sort, dat)
+
 	b.base.NewPageSwitcher(types.PageSwitcher{
-		Kind:       types.PageSwitchElemSort,
+		Kind:       types.PageSwitchInv,
 		Title:      "Element Sort",
-		PageGetter: b.sortPageGetter,
-		Query:      quer,
+		PageGetter: b.base.InvPageGetter,
+		Items:      items,
 		Length:     len(dat.Elements),
 	}, m, rsp)
 }

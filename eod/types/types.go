@@ -32,9 +32,8 @@ const (
 	PollColor        = 6
 	PollCatColor     = 7
 
-	PageSwitchLdb      = 0
-	PageSwitchInv      = 1
-	PageSwitchElemSort = 2
+	PageSwitchLdb = 0
+	PageSwitchInv = 1
 )
 
 type ComponentMsg interface {

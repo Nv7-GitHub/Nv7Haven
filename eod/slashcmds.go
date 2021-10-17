@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/Nv7-Github/Nv7Haven/eod/elements"
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
@@ -477,23 +476,7 @@ var (
 					Name:        "sortby",
 					Description: "How to sort the elements",
 					Required:    true,
-					Choices:     elements.InfoChoices,
-				},
-				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "order",
-					Description: "The order to sort the elements!",
-					Required:    true,
-					Choices: []*discordgo.ApplicationCommandOptionChoice{
-						{
-							Name:  "Descending",
-							Value: "0",
-						},
-						{
-							Name:  "Ascending",
-							Value: "1",
-						},
-					},
+					Choices:     util.SortChoices,
 				},
 			},
 		},
@@ -1123,7 +1106,7 @@ var (
 		},
 		"elemsort": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.elements.SortCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue() == "1", bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.elements.SortCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"help": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.basecmds.HelpCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
