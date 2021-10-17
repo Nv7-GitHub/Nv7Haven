@@ -2,6 +2,8 @@ package elements
 
 import (
 	"fmt"
+	"sort"
+	"strconv"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
@@ -22,30 +24,29 @@ func (b *Elements) FoundCmd(elem string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 
-	var foundCnt int
-	err := b.db.QueryRow(`SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT('$."', LOWER(?), '"')) IS NOT NULL)`, m.GuildID, el.Name).Scan(&foundCnt)
-	if rsp.Error(err) {
-		return
-	}
-
-	found, err := b.db.Query(`SELECT user as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT('$."', LOWER(?), '"')) IS NOT NULL)`, m.GuildID, el.Name)
-	if rsp.Error(err) {
-		return
-	}
-	defer found.Close()
-
-	out := make([]string, foundCnt)
-	i := 0
-
-	var user string
-	for found.Next() {
-		err = found.Scan(&user)
-		if rsp.Error(err) {
-			return
+	items := make(map[string]types.Empty)
+	for _, inv := range dat.Inventories {
+		if inv.Elements.Contains(el.Name) {
+			items[inv.User] = types.Empty{}
 		}
+	}
 
-		out[i] = fmt.Sprintf("<@%s>", user)
+	out := make([]string, len(items))
+	i := 0
+	for k := range items {
+		out[i] = k
 		i++
+	}
+	sort.Slice(out, func(i, j int) bool {
+		int1, err1 := strconv.Atoi(out[i])
+		int2, err2 := strconv.Atoi(out[j])
+		if err1 != nil && err2 != nil {
+			return int1 < int2
+		}
+		return out[i] < out[j]
+	})
+	for i, v := range out {
+		out[i] = fmt.Sprintf("<@%s>", v)
 	}
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
