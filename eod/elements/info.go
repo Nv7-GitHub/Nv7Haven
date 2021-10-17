@@ -156,21 +156,20 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 		fmt.Fprintf(catTxt, ", and %d more...", len(cats)-catInfoCount)
 	}
 
-	// Get SQL Stats
-	quer := `SELECT a.cnt, b.cnt FROM (SELECT COUNT(1) AS cnt FROM eod_combos WHERE elem3 LIKE ? AND guild=?) a, (SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT('$."', LOWER(?), '"')) IS NOT NULL)) b`
-	if util.IsASCII(elem) {
-		quer = `SELECT a.cnt, b.cnt FROM (SELECT COUNT(1) AS cnt FROM eod_combos WHERE CONVERT(elem3 USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND guild=CONVERT(? USING utf8mb4) COLLATE utf8mb4_general_ci) a, (SELECT COUNT(1) as cnt FROM eod_inv WHERE guild=? AND (JSON_EXTRACT(inv, CONCAT('$."', LOWER(?), '"')) IS NOT NULL)) b`
-	}
-	if util.IsWildcard(elem) {
-		quer = strings.ReplaceAll(quer, " LIKE ", "=")
+	// Get Madeby
+	madeby := 0
+	for _, comb := range dat.Combos {
+		if strings.EqualFold(comb, el.Name) {
+			madeby++
+		}
 	}
 
-	row := b.db.QueryRow(quer, el.Name, el.Guild, el.Guild, el.Name)
-	var madeby int
-	var foundby int
-	err := row.Scan(&madeby, &foundby)
-	if rsp.Error(err) {
-		return
+	// Get foundby
+	foundby := 0
+	for _, inv := range dat.Inventories {
+		if inv.Elements.Contains(el.Name) {
+			foundby++
+		}
 	}
 
 	suc, msg, tree := trees.CalcElemInfo(elem, m.Author.ID, dat)
