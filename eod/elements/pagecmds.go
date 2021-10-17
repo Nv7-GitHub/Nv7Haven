@@ -173,9 +173,14 @@ func (b *Elements) ElemSearchCmd(search string, sort string, regex bool, m types
 	}
 	util.SortElemList(txt, sort, dat)
 
+	if len(txt) == 0 {
+		rsp.Message("No results!")
+		return
+	}
+
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
-		Title:      "Element Search",
+		Title:      fmt.Sprintf("Element Search (%d)", len(txt)),
 		PageGetter: b.base.InvPageGetter,
 		Items:      txt,
 		User:       m.Author.ID,
