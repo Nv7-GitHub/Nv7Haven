@@ -1216,7 +1216,7 @@ var (
 
 			case "inv":
 				user := i.Member.User.ID
-				calcTree := true
+				calcTree := false
 				for _, opt := range resp.Options {
 					if opt.Name == "user" {
 						user = opt.UserValue(bot.dg).ID
