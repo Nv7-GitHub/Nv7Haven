@@ -148,8 +148,8 @@ func (b *Elements) SearchCmd(search string, sort string, source string, opt stri
 	switch source {
 	case "elements":
 		list = make(map[string]types.Empty, len(dat.Elements))
-		for el := range dat.Elements {
-			list[el] = types.Empty{}
+		for _, el := range dat.Elements {
+			list[el.Name] = types.Empty{}
 		}
 
 	case "inventory":
@@ -164,8 +164,8 @@ func (b *Elements) SearchCmd(search string, sort string, source string, opt stri
 		for el := range inv.Elements {
 			elem, res := dat.GetElement(el, true)
 			if !res.Exists {
-				rsp.ErrorMessage(res.Message)
-				return
+				list[el] = types.Empty{}
+				continue
 			}
 			list[elem.Name] = types.Empty{}
 		}
