@@ -194,9 +194,9 @@ func (b *Elements) SearchCmd(search string, sort string, source string, opt stri
 		}
 	} else {
 		s := strings.ToLower(search)
-		for e, el := range dat.Elements {
-			if strings.Contains(e, s) {
-				items[el.Name] = types.Empty{}
+		for el := range list {
+			if strings.Contains(el, s) {
+				items[el] = types.Empty{}
 			}
 		}
 	}
