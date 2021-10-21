@@ -53,7 +53,7 @@ func (d *DB) getStmt(query string) (*sql.Stmt, error) {
 }
 
 func NewDB(db *sql.DB) *DB {
-	return &DB{db: db, cache: make(map[string]*sql.Stmt)}
+	return &DB{db: db, cache: make(map[string]*sql.Stmt), lock: &sync.RWMutex{}}
 }
 
 func (d *DB) GetSqlDB() *sql.DB {
