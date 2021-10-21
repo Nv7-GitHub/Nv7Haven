@@ -158,6 +158,7 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 
 	// Get Madeby
 	madeby := 0
+	dat.Lock.RLock()
 	for _, comb := range dat.Combos {
 		if strings.EqualFold(comb, el.Name) {
 			madeby++
@@ -171,6 +172,7 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 			foundby++
 		}
 	}
+	dat.Lock.RUnlock()
 
 	suc, msg, tree := trees.CalcElemInfo(elem, m.Author.ID, dat)
 	if !suc {
