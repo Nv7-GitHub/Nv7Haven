@@ -61,7 +61,7 @@ func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user
 	for name := range cat.Elements {
 		exists := inv.Elements.Contains(name)
 		if exists {
-			text = name + " " + types.Check
+			text = name + " <:eodCheck:765333533362225222>"
 			found++
 			fnd = 1
 		} else {
