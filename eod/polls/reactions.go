@@ -60,7 +60,7 @@ func (b *Polls) UnReactionHandler(_ *discordgo.Session, r *discordgo.MessageReac
 	if !res.Exists {
 		return
 	}
-	if r.Emoji.Name == downArrow {
+	if r.Emoji.Name == types.DownArrow {
 		p.Downvotes--
 		dat.SavePoll(r.MessageID, p)
 		b.lock.Lock()
@@ -76,7 +76,7 @@ func (b *Polls) UnReactionHandler(_ *discordgo.Session, r *discordgo.MessageReac
 			b.lock.Unlock()
 			return
 		}
-	} else if r.Emoji.Name == upArrow {
+	} else if r.Emoji.Name == types.UpArrow {
 		p.Upvotes--
 		dat.SavePoll(r.MessageID, p)
 		b.lock.Lock()
@@ -118,7 +118,7 @@ func (b *Polls) ReactionHandler(_ *discordgo.Session, r *discordgo.MessageReacti
 		return
 	}
 
-	if r.Emoji.Name == upArrow {
+	if r.Emoji.Name == types.UpArrow {
 		p.Upvotes++
 		dat.SavePoll(r.MessageID, p)
 		b.lock.Lock()
@@ -136,7 +136,7 @@ func (b *Polls) ReactionHandler(_ *discordgo.Session, r *discordgo.MessageReacti
 			b.lock.Unlock()
 			return
 		}
-	} else if r.Emoji.Name == downArrow {
+	} else if r.Emoji.Name == types.DownArrow {
 		p.Downvotes++
 		dat.SavePoll(r.MessageID, p)
 		b.lock.Lock()
