@@ -74,19 +74,22 @@ func (b *EoD) update(m types.Msg, rsp types.Rsp) {
 
 func (b *EoD) start() {
 	_, err := os.Stat("restartinfo.gob")
+	if os.IsNotExist(err) {
+		// File doesn't exist, send logs
+		logs, err := os.ReadFile("logs.txt")
+		if err != nil {
+			return
+		}
+		b.dg.ChannelMessageSendEmbed("840344139870371920", &discordgo.MessageEmbed{
+			Title:       "Bot Crash!",
+			Description: fmt.Sprintf("```\n%s\n```", string(logs)),
+		})
+		os.Create("logs.txt") // Reset logs
+	}
+
 	if err == nil {
 		f, err := os.Open("restartinfo.gob")
 		if err != nil {
-			// File doesn't exist, send logs
-			logs, err := os.ReadFile("logs.txt")
-			if err != nil {
-				return
-			}
-			b.dg.ChannelMessageSendEmbed("840344139870371920", &discordgo.MessageEmbed{
-				Title:       "Bot Crash!",
-				Description: fmt.Sprintf("```\n%s\n```", string(logs)),
-			})
-			os.Create("logs.txt") // Reset logs
 			return
 		}
 
