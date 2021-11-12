@@ -44,7 +44,9 @@ services:
     restart: unless-stopped
 
   filebackup:
-    image: jareware/docker-volume-backup
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
       - ./backups:/archive
       - ./data:/backup/db:ro
