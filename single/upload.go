@@ -40,7 +40,7 @@ func (s *Single) upload(c *fiber.Ctx) error {
 			return err
 		}
 	}
-	file, err := os.OpenFile(fmt.Sprintf("packs/%s_%s.pack", dat.UID, dat.ID), os.O_WRONLY|os.O_CREATE, os.ModePerm)
+	file, err := os.OpenFile(fmt.Sprintf("db/packs/%s_%s.pack", dat.UID, dat.ID), os.O_WRONLY|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		return err
 	}

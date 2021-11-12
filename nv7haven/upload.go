@@ -12,7 +12,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-const fileDir = "files/file%d%s"
+const fileDir = "db/files/file%d%s"
 
 func (n *Nv7Haven) upload(c *fiber.Ctx) error {
 	file, err := c.FormFile("file")
@@ -55,12 +55,6 @@ func (n *Nv7Haven) upload(c *fiber.Ctx) error {
 		return err
 	}
 
-	if _, err := os.Stat("files"); os.IsNotExist(err) {
-		err = os.Mkdir("files", 0777)
-		if err != nil {
-			return err
-		}
-	}
 	err = c.SaveFile(file, fmt.Sprintf(fileDir, id, ext))
 	if err != nil {
 		return err

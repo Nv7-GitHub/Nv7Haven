@@ -2,6 +2,7 @@ package nv7haven
 
 import (
 	_ "embed"
+	"os"
 
 	"github.com/Nv7-Github/Nv7Haven/db"
 	"github.com/Nv7-Github/firebase"
@@ -77,6 +78,12 @@ func InitNv7Haven(app *fiber.App, sql *db.DB) error {
 			Servercnt:   make([]int, 0),
 			Labels:      make([]string, 0),
 		},
+	}
+
+	// Make files DB
+	err = os.MkdirAll("db/files", os.ModePerm)
+	if err != nil {
+		return err
 	}
 
 	err = nv7haven.initBestEver()

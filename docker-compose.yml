@@ -43,5 +43,11 @@ services:
       MAX_BACKUPS: 21
     restart: unless-stopped
 
+  filebackup:
+    image: jareware/docker-volume-backup
+    volumes:
+      - ./backups:/archive
+      - ./db:/backup/db:ro
+
 volumes:
   db-data:
