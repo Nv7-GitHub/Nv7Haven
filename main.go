@@ -17,6 +17,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/nv7haven"
 	"github.com/Nv7-Github/Nv7Haven/remodrive"
 	"github.com/Nv7-Github/Nv7Haven/single"
+	joe "github.com/Nv7-Github/average-joe"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"google.golang.org/grpc"
 
@@ -34,6 +35,9 @@ const (
 	dbUser = "root"
 	dbName = "nv7haven"
 )
+
+//go:embed joe_token.txt
+var joe_token string
 
 func main() {
 	logFile, err := os.OpenFile("logs.txt", os.O_WRONLY|os.O_CREATE, os.ModePerm)
@@ -81,6 +85,11 @@ func main() {
 	}
 
 	err = nv7haven.InitNv7Haven(app, db)
+	if err != nil {
+		panic(err)
+	}
+
+	j, err := joe.NewJoe(joe_token)
 	if err != nil {
 		panic(err)
 	}
@@ -144,4 +153,5 @@ func main() {
 	b.Close()
 	eodB.Close()
 	db.Close()
+	j.Close()
 }
