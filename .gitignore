@@ -36,7 +36,7 @@ anarchy/giveall/giveall
 main
 
 # Data
-db/*
+data/*
 logs.txt
 createlogs.txt
 discordlogs.txt

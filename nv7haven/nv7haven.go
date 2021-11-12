@@ -81,7 +81,7 @@ func InitNv7Haven(app *fiber.App, sql *db.DB) error {
 	}
 
 	// Make files DB
-	err = os.MkdirAll("db/files", os.ModePerm)
+	err = os.MkdirAll("data/files", os.ModePerm)
 	if err != nil {
 		return err
 	}

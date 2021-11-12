@@ -12,7 +12,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-const fileDir = "db/files/file%d%s"
+const fileDir = "data/files/file%d%s"
 
 func (n *Nv7Haven) upload(c *fiber.Ctx) error {
 	file, err := c.FormFile("file")

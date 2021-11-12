@@ -10,7 +10,7 @@ import (
 func (s *Single) download(c *fiber.Ctx) error {
 	id := c.Params("id")
 	uid := c.Params("uid")
-	dat, err := ioutil.ReadFile(fmt.Sprintf("db/packs/%s_%s.pack", uid, id))
+	dat, err := ioutil.ReadFile(fmt.Sprintf("data/packs/%s_%s.pack", uid, id))
 	if err != nil {
 		return err
 	}

@@ -47,7 +47,7 @@ services:
     image: jareware/docker-volume-backup
     volumes:
       - ./backups:/archive
-      - ./db:/backup/db:ro
+      - ./data:/backup/db:ro
 
 volumes:
   db-data:
