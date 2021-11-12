@@ -48,8 +48,8 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ./backups:/archive
-      - ./data:/backup/db:ro
+      - ./backups:/backups
+      - ./data:/data
 
 volumes:
   db-data:

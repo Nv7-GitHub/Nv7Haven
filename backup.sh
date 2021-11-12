@@ -1,2 +1,3 @@
-tar -zcf /backups/backup_$(date +%Y%m%d).tar.gz -C /data
-find /home/tony/backup/daily/* -mtime +7 -delete
+echo "Backing up..."
+tar -zcvf /backups/backup_$(date +%Y%m%d).tar.gz /data
+find /backups/* -mtime +7 -delete
