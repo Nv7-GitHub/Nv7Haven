@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/Knetic/govaluate v3.0.0+incompatible
-	github.com/Nv7-Github/average-joe v0.0.0-20211112202202-3d68da31bf58
+	github.com/Nv7-Github/average-joe v0.0.0-20211112203939-23eaa0d1d57a
 	github.com/Nv7-Github/firebase v0.0.0-20201012033747-47c56e1d869d
 	github.com/bwmarrin/discordgo v0.23.3-0.20211027235626-007bf7679048
 	github.com/finnbear/moderation v0.11.4
