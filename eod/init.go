@@ -127,8 +127,6 @@ func (b *EoD) init() {
 		}
 	}
 
-	//elems, err := b.db.Query("SELECT * FROM eod_elements ORDER BY createdon ASC") // Do after nov 21
-
 	var cnt int
 	err = b.db.QueryRow("SELECT COUNT(1) FROM eod_elements").Scan(&cnt)
 	if err != nil {
@@ -137,7 +135,7 @@ func (b *EoD) init() {
 
 	bar := progressbar.New(cnt)
 
-	elems, err := b.db.Query("SELECT name, image, color, guild, comment, creator, createdon, parents, complexity, difficulty, usedin, treesize FROM `eod_elements` ORDER BY (IF(createdon=1637536881, 1605988759, createdon)) ")
+	elems, err := b.db.Query("SELECT name, image, color, guild, comment, creator, createdon, parents, complexity, difficulty, usedin, treesize FROM `eod_elements` ORDER BY createdon ASC")
 	if err != nil {
 		panic(err)
 	}
