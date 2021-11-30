@@ -39,7 +39,7 @@ func (b *BaseCmds) StatsCmd(m types.Msg, rsp types.Rsp) {
 		Components: []discordgo.MessageComponent{
 			discordgo.Button{
 				Label: "View More Stats",
-				URL:   "https://nv7haven.tk/?page=eod",
+				URL:   "https://nv7haven.com/?page=eod",
 				Style: discordgo.LinkButton,
 			},
 		},

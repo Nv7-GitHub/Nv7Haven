@@ -13,7 +13,7 @@ import (
 //go:embed serviceAccount.json
 var serviceAccount string
 
-// Nv7Haven is the backend for https://nv7haven.tk
+// Nv7Haven is the backend for https://nv7haven.com
 type Nv7Haven struct {
 	db  *database.Db
 	sql *db.DB
