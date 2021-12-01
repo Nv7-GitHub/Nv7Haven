@@ -9,13 +9,13 @@ import (
 )
 
 type Base struct {
-	dat  map[string]types.ServerData
+	dat  map[string]types.ServerDat
 	db   *db.DB
 	lock *sync.RWMutex
 	dg   *discordgo.Session
 }
 
-func NewBase(db *db.DB, dat map[string]types.ServerData, dg *discordgo.Session, lock *sync.RWMutex) *Base {
+func NewBase(db *db.DB, dat map[string]types.ServerDat, dg *discordgo.Session, lock *sync.RWMutex) *Base {
 	return &Base{
 		db:   db,
 		dat:  dat,

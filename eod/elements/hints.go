@@ -248,7 +248,7 @@ func (b *Elements) getHint(elem string, hasElem bool, author string, guild strin
 	}, "", true
 }
 
-func getHintText(elemTxt string, inv types.Inventory, dat types.ServerData, inverse bool) (string, int) {
+func getHintText(elemTxt string, inv types.Inventory, dat types.ServerDat, inverse bool) (string, int) {
 	if !inverse {
 		elems := strings.Split(elemTxt, "+")
 		hasElems := true

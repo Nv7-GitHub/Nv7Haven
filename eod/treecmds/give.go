@@ -87,7 +87,7 @@ func (b *TreeCmds) GiveCatCmd(catName string, giveTree bool, user string, m type
 	rsp.Resp("Successfully gave all elements in category **" + cat.Name + "**!")
 }
 
-func giveElem(dat types.ServerData, giveTree bool, elem string, out *types.Inventory) (string, bool) {
+func giveElem(dat types.ServerDat, giveTree bool, elem string, out *types.Inventory) (string, bool) {
 	el, res := dat.GetElement(elem)
 	if !res.Exists {
 		return elem, false

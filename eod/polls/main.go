@@ -10,14 +10,14 @@ import (
 )
 
 type Polls struct {
-	dat  map[string]types.ServerData
+	dat  map[string]types.ServerDat
 	lock *sync.RWMutex
 	dg   *discordgo.Session
 	db   *db.DB
 	base *base.Base
 }
 
-func NewPolls(dat map[string]types.ServerData, dg *discordgo.Session, db *db.DB, base *base.Base, lock *sync.RWMutex) *Polls {
+func NewPolls(dat map[string]types.ServerDat, dg *discordgo.Session, db *db.DB, base *base.Base, lock *sync.RWMutex) *Polls {
 	return &Polls{
 		dat:  dat,
 		lock: lock,

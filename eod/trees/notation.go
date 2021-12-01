@@ -20,10 +20,10 @@ type notationTree struct {
 	added map[string]string
 	num   int
 
-	dat types.ServerData
+	dat types.ServerDat
 }
 
-func NewNotationTree(dat types.ServerData) *notationTree {
+func NewNotationTree(dat types.ServerDat) *notationTree {
 	return &notationTree{
 		added:   make(map[string]string),
 		Builder: &strings.Builder{},

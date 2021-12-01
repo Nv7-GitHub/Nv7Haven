@@ -11,7 +11,7 @@ import (
 
 type BreakDownTree struct {
 	Added     map[string]types.Empty
-	Dat       types.ServerData
+	Dat       types.ServerDat
 	Breakdown map[string]int // map[userid]count
 	Total     int
 	Tree      bool

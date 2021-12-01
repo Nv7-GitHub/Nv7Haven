@@ -55,14 +55,14 @@ var SortChoices = []*discordgo.ApplicationCommandOptionChoice{
 	},
 }
 
-var sorts = map[string]func(a, b string, dat types.ServerData) bool{
-	"length": func(a, b string, dat types.ServerData) bool {
+var sorts = map[string]func(a, b string, dat types.ServerDat) bool{
+	"length": func(a, b string, dat types.ServerDat) bool {
 		return len(a) < len(b)
 	},
-	"name": func(a, b string, dat types.ServerData) bool {
+	"name": func(a, b string, dat types.ServerDat) bool {
 		return CompareStrings(a, b)
 	},
-	"createdon": func(a, b string, dat types.ServerData) bool {
+	"createdon": func(a, b string, dat types.ServerDat) bool {
 		el1, res := dat.GetElement(a, true)
 		el2, res2 := dat.GetElement(b, true)
 		if !res.Exists || !res2.Exists {
@@ -70,7 +70,7 @@ var sorts = map[string]func(a, b string, dat types.ServerData) bool{
 		}
 		return el1.CreatedOn.Before(el2.CreatedOn)
 	},
-	"id": func(a, b string, dat types.ServerData) bool {
+	"id": func(a, b string, dat types.ServerDat) bool {
 		el1, res := dat.GetElement(a, true)
 		el2, res2 := dat.GetElement(b, true)
 		if !res.Exists || !res2.Exists {
@@ -78,7 +78,7 @@ var sorts = map[string]func(a, b string, dat types.ServerData) bool{
 		}
 		return el1.ID < el2.ID
 	},
-	"complexity": func(a, b string, dat types.ServerData) bool {
+	"complexity": func(a, b string, dat types.ServerDat) bool {
 		el1, res := dat.GetElement(a, true)
 		el2, res2 := dat.GetElement(b, true)
 		if !res.Exists || !res2.Exists {
@@ -86,7 +86,7 @@ var sorts = map[string]func(a, b string, dat types.ServerData) bool{
 		}
 		return el1.Complexity < el2.Complexity
 	},
-	"difficulty": func(a, b string, dat types.ServerData) bool {
+	"difficulty": func(a, b string, dat types.ServerDat) bool {
 		el1, res := dat.GetElement(a, true)
 		el2, res2 := dat.GetElement(b, true)
 		if !res.Exists || !res2.Exists {
@@ -94,7 +94,7 @@ var sorts = map[string]func(a, b string, dat types.ServerData) bool{
 		}
 		return el1.Difficulty < el2.Difficulty
 	},
-	"usedin": func(a, b string, dat types.ServerData) bool {
+	"usedin": func(a, b string, dat types.ServerDat) bool {
 		el1, res := dat.GetElement(a, true)
 		el2, res2 := dat.GetElement(b, true)
 		if !res.Exists || !res2.Exists {
@@ -102,7 +102,7 @@ var sorts = map[string]func(a, b string, dat types.ServerData) bool{
 		}
 		return el1.UsedIn < el2.UsedIn
 	},
-	"creator": func(a, b string, dat types.ServerData) bool {
+	"creator": func(a, b string, dat types.ServerDat) bool {
 		el1, res := dat.GetElement(a, true)
 		el2, res2 := dat.GetElement(b, true)
 		if !res.Exists || !res2.Exists {
@@ -110,7 +110,7 @@ var sorts = map[string]func(a, b string, dat types.ServerData) bool{
 		}
 		return el1.Creator < el2.Creator
 	},
-	"treesize": func(a, b string, dat types.ServerData) bool {
+	"treesize": func(a, b string, dat types.ServerDat) bool {
 		el1, res := dat.GetElement(a, true)
 		el2, res2 := dat.GetElement(b, true)
 		if !res.Exists || !res2.Exists {
@@ -118,7 +118,7 @@ var sorts = map[string]func(a, b string, dat types.ServerData) bool{
 		}
 		return el1.TreeSize < el2.TreeSize
 	},
-	"color": func(a, b string, dat types.ServerData) bool {
+	"color": func(a, b string, dat types.ServerDat) bool {
 		el1, res := dat.GetElement(a, true)
 		el2, res2 := dat.GetElement(b, true)
 		if !res.Exists || !res2.Exists {
@@ -169,7 +169,7 @@ func CompareStrings(a, b string) bool {
 	return a < b
 }
 
-func SortElemList(elems []string, sortName string, dat types.ServerData, noget ...bool) {
+func SortElemList(elems []string, sortName string, dat types.ServerDat, noget ...bool) {
 	lock.RLock()
 	sorter := sorts[sortName]
 	lock.RUnlock()
@@ -195,7 +195,7 @@ func SortElemList(elems []string, sortName string, dat types.ServerData, noget .
 	dat.Lock.RUnlock()
 }
 
-func SortElemObj(vals interface{}, length int, elemGet func(index int, sort bool) string, elemSet func(index int, val string), sortName string, dat types.ServerData, noget ...bool) {
+func SortElemObj(vals interface{}, length int, elemGet func(index int, sort bool) string, elemSet func(index int, val string), sortName string, dat types.ServerDat, noget ...bool) {
 	lock.RLock()
 	sorter := sorts[sortName]
 	lock.RUnlock()

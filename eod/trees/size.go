@@ -8,7 +8,7 @@ import (
 
 type SizeTree struct {
 	Size  int
-	dat   types.ServerData
+	dat   types.ServerDat
 	added map[string]types.Empty
 }
 
@@ -41,11 +41,11 @@ func (s *SizeTree) AddElem(name string, notoplevel ...bool) (bool, string) {
 	return true, ""
 }
 
-func NewSizeTree(dat types.ServerData) *SizeTree {
+func NewSizeTree(dat types.ServerDat) *SizeTree {
 	return &SizeTree{Size: 0, dat: dat, added: make(map[string]types.Empty)}
 }
 
-func ElemCreateSize(parents []string, dat types.ServerData) (int, bool, string) {
+func ElemCreateSize(parents []string, dat types.ServerDat) (int, bool, string) {
 	size := NewSizeTree(dat)
 	for _, par := range parents {
 		suc, msg := size.AddElem(par)

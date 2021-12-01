@@ -23,7 +23,7 @@ var outputTypes = map[string]types.Empty{
 	"DOT":  {},
 }
 
-func (b *TreeCmds) graphCmd(elems map[string]types.Empty, dat types.ServerData, m types.Msg, layout string, outputType string, name string, distinctPrimary bool, rsp types.Rsp) {
+func (b *TreeCmds) graphCmd(elems map[string]types.Empty, dat types.ServerDat, m types.Msg, layout string, outputType string, name string, distinctPrimary bool, rsp types.Rsp) {
 	// Create graph
 	graph, err := trees.NewGraph(dat)
 	if rsp.Error(err) {

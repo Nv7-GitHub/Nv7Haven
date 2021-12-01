@@ -10,7 +10,7 @@ type GetResponse struct {
 	Message string
 }
 
-func (dat *ServerData) GetElement(name string, noLock ...bool) (Element, GetResponse) {
+func (dat *ServerDat) GetElement(name string, noLock ...bool) (Element, GetResponse) {
 	if len(noLock) == 0 {
 		dat.Lock.RLock()
 	}
@@ -27,7 +27,7 @@ func (dat *ServerData) GetElement(name string, noLock ...bool) (Element, GetResp
 	return el, GetResponse{Exists: true}
 }
 
-func (dat *ServerData) GetInv(id string, you bool) (Inventory, GetResponse) {
+func (dat *ServerDat) GetInv(id string, you bool) (Inventory, GetResponse) {
 	dat.Lock.RLock()
 	inv, exists := dat.Inventories[id]
 	dat.Lock.RUnlock()
@@ -49,7 +49,7 @@ func (dat *ServerData) GetInv(id string, you bool) (Inventory, GetResponse) {
 	return inv, GetResponse{Exists: true}
 }
 
-func (dat *ServerData) GetCategory(name string, noLock ...bool) (Category, GetResponse) {
+func (dat *ServerDat) GetCategory(name string, noLock ...bool) (Category, GetResponse) {
 	if len(noLock) == 0 {
 		dat.Lock.RLock()
 	}
@@ -66,7 +66,7 @@ func (dat *ServerData) GetCategory(name string, noLock ...bool) (Category, GetRe
 	return cat, GetResponse{Exists: true}
 }
 
-func (dat *ServerData) GetComb(id string) (Comb, GetResponse) {
+func (dat *ServerDat) GetComb(id string) (Comb, GetResponse) {
 	dat.Lock.RLock()
 	comb, exists := dat.LastCombs[id]
 	dat.Lock.RUnlock()
@@ -79,7 +79,7 @@ func (dat *ServerData) GetComb(id string) (Comb, GetResponse) {
 	return comb, GetResponse{Exists: true}
 }
 
-func (dat *ServerData) GetPageSwitcher(id string) (PageSwitcher, GetResponse) {
+func (dat *ServerDat) GetPageSwitcher(id string) (PageSwitcher, GetResponse) {
 	dat.Lock.RLock()
 	ps, exists := dat.PageSwitchers[id]
 	dat.Lock.RUnlock()
@@ -92,7 +92,7 @@ func (dat *ServerData) GetPageSwitcher(id string) (PageSwitcher, GetResponse) {
 	return ps, GetResponse{Exists: true}
 }
 
-func (dat *ServerData) GetPoll(id string) (Poll, GetResponse) {
+func (dat *ServerDat) GetPoll(id string) (Poll, GetResponse) {
 	dat.Lock.RLock()
 	poll, exists := dat.Polls[id]
 	dat.Lock.RUnlock()
@@ -105,7 +105,7 @@ func (dat *ServerData) GetPoll(id string) (Poll, GetResponse) {
 	return poll, GetResponse{Exists: true}
 }
 
-func (dat *ServerData) GetCombo(elems string) (string, GetResponse) {
+func (dat *ServerDat) GetCombo(elems string) (string, GetResponse) {
 	dat.Lock.RLock()
 	elem3, exists := dat.Combos[elems]
 	dat.Lock.RUnlock()
@@ -117,7 +117,7 @@ func (dat *ServerData) GetCombo(elems string) (string, GetResponse) {
 	return elem3, GetResponse{Exists: true}
 }
 
-func (dat *ServerData) GetMsgElem(id string) (string, GetResponse) {
+func (dat *ServerDat) GetMsgElem(id string) (string, GetResponse) {
 	dat.Lock.RLock()
 	elem, exists := dat.ElementMsgs[id]
 	dat.Lock.RUnlock()

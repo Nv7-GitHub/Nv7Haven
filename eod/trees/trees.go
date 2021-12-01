@@ -14,7 +14,7 @@ type Tree struct {
 	calced map[string]types.Empty
 	num    int
 
-	dat types.ServerData
+	dat types.ServerDat
 }
 
 func (t *Tree) AddElem(elem string) (bool, string) {
@@ -64,7 +64,7 @@ func (t *Tree) AddElem(elem string) (bool, string) {
 }
 
 // Tree calculation utilities
-func CalcTree(dat types.ServerData, elem string) (string, bool, string) {
+func CalcTree(dat types.ServerDat, elem string) (string, bool, string) {
 	// Commented out code is for profiling
 
 	/*runtime.GC()
@@ -92,7 +92,7 @@ func CalcTree(dat types.ServerData, elem string) (string, bool, string) {
 	return text, suc, msg
 }
 
-func CalcTreeCat(dat types.ServerData, elems types.Container) (string, bool, string) {
+func CalcTreeCat(dat types.ServerDat, elems types.Container) (string, bool, string) {
 	// Commented out code is for profiling
 
 	/*runtime.GC()

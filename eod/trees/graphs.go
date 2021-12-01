@@ -17,10 +17,10 @@ type Graph struct {
 	finished bool
 	special  *strings.Builder
 
-	dat types.ServerData
+	dat types.ServerDat
 }
 
-func NewGraph(dat types.ServerData) (*Graph, error) {
+func NewGraph(dat types.ServerDat) (*Graph, error) {
 	dot := &strings.Builder{}
 	dot.WriteString("digraph tree {\n")
 	dot.WriteString("\tnode [ fontname=\"Arial\", shape=\"box\", style=\"rounded\" ];\n")

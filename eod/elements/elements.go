@@ -11,7 +11,7 @@ import (
 )
 
 type Elements struct {
-	dat   map[string]types.ServerData
+	dat   map[string]types.ServerDat
 	lock  *sync.RWMutex
 	polls *polls.Polls
 	db    *db.DB
@@ -19,7 +19,7 @@ type Elements struct {
 	dg    *discordgo.Session
 }
 
-func NewElements(dat map[string]types.ServerData, lock *sync.RWMutex, polls *polls.Polls, db *db.DB, base *base.Base, dg *discordgo.Session) *Elements {
+func NewElements(dat map[string]types.ServerDat, lock *sync.RWMutex, polls *polls.Polls, db *db.DB, base *base.Base, dg *discordgo.Session) *Elements {
 	return &Elements{
 		dat:   dat,
 		lock:  lock,

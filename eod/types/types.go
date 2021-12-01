@@ -40,24 +40,33 @@ type ComponentMsg interface {
 	Handler(s *discordgo.Session, i *discordgo.InteractionCreate)
 }
 
-type ServerData struct {
-	PlayChannels  Container // channelID
+type ServerConfig struct {
 	UserColors    map[string]int
 	VotingChannel string
 	NewsChannel   string
 	VoteCount     int
 	PollCount     int
-	ModRole       string                  // role ID
+	ModRole       string    // role ID
+	PlayChannels  Container // channelID
+}
+
+type ServerData struct {
 	LastCombs     map[string]Comb         // map[userID]comb
-	Inventories   map[string]Inventory    // map[userID]map[elementName]types.Empty
-	Elements      map[string]Element      //map[elementName]element
-	Combos        map[string]string       // map[elems]elem3
-	Categories    map[string]Category     // map[catName]category
-	Polls         map[string]Poll         // map[messageid]poll
 	PageSwitchers map[string]PageSwitcher // map[messageid]pageswitcher
 	ComponentMsgs map[string]ComponentMsg // map[messageid]componentMsg
 	ElementMsgs   map[string]string       // map[messageid]elemname
-	Lock          *sync.RWMutex
+}
+
+type ServerDat struct {
+	ServerData
+	ServerConfig
+
+	Inventories map[string]Inventory // map[userID]map[elementName]types.Empty
+	Elements    map[string]Element   //map[elementName]element
+	Combos      map[string]string    // map[elems]elem3
+	Categories  map[string]Category  // map[catName]category
+	Polls       map[string]Poll      // map[messageid]poll
+	Lock        *sync.RWMutex
 }
 
 type PageSwitcher struct {
@@ -154,18 +163,24 @@ type Rsp interface {
 	DM(msg string)
 }
 
-func NewServerData() ServerData {
-	return ServerData{
-		Lock:          &sync.RWMutex{},
-		ComponentMsgs: make(map[string]ComponentMsg),
-		UserColors:    make(map[string]int),
-		Polls:         make(map[string]Poll),
-		PageSwitchers: make(map[string]PageSwitcher),
-		Elements:      make(map[string]Element),
-		Combos:        make(map[string]string),
-		Categories:    make(map[string]Category),
-		Inventories:   make(map[string]Inventory),
-		LastCombs:     make(map[string]Comb),
+func NewServerData() ServerDat {
+	return ServerDat{
+		ServerData: ServerData{
+			LastCombs:     make(map[string]Comb),
+			PageSwitchers: make(map[string]PageSwitcher),
+			ComponentMsgs: make(map[string]ComponentMsg),
+			ElementMsgs:   make(map[string]string),
+		},
+		ServerConfig: ServerConfig{
+			UserColors: make(map[string]int),
+		},
+
+		Lock:        &sync.RWMutex{},
+		Polls:       make(map[string]Poll),
+		Elements:    make(map[string]Element),
+		Combos:      make(map[string]string),
+		Categories:  make(map[string]Category),
+		Inventories: make(map[string]Inventory),
 	}
 }
 
@@ -184,5 +199,32 @@ func NewInventory(user string) Inventory {
 	return Inventory{
 		Elements: make(map[string]Empty),
 		User:     user,
+	}
+}
+
+type ElemContainer struct {
+	sync.RWMutex
+	Data map[int]Empty
+
+	id string
+}
+
+func (e *ElemContainer) Contains(val int) bool {
+	e.RLock()
+	_, contains := e.Data[val]
+	e.RUnlock()
+	return contains
+}
+
+func (e *ElemContainer) Add(val int) {
+	e.Lock()
+	e.Data[val] = Empty{}
+	e.Unlock()
+}
+
+func NewElemContainer(data map[int]Empty, id string) *ElemContainer {
+	return &ElemContainer{
+		Data: data,
+		id:   id,
 	}
 }

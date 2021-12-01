@@ -10,7 +10,7 @@ type InfoTree struct {
 	Total int
 	Found int
 
-	dat   types.ServerData
+	dat   types.ServerDat
 	added map[string]types.Empty
 	inv   types.Container
 }
@@ -45,7 +45,7 @@ func (i *InfoTree) AddElem(name string, unlock ...bool) (bool, string) {
 	return true, ""
 }
 
-func CalcElemInfo(elem string, user string, dat types.ServerData) (bool, string, InfoTree) {
+func CalcElemInfo(elem string, user string, dat types.ServerDat) (bool, string, InfoTree) {
 	inv, res := dat.GetInv(user, true)
 	if !res.Exists {
 		return false, res.Message, InfoTree{}

@@ -9,7 +9,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-func (b *Polls) RejectPoll(dat types.ServerData, p types.Poll, messageid, user string) types.ServerData {
+func (b *Polls) RejectPoll(dat types.ServerDat, p types.Poll, messageid, user string) types.ServerDat {
 	dat.Lock.Lock()
 	delete(dat.Polls, messageid)
 	dat.Lock.Unlock()

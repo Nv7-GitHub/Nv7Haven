@@ -32,7 +32,7 @@ var lock = &sync.RWMutex{}
 type EoD struct {
 	dg  *discordgo.Session
 	db  *eodb.DB
-	dat map[string]types.ServerData // map[guild]data
+	dat map[string]types.ServerDat // map[guild]data
 
 	// Subsystems
 	base       *base.Base
@@ -60,7 +60,7 @@ func InitEoD(db *eodb.DB) EoD {
 	bot = EoD{
 		dg:  dg,
 		db:  db,
-		dat: make(map[string]types.ServerData),
+		dat: make(map[string]types.ServerDat),
 	}
 
 	dg.UpdateGameStatus(0, status)

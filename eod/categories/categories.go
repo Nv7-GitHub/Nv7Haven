@@ -10,14 +10,14 @@ import (
 )
 
 type Categories struct {
-	dat   map[string]types.ServerData
+	dat   map[string]types.ServerDat
 	lock  *sync.RWMutex
 	base  *base.Base
 	dg    *discordgo.Session
 	polls *polls.Polls
 }
 
-func NewCategories(dat map[string]types.ServerData, base *base.Base, dg *discordgo.Session, polls *polls.Polls, lock *sync.RWMutex) *Categories {
+func NewCategories(dat map[string]types.ServerDat, base *base.Base, dg *discordgo.Session, polls *polls.Polls, lock *sync.RWMutex) *Categories {
 	return &Categories{
 		dat:   dat,
 		lock:  lock,
