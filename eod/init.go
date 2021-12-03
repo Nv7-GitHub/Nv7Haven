@@ -327,13 +327,20 @@ func (b *EoD) init() {
 
 		ups, err := b.dg.MessageReactions(po.Channel, po.Message, types.UpArrow, 100, "", "")
 		if err != nil {
-			fmt.Println(err)
+			_, err = b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", po.Guild, po.Channel, po.Message)
+			if err != nil {
+				panic(err)
+			}
 			continue
 		}
 		po.Upvotes = len(ups) - 1
 
 		downs, err := b.dg.MessageReactions(po.Channel, po.Message, types.DownArrow, 100, "", "")
 		if err != nil {
+			_, err = b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", po.Guild, po.Channel, po.Message)
+			if err != nil {
+				panic(err)
+			}
 			fmt.Println(err)
 			continue
 		}
@@ -345,10 +352,8 @@ func (b *EoD) init() {
 
 		b.dat[po.Guild], _ = b.polls.CheckReactions(b.dat[po.Guild], po, downs[len(downs)-1].ID, false)
 
-		fmt.Println("a")
 		bar.Add(1)
 	}
-	fmt.Println("done")
 
 	bar.Finish()
 
