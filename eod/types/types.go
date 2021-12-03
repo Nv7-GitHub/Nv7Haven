@@ -206,7 +206,7 @@ type ElemContainer struct {
 	sync.RWMutex
 	Data map[int]Empty
 
-	id string
+	Id string
 }
 
 func (e *ElemContainer) Contains(val int) bool {
@@ -225,6 +225,6 @@ func (e *ElemContainer) Add(val int) {
 func NewElemContainer(data map[int]Empty, id string) *ElemContainer {
 	return &ElemContainer{
 		Data: data,
-		id:   id,
+		Id:   id,
 	}
 }

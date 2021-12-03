@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"io"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -146,7 +147,10 @@ func (d *DB) loadCats() error {
 
 	cat := make(map[int]types.Empty)
 	for _, file := range files {
-		name := strings.TrimSuffix(file.Name(), ".json")
+		name, err := url.PathUnescape(strings.TrimSuffix(file.Name(), ".json"))
+		if err != nil {
+			return err
+		}
 		f, err := os.Open(filepath.Join(d.dbPath, "categories", file.Name()))
 		if err != nil {
 			return err
@@ -163,8 +167,8 @@ func (d *DB) loadCats() error {
 		}
 
 		// Save cat
-		d.cats[name] = types.NewElemContainer(cat, name)
-		d.catFiles[name] = f
+		d.cats[strings.ToLower(name)] = types.NewElemContainer(cat, name)
+		d.catFiles[strings.ToLower(name)] = f
 		cat = make(map[int]types.Empty)
 	}
 	return nil
