@@ -47,6 +47,7 @@ func (b *Polls) RejectPoll(dat types.ServerDat, p types.Poll, messageid, user st
 }
 
 func (b *Polls) CheckReactions(dat types.ServerDat, p types.Poll, reactor string) (types.ServerDat, bool) {
+	fmt.Println("check reactions", p.Upvotes, p.Downvotes, dat.VoteCount)
 	if (p.Upvotes - p.Downvotes) >= dat.VoteCount {
 		b.dg.ChannelMessageDelete(p.Channel, p.Message)
 		b.handlePollSuccess(p)
