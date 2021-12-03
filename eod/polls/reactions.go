@@ -46,10 +46,8 @@ func (b *Polls) RejectPoll(dat types.ServerDat, p types.Poll, messageid, user st
 	return dat
 }
 
-func (b *Polls) CheckReactions(dat types.ServerDat, p types.Poll, reactor string) (types.ServerDat, bool) {
-	fmt.Println("check reactions", p.Upvotes, p.Downvotes, dat.VoteCount)
+func (b *Polls) CheckReactions(dat types.ServerDat, p types.Poll, reactor string, downvote bool) (types.ServerDat, bool) {
 	if (p.Upvotes - p.Downvotes) >= dat.VoteCount {
-		fmt.Println("delete")
 		b.dg.ChannelMessageDelete(p.Channel, p.Message)
 		b.handlePollSuccess(p)
 
@@ -61,8 +59,7 @@ func (b *Polls) CheckReactions(dat types.ServerDat, p types.Poll, reactor string
 		return dat, true
 	}
 
-	if ((p.Downvotes - p.Upvotes) >= dat.VoteCount) || (reactor == p.Value4) {
-		fmt.Println("eet")
+	if ((p.Downvotes - p.Upvotes) >= dat.VoteCount) || (downvote && (reactor == p.Value4)) {
 		dat = b.RejectPoll(dat, p, p.Message, reactor)
 
 		return dat, true
@@ -93,7 +90,7 @@ func (b *Polls) UnReactionHandler(_ *discordgo.Session, r *discordgo.MessageReac
 		b.lock.Unlock()
 
 		var change bool
-		dat, change = b.CheckReactions(dat, p, r.UserID)
+		dat, change = b.CheckReactions(dat, p, r.UserID, false)
 		if change {
 			b.lock.Lock()
 			b.dat[r.GuildID] = dat
@@ -108,7 +105,7 @@ func (b *Polls) UnReactionHandler(_ *discordgo.Session, r *discordgo.MessageReac
 		b.lock.Unlock()
 
 		var change bool
-		dat, change = b.CheckReactions(dat, p, r.UserID)
+		dat, change = b.CheckReactions(dat, p, r.UserID, false)
 		if change {
 			b.lock.Lock()
 			b.dat[r.GuildID] = dat
@@ -151,7 +148,7 @@ func (b *Polls) ReactionHandler(_ *discordgo.Session, r *discordgo.MessageReacti
 		b.lock.Unlock()
 
 		var change bool
-		dat, change = b.CheckReactions(dat, p, r.UserID)
+		dat, change = b.CheckReactions(dat, p, r.UserID, false)
 		if change {
 			b.lock.Lock()
 			b.dat[r.GuildID] = dat
@@ -166,7 +163,7 @@ func (b *Polls) ReactionHandler(_ *discordgo.Session, r *discordgo.MessageReacti
 		b.lock.Unlock()
 
 		var change bool
-		dat, change = b.CheckReactions(dat, p, r.UserID)
+		dat, change = b.CheckReactions(dat, p, r.UserID, true)
 		if change {
 			b.lock.Lock()
 			b.dat[r.GuildID] = dat

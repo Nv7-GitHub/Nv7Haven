@@ -343,7 +343,7 @@ func (b *EoD) init() {
 		d.SavePoll(po.Message, po)
 		b.dat[po.Guild] = d
 
-		b.dat[po.Guild], _ = b.polls.CheckReactions(b.dat[po.Guild], po, downs[len(downs)-1].ID)
+		b.dat[po.Guild], _ = b.polls.CheckReactions(b.dat[po.Guild], po, downs[len(downs)-1].ID, false)
 
 		bar.Add(1)
 	}
