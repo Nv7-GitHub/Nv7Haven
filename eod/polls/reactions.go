@@ -53,7 +53,7 @@ func (b *Polls) CheckReactions(dat types.ServerDat, p types.Poll, reactor string
 
 		dat.Lock.Lock()
 		delete(dat.Polls, p.Message)
-		dat.Lock.Lock()
+		dat.Lock.Unlock()
 
 		b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", p.Guild, p.Channel, p.Message)
 		return dat, true
