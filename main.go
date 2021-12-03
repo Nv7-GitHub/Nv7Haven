@@ -24,7 +24,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/pprof"
-	"github.com/gofiber/fiber/v2/middleware/recover"
 
 	_ "embed"
 
@@ -55,11 +54,6 @@ func main() {
 	})
 	app.Use(cors.New())
 	app.Use(pprof.New())
-	app.Use(recover.New(recover.Config{
-		Next:              nil,
-		EnableStackTrace:  true,
-		StackTraceHandler: traceHandler,
-	}))
 	systemHandlers(app)
 
 	// gRPC
