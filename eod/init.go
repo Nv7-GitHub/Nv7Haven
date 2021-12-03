@@ -324,11 +324,6 @@ func (b *EoD) init() {
 			panic(err)
 		}
 
-		_, err = b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", po.Guild, po.Channel, po.Message)
-		if err != nil {
-			panic(err)
-		}
-
 		ups, err := b.dg.MessageReactions(po.Channel, po.Message, types.UpArrow, 100, "", "")
 		if err != nil {
 			panic(err)
