@@ -1013,6 +1013,12 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "resetpolls",
+			Type:        discordgo.ChatApplicationCommand,
+			Description: "Reset the polls!",
+			Options:     []*discordgo.ApplicationCommandOption{},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"set": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -1523,6 +1529,9 @@ var (
 		},
 		"View Inventory Breakdown": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.treecmds.InvBreakdownCmd(i.ApplicationCommandData().TargetID, false, bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"resetpolls": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.polls.ResetPolls(bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"color": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData().Options[0]
