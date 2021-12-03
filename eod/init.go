@@ -2,6 +2,7 @@ package eod
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
@@ -326,13 +327,15 @@ func (b *EoD) init() {
 
 		ups, err := b.dg.MessageReactions(po.Channel, po.Message, types.UpArrow, 100, "", "")
 		if err != nil {
-			panic(err)
+			fmt.Println(err)
+			continue
 		}
 		po.Upvotes = len(ups) - 1
 
 		downs, err := b.dg.MessageReactions(po.Channel, po.Message, types.DownArrow, 100, "", "")
 		if err != nil {
-			panic(err)
+			fmt.Println(err)
+			continue
 		}
 		po.Downvotes = len(downs) - 1
 
