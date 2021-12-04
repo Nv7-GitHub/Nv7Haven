@@ -172,7 +172,8 @@ func NewServerData() ServerDat {
 			ElementMsgs:   make(map[string]string),
 		},
 		ServerConfig: ServerConfig{
-			UserColors: make(map[string]int),
+			UserColors:   make(map[string]int),
+			PlayChannels: make(Container),
 		},
 
 		Lock:        &sync.RWMutex{},

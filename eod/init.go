@@ -207,7 +207,7 @@ func (b *EoD) init() {
 	}
 	bar.Finish()
 
-	err = b.db.QueryRow("SELECT COUNT(1) FROM eod_elements").Scan(&cnt)
+	err = b.db.QueryRow("SELECT COUNT(1) FROM eod_inv").Scan(&cnt)
 	if err != nil {
 		panic(err)
 	}

@@ -54,6 +54,7 @@ nvmail/*.json
 token.json
 eod/fools.txt
 eod/other/parecalc/data.gob
+eod/eodb/convdb/data.gob
 restartinfo.gob
 joe_token.txt
 
