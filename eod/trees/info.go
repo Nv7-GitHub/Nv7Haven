@@ -1,8 +1,7 @@
 package trees
 
 import (
-	"strings"
-
+	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
@@ -10,24 +9,25 @@ type InfoTree struct {
 	Total int
 	Found int
 
-	dat   types.ServerDat
-	added map[string]types.Empty
-	inv   types.Container
+	DB    *eodb.DB
+	added map[int]types.Empty
+	inv   *types.Inventory
 }
 
-func (i *InfoTree) AddElem(name string, unlock ...bool) (bool, string) {
+func (i *InfoTree) AddElem(elem int, unlock ...bool) (bool, string) {
 	if len(unlock) == 0 {
-		i.dat.Lock.RLock()
-		defer i.dat.Lock.RUnlock()
+		i.DB.RLock()
+		i.inv.Lock.RLock()
+		defer i.DB.RUnlock()
+		defer i.inv.Lock.RUnlock()
 	}
 
-	elem := strings.ToLower(name)
 	_, exists := i.added[elem]
 	if exists {
 		return true, ""
 	}
 
-	el, res := i.dat.GetElement(elem, true)
+	el, res := i.DB.GetElement(elem, true)
 	if !res.Exists {
 		return false, res.Message
 	}
@@ -38,24 +38,21 @@ func (i *InfoTree) AddElem(name string, unlock ...bool) (bool, string) {
 		}
 	}
 	i.Total++
-	if i.inv.Contains(elem) {
+	if i.inv.Contains(elem, true) {
 		i.Found++
 	}
 	i.added[elem] = types.Empty{}
 	return true, ""
 }
 
-func CalcElemInfo(elem string, user string, dat types.ServerDat) (bool, string, InfoTree) {
-	inv, res := dat.GetInv(user, true)
-	if !res.Exists {
-		return false, res.Message, InfoTree{}
-	}
+func CalcElemInfo(elem int, user string, db *eodb.DB) (bool, string, InfoTree) {
+	inv := db.GetInv(user)
 	i := InfoTree{
 		Total: 0,
 		Found: 0,
-		dat:   dat,
-		added: make(map[string]types.Empty),
-		inv:   inv.Elements,
+		DB:    db,
+		added: make(map[int]types.Empty),
+		inv:   inv,
 	}
 	suc, msg := i.AddElem(elem)
 	if !suc {

@@ -5,35 +5,36 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 	"github.com/goccy/go-graphviz"
 )
 
 type Graph struct {
-	added    map[string]types.Empty
+	added    map[int]types.Empty
 	body     *strings.Builder
 	dot      *strings.Builder
 	finished bool
 	special  *strings.Builder
 
-	dat types.ServerDat
+	DB *eodb.DB
 }
 
-func NewGraph(dat types.ServerDat) (*Graph, error) {
+func NewGraph(db *eodb.DB) (*Graph, error) {
 	dot := &strings.Builder{}
 	dot.WriteString("digraph tree {\n")
 	dot.WriteString("\tnode [ fontname=\"Arial\", shape=\"box\", style=\"rounded\" ];\n")
 	dot.WriteString("\tedge [ dir=\"none\" ];\n")
 
 	return &Graph{
-		added:    make(map[string]types.Empty),
+		added:    make(map[int]types.Empty),
 		dot:      dot,
 		body:     &strings.Builder{},
 		special:  &strings.Builder{},
 		finished: false,
 
-		dat: dat,
+		DB: db,
 	}, nil
 }
 
@@ -41,9 +42,7 @@ func escapeGraphNode(txt string) string {
 	return strings.ReplaceAll(txt, "\"", "\\\"")
 }
 
-func (g *Graph) AddElem(elem string, special bool) (string, bool) {
-	elem = strings.ToLower(elem)
-
+func (g *Graph) AddElem(elem int, special bool) (string, bool) {
 	// Already exists
 	_, exists := g.added[elem]
 	if exists {
@@ -51,7 +50,7 @@ func (g *Graph) AddElem(elem string, special bool) (string, bool) {
 	}
 
 	// Get Element
-	el, res := g.dat.GetElement(elem)
+	el, res := g.DB.GetElement(elem)
 	if !res.Exists {
 		return res.Message, false
 	}
@@ -65,7 +64,7 @@ func (g *Graph) AddElem(elem string, special bool) (string, bool) {
 	for _, par := range el.Parents {
 		g.AddElem(par, false)
 
-		parEl, res := g.dat.GetElement(par)
+		parEl, res := g.DB.GetElement(par)
 		if !res.Exists {
 			return res.Message, false
 		}

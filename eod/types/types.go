@@ -41,6 +41,8 @@ type ComponentMsg interface {
 }
 
 type ServerConfig struct {
+	*sync.RWMutex
+
 	UserColors    map[string]int
 	VotingChannel string
 	NewsChannel   string
@@ -51,10 +53,12 @@ type ServerConfig struct {
 }
 
 type ServerData struct {
+	*sync.RWMutex
+
 	LastCombs     map[string]Comb         // map[userID]comb
 	PageSwitchers map[string]PageSwitcher // map[messageid]pageswitcher
 	ComponentMsgs map[string]ComponentMsg // map[messageid]componentMsg
-	ElementMsgs   map[string]string       // map[messageid]elemname
+	ElementMsgs   map[string]int          // map[messageid]elemname
 }
 
 type ServerDat struct {
@@ -86,10 +90,6 @@ type PageSwitcher struct {
 	Cnts    []int
 	UserPos int
 	User    string
-
-	// Element sorting
-	Query  string
-	Length int
 
 	// Don't need to set these
 	Guild string
@@ -185,9 +185,26 @@ type Msg struct {
 }
 
 type Inventory struct {
-	Elements Container
+	Lock *sync.RWMutex `json:"-"`
+
+	Elements map[int]Empty
 	MadeCnt  int
 	User     string
+}
+
+func (i *Inventory) Add(elem int) {
+	i.Lock.Lock()
+	i.Elements[elem] = Empty{}
+	i.Lock.Unlock()
+}
+
+func (i *Inventory) Contains(elem int, nolock ...bool) bool {
+	if len(nolock) == 0 {
+		i.Lock.RLock()
+		defer i.Lock.RUnlock()
+	}
+	_, exists := i.Elements[elem]
+	return exists
 }
 
 type Rsp interface {
@@ -203,19 +220,27 @@ type Rsp interface {
 
 func NewServerConfig() *ServerConfig {
 	return &ServerConfig{
+		RWMutex: &sync.RWMutex{},
+
 		UserColors:   make(map[string]int),
 		PlayChannels: make(Container),
 	}
 }
 
-func NewServerData() ServerDat {
+func NewServerData() *ServerData {
+	return &ServerData{
+		RWMutex: &sync.RWMutex{},
+
+		LastCombs:     make(map[string]Comb),
+		PageSwitchers: make(map[string]PageSwitcher),
+		ComponentMsgs: make(map[string]ComponentMsg),
+		ElementMsgs:   make(map[string]int),
+	}
+}
+
+func NewServerDat() ServerDat {
 	return ServerDat{
-		ServerData: ServerData{
-			LastCombs:     make(map[string]Comb),
-			PageSwitchers: make(map[string]PageSwitcher),
-			ComponentMsgs: make(map[string]ComponentMsg),
-			ElementMsgs:   make(map[string]string),
-		},
+		ServerData:   *NewServerData(),
 		ServerConfig: *NewServerConfig(),
 
 		Lock:        &sync.RWMutex{},
@@ -238,36 +263,10 @@ func (c Container) Add(elem string) {
 	c[strings.ToLower(elem)] = Empty{}
 }
 
-func NewInventory(user string) Inventory {
-	return Inventory{
-		Elements: make(map[string]Empty),
+func NewInventory(user string, elements map[int]Empty, madecnt int) *Inventory {
+	return &Inventory{
+		Elements: elements,
 		User:     user,
-	}
-}
-
-type ElemContainer struct {
-	sync.RWMutex
-	Data map[int]Empty
-
-	Id string
-}
-
-func (e *ElemContainer) Contains(val int) bool {
-	e.RLock()
-	_, contains := e.Data[val]
-	e.RUnlock()
-	return contains
-}
-
-func (e *ElemContainer) Add(val int) {
-	e.Lock()
-	e.Data[val] = Empty{}
-	e.Unlock()
-}
-
-func NewElemContainer(data map[int]Empty, id string) *ElemContainer {
-	return &ElemContainer{
-		Data: data,
-		Id:   id,
+		MadeCnt:  madecnt,
 	}
 }

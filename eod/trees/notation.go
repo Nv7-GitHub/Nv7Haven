@@ -3,42 +3,42 @@ package trees
 import (
 	"strings"
 
-	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
-var elemNotations = map[string]string{
-	"air":   "A",
-	"earth": "E",
-	"fire":  "F",
-	"water": "W",
+var elemNotations = map[int]string{
+	1: "A",
+	2: "E",
+	3: "F",
+	4: "W",
 }
 
 type notationTree struct {
 	*strings.Builder
 
-	added map[string]string
+	added map[int]string
 	num   int
 
-	dat types.ServerDat
+	db *eodb.DB
 }
 
-func NewNotationTree(dat types.ServerDat) *notationTree {
+func NewNotationTree(db *eodb.DB) *notationTree {
 	return &notationTree{
-		added:   make(map[string]string),
+		added:   make(map[int]string),
 		Builder: &strings.Builder{},
 		num:     0,
-		dat:     dat,
+		db:      db,
 	}
 }
 
-func (n *notationTree) AddElem(elem string) (string, bool) {
+func (n *notationTree) AddElem(elem int) (string, bool) {
 	val, exists := n.added[elem]
 	if exists {
 		return val, true
 	}
 
-	el, res := n.dat.GetElement(elem)
+	el, res := n.db.GetElement(elem)
 	if !res.Exists {
 		return res.Message, res.Exists
 	}
@@ -47,7 +47,7 @@ func (n *notationTree) AddElem(elem string) (string, bool) {
 	}
 
 	for _, par := range el.Parents {
-		_, exists := elemNotations[strings.ToLower(par)]
+		_, exists := elemNotations[par]
 		if !exists {
 			msg, suc := n.AddElem(par)
 			if !suc {
@@ -58,7 +58,7 @@ func (n *notationTree) AddElem(elem string) (string, bool) {
 
 	n.WriteString("(")
 	for _, par := range el.Parents {
-		val, exists := elemNotations[strings.ToLower(par)]
+		val, exists := elemNotations[par]
 		if !exists {
 			msg, suc := n.AddElem(par)
 			if !suc {
@@ -84,6 +84,6 @@ func (n *notationTree) AddElem(elem string) (string, bool) {
 	n.WriteString(val)
 	n.WriteString("]")
 
-	n.added[strings.ToLower(elem)] = val
+	n.added[elem] = val
 	return val, true
 }

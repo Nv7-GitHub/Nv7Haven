@@ -90,9 +90,9 @@ func (d *DB) loadConfig() error {
 	if err != nil {
 		return err
 	}
-	err = json.Unmarshal(dat, &d.config)
+	err = json.Unmarshal(dat, &d.Config)
 	if err != nil {
-		d.config = types.NewServerConfig()
+		d.Config = types.NewServerConfig()
 	}
 	d.configFile = f
 
@@ -109,7 +109,7 @@ func (d *DB) loadInvs() error {
 		return err
 	}
 
-	inv := make(map[int]types.Empty)
+	var inv *types.Inventory
 	for _, file := range files {
 		name := strings.TrimSuffix(file.Name(), ".json")
 		f, err := os.Open(filepath.Join(d.dbPath, "inventories", file.Name()))
@@ -128,9 +128,9 @@ func (d *DB) loadInvs() error {
 		}
 
 		// Save inv
-		d.invs[name] = types.NewElemContainer(inv, name)
+		d.invs[name] = inv
 		d.invFiles[name] = f
-		inv = make(map[int]types.Empty)
+		inv = nil
 	}
 	return nil
 }

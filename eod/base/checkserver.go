@@ -1,13 +1,12 @@
 package base
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
-var StarterElements = []types.OldElement{
+var StarterElements = []types.Element{
 	{
 		Name:       "Air",
 		Comment:    "The invisible gaseous substance surrounding the earth, a mixture mainly of oxygen and nitrogen.",
@@ -17,7 +16,7 @@ var StarterElements = []types.OldElement{
 		Complexity: 0,
 		Difficulty: 0,
 		CreatedOn:  time.Unix(1, 0),
-		Parents:    []string{},
+		Parents:    []int{},
 	},
 	{
 		Name:       "Earth",
@@ -28,7 +27,7 @@ var StarterElements = []types.OldElement{
 		Complexity: 0,
 		Difficulty: 0,
 		CreatedOn:  time.Unix(2, 0),
-		Parents:    []string{},
+		Parents:    []int{},
 	},
 	{
 		Name:       "Fire",
@@ -39,7 +38,7 @@ var StarterElements = []types.OldElement{
 		Complexity: 0,
 		Difficulty: 0,
 		CreatedOn:  time.Unix(3, 0),
-		Parents:    []string{},
+		Parents:    []int{},
 	},
 	{
 		Name:       "Water",
@@ -50,58 +49,35 @@ var StarterElements = []types.OldElement{
 		Complexity: 0,
 		Difficulty: 0,
 		CreatedOn:  time.Unix(4, 0),
-		Parents:    []string{},
+		Parents:    []int{},
 	},
 }
 
 func (b *Base) CheckServer(m types.Msg, rsp types.Rsp) bool {
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
 		rsp.ErrorMessage("No voting or news channel has been set!")
 		return false
 	}
-	if dat.VotingChannel == "" {
+	if db.Config.VotingChannel == "" {
 		rsp.ErrorMessage("No voting channel has been set!")
 		return false
 	}
-	if dat.NewsChannel == "" {
+	if db.Config.NewsChannel == "" {
 		rsp.ErrorMessage("No news channel has been set!")
 		return false
 	}
-	if len(dat.Elements) < 4 {
+	if len(db.Elements) < 4 {
 		for _, elem := range StarterElements {
-			elem.Guild = m.GuildID
-			dat.SetElement(elem)
-			_, err := b.db.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, elem.Image, elem.Color, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), "" /* Parents */, elem.Complexity, elem.Difficulty, elem.UsedIn, elem.TreeSize)
-			rsp.Error(err)
+			err := db.SaveElement(elem, true)
+			if rsp.Error(err) {
+				return false
+			}
 		}
-		b.lock.Lock()
-		b.dat[m.GuildID] = dat
-		b.lock.Unlock()
 	}
 
-	_, res := dat.GetInv(m.Author.ID, true)
-	if !res.Exists {
-		inv := types.NewInventory(m.Author.ID)
-		for _, val := range StarterElements {
-			inv.Elements.Add(val.Name)
-		}
-
-		dat.SetInv(m.Author.ID, inv)
-
-		data, err := json.Marshal(inv.Elements)
-		if rsp.Error(err) {
-			return false
-		}
-		_, err = b.db.Exec("INSERT INTO eod_inv VALUES ( ?, ?, ?, ?, ? )", m.GuildID, m.Author.ID, string(data), len(inv.Elements), 0) // Guild ID, User ID, inventory, elements found, made by (0 so far)
-		rsp.Error(err)
-		b.lock.Lock()
-		b.dat[m.GuildID] = dat
-		b.lock.Unlock()
-	}
-
-	_, exists = dat.PlayChannels[m.ChannelID]
+	db.Config.RLock()
+	_, exists := db.Config.PlayChannels[m.ChannelID]
+	db.Config.RUnlock()
 	return exists
 }

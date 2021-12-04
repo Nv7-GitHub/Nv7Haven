@@ -66,10 +66,10 @@ func (dat *ServerDat) GetCategory(name string, noLock ...bool) (OldCategory, Get
 	return cat, GetResponse{Exists: true}
 }
 
-func (dat *ServerDat) GetComb(id string) (Comb, GetResponse) {
-	dat.Lock.RLock()
+func (dat *ServerData) GetComb(id string) (Comb, GetResponse) {
+	dat.RLock()
 	comb, exists := dat.LastCombs[id]
-	dat.Lock.RUnlock()
+	dat.RUnlock()
 	if !exists {
 		return Comb{}, GetResponse{
 			Exists:  false,
@@ -79,10 +79,10 @@ func (dat *ServerDat) GetComb(id string) (Comb, GetResponse) {
 	return comb, GetResponse{Exists: true}
 }
 
-func (dat *ServerDat) GetPageSwitcher(id string) (PageSwitcher, GetResponse) {
-	dat.Lock.RLock()
+func (dat *ServerData) GetPageSwitcher(id string) (PageSwitcher, GetResponse) {
+	dat.RLock()
 	ps, exists := dat.PageSwitchers[id]
-	dat.Lock.RUnlock()
+	dat.RUnlock()
 	if !exists {
 		return PageSwitcher{}, GetResponse{
 			Exists:  false,
@@ -117,12 +117,12 @@ func (dat *ServerDat) GetCombo(elems string) (string, GetResponse) {
 	return elem3, GetResponse{Exists: true}
 }
 
-func (dat *ServerDat) GetMsgElem(id string) (string, GetResponse) {
-	dat.Lock.RLock()
+func (dat *ServerData) GetMsgElem(id string) (int, GetResponse) {
+	dat.RLock()
 	elem, exists := dat.ElementMsgs[id]
-	dat.Lock.RUnlock()
+	dat.RUnlock()
 	if !exists {
-		return "", GetResponse{
+		return 0, GetResponse{
 			Exists:  false,
 			Message: "Message doesn't have an element!",
 		}

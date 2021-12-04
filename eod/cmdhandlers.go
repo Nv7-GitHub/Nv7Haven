@@ -211,10 +211,8 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if !b.base.CheckServer(msg, rsp) {
 			return
 		}
-		lock.RLock()
-		dat, exists := b.dat[msg.GuildID]
-		lock.RUnlock()
-		if !exists {
+		data, res := b.GetData(msg.GuildID)
+		if !res.Exists {
 			return
 		}
 
@@ -243,7 +241,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if split {
 			last = items[1]
 		} else {
-			comb, res := dat.GetComb(msg.Author.ID)
+			comb, res := data.GetComb(msg.Author.ID)
 			if !res.Exists {
 				rsp.ErrorMessage(res.Message)
 				return

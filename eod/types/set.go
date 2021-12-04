@@ -16,10 +16,10 @@ func (dat *ServerDat) SetElement(elem OldElement) {
 	dat.Lock.Unlock()
 }
 
-func (dat *ServerDat) SetComb(id string, comb Comb) {
-	dat.Lock.Lock()
+func (dat *ServerData) SetComb(id string, comb Comb) {
+	dat.Lock()
 	dat.LastCombs[id] = comb
-	dat.Lock.Unlock()
+	dat.Unlock()
 }
 
 func (dat *ServerDat) SetInv(id string, inv Inventory) {
@@ -40,22 +40,22 @@ func (dat *ServerDat) DeleteElement(name string) {
 	dat.Lock.Unlock()
 }
 
-func (dat *ServerDat) DeleteComb(id string) {
-	dat.Lock.Lock()
+func (dat *ServerData) DeleteComb(id string) {
+	dat.Lock()
 	delete(dat.LastCombs, id)
-	dat.Lock.Unlock()
+	dat.Unlock()
 }
 
-func (dat *ServerDat) AddComponentMsg(id string, msg ComponentMsg) {
-	dat.Lock.Lock()
+func (dat *ServerData) AddComponentMsg(id string, msg ComponentMsg) {
+	dat.Lock()
 	dat.ComponentMsgs[id] = msg
-	dat.Lock.Unlock()
+	dat.Unlock()
 }
 
-func (dat *ServerDat) SavePageSwitcher(id string, ps PageSwitcher) {
-	dat.Lock.Lock()
+func (dat *ServerData) SavePageSwitcher(id string, ps PageSwitcher) {
+	dat.Lock()
 	dat.PageSwitchers[id] = ps
-	dat.Lock.Unlock()
+	dat.Unlock()
 }
 
 func (dat *ServerDat) SavePoll(id string, poll OldPoll) {
@@ -70,11 +70,8 @@ func (dat *ServerDat) AddComb(elems string, elem3 string) {
 	dat.Lock.Unlock()
 }
 
-func (dat *ServerDat) SetMsgElem(id string, elem string) {
-	dat.Lock.Lock()
-	if dat.ElementMsgs == nil {
-		dat.ElementMsgs = make(map[string]string)
-	}
-	dat.ElementMsgs[id] = strings.ToLower(elem)
-	dat.Lock.Unlock()
+func (dat *ServerData) SetMsgElem(id string, elem int) {
+	dat.Lock()
+	dat.ElementMsgs[id] = elem
+	dat.Unlock()
 }

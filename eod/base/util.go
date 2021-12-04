@@ -1,21 +1,19 @@
 package base
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"sort"
-	"strconv"
 
 	"github.com/bwmarrin/discordgo"
 )
 
 func (b *Base) GetColor(guild, id string) (int, error) {
-	b.lock.RLock()
-	dat, exists := b.dat[guild]
-	b.lock.RUnlock()
-	if exists {
-		col, exists := dat.UserColors[id]
+	db, res := b.GetDB(guild)
+	if res.Exists {
+		db.Config.RLock()
+		col, exists := db.Config.UserColors[id]
+		db.Config.RUnlock()
 		if exists {
 			return col, nil
 		}
@@ -67,50 +65,4 @@ func (b *Base) GetRole(id string, guild string) (*discordgo.Role, error) {
 	}
 
 	return nil, errors.New("eod: role not found")
-}
-
-func (b *Base) SaveInv(guild string, user string, newmade bool, recalculate ...bool) {
-	b.lock.RLock()
-	dat, exists := b.dat[guild]
-	b.lock.RUnlock()
-	if !exists {
-		return
-	}
-
-	inv, _ := dat.GetInv(user, true)
-
-	dat.Lock.RLock()
-	data, err := json.Marshal(inv.Elements)
-	dat.Lock.RUnlock()
-	if err != nil {
-		return
-	}
-
-	if newmade {
-		m := "made+1"
-		if len(recalculate) > 0 {
-			count := 0
-			for val := range inv.Elements {
-				creator := ""
-
-				elem, res := dat.GetElement(val)
-				if res.Exists {
-					creator = elem.Creator
-				}
-				if creator == user {
-					count++
-				}
-			}
-			m = strconv.Itoa(count)
-
-			inv.MadeCnt = count
-		} else {
-			inv.MadeCnt++
-		}
-		dat.SetInv(user, inv)
-		b.db.Exec(fmt.Sprintf("UPDATE eod_inv SET inv=?, count=?, made=%s WHERE guild=? AND user=?", m), data, len(inv.Elements), guild, user)
-		return
-	}
-
-	b.db.Exec("UPDATE eod_inv SET inv=?, count=? WHERE guild=? AND user=?", data, len(inv.Elements), guild, user)
 }

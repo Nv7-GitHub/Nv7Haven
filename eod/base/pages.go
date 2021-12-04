@@ -41,18 +41,20 @@ func (b *Base) NewPageSwitcher(ps types.PageSwitcher, m types.Msg, rsp types.Rsp
 		fmt.Println(emoji)
 	}*/
 
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
-		rsp.ErrorMessage("Guild isn't setup yet!")
+	data, res := b.GetData(m.GuildID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
+	db, _ := b.GetDB(m.GuildID)
 
 	ps.Guild = m.GuildID
 	ps.Page = 0
 	ps.PageLength = DefaultPageLength
-	_, exists = dat.PlayChannels[m.ChannelID]
+
+	db.Config.RLock()
+	_, exists := db.Config.PlayChannels[m.ChannelID]
+	db.Config.RUnlock()
 	if exists {
 		ps.PageLength = PlayPageLength
 	}
@@ -79,22 +81,16 @@ func (b *Base) NewPageSwitcher(ps types.PageSwitcher, m types.Msg, rsp types.Rsp
 		},
 	}, btnRow)
 
-	dat.SavePageSwitcher(id, ps)
-
-	b.lock.Lock()
-	b.dat[m.GuildID] = dat
-	b.lock.Unlock()
+	data.SavePageSwitcher(id, ps)
 }
 
 func (b *Base) PageSwitchHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	b.lock.RLock()
-	dat, exists := b.dat[i.GuildID]
-	b.lock.RUnlock()
-	if !exists {
+	data, res := b.GetData(i.GuildID)
+	if !res.Exists {
 		return
 	}
 
-	ps, res := dat.GetPageSwitcher(i.Message.ID)
+	ps, res := data.GetPageSwitcher(i.Message.ID)
 	if !res.Exists {
 		return
 	}
@@ -152,9 +148,5 @@ func (b *Base) PageSwitchHandler(s *discordgo.Session, i *discordgo.InteractionC
 		log.SetOutput(logs.DiscordLogs)
 		log.Println(err)
 	}
-	dat.PageSwitchers[i.Message.ID] = ps
-
-	b.lock.Lock()
-	b.dat[i.GuildID] = dat
-	b.lock.Unlock()
+	data.SavePageSwitcher(i.Message.ID, ps)
 }

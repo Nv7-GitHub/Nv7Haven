@@ -56,21 +56,19 @@ func (b *EoD) initHandlers() {
 
 		// Button
 		if i.Type == discordgo.InteractionMessageComponent {
-			lock.Lock()
-			dat, exists := b.dat[i.GuildID]
-			if !exists {
+			data, res := b.GetData(i.GuildID)
+			if !res.Exists {
 				return
 			}
-			lock.Unlock()
 
 			// Check if page switch handler or component handler
-			_, exists = dat.PageSwitchers[i.Message.ID]
+			_, exists := data.PageSwitchers[i.Message.ID]
 			if exists {
 				b.base.PageSwitchHandler(s, i)
 				return
 			}
 
-			compMsg, exists := dat.ComponentMsgs[i.Message.ID]
+			compMsg, exists := data.ComponentMsgs[i.Message.ID]
 			if exists {
 				compMsg.Handler(s, i)
 				return

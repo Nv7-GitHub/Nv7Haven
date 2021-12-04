@@ -10,28 +10,26 @@ import (
 func (b *TreeCmds) ElemBreakdownCmd(elem string, calcTree bool, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
-		rsp.ErrorMessage("Guild isn't setup yet!")
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 
-	el, res := dat.GetElement(elem)
+	el, res := db.GetElementByName(elem)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
 		return
 	}
 
 	tree := &trees.BreakDownTree{
-		Dat:       dat,
+		DB:        db,
 		Breakdown: make(map[string]int),
-		Added:     make(map[string]types.Empty),
+		Added:     make(map[int]types.Empty),
 		Tree:      calcTree,
 		Total:     0,
 	}
-	suc, err := tree.AddElem(el.Name)
+	suc, err := tree.AddElem(el.ID)
 	if !suc {
 		rsp.ErrorMessage(err)
 		return
@@ -48,24 +46,22 @@ func (b *TreeCmds) ElemBreakdownCmd(elem string, calcTree bool, m types.Msg, rsp
 func (b *TreeCmds) CatBreakdownCmd(catName string, calcTree bool, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
-		rsp.ErrorMessage("Guild isn't setup yet!")
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 
-	cat, res := dat.GetCategory(catName)
+	cat, res := db.GetCat(catName)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
 		return
 	}
 
 	tree := &trees.BreakDownTree{
-		Dat:       dat,
+		DB:        db,
 		Breakdown: make(map[string]int),
-		Added:     make(map[string]types.Empty),
+		Added:     make(map[int]types.Empty),
 		Tree:      calcTree,
 		Total:     0,
 	}
@@ -89,24 +85,18 @@ func (b *TreeCmds) CatBreakdownCmd(catName string, calcTree bool, m types.Msg, r
 func (b *TreeCmds) InvBreakdownCmd(user string, calcTree bool, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
-		rsp.ErrorMessage("Guild isn't setup yet!")
-		return
-	}
-
-	inv, res := dat.GetInv(user, user == m.Author.ID)
+	db, res := b.GetDB(m.GuildID)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
 		return
 	}
 
+	inv := db.GetInv(user)
+
 	tree := &trees.BreakDownTree{
-		Dat:       dat,
+		DB:        db,
 		Breakdown: make(map[string]int),
-		Added:     make(map[string]types.Empty),
+		Added:     make(map[int]types.Empty),
 		Tree:      calcTree,
 		Total:     0,
 	}

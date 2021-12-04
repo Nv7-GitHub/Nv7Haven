@@ -1476,32 +1476,56 @@ var (
 		"View Info": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			rsp := bot.newRespSlash(i)
-			res, suc := bot.getMessageElem(resp.TargetID, i.GuildID)
+			id, res, suc := bot.getMessageElem(resp.TargetID, i.GuildID)
 			if !suc {
 				rsp.ErrorMessage(res)
 				return
 			}
-			bot.elements.InfoCmd(res, bot.newMsgSlash(i), rsp)
+			db, r := bot.GetDB(i.GuildID)
+			if !r.Exists {
+				return
+			}
+			elem, r := db.GetElement(id)
+			if !r.Exists {
+				return
+			}
+			bot.elements.InfoCmd(elem.Name, bot.newMsgSlash(i), rsp)
 		},
 		"Get Hint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			rsp := bot.newRespSlash(i)
-			res, suc := bot.getMessageElem(resp.TargetID, i.GuildID)
+			id, res, suc := bot.getMessageElem(resp.TargetID, i.GuildID)
 			if !suc {
 				rsp.ErrorMessage(res)
 				return
 			}
-			bot.elements.HintCmd(res, true, false, bot.newMsgSlash(i), rsp)
+			db, r := bot.GetDB(i.GuildID)
+			if !r.Exists {
+				return
+			}
+			elem, r := db.GetElement(id)
+			if !r.Exists {
+				return
+			}
+			bot.elements.HintCmd(elem.Name, true, false, bot.newMsgSlash(i), rsp)
 		},
 		"Get Inverse Hint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			rsp := bot.newRespSlash(i)
-			res, suc := bot.getMessageElem(resp.TargetID, i.GuildID)
+			id, res, suc := bot.getMessageElem(resp.TargetID, i.GuildID)
 			if !suc {
 				rsp.ErrorMessage(res)
 				return
 			}
-			bot.elements.HintCmd(res, true, true, bot.newMsgSlash(i), rsp)
+			db, r := bot.GetDB(i.GuildID)
+			if !r.Exists {
+				return
+			}
+			elem, r := db.GetElement(id)
+			if !r.Exists {
+				return
+			}
+			bot.elements.HintCmd(elem.Name, true, true, bot.newMsgSlash(i), rsp)
 		},
 		"Get Color": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()

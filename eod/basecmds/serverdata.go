@@ -30,7 +30,7 @@ func (b *BaseCmds) SetNewsChannel(channelID string, msg types.Msg, rsp types.Rsp
 	dat, exists := b.dat[msg.GuildID]
 	b.lock.RUnlock()
 	if !exists {
-		dat = types.NewServerData()
+		dat = types.NewServerDat()
 	}
 	dat.NewsChannel = channelID
 	b.lock.Lock()
@@ -64,7 +64,7 @@ func (b *BaseCmds) SetVotingChannel(channelID string, msg types.Msg, rsp types.R
 	dat, exists := b.dat[msg.GuildID]
 	b.lock.RUnlock()
 	if !exists {
-		dat = types.NewServerData()
+		dat = types.NewServerDat()
 	}
 	dat.VotingChannel = channelID
 	b.lock.Lock()
@@ -101,7 +101,7 @@ func (b *BaseCmds) SetVoteCount(count int, msg types.Msg, rsp types.Rsp) {
 	dat, exists := b.dat[msg.GuildID]
 	b.lock.RUnlock()
 	if !exists {
-		dat = types.NewServerData()
+		dat = types.NewServerDat()
 	}
 	dat.VoteCount = count
 	b.lock.Lock()
@@ -138,7 +138,7 @@ func (b *BaseCmds) SetPollCount(count int, msg types.Msg, rsp types.Rsp) {
 	dat, exists := b.dat[msg.GuildID]
 	b.lock.RUnlock()
 	if !exists {
-		dat = types.NewServerData()
+		dat = types.NewServerDat()
 	}
 	dat.PollCount = count
 	b.lock.Lock()
@@ -166,7 +166,7 @@ func (b *BaseCmds) SetPlayChannel(channelID string, isPlayChannel bool, msg type
 		dat, exists := b.dat[msg.GuildID]
 		b.lock.RUnlock()
 		if !exists {
-			dat = types.NewServerData()
+			dat = types.NewServerDat()
 		}
 		delete(dat.PlayChannels, channelID)
 		b.lock.Lock()
@@ -191,7 +191,7 @@ func (b *BaseCmds) SetPlayChannel(channelID string, isPlayChannel bool, msg type
 	dat, exists := b.dat[msg.GuildID]
 	b.lock.RUnlock()
 	if !exists {
-		dat = types.NewServerData()
+		dat = types.NewServerDat()
 	}
 	if dat.PlayChannels == nil {
 		dat.PlayChannels = make(map[string]types.Empty)
@@ -228,7 +228,7 @@ func (b *BaseCmds) SetModRole(roleID string, msg types.Msg, rsp types.Rsp) {
 	dat, exists := b.dat[msg.GuildID]
 	b.lock.RUnlock()
 	if !exists {
-		dat = types.NewServerData()
+		dat = types.NewServerDat()
 	}
 	dat.ModRole = roleID
 	b.lock.Lock()
@@ -304,7 +304,7 @@ func (b *BaseCmds) SetUserColor(color string, removeColor bool, m types.Msg, rsp
 	dat, exists := b.dat[m.GuildID]
 	b.lock.RUnlock()
 	if !exists {
-		dat = types.NewServerData()
+		dat = types.NewServerDat()
 	}
 	if dat.PlayChannels == nil {
 		dat.PlayChannels = make(map[string]types.Empty)

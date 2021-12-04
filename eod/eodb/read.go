@@ -36,9 +36,12 @@ func (d *DB) GetIDByName(name string) (int, types.GetResponse) {
 	return id, types.GetResponse{Exists: true}
 }
 
-func (d *DB) GetElement(id int) (types.Element, types.GetResponse) {
-	d.RLock()
-	defer d.RUnlock()
+func (d *DB) GetElement(id int, nolock ...bool) (types.Element, types.GetResponse) {
+	if len(nolock) == 0 {
+		d.RLock()
+		defer d.RUnlock()
+	}
+
 	if id < 1 {
 		return types.Element{}, types.GetResponse{
 			Exists:  false,
@@ -69,17 +72,17 @@ func (d *DB) GetCombo(elems []int) (int, types.GetResponse) {
 	return res, types.GetResponse{Exists: true}
 }
 
-func (d *DB) GetInv(id string) *types.ElemContainer {
+func (d *DB) GetInv(id string) *types.Inventory {
 	d.RLock()
 	inv, exists := d.invs[id]
 	d.RUnlock()
 	if !exists {
-		inv = types.NewElemContainer(map[int]types.Empty{
+		inv = types.NewInventory(id, map[int]types.Empty{
 			1: {},
 			2: {},
 			3: {},
 			4: {},
-		}, id)
+		}, 0)
 		d.Lock()
 		d.invs[id] = inv
 		d.Unlock()

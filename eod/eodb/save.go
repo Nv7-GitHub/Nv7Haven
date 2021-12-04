@@ -54,7 +54,7 @@ func (d *DB) SaveServerConfig() error {
 	d.Lock()
 	defer d.Unlock()
 
-	dat, err := json.Marshal(d.config)
+	dat, err := json.Marshal(d.Config)
 	if err != nil {
 		return err
 	}
@@ -91,7 +91,7 @@ func (d *DB) NewCat(name string) *types.Category {
 
 func (d *DB) SaveCat(elems *types.Category) error {
 	elems.Lock.RLock()
-	dat, err := json.Marshal(elems.Elements)
+	dat, err := json.Marshal(elems)
 	elems.Lock.RUnlock()
 	if err != nil {
 		return err
@@ -120,21 +120,35 @@ func (d *DB) SaveCat(elems *types.Category) error {
 	return nil
 }
 
-func (d *DB) SaveInv(inv *types.ElemContainer) error {
-	inv.RLock()
+func (d *DB) SaveInv(inv *types.Inventory, recalc ...bool) error {
+	inv.Lock.RLock()
 	dat, err := json.Marshal(inv)
-	inv.RUnlock()
+	inv.Lock.RUnlock()
 	if err != nil {
 		return err
 	}
 
-	file, exists := d.invFiles[inv.Id]
+	d.RLock()
+	if len(recalc) > 0 {
+		for elem := range inv.Elements {
+			elem, res := d.GetElement(elem, true)
+			if !res.Exists {
+				continue
+			}
+			if elem.Creator == inv.User {
+				inv.MadeCnt++
+			}
+		}
+	}
+	d.RUnlock()
+
+	file, exists := d.invFiles[inv.User]
 	if !exists {
-		file, err = os.Create(filepath.Join(d.dbPath, "inventories", inv.Id+".json"))
+		file, err = os.Create(filepath.Join(d.dbPath, "inventories", inv.User+".json"))
 		if err != nil {
 			return err
 		}
-		d.invFiles[inv.Id] = file
+		d.invFiles[inv.User] = file
 	}
 
 	err = file.Truncate(0)

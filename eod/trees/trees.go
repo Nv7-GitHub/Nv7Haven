@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
@@ -11,26 +12,23 @@ import (
 type Tree struct {
 	text   *strings.Builder
 	rawTxt *strings.Builder
-	calced map[string]types.Empty
+	calced map[int]types.Empty
 	num    int
 
-	dat types.ServerDat
+	db *eodb.DB
 }
 
-func (t *Tree) AddElem(elem string) (bool, string) {
-	_, exists := t.calced[strings.ToLower(elem)]
+func (t *Tree) AddElem(elem int) (bool, string) {
+	_, exists := t.calced[elem]
 	if !exists {
-		el, res := t.dat.GetElement(elem)
+		el, res := t.db.GetElement(elem)
 		if !res.Exists {
-			return false, elem
+			return false, res.Message
 		}
 		if len(el.Parents) == 1 {
 			el.Parents = append(el.Parents, el.Parents[0])
 		}
 		for _, parent := range el.Parents {
-			if len(strings.TrimSpace(parent)) == 0 {
-				continue
-			}
 			suc, msg := t.AddElem(parent)
 			if !suc {
 				return false, msg
@@ -47,7 +45,7 @@ func (t *Tree) AddElem(elem string) (bool, string) {
 			} else {
 				perf.WriteString(" + %s")
 			}
-			el, _ := t.dat.GetElement(val)
+			el, _ := t.db.GetElement(val)
 			params[i] = interface{}(el.Name)
 		}
 		params = append([]interface{}{t.num}, params...)
@@ -58,13 +56,13 @@ func (t *Tree) AddElem(elem string) (bool, string) {
 			fmt.Fprintf(t.rawTxt, p+" = %s\n", params...)
 			t.num++
 		}
-		t.calced[strings.ToLower(elem)] = types.Empty{}
+		t.calced[elem] = types.Empty{}
 	}
 	return true, ""
 }
 
 // Tree calculation utilities
-func CalcTree(dat types.ServerDat, elem string) (string, bool, string) {
+func CalcTree(db *eodb.DB, elem int) (string, bool, string) {
 	// Commented out code is for profiling
 
 	/*runtime.GC()
@@ -74,9 +72,9 @@ func CalcTree(dat types.ServerDat, elem string) (string, bool, string) {
 	t := Tree{
 		text:   &strings.Builder{},
 		rawTxt: &strings.Builder{},
-		calced: make(map[string]types.Empty),
+		calced: make(map[int]types.Empty),
 		num:    1,
-		dat:    dat,
+		db:     db,
 	}
 	suc, msg := t.AddElem(elem)
 
@@ -92,7 +90,7 @@ func CalcTree(dat types.ServerDat, elem string) (string, bool, string) {
 	return text, suc, msg
 }
 
-func CalcTreeCat(dat types.ServerDat, elems types.Container) (string, bool, string) {
+func CalcTreeCat(db *eodb.DB, elems map[int]types.Empty) (string, bool, string) {
 	// Commented out code is for profiling
 
 	/*runtime.GC()
@@ -102,9 +100,9 @@ func CalcTreeCat(dat types.ServerDat, elems types.Container) (string, bool, stri
 	t := Tree{
 		text:   &strings.Builder{},
 		rawTxt: &strings.Builder{},
-		calced: make(map[string]types.Empty),
+		calced: make(map[int]types.Empty),
 		num:    1,
-		dat:    dat,
+		db:     db,
 	}
 	for elem := range elems {
 		suc, msg := t.AddElem(elem)
