@@ -260,7 +260,7 @@ func (b *EoD) init() {
 	}
 	defer cats.Close()
 	var elemDat string
-	cat := types.Category{}
+	cat := types.OldCategory{}
 	for cats.Next() {
 		err = cats.Scan(&guild, &cat.Name, &elemDat, &cat.Image, &cat.Color)
 		if err != nil {

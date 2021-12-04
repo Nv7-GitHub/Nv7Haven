@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
@@ -70,10 +71,28 @@ func (d *DB) SaveServerConfig() error {
 	return nil
 }
 
-func (d *DB) SaveCat(elems *types.ElemContainer) error {
-	elems.RLock()
-	dat, err := json.Marshal(elems.Data)
-	elems.RUnlock()
+func (d *DB) NewCat(name string) *types.Category {
+	cat := &types.Category{
+		Lock: &sync.RWMutex{},
+
+		Name:     name,
+		Guild:    d.Guild,
+		Elements: make(map[int]types.Empty),
+		Image:    "",
+		Color:    0,
+	}
+
+	d.Lock()
+	d.cats[strings.ToLower(name)] = cat
+	d.Unlock()
+
+	return cat
+}
+
+func (d *DB) SaveCat(elems *types.Category) error {
+	elems.Lock.RLock()
+	dat, err := json.Marshal(elems.Elements)
+	elems.Lock.RUnlock()
 	if err != nil {
 		return err
 	}
@@ -81,13 +100,13 @@ func (d *DB) SaveCat(elems *types.ElemContainer) error {
 	d.Lock()
 	defer d.Unlock()
 
-	file, exists := d.catFiles[strings.ToLower(elems.Id)]
+	file, exists := d.catFiles[strings.ToLower(elems.Name)]
 	if !exists {
-		file, err = os.Create(filepath.Join(d.dbPath, "categories", url.PathEscape(elems.Id)))
+		file, err = os.Create(filepath.Join(d.dbPath, "categories", url.PathEscape(elems.Name)+".json"))
 		if err != nil {
 			return err
 		}
-		d.catFiles[strings.ToLower(elems.Id)] = file
+		d.catFiles[strings.ToLower(elems.Name)] = file
 	}
 	err = file.Truncate(0)
 	if err != nil {
@@ -111,7 +130,7 @@ func (d *DB) SaveInv(inv *types.ElemContainer) error {
 
 	file, exists := d.invFiles[inv.Id]
 	if !exists {
-		file, err = os.Create(filepath.Join(d.dbPath, "inventories", inv.Id))
+		file, err = os.Create(filepath.Join(d.dbPath, "inventories", inv.Id+".json"))
 		if err != nil {
 			return err
 		}

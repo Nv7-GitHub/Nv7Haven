@@ -55,7 +55,7 @@ func (b *Polls) Categorize(elem string, catName string, guild string) error {
 
 	cat, res := dat.GetCategory(catName)
 	if !res.Exists {
-		cat = types.Category{
+		cat = types.OldCategory{
 			Name:     catName,
 			Guild:    guild,
 			Elements: make(map[string]types.Empty),

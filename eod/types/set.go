@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-func (dat *ServerDat) SetCategory(cat Category) {
+func (dat *ServerDat) SetCategory(cat OldCategory) {
 	dat.Lock.Lock()
 	dat.Categories[strings.ToLower(cat.Name)] = cat
 	dat.Lock.Unlock()

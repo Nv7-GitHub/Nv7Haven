@@ -145,7 +145,7 @@ func (d *DB) loadCats() error {
 		return err
 	}
 
-	cat := make(map[int]types.Empty)
+	var cat *types.Category
 	for _, file := range files {
 		name, err := url.PathUnescape(strings.TrimSuffix(file.Name(), ".json"))
 		if err != nil {
@@ -167,9 +167,9 @@ func (d *DB) loadCats() error {
 		}
 
 		// Save cat
-		d.cats[strings.ToLower(name)] = types.NewElemContainer(cat, name)
+		d.cats[strings.ToLower(name)] = cat
 		d.catFiles[strings.ToLower(name)] = f
-		cat = make(map[int]types.Empty)
+		cat = nil
 	}
 	return nil
 }

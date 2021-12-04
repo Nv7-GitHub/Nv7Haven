@@ -21,7 +21,7 @@ type Guild struct {
 	ID       string
 	Combos   []Combo
 	Elements []types.OldElement
-	Cats     map[string]types.Category
+	Cats     map[string]types.OldCategory
 	Invs     map[string]map[string]types.Empty
 	Config   *types.ServerConfig
 }
@@ -31,7 +31,7 @@ func NewGuild(id string) *Guild {
 		ID:       id,
 		Combos:   make([]Combo, 0),
 		Elements: make([]types.OldElement, 0),
-		Cats:     make(map[string]types.Category),
+		Cats:     make(map[string]types.OldCategory),
 		Invs:     make(map[string]map[string]types.Empty),
 		Config:   types.NewServerConfig(),
 	}
@@ -201,7 +201,7 @@ func loadDB(refresh bool) {
 	handle(err)
 	defer cats.Close()
 	var elemDat string
-	cat := types.Category{}
+	cat := types.OldCategory{}
 	for cats.Next() {
 		err = cats.Scan(&guild, &cat.Name, &elemDat, &cat.Image, &cat.Color)
 		if err != nil {

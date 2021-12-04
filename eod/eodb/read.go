@@ -74,21 +74,22 @@ func (d *DB) GetInv(id string) *types.ElemContainer {
 	inv, exists := d.invs[id]
 	d.RUnlock()
 	if !exists {
-		d.Lock()
-		d.invs[id] = inv
-		d.Unlock()
-
-		return types.NewElemContainer(map[int]types.Empty{
+		inv = types.NewElemContainer(map[int]types.Empty{
 			1: {},
 			2: {},
 			3: {},
 			4: {},
 		}, id)
+		d.Lock()
+		d.invs[id] = inv
+		d.Unlock()
+
+		return inv
 	}
 	return inv
 }
 
-func (d *DB) GetCat(name string) (*types.ElemContainer, types.GetResponse) {
+func (d *DB) GetCat(name string) (*types.Category, types.GetResponse) {
 	d.RLock()
 	cat, exists := d.cats[strings.ToLower(name)]
 	d.RUnlock()

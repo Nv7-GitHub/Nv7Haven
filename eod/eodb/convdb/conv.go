@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -10,6 +9,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
+// ~/go/src/github.com/Nv7-Github/Nv7Haven/data/eod/705084182673621033
 func convDB() {
 	home, err := os.UserHomeDir()
 	handle(err)
@@ -64,22 +64,29 @@ func convDB() {
 			handle(err)
 		}
 
+		getId := func(name string) (int, bool) {
+			out, res := db.GetIDByName(name)
+			if !res.Exists {
+				//fmt.Println(name)
+				id, exists := names[name]
+				if !exists {
+					return 0, false
+				}
+				out = id
+			}
+			return out, true
+		}
+
 		// Conv combos
 		for _, comb := range gld.Combos {
 			vals := strings.Split(comb.Elems, "+")
 			elems := make([]int, len(vals))
 			cont := false
 			for i, v := range vals {
-				id, res := db.GetIDByName(v)
-				if !res.Exists {
-					fmt.Println(v)
-					id, exists := names[v]
-					if !exists {
-						cont = true
-						break
-					}
-					elems[i] = id
-					continue
+				id, suc := getId(v)
+				if !suc {
+					cont = true
+					break
 				}
 				elems[i] = id
 			}
@@ -87,17 +94,42 @@ func convDB() {
 				continue
 			}
 
-			out, res := db.GetIDByName(comb.Res)
-			if !res.Exists {
-				fmt.Println(comb.Res)
-				id, exists := names[comb.Res]
-				if !exists {
-					continue
-				}
-				out = id
+			out, suc := getId(comb.Res)
+			if !suc {
+				continue
 			}
 
 			err = db.AddCombo(elems, out)
+			handle(err)
+		}
+
+		// Conv invs
+		for id, inv := range gld.Invs {
+			i := db.GetInv(id)
+			for elem := range inv {
+				id, suc := getId(elem)
+				if !suc {
+					continue
+				}
+				i.Add(id)
+			}
+			err = db.SaveInv(i)
+			handle(err)
+		}
+
+		// Conv cats
+		for _, cat := range gld.Cats {
+			c := db.NewCat(cat.Name)
+			c.Color = cat.Color
+			c.Image = cat.Image
+			for elem := range cat.Elements {
+				id, ok := getId(strings.ToLower(elem))
+				if !ok {
+					continue
+				}
+				c.Elements[id] = types.Empty{}
+			}
+			err = db.SaveCat(c)
 			handle(err)
 		}
 

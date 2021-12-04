@@ -61,11 +61,11 @@ type ServerDat struct {
 	ServerData
 	ServerConfig
 
-	Inventories map[string]Inventory  // map[userID]map[elementName]types.Empty
-	Elements    map[string]OldElement //map[elementName]element
-	Combos      map[string]string     // map[elems]elem3
-	Categories  map[string]Category   // map[catName]category
-	Polls       map[string]Poll       // map[messageid]poll
+	Inventories map[string]Inventory   // map[userID]map[elementName]types.Empty
+	Elements    map[string]OldElement  //map[elementName]element
+	Combos      map[string]string      // map[elems]elem3
+	Categories  map[string]OldCategory // map[catName]category
+	Polls       map[string]Poll        // map[messageid]poll
 	Lock        *sync.RWMutex
 }
 
@@ -149,6 +149,16 @@ type Poll struct {
 }
 
 type Category struct {
+	Lock *sync.RWMutex `json:"-"`
+
+	Name     string
+	Guild    string
+	Elements map[int]Empty
+	Image    string
+	Color    int
+}
+
+type OldCategory struct {
 	Name     string
 	Guild    string
 	Elements map[string]Empty
@@ -200,7 +210,7 @@ func NewServerData() ServerDat {
 		Polls:       make(map[string]Poll),
 		Elements:    make(map[string]OldElement),
 		Combos:      make(map[string]string),
-		Categories:  make(map[string]Category),
+		Categories:  make(map[string]OldCategory),
 		Inventories: make(map[string]Inventory),
 	}
 }

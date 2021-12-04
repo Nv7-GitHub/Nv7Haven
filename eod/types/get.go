@@ -49,7 +49,7 @@ func (dat *ServerDat) GetInv(id string, you bool) (Inventory, GetResponse) {
 	return inv, GetResponse{Exists: true}
 }
 
-func (dat *ServerDat) GetCategory(name string, noLock ...bool) (Category, GetResponse) {
+func (dat *ServerDat) GetCategory(name string, noLock ...bool) (OldCategory, GetResponse) {
 	if len(noLock) == 0 {
 		dat.Lock.RLock()
 	}
@@ -58,7 +58,7 @@ func (dat *ServerDat) GetCategory(name string, noLock ...bool) (Category, GetRes
 		dat.Lock.RUnlock()
 	}
 	if !exists {
-		return Category{}, GetResponse{
+		return OldCategory{}, GetResponse{
 			Exists:  false,
 			Message: fmt.Sprintf("Category **%s** doesn't exist!", name),
 		}
