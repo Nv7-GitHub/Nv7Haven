@@ -40,7 +40,7 @@ services:
       CRON_TIME: 0 3 * * *
       INIT_BACKUP: 1
       GZIP_LEVEL: 9
-      MAX_BACKUPS: 21
+      MAX_BACKUPS: 365
     restart: unless-stopped
 
   filebackup:
