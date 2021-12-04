@@ -312,7 +312,7 @@ func (b *EoD) init() {
 		panic(err)
 	}
 	defer polls.Close()
-	var po types.Poll
+	var po types.OldPoll
 	for polls.Next() {
 		var jsondat string
 		po.Data = nil

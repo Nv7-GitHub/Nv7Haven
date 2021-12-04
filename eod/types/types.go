@@ -65,7 +65,7 @@ type ServerDat struct {
 	Elements    map[string]OldElement  //map[elementName]element
 	Combos      map[string]string      // map[elems]elem3
 	Categories  map[string]OldCategory // map[catName]category
-	Polls       map[string]Poll        // map[messageid]poll
+	Polls       map[string]OldPoll     // map[messageid]poll
 	Lock        *sync.RWMutex
 }
 
@@ -134,6 +134,18 @@ type OldElement struct {
 }
 
 type Poll struct {
+	Channel string
+	Message string
+	Guild   string
+	Kind    PollType
+
+	// Data, pointers to different types with omitempty so that you can selectively have some data
+
+	Upvotes   int
+	Downvotes int
+}
+
+type OldPoll struct {
 	Channel string
 	Message string
 	Guild   string
@@ -207,7 +219,7 @@ func NewServerData() ServerDat {
 		ServerConfig: *NewServerConfig(),
 
 		Lock:        &sync.RWMutex{},
-		Polls:       make(map[string]Poll),
+		Polls:       make(map[string]OldPoll),
 		Elements:    make(map[string]OldElement),
 		Combos:      make(map[string]string),
 		Categories:  make(map[string]OldCategory),

@@ -43,7 +43,7 @@ func (b *Polls) MarkCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 
-	err := b.CreatePoll(types.Poll{
+	err := b.CreatePoll(types.OldPoll{
 		Channel: dat.VotingChannel,
 		Guild:   m.GuildID,
 		Kind:    types.PollSign,
@@ -96,7 +96,7 @@ func (b *Polls) ImageCmd(elem string, image string, m types.Msg, rsp types.Rsp) 
 		return
 	}
 
-	err := b.CreatePoll(types.Poll{
+	err := b.CreatePoll(types.OldPoll{
 		Channel: dat.VotingChannel,
 		Guild:   m.GuildID,
 		Kind:    types.PollImage,
@@ -149,7 +149,7 @@ func (b *Polls) ColorCmd(elem string, color int, m types.Msg, rsp types.Rsp) {
 		return
 	}
 
-	err := b.CreatePoll(types.Poll{
+	err := b.CreatePoll(types.OldPoll{
 		Channel: dat.VotingChannel,
 		Guild:   m.GuildID,
 		Kind:    types.PollColor,
@@ -183,7 +183,7 @@ func (b *Polls) CatImgCmd(catName string, url string, m types.Msg, rsp types.Rsp
 		return
 	}
 
-	err := b.CreatePoll(types.Poll{
+	err := b.CreatePoll(types.OldPoll{
 		Channel: dat.VotingChannel,
 		Guild:   m.GuildID,
 		Kind:    types.PollCatImage,
@@ -212,7 +212,7 @@ func (b *Polls) CatColorCmd(catName string, color int, m types.Msg, rsp types.Rs
 		return
 	}
 
-	err := b.CreatePoll(types.Poll{
+	err := b.CreatePoll(types.OldPoll{
 		Channel: dat.VotingChannel,
 		Guild:   m.GuildID,
 		Kind:    types.PollCatColor,

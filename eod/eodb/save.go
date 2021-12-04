@@ -19,11 +19,11 @@ func (d *DB) SaveElement(el types.Element, new ...bool) error {
 
 	// Save to cache
 	if len(new) > 0 {
-		el.ID = len(d.elements) + 1
-		d.elements = append(d.elements, el)
+		el.ID = len(d.Elements) + 1
+		d.Elements = append(d.Elements, el)
 		d.elemNames[strings.ToLower(el.Name)] = el.ID
 	} else {
-		d.elements[el.ID-1] = el
+		d.Elements[el.ID-1] = el
 	}
 
 	// Persist
@@ -145,6 +145,48 @@ func (d *DB) SaveInv(inv *types.ElemContainer) error {
 	if err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func (d *DB) SavePoll(poll types.Poll) {
+	d.Lock()
+	d.Polls[poll.Message] = poll
+	d.Unlock()
+}
+
+func (d *DB) DeletePoll(poll types.Poll) error {
+	err := os.Remove(filepath.Join(d.dbPath, "polls", poll.Message+".json"))
+	if err != nil {
+		return err
+	}
+
+	d.Lock()
+	delete(d.Polls, poll.Message)
+	d.Unlock()
+
+	return nil
+}
+
+func (d *DB) NewPoll(poll types.Poll) error {
+	f, err := os.Create(filepath.Join(d.dbPath, "polls", poll.Message+".json"))
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	dat, err := json.Marshal(poll)
+	if err != nil {
+		return err
+	}
+	_, err = f.Write(dat)
+	if err != nil {
+		return err
+	}
+
+	d.Lock()
+	d.Polls[poll.Message] = poll
+	d.Unlock()
 
 	return nil
 }

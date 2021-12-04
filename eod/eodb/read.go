@@ -19,7 +19,7 @@ func (d *DB) GetElementByName(name string) (types.Element, types.GetResponse) {
 			Message: fmt.Sprintf("Element **%s** doesn't exist!", name),
 		}
 	}
-	return d.elements[id-1], types.GetResponse{Exists: true}
+	return d.Elements[id-1], types.GetResponse{Exists: true}
 }
 
 func (d *DB) GetIDByName(name string) (int, types.GetResponse) {
@@ -45,14 +45,14 @@ func (d *DB) GetElement(id int) (types.Element, types.GetResponse) {
 			Message: "Element ID can't be negative!",
 		}
 	}
-	if id > len(d.elements) {
+	if id > len(d.Elements) {
 		return types.Element{}, types.GetResponse{
 			Exists:  false,
 			Message: fmt.Sprintf("Element **#%d** doesn't exist!", id),
 		}
 	}
 
-	return d.elements[id-1], types.GetResponse{Exists: true}
+	return d.Elements[id-1], types.GetResponse{Exists: true}
 }
 
 func (d *DB) GetCombo(elems []int) (int, types.GetResponse) {

@@ -38,9 +38,9 @@ func (d *DB) loadElements() error {
 		}
 
 		// Add to elements
-		if len(d.elements) < dat.ID {
-			d.elements = append(d.elements, make([]types.Element, dat.ID-len(d.elements))...) // Grow
-			d.elements[dat.ID-1] = dat
+		if len(d.Elements) < dat.ID {
+			d.Elements = append(d.Elements, make([]types.Element, dat.ID-len(d.Elements))...) // Grow
+			d.Elements[dat.ID-1] = dat
 			d.elemNames[strings.ToLower(dat.Name)] = dat.ID
 			dat = types.Element{}
 		}
@@ -202,7 +202,7 @@ func (d *DB) loadPolls() error {
 		}
 
 		// Save poll
-		d.polls[poll.Message] = poll
+		d.Polls[poll.Message] = poll
 		f.Close()
 	}
 	return nil

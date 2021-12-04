@@ -92,12 +92,12 @@ func (dat *ServerDat) GetPageSwitcher(id string) (PageSwitcher, GetResponse) {
 	return ps, GetResponse{Exists: true}
 }
 
-func (dat *ServerDat) GetPoll(id string) (Poll, GetResponse) {
+func (dat *ServerDat) GetPoll(id string) (OldPoll, GetResponse) {
 	dat.Lock.RLock()
 	poll, exists := dat.Polls[id]
 	dat.Lock.RUnlock()
 	if !exists {
-		return Poll{}, GetResponse{
+		return OldPoll{}, GetResponse{
 			Exists:  false,
 			Message: "Poll doesn't exist!",
 		}

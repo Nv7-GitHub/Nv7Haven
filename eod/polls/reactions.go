@@ -9,7 +9,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-func (b *Polls) RejectPoll(dat types.ServerDat, p types.Poll, messageid, user string) types.ServerDat {
+func (b *Polls) RejectPoll(dat types.ServerDat, p types.OldPoll, messageid, user string) types.ServerDat {
 	dat.Lock.Lock()
 	delete(dat.Polls, messageid)
 	dat.Lock.Unlock()
@@ -46,7 +46,7 @@ func (b *Polls) RejectPoll(dat types.ServerDat, p types.Poll, messageid, user st
 	return dat
 }
 
-func (b *Polls) CheckReactions(dat types.ServerDat, p types.Poll, reactor string, downvote bool) (types.ServerDat, bool) {
+func (b *Polls) CheckReactions(dat types.ServerDat, p types.OldPoll, reactor string, downvote bool) (types.ServerDat, bool) {
 	if (p.Upvotes - p.Downvotes) >= dat.VoteCount {
 		b.dg.ChannelMessageDelete(p.Channel, p.Message)
 		b.handlePollSuccess(p)

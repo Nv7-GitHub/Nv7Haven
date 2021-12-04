@@ -8,7 +8,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
-func (b *Polls) CreatePoll(p types.Poll) error {
+func (b *Polls) CreatePoll(p types.OldPoll) error {
 	b.lock.RLock()
 	dat, exists := b.dat[p.Guild]
 	b.lock.RUnlock()

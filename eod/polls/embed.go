@@ -10,7 +10,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-func (b *Polls) GetPollEmbed(dat types.ServerDat, p types.Poll) (*discordgo.MessageEmbed, error) {
+func (b *Polls) GetPollEmbed(dat types.ServerDat, p types.OldPoll) (*discordgo.MessageEmbed, error) {
 	switch p.Kind {
 	case types.PollCombo:
 		txt := ""

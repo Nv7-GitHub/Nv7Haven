@@ -84,7 +84,7 @@ func (b *Categories) CategoryCmd(elems []string, category string, m types.Msg, r
 		b.lock.Unlock()
 	}
 	if len(suggestAdd) > 0 {
-		err := b.polls.CreatePoll(types.Poll{
+		err := b.polls.CreatePoll(types.OldPoll{
 			Channel: dat.VotingChannel,
 			Guild:   m.GuildID,
 			Kind:    types.PollCategorize,
@@ -231,7 +231,7 @@ func (b *Categories) RmCategoryCmd(elems []string, category string, m types.Msg,
 		b.lock.Unlock()
 	}
 	if len(suggestRm) > 0 {
-		err := b.polls.CreatePoll(types.Poll{
+		err := b.polls.CreatePoll(types.OldPoll{
 			Channel: dat.VotingChannel,
 			Guild:   m.GuildID,
 			Kind:    types.PollUnCategorize,

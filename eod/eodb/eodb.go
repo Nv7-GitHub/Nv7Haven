@@ -13,12 +13,12 @@ type DB struct {
 	Guild  string
 	dbPath string
 
-	elements  []types.Element
+	Elements  []types.Element
 	elemNames map[string]int
 	combos    map[string]int                  // map["1+1"] = 5 for air + air = wind
 	invs      map[string]*types.ElemContainer // map[userid]map[elemid]
 	cats      map[string]*types.Category      // map[name]cat(id: cat name)
-	polls     map[string]types.Poll           // map[]
+	Polls     map[string]types.Poll           // map[messageid]poll
 	config    *types.ServerConfig
 
 	invFiles   map[string]*os.File
@@ -36,8 +36,8 @@ func newDB(path string, guild string) *DB {
 		combos:    make(map[string]int),
 		invs:      make(map[string]*types.ElemContainer),
 		cats:      make(map[string]*types.Category),
-		polls:     make(map[string]types.Poll),
-		elements:  make([]types.Element, 0),
+		Polls:     make(map[string]types.Poll),
+		Elements:  make([]types.Element, 0),
 		elemNames: make(map[string]int),
 
 		invFiles: make(map[string]*os.File),

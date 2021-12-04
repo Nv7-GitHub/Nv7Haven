@@ -112,7 +112,7 @@ func (b *Elements) SuggestCmd(suggestion string, autocapitalize bool, m types.Ms
 	}
 
 	_, res = dat.GetElement(suggestion)
-	err := b.polls.CreatePoll(types.Poll{
+	err := b.polls.CreatePoll(types.OldPoll{
 		Channel:   dat.VotingChannel,
 		Guild:     m.GuildID,
 		Kind:      types.PollCombo,

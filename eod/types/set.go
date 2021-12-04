@@ -58,7 +58,7 @@ func (dat *ServerDat) SavePageSwitcher(id string, ps PageSwitcher) {
 	dat.Lock.Unlock()
 }
 
-func (dat *ServerDat) SavePoll(id string, poll Poll) {
+func (dat *ServerDat) SavePoll(id string, poll OldPoll) {
 	dat.Lock.Lock()
 	dat.Polls[id] = poll
 	dat.Lock.Unlock()
