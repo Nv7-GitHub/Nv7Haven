@@ -92,7 +92,7 @@ func (d *DB) loadConfig() error {
 	}
 	err = json.Unmarshal(dat, &d.config)
 	if err != nil {
-		return err
+		d.config = types.NewServerConfig()
 	}
 	d.configFile = f
 

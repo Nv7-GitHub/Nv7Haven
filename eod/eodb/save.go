@@ -20,6 +20,7 @@ func (d *DB) SaveElement(el types.Element, new ...bool) error {
 	if len(new) > 0 {
 		el.ID = len(d.elements) + 1
 		d.elements = append(d.elements, el)
+		d.elemNames[strings.ToLower(el.Name)] = el.ID
 	} else {
 		d.elements[el.ID-1] = el
 	}
@@ -44,7 +45,7 @@ func (d *DB) AddCombo(elems []int, result int) error {
 	defer d.Unlock()
 
 	d.combos[body] = result
-	_, err := d.comboFile.WriteString(body + "=" + strconv.Itoa(result))
+	_, err := d.comboFile.WriteString(body + "=" + strconv.Itoa(result) + "\n")
 	return err
 }
 

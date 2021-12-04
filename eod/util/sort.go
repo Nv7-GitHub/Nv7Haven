@@ -128,29 +128,29 @@ var sorts = map[string]func(a, b string, dat types.ServerDat) bool{
 	},
 }
 
-var getters = map[string]func(el types.Element) string{
-	"createdon": func(el types.Element) string {
+var getters = map[string]func(el types.OldElement) string{
+	"createdon": func(el types.OldElement) string {
 		return fmt.Sprintf(" - <t:%d>", el.CreatedOn.Unix())
 	},
-	"id": func(el types.Element) string {
+	"id": func(el types.OldElement) string {
 		return fmt.Sprintf(" - #%d", el.ID)
 	},
-	"complexity": func(el types.Element) string {
+	"complexity": func(el types.OldElement) string {
 		return fmt.Sprintf(" - %d", el.Complexity)
 	},
-	"difficulty": func(el types.Element) string {
+	"difficulty": func(el types.OldElement) string {
 		return fmt.Sprintf(" - %d", el.Difficulty)
 	},
-	"usedin": func(el types.Element) string {
+	"usedin": func(el types.OldElement) string {
 		return fmt.Sprintf(" - %d", el.UsedIn)
 	},
-	"creator": func(el types.Element) string {
+	"creator": func(el types.OldElement) string {
 		return fmt.Sprintf(" - <@%s>", el.Creator)
 	},
-	"treesize": func(el types.Element) string {
+	"treesize": func(el types.OldElement) string {
 		return fmt.Sprintf(" - %d", el.TreeSize)
 	},
-	"color": func(el types.Element) string {
+	"color": func(el types.OldElement) string {
 		col, err := GetEmoji(el.Color)
 		if err == nil {
 			return fmt.Sprintf(" - %s", col)

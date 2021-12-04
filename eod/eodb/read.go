@@ -19,7 +19,7 @@ func (d *DB) GetElementByName(name string) (types.Element, types.GetResponse) {
 			Message: fmt.Sprintf("Element **%s** doesn't exist!", name),
 		}
 	}
-	return d.elements[id], types.GetResponse{Exists: true}
+	return d.elements[id-1], types.GetResponse{Exists: true}
 }
 
 func (d *DB) GetIDByName(name string) (int, types.GetResponse) {

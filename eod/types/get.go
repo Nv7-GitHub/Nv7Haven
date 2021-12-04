@@ -10,7 +10,7 @@ type GetResponse struct {
 	Message string
 }
 
-func (dat *ServerDat) GetElement(name string, noLock ...bool) (Element, GetResponse) {
+func (dat *ServerDat) GetElement(name string, noLock ...bool) (OldElement, GetResponse) {
 	if len(noLock) == 0 {
 		dat.Lock.RLock()
 	}
@@ -19,7 +19,7 @@ func (dat *ServerDat) GetElement(name string, noLock ...bool) (Element, GetRespo
 		dat.Lock.RUnlock()
 	}
 	if !exists {
-		return Element{}, GetResponse{
+		return OldElement{}, GetResponse{
 			Exists:  false,
 			Message: fmt.Sprintf("Element **%s** doesn't exist!", name),
 		}

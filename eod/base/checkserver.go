@@ -7,7 +7,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
-var StarterElements = []types.Element{
+var StarterElements = []types.OldElement{
 	{
 		Name:       "Air",
 		Comment:    "The invisible gaseous substance surrounding the earth, a mixture mainly of oxygen and nitrogen.",

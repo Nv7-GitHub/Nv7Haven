@@ -114,7 +114,7 @@ func (b *Elements) getHint(elem string, hasElem bool, author string, guild strin
 	if !exists {
 		return nil, res.Message, false
 	}
-	var el types.Element
+	var el types.OldElement
 	if hasElem {
 		el, res = dat.GetElement(elem)
 		if !res.Exists {

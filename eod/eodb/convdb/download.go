@@ -13,27 +13,27 @@ import (
 )
 
 type Combo struct {
-	Elem1 string
-	Elem2 string
+	Elems string
 	Res   string
 }
 
 type Guild struct {
+	ID       string
 	Combos   []Combo
-	Elements map[string]types.Element
+	Elements []types.OldElement
 	Cats     map[string]types.Category
 	Invs     map[string]map[string]types.Empty
 	Config   *types.ServerConfig
 }
 
-func NewGuild() *Guild {
-	cfg := types.NewServerData().ServerConfig
+func NewGuild(id string) *Guild {
 	return &Guild{
+		ID:       id,
 		Combos:   make([]Combo, 0),
-		Elements: make(map[string]types.Element),
+		Elements: make([]types.OldElement, 0),
 		Cats:     make(map[string]types.Category),
 		Invs:     make(map[string]map[string]types.Empty),
-		Config:   &cfg,
+		Config:   types.NewServerConfig(),
 	}
 }
 
@@ -72,7 +72,7 @@ func loadDB(refresh bool) {
 
 		_, exists := glds[guild]
 		if !exists {
-			glds[guild] = NewGuild()
+			glds[guild] = NewGuild(guild)
 		}
 		switch kind {
 		case types.NewsChannel:
@@ -105,7 +105,7 @@ func loadDB(refresh bool) {
 	elems, err := db.Query("SELECT name, image, color, guild, comment, creator, createdon, parents, complexity, difficulty, usedin, treesize FROM `eod_elements` ORDER BY createdon ASC")
 	handle(err)
 	defer elems.Close()
-	elem := types.Element{}
+	elem := types.OldElement{}
 	var createdon int64
 	var parentDat string
 	for elems.Next() {
@@ -125,9 +125,41 @@ func loadDB(refresh bool) {
 			continue
 		}
 		elem.ID = len(glds[elem.Guild].Elements)
-		glds[elem.Guild].Elements[strings.ToLower(elem.Name)] = elem
+		glds[elem.Guild].Elements = append(glds[elem.Guild].Elements, elem)
 
 		bar.Add(1)
+	}
+	bar.Finish()
+	fmt.Println()
+
+	// Combos
+	fmt.Println("Combos...")
+	err = db.QueryRow("SELECT COUNT(1) FROM eod_combos").Scan(&cnt)
+	if err != nil {
+		panic(err)
+	}
+	bar = progressbar.New(cnt)
+
+	combs, err := db.Query("SELECT * FROM `eod_combos`")
+	if err != nil {
+		panic(err)
+	}
+	defer combs.Close()
+	var elemsVal string
+	var elem3 string
+	num := 0
+	for combs.Next() {
+		err = combs.Scan(&guild, &elemsVal, &elem3)
+		if err != nil {
+			return
+		}
+		glds[guild].Combos = append(glds[guild].Combos, Combo{
+			Elems: elemsVal,
+			Res:   elem3,
+		})
+
+		bar.Add(1)
+		num++
 	}
 	bar.Finish()
 	fmt.Println()

@@ -83,7 +83,7 @@ func (b *Polls) elemCreate(name string, parents []string, creator string, contro
 			handle(errors.New(msg))
 			return
 		}
-		elem := types.Element{
+		elem := types.OldElement{
 			ID:         len(dat.Elements) + 1,
 			Name:       name,
 			Guild:      guild,

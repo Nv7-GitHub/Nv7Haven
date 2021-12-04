@@ -140,7 +140,7 @@ func (b *EoD) init() {
 		panic(err)
 	}
 	defer elems.Close()
-	elem := types.Element{}
+	elem := types.OldElement{}
 	var createdon int64
 	var parentDat string
 	for elems.Next() {

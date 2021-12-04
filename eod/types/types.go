@@ -61,11 +61,11 @@ type ServerDat struct {
 	ServerData
 	ServerConfig
 
-	Inventories map[string]Inventory // map[userID]map[elementName]types.Empty
-	Elements    map[string]Element   //map[elementName]element
-	Combos      map[string]string    // map[elems]elem3
-	Categories  map[string]Category  // map[catName]category
-	Polls       map[string]Poll      // map[messageid]poll
+	Inventories map[string]Inventory  // map[userID]map[elementName]types.Empty
+	Elements    map[string]OldElement //map[elementName]element
+	Combos      map[string]string     // map[elems]elem3
+	Categories  map[string]Category   // map[catName]category
+	Polls       map[string]Poll       // map[messageid]poll
 	Lock        *sync.RWMutex
 }
 
@@ -102,6 +102,22 @@ type Comb struct {
 }
 
 type Element struct {
+	ID         int
+	Name       string
+	Image      string
+	Color      int
+	Guild      string
+	Comment    string
+	Creator    string
+	CreatedOn  time.Time
+	Parents    []int
+	Complexity int
+	Difficulty int
+	UsedIn     int
+	TreeSize   int
+}
+
+type OldElement struct {
 	ID         int
 	Name       string
 	Image      string
@@ -163,6 +179,13 @@ type Rsp interface {
 	DM(msg string)
 }
 
+func NewServerConfig() *ServerConfig {
+	return &ServerConfig{
+		UserColors:   make(map[string]int),
+		PlayChannels: make(Container),
+	}
+}
+
 func NewServerData() ServerDat {
 	return ServerDat{
 		ServerData: ServerData{
@@ -171,14 +194,11 @@ func NewServerData() ServerDat {
 			ComponentMsgs: make(map[string]ComponentMsg),
 			ElementMsgs:   make(map[string]string),
 		},
-		ServerConfig: ServerConfig{
-			UserColors:   make(map[string]int),
-			PlayChannels: make(Container),
-		},
+		ServerConfig: *NewServerConfig(),
 
 		Lock:        &sync.RWMutex{},
 		Polls:       make(map[string]Poll),
-		Elements:    make(map[string]Element),
+		Elements:    make(map[string]OldElement),
 		Combos:      make(map[string]string),
 		Categories:  make(map[string]Category),
 		Inventories: make(map[string]Inventory),

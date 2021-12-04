@@ -10,7 +10,7 @@ func (dat *ServerDat) SetCategory(cat Category) {
 	dat.Lock.Unlock()
 }
 
-func (dat *ServerDat) SetElement(elem Element) {
+func (dat *ServerDat) SetElement(elem OldElement) {
 	dat.Lock.Lock()
 	dat.Elements[strings.ToLower(elem.Name)] = elem
 	dat.Lock.Unlock()

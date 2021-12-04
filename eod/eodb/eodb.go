@@ -33,6 +33,7 @@ func newDB(path string, guild string) *DB {
 		Guild:  guild,
 		dbPath: path,
 
+		combos:    make(map[string]int),
 		invs:      make(map[string]*types.ElemContainer),
 		cats:      make(map[string]*types.ElemContainer),
 		polls:     make(map[string]types.Poll),
@@ -44,7 +45,7 @@ func newDB(path string, guild string) *DB {
 	}
 }
 
-func (d *DB) NewDB(guild, path string) (*DB, error) {
+func NewDB(guild, path string) (*DB, error) {
 	err := os.MkdirAll(path, os.ModePerm)
 	if err != nil {
 		return nil, err
