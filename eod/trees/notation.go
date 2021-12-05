@@ -38,7 +38,7 @@ func (n *notationTree) AddElem(elem int) (string, bool) {
 		return val, true
 	}
 
-	el, res := n.db.GetElement(elem)
+	el, res := n.db.GetElement(elem, true)
 	if !res.Exists {
 		return res.Message, res.Exists
 	}

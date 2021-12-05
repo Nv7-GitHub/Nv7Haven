@@ -10,49 +10,50 @@ import (
 )
 
 func (b *TreeCmds) NotationCmd(elem string, m types.Msg, rsp types.Rsp) {
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 	rsp.Acknowledge()
-	tree := trees.NewNotationTree(dat)
+	tree := trees.NewNotationTree(db)
 
-	dat.Lock.RLock()
-	msg, suc := tree.AddElem(elem)
-	dat.Lock.RUnlock()
+	el, res := db.GetElementByName(elem)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
+		return
+	}
+
+	db.RLock()
+	msg, suc := tree.AddElem(el.ID)
+	db.RUnlock()
 	if !suc {
 		rsp.ErrorMessage(msg)
 		return
 	}
 
 	txt := tree.String()
+	data, res := b.GetData(m.GuildID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
+		return
+	}
 
 	if len(txt) <= 2000 {
 		id := rsp.Message("Sent notation in DMs!")
-
-		dat.SetMsgElem(id, elem)
-		b.lock.Lock()
-		b.dat[m.GuildID] = dat
-		b.lock.Unlock()
-
+		data.SetMsgElem(id, el.ID)
 		rsp.DM(txt)
 		return
 	}
 	id := rsp.Message("The notation was too long! Sending it as a file in DMs!")
 
-	dat.SetMsgElem(id, elem)
-	b.lock.Lock()
-	b.dat[m.GuildID] = dat
-	b.lock.Unlock()
+	data.SetMsgElem(id, el.ID)
 
 	channel, err := b.dg.UserChannelCreate(m.Author.ID)
 	if rsp.Error(err) {
 		return
 	}
 	buf := strings.NewReader(txt)
-	el, _ := dat.GetElement(elem)
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
 		Content: fmt.Sprintf("Notation for **%s**:", el.Name),
 		Files: []*discordgo.File{
@@ -66,30 +67,29 @@ func (b *TreeCmds) NotationCmd(elem string, m types.Msg, rsp types.Rsp) {
 }
 
 func (b *TreeCmds) CatNotationCmd(catName string, m types.Msg, rsp types.Rsp) {
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 	rsp.Acknowledge()
-	tree := trees.NewNotationTree(dat)
+	tree := trees.NewNotationTree(db)
 
-	cat, res := dat.GetCategory(catName)
+	cat, res := db.GetCat(catName)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
 	}
 
-	dat.Lock.RLock()
+	db.RLock()
 	for elem := range cat.Elements {
 		msg, suc := tree.AddElem(elem)
 		if !suc {
-			dat.Lock.RUnlock()
+			db.RUnlock()
 			rsp.ErrorMessage(msg)
 			return
 		}
 	}
-	dat.Lock.RUnlock()
+	db.RUnlock()
 
 	txt := tree.String()
 
@@ -100,10 +100,6 @@ func (b *TreeCmds) CatNotationCmd(catName string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 	rsp.Message("The notation was too long! Sending it as a file in DMs!")
-
-	b.lock.Lock()
-	b.dat[m.GuildID] = dat
-	b.lock.Unlock()
 
 	channel, err := b.dg.UserChannelCreate(m.Author.ID)
 	if rsp.Error(err) {
