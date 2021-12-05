@@ -98,7 +98,7 @@ type PageSwitcher struct {
 
 type Comb struct {
 	Elems []string
-	Elem3 string
+	Elem3 int
 }
 
 type Element struct {

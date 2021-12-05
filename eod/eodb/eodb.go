@@ -13,6 +13,7 @@ type Data struct {
 
 	DB   map[string]*DB
 	Data map[string]*types.ServerData
+	path string
 }
 
 func NewData(path string) (*Data, error) {
@@ -25,6 +26,7 @@ func NewData(path string) (*Data, error) {
 
 		DB:   make(map[string]*DB),
 		Data: make(map[string]*types.ServerData),
+		path: path,
 	}
 	for _, folder := range folders {
 		db, err := NewDB(folder.Name(), filepath.Join(path, folder.Name()))
@@ -64,6 +66,12 @@ func (d *Data) GetData(guild string) (*types.ServerData, types.GetResponse) {
 	return data, types.GetResponse{Exists: true}
 }
 
+func (d *Data) NewDB(guild string) (*DB, error) {
+	d.Lock()
+	defer d.Unlock()
+	return NewDB(guild, filepath.Join(d.path, guild))
+}
+
 type DB struct {
 	sync.RWMutex
 
@@ -83,6 +91,18 @@ type DB struct {
 	elemFile   *os.File
 	comboFile  *os.File
 	configFile *os.File
+}
+
+func (d *DB) Invs() map[string]*types.Inventory {
+	return d.invs
+}
+
+func (d *DB) Cats() map[string]*types.Category {
+	return d.cats
+}
+
+func (d *DB) ComboCnt() int {
+	return len(d.combos)
 }
 
 func newDB(path string, guild string) *DB {

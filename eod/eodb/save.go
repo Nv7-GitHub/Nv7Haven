@@ -50,7 +50,7 @@ func (d *DB) AddCombo(elems []int, result int) error {
 	return err
 }
 
-func (d *DB) SaveServerConfig() error {
+func (d *DB) SaveConfig() error {
 	d.Lock()
 	defer d.Unlock()
 

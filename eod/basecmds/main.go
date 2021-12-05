@@ -1,28 +1,26 @@
 package basecmds
 
 import (
-	"sync"
-
 	"github.com/Nv7-Github/Nv7Haven/db"
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
-	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/bwmarrin/discordgo"
 )
 
 type BaseCmds struct {
-	dat  map[string]types.ServerDat
-	lock *sync.RWMutex
+	*eodb.Data
+
+	db   *db.DB
 	base *base.Base
 	dg   *discordgo.Session
-	db   *db.DB
 }
 
-func NewBaseCmds(dat map[string]types.ServerDat, base *base.Base, dg *discordgo.Session, db *db.DB, lock *sync.RWMutex) *BaseCmds {
+func NewBaseCmds(base *base.Base, db *db.DB, dg *discordgo.Session, data *eodb.Data) *BaseCmds {
 	return &BaseCmds{
-		dat:  dat,
-		lock: lock,
+		Data: data,
+
 		base: base,
-		dg:   dg,
 		db:   db,
+		dg:   dg,
 	}
 }

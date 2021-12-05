@@ -5,6 +5,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/Nv7-Github/Nv7Haven/db"
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/basecmds"
 	"github.com/Nv7-Github/Nv7Haven/eod/categories"
@@ -32,6 +33,7 @@ var lock = &sync.RWMutex{}
 type EoD struct {
 	*eodb.Data
 
+	db *db.DB
 	dg *discordgo.Session
 
 	// Subsystems
@@ -44,7 +46,7 @@ type EoD struct {
 }
 
 // InitEoD initializes the EoD bot
-func InitEoD() EoD {
+func InitEoD(sqldb *db.DB) EoD {
 	// Discord bot
 	dg, err := discordgo.New("Bot " + strings.TrimSpace(token))
 	if err != nil {
@@ -62,6 +64,7 @@ func InitEoD() EoD {
 		Data: db,
 
 		dg: dg,
+		db: sqldb,
 	}
 
 	dg.UpdateGameStatus(0, status)
