@@ -1,11 +1,9 @@
 package polls
 
 import (
-	"context"
 	"errors"
 	"log"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -17,35 +15,25 @@ import (
 
 var createLock = &sync.Mutex{}
 
-func (b *Polls) elemCreate(name string, parents []string, creator string, controversial string, guild string) {
-	b.lock.RLock()
-	dat, exists := b.dat[guild]
-	b.lock.RUnlock()
-	if !exists {
+func (b *Polls) elemCreate(name string, parents []int, creator string, controversial string, guild string) {
+	db, res := b.GetDB(guild)
+	if !res.Exists {
 		return
 	}
 
-	data := util.Elems2Txt(parents)
-	_, res := dat.GetCombo(data)
+	_, res = db.GetCombo(parents)
 	if res.Exists {
 		return
 	}
 
-	_, res = dat.GetElement(name)
+	_, res = db.GetElementByName(name)
 	text := "Combination"
 
 	createLock.Lock()
-	tx, err := b.db.GetSqlDB().BeginTx(context.Background(), nil)
-	if err != nil {
-		_ = tx.Rollback()
-		createLock.Unlock()
-		return
-	}
 
 	handle := func(err error) {
 		log.SetOutput(logs.DataFile)
 		log.Println(err)
-		tx.Rollback()
 		createLock.Unlock()
 	}
 
@@ -57,14 +45,14 @@ func (b *Polls) elemCreate(name string, parents []string, creator string, contro
 		areUnique := false
 		parColors := make([]int, len(parents))
 		for j, val := range parents {
-			elem, _ := dat.GetElement(val)
+			elem, _ := db.GetElement(val)
 			if elem.Difficulty > diff {
 				diff = elem.Difficulty
 			}
 			if elem.Complexity > compl {
 				compl = elem.Complexity
 			}
-			if !strings.EqualFold(parents[0], val) {
+			if parents[0] != val {
 				areUnique = true
 			}
 			parColors[j] = elem.Color
@@ -78,13 +66,12 @@ func (b *Polls) elemCreate(name string, parents []string, creator string, contro
 			handle(err)
 			return
 		}
-		size, suc, msg := trees.ElemCreateSize(parents, dat)
+		size, suc, msg := trees.ElemCreateSize(parents, db)
 		if !suc {
 			handle(errors.New(msg))
 			return
 		}
-		elem := types.OldElement{
-			ID:         len(dat.Elements) + 1,
+		elem := types.Element{
 			Name:       name,
 			Guild:      guild,
 			Comment:    "None",
@@ -97,101 +84,65 @@ func (b *Polls) elemCreate(name string, parents []string, creator string, contro
 			TreeSize:   size,
 		}
 		postTxt = " - Element **#" + strconv.Itoa(elem.ID) + "**"
-		dat.SetElement(elem)
-
-		_, err = tx.Exec("INSERT INTO eod_elements VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", elem.Name, elem.Image, elem.Color, elem.Guild, elem.Comment, elem.Creator, int(elem.CreatedOn.Unix()), util.Elems2Txt(parents), elem.Complexity, elem.Difficulty, 0, elem.TreeSize)
+		err = db.SaveElement(elem, true)
 		if err != nil {
-			dat.DeleteElement(elem.Name)
-
 			handle(err)
 			return
 		}
+
 		text = "Element"
 	} else {
-		el, res := dat.GetElement(name)
+		el, res := db.GetElementByName(name)
 		if !res.Exists {
 			log.SetOutput(logs.DataFile)
 			log.Println("Doesn't exist")
 
-			_ = tx.Rollback()
 			createLock.Unlock()
 			return
 		}
 		name = el.Name
 
-		id := len(dat.Combos)
-		if err == nil {
-			postTxt = " - Combination **#" + strconv.Itoa(id) + "**"
-		}
+		id := db.ComboCnt()
+		postTxt = " - Combination **#" + strconv.Itoa(id) + "**"
 	}
 
-	_, err = tx.Exec("INSERT INTO eod_combos VALUES ( ?, ?, ? )", guild, data, name)
+	el, _ := db.GetElementByName(name)
+	err := db.AddCombo(parents, el.ID)
 	if err != nil {
-		dat.DeleteElement(name)
-		createLock.Unlock()
-
-		log.SetOutput(logs.DataFile)
-		log.Println(err)
-		_ = tx.Rollback()
+		handle(err)
 		return
 	}
-	dat.AddComb(data, name)
 
-	params := make(map[string]types.Empty)
+	params := make(map[int]types.Empty)
 	for _, val := range parents {
 		params[val] = types.Empty{}
 	}
 	for k := range params {
-		query := "UPDATE eod_elements SET usedin=usedin+1 WHERE name LIKE ? AND guild LIKE ?"
-		if util.IsASCII(k) {
-			query = "UPDATE eod_elements SET usedin=usedin+1 WHERE CONVERT(name USING utf8mb4) LIKE CONVERT(? USING utf8mb4) AND CONVERT(guild USING utf8mb4) LIKE CONVERT(? USING utf8mb4)"
-		}
-		if util.IsWildcard(k) {
-			query = strings.ReplaceAll(query, " LIKE ", "=")
-		}
-		_, err = tx.Exec(query, k, guild)
-		if err != nil {
-			dat.DeleteElement(name)
-			createLock.Unlock()
-
-			log.SetOutput(logs.DataFile)
-			log.Println(err)
-			_ = tx.Rollback()
-			return
-		}
-
-		el, res := dat.GetElement(k)
+		el, res := db.GetElement(k)
 		if res.Exists {
 			el.UsedIn++
-			dat.SetElement(el)
+			err := db.SaveElement(el, false)
+			if err != nil {
+				log.SetOutput(logs.DataFile)
+				log.Println(err)
+			}
 		}
 	}
 
 	txt := types.NewText + " " + text + " - **" + name + "** (By <@" + creator + ">)" + postTxt + controversial
 
-	_, _ = b.dg.ChannelMessageSend(dat.NewsChannel, txt)
-
-	err = tx.Commit()
-	if err != nil {
-		dat.DeleteElement(name)
-		createLock.Unlock()
-
-		log.SetOutput(logs.DataFile)
-		log.Println(err)
-		return
-	}
+	_, _ = b.dg.ChannelMessageSend(db.Config.NewsChannel, txt)
 
 	createLock.Unlock()
 
 	// Add Element to Inv
-	inv, _ := dat.GetInv(creator, true)
-	inv.Elements.Add(name)
-	dat.SetInv(creator, inv)
-
-	b.lock.Lock()
-	b.dat[guild] = dat
-	b.lock.Unlock()
-	b.base.SaveInv(guild, creator, true)
+	inv := db.GetInv(creator)
+	inv.Add(el.ID)
+	err = db.SaveInv(inv)
+	if err != nil {
+		log.SetOutput(logs.DataFile)
+		log.Println(err)
+	}
 
 	err = b.Autocategorize(name, guild)
 	if err != nil {

@@ -90,6 +90,17 @@ func (d *DB) NewCat(name string) *types.Category {
 }
 
 func (d *DB) SaveCat(elems *types.Category) error {
+	// Empty?
+	if len(elems.Elements) == 0 {
+		d.Lock()
+		delete(d.cats, strings.ToLower(elems.Name))
+		delete(d.catFiles, strings.ToLower(elems.Name))
+		d.Unlock()
+
+		err := os.Remove(filepath.Join(d.dbPath, "categories", url.PathEscape(elems.Name)+".json"))
+		return err
+	}
+
 	elems.Lock.RLock()
 	dat, err := json.Marshal(elems)
 	elems.Lock.RUnlock()
