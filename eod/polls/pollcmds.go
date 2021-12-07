@@ -32,7 +32,12 @@ func (b *Polls) MarkCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
 	}
 
 	if el.Creator == m.Author.ID {
-		b.mark(m.GuildID, elem, mark, "", "")
+		id, res := db.GetIDByName(elem)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		b.mark(m.GuildID, id, mark, "", "")
 		rsp.Message(fmt.Sprintf("You have signed **%s**! 🖋️", el.Name))
 		return
 	}
@@ -81,7 +86,12 @@ func (b *Polls) ImageCmd(elem string, image string, m types.Msg, rsp types.Rsp) 
 	}
 
 	if el.Creator == m.Author.ID {
-		b.image(m.GuildID, elem, image, "", "")
+		id, res := db.GetIDByName(elem)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		b.image(m.GuildID, id, image, "", "")
 		rsp.Message(fmt.Sprintf("You added an image to **%s**! 📷", el.Name))
 		return
 	}
@@ -129,7 +139,12 @@ func (b *Polls) ColorCmd(elem string, color int, m types.Msg, rsp types.Rsp) {
 	}
 
 	if el.Creator == m.Author.ID {
-		b.color(m.GuildID, elem, color, "", "")
+		id, res := db.GetIDByName(elem)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		b.color(m.GuildID, id, color, "", "")
 		rsp.Message(fmt.Sprintf("You have set the color of **%s**! 🖌️", el.Name))
 		return
 	}

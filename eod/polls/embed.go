@@ -24,8 +24,7 @@ func (b *Polls) GetPollEmbed(db *eodb.DB, p types.Poll) (*discordgo.MessageEmbed
 			txt += el.Name + " + "
 		}
 		txt = txt[:len(txt)-2]
-		res, _ := db.GetElement(p.PollComboData.Result)
-		txt += " = " + res.Name
+		txt += " = " + p.PollComboData.Result
 
 		title := "Element"
 		if p.PollComboData.Exists {

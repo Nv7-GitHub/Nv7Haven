@@ -5,12 +5,12 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
-func (b *Polls) mark(guild string, elem string, mark string, creator string, controversial string) {
+func (b *Polls) mark(guild string, elem int, mark string, creator string, controversial string) {
 	db, res := b.GetDB(guild)
 	if !res.Exists {
 		return
 	}
-	el, res := db.GetElementByName(elem)
+	el, res := db.GetElement(elem)
 	if !res.Exists {
 		return
 	}
@@ -23,12 +23,12 @@ func (b *Polls) mark(guild string, elem string, mark string, creator string, con
 	}
 }
 
-func (b *Polls) image(guild string, elem string, image string, creator string, controversial string) {
+func (b *Polls) image(guild string, elem int, image string, creator string, controversial string) {
 	db, res := b.GetDB(guild)
 	if !res.Exists {
 		return
 	}
-	el, res := db.GetElementByName(elem)
+	el, res := db.GetElement(elem)
 	if !res.Exists {
 		return
 	}
@@ -40,12 +40,12 @@ func (b *Polls) image(guild string, elem string, image string, creator string, c
 	}
 }
 
-func (b *Polls) color(guild string, elem string, color int, creator string, controversial string) {
+func (b *Polls) color(guild string, elem int, color int, creator string, controversial string) {
 	db, res := b.GetDB(guild)
 	if !res.Exists {
 		return
 	}
-	el, res := db.GetElementByName(elem)
+	el, res := db.GetElement(elem)
 	if !res.Exists {
 		return
 	}

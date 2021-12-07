@@ -135,7 +135,7 @@ type OldElement struct {
 
 type PollComboData struct {
 	Elems  []int
-	Result int
+	Result string
 	Exists bool
 }
 

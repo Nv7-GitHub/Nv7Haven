@@ -1,6 +1,7 @@
 package polls
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -28,9 +29,18 @@ var autocats = map[string]func(string) bool{
 }
 
 func (b *Polls) Autocategorize(elem string, guild string) error {
+	db, res := b.GetDB(guild)
+	if !res.Exists {
+		return errors.New(res.Message)
+	}
+
 	for catName, catFn := range autocats {
 		if catFn(elem) {
-			err := b.Categorize(elem, catName, guild)
+			id, res := db.GetIDByName(elem)
+			if !res.Exists {
+				return errors.New(res.Message)
+			}
+			err := b.Categorize(id, catName, guild)
 			if err != nil {
 				return err
 			}
@@ -39,13 +49,13 @@ func (b *Polls) Autocategorize(elem string, guild string) error {
 	return nil
 }
 
-func (b *Polls) Categorize(elem string, catName string, guild string) error {
+func (b *Polls) Categorize(elem int, catName string, guild string) error {
 	db, res := b.GetDB(guild)
 	if !res.Exists {
 		return nil
 	}
 
-	el, res := db.GetElementByName(elem)
+	el, res := db.GetElement(elem)
 	if !res.Exists {
 		return nil
 	}
@@ -76,13 +86,13 @@ func (b *Polls) Categorize(elem string, catName string, guild string) error {
 	return nil
 }
 
-func (b *Polls) UnCategorize(elem string, catName string, guild string) error {
+func (b *Polls) UnCategorize(elem int, catName string, guild string) error {
 	db, res := b.GetDB(guild)
 	if !res.Exists {
 		return nil
 	}
 
-	el, res := db.GetElementByName(elem)
+	el, res := db.GetElement(elem)
 	if !res.Exists {
 		return nil
 	}
