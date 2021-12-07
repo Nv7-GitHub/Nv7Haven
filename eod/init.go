@@ -20,7 +20,7 @@ func (b *EoD) init() {
 	b.base = base.NewBase(b.Data, b.dg)
 	b.basecmds = basecmds.NewBaseCmds(b.base, b.db, b.dg, b.Data)
 	b.treecmds = treecmds.NewTreeCmds(b.Data, b.dg, b.base)
-	b.polls = polls.NewPolls(b.dat, b.dg, b.db, b.base, lock)
+	b.polls = polls.NewPolls(b.Data, b.dg, b.base)
 	b.categories = categories.NewCategories(b.dat, b.base, b.dg, b.polls, lock)
 	b.elements = elements.NewElements(b.dat, lock, b.polls, b.db, b.base, b.dg)
 
