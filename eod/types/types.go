@@ -311,6 +311,8 @@ func (c Container) Add(elem string) {
 
 func NewInventory(user string, elements map[int]Empty, madecnt int) *Inventory {
 	return &Inventory{
+		Lock: &sync.RWMutex{},
+
 		Elements: elements,
 		User:     user,
 		MadeCnt:  madecnt,

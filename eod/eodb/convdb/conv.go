@@ -24,6 +24,10 @@ func convDB() {
 		db, err := eodb.NewDB(gld.ID, filepath.Join(dbPath, gld.ID))
 		handle(err)
 
+		db.Config = gld.Config
+		err = db.SaveConfig()
+		handle(err)
+
 		// Conv elements
 		names := make(map[string]int)
 		for _, elem := range gld.Elements {
