@@ -104,3 +104,16 @@ func (d *DB) GetCat(name string) (*types.Category, types.GetResponse) {
 	}
 	return cat, types.GetResponse{Exists: true}
 }
+
+func (d *DB) GetPoll(id string) (types.Poll, types.GetResponse) {
+	d.RLock()
+	poll, exists := d.Polls[id]
+	d.RUnlock()
+	if !exists {
+		return types.Poll{}, types.GetResponse{
+			Exists:  false,
+			Message: "Poll doesn't exist!",
+		}
+	}
+	return poll, types.GetResponse{Exists: true}
+}

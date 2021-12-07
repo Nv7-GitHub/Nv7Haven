@@ -5,26 +5,24 @@ import (
 	"log"
 	"os"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
 
-func (b *Polls) RejectPoll(dat types.ServerDat, p types.OldPoll, messageid, user string) types.ServerDat {
-	dat.Lock.Lock()
-	delete(dat.Polls, messageid)
-	dat.Lock.Unlock()
-
-	b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", p.Guild, p.Channel, p.Message)
+func (b *Polls) RejectPoll(db *eodb.DB, p types.Poll, messageid, user string) {
+	_ = db.DeletePoll(p)
 	b.dg.ChannelMessageDelete(p.Channel, p.Message)
 
-	if user != p.Value4 {
-		b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("%s **Poll Rejected** (By <@%s>)", types.X, p.Value4))
+	if user != p.Suggestor {
+		// Inform them
+		b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf("%s **Poll Rejected** (By <@%s>)", types.X, p.Suggestor))
 
-		chn, err := b.dg.UserChannelCreate(p.Value4)
+		chn, err := b.dg.UserChannelCreate(p.Suggestor)
 		if err == nil {
 			servname, err := b.dg.Guild(p.Guild)
 			if err == nil {
-				pollemb, err := b.GetPollEmbed(dat, p)
+				pollemb, err := b.GetPollEmbed(db, p)
 				if err == nil {
 					upvotes := ""
 					downvotes := ""
@@ -43,135 +41,72 @@ func (b *Polls) RejectPoll(dat types.ServerDat, p types.OldPoll, messageid, user
 			}
 		}
 	}
-	return dat
 }
 
-func (b *Polls) CheckReactions(dat types.ServerDat, p types.OldPoll, reactor string, downvote bool) (types.ServerDat, bool) {
-	if (p.Upvotes - p.Downvotes) >= dat.VoteCount {
+func (b *Polls) CheckReactions(db *eodb.DB, p types.Poll, reactor string, downvote bool) {
+	if (p.Upvotes - p.Downvotes) >= db.Config.VoteCount {
 		b.dg.ChannelMessageDelete(p.Channel, p.Message)
 		b.handlePollSuccess(p)
 
-		dat.Lock.Lock()
-		delete(dat.Polls, p.Message)
-		dat.Lock.Unlock()
-
-		b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", p.Guild, p.Channel, p.Message)
-		return dat, true
+		db.DeletePoll(p)
+		return
 	}
 
-	if ((p.Downvotes - p.Upvotes) >= dat.VoteCount) || (downvote && (reactor == p.Value4)) {
-		dat = b.RejectPoll(dat, p, p.Message, reactor)
+	if ((p.Downvotes - p.Upvotes) >= db.Config.VoteCount) || (downvote && (reactor == p.Suggestor)) {
+		b.RejectPoll(db, p, p.Message, reactor)
 
-		return dat, true
+		return
 	}
-
-	return dat, false
 }
 
 func (b *Polls) UnReactionHandler(_ *discordgo.Session, r *discordgo.MessageReactionRemove) {
 	if r.UserID == b.dg.State.User.ID {
 		return
 	}
-	b.lock.RLock()
-	dat, exists := b.dat[r.GuildID]
-	b.lock.RUnlock()
-	if !exists {
+	db, res := b.GetDB(r.GuildID)
+	if !res.Exists {
 		return
 	}
-	p, res := dat.GetPoll(r.MessageID)
+	p, res := db.GetPoll(r.MessageID)
 	if !res.Exists {
 		return
 	}
 	if r.Emoji.Name == types.DownArrow {
 		p.Downvotes--
-		dat.SavePoll(r.MessageID, p)
-		b.lock.Lock()
-		b.dat[r.GuildID] = dat
-		b.lock.Unlock()
-
-		var change bool
-		dat, change = b.CheckReactions(dat, p, r.UserID, false)
-		if change {
-			b.lock.Lock()
-			b.dat[r.GuildID] = dat
-			b.lock.Unlock()
-			return
-		}
+		db.SavePoll(p)
+		b.CheckReactions(db, p, r.UserID, false)
 	} else if r.Emoji.Name == types.UpArrow {
 		p.Upvotes--
-		dat.SavePoll(r.MessageID, p)
-		b.lock.Lock()
-		b.dat[r.GuildID] = dat
-		b.lock.Unlock()
-
-		var change bool
-		dat, change = b.CheckReactions(dat, p, r.UserID, false)
-		if change {
-			b.lock.Lock()
-			b.dat[r.GuildID] = dat
-			b.lock.Unlock()
-			return
-		}
+		db.SavePoll(p)
+		b.CheckReactions(db, p, r.UserID, false)
 	}
-	b.lock.Lock()
-	b.dat[r.GuildID] = dat
-	b.lock.Unlock()
 }
 
 func (b *Polls) ReactionHandler(_ *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	if r.UserID == b.dg.State.User.ID {
 		return
 	}
-
-	b.lock.RLock()
-	dat, exists := b.dat[r.GuildID]
-	b.lock.RUnlock()
-	if !exists {
-		return
-	}
-
-	if len(dat.Polls) == 0 {
-		log.SetOutput(os.Stdout)
-		log.Println("no polls", r.GuildID)
-	}
-
-	p, res := dat.GetPoll(r.MessageID)
+	db, res := b.GetDB(r.GuildID)
 	if !res.Exists {
 		return
 	}
 
+	if len(db.Polls) == 0 {
+		log.SetOutput(os.Stdout)
+		log.Println("no polls", r.GuildID)
+	}
+
+	p, res := db.GetPoll(r.MessageID)
+	if !res.Exists {
+		return
+	}
 	if r.Emoji.Name == types.UpArrow {
 		p.Upvotes++
-		dat.SavePoll(r.MessageID, p)
-		b.lock.Lock()
-		b.dat[r.GuildID] = dat
-		b.lock.Unlock()
-
-		var change bool
-		dat, change = b.CheckReactions(dat, p, r.UserID, false)
-		if change {
-			b.lock.Lock()
-			b.dat[r.GuildID] = dat
-			b.lock.Unlock()
-			return
-		}
+		db.SavePoll(p)
+		b.CheckReactions(db, p, r.UserID, false)
 	} else if r.Emoji.Name == types.DownArrow {
 		p.Downvotes++
-		dat.SavePoll(r.MessageID, p)
-		b.lock.Lock()
-		b.dat[r.GuildID] = dat
-		b.lock.Unlock()
-
-		var change bool
-		dat, change = b.CheckReactions(dat, p, r.UserID, true)
-		if change {
-			b.lock.Lock()
-			b.dat[r.GuildID] = dat
-			b.lock.Unlock()
-			return
-		}
+		db.SavePoll(p)
+		b.CheckReactions(db, p, r.UserID, true)
 	}
-	b.lock.Lock()
-	b.dat[r.GuildID] = dat
-	b.lock.Unlock()
 }
