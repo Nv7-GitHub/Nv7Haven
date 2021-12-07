@@ -6,7 +6,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
-func (b *Polls) handlePollSuccess(p types.OldPoll) {
+func (b *Polls) handlePollSuccess(p types.Poll) {
 	b.lock.RLock()
 	dat, exists := b.dat[p.Guild]
 	b.lock.RUnlock()

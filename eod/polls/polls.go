@@ -1,47 +1,49 @@
 package polls
 
 import (
-	"encoding/json"
 	"errors"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
-func (b *Polls) CreatePoll(p types.OldPoll) error {
-	b.lock.RLock()
-	dat, exists := b.dat[p.Guild]
-	b.lock.RUnlock()
-	if !exists {
+func (b *Polls) CreatePoll(p types.Poll) error {
+	db, res := b.GetDB(p.Guild)
+	if !res.Exists {
 		return nil
 	}
-	if dat.VoteCount == 0 {
+	if db.Config.VoteCount == 0 {
 		b.handlePollSuccess(p)
 		return nil
 	}
 	msg := ""
-	if dat.PollCount > 0 {
+	// check poll limit
+	if db.Config.PollCount > 0 {
 		uPolls := 0
-		for _, val := range dat.Polls {
-			if val.Value4 == p.Value4 {
+		db.RLock()
+		for _, val := range db.Polls {
+			if val.Suggestor == p.Suggestor {
 				uPolls++
 			}
 		}
+		db.RUnlock()
 		msg = "Too many active polls!"
-		if uPolls >= dat.PollCount {
+		if uPolls >= db.Config.PollCount {
 			return errors.New(msg)
 		}
 	}
-	emb, err := b.GetPollEmbed(dat, p)
+	// Get embed
+	emb, err := b.GetPollEmbed(db, p)
 	if err != nil {
 		return err
 	}
-	m, err := b.dg.ChannelMessageSendEmbed(dat.VotingChannel, emb)
+	m, err := b.dg.ChannelMessageSendEmbed(db.Config.VotingChannel, emb)
 	if err != nil {
 		return err
 	}
 	p.Message = m.ID
 
+	// Add reactions
 	if !base.IsFoolsMode {
 		err := b.dg.MessageReactionAdd(p.Channel, p.Message, types.UpArrow)
 		if err != nil {
@@ -59,16 +61,9 @@ func (b *Polls) CreatePoll(p types.OldPoll) error {
 		}
 	}
 
-	cnt, err := json.Marshal(p.Data)
+	err = db.NewPoll(p)
 	if err != nil {
 		return err
 	}
-	_, err = b.db.Exec("INSERT INTO eod_polls VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ? )", p.Guild, p.Channel, p.Message, p.Kind, p.Value1, p.Value2, p.Value3, p.Value4, string(cnt))
-
-	dat.SavePoll(p.Message, p)
-
-	b.lock.Lock()
-	b.dat[p.Guild] = dat
-	b.lock.Unlock()
 	return err
 }

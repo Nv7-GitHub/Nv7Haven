@@ -133,13 +133,59 @@ type OldElement struct {
 	TreeSize   int
 }
 
+type PollComboData struct {
+	Elems  []int
+	Result int
+	Exists bool
+}
+
+type PollSignData struct {
+	Elem    int
+	NewNote string
+	OldNote string
+}
+
+type PollImageData struct {
+	Elem     int
+	NewImage string
+	OldImage string
+}
+
+type PollCategorizeData struct {
+	Elems    []int
+	Category string
+}
+
+type PollCatImageData struct {
+	Category string
+	NewImage string
+	OldImage string
+}
+
+type PollColorData struct {
+	Element int
+	Color   int
+}
+type PollCatColorData struct {
+	Category string
+	Color    int
+}
+
 type Poll struct {
-	Channel string
-	Message string
-	Guild   string
-	Kind    PollType
+	Channel   string
+	Message   string
+	Guild     string
+	Kind      PollType
+	Suggestor string
 
 	// Data, pointers to different types with omitempty so that you can selectively have some data
+	PollComboData      *PollComboData      `json:"combodata,omitempty"`
+	PollSignData       *PollSignData       `json:"signdata,omitempty"`
+	PollImageData      *PollImageData      `json:"imagedata,omitempty"`
+	PollCategorizeData *PollCategorizeData `json:"catdata,omitempty"` // This is also the uncategorize data
+	PollCatImageData   *PollCatImageData   `json:"catimagedata,omitempty"`
+	PollColorData      *PollColorData      `json:"colordata,omitempty"`
+	PollCatColorData   *PollCatColorData   `json:"catcolordata,omitempty"`
 
 	Upvotes   int
 	Downvotes int
