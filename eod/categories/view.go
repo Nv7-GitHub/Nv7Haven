@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
+	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
@@ -16,10 +17,8 @@ type catSortInfo struct {
 }
 
 func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user string, m types.Msg, rsp types.Rsp) {
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
 		return
 	}
 
@@ -34,13 +33,9 @@ func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user
 	if hasUser {
 		id = user
 	}
-	inv, res := dat.GetInv(id, !hasUser)
-	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
-	}
+	inv := db.GetInv(id)
 
-	cat, res := dat.GetCategory(category)
+	cat, res := db.GetCat(category)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
 		return
@@ -50,7 +45,7 @@ func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user
 	out := make([]struct {
 		found int
 		text  string
-		name  string
+		id    int
 	}, len(cat.Elements))
 
 	found := 0
@@ -58,29 +53,32 @@ func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user
 	fnd := 0
 	var text string
 
-	for name := range cat.Elements {
-		exists := inv.Elements.Contains(name)
+	db.RLock()
+	for elem := range cat.Elements {
+		exists := inv.Contains(elem)
+		el, _ := db.GetElement(elem, true)
 		if exists {
-			text = name + " " + types.Check
+			text = el.Name + " " + types.Check
 			found++
 			fnd = 1
 		} else {
-			text = name + " " + types.X
+			text = el.Name + " " + types.X
 			fnd = 0
 		}
 
 		out[i] = struct {
 			found int
 			text  string
-			name  string
+			id    int
 		}{
 			found: fnd,
 			text:  text,
-			name:  name,
+			id:    el.ID,
 		}
 
 		i++
 	}
+	db.RUnlock()
 
 	var o []string
 	switch sortKind {
@@ -99,14 +97,13 @@ func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user
 		return
 
 	default:
-		util.SortElemObj(out, len(out), func(index int, sort bool) string {
-			if sort {
-				return out[index].name
-			}
+		eodsort.SortElemObj(out, len(out), func(index int) int {
+			return out[index].id
+		}, func(index int) string {
 			return out[index].text
 		}, func(index int, val string) {
 			out[index].text = val
-		}, sortKind, dat)
+		}, sortKind, db)
 	}
 
 	o = make([]string, len(out))
@@ -132,10 +129,8 @@ type catData struct {
 }
 
 func (b *Categories) AllCatCmd(sortBy string, hasUser bool, user string, m types.Msg, rsp types.Rsp) {
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
 		return
 	}
 
@@ -143,20 +138,16 @@ func (b *Categories) AllCatCmd(sortBy string, hasUser bool, user string, m types
 	if hasUser {
 		id = user
 	}
-	inv, res := dat.GetInv(id, !hasUser)
-	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
-	}
+	inv := db.GetInv(id)
 
-	dat.Lock.RLock()
-	out := make([]catData, len(dat.Categories))
+	db.RLock()
+	out := make([]catData, len(db.Cats()))
 
 	i := 0
-	for _, cat := range dat.Categories {
+	for _, cat := range db.Cats() {
 		count := 0
 		for elem := range cat.Elements {
-			exists := inv.Elements.Contains(elem)
+			exists := inv.Contains(elem)
 			if exists {
 				count++
 			}
@@ -175,7 +166,7 @@ func (b *Categories) AllCatCmd(sortBy string, hasUser bool, user string, m types
 		}
 		i++
 	}
-	dat.Lock.RUnlock()
+	db.RUnlock()
 
 	switch sortBy {
 	case "catfound":
@@ -195,7 +186,7 @@ func (b *Categories) AllCatCmd(sortBy string, hasUser bool, user string, m types
 
 	default:
 		sort.Slice(out, func(i, j int) bool {
-			return util.CompareStrings(out[i].name, out[j].name)
+			return eodsort.CompareStrings(out[i].name, out[j].name)
 		})
 	}
 

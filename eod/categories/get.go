@@ -5,22 +5,20 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
-	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
 )
 
 func (b *Categories) CategoriesCmd(elem string, m types.Msg, rsp types.Rsp) {
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
 		return
 	}
 
 	rsp.Acknowledge()
 
-	el, res := dat.GetElement(elem)
+	el, res := db.GetElementByName(elem)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
 		return
@@ -28,9 +26,9 @@ func (b *Categories) CategoriesCmd(elem string, m types.Msg, rsp types.Rsp) {
 
 	// Get Categories
 	catsMap := make(map[catSortInfo]types.Empty)
-	dat.Lock.RLock()
-	for _, cat := range dat.Categories {
-		_, exists := cat.Elements[el.Name]
+	db.RLock()
+	for _, cat := range db.Cats() {
+		_, exists := cat.Elements[el.ID]
 		if exists {
 			catsMap[catSortInfo{
 				Name: cat.Name,
@@ -38,7 +36,7 @@ func (b *Categories) CategoriesCmd(elem string, m types.Msg, rsp types.Rsp) {
 			}] = types.Empty{}
 		}
 	}
-	dat.Lock.RUnlock()
+	db.RUnlock()
 	cats := make([]catSortInfo, len(catsMap))
 	i := 0
 	for k := range catsMap {
@@ -67,37 +65,36 @@ func (b *Categories) CategoriesCmd(elem string, m types.Msg, rsp types.Rsp) {
 }
 
 func (b *Categories) DownloadCatCmd(catName string, sort string, postfix bool, m types.Msg, rsp types.Rsp) {
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
 		return
 	}
 
-	cat, res := dat.GetCategory(catName)
+	cat, res := db.GetCat(catName)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
 		return
 	}
 
-	dat.Lock.RLock()
-	elems := make([]string, len(cat.Elements))
+	db.RLock()
+	elems := make([]int, len(cat.Elements))
 	i := 0
 
 	for elem := range cat.Elements {
 		elems[i] = elem
 		i++
 	}
-	dat.Lock.RUnlock()
+	db.RUnlock()
 
+	var vals []string
 	if postfix {
-		util.SortElemList(elems, sort, dat)
+		vals = eodsort.SortElemList(elems, sort, db)
 	} else {
-		util.SortElemList(elems, sort, dat, true)
+		vals = eodsort.SortElemList(elems, sort, db, true)
 	}
 
 	out := &strings.Builder{}
-	for _, elem := range elems {
+	for _, elem := range vals {
 		out.WriteString(elem + "\n")
 	}
 	buf := strings.NewReader(out.String())
