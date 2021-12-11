@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
-	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -55,30 +54,27 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 		return "You must combine at least 2 elements!", false
 	}
 
-	b.lock.RLock()
-	dat, exists := b.dat[guild]
-	b.lock.RUnlock()
-	if !exists {
-		return "Guild not found", false
-	}
-
-	inv, res := dat.GetInv(author, true)
+	db, res := b.GetDB(guild)
 	if !res.Exists {
 		return res.Message, false
 	}
 
+	inv := db.GetInv(author)
+
+	var elID int
 	if hasEl {
 		elName := strings.ToLower(elemName)
 
-		el, res := dat.GetElement(elName)
+		el, res := db.GetElementByName(elName)
 		if !res.Exists {
 			return res.Message, false
 		} else {
 			elemName = elName
 			count--
 		}
+		elID = el.ID
 
-		exists = inv.Elements.Contains(elemName)
+		exists := inv.Contains(el.ID)
 		if !exists {
 			return fmt.Sprintf("Element **%s** is not in your inventory!", el.Name), false
 		}
@@ -86,16 +82,16 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 
 	els := inv.Elements
 	if hasCat {
-		cat, res := dat.GetCategory(catName)
+		cat, res := db.GetCat(catName)
 		if !res.Exists {
 			return res.Message, false
 		}
-		els = make(map[string]types.Empty)
+		els = make(map[int]types.Empty)
 
 		for el := range cat.Elements {
-			exists := inv.Elements.Contains(el)
+			exists := inv.Contains(el)
 			if exists {
-				els[strings.ToLower(el)] = types.Empty{}
+				els[el] = types.Empty{}
 			}
 		}
 
@@ -105,10 +101,10 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 	}
 
 	res = types.GetResponse{Exists: true}
-	var elems []string
+	var elems []int
 	tries := 0
 	for res.Exists {
-		elems = make([]string, count)
+		elems = make([]int, count)
 		for i := range elems {
 			cnt := rand.Intn(len(els))
 			j := 0
@@ -121,10 +117,10 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 			}
 		}
 		if hasEl {
-			elems = append([]string{elemName}, elems...)
+			elems = append([]int{elID}, elems...)
 		}
 
-		_, res = dat.GetCombo(util.Elems2Txt(elems))
+		_, res = db.GetCombo(elems)
 		tries++
 
 		if tries > 21 {
@@ -134,21 +130,18 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 
 	text := ""
 	for i, el := range elems {
-		el, _ := dat.GetElement(el)
+		el, _ := db.GetElement(el)
 		text += el.Name
 		if i != len(elems)-1 {
 			text += " + "
 		}
 	}
 
-	dat.SetComb(author, types.Comb{
+	data, _ := b.GetData(guild)
+	data.SetComb(author, types.Comb{
 		Elems: elems,
-		Elem3: "",
+		Elem3: -1,
 	})
-
-	b.lock.Lock()
-	b.dat[guild] = dat
-	b.lock.Unlock()
 
 	return fmt.Sprintf("Your random unused combination is... **%s**\n 	Suggest it by typing **/suggest**", text), true
 }
@@ -160,17 +153,15 @@ func (b *Elements) IdeaCmd(count int, catName string, hasCat bool, elemName stri
 	}
 	rsp.Acknowledge()
 
-	b.lock.Lock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.Unlock()
-	if !exists {
-		rsp.ErrorMessage("Guild not found")
+	data, ex := b.GetData(m.GuildID)
+	if !ex.Exists {
+		rsp.ErrorMessage(ex.Message)
 		return
 	}
 
 	id := rsp.Message(res, ideaCmp)
 
-	dat.AddComponentMsg(id, &ideaComponent{
+	data.AddComponentMsg(id, &ideaComponent{
 		catName:  catName,
 		count:    count,
 		hasCat:   hasCat,
@@ -178,8 +169,4 @@ func (b *Elements) IdeaCmd(count int, catName string, hasCat bool, elemName stri
 		hasEl:    hasEl,
 		b:        b,
 	})
-
-	b.lock.Lock()
-	b.dat[m.GuildID] = dat
-	b.lock.Unlock()
 }
