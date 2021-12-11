@@ -8,8 +8,16 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/Nv7-Github/Nv7Haven/anarchy"
 	"github.com/Nv7-Github/Nv7Haven/db"
+	"github.com/Nv7-Github/Nv7Haven/discord"
+	"github.com/Nv7-Github/Nv7Haven/elemental"
 	"github.com/Nv7-Github/Nv7Haven/eod"
+	"github.com/Nv7-Github/Nv7Haven/gdo"
+	"github.com/Nv7-Github/Nv7Haven/nv7haven"
+	"github.com/Nv7-Github/Nv7Haven/remodrive"
+	"github.com/Nv7-Github/Nv7Haven/single"
+	joe "github.com/Nv7-Github/average-joe"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"google.golang.org/grpc"
 
@@ -65,7 +73,7 @@ func main() {
 
 	//mysqlsetup.Mysqlsetup()
 
-	/*e, err := elemental.InitElemental(app, db, grpcS)
+	e, err := elemental.InitElemental(app, db, grpcS)
 	if err != nil {
 		panic(err)
 	}
@@ -81,11 +89,11 @@ func main() {
 	}
 
 	single.InitSingle(app, db)
-	b := discord.InitDiscord(db, e)*/
+	b := discord.InitDiscord(db, e)
 	eodB := eod.InitEoD(db)
-	/*anarchy.InitAnarchy(db, grpcS)
+	anarchy.InitAnarchy(db, grpcS)
 	gdo.InitGDO(app)
-	remodrive.InitRemoDrive(app)*/
+	remodrive.InitRemoDrive(app)
 
 	go func() {
 		err := http.ListenAndServe(":"+os.Getenv("HTTP_PORT"), nil)
@@ -136,8 +144,8 @@ func main() {
 		panic(err)
 	}
 
-	//b.Close()
+	b.Close()
 	eodB.Close()
 	db.Close()
-	//j.Close()
+	j.Close()
 }
