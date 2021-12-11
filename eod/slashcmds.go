@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
-	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -201,7 +201,7 @@ var (
 					Name:        "sortby",
 					Description: "How to sort the inventory!",
 					Required:    false,
-					Choices:     util.SortChoices,
+					Choices:     eodsort.SortChoices,
 				},
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
@@ -322,7 +322,7 @@ var (
 							Name:  "Element Count",
 							Value: "catelemcount",
 						},
-					}, util.SortChoices...),
+					}, eodsort.SortChoices...),
 				},
 				{
 					Type:        discordgo.ApplicationCommandOptionUser,
@@ -476,7 +476,7 @@ var (
 					Name:        "sortby",
 					Description: "How to sort the elements",
 					Required:    true,
-					Choices:     util.SortChoices,
+					Choices:     eodsort.SortChoices,
 				},
 			},
 		},
@@ -574,7 +574,7 @@ var (
 							Name:        "sortby",
 							Description: "How to sort the inventory!",
 							Required:    false,
-							Choices:     util.SortChoices,
+							Choices:     eodsort.SortChoices,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionString,
@@ -616,7 +616,7 @@ var (
 							Name:        "sortby",
 							Description: "How to sort the category!",
 							Required:    false,
-							Choices:     util.SortChoices,
+							Choices:     eodsort.SortChoices,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionBoolean,
@@ -823,7 +823,7 @@ var (
 							Type:        discordgo.ApplicationCommandOptionString,
 							Name:        "sort",
 							Description: "How to sort the results!",
-							Choices:     util.SortChoices,
+							Choices:     eodsort.SortChoices,
 							Required:    false,
 						},
 						{
@@ -855,7 +855,7 @@ var (
 							Type:        discordgo.ApplicationCommandOptionString,
 							Name:        "sort",
 							Description: "How to sort the results!",
-							Choices:     util.SortChoices,
+							Choices:     eodsort.SortChoices,
 							Required:    false,
 						},
 						{
@@ -887,7 +887,7 @@ var (
 							Type:        discordgo.ApplicationCommandOptionString,
 							Name:        "sort",
 							Description: "How to sort the results!",
-							Choices:     util.SortChoices,
+							Choices:     eodsort.SortChoices,
 							Required:    false,
 						},
 						{

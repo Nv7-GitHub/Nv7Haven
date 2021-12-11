@@ -105,6 +105,10 @@ func (d *DB) ComboCnt() int {
 	return len(d.combos)
 }
 
+func (d *DB) Combos() map[string]int {
+	return d.combos
+}
+
 func newDB(path string, guild string) *DB {
 	return &DB{
 		Guild:  guild,
