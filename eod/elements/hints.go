@@ -111,13 +111,6 @@ func (b *Elements) HintCmd(elem string, hasElem bool, inverse bool, m types.Msg,
 func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, author string, guild string, inverse bool, m types.Msg, rsp types.Rsp) (*discordgo.MessageEmbed, string, bool) {
 	inv := db.GetInv(author)
 	var el types.Element
-	if hasElem {
-		var res types.GetResponse
-		el, res = db.GetElement(elem)
-		if !res.Exists {
-			return nil, fmt.Sprintf("No hints were found for **%s**!", elem), false
-		}
-	}
 	if !hasElem {
 		hasFound := false
 		db.RLock()

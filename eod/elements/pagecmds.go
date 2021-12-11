@@ -44,6 +44,7 @@ func (b *Elements) InvCmd(user string, m types.Msg, rsp types.Rsp, sorter string
 			}
 		}
 		outs = outs[:count]
+		items = outs
 	}
 	eodsort.SortElemList(items, sorter, db)
 

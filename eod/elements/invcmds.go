@@ -63,6 +63,7 @@ func (b *Elements) DownloadInvCmd(user string, sorter string, filter string, pos
 			}
 		}
 		outs = outs[:count]
+		items = outs
 	}
 
 	if postfix {

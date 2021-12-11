@@ -69,7 +69,6 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 		if !res.Exists {
 			return res.Message, false
 		} else {
-			elemName = elName
 			count--
 		}
 		elID = el.ID
