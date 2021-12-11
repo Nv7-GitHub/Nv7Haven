@@ -63,6 +63,10 @@ func (d *DB) SaveConfig() error {
 	if err != nil {
 		return err
 	}
+	_, err = d.configFile.Seek(0, 0)
+	if err != nil {
+		return err
+	}
 	_, err = d.configFile.Write(dat)
 	if err != nil {
 		return err
@@ -123,6 +127,10 @@ func (d *DB) SaveCat(elems *types.Category) error {
 	if err != nil {
 		return err
 	}
+	_, err = file.Seek(0, 0)
+	if err != nil {
+		return err
+	}
 	_, err = file.Write(dat)
 	if err != nil {
 		return err
@@ -163,6 +171,10 @@ func (d *DB) SaveInv(inv *types.Inventory, recalc ...bool) error {
 	}
 
 	err = file.Truncate(0)
+	if err != nil {
+		return err
+	}
+	_, err = file.Seek(0, 0)
 	if err != nil {
 		return err
 	}

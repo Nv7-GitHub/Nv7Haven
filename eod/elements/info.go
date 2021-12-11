@@ -80,23 +80,25 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 	}
 
 	// Get Element
-	el, res = db.GetElementByName(elem)
-	if !res.Exists {
-		// If what you said was "????", then stop
-		if strings.Contains(elem, "?") {
-			isValid := false
-			for _, letter := range elem {
-				if letter != '?' {
-					isValid = true
-					break
+	if !isId {
+		el, res = db.GetElementByName(elem)
+		if !res.Exists {
+			// If what you said was "????", then stop
+			if strings.Contains(elem, "?") {
+				isValid := false
+				for _, letter := range elem {
+					if letter != '?' {
+						isValid = true
+						break
+					}
+				}
+				if !isValid {
+					return
 				}
 			}
-			if !isValid {
-				return
-			}
+			rsp.ErrorMessage(res.Message)
+			return
 		}
-		rsp.ErrorMessage(res.Message)
-		return
 	}
 	rsp.Acknowledge()
 

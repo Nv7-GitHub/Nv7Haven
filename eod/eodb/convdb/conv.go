@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -123,6 +124,10 @@ func convDB() {
 
 		// Conv cats
 		for _, cat := range gld.Cats {
+			txt := url.PathEscape(cat.Name)
+			if len(txt) > 1024 {
+				continue
+			}
 			c := db.NewCat(cat.Name)
 			c.Color = cat.Color
 			c.Image = cat.Image
@@ -134,7 +139,7 @@ func convDB() {
 				c.Elements[id] = types.Empty{}
 			}
 			err = db.SaveCat(c)
-			handle(err)
+			//handle(err)
 		}
 
 		db.Close()

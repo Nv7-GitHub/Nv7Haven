@@ -2,6 +2,7 @@ package categories
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
@@ -64,6 +65,10 @@ func (b *Categories) CategoryCmd(elems []string, category string, m types.Msg, r
 		category = cat.Name
 	} else if strings.ToLower(category) == category {
 		category = util.ToTitle(category)
+		if len(url.PathEscape(category)) > 1024 {
+			rsp.ErrorMessage("Category name is too long!")
+			return
+		}
 	}
 
 	suggestAdd := make([]int, 0)

@@ -72,6 +72,7 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 			return
 		}
 		elem := types.Element{
+			ID:         len(db.Elements) + 1,
 			Name:       name,
 			Guild:      guild,
 			Comment:    "None",
@@ -121,7 +122,7 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 		el, res := db.GetElement(k)
 		if res.Exists {
 			el.UsedIn++
-			err := db.SaveElement(el, false)
+			err := db.SaveElement(el)
 			if err != nil {
 				log.SetOutput(logs.DataFile)
 				log.Println(err)

@@ -45,6 +45,12 @@ func (d *DB) GetElement(id int, nolock ...bool) (types.Element, types.GetRespons
 	}
 
 	if id < 1 {
+		if id == 0 {
+			return types.Element{}, types.GetResponse{
+				Exists:  false,
+				Message: "Element **#0** doesn't exist!",
+			}
+		}
 		return types.Element{}, types.GetResponse{
 			Exists:  false,
 			Message: "Element ID can't be negative!",

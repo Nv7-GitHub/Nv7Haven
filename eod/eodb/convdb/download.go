@@ -124,7 +124,7 @@ func loadDB(refresh bool) {
 		if elem.Guild == "" {
 			continue
 		}
-		elem.ID = len(glds[elem.Guild].Elements)
+		elem.ID = len(glds[elem.Guild].Elements) + 1
 		glds[elem.Guild].Elements = append(glds[elem.Guild].Elements, elem)
 
 		bar.Add(1)
@@ -222,11 +222,11 @@ func loadDB(refresh bool) {
 	fmt.Println()
 
 	// Save?
-	cache, err := os.Create("data.gob")
+	/*cache, err := os.Create("data.gob")
 	handle(err)
 	defer cache.Close()
 
 	enc := gob.NewEncoder(cache)
 	err = enc.Encode(glds)
-	handle(err)
+	handle(err)*/
 }

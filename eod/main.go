@@ -2,7 +2,9 @@ package eod
 
 import (
 	_ "embed"
+	"fmt"
 	"strings"
+	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/db"
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
@@ -57,10 +59,13 @@ func InitEoD(sqldb *db.DB) EoD {
 		panic(err)
 	}
 
+	start := time.Now()
+	fmt.Println("Loading DB...")
 	db, err := eodb.NewData("data/eod")
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println("started in", time.Since(start))
 	bot = EoD{
 		Data: db,
 
