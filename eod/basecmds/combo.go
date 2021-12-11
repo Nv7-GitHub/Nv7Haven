@@ -126,7 +126,7 @@ func (b *BaseCmds) Combine(elems []string, m types.Msg, rsp types.Rsp) {
 	data, _ := b.GetData(m.GuildID)
 	if res.Exists {
 		data.SetComb(m.Author.ID, types.Comb{
-			Elems: elems,
+			Elems: ids,
 			Elem3: elem3,
 		})
 		el3, res := db.GetElement(elem3)
@@ -156,7 +156,7 @@ func (b *BaseCmds) Combine(elems []string, m types.Msg, rsp types.Rsp) {
 	}
 
 	data.SetComb(m.Author.ID, types.Comb{
-		Elems: elems,
+		Elems: ids,
 		Elem3: -1,
 	})
 	rsp.Resp("That combination doesn't exist! " + types.RedCircle + "\n 	Suggest it by typing **/suggest**")
