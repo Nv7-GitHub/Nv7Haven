@@ -5,15 +5,37 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
+	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
+func (b *Categories) GetNotExists(db *eodb.DB, elems []string, m types.Msg, rsp types.Rsp) {
+	// Not exists message
+	notExists := make(map[string]types.Empty)
+	for _, el := range elems {
+		_, res := db.GetElementByName(el)
+		if !res.Exists {
+			notExists["**"+el+"**"] = types.Empty{}
+		}
+	}
+	if len(notExists) == 1 {
+		el := ""
+		for k := range notExists {
+			el = k
+			break
+		}
+		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", el))
+		return
+	}
+
+	rsp.ErrorMessage("Elements " + util.JoinTxt(notExists, "and") + " don't exist!")
+
+}
+
 func (b *Categories) CategoryCmd(elems []string, category string, m types.Msg, rsp types.Rsp) {
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
 		return
 	}
 
@@ -37,60 +59,42 @@ func (b *Categories) CategoryCmd(elems []string, category string, m types.Msg, r
 		return
 	}
 
-	cat, res := dat.GetCategory(category)
+	cat, res := db.GetCat(category)
 	if res.Exists {
 		category = cat.Name
 	} else if strings.ToLower(category) == category {
 		category = util.ToTitle(category)
 	}
 
-	suggestAdd := make([]string, 0)
+	suggestAdd := make([]int, 0)
 	added := make([]string, 0)
 	for _, val := range elems {
-		el, res := dat.GetElement(val)
+		el, res := db.GetElementByName(val)
 		if !res.Exists {
-			notExists := make(map[string]types.Empty)
-			for _, el := range elems {
-				_, res = dat.GetElement(el)
-				if !res.Exists {
-					notExists["**"+el+"**"] = types.Empty{}
-				}
-			}
-			if len(notExists) == 1 {
-				el := ""
-				for k := range notExists {
-					el = k
-					break
-				}
-				rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", el))
-				return
-			}
-
-			rsp.ErrorMessage("Elements " + util.JoinTxt(notExists, "and") + " don't exist!")
+			b.GetNotExists(db, elems, m, rsp)
 			return
 		}
 
 		if el.Creator == m.Author.ID {
 			added = append(added, el.Name)
-			err := b.polls.Categorize(el.Name, category, m.GuildID)
+			err := b.polls.Categorize(el.ID, category, m.GuildID)
 			rsp.Error(err)
 		} else {
-			suggestAdd = append(suggestAdd, el.Name)
+			suggestAdd = append(suggestAdd, el.ID)
 		}
 	}
-	if len(added) > 0 {
-		b.lock.Lock()
-		b.dat[m.GuildID] = dat
-		b.lock.Unlock()
-	}
+
 	if len(suggestAdd) > 0 {
-		err := b.polls.CreatePoll(types.OldPoll{
-			Channel: dat.VotingChannel,
-			Guild:   m.GuildID,
-			Kind:    types.PollCategorize,
-			Value1:  category,
-			Value4:  m.Author.ID,
-			Data:    map[string]interface{}{"elems": suggestAdd},
+		err := b.polls.CreatePoll(types.Poll{
+			Channel:   db.Config.VotingChannel,
+			Guild:     m.GuildID,
+			Kind:      types.PollCategorize,
+			Suggestor: m.Author.ID,
+
+			PollCategorizeData: &types.PollCategorizeData{
+				Elems:    suggestAdd,
+				Category: category,
+			},
 		})
 		if rsp.Error(err) {
 			return
@@ -99,11 +103,13 @@ func (b *Categories) CategoryCmd(elems []string, category string, m types.Msg, r
 	if len(added) > 0 && len(suggestAdd) == 0 {
 		rsp.Message("Successfully categorized! 🗃️")
 	} else if len(added) == 0 && len(suggestAdd) == 1 {
-		rsp.Message(fmt.Sprintf("Suggested to add **%s** to **%s** 🗃️", suggestAdd[0], category))
+		el, _ := db.GetElement(suggestAdd[0])
+		rsp.Message(fmt.Sprintf("Suggested to add **%s** to **%s** 🗃️", el.Name, category))
 	} else if len(added) == 0 && len(suggestAdd) > 1 {
 		rsp.Message(fmt.Sprintf("Suggested to add **%d elements** to **%s** 🗃️", len(suggestAdd), category))
 	} else if len(added) > 0 && len(suggestAdd) == 1 {
-		rsp.Message(fmt.Sprintf("Categorized and suggested to add **%s** to **%s** 🗃️", suggestAdd[0], category))
+		el, _ := db.GetElement(suggestAdd[0])
+		rsp.Message(fmt.Sprintf("Categorized and suggested to add **%s** to **%s** 🗃️", el.Name, category))
 	} else if len(added) > 0 && len(suggestAdd) > 1 {
 		rsp.Message(fmt.Sprintf("Categorized and suggested to add **%d elements** to **%s** 🗃️", len(suggestAdd), category))
 	} else {
@@ -112,16 +118,14 @@ func (b *Categories) CategoryCmd(elems []string, category string, m types.Msg, r
 }
 
 func (b *Categories) RmCategoryCmd(elems []string, category string, m types.Msg, rsp types.Rsp) {
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
 		return
 	}
 
 	elems = util.RemoveDuplicates(elems)
 
-	cat, res := dat.GetCategory(category)
+	cat, res := db.GetCat(category)
 	if !res.Exists {
 		rsp.ErrorMessage(fmt.Sprintf("Category **%s** doesn't exist!", category))
 		return
@@ -133,56 +137,34 @@ func (b *Categories) RmCategoryCmd(elems []string, category string, m types.Msg,
 	notincat := false
 	elExists := true
 	for _, val := range elems {
-		el, res := dat.GetElement(val)
+		el, res := db.GetElementByName(val)
 		if !res.Exists {
 			elExists = false
 			break
 		}
 
-		_, cont := cat.Elements[el.Name]
+		cat.Lock.RLock()
+		_, cont := cat.Elements[el.ID]
+		cat.Lock.RUnlock()
 		if !cont {
 			notincat = true
 		}
 	}
 
 	if !elExists {
-		notExists := make(map[string]types.Empty)
-		for _, el := range elems {
-			_, res = dat.GetElement(el)
-			if !res.Exists {
-				notExists["**"+el+"**"] = types.Empty{}
-			}
-		}
-		if len(notExists) == 1 {
-			el := ""
-			for k := range notExists {
-				el = k
-				break
-			}
-			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", el))
-			return
-		}
-
-		rsp.ErrorMessage("Elements " + util.JoinTxt(notExists, "and") + " don't exist!")
+		b.GetNotExists(db, elems, m, rsp)
 		return
 	}
 
 	if notincat {
-		_, res := dat.GetComb(m.Author.ID)
-		if res.Exists {
-			dat.DeleteComb(m.Author.ID)
-
-			b.lock.Lock()
-			b.dat[m.GuildID] = dat
-			b.lock.Unlock()
-		}
-
 		notFound := make(map[string]types.Empty)
 		for _, el := range elems {
-			elem, _ := dat.GetElement(el)
-			_, exists := cat.Elements[elem.Name]
+			elem, _ := db.GetElementByName(el)
+			cat.Lock.RLock()
+			_, exists := cat.Elements[elem.ID]
+			cat.Lock.RUnlock()
 			if !exists {
-				elem, _ := dat.GetElement(el)
+				elem, _ := db.GetElementByName(el)
 				notFound["**"+elem.Name+"**"] = types.Empty{}
 			}
 		}
@@ -202,16 +184,18 @@ func (b *Categories) RmCategoryCmd(elems []string, category string, m types.Msg,
 	}
 
 	// Actually remove
-	suggestRm := make([]string, 0)
+	suggestRm := make([]int, 0)
 	rmed := make([]string, 0)
 	for _, val := range elems {
-		el, res := dat.GetElement(val)
+		el, res := db.GetElementByName(val)
 		if !res.Exists {
 			rsp.ErrorMessage(res.Message)
 			return
 		}
 
-		_, exists = cat.Elements[el.Name]
+		cat.Lock.RLock()
+		_, exists := cat.Elements[el.ID]
+		cat.Lock.RUnlock()
 		if !exists {
 			rsp.ErrorMessage(fmt.Sprintf("Element **%s** isn't in category **%s**!", el.Name, cat.Name))
 			return
@@ -219,25 +203,23 @@ func (b *Categories) RmCategoryCmd(elems []string, category string, m types.Msg,
 
 		if el.Creator == m.Author.ID {
 			rmed = append(rmed, el.Name)
-			err := b.polls.UnCategorize(el.Name, category, m.GuildID)
+			err := b.polls.UnCategorize(el.ID, category, m.GuildID)
 			rsp.Error(err)
 		} else {
-			suggestRm = append(suggestRm, el.Name)
+			suggestRm = append(suggestRm, el.ID)
 		}
 	}
-	if len(rmed) > 0 {
-		b.lock.Lock()
-		b.dat[m.GuildID] = dat
-		b.lock.Unlock()
-	}
 	if len(suggestRm) > 0 {
-		err := b.polls.CreatePoll(types.OldPoll{
-			Channel: dat.VotingChannel,
-			Guild:   m.GuildID,
-			Kind:    types.PollUnCategorize,
-			Value1:  category,
-			Value4:  m.Author.ID,
-			Data:    map[string]interface{}{"elems": suggestRm},
+		err := b.polls.CreatePoll(types.Poll{
+			Channel:   db.Config.VotingChannel,
+			Guild:     m.GuildID,
+			Kind:      types.PollUnCategorize,
+			Suggestor: m.Author.ID,
+
+			PollCategorizeData: &types.PollCategorizeData{
+				Elems:    suggestRm,
+				Category: category,
+			},
 		})
 		if rsp.Error(err) {
 			return
@@ -246,11 +228,13 @@ func (b *Categories) RmCategoryCmd(elems []string, category string, m types.Msg,
 	if len(rmed) > 0 && len(suggestRm) == 0 {
 		rsp.Message("Successfully un-categorized! 🗃️")
 	} else if len(rmed) == 0 && len(suggestRm) == 1 {
-		rsp.Message(fmt.Sprintf("Suggested to remove **%s** from **%s** 🗃️", suggestRm[0], category))
+		el, _ := db.GetElement(suggestRm[0])
+		rsp.Message(fmt.Sprintf("Suggested to remove **%s** from **%s** 🗃️", el.Name, category))
 	} else if len(rmed) == 0 && len(suggestRm) > 1 {
 		rsp.Message(fmt.Sprintf("Suggested to remove **%d elements** from **%s** 🗃️", len(suggestRm), category))
 	} else if len(rmed) > 0 && len(suggestRm) == 1 {
-		rsp.Message(fmt.Sprintf("Un-categorized and suggested to remove **%s** from **%s** 🗃️", suggestRm[0], category))
+		el, _ := db.GetElement(suggestRm[0])
+		rsp.Message(fmt.Sprintf("Un-categorized and suggested to remove **%s** from **%s** 🗃️", el.Name, category))
 	} else if len(rmed) > 0 && len(suggestRm) > 1 {
 		rsp.Message(fmt.Sprintf("Un-categorized and suggested to remove **%d elements** from **%s** 🗃️", len(suggestRm), category))
 	} else {
