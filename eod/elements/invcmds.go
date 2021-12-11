@@ -5,85 +5,82 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
+	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
-	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
 )
 
 func (b *Elements) ResetInvCmd(user string, m types.Msg, rsp types.Rsp) {
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
 		return
 	}
-	inv := types.NewInventory(user)
-	for _, v := range base.StarterElements {
-		inv.Elements.Add(v.Name)
+	inv := db.GetInv(user)
+	inv.Lock.Lock()
+	inv.Elements = make(map[int]types.Empty)
+	for _, el := range base.StarterElements {
+		inv.Elements[el.ID] = types.Empty{}
 	}
+	inv.Lock.Unlock()
 
-	dat.SetInv(user, inv)
-
-	b.lock.Lock()
-	b.dat[m.GuildID] = dat
-	b.lock.Unlock()
-	b.base.SaveInv(m.GuildID, user, true, true)
+	err := db.SaveInv(inv, true)
+	if rsp.Error(err) {
+		return
+	}
 	rsp.Resp("Successfully reset <@" + user + ">'s inventory!")
 }
 
 func (b *Elements) DownloadInvCmd(user string, sorter string, filter string, postfix bool, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
-		return
-	}
-	inv, res := dat.GetInv(user, user == m.Author.ID)
+	db, res := b.GetDB(m.GuildID)
 	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
 		return
 	}
-	items := make([]string, len(inv.Elements))
+	inv := db.GetInv(user)
+	items := make([]int, len(inv.Elements))
 	i := 0
-	dat.Lock.RLock()
+	db.RLock()
 	for k := range inv.Elements {
-		el, _ := dat.GetElement(k, true)
-		items[i] = el.Name
+		el, _ := db.GetElement(k, true)
+		items[i] = el.ID
 		i++
 	}
-	dat.Lock.RUnlock()
 
 	switch filter {
 	case "madeby":
 		count := 0
-		outs := make([]string, len(items))
+		outs := make([]int, len(items))
 		for _, val := range items {
 			creator := ""
-			elem, res := dat.GetElement(val, true)
+			elem, res := db.GetElement(val, true)
 			if res.Exists {
 				creator = elem.Creator
 			}
 			if creator == user {
-				outs[count] = val
+				outs[count] = elem.ID
 				count++
 			}
 		}
 		outs = outs[:count]
-		items = outs
 	}
 
 	if postfix {
-		util.SortElemList(items, sorter, dat)
+		eodsort.SortElemList(items, sorter, db)
 	} else {
-		util.SortElemList(items, sorter, dat, true)
+		eodsort.SortElemList(items, sorter, db, true)
 	}
 
 	out := &strings.Builder{}
+	db.Lock()
 	for _, val := range items {
-		out.WriteString(val + "\n")
+		elem, res := db.GetElement(val, true)
+		if !res.Exists {
+			continue
+		}
+		out.WriteString(elem.Name + "\n")
 	}
+	db.RUnlock()
 	buf := strings.NewReader(out.String())
 
 	channel, err := b.dg.UserChannelCreate(m.Author.ID)
