@@ -215,6 +215,10 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if !res.Exists {
 			return
 		}
+		db, res := b.GetDB(msg.GuildID)
+		if !res.Exists {
+			return
+		}
 
 		cont := m.Content[1:]
 		split := strings.Contains(cont, " ")
@@ -246,10 +250,16 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 				rsp.ErrorMessage(res.Message)
 				return
 			}
-			last = comb.Elem3
+			el, _ := db.GetElement(comb.Elem3)
+			last = el.Name
 
-			if comb.Elem3 == "" {
-				b.basecmds.Combine(comb.Elems, msg, rsp)
+			if comb.Elem3 == -1 {
+				txt := make([]string, len(comb.Elems))
+				for i, elem := range comb.Elems {
+					el, _ := db.GetElement(elem)
+					txt[i] = el.Name
+				}
+				b.basecmds.Combine(txt, msg, rsp)
 				return
 			}
 		}

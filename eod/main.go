@@ -3,7 +3,6 @@ package eod
 import (
 	_ "embed"
 	"strings"
-	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/db"
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
@@ -27,7 +26,6 @@ const (
 var token string
 
 var bot EoD
-var lock = &sync.RWMutex{}
 
 // EoD contains the data for an EoD bot
 type EoD struct {
@@ -60,6 +58,9 @@ func InitEoD(sqldb *db.DB) EoD {
 	}
 
 	db, err := eodb.NewData("data/eod")
+	if err != nil {
+		panic(err)
+	}
 	bot = EoD{
 		Data: db,
 
