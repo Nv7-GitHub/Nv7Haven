@@ -8,9 +8,11 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
-func (d *DB) GetElementByName(name string) (types.Element, types.GetResponse) {
-	d.RLock()
-	defer d.RUnlock()
+func (d *DB) GetElementByName(name string, nolock ...bool) (types.Element, types.GetResponse) {
+	if len(nolock) == 0 {
+		d.RLock()
+		defer d.RUnlock()
+	}
 
 	id, exists := d.elemNames[strings.ToLower(name)]
 	if !exists {
