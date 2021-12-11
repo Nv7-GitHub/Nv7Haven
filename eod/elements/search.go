@@ -5,58 +5,60 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
-	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
 func (b *Elements) SearchCmd(search string, sort string, source string, opt string, regex bool, m types.Msg, rsp types.Rsp) {
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
 		return
 	}
 	rsp.Acknowledge()
-	_, res := dat.GetInv(m.Author.ID, true)
-	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
-	}
 
 	var list map[string]types.Empty
 	switch source {
 	case "elements":
-		list = make(map[string]types.Empty, len(dat.Elements))
-		for _, el := range dat.Elements {
+		list = make(map[string]types.Empty, len(db.Elements))
+		for _, el := range db.Elements {
 			list[el.Name] = types.Empty{}
 		}
 
 	case "inventory":
-		inv, res := dat.GetInv(opt, m.Author.ID == opt)
-		if !res.Exists {
-			rsp.ErrorMessage(res.Message)
-			return
-		}
+		inv := db.GetInv(opt)
 
 		list = make(map[string]types.Empty, len(inv.Elements))
-		dat.Lock.RLock()
+		inv.Lock.RLock()
+		db.RLock()
 		for el := range inv.Elements {
-			elem, res := dat.GetElement(el, true)
+			elem, res := db.GetElement(el, true)
 			if !res.Exists {
-				list[el] = types.Empty{}
 				continue
 			}
 			list[elem.Name] = types.Empty{}
 		}
-		dat.Lock.RUnlock()
+		db.RUnlock()
+		inv.Lock.RUnlock()
 
 	case "category":
-		cat, res := dat.GetCategory(opt)
+		cat, res := db.GetCat(opt)
 		if !res.Exists {
 			rsp.ErrorMessage(res.Message)
 			return
 		}
-		list = cat.Elements
+
+		list = make(map[string]types.Empty, len(cat.Elements))
+		cat.Lock.RLock()
+		db.RLock()
+		for el := range cat.Elements {
+			elem, res := db.GetElement(el, true)
+			if !res.Exists {
+				continue
+			}
+			list[elem.Name] = types.Empty{}
+		}
+		db.RUnlock()
+		cat.Lock.RUnlock()
 	}
 
 	items := make(map[string]types.Empty)
@@ -81,12 +83,27 @@ func (b *Elements) SearchCmd(search string, sort string, source string, opt stri
 	}
 
 	txt := make([]string, len(items))
+	ids := make([]int, len(items))
 	i := 0
+	db.RLock()
 	for k := range items {
 		txt[i] = k
 		i++
+		el, res := db.GetElementByName(k, true)
+		if !res.Exists {
+			continue
+		}
+		ids[i-1] = el.ID
 	}
-	util.SortElemList(txt, sort, dat)
+	db.RUnlock()
+
+	eodsort.SortElemObj(txt, len(txt), func(index int) int {
+		return ids[index]
+	}, func(index int) string {
+		return txt[index]
+	}, func(index int, val string) {
+		txt[index] = val
+	}, sort, db)
 
 	if len(txt) == 0 {
 		rsp.Message("No results!")
