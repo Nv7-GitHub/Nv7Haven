@@ -59,11 +59,11 @@ func (d *DB) SaveConfig() error {
 		return err
 	}
 
-	err = d.configFile.Truncate(0)
+	_, err = d.configFile.Seek(0, 0)
 	if err != nil {
 		return err
 	}
-	_, err = d.configFile.Seek(0, 0)
+	err = d.configFile.Truncate(0)
 	if err != nil {
 		return err
 	}
@@ -123,11 +123,11 @@ func (d *DB) SaveCat(elems *types.Category) error {
 		}
 		d.catFiles[strings.ToLower(elems.Name)] = file
 	}
-	err = file.Truncate(0)
+	_, err = file.Seek(0, 0)
 	if err != nil {
 		return err
 	}
-	_, err = file.Seek(0, 0)
+	err = file.Truncate(0)
 	if err != nil {
 		return err
 	}
@@ -170,11 +170,11 @@ func (d *DB) SaveInv(inv *types.Inventory, recalc ...bool) error {
 		d.invFiles[inv.User] = file
 	}
 
-	err = file.Truncate(0)
+	_, err = file.Seek(0, 0)
 	if err != nil {
 		return err
 	}
-	_, err = file.Seek(0, 0)
+	err = file.Truncate(0)
 	if err != nil {
 		return err
 	}

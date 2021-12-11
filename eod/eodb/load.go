@@ -114,7 +114,7 @@ func (d *DB) loadInvs() error {
 	var inv *types.Inventory
 	for _, file := range files {
 		name := strings.TrimSuffix(file.Name(), ".json")
-		f, err := os.Open(filepath.Join(d.dbPath, "inventories", file.Name()))
+		f, err := os.OpenFile(filepath.Join(d.dbPath, "inventories", file.Name()), os.O_RDWR, os.ModePerm)
 		if err != nil {
 			return err
 		}
@@ -154,7 +154,7 @@ func (d *DB) loadCats() error {
 		if err != nil {
 			return err
 		}
-		f, err := os.Open(filepath.Join(d.dbPath, "categories", file.Name()))
+		f, err := os.OpenFile(filepath.Join(d.dbPath, "categories", file.Name()), os.O_RDWR, os.ModePerm)
 		if err != nil {
 			return err
 		}

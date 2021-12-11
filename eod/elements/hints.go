@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
@@ -109,26 +110,40 @@ func (b *Elements) HintCmd(elem string, hasElem bool, inverse bool, m types.Msg,
 }
 
 func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, author string, guild string, inverse bool, m types.Msg, rsp types.Rsp) (*discordgo.MessageEmbed, string, bool) {
+	rand.Seed(time.Now().UnixNano())
 	inv := db.GetInv(author)
 	var el types.Element
 	if !hasElem {
 		hasFound := false
+		ids := make([]int, len(db.Elements))
 		db.RLock()
-		for _, v := range db.Elements {
-			exists := inv.Contains(v.ID)
+		for i, v := range db.Elements {
+			ids[i] = v.ID
+		}
+		db.RUnlock()
+
+		// Shuffle ids
+		rand.Shuffle(len(ids), func(i, j int) {
+			v := ids[i]
+			ids[i] = ids[j]
+			ids[j] = v
+		})
+		for _, id := range ids {
+			exists := inv.Contains(id)
 			if !exists {
-				el = v
+				el, _ = db.GetElement(id)
 				hasFound = true
 				break
 			}
 		}
-		db.RUnlock()
 		if !hasFound {
 			db.RLock()
 			id := rand.Intn(len(db.Elements)-1) + 1
 			el, _ = db.GetElement(id, true)
 			db.RUnlock()
 		}
+	} else {
+		el, _ = db.GetElement(elem)
 	}
 
 	vals := make(map[string]types.Empty)
@@ -242,10 +257,16 @@ func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, author string, g
 
 func getHintText(elemTxt string, inv *types.Inventory, db *eodb.DB, inverse bool) (string, int) {
 	if !inverse {
-		elems := strings.Split(elemTxt, "+")
+		elemDat := strings.Split(elemTxt, "+")
+		elems := make([]string, len(elemDat))
 		hasElems := true
-		for _, val := range elems {
-			el, res := db.GetElementByName(val)
+		for i, val := range elemDat {
+			num, err := strconv.Atoi(val)
+			if err != nil {
+				hasElems = false
+				continue
+			}
+			el, res := db.GetElement(num)
 			if res.Exists {
 				exists := inv.Contains(el.ID)
 				if !exists {
@@ -254,6 +275,7 @@ func getHintText(elemTxt string, inv *types.Inventory, db *eodb.DB, inverse bool
 			} else {
 				hasElems = false
 			}
+			elems[i] = el.Name
 		}
 		pref := types.X
 		ex := 0
