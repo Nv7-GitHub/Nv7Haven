@@ -16,6 +16,7 @@ require (
 	github.com/improbable-eng/grpc-web v0.14.0
 	github.com/jdkato/prose/v2 v2.0.0
 	github.com/jmcvetta/randutil v0.0.0-20150817122601-2bb1b664bcff
+	github.com/json-iterator/go v1.1.9
 	github.com/lucasb-eyer/go-colorful v1.2.0
 	github.com/mitchellh/mapstructure v1.4.1
 	github.com/sasha-s/go-deadlock v0.2.0
