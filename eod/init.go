@@ -33,7 +33,7 @@ func (b *EoD) init() {
 
 	for _, db := range b.DB {
 		for _, po := range db.Polls {
-			ups, err := b.dg.MessageReactions(po.Channel, po.Message, types.UpArrow, 100, "", "")
+			msg, err := b.dg.ChannelMessage(po.Channel, po.Message)
 			if err != nil {
 				err := db.DeletePoll(po)
 				if err != nil {
@@ -41,8 +41,17 @@ func (b *EoD) init() {
 				}
 				continue
 			}
-			po.Upvotes = len(ups) - 1
+			for _, r := range msg.Reactions {
+				if r.Emoji.Name == types.UpArrow {
+					po.Upvotes = r.Count - 1
+				}
 
+				if r.Emoji.Name == types.DownArrow {
+					po.Downvotes = r.Count - 1
+				}
+			}
+
+			// Get downs to see who last reacted
 			downs, err := b.dg.MessageReactions(po.Channel, po.Message, types.DownArrow, 100, "", "")
 			if err != nil {
 				err := db.DeletePoll(po)
@@ -51,9 +60,9 @@ func (b *EoD) init() {
 				}
 				continue
 			}
-			po.Downvotes = len(downs) - 1
 
-			b.polls.CheckReactions(db, po, downs[len(downs)-1].ID, false)
+			lastDown := downs[len(downs)-1].ID
+			b.polls.CheckReactions(db, po, lastDown, false)
 
 			db.SavePoll(po)
 			bar.Add(1)
