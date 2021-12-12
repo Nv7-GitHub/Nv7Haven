@@ -61,9 +61,9 @@ func (b *BaseCmds) Combine(elems []string, m types.Msg, rsp types.Rsp) {
 	if !elExists {
 		notExists := make(map[string]types.Empty)
 		for _, el := range elems {
-			elem, res := db.GetElementByName(el)
+			_, res := db.GetElementByName(el)
 			if !res.Exists {
-				notExists["**"+elem.Name+"**"] = types.Empty{}
+				notExists["**"+el+"**"] = types.Empty{}
 			}
 		}
 		if len(notExists) == 1 {
