@@ -156,6 +156,7 @@ func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, author string, g
 		}
 		db.RUnlock()
 	} else {
+		db.RLock()
 		for elems := range db.Combos() {
 			parts := strings.Split(elems, "+")
 			for _, part := range parts {
@@ -170,6 +171,8 @@ func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, author string, g
 				}
 			}
 		}
+		db.RUnlock()
+		fmt.Println(vals)
 	}
 
 	out := make([]hintCombo, len(vals))
