@@ -82,32 +82,40 @@ func (b *Elements) SearchCmd(search string, sort string, source string, opt stri
 		}
 	}
 
-	txt := make([]string, len(items))
-	ids := make([]int, len(items))
+	type searchResult struct {
+		name string
+		id   int
+	}
+	results := make([]searchResult, len(items))
 	i := 0
 	db.RLock()
 	for k := range items {
-		txt[i] = k
+		results[i].name = k
 		i++
 		el, res := db.GetElementByName(k, true)
 		if !res.Exists {
 			continue
 		}
-		ids[i-1] = el.ID
+		results[i-1].id = el.ID
 	}
 	db.RUnlock()
 
-	eodsort.SortElemObj(txt, len(txt), func(index int) int {
-		return ids[index]
-	}, func(index int) string {
-		return txt[index]
-	}, func(index int, val string) {
-		txt[index] = val
-	}, sort, db)
-
-	if len(txt) == 0 {
+	if len(results) == 0 {
 		rsp.Message("No results!")
 		return
+	}
+
+	eodsort.SortElemObj(results, len(results), func(index int) int {
+		return results[index].id
+	}, func(index int) string {
+		return results[index].name
+	}, func(index int, val string) {
+		results[index].name = val
+	}, sort, db)
+
+	txt := make([]string, len(results))
+	for i, val := range results {
+		txt[i] = val.name
 	}
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
