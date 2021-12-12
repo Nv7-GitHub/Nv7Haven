@@ -140,13 +140,6 @@ func (d *DB) SaveCat(elems *types.Category) error {
 }
 
 func (d *DB) SaveInv(inv *types.Inventory, recalc ...bool) error {
-	inv.Lock.RLock()
-	dat, err := json.Marshal(inv)
-	inv.Lock.RUnlock()
-	if err != nil {
-		return err
-	}
-
 	d.RLock()
 	if len(recalc) > 0 {
 		for elem := range inv.Elements {
@@ -160,6 +153,13 @@ func (d *DB) SaveInv(inv *types.Inventory, recalc ...bool) error {
 		}
 	}
 	d.RUnlock()
+
+	inv.Lock.RLock()
+	dat, err := json.Marshal(inv)
+	inv.Lock.RUnlock()
+	if err != nil {
+		return err
+	}
 
 	file, exists := d.invFiles[inv.User]
 	if !exists {

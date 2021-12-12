@@ -118,7 +118,7 @@ func convDB() {
 				}
 				i.Add(id)
 			}
-			err = db.SaveInv(i)
+			err = db.SaveInv(i, true)
 			handle(err)
 		}
 
