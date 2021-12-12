@@ -36,6 +36,8 @@ func main() {
 	err = pprof.WriteHeapProfile(heap)
 	handle(err)
 
+	pprof.StopCPUProfile()
+
 	// Cleanup
 	for _, db := range db.DB {
 		db.Close()
