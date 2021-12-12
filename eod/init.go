@@ -81,4 +81,11 @@ func (b *EoD) init() {
 			}
 		}
 	}
+
+	// Recalc invs
+	for _, db := range b.DB {
+		for _, inv := range db.Invs() {
+			db.SaveInv(inv, true)
+		}
+	}
 }
