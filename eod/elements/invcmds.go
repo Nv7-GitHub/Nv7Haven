@@ -73,7 +73,6 @@ func (b *Elements) DownloadInvCmd(user string, sorter string, filter string, pos
 	}
 
 	out := &strings.Builder{}
-	db.Lock()
 	for _, val := range items {
 		elem, res := db.GetElement(val, true)
 		if !res.Exists {
