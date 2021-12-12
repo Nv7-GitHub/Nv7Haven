@@ -159,13 +159,14 @@ func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, author string, g
 		db.RLock()
 		for elems := range db.Combos() {
 			parts := strings.Split(elems, "+")
-			fmt.Println(len(parts))
 			for _, part := range parts {
 				num, err := strconv.Atoi(part)
 				if err != nil {
+					fmt.Println(err)
 					continue
 				}
 				if num == el.ID {
+					fmt.Println(num)
 					el, _ := db.GetElement(num)
 					vals[el.Name] = types.Empty{}
 					break
