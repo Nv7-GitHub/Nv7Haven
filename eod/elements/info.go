@@ -168,12 +168,17 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 		rsp.ErrorMessage(msg)
 		return
 	}
+	// Make empty marks into "None"
+	mark := el.Comment
+	if len(strings.trimSpace(mark)) < 1 {
+		mark = "None"
+	}
 
 	emb := &discordgo.MessageEmbed{
 		Title:       el.Name + " Info",
 		Description: fmt.Sprintf("Element **#%d**\n<@%s> **You %shave this.**", el.ID, m.Author.ID, has),
 		Fields: []*discordgo.MessageEmbedField{
-			{Name: "Mark", Value: el.Comment, Inline: false},
+			{Name: "Mark", Value: mark, Inline: false},
 			{Name: "Used In", Value: strconv.Itoa(el.UsedIn), Inline: true},
 			{Name: "Made With", Value: strconv.Itoa(madeby), Inline: true},
 			{Name: "Found By", Value: strconv.Itoa(foundby), Inline: true},
