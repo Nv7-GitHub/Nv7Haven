@@ -61,18 +61,6 @@ type ServerData struct {
 	ElementMsgs   map[string]int          // map[messageid]elemname
 }
 
-type ServerDat struct {
-	ServerData
-	ServerConfig
-
-	Inventories map[string]Inventory   // map[userID]map[elementName]types.Empty
-	Elements    map[string]OldElement  //map[elementName]element
-	Combos      map[string]string      // map[elems]elem3
-	Categories  map[string]OldCategory // map[catName]category
-	Polls       map[string]OldPoll     // map[messageid]poll
-	Lock        *sync.RWMutex
-}
-
 type PageSwitcher struct {
 	Kind       PageSwitchType
 	Title      string
@@ -111,22 +99,6 @@ type Element struct {
 	Creator    string
 	CreatedOn  time.Time
 	Parents    []int
-	Complexity int
-	Difficulty int
-	UsedIn     int
-	TreeSize   int
-}
-
-type OldElement struct {
-	ID         int
-	Name       string
-	Image      string
-	Color      int
-	Guild      string
-	Comment    string
-	Creator    string
-	CreatedOn  time.Time
-	Parents    []string
 	Complexity int
 	Difficulty int
 	UsedIn     int
@@ -191,35 +163,12 @@ type Poll struct {
 	Downvotes int
 }
 
-type OldPoll struct {
-	Channel string
-	Message string
-	Guild   string
-	Kind    PollType
-	Value1  string
-	Value2  string
-	Value3  string
-	Value4  string
-	Data    map[string]interface{}
-
-	Upvotes   int
-	Downvotes int
-}
-
 type Category struct {
 	Lock *sync.RWMutex `json:"-"`
 
 	Name     string
 	Guild    string
 	Elements map[int]Empty
-	Image    string
-	Color    int
-}
-
-type OldCategory struct {
-	Name     string
-	Guild    string
-	Elements map[string]Empty
 	Image    string
 	Color    int
 }
@@ -281,20 +230,6 @@ func NewServerData() *ServerData {
 		PageSwitchers: make(map[string]PageSwitcher),
 		ComponentMsgs: make(map[string]ComponentMsg),
 		ElementMsgs:   make(map[string]int),
-	}
-}
-
-func NewServerDat() ServerDat {
-	return ServerDat{
-		ServerData:   *NewServerData(),
-		ServerConfig: *NewServerConfig(),
-
-		Lock:        &sync.RWMutex{},
-		Polls:       make(map[string]OldPoll),
-		Elements:    make(map[string]OldElement),
-		Combos:      make(map[string]string),
-		Categories:  make(map[string]OldCategory),
-		Inventories: make(map[string]Inventory),
 	}
 }
 
