@@ -14,7 +14,7 @@ import (
 func convDB() {
 	home, err := os.UserHomeDir()
 	handle(err)
-	dbPath := filepath.Join(home, "go/src/github.com/Nv7-Github/Nv7Haven/data/eod")
+	dbPath := filepath.Join(home, "go/src/github.com/Nv7-Github/Nv7haven/data/eod")
 
 	err = os.RemoveAll(dbPath)
 	handle(err)
