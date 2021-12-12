@@ -478,6 +478,12 @@ var (
 					Required:    true,
 					Choices:     eodsort.SortChoices,
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionBoolean,
+					Name:        "postfix",
+					Description: "Whether to postfix or not?",
+					Required:    false,
+				},
 			},
 		},
 		{
@@ -995,7 +1001,7 @@ var (
 				{
 					Type:        discordgo.ApplicationCommandOptionSubCommand,
 					Name:        "category",
-					Description: "Add an image to a category!",
+					Description: "Set the color of a category!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
 							Type:        discordgo.ApplicationCommandOptionString,
@@ -1183,7 +1189,11 @@ var (
 		},
 		"elemsort": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.elements.SortCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			postfix := false
+			if len(resp.Options) > 1 {
+				postfix = resp.Options[1].BoolValue()
+			}
+			bot.elements.SortCmd(resp.Options[0].StringValue(), postfix, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"help": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.basecmds.HelpCmd(bot.newMsgSlash(i), bot.newRespSlash(i))

@@ -205,6 +205,13 @@ func SortElemList(elems []int, sortName string, db *eodb.DB, noget ...bool) []st
 				}
 			}
 		}
+	} else {
+		for i, val := range elems {
+			el, res := db.GetElement(val, true)
+			if res.Exists {
+				out[i] = el.Name
+			}
+		}
 	}
 	db.RUnlock()
 

@@ -16,7 +16,7 @@ import (
 
 const catInfoCount = 3
 
-func (b *Elements) SortCmd(sort string, m types.Msg, rsp types.Rsp) {
+func (b *Elements) SortCmd(sort string, postfix bool, m types.Msg, rsp types.Rsp) {
 	db, res := b.GetDB(m.GuildID)
 	if !res.Exists {
 		return
@@ -24,23 +24,21 @@ func (b *Elements) SortCmd(sort string, m types.Msg, rsp types.Rsp) {
 
 	rsp.Acknowledge()
 
-	items := make([]string, len(db.Elements))
 	ids := make([]int, len(db.Elements))
 	i := 0
 	db.RLock()
 	for _, el := range db.Elements {
-		items[i] = el.Name
 		ids[i] = el.ID
 		i++
 	}
 	db.RUnlock()
-	eodsort.SortElemObj(items, len(items), func(index int) int {
-		return ids[index]
-	}, func(index int) string {
-		return items[index]
-	}, func(index int, val string) {
-		items[index] = val
-	}, sort, db, true)
+
+	var items []string
+	if postfix {
+		items = eodsort.SortElemList(ids, sort, db)
+	} else {
+		items = eodsort.SortElemList(ids, sort, db, true)
+	}
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
