@@ -10,6 +10,7 @@ import (
 
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
+	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
@@ -277,6 +278,9 @@ func getHintText(elemTxt string, inv *types.Inventory, db *eodb.DB, inverse bool
 			}
 			elems[i] = el.Name
 		}
+		sort.Slice(elems, func(i, j int) bool {
+			return eodsort.CompareStrings(elems[i], elems[j])
+		})
 		pref := types.X
 		ex := 0
 		if hasElems {
