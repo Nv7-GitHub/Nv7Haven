@@ -157,7 +157,8 @@ func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, author string, g
 		}
 		db.RUnlock()
 	} else {
-		for elems := range db.Combos() {
+		db.RLock()
+		for elems, elem3 := range db.Combos() {
 			parts := strings.Split(elems, "+")
 			for _, part := range parts {
 				num, err := strconv.Atoi(part)
@@ -165,12 +166,13 @@ func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, author string, g
 					continue
 				}
 				if num == el.ID {
-					el, _ := db.GetElement(num)
+					el, _ := db.GetElement(elem3)
 					vals[el.Name] = types.Empty{}
 					break
 				}
 			}
 		}
+		db.RUnlock()
 	}
 
 	out := make([]hintCombo, len(vals))

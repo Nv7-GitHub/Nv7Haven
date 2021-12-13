@@ -1,7 +1,6 @@
 package eodb
 
 import (
-	"encoding/json"
 	"net/url"
 	"os"
 	"path/filepath"
