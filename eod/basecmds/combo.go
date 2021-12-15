@@ -16,18 +16,12 @@ func (b *BaseCmds) Combine(elems []string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
 		return
 	}
 
-	inv, res := dat.GetInv(m.Author.ID, true)
-	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
-	}
+	inv := db.GetInv(m.Author.ID)
 
 	// Get rid of nulls
 	validElems := make([]string, len(elems))
@@ -53,13 +47,13 @@ func (b *BaseCmds) Combine(elems []string, m types.Msg, rsp types.Rsp) {
 	donthave := false
 	elExists := true
 	for _, elem := range elems {
-		_, res := dat.GetElement(elem)
+		id, res := db.GetIDByName(elem)
 		if !res.Exists {
 			elExists = false
 			break
 		}
 
-		hasElement := inv.Elements.Contains(elem)
+		hasElement := inv.Contains(id)
 		if !hasElement {
 			donthave = true
 		}
@@ -67,7 +61,7 @@ func (b *BaseCmds) Combine(elems []string, m types.Msg, rsp types.Rsp) {
 	if !elExists {
 		notExists := make(map[string]types.Empty)
 		for _, el := range elems {
-			_, res = dat.GetElement(el)
+			_, res := db.GetElementByName(el)
 			if !res.Exists {
 				notExists["**"+el+"**"] = types.Empty{}
 			}
@@ -86,20 +80,18 @@ func (b *BaseCmds) Combine(elems []string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 	if donthave {
-		_, res := dat.GetComb(m.Author.ID)
+		data, _ := b.GetData(m.GuildID)
+		_, res := data.GetComb(m.Author.ID)
 		if res.Exists {
-			dat.DeleteComb(m.Author.ID)
-
-			b.lock.Lock()
-			b.dat[m.GuildID] = dat
-			b.lock.Unlock()
+			data.DeleteComb(m.Author.ID)
 		}
 
 		notFound := make(map[string]types.Empty)
 		for _, el := range elems {
-			exists := inv.Elements.Contains(el)
+			id, _ := db.GetIDByName(el)
+			exists := inv.Contains(id)
 			if !exists {
-				elem, _ := dat.GetElement(el)
+				elem, _ := db.GetElement(id)
 				notFound["**"+elem.Name+"**"] = types.Empty{}
 			}
 		}
@@ -111,10 +103,8 @@ func (b *BaseCmds) Combine(elems []string, m types.Msg, rsp types.Rsp) {
 				break
 			}
 			id := rsp.ErrorMessage(fmt.Sprintf("You don't have **%s**!", el))
-			dat.SetMsgElem(id, el[2:len(el)-2])
-			b.lock.Lock()
-			b.dat[m.GuildID] = dat
-			b.lock.Unlock()
+			elID, _ := db.GetIDByName(el[2 : len(el)-2])
+			data.SetMsgElem(id, elID)
 			return
 		}
 
@@ -123,50 +113,51 @@ func (b *BaseCmds) Combine(elems []string, m types.Msg, rsp types.Rsp) {
 	}
 
 	// Combine elements
-	elem3, res := dat.GetCombo(util.Elems2Txt(elems))
+	ids := make([]int, len(elems))
+	for i, elem := range elems {
+		id, res := db.GetIDByName(elem)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		ids[i] = id
+	}
+	elem3, res := db.GetCombo(ids)
+	data, _ := b.GetData(m.GuildID)
 	if res.Exists {
-		dat.SetComb(m.Author.ID, types.Comb{
-			Elems: elems,
+		data.SetComb(m.Author.ID, types.Comb{
+			Elems: ids,
 			Elem3: elem3,
 		})
-
-		inv, res := dat.GetInv(m.Author.ID, true)
+		el3, res := db.GetElement(elem3)
 		if !res.Exists {
 			rsp.ErrorMessage(res.Message)
 			return
 		}
 
-		exists = inv.Elements.Contains(elem3)
+		inv := db.GetInv(m.Author.ID)
+
+		exists := inv.Contains(elem3)
 		if !exists {
-			inv.Elements.Add(elem3)
-			dat.SetInv(m.Author.ID, inv)
-			b.base.SaveInv(m.GuildID, m.Author.ID, false)
+			inv.Add(elem3)
+			err := db.SaveInv(inv)
+			if rsp.Error(err) {
+				return
+			}
 
-			id := rsp.Message(fmt.Sprintf("You made **%s** "+types.NewText, elem3))
-			dat.SetMsgElem(id, elem3)
-
-			b.lock.Lock()
-			b.dat[m.GuildID] = dat
-			b.lock.Unlock()
+			id := rsp.Message(fmt.Sprintf("You made **%s** "+types.NewText, el3.Name))
+			data.SetMsgElem(id, elem3)
 			return
 		}
 
-		id := rsp.Message(fmt.Sprintf("You made **%s**, but already have it "+blueCircle, elem3))
-		dat.SetMsgElem(id, elem3)
-
-		b.lock.Lock()
-		b.dat[m.GuildID] = dat
-		b.lock.Unlock()
+		id := rsp.Message(fmt.Sprintf("You made **%s**, but already have it "+blueCircle, el3.Name))
+		data.SetMsgElem(id, elem3)
 		return
 	}
 
-	dat.SetComb(m.Author.ID, types.Comb{
-		Elems: elems,
-		Elem3: "",
+	data.SetComb(m.Author.ID, types.Comb{
+		Elems: ids,
+		Elem3: -1,
 	})
-
-	b.lock.Lock()
-	b.dat[m.GuildID] = dat
-	b.lock.Unlock()
 	rsp.Resp("That combination doesn't exist! " + types.RedCircle + "\n 	Suggest it by typing **/suggest**")
 }

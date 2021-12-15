@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
-	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -201,7 +201,7 @@ var (
 					Name:        "sortby",
 					Description: "How to sort the inventory!",
 					Required:    false,
-					Choices:     util.SortChoices,
+					Choices:     eodsort.SortChoices,
 				},
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
@@ -322,7 +322,7 @@ var (
 							Name:  "Element Count",
 							Value: "catelemcount",
 						},
-					}, util.SortChoices...),
+					}, eodsort.SortChoices...),
 				},
 				{
 					Type:        discordgo.ApplicationCommandOptionUser,
@@ -476,7 +476,13 @@ var (
 					Name:        "sortby",
 					Description: "How to sort the elements",
 					Required:    true,
-					Choices:     util.SortChoices,
+					Choices:     eodsort.SortChoices,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionBoolean,
+					Name:        "postfix",
+					Description: "Whether to postfix or not?",
+					Required:    false,
 				},
 			},
 		},
@@ -574,7 +580,7 @@ var (
 							Name:        "sortby",
 							Description: "How to sort the inventory!",
 							Required:    false,
-							Choices:     util.SortChoices,
+							Choices:     eodsort.SortChoices,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionString,
@@ -616,7 +622,7 @@ var (
 							Name:        "sortby",
 							Description: "How to sort the category!",
 							Required:    false,
-							Choices:     util.SortChoices,
+							Choices:     eodsort.SortChoices,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionBoolean,
@@ -823,7 +829,7 @@ var (
 							Type:        discordgo.ApplicationCommandOptionString,
 							Name:        "sort",
 							Description: "How to sort the results!",
-							Choices:     util.SortChoices,
+							Choices:     eodsort.SortChoices,
 							Required:    false,
 						},
 						{
@@ -855,7 +861,7 @@ var (
 							Type:        discordgo.ApplicationCommandOptionString,
 							Name:        "sort",
 							Description: "How to sort the results!",
-							Choices:     util.SortChoices,
+							Choices:     eodsort.SortChoices,
 							Required:    false,
 						},
 						{
@@ -887,7 +893,7 @@ var (
 							Type:        discordgo.ApplicationCommandOptionString,
 							Name:        "sort",
 							Description: "How to sort the results!",
-							Choices:     util.SortChoices,
+							Choices:     eodsort.SortChoices,
 							Required:    false,
 						},
 						{
@@ -995,7 +1001,7 @@ var (
 				{
 					Type:        discordgo.ApplicationCommandOptionSubCommand,
 					Name:        "category",
-					Description: "Add an image to a category!",
+					Description: "Set the color of a category!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
 							Type:        discordgo.ApplicationCommandOptionString,
@@ -1183,7 +1189,11 @@ var (
 		},
 		"elemsort": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.elements.SortCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			postfix := false
+			if len(resp.Options) > 1 {
+				postfix = resp.Options[1].BoolValue()
+			}
+			bot.elements.SortCmd(resp.Options[0].StringValue(), postfix, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"help": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.basecmds.HelpCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
@@ -1476,32 +1486,56 @@ var (
 		"View Info": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			rsp := bot.newRespSlash(i)
-			res, suc := bot.getMessageElem(resp.TargetID, i.GuildID)
+			id, res, suc := bot.getMessageElem(resp.TargetID, i.GuildID)
 			if !suc {
 				rsp.ErrorMessage(res)
 				return
 			}
-			bot.elements.InfoCmd(res, bot.newMsgSlash(i), rsp)
+			db, r := bot.GetDB(i.GuildID)
+			if !r.Exists {
+				return
+			}
+			elem, r := db.GetElement(id)
+			if !r.Exists {
+				return
+			}
+			bot.elements.InfoCmd(elem.Name, bot.newMsgSlash(i), rsp)
 		},
 		"Get Hint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			rsp := bot.newRespSlash(i)
-			res, suc := bot.getMessageElem(resp.TargetID, i.GuildID)
+			id, res, suc := bot.getMessageElem(resp.TargetID, i.GuildID)
 			if !suc {
 				rsp.ErrorMessage(res)
 				return
 			}
-			bot.elements.HintCmd(res, true, false, bot.newMsgSlash(i), rsp)
+			db, r := bot.GetDB(i.GuildID)
+			if !r.Exists {
+				return
+			}
+			elem, r := db.GetElement(id)
+			if !r.Exists {
+				return
+			}
+			bot.elements.HintCmd(elem.Name, true, false, bot.newMsgSlash(i), rsp)
 		},
 		"Get Inverse Hint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			rsp := bot.newRespSlash(i)
-			res, suc := bot.getMessageElem(resp.TargetID, i.GuildID)
+			id, res, suc := bot.getMessageElem(resp.TargetID, i.GuildID)
 			if !suc {
 				rsp.ErrorMessage(res)
 				return
 			}
-			bot.elements.HintCmd(res, true, true, bot.newMsgSlash(i), rsp)
+			db, r := bot.GetDB(i.GuildID)
+			if !r.Exists {
+				return
+			}
+			elem, r := db.GetElement(id)
+			if !r.Exists {
+				return
+			}
+			bot.elements.HintCmd(elem.Name, true, true, bot.newMsgSlash(i), rsp)
 		},
 		"Get Color": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()

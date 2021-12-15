@@ -1,28 +1,23 @@
 package polls
 
 import (
-	"sync"
-
-	"github.com/Nv7-Github/Nv7Haven/db"
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
-	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/bwmarrin/discordgo"
 )
 
 type Polls struct {
-	dat  map[string]types.ServerDat
-	lock *sync.RWMutex
+	*eodb.Data
+
 	dg   *discordgo.Session
-	db   *db.DB
 	base *base.Base
 }
 
-func NewPolls(dat map[string]types.ServerDat, dg *discordgo.Session, db *db.DB, base *base.Base, lock *sync.RWMutex) *Polls {
+func NewPolls(data *eodb.Data, dg *discordgo.Session, base *base.Base) *Polls {
 	return &Polls{
-		dat:  dat,
-		lock: lock,
+		Data: data,
+
 		dg:   dg,
-		db:   db,
 		base: base,
 	}
 }

@@ -2,136 +2,113 @@ package treecmds
 
 import (
 	"fmt"
-	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
 func (b *TreeCmds) GiveCmd(elem string, giveTree bool, user string, m types.Msg, rsp types.Rsp) {
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
-		return
-	}
-
-	inv, res := dat.GetInv(user, true)
+	db, res := b.GetDB(m.GuildID)
 	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
 		return
 	}
 
-	el, res := dat.GetElement(elem)
+	inv := db.GetInv(user)
+
+	el, res := db.GetElementByName(elem)
 	if !res.Exists {
 		rsp.Resp(res.Message)
 		return
 	}
 
-	msg, suc := giveElem(dat, giveTree, elem, &inv)
+	msg, suc := giveElem(db, giveTree, el.ID, inv)
 	if !suc {
-		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", msg))
+		rsp.ErrorMessage(msg)
 		return
 	}
 
-	dat.SetInv(user, inv)
-
-	b.lock.Lock()
-	b.dat[m.GuildID] = dat
-	b.lock.Unlock()
-	b.base.SaveInv(m.GuildID, user, true, true)
+	err := db.SaveInv(inv)
+	if rsp.Error(err) {
+		return
+	}
 
 	rsp.Resp("Successfully gave element **" + el.Name + "**!")
 }
 
 func (b *TreeCmds) GiveCatCmd(catName string, giveTree bool, user string, m types.Msg, rsp types.Rsp) {
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
 		return
 	}
 
-	inv, res := dat.GetInv(user, true)
-	if !exists {
-		rsp.ErrorMessage(res.Message)
-		return
-	}
+	inv := db.GetInv(user)
 
-	cat, res := dat.GetCategory(catName)
+	cat, res := db.GetCat(catName)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
 		return
 	}
 
 	for elem := range cat.Elements {
-		_, res := dat.GetElement(elem)
+		_, res := db.GetElement(elem)
 		if !res.Exists {
-			rsp.Resp(fmt.Sprintf("Element **%s** doesn't exist!", elem))
+			rsp.ErrorMessage(res.Message)
 			return
 		}
 
-		msg, suc := giveElem(dat, giveTree, elem, &inv)
+		msg, suc := giveElem(db, giveTree, elem, inv)
 		if !suc {
 			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", msg))
 			return
 		}
 	}
 
-	dat.SetInv(user, inv)
-
-	b.lock.Lock()
-	b.dat[m.GuildID] = dat
-	b.lock.Unlock()
-	b.base.SaveInv(m.GuildID, user, true, true)
+	err := db.SaveInv(inv)
+	if rsp.Error(err) {
+		return
+	}
 
 	rsp.Resp("Successfully gave all elements in category **" + cat.Name + "**!")
 }
 
-func giveElem(dat types.ServerDat, giveTree bool, elem string, out *types.Inventory) (string, bool) {
-	el, res := dat.GetElement(elem)
+func giveElem(db *eodb.DB, giveTree bool, elem int, out *types.Inventory) (string, bool) {
+	el, res := db.GetElement(elem)
 	if !res.Exists {
-		return elem, false
+		return res.Message, false
 	}
 	if giveTree {
 		for _, parent := range el.Parents {
-			if len(strings.TrimSpace(parent)) == 0 {
-				continue
-			}
-			exists := out.Elements.Contains(parent)
+			exists := out.Contains(parent)
 			if !exists {
-				msg, suc := giveElem(dat, giveTree, parent, out)
+				msg, suc := giveElem(db, giveTree, parent, out)
 				if !suc {
 					return msg, false
 				}
 			}
 		}
 	}
-	(*out).Elements.Add(el.Name)
+	out.Add(elem)
 	return "", true
 }
 
 func (b *TreeCmds) GiveAllCmd(user string, m types.Msg, rsp types.Rsp) {
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
-		return
-	}
-	inv, res := dat.GetInv(user, user == m.Author.ID)
+	db, res := b.GetDB(m.GuildID)
 	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
 		return
 	}
 
-	for k := range dat.Elements {
-		inv.Elements.Add(k)
+	inv := db.GetInv(user)
+
+	db.RLock()
+	for id := range db.Elements {
+		inv.Add(id)
+	}
+	db.RUnlock()
+
+	err := db.SaveInv(inv)
+	if rsp.Error(err) {
+		return
 	}
 
-	dat.SetInv(user, inv)
-
-	b.lock.Lock()
-	b.dat[m.GuildID] = dat
-	b.lock.Unlock()
-	b.base.SaveInv(m.GuildID, user, true, true)
 	rsp.Resp("Successfully gave every element to <@" + user + ">!")
 }

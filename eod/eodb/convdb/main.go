@@ -37,7 +37,7 @@ func main() {
 	}
 	end("Connected to DB")
 
-	loadDB(false)
+	loadDB(true)
 	end("Loaded DB")
 
 	convDB()

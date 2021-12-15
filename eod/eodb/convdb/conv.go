@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -13,7 +14,7 @@ import (
 func convDB() {
 	home, err := os.UserHomeDir()
 	handle(err)
-	dbPath := filepath.Join(home, "go/src/github.com/Nv7-Github/Nv7Haven/data/eod")
+	dbPath := filepath.Join(home, "go/src/github.com/Nv7-Github/Nv7haven/data/eod")
 
 	err = os.RemoveAll(dbPath)
 	handle(err)
@@ -22,6 +23,10 @@ func convDB() {
 
 	for _, gld := range glds {
 		db, err := eodb.NewDB(gld.ID, filepath.Join(dbPath, gld.ID))
+		handle(err)
+
+		db.Config = gld.Config
+		err = db.SaveConfig()
 		handle(err)
 
 		// Conv elements
@@ -113,12 +118,16 @@ func convDB() {
 				}
 				i.Add(id)
 			}
-			err = db.SaveInv(i)
+			err = db.SaveInv(i, true)
 			handle(err)
 		}
 
 		// Conv cats
 		for _, cat := range gld.Cats {
+			txt := url.PathEscape(cat.Name)
+			if len(txt) > 1024 {
+				continue
+			}
 			c := db.NewCat(cat.Name)
 			c.Color = cat.Color
 			c.Image = cat.Image
@@ -130,7 +139,7 @@ func convDB() {
 				c.Elements[id] = types.Empty{}
 			}
 			err = db.SaveCat(c)
-			handle(err)
+			//handle(err)
 		}
 
 		db.Close()

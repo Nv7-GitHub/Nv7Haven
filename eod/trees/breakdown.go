@@ -3,27 +3,27 @@ package trees
 import (
 	"fmt"
 	"sort"
-	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
 type BreakDownTree struct {
-	Added     map[string]types.Empty
-	Dat       types.ServerDat
+	Added     map[int]types.Empty
+	DB        *eodb.DB
 	Breakdown map[string]int // map[userid]count
 	Total     int
 	Tree      bool
 }
 
-func (b *BreakDownTree) AddElem(elem string, noerror ...bool) (bool, string) {
-	_, exists := b.Added[strings.ToLower(elem)]
+func (b *BreakDownTree) AddElem(elem int, noerror ...bool) (bool, string) {
+	_, exists := b.Added[elem]
 	if exists {
 		return true, ""
 	}
 
-	el, res := b.Dat.GetElement(elem)
+	el, res := b.DB.GetElement(elem)
 	if !res.Exists {
 		return false, res.Message
 	}
@@ -40,7 +40,7 @@ func (b *BreakDownTree) AddElem(elem string, noerror ...bool) (bool, string) {
 	b.Breakdown[el.Creator]++
 	b.Total++
 
-	b.Added[strings.ToLower(elem)] = types.Empty{}
+	b.Added[elem] = types.Empty{}
 	return true, ""
 }
 

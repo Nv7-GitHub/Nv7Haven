@@ -79,48 +79,51 @@ func (b *Elements) SuggestCmd(suggestion string, autocapitalize bool, m types.Ms
 		return
 	}
 
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
-		rsp.ErrorMessage("Guild not set up!")
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
+	data, _ := b.GetData(m.GuildID)
 
-	_, exists = dat.PlayChannels[m.ChannelID]
+	// Check if play channel
+	db.Config.RLock()
+	_, exists := db.Config.PlayChannels[m.ChannelID]
+	db.Config.RUnlock()
 	if !exists {
 		rsp.ErrorMessage("You can only suggest in play channels!")
 		return
 	}
 
-	comb, res := dat.GetComb(m.Author.ID)
+	// Check if exists
+	comb, res := data.GetComb(m.Author.ID)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
 		return
 	}
-
-	data := util.Elems2Txt(comb.Elems)
-	_, res = dat.GetCombo(data)
+	_, res = db.GetCombo(comb.Elems)
 	if res.Exists {
 		rsp.ErrorMessage("That combo already has a result!")
 		return
 	}
 
-	el, res := dat.GetElement(suggestion)
+	// Check if result exists
+	el, res := db.GetElementByName(suggestion)
 	if res.Exists {
 		suggestion = el.Name
 	}
 
-	_, res = dat.GetElement(suggestion)
-	err := b.polls.CreatePoll(types.OldPoll{
-		Channel:   dat.VotingChannel,
+	err := b.polls.CreatePoll(types.Poll{
+		Channel:   db.Config.VotingChannel,
 		Guild:     m.GuildID,
 		Kind:      types.PollCombo,
-		Value3:    suggestion,
-		Value4:    m.Author.ID,
-		Data:      map[string]interface{}{"elems": comb.Elems, "exists": res.Exists},
-		Upvotes:   0,
-		Downvotes: 0,
+		Suggestor: m.Author.ID,
+
+		PollComboData: &types.PollComboData{
+			Elems:  comb.Elems,
+			Result: suggestion,
+			Exists: res.Exists,
+		},
 	})
 	if rsp.Error(err) {
 		return
@@ -128,12 +131,12 @@ func (b *Elements) SuggestCmd(suggestion string, autocapitalize bool, m types.Ms
 
 	txt := "Suggested **"
 	for _, val := range comb.Elems {
-		el, _ := dat.GetElement(val)
+		el, _ := db.GetElement(val)
 		txt += el.Name + " + "
 	}
 	txt = txt[:len(txt)-3]
 	if len(comb.Elems) == 1 {
-		el, _ := dat.GetElement(comb.Elems[0])
+		el, _ := db.GetElement(comb.Elems[0])
 		txt += " + " + el.Name
 	}
 	txt += " = " + suggestion + "** "
@@ -145,9 +148,7 @@ func (b *Elements) SuggestCmd(suggestion string, autocapitalize bool, m types.Ms
 	}
 
 	id := rsp.Message(txt)
-	dat.SetMsgElem(id, suggestion)
-
-	b.lock.Lock()
-	b.dat[m.GuildID] = dat
-	b.lock.Unlock()
+	if res.Exists {
+		data.SetMsgElem(id, el.ID)
+	}
 }

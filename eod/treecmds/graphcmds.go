@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
@@ -23,9 +24,9 @@ var outputTypes = map[string]types.Empty{
 	"DOT":  {},
 }
 
-func (b *TreeCmds) graphCmd(elems map[string]types.Empty, dat types.ServerDat, m types.Msg, layout string, outputType string, name string, distinctPrimary bool, rsp types.Rsp) {
+func (b *TreeCmds) graphCmd(elems map[int]types.Empty, db *eodb.DB, m types.Msg, layout string, outputType string, name string, distinctPrimary bool, rsp types.Rsp) {
 	// Create graph
-	graph, err := trees.NewGraph(dat)
+	graph, err := trees.NewGraph(db)
 	if rsp.Error(err) {
 		return
 	}
@@ -137,16 +138,18 @@ func (b *TreeCmds) graphCmd(elems map[string]types.Empty, dat types.ServerDat, m
 
 	id := rsp.Message(txt)
 	if len(elems) == 1 {
-		var elem string
+		var elem int
 		for k := range elems {
 			elem = k
 			break
 		}
+		dat, res := b.GetData(m.GuildID)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
 
 		dat.SetMsgElem(id, elem)
-		b.lock.Lock()
-		b.dat[m.GuildID] = dat
-		b.lock.Unlock()
 	}
 
 	channel, err := b.dg.UserChannelCreate(m.Author.ID)
@@ -161,30 +164,34 @@ func (b *TreeCmds) graphCmd(elems map[string]types.Empty, dat types.ServerDat, m
 }
 
 func (b *TreeCmds) ElemGraphCmd(elem string, layout string, outputType string, distinctPrimary bool, m types.Msg, rsp types.Rsp) {
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 	rsp.Acknowledge()
 
-	b.graphCmd(map[string]types.Empty{elem: {}}, dat, m, layout, outputType, elem, distinctPrimary, rsp)
+	el, res := db.GetElementByName(elem)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
+		return
+	}
+	b.graphCmd(map[int]types.Empty{el.ID: {}}, db, m, layout, outputType, elem, distinctPrimary, rsp)
 }
 
 func (b *TreeCmds) CatGraphCmd(catName, layout, outputType string, distinctPrimary bool, m types.Msg, rsp types.Rsp) {
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 	rsp.Acknowledge()
-	cat, res := dat.GetCategory(catName)
+
+	cat, res := db.GetCat(catName)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
 		return
 	}
 
-	b.graphCmd(cat.Elements, dat, m, layout, outputType, catName, distinctPrimary, rsp)
+	b.graphCmd(cat.Elements, db, m, layout, outputType, catName, distinctPrimary, rsp)
 }

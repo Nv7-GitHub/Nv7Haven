@@ -1,7 +1,7 @@
 package polls
 
 import (
-	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -29,9 +29,18 @@ var autocats = map[string]func(string) bool{
 }
 
 func (b *Polls) Autocategorize(elem string, guild string) error {
+	db, res := b.GetDB(guild)
+	if !res.Exists {
+		return errors.New(res.Message)
+	}
+
 	for catName, catFn := range autocats {
 		if catFn(elem) {
-			err := b.Categorize(elem, catName, guild)
+			id, res := db.GetIDByName(elem)
+			if !res.Exists {
+				return errors.New(res.Message)
+			}
+			err := b.Categorize(id, catName, guild)
 			if err != nil {
 				return err
 			}
@@ -40,44 +49,32 @@ func (b *Polls) Autocategorize(elem string, guild string) error {
 	return nil
 }
 
-func (b *Polls) Categorize(elem string, catName string, guild string) error {
-	b.lock.RLock()
-	dat, exists := b.dat[guild]
-	b.lock.RUnlock()
-	if !exists {
-		return nil
-	}
-
-	el, res := dat.GetElement(elem)
+func (b *Polls) Categorize(elem int, catName string, guild string) error {
+	db, res := b.GetDB(guild)
 	if !res.Exists {
 		return nil
 	}
 
-	cat, res := dat.GetCategory(catName)
+	el, res := db.GetElement(elem)
 	if !res.Exists {
-		cat = types.OldCategory{
-			Name:     catName,
-			Guild:    guild,
-			Elements: make(map[string]types.Empty),
-			Image:    "",
-		}
+		return nil
+	}
 
-		_, err := b.db.Exec("INSERT INTO eod_categories VALUES (?, ?, ?, ?, ?)", guild, cat.Name, "{}", cat.Image, cat.Color)
-		if err != nil {
-			return err
-		}
+	cat, res := db.GetCat(catName)
+	if !res.Exists {
+		cat = db.NewCat(catName)
 	} else {
 		// Already exists, don't need to do anything
-		_, exists = cat.Elements[el.Name]
+		_, exists := cat.Elements[el.ID]
 		if exists {
 			return nil
 		}
 	}
 
-	cat.Elements[el.Name] = types.Empty{}
-	dat.SetCategory(cat)
-
-	els, err := json.Marshal(cat.Elements)
+	cat.Lock.Lock()
+	cat.Elements[el.ID] = types.Empty{}
+	cat.Lock.Unlock()
+	err := db.SaveCat(cat)
 	if err != nil {
 		return err
 	}
@@ -86,123 +83,78 @@ func (b *Polls) Categorize(elem string, catName string, guild string) error {
 		fmt.Println(el.Name)
 	}
 
-	_, err = b.db.Exec("UPDATE eod_categories SET elements=? WHERE guild=? AND name=?", string(els), cat.Guild, cat.Name)
-	if err != nil {
-		return err
-	}
-
-	b.lock.Lock()
-	b.dat[guild] = dat
-	b.lock.Unlock()
-
 	return nil
 }
 
-func (b *Polls) UnCategorize(elem string, catName string, guild string) error {
-	b.lock.RLock()
-	dat, exists := b.dat[guild]
-	b.lock.RUnlock()
-	if !exists {
-		return nil
-	}
-
-	el, res := dat.GetElement(elem)
+func (b *Polls) UnCategorize(elem int, catName string, guild string) error {
+	db, res := b.GetDB(guild)
 	if !res.Exists {
 		return nil
 	}
 
-	cat, res := dat.GetCategory(catName)
+	el, res := db.GetElement(elem)
 	if !res.Exists {
 		return nil
 	}
-	delete(cat.Elements, el.Name)
-	dat.SetCategory(cat)
 
-	if len(cat.Elements) == 0 {
-		_, err := b.db.Exec("DELETE FROM eod_categories WHERE name=? AND guild=?", cat.Name, cat.Guild)
-		if err != nil {
-			return err
-		}
-		dat.DeleteCategory(catName)
-	} else {
-		data, err := json.Marshal(cat.Elements)
-		if err != nil {
-			return err
-		}
-		_, err = b.db.Exec("UPDATE eod_categories SET elements=? WHERE guild=? AND name=?", string(data), cat.Guild, cat.Name)
-		if err != nil {
-			return err
-		}
+	cat, res := db.GetCat(catName)
+	if !res.Exists {
+		cat = db.NewCat(catName)
 	}
-
-	b.lock.Lock()
-	b.dat[guild] = dat
-	b.lock.Unlock()
+	cat.Lock.Lock()
+	delete(cat.Elements, el.ID)
+	cat.Lock.Unlock()
+	err := db.SaveCat(cat) // Will delete if empty
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
 func (b *Polls) catImage(guild string, catName string, image string, creator string, controversial string) {
-	b.lock.RLock()
-	dat, exists := b.dat[guild]
-	b.lock.RUnlock()
-	if !exists {
+	db, res := b.GetDB(guild)
+	if !res.Exists {
 		return
 	}
-	cat, res := dat.GetCategory(catName)
+	cat, res := db.GetCat(catName)
 	if !res.Exists {
 		return
 	}
 
 	cat.Image = image
-	dat.SetCategory(cat)
-
-	b.lock.Lock()
-	b.dat[guild] = dat
-	b.lock.Unlock()
-
-	query := "UPDATE eod_categories SET image=? WHERE guild=? AND name LIKE ?"
-	if util.IsWildcard(cat.Name) {
-		query = strings.ReplaceAll(query, " LIKE ", "=")
+	err := db.SaveCat(cat)
+	if err != nil {
+		return
 	}
-	b.db.Exec(query, image, cat.Guild, cat.Name)
 	if creator != "" {
-		b.dg.ChannelMessageSend(dat.NewsChannel, "📸 Added Category Image - **"+cat.Name+"** (By <@"+creator+">)"+controversial)
+		b.dg.ChannelMessageSend(db.Config.NewsChannel, "📸 Added Category Image - **"+cat.Name+"** (By <@"+creator+">)"+controversial)
 	}
 }
 
 func (b *Polls) catColor(guild string, catName string, color int, creator string, controversial string) {
-	b.lock.RLock()
-	dat, exists := b.dat[guild]
-	b.lock.RUnlock()
-	if !exists {
+	db, res := b.GetDB(guild)
+	if !res.Exists {
 		return
 	}
-	cat, res := dat.GetCategory(catName)
+	cat, res := db.GetCat(catName)
 	if !res.Exists {
 		return
 	}
 
 	cat.Color = color
-	dat.SetCategory(cat)
-
-	b.lock.Lock()
-	b.dat[guild] = dat
-	b.lock.Unlock()
-
-	query := "UPDATE eod_categories SET color=? WHERE guild=? AND name LIKE ?"
-	if util.IsWildcard(cat.Name) {
-		query = strings.ReplaceAll(query, " LIKE ", "=")
+	err := db.SaveCat(cat)
+	if err != nil {
+		return
 	}
-	b.db.Exec(query, color, cat.Guild, cat.Name)
 	if creator != "" {
 		if color == 0 {
-			b.dg.ChannelMessageSend(dat.NewsChannel, "Reset Category Color - **"+cat.Name+"** (By <@"+creator+">)"+controversial)
+			b.dg.ChannelMessageSend(db.Config.NewsChannel, "Reset Category Color - **"+cat.Name+"** (By <@"+creator+">)"+controversial)
 		}
 		emoji, err := util.GetEmoji(color)
 		if err != nil {
 			emoji = types.RedCircle
 		}
-		b.dg.ChannelMessageSend(dat.NewsChannel, emoji+" Set Category Color - **"+cat.Name+"** (By <@"+creator+">)"+controversial)
+		b.dg.ChannelMessageSend(db.Config.NewsChannel, emoji+" Set Category Color - **"+cat.Name+"** (By <@"+creator+">)"+controversial)
 	}
 }

@@ -2,10 +2,15 @@ package elements
 
 import (
 	"fmt"
+	"math/rand"
 	"sort"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
+	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
+	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
@@ -22,7 +27,8 @@ var hintCmp = discordgo.ActionsRow{
 }
 
 type hintComponent struct {
-	b *Elements
+	b  *Elements
+	db *eodb.DB
 }
 
 func (h *hintComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -31,7 +37,7 @@ func (h *hintComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCr
 		ChannelID: i.ChannelID,
 		GuildID:   i.GuildID,
 	}
-	hint, msg, suc := h.b.getHint("", false, i.Member.User.ID, i.GuildID, false, m, nil)
+	hint, msg, suc := h.b.getHint(0, h.db, false, i.Member.User.ID, i.GuildID, false, m, nil)
 	if !suc {
 		h.b.dg.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseUpdateMessage,
@@ -59,8 +65,19 @@ type hintCombo struct {
 
 func (b *Elements) HintCmd(elem string, hasElem bool, inverse bool, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
+		return
+	}
+
 	elem = strings.TrimSpace(elem)
 	elem = util.EscapeElement(elem)
+	el, res := db.GetElementByName(elem)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
+		return
+	}
 
 	rspInp := rsp
 	if !hasElem {
@@ -70,7 +87,7 @@ func (b *Elements) HintCmd(elem string, hasElem bool, inverse bool, m types.Msg,
 		}
 		rspInp = nil
 	}
-	hint, msg, suc := b.getHint(elem, hasElem, m.Author.ID, m.GuildID, inverse, m, rspInp)
+	hint, msg, suc := b.getHint(el.ID, db, hasElem, m.Author.ID, m.GuildID, inverse, m, rspInp)
 	if !suc && msg == "" {
 		return
 	}
@@ -80,98 +97,89 @@ func (b *Elements) HintCmd(elem string, hasElem bool, inverse bool, m types.Msg,
 		return
 	}
 
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
-		return
-	}
+	data, _ := b.GetData(m.GuildID)
 
 	if hasElem {
 		id := rsp.Embed(hint)
-		dat.SetMsgElem(id, elem)
+		data.SetMsgElem(id, el.ID)
 		return
 	}
 
 	id := rsp.Embed(hint, hintCmp)
 
-	dat.AddComponentMsg(id, &hintComponent{b: b})
-
-	b.lock.Lock()
-	b.dat[m.GuildID] = dat
-	b.lock.Unlock()
+	data.AddComponentMsg(id, &hintComponent{b: b, db: db})
 }
 
-func (b *Elements) getHint(elem string, hasElem bool, author string, guild string, inverse bool, m types.Msg, rsp types.Rsp) (*discordgo.MessageEmbed, string, bool) {
-	b.lock.RLock()
-	dat, exists := b.dat[guild]
-	b.lock.RUnlock()
-	if !exists {
-		return nil, "Guild not found", false
-	}
-
-	inv, res := dat.GetInv(author, true)
-	if !exists {
-		return nil, res.Message, false
-	}
-	var el types.OldElement
-	if hasElem {
-		el, res = dat.GetElement(elem)
-		if !res.Exists {
-			return nil, fmt.Sprintf("No hints were found for **%s**!", elem), false
-		}
-	}
+func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, author string, guild string, inverse bool, m types.Msg, rsp types.Rsp) (*discordgo.MessageEmbed, string, bool) {
+	rand.Seed(time.Now().UnixNano())
+	inv := db.GetInv(author)
+	var el types.Element
 	if !hasElem {
 		hasFound := false
-		dat.Lock.RLock()
-		for _, v := range dat.Elements {
-			exists := inv.Elements.Contains(v.Name)
+		ids := make([]int, len(db.Elements))
+		db.RLock()
+		for i, v := range db.Elements {
+			ids[i] = v.ID
+		}
+		db.RUnlock()
+
+		// Shuffle ids
+		rand.Shuffle(len(ids), func(i, j int) {
+			v := ids[i]
+			ids[i] = ids[j]
+			ids[j] = v
+		})
+		for _, id := range ids {
+			exists := inv.Contains(id)
 			if !exists {
-				el = v
-				elem = v.Name
+				el, _ = db.GetElement(id)
 				hasFound = true
 				break
 			}
 		}
-		dat.Lock.RUnlock()
 		if !hasFound {
-			dat.Lock.RLock()
-			for _, v := range dat.Elements {
-				el = v
-				elem = v.Name
-				hasFound = true
-				break
-			}
-			dat.Lock.RUnlock()
+			db.RLock()
+			id := rand.Intn(len(db.Elements)-1) + 1
+			el, _ = db.GetElement(id, true)
+			db.RUnlock()
 		}
+	} else {
+		el, _ = db.GetElement(elem)
 	}
 
 	vals := make(map[string]types.Empty)
 	if !inverse {
-		dat.Lock.RLock()
-		for elems, elem3 := range dat.Combos {
-			if strings.EqualFold(elem3, elem) {
+		db.RLock()
+		for elems, elem3 := range db.Combos() {
+			if elem3 == el.ID {
 				vals[elems] = types.Empty{}
 			}
 		}
-		dat.Lock.RUnlock()
+		db.RUnlock()
 	} else {
-		for elems, elem3 := range dat.Combos {
+		db.RLock()
+		for elems, elem3 := range db.Combos() {
 			parts := strings.Split(elems, "+")
 			for _, part := range parts {
-				if strings.EqualFold(part, elem) {
-					vals[elem3] = types.Empty{}
+				num, err := strconv.Atoi(part)
+				if err != nil {
+					continue
+				}
+				if num == el.ID {
+					el, _ := db.GetElement(elem3)
+					vals[el.Name] = types.Empty{}
 					break
 				}
 			}
 		}
+		db.RUnlock()
 	}
 
 	out := make([]hintCombo, len(vals))
 	length := 0
 	i := 0
 	for val := range vals {
-		txt, ex := getHintText(val, inv, dat, inverse)
+		txt, ex := getHintText(val, inv, db, inverse)
 		out[i] = hintCombo{
 			exists: ex,
 			text:   txt,
@@ -199,13 +207,15 @@ func (b *Elements) getHint(elem string, hasElem bool, author string, guild strin
 	val := text.String()
 
 	txt := "Don't "
-	hasElem = inv.Elements.Contains(el.Name)
+	hasElem = inv.Contains(el.ID)
 	if hasElem {
 		txt = ""
 	}
 	footer := fmt.Sprintf("%d Hints • You %sHave This", len(out), txt)
 
-	isPlayChannel := dat.PlayChannels.Contains(m.ChannelID)
+	db.Config.RLock()
+	isPlayChannel := db.Config.PlayChannels.Contains(m.ChannelID)
+	db.Config.RUnlock()
 
 	if len(val) > 2000 && rsp == nil {
 		// If can't do page switcher, shorten it (cant do pageswitcher if its in a random hint)
@@ -248,16 +258,31 @@ func (b *Elements) getHint(elem string, hasElem bool, author string, guild strin
 	}, "", true
 }
 
-func getHintText(elemTxt string, inv types.Inventory, dat types.ServerDat, inverse bool) (string, int) {
+func getHintText(elemTxt string, inv *types.Inventory, db *eodb.DB, inverse bool) (string, int) {
 	if !inverse {
-		elems := strings.Split(elemTxt, "+")
+		elemDat := strings.Split(elemTxt, "+")
+		elems := make([]string, len(elemDat))
 		hasElems := true
-		for _, val := range elems {
-			exists := inv.Elements.Contains(val)
-			if !exists {
+		for i, val := range elemDat {
+			num, err := strconv.Atoi(val)
+			if err != nil {
+				hasElems = false
+				continue
+			}
+			el, res := db.GetElement(num)
+			if res.Exists {
+				exists := inv.Contains(el.ID)
+				if !exists {
+					hasElems = false
+				}
+			} else {
 				hasElems = false
 			}
+			elems[i] = el.Name
 		}
+		sort.Slice(elems, func(i, j int) bool {
+			return eodsort.CompareStrings(elems[i], elems[j])
+		})
 		pref := types.X
 		ex := 0
 		if hasElems {
@@ -267,9 +292,9 @@ func getHintText(elemTxt string, inv types.Inventory, dat types.ServerDat, inver
 		prf := "%s"
 		params := make([]interface{}, len(elems))
 		i := 0
-		dat.Lock.RLock()
+		db.RLock()
 		for _, k := range elems {
-			elem, _ := dat.GetElement(k, true)
+			elem, _ := db.GetElementByName(k, true)
 			params[i] = interface{}(elem.Name)
 
 			if i == 0 {
@@ -279,7 +304,7 @@ func getHintText(elemTxt string, inv types.Inventory, dat types.ServerDat, inver
 			}
 			i++
 		}
-		dat.Lock.RUnlock()
+		db.RUnlock()
 
 		params = append([]interface{}{pref}, params...)
 		params[len(params)-1] = util.Obscure(params[len(params)-1].(string))
@@ -287,14 +312,14 @@ func getHintText(elemTxt string, inv types.Inventory, dat types.ServerDat, inver
 		return txt, ex
 	}
 
-	found := inv.Elements.Contains(elemTxt)
+	el, _ := db.GetElementByName(elemTxt)
+	found := inv.Contains(el.ID)
 	txt := types.X
 	ex := 0
 	if found {
 		txt = types.Check
 		ex = 1
 	}
-	el, _ := dat.GetElement(elemTxt)
 	txt += " " + el.Name
 	return txt, ex
 }

@@ -9,27 +9,27 @@ import (
 )
 
 func (b *Elements) FoundCmd(elem string, m types.Msg, rsp types.Rsp) {
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
 		return
 	}
 
 	rsp.Acknowledge()
 
-	el, res := dat.GetElement(elem)
+	el, res := db.GetElementByName(elem)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
 		return
 	}
 
 	items := make(map[string]types.Empty)
-	for _, inv := range dat.Inventories {
-		if inv.Elements.Contains(el.Name) {
+	db.RLock()
+	for _, inv := range db.Invs() {
+		if inv.Contains(el.ID) {
 			items[inv.User] = types.Empty{}
 		}
 	}
+	db.RUnlock()
 
 	out := make([]string, len(items))
 	i := 0
@@ -55,5 +55,6 @@ func (b *Elements) FoundCmd(elem string, m types.Msg, rsp types.Rsp) {
 		PageGetter: b.base.InvPageGetter,
 		Items:      out,
 		User:       m.Author.ID,
+		Thumbnail:  el.Image,
 	}, m, rsp)
 }

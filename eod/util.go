@@ -41,10 +41,6 @@ import (
 }*/
 
 func (b *EoD) isMod(userID string, guildID string, m types.Msg) (bool, error) {
-	lock.RLock()
-	dat, inited := b.dat[guildID]
-	lock.RUnlock()
-
 	user, err := b.dg.GuildMember(m.GuildID, userID)
 	if err != nil {
 		return false, err
@@ -53,11 +49,12 @@ func (b *EoD) isMod(userID string, guildID string, m types.Msg) (bool, error) {
 		return true, nil
 	}
 
+	db, res := b.GetDB(guildID)
 	hasLoadedRoles := false
 	var roles []*discordgo.Role
 
 	for _, roleID := range user.Roles {
-		if inited && (roleID == dat.ModRole) {
+		if res.Exists && (roleID == db.Config.ModRole) {
 			return true, nil
 		}
 		role, err := b.dg.State.Role(guildID, roleID)
@@ -93,18 +90,16 @@ func splitByCombs(inp string) []string {
 	return []string{inp}
 }
 
-func (b *EoD) getMessageElem(id string, guild string) (string, bool) {
-	lock.RLock()
-	dat, exists := b.dat[guild]
-	lock.RUnlock()
-	if !exists {
-		return "Guild not setup yet!", false
-	}
-	el, res := dat.GetMsgElem(id)
+func (b *EoD) getMessageElem(id string, guild string) (int, string, bool) {
+	data, res := b.GetData(guild)
 	if !res.Exists {
-		return res.Message, false
+		return 0, "Guild not setup yet!", false
 	}
-	return el, true
+	el, res := data.GetMsgElem(id)
+	if !res.Exists {
+		return 0, res.Message, false
+	}
+	return el, "", true
 }
 
 //go:embed fools.txt

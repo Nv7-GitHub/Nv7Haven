@@ -56,47 +56,41 @@ func (b *EoD) canRunCmd(cmd *discordgo.InteractionCreate) (bool, string) {
 	}
 
 	// Get dat because everything after will require it
-	lock.RLock()
-	dat, exists := b.dat[cmd.GuildID]
-	lock.RUnlock()
-	falseMsg := "You need to have permission `Administrator` or have role <@&" + dat.ModRole + ">!"
-	if !exists {
-		return false, falseMsg
+	db, res := b.GetDB(cmd.GuildID)
+	if !res.Exists {
+		return false, "You need to have permission `Administrator`!"
 	}
+	falseMsg := "You need to have permission `Administrator` or have role <@&" + db.Config.ModRole + ">!"
 
 	// If command is path or catpath, check if has element/all elements in cat
 	// path
 	if resp.Name == "path" || resp.Name == "graph" || resp.Name == "notation" {
 		if resp.Options[0].Name == "element" {
-			inv, res := dat.GetInv(cmd.Member.User.ID, true)
+			inv := db.GetInv(cmd.Member.User.ID)
 			if !res.Exists {
 				return false, res.Message
 			}
 
-			el, res := dat.GetElement(resp.Options[0].Options[0].StringValue())
+			el, res := db.GetElementByName(resp.Options[0].Options[0].StringValue())
 			if !res.Exists {
 				return true, "" // If the element doesn't exist, the cat command will tell the user it doesn't exist
 			}
 
-			exists = inv.Elements.Contains(el.Name)
+			exists = inv.Contains(el.ID)
 			if !exists {
 				return false, fmt.Sprintf("You must have element **%s** to get it's path!", el.Name)
 			}
 			return true, ""
 		} else {
-			inv, res := dat.GetInv(cmd.Member.User.ID, true)
-			if !res.Exists {
-				return false, res.Message
-			}
-
-			cat, res := dat.GetCategory(resp.Options[0].Options[0].StringValue())
+			inv := db.GetInv(cmd.Member.User.ID)
+			cat, res := db.GetCat(resp.Options[0].Options[0].StringValue())
 			if !res.Exists {
 				return true, "" // If the category doesn't exist, the cat command will tell the user it doesn't exist
 			}
 
 			// Check if user has all elements in category
 			for elem := range cat.Elements {
-				exists = inv.Elements.Contains(elem)
+				exists = inv.Contains(elem)
 				if !exists {
 					return false, fmt.Sprintf("You must have all elements in category **%s** to get its path!", cat.Name)
 				}

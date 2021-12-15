@@ -2,14 +2,16 @@ package eod
 
 import (
 	_ "embed"
+	"fmt"
 	"strings"
-	"sync"
+	"time"
 
-	eodb "github.com/Nv7-Github/Nv7Haven/db"
+	"github.com/Nv7-Github/Nv7Haven/db"
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/basecmds"
 	"github.com/Nv7-Github/Nv7Haven/eod/categories"
 	"github.com/Nv7-Github/Nv7Haven/eod/elements"
+	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/polls"
 	"github.com/Nv7-Github/Nv7Haven/eod/treecmds"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -26,13 +28,13 @@ const (
 var token string
 
 var bot EoD
-var lock = &sync.RWMutex{}
 
 // EoD contains the data for an EoD bot
 type EoD struct {
-	dg  *discordgo.Session
-	db  *eodb.DB
-	dat map[string]types.ServerDat // map[guild]data
+	*eodb.Data
+
+	db *db.DB
+	dg *discordgo.Session
 
 	// Subsystems
 	base       *base.Base
@@ -44,7 +46,7 @@ type EoD struct {
 }
 
 // InitEoD initializes the EoD bot
-func InitEoD(db *eodb.DB) EoD {
+func InitEoD(sqldb *db.DB) EoD {
 	// Discord bot
 	dg, err := discordgo.New("Bot " + strings.TrimSpace(token))
 	if err != nil {
@@ -57,10 +59,18 @@ func InitEoD(db *eodb.DB) EoD {
 		panic(err)
 	}
 
+	start := time.Now()
+	fmt.Println("Loading DB...")
+	db, err := eodb.NewData("data/eod")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("started in", time.Since(start))
 	bot = EoD{
-		dg:  dg,
-		db:  db,
-		dat: make(map[string]types.ServerDat),
+		Data: db,
+
+		dg: dg,
+		db: sqldb,
 	}
 
 	dg.UpdateGameStatus(0, status)
@@ -77,6 +87,10 @@ func InitEoD(db *eodb.DB) EoD {
 
 // Close cleans up
 func (b *EoD) Close() {
-	b.db.Close()
+	b.Data.RLock()
+	for _, db := range b.Data.DB {
+		db.Close()
+	}
+	b.Data.RUnlock()
 	b.dg.Close()
 }

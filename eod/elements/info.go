@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
+	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
@@ -15,30 +16,35 @@ import (
 
 const catInfoCount = 3
 
-func (b *Elements) SortCmd(sort string, m types.Msg, rsp types.Rsp) {
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
+func (b *Elements) SortCmd(sort string, postfix bool, m types.Msg, rsp types.Rsp) {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
 		return
 	}
 
 	rsp.Acknowledge()
 
-	items := make([]string, len(dat.Elements))
+	ids := make([]int, len(db.Elements))
 	i := 0
-	for _, el := range dat.Elements {
-		items[i] = el.Name
+	db.RLock()
+	for _, el := range db.Elements {
+		ids[i] = el.ID
 		i++
 	}
-	util.SortElemList(items, sort, dat)
+	db.RUnlock()
+
+	var items []string
+	if postfix {
+		items = eodsort.SortElemList(ids, sort, db)
+	} else {
+		items = eodsort.SortElemList(ids, sort, db, true)
+	}
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
 		Title:      "Element Sort",
 		PageGetter: b.base.InvPageGetter,
 		Items:      items,
-		Length:     len(dat.Elements),
 	}, m, rsp)
 }
 
@@ -51,34 +57,18 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 	if len(elem) == 0 && !isId {
 		return
 	}
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
-		rsp.ErrorMessage("Guild isn't setup yet!")
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 
 	// Get Element name from ID
+	var el types.Element
 	if isId {
-		if id > len(dat.Elements) {
-			rsp.ErrorMessage(fmt.Sprintf("Element **#%d** doesn't exist!", id))
-			return
-		}
-
-		hasFound := false
-		dat.Lock.RLock()
-		for _, el := range dat.Elements {
-			if el.ID == id {
-				hasFound = true
-				elem = el.Name
-			}
-		}
-		dat.Lock.RUnlock()
-
-		if !hasFound {
-			rsp.ErrorMessage(fmt.Sprintf("Element **#%d** doesn't exist!", id))
-			return
+		el, res = db.GetElement(id)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
 		}
 	}
 
@@ -88,42 +78,41 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 	}
 
 	// Get Element
-	el, res := dat.GetElement(elem)
-	if !res.Exists {
-		// If what you said was "????", then stop
-		if strings.Contains(elem, "?") {
-			isValid := false
-			for _, letter := range elem {
-				if letter != '?' {
-					isValid = true
-					break
+	if !isId {
+		el, res = db.GetElementByName(elem)
+		if !res.Exists {
+			// If what you said was "????", then stop
+			if strings.Contains(elem, "?") {
+				isValid := false
+				for _, letter := range elem {
+					if letter != '?' {
+						isValid = true
+						break
+					}
+				}
+				if !isValid {
+					return
 				}
 			}
-			if !isValid {
-				return
-			}
+			rsp.ErrorMessage(res.Message)
+			return
 		}
-		rsp.ErrorMessage(res.Message)
-		return
 	}
 	rsp.Acknowledge()
 
 	// Get whether has element
 	has := ""
-	exists = false
-	inv, res := dat.GetInv(m.Author.ID, true)
-	if res.Exists {
-		exists = inv.Elements.Contains(el.Name)
-	}
+	inv := db.GetInv(m.Author.ID)
+	exists := inv.Contains(el.ID)
 	if !exists {
 		has = "don't "
 	}
 
 	// Get Categories
 	catsMap := make(map[catSortInfo]types.Empty)
-	dat.Lock.RLock()
-	for _, cat := range dat.Categories {
-		_, exists := cat.Elements[el.Name]
+	db.RLock()
+	for _, cat := range db.Cats() {
+		_, exists := cat.Elements[el.ID]
 		if exists {
 			catsMap[catSortInfo{
 				Name: cat.Name,
@@ -131,7 +120,7 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 			}] = types.Empty{}
 		}
 	}
-	dat.Lock.RUnlock()
+	db.RUnlock()
 	cats := make([]catSortInfo, len(catsMap))
 	i := 0
 	for k := range catsMap {
@@ -158,23 +147,23 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 
 	// Get Madeby
 	madeby := 0
-	dat.Lock.RLock()
-	for _, comb := range dat.Combos {
-		if strings.EqualFold(comb, el.Name) {
+	db.RLock()
+	for _, comb := range db.Combos() {
+		if comb == el.ID {
 			madeby++
 		}
 	}
 
 	// Get foundby
 	foundby := 0
-	for _, inv := range dat.Inventories {
-		if inv.Elements.Contains(el.Name) {
+	for _, inv := range db.Invs() {
+		if inv.Contains(el.ID) {
 			foundby++
 		}
 	}
-	dat.Lock.RUnlock()
+	db.RUnlock()
 
-	suc, msg, tree := trees.CalcElemInfo(elem, m.Author.ID, dat)
+	suc, msg, tree := trees.CalcElemInfo(el.ID, m.Author.ID, db)
 	if !suc {
 		rsp.ErrorMessage(msg)
 		return
@@ -223,7 +212,9 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 	}
 
 	msgId := rsp.RawEmbed(emb)
-	dat.SetMsgElem(msgId, el.Name)
+
+	data, _ := b.GetData(m.GuildID)
+	data.SetMsgElem(msgId, el.ID)
 }
 
 func (b *Elements) InfoCmd(elem string, m types.Msg, rsp types.Rsp) {

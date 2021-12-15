@@ -8,9 +8,11 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
-func (d *DB) GetElementByName(name string) (types.Element, types.GetResponse) {
-	d.RLock()
-	defer d.RUnlock()
+func (d *DB) GetElementByName(name string, nolock ...bool) (types.Element, types.GetResponse) {
+	if len(nolock) == 0 {
+		d.RLock()
+		defer d.RUnlock()
+	}
 
 	id, exists := d.elemNames[strings.ToLower(name)]
 	if !exists {
@@ -36,10 +38,19 @@ func (d *DB) GetIDByName(name string) (int, types.GetResponse) {
 	return id, types.GetResponse{Exists: true}
 }
 
-func (d *DB) GetElement(id int) (types.Element, types.GetResponse) {
-	d.RLock()
-	defer d.RUnlock()
+func (d *DB) GetElement(id int, nolock ...bool) (types.Element, types.GetResponse) {
+	if len(nolock) == 0 {
+		d.RLock()
+		defer d.RUnlock()
+	}
+
 	if id < 1 {
+		if id == 0 {
+			return types.Element{}, types.GetResponse{
+				Exists:  false,
+				Message: "Element **#0** doesn't exist!",
+			}
+		}
 		return types.Element{}, types.GetResponse{
 			Exists:  false,
 			Message: "Element ID can't be negative!",
@@ -69,17 +80,17 @@ func (d *DB) GetCombo(elems []int) (int, types.GetResponse) {
 	return res, types.GetResponse{Exists: true}
 }
 
-func (d *DB) GetInv(id string) *types.ElemContainer {
+func (d *DB) GetInv(id string) *types.Inventory {
 	d.RLock()
 	inv, exists := d.invs[id]
 	d.RUnlock()
 	if !exists {
-		inv = types.NewElemContainer(map[int]types.Empty{
+		inv = types.NewInventory(id, map[int]types.Empty{
 			1: {},
 			2: {},
 			3: {},
 			4: {},
-		}, id)
+		}, 0)
 		d.Lock()
 		d.invs[id] = inv
 		d.Unlock()
@@ -100,4 +111,17 @@ func (d *DB) GetCat(name string) (*types.Category, types.GetResponse) {
 		}
 	}
 	return cat, types.GetResponse{Exists: true}
+}
+
+func (d *DB) GetPoll(id string) (types.Poll, types.GetResponse) {
+	d.RLock()
+	poll, exists := d.Polls[id]
+	d.RUnlock()
+	if !exists {
+		return types.Poll{}, types.GetResponse{
+			Exists:  false,
+			Message: "Poll doesn't exist!",
+		}
+	}
+	return poll, types.GetResponse{Exists: true}
 }

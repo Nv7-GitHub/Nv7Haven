@@ -7,27 +7,21 @@ import (
 )
 
 func (b *Polls) MarkCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
-		return
-	}
-
-	rsp.Acknowledge()
-
-	el, res := dat.GetElement(elem)
-	if !res.Exists {
-		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
-		return
-	}
-
-	inv, res := dat.GetInv(m.Author.ID, true)
+	db, res := b.GetDB(m.GuildID)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
 		return
 	}
-	exists = inv.Elements.Contains(el.Name)
+	rsp.Acknowledge()
+
+	el, res := db.GetElementByName(elem)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
+		return
+	}
+
+	inv := db.GetInv(m.Author.ID)
+	exists := inv.Contains(el.ID)
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** is not in your inventory!", el.Name))
 		return
@@ -38,159 +32,166 @@ func (b *Polls) MarkCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
 	}
 
 	if el.Creator == m.Author.ID {
-		b.mark(m.GuildID, elem, mark, "", "")
+		id, res := db.GetIDByName(elem)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		b.mark(m.GuildID, id, mark, "", "")
 		rsp.Message(fmt.Sprintf("You have signed **%s**! 🖋️", el.Name))
 		return
 	}
 
-	err := b.CreatePoll(types.OldPoll{
-		Channel: dat.VotingChannel,
-		Guild:   m.GuildID,
-		Kind:    types.PollSign,
-		Value1:  el.Name,
-		Value2:  mark,
-		Value3:  el.Comment,
-		Value4:  m.Author.ID,
+	err := b.CreatePoll(types.Poll{
+		Channel:   db.Config.VotingChannel,
+		Guild:     m.GuildID,
+		Kind:      types.PollSign,
+		Suggestor: m.Author.ID,
+
+		PollSignData: &types.PollSignData{
+			Elem:    el.ID,
+			NewNote: mark,
+			OldNote: el.Comment,
+		},
 	})
 	if rsp.Error(err) {
 		return
 	}
 	id := rsp.Message(fmt.Sprintf("Suggested a note for **%s** 🖊️", el.Name))
-	dat.SetMsgElem(id, el.Name)
 
-	b.lock.Lock()
-	b.dat[m.GuildID] = dat
-	b.lock.Unlock()
+	data, _ := b.GetData(m.GuildID)
+	data.SetMsgElem(id, el.ID)
 }
 
 func (b *Polls) ImageCmd(elem string, image string, m types.Msg, rsp types.Rsp) {
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 
 	rsp.Acknowledge()
 
-	el, res := dat.GetElement(elem)
+	el, res := db.GetElementByName(elem)
 	if !res.Exists {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
 		return
 	}
 
-	inv, res := dat.GetInv(m.Author.ID, true)
-	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
-	}
-	exists = inv.Elements.Contains(el.Name)
+	inv := db.GetInv(m.Author.ID)
+	exists := inv.Contains(el.ID)
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** is not in your inventory!", el.Name))
 		return
 	}
 
 	if el.Creator == m.Author.ID {
-		b.image(m.GuildID, elem, image, "", "")
+		id, res := db.GetIDByName(elem)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		b.image(m.GuildID, id, image, "", "")
 		rsp.Message(fmt.Sprintf("You added an image to **%s**! 📷", el.Name))
 		return
 	}
 
-	err := b.CreatePoll(types.OldPoll{
-		Channel: dat.VotingChannel,
-		Guild:   m.GuildID,
-		Kind:    types.PollImage,
-		Value1:  el.Name,
-		Value2:  image,
-		Value3:  el.Image,
-		Value4:  m.Author.ID,
+	err := b.CreatePoll(types.Poll{
+		Channel:   db.Config.VotingChannel,
+		Guild:     m.GuildID,
+		Kind:      types.PollImage,
+		Suggestor: m.Author.ID,
+
+		PollImageData: &types.PollImageData{
+			Elem:     el.ID,
+			NewImage: image,
+			OldImage: el.Image,
+		},
 	})
 	if rsp.Error(err) {
 		return
 	}
 	id := rsp.Message(fmt.Sprintf("Suggested an image for **%s** 📷", el.Name))
-	dat.SetMsgElem(id, el.Name)
-
-	b.lock.Lock()
-	b.dat[m.GuildID] = dat
-	b.lock.Unlock()
+	data, _ := b.GetData(m.GuildID)
+	data.SetMsgElem(id, el.ID)
 }
 
 func (b *Polls) ColorCmd(elem string, color int, m types.Msg, rsp types.Rsp) {
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 
 	rsp.Acknowledge()
 
-	el, res := dat.GetElement(elem)
+	el, res := db.GetElementByName(elem)
 	if !res.Exists {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
 		return
 	}
 
-	inv, res := dat.GetInv(m.Author.ID, true)
-	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
-	}
-	exists = inv.Elements.Contains(el.Name)
+	inv := db.GetInv(m.Author.ID)
+	exists := inv.Contains(el.ID)
 	if !exists {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** is not in your inventory!", el.Name))
 		return
 	}
 
 	if el.Creator == m.Author.ID {
-		b.color(m.GuildID, elem, color, "", "")
+		id, res := db.GetIDByName(elem)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		b.color(m.GuildID, id, color, "", "")
 		rsp.Message(fmt.Sprintf("You have set the color of **%s**! 🖌️", el.Name))
 		return
 	}
 
-	err := b.CreatePoll(types.OldPoll{
-		Channel: dat.VotingChannel,
-		Guild:   m.GuildID,
-		Kind:    types.PollColor,
-		Value1:  el.Name,
-		Value3:  el.Image,
-		Value4:  m.Author.ID,
-		Data:    map[string]interface{}{"color": color},
+	err := b.CreatePoll(types.Poll{
+		Channel:   db.Config.VotingChannel,
+		Guild:     m.GuildID,
+		Kind:      types.PollColor,
+		Suggestor: m.Author.ID,
+
+		PollColorData: &types.PollColorData{
+			Element: el.ID,
+			Color:   color,
+		},
 	})
 	if rsp.Error(err) {
 		return
 	}
 	id := rsp.Message(fmt.Sprintf("Suggested a color for **%s** 🖌️", el.Name))
-	dat.SetMsgElem(id, el.Name)
-
-	b.lock.Lock()
-	b.dat[m.GuildID] = dat
-	b.lock.Unlock()
+	data, _ := b.GetData(m.GuildID)
+	data.SetMsgElem(id, el.ID)
 }
 
 func (b *Polls) CatImgCmd(catName string, url string, m types.Msg, rsp types.Rsp) {
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
-		return
-	}
-
-	cat, res := dat.GetCategory(catName)
+	db, res := b.GetDB(m.GuildID)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
 		return
 	}
 
-	err := b.CreatePoll(types.OldPoll{
-		Channel: dat.VotingChannel,
-		Guild:   m.GuildID,
-		Kind:    types.PollCatImage,
-		Value1:  cat.Name,
-		Value2:  url,
-		Value3:  cat.Image,
-		Value4:  m.Author.ID,
+	cat, res := db.GetCat(catName)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
+		return
+	}
+
+	err := b.CreatePoll(types.Poll{
+		Channel:   db.Config.VotingChannel,
+		Guild:     m.GuildID,
+		Kind:      types.PollCatImage,
+		Suggestor: m.Author.ID,
+
+		PollCatImageData: &types.PollCatImageData{
+			Category: cat.Name,
+			NewImage: url,
+			OldImage: cat.Image,
+		},
 	})
 	if rsp.Error(err) {
 		return
@@ -199,26 +200,28 @@ func (b *Polls) CatImgCmd(catName string, url string, m types.Msg, rsp types.Rsp
 }
 
 func (b *Polls) CatColorCmd(catName string, color int, m types.Msg, rsp types.Rsp) {
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
-		return
-	}
-
-	cat, res := dat.GetCategory(catName)
+	db, res := b.GetDB(m.GuildID)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
 		return
 	}
 
-	err := b.CreatePoll(types.OldPoll{
-		Channel: dat.VotingChannel,
-		Guild:   m.GuildID,
-		Kind:    types.PollCatColor,
-		Value1:  cat.Name,
-		Value4:  m.Author.ID,
-		Data:    map[string]interface{}{"color": color},
+	cat, res := db.GetCat(catName)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
+		return
+	}
+
+	err := b.CreatePoll(types.Poll{
+		Channel:   db.Config.VotingChannel,
+		Guild:     m.GuildID,
+		Kind:      types.PollCatColor,
+		Suggestor: m.Author.ID,
+
+		PollCatColorData: &types.PollCatColorData{
+			Category: cat.Name,
+			Color:    color,
+		},
 	})
 	if rsp.Error(err) {
 		return

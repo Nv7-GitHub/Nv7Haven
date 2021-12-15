@@ -5,38 +5,37 @@ import (
 )
 
 func (b *Polls) ResetPolls(m types.Msg, rsp types.Rsp) {
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
+	rsp.Acknowledge()
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
-	rsp.Acknowledge()
 
-	for id, poll := range dat.Polls {
+	db.RLock()
+	for _, poll := range db.Polls {
+		db.RUnlock()
 		poll.Upvotes = 0
 		poll.Downvotes = 0
 
 		// Delete
-		_, err := b.db.Exec("DELETE FROM eod_polls WHERE guild=? AND channel=? AND message=?", poll.Guild, poll.Channel, poll.Message)
-		if err != nil {
-			rsp.Error(err)
+		err := db.DeletePoll(poll)
+		if rsp.Error(err) {
 			return
 		}
 
-		// Delete from cache
-		dat.Lock.Lock()
-		delete(dat.Polls, id)
-		dat.Lock.Unlock()
-
 		// Delete msg
 		b.dg.ChannelMessageDelete(poll.Channel, poll.Message)
+
+		// Cleate new one
 		err = b.CreatePoll(poll)
 		if err != nil {
 			rsp.Error(err)
 			return
 		}
+		db.RLock()
 	}
+	db.RUnlock()
 
 	rsp.Message("Done!")
 }

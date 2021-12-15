@@ -11,42 +11,46 @@ import (
 )
 
 func (b *TreeCmds) CalcTreeCmd(elem string, m types.Msg, rsp types.Rsp) {
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 	rsp.Acknowledge()
-	txt, suc, msg := trees.CalcTree(dat, elem)
+
+	el, res := db.GetElementByName(elem)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
+		return
+	}
+	txt, suc, msg := trees.CalcTree(db, el.ID)
 	if !suc {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", msg))
+		return
+	}
+	data, res := b.GetData(m.GuildID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 	if len(txt) <= 2000 {
 		id := rsp.Message("Sent path in DMs!")
 
-		dat.SetMsgElem(id, elem)
-		b.lock.Lock()
-		b.dat[m.GuildID] = dat
-		b.lock.Unlock()
+		data.SetMsgElem(id, el.ID)
 
 		rsp.DM(txt)
 		return
 	}
 	id := rsp.Message("The path was too long! Sending it as a file in DMs!")
 
-	dat.SetMsgElem(id, elem)
-	b.lock.Lock()
-	b.dat[m.GuildID] = dat
-	b.lock.Unlock()
+	data.SetMsgElem(id, el.ID)
 
 	channel, err := b.dg.UserChannelCreate(m.Author.ID)
 	if rsp.Error(err) {
 		return
 	}
 	buf := strings.NewReader(txt)
-	el, _ := dat.GetElement(elem)
+
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
 		Content: fmt.Sprintf("Path for **%s**:", el.Name),
 		Files: []*discordgo.File{
@@ -60,21 +64,20 @@ func (b *TreeCmds) CalcTreeCmd(elem string, m types.Msg, rsp types.Rsp) {
 }
 
 func (b *TreeCmds) CalcTreeCatCmd(catName string, m types.Msg, rsp types.Rsp) {
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 	rsp.Acknowledge()
 
-	cat, res := dat.GetCategory(catName)
+	cat, res := db.GetCat(catName)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
 		return
 	}
 
-	txt, suc, msg := trees.CalcTreeCat(dat, cat.Elements)
+	txt, suc, msg := trees.CalcTreeCat(db, cat.Elements)
 	if !suc {
 		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", msg))
 		return

@@ -6,15 +6,13 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
-func (b *Polls) handlePollSuccess(p types.OldPoll) {
-	b.lock.RLock()
-	dat, exists := b.dat[p.Guild]
-	b.lock.RUnlock()
-	if !exists {
+func (b *Polls) handlePollSuccess(p types.Poll) {
+	db, res := b.GetDB(p.Guild)
+	if !res.Exists {
 		return
 	}
 
-	controversial := dat.VoteCount != 0 && float32(p.Downvotes)/float32(dat.VoteCount) >= 0.3
+	controversial := db.Config.VoteCount != 0 && float32(p.Downvotes)/float32(db.Config.VoteCount) >= 0.3
 	controversialTxt := ""
 	if controversial {
 		controversialTxt = " 🌩️"
@@ -22,51 +20,38 @@ func (b *Polls) handlePollSuccess(p types.OldPoll) {
 
 	switch p.Kind {
 	case types.PollCombo:
-		els, ok := p.Data["elems"].([]string)
-		if !ok {
-			dat := p.Data["elems"].([]interface{})
-			els = make([]string, len(dat))
-			for i, val := range dat {
-				els[i] = val.(string)
-			}
-		}
-		b.elemCreate(p.Value3, els, p.Value4, controversialTxt, p.Guild)
+		b.elemCreate(p.PollComboData.Result, p.PollComboData.Elems, p.Suggestor, controversialTxt, p.Guild)
 	case types.PollSign:
-		b.mark(p.Guild, p.Value1, p.Value2, p.Value4, controversialTxt)
+		b.mark(p.Guild, p.PollSignData.Elem, p.PollSignData.NewNote, p.Suggestor, controversialTxt)
 	case types.PollImage:
-		b.image(p.Guild, p.Value1, p.Value2, p.Value4, controversialTxt)
+		b.image(p.Guild, p.PollImageData.Elem, p.PollImageData.NewImage, p.Suggestor, controversialTxt)
 	case types.PollCategorize:
-		els, ok := p.Data["elems"].([]string)
-		if !ok {
-			dat := p.Data["elems"].([]interface{})
-			els := make([]string, len(dat))
-			for i, val := range dat {
-				els[i] = val.(string)
-			}
-		}
+		els := p.PollCategorizeData.Elems
 		for _, val := range els {
-			b.Categorize(val, p.Value1, p.Guild)
+			b.Categorize(val, p.PollCategorizeData.Category, p.Guild)
 		}
 		if len(els) == 1 {
-			b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("🗃️ Added **%s** to **%s** (By <@%s>)%s", els[0], p.Value1, p.Value4, controversialTxt))
+			name, _ := db.GetElement(els[0])
+			b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf("🗃️ Added **%s** to **%s** (By <@%s>)%s", name.Name, p.PollCategorizeData.Category, p.Suggestor, controversialTxt))
 		} else {
-			b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("🗃️ Added **%d elements** to **%s** (By <@%s>)%s", len(els), p.Value1, p.Value4, controversialTxt))
+			b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf("🗃️ Added **%d elements** to **%s** (By <@%s>)%s", len(els), p.PollCategorizeData.Category, p.Suggestor, controversialTxt))
 		}
 	case types.PollUnCategorize:
-		els := p.Data["elems"].([]string)
+		els := p.PollCategorizeData.Elems
 		for _, val := range els {
-			b.UnCategorize(val, p.Value1, p.Guild)
+			b.UnCategorize(val, p.PollCategorizeData.Category, p.Guild)
 		}
 		if len(els) == 1 {
-			b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("🗃️ Removed **%s** from **%s** (By <@%s>)%s", els[0], p.Value1, p.Value4, controversialTxt))
+			name, _ := db.GetElement(els[0])
+			b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf("🗃️ Removed **%s** from **%s** (By <@%s>)%s", name.Name, p.PollCategorizeData.Category, p.Suggestor, controversialTxt))
 		} else {
-			b.dg.ChannelMessageSend(dat.NewsChannel, fmt.Sprintf("🗃️ Removed **%d elements** from **%s** (By <@%s>)%s", len(els), p.Value1, p.Value4, controversialTxt))
+			b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf("🗃️ Removed **%d elements** from **%s** (By <@%s>)%s", len(els), p.PollCategorizeData.Category, p.Suggestor, controversialTxt))
 		}
 	case types.PollCatImage:
-		b.catImage(p.Guild, p.Value1, p.Value2, p.Value4, controversialTxt)
+		b.catImage(p.Guild, p.PollCatImageData.Category, p.PollCatImageData.NewImage, p.Suggestor, controversialTxt)
 	case types.PollColor:
-		b.color(p.Guild, p.Value1, p.Data["color"].(int), p.Value4, controversialTxt)
+		b.color(p.Guild, p.PollColorData.Element, p.PollColorData.Color, p.Suggestor, controversialTxt)
 	case types.PollCatColor:
-		b.catColor(p.Guild, p.Value1, p.Data["color"].(int), p.Value4, controversialTxt)
+		b.catColor(p.Guild, p.PollCatColorData.Category, p.PollCatColorData.Color, p.Suggestor, controversialTxt)
 	}
 }

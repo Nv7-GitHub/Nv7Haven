@@ -1,7 +1,6 @@
 package eodb
 
 import (
-	"encoding/json"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -50,15 +49,19 @@ func (d *DB) AddCombo(elems []int, result int) error {
 	return err
 }
 
-func (d *DB) SaveServerConfig() error {
+func (d *DB) SaveConfig() error {
 	d.Lock()
 	defer d.Unlock()
 
-	dat, err := json.Marshal(d.config)
+	dat, err := json.Marshal(d.Config)
 	if err != nil {
 		return err
 	}
 
+	_, err = d.configFile.Seek(0, 0)
+	if err != nil {
+		return err
+	}
 	err = d.configFile.Truncate(0)
 	if err != nil {
 		return err
@@ -90,8 +93,19 @@ func (d *DB) NewCat(name string) *types.Category {
 }
 
 func (d *DB) SaveCat(elems *types.Category) error {
+	// Empty?
+	if len(elems.Elements) == 0 {
+		d.Lock()
+		delete(d.cats, strings.ToLower(elems.Name))
+		delete(d.catFiles, strings.ToLower(elems.Name))
+		d.Unlock()
+
+		err := os.Remove(filepath.Join(d.dbPath, "categories", url.PathEscape(elems.Name)+".json"))
+		return err
+	}
+
 	elems.Lock.RLock()
-	dat, err := json.Marshal(elems.Elements)
+	dat, err := json.Marshal(elems)
 	elems.Lock.RUnlock()
 	if err != nil {
 		return err
@@ -108,6 +122,10 @@ func (d *DB) SaveCat(elems *types.Category) error {
 		}
 		d.catFiles[strings.ToLower(elems.Name)] = file
 	}
+	_, err = file.Seek(0, 0)
+	if err != nil {
+		return err
+	}
 	err = file.Truncate(0)
 	if err != nil {
 		return err
@@ -120,23 +138,41 @@ func (d *DB) SaveCat(elems *types.Category) error {
 	return nil
 }
 
-func (d *DB) SaveInv(inv *types.ElemContainer) error {
-	inv.RLock()
+func (d *DB) SaveInv(inv *types.Inventory, recalc ...bool) error {
+	d.RLock()
+	if len(recalc) > 0 {
+		for elem := range inv.Elements {
+			elem, res := d.GetElement(elem, true)
+			if !res.Exists {
+				continue
+			}
+			if elem.Creator == inv.User {
+				inv.MadeCnt++
+			}
+		}
+	}
+	d.RUnlock()
+
+	inv.Lock.RLock()
 	dat, err := json.Marshal(inv)
-	inv.RUnlock()
+	inv.Lock.RUnlock()
 	if err != nil {
 		return err
 	}
 
-	file, exists := d.invFiles[inv.Id]
+	file, exists := d.invFiles[inv.User]
 	if !exists {
-		file, err = os.Create(filepath.Join(d.dbPath, "inventories", inv.Id+".json"))
+		file, err = os.Create(filepath.Join(d.dbPath, "inventories", inv.User+".json"))
 		if err != nil {
 			return err
 		}
-		d.invFiles[inv.Id] = file
+		d.invFiles[inv.User] = file
 	}
 
+	_, err = file.Seek(0, 0)
+	if err != nil {
+		return err
+	}
 	err = file.Truncate(0)
 	if err != nil {
 		return err

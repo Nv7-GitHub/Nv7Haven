@@ -2,16 +2,19 @@ package eodb
 
 import (
 	"bufio"
-	"encoding/json"
 	"io"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	jsoniter "github.com/json-iterator/go"
 )
+
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 func (d *DB) loadElements() error {
 	f, err := os.OpenFile(filepath.Join(d.dbPath, "elements.json"), os.O_RDWR|os.O_CREATE, os.ModePerm)
@@ -90,10 +93,11 @@ func (d *DB) loadConfig() error {
 	if err != nil {
 		return err
 	}
-	err = json.Unmarshal(dat, &d.config)
+	err = json.Unmarshal(dat, &d.Config)
 	if err != nil {
-		d.config = types.NewServerConfig()
+		d.Config = types.NewServerConfig()
 	}
+	d.Config.RWMutex = &sync.RWMutex{}
 	d.configFile = f
 
 	return nil
@@ -109,10 +113,10 @@ func (d *DB) loadInvs() error {
 		return err
 	}
 
-	inv := make(map[int]types.Empty)
+	var inv *types.Inventory
 	for _, file := range files {
 		name := strings.TrimSuffix(file.Name(), ".json")
-		f, err := os.Open(filepath.Join(d.dbPath, "inventories", file.Name()))
+		f, err := os.OpenFile(filepath.Join(d.dbPath, "inventories", file.Name()), os.O_RDWR, os.ModePerm)
 		if err != nil {
 			return err
 		}
@@ -126,11 +130,12 @@ func (d *DB) loadInvs() error {
 		if err != nil {
 			return err
 		}
+		inv.Lock = &sync.RWMutex{}
 
 		// Save inv
-		d.invs[name] = types.NewElemContainer(inv, name)
+		d.invs[name] = inv
 		d.invFiles[name] = f
-		inv = make(map[int]types.Empty)
+		inv = nil
 	}
 	return nil
 }
@@ -151,7 +156,7 @@ func (d *DB) loadCats() error {
 		if err != nil {
 			return err
 		}
-		f, err := os.Open(filepath.Join(d.dbPath, "categories", file.Name()))
+		f, err := os.OpenFile(filepath.Join(d.dbPath, "categories", file.Name()), os.O_RDWR, os.ModePerm)
 		if err != nil {
 			return err
 		}
@@ -165,6 +170,7 @@ func (d *DB) loadCats() error {
 		if err != nil {
 			return err
 		}
+		cat.Lock = &sync.RWMutex{}
 
 		// Save cat
 		d.cats[strings.ToLower(name)] = cat
@@ -204,6 +210,7 @@ func (d *DB) loadPolls() error {
 		// Save poll
 		d.Polls[poll.Message] = poll
 		f.Close()
+		poll = types.Poll{}
 	}
 	return nil
 }

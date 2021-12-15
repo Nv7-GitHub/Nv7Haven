@@ -41,6 +41,8 @@ type ComponentMsg interface {
 }
 
 type ServerConfig struct {
+	*sync.RWMutex
+
 	UserColors    map[string]int
 	VotingChannel string
 	NewsChannel   string
@@ -51,22 +53,12 @@ type ServerConfig struct {
 }
 
 type ServerData struct {
+	*sync.RWMutex
+
 	LastCombs     map[string]Comb         // map[userID]comb
 	PageSwitchers map[string]PageSwitcher // map[messageid]pageswitcher
 	ComponentMsgs map[string]ComponentMsg // map[messageid]componentMsg
-	ElementMsgs   map[string]string       // map[messageid]elemname
-}
-
-type ServerDat struct {
-	ServerData
-	ServerConfig
-
-	Inventories map[string]Inventory   // map[userID]map[elementName]types.Empty
-	Elements    map[string]OldElement  //map[elementName]element
-	Combos      map[string]string      // map[elems]elem3
-	Categories  map[string]OldCategory // map[catName]category
-	Polls       map[string]OldPoll     // map[messageid]poll
-	Lock        *sync.RWMutex
+	ElementMsgs   map[string]int          // map[messageid]elemname
 }
 
 type PageSwitcher struct {
@@ -87,18 +79,14 @@ type PageSwitcher struct {
 	UserPos int
 	User    string
 
-	// Element sorting
-	Query  string
-	Length int
-
 	// Don't need to set these
 	Guild string
 	Page  int
 }
 
 type Comb struct {
-	Elems []string
-	Elem3 string
+	Elems []int
+	Elem3 int
 }
 
 type Element struct {
@@ -117,44 +105,59 @@ type Element struct {
 	TreeSize   int
 }
 
-type OldElement struct {
-	ID         int
-	Name       string
-	Image      string
-	Color      int
-	Guild      string
-	Comment    string
-	Creator    string
-	CreatedOn  time.Time
-	Parents    []string
-	Complexity int
-	Difficulty int
-	UsedIn     int
-	TreeSize   int
+type PollComboData struct {
+	Elems  []int
+	Result string
+	Exists bool
+}
+
+type PollSignData struct {
+	Elem    int
+	NewNote string
+	OldNote string
+}
+
+type PollImageData struct {
+	Elem     int
+	NewImage string
+	OldImage string
+}
+
+type PollCategorizeData struct {
+	Elems    []int
+	Category string
+}
+
+type PollCatImageData struct {
+	Category string
+	NewImage string
+	OldImage string
+}
+
+type PollColorData struct {
+	Element int
+	Color   int
+}
+type PollCatColorData struct {
+	Category string
+	Color    int
 }
 
 type Poll struct {
-	Channel string
-	Message string
-	Guild   string
-	Kind    PollType
+	Channel   string
+	Message   string
+	Guild     string
+	Kind      PollType
+	Suggestor string
 
 	// Data, pointers to different types with omitempty so that you can selectively have some data
-
-	Upvotes   int
-	Downvotes int
-}
-
-type OldPoll struct {
-	Channel string
-	Message string
-	Guild   string
-	Kind    PollType
-	Value1  string
-	Value2  string
-	Value3  string
-	Value4  string
-	Data    map[string]interface{}
+	PollComboData      *PollComboData      `json:"combodata,omitempty"`
+	PollSignData       *PollSignData       `json:"signdata,omitempty"`
+	PollImageData      *PollImageData      `json:"imagedata,omitempty"`
+	PollCategorizeData *PollCategorizeData `json:"catdata,omitempty"` // This is also the uncategorize data
+	PollCatImageData   *PollCatImageData   `json:"catimagedata,omitempty"`
+	PollColorData      *PollColorData      `json:"colordata,omitempty"`
+	PollCatColorData   *PollCatColorData   `json:"catcolordata,omitempty"`
 
 	Upvotes   int
 	Downvotes int
@@ -170,14 +173,6 @@ type Category struct {
 	Color    int
 }
 
-type OldCategory struct {
-	Name     string
-	Guild    string
-	Elements map[string]Empty
-	Image    string
-	Color    int
-}
-
 type Msg struct {
 	Author    *discordgo.User
 	ChannelID string
@@ -185,9 +180,26 @@ type Msg struct {
 }
 
 type Inventory struct {
-	Elements Container
+	Lock *sync.RWMutex `json:"-"`
+
+	Elements map[int]Empty
 	MadeCnt  int
 	User     string
+}
+
+func (i *Inventory) Add(elem int) {
+	i.Lock.Lock()
+	i.Elements[elem] = Empty{}
+	i.Lock.Unlock()
+}
+
+func (i *Inventory) Contains(elem int, nolock ...bool) bool {
+	if len(nolock) == 0 {
+		i.Lock.RLock()
+		defer i.Lock.RUnlock()
+	}
+	_, exists := i.Elements[elem]
+	return exists
 }
 
 type Rsp interface {
@@ -203,27 +215,21 @@ type Rsp interface {
 
 func NewServerConfig() *ServerConfig {
 	return &ServerConfig{
+		RWMutex: &sync.RWMutex{},
+
 		UserColors:   make(map[string]int),
 		PlayChannels: make(Container),
 	}
 }
 
-func NewServerData() ServerDat {
-	return ServerDat{
-		ServerData: ServerData{
-			LastCombs:     make(map[string]Comb),
-			PageSwitchers: make(map[string]PageSwitcher),
-			ComponentMsgs: make(map[string]ComponentMsg),
-			ElementMsgs:   make(map[string]string),
-		},
-		ServerConfig: *NewServerConfig(),
+func NewServerData() *ServerData {
+	return &ServerData{
+		RWMutex: &sync.RWMutex{},
 
-		Lock:        &sync.RWMutex{},
-		Polls:       make(map[string]OldPoll),
-		Elements:    make(map[string]OldElement),
-		Combos:      make(map[string]string),
-		Categories:  make(map[string]OldCategory),
-		Inventories: make(map[string]Inventory),
+		LastCombs:     make(map[string]Comb),
+		PageSwitchers: make(map[string]PageSwitcher),
+		ComponentMsgs: make(map[string]ComponentMsg),
+		ElementMsgs:   make(map[string]int),
 	}
 }
 
@@ -238,36 +244,12 @@ func (c Container) Add(elem string) {
 	c[strings.ToLower(elem)] = Empty{}
 }
 
-func NewInventory(user string) Inventory {
-	return Inventory{
-		Elements: make(map[string]Empty),
+func NewInventory(user string, elements map[int]Empty, madecnt int) *Inventory {
+	return &Inventory{
+		Lock: &sync.RWMutex{},
+
+		Elements: elements,
 		User:     user,
-	}
-}
-
-type ElemContainer struct {
-	sync.RWMutex
-	Data map[int]Empty
-
-	Id string
-}
-
-func (e *ElemContainer) Contains(val int) bool {
-	e.RLock()
-	_, contains := e.Data[val]
-	e.RUnlock()
-	return contains
-}
-
-func (e *ElemContainer) Add(val int) {
-	e.Lock()
-	e.Data[val] = Empty{}
-	e.Unlock()
-}
-
-func NewElemContainer(data map[int]Empty, id string) *ElemContainer {
-	return &ElemContainer{
-		Data: data,
-		Id:   id,
+		MadeCnt:  madecnt,
 	}
 }

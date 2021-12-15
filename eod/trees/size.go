@@ -1,29 +1,28 @@
 package trees
 
 import (
-	"strings"
-
+	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
 type SizeTree struct {
 	Size  int
-	dat   types.ServerDat
-	added map[string]types.Empty
+	db    *eodb.DB
+	added map[int]types.Empty
 }
 
-func (s *SizeTree) AddElem(name string, notoplevel ...bool) (bool, string) {
-	_, exists := s.added[name]
+func (s *SizeTree) AddElem(elem int, notoplevel ...bool) (bool, string) {
+	_, exists := s.added[elem]
 	if exists {
 		return true, ""
 	}
 
 	if len(notoplevel) == 0 {
-		s.dat.Lock.RLock()
-		defer s.dat.Lock.RUnlock()
+		s.db.RLock()
+		defer s.db.RUnlock()
 	}
 
-	el, res := s.dat.GetElement(name, true)
+	el, res := s.db.GetElement(elem, true)
 	if !res.Exists {
 		return false, res.Message
 	}
@@ -35,18 +34,18 @@ func (s *SizeTree) AddElem(name string, notoplevel ...bool) (bool, string) {
 		}
 	}
 
-	s.added[strings.ToLower(name)] = types.Empty{}
+	s.added[elem] = types.Empty{}
 	s.Size++
 
 	return true, ""
 }
 
-func NewSizeTree(dat types.ServerDat) *SizeTree {
-	return &SizeTree{Size: 0, dat: dat, added: make(map[string]types.Empty)}
+func NewSizeTree(db *eodb.DB) *SizeTree {
+	return &SizeTree{Size: 0, db: db, added: make(map[int]types.Empty)}
 }
 
-func ElemCreateSize(parents []string, dat types.ServerDat) (int, bool, string) {
-	size := NewSizeTree(dat)
+func ElemCreateSize(parents []int, db *eodb.DB) (int, bool, string) {
+	size := NewSizeTree(db)
 	for _, par := range parents {
 		suc, msg := size.AddElem(par)
 		if !suc {

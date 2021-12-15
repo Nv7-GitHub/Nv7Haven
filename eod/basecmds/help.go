@@ -89,18 +89,12 @@ func (b *BaseCmds) HelpCmd(m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 	id := rsp.Message(helpAbout, makeHelpComponents("about"))
 
-	b.lock.RLock()
-	dat, exists := b.dat[m.GuildID]
-	b.lock.RUnlock()
-	if !exists {
+	data, res := b.GetData(m.GuildID)
+	if !res.Exists {
 		return
 	}
 
-	dat.AddComponentMsg(id, &helpComponent{
+	data.AddComponentMsg(id, &helpComponent{
 		b: b,
 	})
-
-	b.lock.Lock()
-	b.dat[m.GuildID] = dat
-	b.lock.Unlock()
 }

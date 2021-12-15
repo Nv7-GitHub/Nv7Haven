@@ -211,10 +211,12 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if !b.base.CheckServer(msg, rsp) {
 			return
 		}
-		lock.RLock()
-		dat, exists := b.dat[msg.GuildID]
-		lock.RUnlock()
-		if !exists {
+		data, res := b.GetData(msg.GuildID)
+		if !res.Exists {
+			return
+		}
+		db, res := b.GetDB(msg.GuildID)
+		if !res.Exists {
 			return
 		}
 
@@ -243,15 +245,21 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if split {
 			last = items[1]
 		} else {
-			comb, res := dat.GetComb(msg.Author.ID)
+			comb, res := data.GetComb(msg.Author.ID)
 			if !res.Exists {
 				rsp.ErrorMessage(res.Message)
 				return
 			}
-			last = comb.Elem3
+			el, _ := db.GetElement(comb.Elem3)
+			last = el.Name
 
-			if comb.Elem3 == "" {
-				b.basecmds.Combine(comb.Elems, msg, rsp)
+			if comb.Elem3 == -1 {
+				txt := make([]string, len(comb.Elems))
+				for i, elem := range comb.Elems {
+					el, _ := db.GetElement(elem)
+					txt[i] = el.Name
+				}
+				b.basecmds.Combine(txt, msg, rsp)
 				return
 			}
 		}
