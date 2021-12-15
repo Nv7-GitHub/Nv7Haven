@@ -94,7 +94,7 @@ func (b *EoD) init() {
 	}
 
 	// heavserver
-	/*db, res := b.GetDB("733813103891972130")
+	db, res := b.GetDB("733813103891972130")
 	if !res.Exists {
 		var err error
 		db, err = b.NewDB("733813103891972130")
@@ -109,8 +109,9 @@ func (b *EoD) init() {
 	db.Config.PlayChannels.Add("911767557965512754")
 	db.Config.NewsChannel = "828073212008857600"
 	db.Config.VotingChannel = "828073197948895252"
+	db.Config.VoteCount = 2
 	err := db.SaveConfig()
 	if err != nil {
 		panic(err)
-	}*/
+	}
 }
