@@ -94,7 +94,7 @@ func (b *EoD) init() {
 	}
 
 	// heavserver
-	db, res := b.GetDB("733813103891972130")
+	/*db, res := b.GetDB("733813103891972130")
 	if !res.Exists {
 		var err error
 		db, err = b.NewDB("733813103891972130")
@@ -113,5 +113,5 @@ func (b *EoD) init() {
 	err := db.SaveConfig()
 	if err != nil {
 		panic(err)
-	}
+	}*/
 }
