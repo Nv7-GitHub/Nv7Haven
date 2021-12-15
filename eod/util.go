@@ -50,10 +50,6 @@ func (b *EoD) isMod(userID string, guildID string, m types.Msg) (bool, error) {
 	}
 
 	db, res := b.GetDB(guildID)
-	if !res.Exists {
-		return false, nil
-	}
-
 	hasLoadedRoles := false
 	var roles []*discordgo.Role
 
