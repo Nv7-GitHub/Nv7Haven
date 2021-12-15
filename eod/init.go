@@ -92,4 +92,25 @@ func (b *EoD) init() {
 			}
 		}
 	}
+
+	// heavserver
+	db, res := b.GetDB("733813103891972130")
+	if !res.Exists {
+		var err error
+		db, err = b.NewDB("733813103891972130")
+		if err != nil {
+			panic(err)
+		}
+	}
+	db.Config.PlayChannels.Add("828073229318881280")
+	db.Config.PlayChannels.Add("828073247345344572")
+	db.Config.PlayChannels.Add("828073260796215316")
+	db.Config.PlayChannels.Add("911767474943430666")
+	db.Config.PlayChannels.Add("911767557965512754")
+	db.Config.NewsChannel = "828073212008857600"
+	db.Config.VotingChannel = "828073197948895252"
+	err := db.SaveConfig()
+	if err != nil {
+		panic(err)
+	}
 }
