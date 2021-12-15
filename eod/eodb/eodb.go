@@ -69,7 +69,13 @@ func (d *Data) GetData(guild string) (*types.ServerData, types.GetResponse) {
 func (d *Data) NewDB(guild string) (*DB, error) {
 	d.Lock()
 	defer d.Unlock()
-	return NewDB(guild, filepath.Join(d.path, guild))
+	d.Data[guild] = types.NewServerData()
+	db, err := NewDB(guild, filepath.Join(d.path, guild))
+	if err != nil {
+		return nil, err
+	}
+	d.DB[guild] = db
+	return db, nil
 }
 
 type DB struct {
