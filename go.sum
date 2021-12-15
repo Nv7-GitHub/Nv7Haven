@@ -49,6 +49,8 @@ github.com/Nv7-Github/average-joe v0.0.0-20211113215211-16b8d1b81265 h1:YlbwWzR8
 github.com/Nv7-Github/average-joe v0.0.0-20211113215211-16b8d1b81265/go.mod h1:2zZy3eVZoJKG6tkFbnQODGjCKn65g0nmFh1X+WvVHxU=
 github.com/Nv7-Github/firebase v0.0.0-20201012033747-47c56e1d869d h1:4h8lsgskZe3qf69Wu2V0fdKs0oEjbSR46Grzc0aLVTE=
 github.com/Nv7-Github/firebase v0.0.0-20201012033747-47c56e1d869d/go.mod h1:v6tFe6snfSAUV2p55/ebS0k8CY1hlhIjzQHTMq31H6o=
+github.com/Nv7-Github/vcomm v0.0.0-20211214022420-4eada85df8e7 h1:R3+atelxKwSNFumQvmFv4aWtMwx3KkQjB/clBTXwRAg=
+github.com/Nv7-Github/vcomm v0.0.0-20211214022420-4eada85df8e7/go.mod h1:NOyhePPXwu7zJpZ1JXR2H3ch7+NqMjRdj2lCYu2rf8I=
 github.com/ajstarks/svgo v0.0.0-20180226025133-644b8db467af/go.mod h1:K08gAheRH3/J6wwsYMMT4xOr94bZjxIelGM0+d/wbFw=
 github.com/andybalholm/brotli v1.0.2 h1:JKnhI/XQ75uFBTiuzXpzFrUriDPiZjlOSzh6wXogP0E=
 github.com/andybalholm/brotli v1.0.2/go.mod h1:loMXtMfwqflxFJPmdbJO0a3KNoPuLBgiu3qAvBg8x/Y=
@@ -228,8 +230,9 @@ github.com/mingrammer/commonregex v1.0.1 h1:QY0Z1Bl80jw9M3+488HJXPWnZmvtu3Udvxyo
 github.com/mingrammer/commonregex v1.0.1/go.mod h1:/HNZq7qReKgXBxJxce5SOxf33y0il/ZqL4Kxgo2NLcA=
 github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db h1:62I3jR2EmQ4l5rM/4FEfDWcRD+abF5XlKShorW5LRoQ=
 github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db/go.mod h1:l0dey0ia/Uv7NcFFVbCLtqEBQbrT4OCwCSKTEv6enCw=
-github.com/mitchellh/mapstructure v1.4.1 h1:CpVNEelQCZBooIPDn+AR3NpivK/TIKU8bDxdASFVQag=
 github.com/mitchellh/mapstructure v1.4.1/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RRV2QTWOzhPopBRo=
+github.com/mitchellh/mapstructure v1.4.3 h1:OVowDSCllw/YjdLkam3/sm7wEtOy59d8ndGgCcyj8cs=
+github.com/mitchellh/mapstructure v1.4.3/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RRV2QTWOzhPopBRo=
 github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421 h1:ZqeYNhU3OHLH3mGKHDcjJRFFRrJa6eAM5H+CtDdOsPc=
 github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=
 github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742 h1:Esafd1046DLDQ0W1YjYsBW+p8U2u7vzgW2SQVmlNazg=

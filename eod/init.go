@@ -3,6 +3,7 @@ package eod
 import (
 	"time"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/admin"
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/basecmds"
 	"github.com/Nv7-Github/Nv7Haven/eod/categories"
@@ -23,6 +24,7 @@ func (b *EoD) init() {
 	b.polls = polls.NewPolls(b.Data, b.dg, b.base)
 	b.categories = categories.NewCategories(b.Data, b.base, b.dg, b.polls)
 	b.elements = elements.NewElements(b.Data, b.polls, b.db, b.base, b.dg)
+	admin.InitAdmin(b.Data)
 
 	// Polls
 	cnt := 0
