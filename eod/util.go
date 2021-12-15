@@ -41,14 +41,17 @@ import (
 }*/
 
 func (b *EoD) isMod(userID string, guildID string, m types.Msg) (bool, error) {
-	db, res := b.GetDB(guildID)
-
 	user, err := b.dg.GuildMember(m.GuildID, userID)
 	if err != nil {
 		return false, err
 	}
 	if (user.Permissions * discordgo.PermissionAdministrator) == discordgo.PermissionAdministrator {
 		return true, nil
+	}
+
+	db, res := b.GetDB(guildID)
+	if !res.Exists {
+		return false, nil
 	}
 
 	hasLoadedRoles := false

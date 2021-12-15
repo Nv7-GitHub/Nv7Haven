@@ -57,10 +57,10 @@ func (b *EoD) canRunCmd(cmd *discordgo.InteractionCreate) (bool, string) {
 
 	// Get dat because everything after will require it
 	db, res := b.GetDB(cmd.GuildID)
-	falseMsg := "You need to have permission `Administrator` or have role <@&" + db.Config.ModRole + ">!"
 	if !res.Exists {
-		return false, falseMsg
+		return false, "You need to have permission `Administrator`!"
 	}
+	falseMsg := "You need to have permission `Administrator` or have role <@&" + db.Config.ModRole + ">!"
 
 	// If command is path or catpath, check if has element/all elements in cat
 	// path
