@@ -210,6 +210,7 @@ func (d *DB) loadPolls() error {
 		// Save poll
 		d.Polls[poll.Message] = poll
 		f.Close()
+		poll = types.Poll{}
 	}
 	return nil
 }
