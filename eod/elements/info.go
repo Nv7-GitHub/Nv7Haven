@@ -69,6 +69,7 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 		el, res = db.GetElement(id)
 		if !res.Exists {
 			rsp.ErrorMessage(res.Message)
+			return
 		}
 	}
 
