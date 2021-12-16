@@ -19,6 +19,7 @@ type Admin struct {
 func (a *Admin) Route(app *fiber.App) {
 	app.Post("/admin/config", a.Config)
 	app.Post("/admin/login", a.Login)
+	app.Post("/admin/setconfig", a.SetConfig)
 }
 
 func InitAdmin(data *eodb.Data, app *fiber.App) {
