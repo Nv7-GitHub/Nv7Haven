@@ -34,7 +34,7 @@ func systemHandlers(app *fiber.App) {
 		return nil
 	})
 	app.Get("/kill/:password", func(c *fiber.Ctx) error {
-		if c.Params("password") == os.Getenv("PASSWORD") {
+		if c.Params("password") == os.Getenv("MOD_PASSWORD") {
 			os.Exit(2)
 		}
 		return nil

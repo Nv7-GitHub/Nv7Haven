@@ -39,7 +39,7 @@ func (a *Admin) GetUID() string {
 
 func (a *Admin) Login(c *fiber.Ctx) error {
 	password := string(c.Body())
-	if password == os.Getenv("PASSWORD") {
+	if password == os.Getenv("MOD_PASSWORD") {
 		uid := a.GetUID()
 
 		a.lock.Lock()
