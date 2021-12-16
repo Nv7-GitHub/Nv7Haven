@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/admin"
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 func main() {
@@ -17,12 +18,14 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("started in", time.Since(start))
+	fmt.Println("Loaded in", time.Since(start))
 
-	admin.InitAdmin(db)
+	app := fiber.New()
+	app.Use(cors.New())
 
-	fmt.Println("Listening")
-	err = http.ListenAndServe(":"+os.Getenv("HTTP_PORT"), nil)
+	admin.InitAdmin(db, app)
+
+	err = app.Listen(":" + os.Getenv("PORT"))
 	if err != nil {
 		panic(err)
 	}

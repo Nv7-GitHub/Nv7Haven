@@ -12,10 +12,11 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/polls"
 	"github.com/Nv7-Github/Nv7Haven/eod/treecmds"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/gofiber/fiber/v2"
 	"github.com/schollz/progressbar/v3"
 )
 
-func (b *EoD) init() {
+func (b *EoD) init(app *fiber.App) {
 	// Initialize subsystems
 	logs.InitEoDLogs()
 	b.base = base.NewBase(b.Data, b.dg)
@@ -24,7 +25,7 @@ func (b *EoD) init() {
 	b.polls = polls.NewPolls(b.Data, b.dg, b.base)
 	b.categories = categories.NewCategories(b.Data, b.base, b.dg, b.polls)
 	b.elements = elements.NewElements(b.Data, b.polls, b.db, b.base, b.dg)
-	admin.InitAdmin(b.Data)
+	admin.InitAdmin(b.Data, app)
 
 	// Polls
 	cnt := 0

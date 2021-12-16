@@ -49,8 +49,6 @@ github.com/Nv7-Github/average-joe v0.0.0-20211113215211-16b8d1b81265 h1:YlbwWzR8
 github.com/Nv7-Github/average-joe v0.0.0-20211113215211-16b8d1b81265/go.mod h1:2zZy3eVZoJKG6tkFbnQODGjCKn65g0nmFh1X+WvVHxU=
 github.com/Nv7-Github/firebase v0.0.0-20201012033747-47c56e1d869d h1:4h8lsgskZe3qf69Wu2V0fdKs0oEjbSR46Grzc0aLVTE=
 github.com/Nv7-Github/firebase v0.0.0-20201012033747-47c56e1d869d/go.mod h1:v6tFe6snfSAUV2p55/ebS0k8CY1hlhIjzQHTMq31H6o=
-github.com/Nv7-Github/vcomm v0.0.0-20211214022420-4eada85df8e7 h1:R3+atelxKwSNFumQvmFv4aWtMwx3KkQjB/clBTXwRAg=
-github.com/Nv7-Github/vcomm v0.0.0-20211214022420-4eada85df8e7/go.mod h1:NOyhePPXwu7zJpZ1JXR2H3ch7+NqMjRdj2lCYu2rf8I=
 github.com/ajstarks/svgo v0.0.0-20180226025133-644b8db467af/go.mod h1:K08gAheRH3/J6wwsYMMT4xOr94bZjxIelGM0+d/wbFw=
 github.com/andybalholm/brotli v1.0.2 h1:JKnhI/XQ75uFBTiuzXpzFrUriDPiZjlOSzh6wXogP0E=
 github.com/andybalholm/brotli v1.0.2/go.mod h1:loMXtMfwqflxFJPmdbJO0a3KNoPuLBgiu3qAvBg8x/Y=

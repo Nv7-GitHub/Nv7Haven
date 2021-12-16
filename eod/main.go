@@ -15,6 +15,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/polls"
 	"github.com/Nv7-Github/Nv7Haven/eod/treecmds"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/gofiber/fiber/v2"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -46,7 +47,7 @@ type EoD struct {
 }
 
 // InitEoD initializes the EoD bot
-func InitEoD(sqldb *db.DB) EoD {
+func InitEoD(sqldb *db.DB, app *fiber.App) EoD {
 	// Discord bot
 	dg, err := discordgo.New("Bot " + strings.TrimSpace(token))
 	if err != nil {
@@ -74,7 +75,7 @@ func InitEoD(sqldb *db.DB) EoD {
 	}
 
 	dg.UpdateGameStatus(0, status)
-	bot.init()
+	bot.init(app)
 
 	// FOOLS
 	bot.base.InitFools(foolsRaw)

@@ -1,91 +1,31 @@
 package admin
 
 import (
-	"encoding/json"
-	"errors"
-	"log"
-	"net/http"
-	"os"
-	"path/filepath"
-	"runtime"
+	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
-	"github.com/Nv7-Github/vcomm"
-	"github.com/Nv7-Github/vcomm/definitions"
-	"github.com/gorilla/websocket"
+	"github.com/gofiber/fiber/v2"
 )
 
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
-}
+type empty struct{}
 
 type Admin struct {
 	data *eodb.Data
+
+	lock *sync.RWMutex
+	uids map[string]empty
 }
 
-func (a *Admin) Config(guild string) (string, error) {
-	v, res := a.data.GetDB(guild)
-	if !res.Exists {
-		return "", errors.New(res.Message)
-	}
-	d, err := json.Marshal(v.Config)
-	if err != nil {
-		return "", err
-	}
-	return string(d), nil
+func (a *Admin) Route(app *fiber.App) {
+	app.Post("/admin/config", a.Config)
+	app.Post("/admin/login", a.Login)
 }
 
-func InitAdmin(data *eodb.Data) {
+func InitAdmin(data *eodb.Data, app *fiber.App) {
 	a := &Admin{
 		data: data,
+		lock: &sync.RWMutex{},
+		uids: make(map[string]empty),
 	}
-	serv := vcomm.NewVComm(a)
-	// if my machine
-	if runtime.GOOS == "darwin" {
-		home, _ := os.UserHomeDir()
-		f, err := os.Create(filepath.Join(home, "Documents", "Coding", "eodmin", "src", "lib", "bindings.ts"))
-		if err != nil {
-			panic(err)
-		}
-		def, err := serv.CreateDefinitions()
-		if err != nil {
-			panic(err)
-		}
-		ts := definitions.GenerateTypescript(def)
-		_, err = f.WriteString(ts)
-		if err != nil {
-			panic(err)
-		}
-		f.Close()
-	}
-
-	// Websocket handler
-	http.HandleFunc("/eodconsole", func(w http.ResponseWriter, r *http.Request) {
-		c, err := upgrader.Upgrade(w, r, nil)
-		if err != nil {
-			log.Print("upgrade:", err)
-			return
-		}
-		defer c.Close()
-		for {
-			mt, message, err := c.ReadMessage()
-			if err != nil {
-				log.Println("read:", err)
-				break
-			}
-
-			res := serv.Message(string(message))
-
-			err = c.WriteMessage(mt, []byte(res))
-			if err != nil {
-				log.Println("write:", err)
-				break
-			}
-		}
-	})
-
+	a.Route(app)
 }
