@@ -187,7 +187,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 					return
 				}
 				for _, roleID := range user.Roles {
-					if roleID == "920859961465135104" {
+					if roleID == "918309924008775691" {
 						if cmd == "restart" {
 							b.restart(msg, rsp)
 						} else {
