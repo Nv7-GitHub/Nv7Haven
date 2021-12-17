@@ -45,9 +45,6 @@ func (b *BaseCmds) StatsCmd(m types.Msg, rsp types.Rsp) {
 	db.RUnlock()
 }
 
-// takes time, found, categorized
-var saveStatsQuery = `INSERT INTO eod_stats VALUES (?, (SELECT COUNT(1) FROM eod_elements), (SELECT COUNT(1) FROM eod_combos), (SELECT COUNT(DISTINCT user) FROM eod_inv), ?, ?, (SELECT COUNT(DISTINCT guild) FROM eod_serverdata))`
-
 func (b *BaseCmds) SaveStats() {
 	var lastTime int64
 	err := b.db.QueryRow("SELECT time FROM eod_stats ORDER BY time DESC LIMIT 1").Scan(&lastTime)
@@ -57,8 +54,13 @@ func (b *BaseCmds) SaveStats() {
 
 	if time.Since(time.Unix(lastTime, 0)).Hours() > 24 {
 		b.Data.RLock()
+
 		categorized := 0
 		found := 0
+		elemCnt := 0
+		comboCnt := 0
+		users := make(map[string]types.Empty)
+
 		for _, dat := range b.Data.DB {
 			dat.RLock()
 			for _, val := range dat.Cats() {
@@ -66,12 +68,15 @@ func (b *BaseCmds) SaveStats() {
 			}
 			for _, val := range dat.Invs() {
 				found += len(val.Elements)
+				users[val.User] = types.Empty{}
 			}
+			elemCnt += len(dat.Elements)
+			comboCnt += dat.ComboCnt()
 			dat.RUnlock()
 		}
 		b.Data.RUnlock()
 
-		_, err = b.db.Exec(saveStatsQuery, time.Now().Unix(), found, categorized)
+		_, err = b.db.Exec("INSERT INTO eod_stats VALUES (?, ?, ?, ?, ?, ?, ?)", time.Now().Unix(), elemCnt, comboCnt, len(users), found, categorized, len(b.Data.DB))
 		if err != nil {
 			fmt.Println(err)
 		}
