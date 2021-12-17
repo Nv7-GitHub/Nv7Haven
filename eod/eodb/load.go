@@ -43,6 +43,10 @@ func (d *DB) loadElements() error {
 		// Add to elements
 		if len(d.Elements) < dat.ID {
 			d.Elements = append(d.Elements, make([]types.Element, dat.ID-len(d.Elements))...) // Grow
+			old := d.Elements[dat.ID-1]
+			if old.Name != dat.Name {
+				delete(d.elemNames, strings.ToLower(old.Name))
+			}
 			d.Elements[dat.ID-1] = dat
 			d.elemNames[strings.ToLower(dat.Name)] = dat.ID
 			dat = types.Element{}
