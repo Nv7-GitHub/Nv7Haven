@@ -22,6 +22,11 @@ func (d *DB) SaveElement(el types.Element, new ...bool) error {
 		d.Elements = append(d.Elements, el)
 		d.elemNames[strings.ToLower(el.Name)] = el.ID
 	} else {
+		old := d.Elements[el.ID-1]
+		if old.Name != el.Name {
+			delete(d.elemNames, strings.ToLower(old.Name))
+			d.elemNames[strings.ToLower(el.Name)] = el.ID
+		}
 		d.Elements[el.ID-1] = el
 	}
 
