@@ -73,10 +73,14 @@ func (b *Elements) HintCmd(elem string, hasElem bool, inverse bool, m types.Msg,
 
 	elem = strings.TrimSpace(elem)
 	elem = util.EscapeElement(elem)
-	el, res := db.GetElementByName(elem)
-	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
+	elId := 0
+	if hasElem {
+		el, res := db.GetElementByName(elem)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		elId = el.ID
 	}
 
 	rspInp := rsp
@@ -87,7 +91,7 @@ func (b *Elements) HintCmd(elem string, hasElem bool, inverse bool, m types.Msg,
 		}
 		rspInp = nil
 	}
-	hint, msg, suc := b.getHint(el.ID, db, hasElem, m.Author.ID, m.GuildID, inverse, m, rspInp)
+	hint, msg, suc := b.getHint(elId, db, hasElem, m.Author.ID, m.GuildID, inverse, m, rspInp)
 	if !suc && msg == "" {
 		return
 	}
@@ -101,7 +105,7 @@ func (b *Elements) HintCmd(elem string, hasElem bool, inverse bool, m types.Msg,
 
 	if hasElem {
 		id := rsp.Embed(hint)
-		data.SetMsgElem(id, el.ID)
+		data.SetMsgElem(id, elId)
 		return
 	}
 
@@ -113,6 +117,7 @@ func (b *Elements) HintCmd(elem string, hasElem bool, inverse bool, m types.Msg,
 func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, author string, guild string, inverse bool, m types.Msg, rsp types.Rsp) (*discordgo.MessageEmbed, string, bool) {
 	rand.Seed(time.Now().UnixNano())
 	inv := db.GetInv(author)
+	fmt.Println("hi", hasElem)
 	var el types.Element
 	if !hasElem {
 		hasFound := false
@@ -147,6 +152,7 @@ func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, author string, g
 		el, _ = db.GetElement(elem)
 	}
 
+	fmt.Println("got element")
 	vals := make(map[string]types.Empty)
 	if !inverse {
 		db.RLock()
