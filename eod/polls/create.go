@@ -77,7 +77,7 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 			Guild:      guild,
 			Comment:    "None",
 			Creator:    creator,
-			CreatedOn:  time.Now(),
+			CreatedOn:  types.NewTimeStamp(time.Now()),
 			Parents:    parents,
 			Complexity: compl,
 			Difficulty: diff,

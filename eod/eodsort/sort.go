@@ -80,7 +80,7 @@ var sorts = map[string]func(a, b int, db *eodb.DB) bool{
 		if !res.Exists || !res2.Exists {
 			return false
 		}
-		return el1.CreatedOn.Before(el2.CreatedOn)
+		return el1.CreatedOn.Time.Before(el2.CreatedOn.Time)
 	},
 	"id": func(a, b int, db *eodb.DB) bool {
 		el1, res := db.GetElement(a, true)

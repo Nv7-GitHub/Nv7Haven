@@ -1,6 +1,7 @@
 package types
 
 import (
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -89,6 +90,29 @@ type Comb struct {
 	Elem3 int
 }
 
+type TimeStamp struct {
+	time.Time
+}
+
+func (t *TimeStamp) MarshalJSON() ([]byte, error) {
+	return []byte(strconv.FormatInt(t.Unix(), 10)), nil
+}
+
+func (t *TimeStamp) UnmarshalJSON(data []byte) error {
+	i, err := strconv.ParseInt(string(data), 10, 64)
+	if err != nil {
+		return t.Time.UnmarshalJSON(data)
+	}
+	t.Time = time.Unix(i, 0)
+	return nil
+}
+
+func NewTimeStamp(time time.Time) *TimeStamp {
+	return &TimeStamp{
+		Time: time,
+	}
+}
+
 type Element struct {
 	ID         int
 	Name       string
@@ -97,7 +121,7 @@ type Element struct {
 	Guild      string
 	Comment    string
 	Creator    string
-	CreatedOn  time.Time
+	CreatedOn  *TimeStamp
 	Parents    []int
 	Complexity int
 	Difficulty int

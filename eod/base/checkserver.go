@@ -16,7 +16,7 @@ var StarterElements = []types.Element{
 		Creator:    "",
 		Complexity: 0,
 		Difficulty: 0,
-		CreatedOn:  time.Unix(1, 0),
+		CreatedOn:  types.NewTimeStamp(time.Unix(1, 0)),
 		Parents:    []int{},
 	},
 	{
@@ -28,7 +28,7 @@ var StarterElements = []types.Element{
 		Creator:    "",
 		Complexity: 0,
 		Difficulty: 0,
-		CreatedOn:  time.Unix(2, 0),
+		CreatedOn:  types.NewTimeStamp(time.Unix(2, 0)),
 		Parents:    []int{},
 	},
 	{
@@ -40,7 +40,7 @@ var StarterElements = []types.Element{
 		Creator:    "",
 		Complexity: 0,
 		Difficulty: 0,
-		CreatedOn:  time.Unix(3, 0),
+		CreatedOn:  types.NewTimeStamp(time.Unix(3, 0)),
 		Parents:    []int{},
 	},
 	{
@@ -52,7 +52,7 @@ var StarterElements = []types.Element{
 		Creator:    "",
 		Complexity: 0,
 		Difficulty: 0,
-		CreatedOn:  time.Unix(4, 0),
+		CreatedOn:  types.NewTimeStamp(time.Unix(4, 0)),
 		Parents:    []int{},
 	},
 }
