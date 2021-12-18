@@ -30,6 +30,9 @@ func (b *Polls) MarkCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
 		rsp.ErrorMessage("Creator marks must be under 2400 characters!")
 		return
 	}
+	if len(mark) == 0 {
+		mark = "None"
+	}
 
 	if el.Creator == m.Author.ID {
 		id, res := db.GetIDByName(elem)

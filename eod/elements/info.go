@@ -170,6 +170,9 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 		return
 	}
 
+	if len(el.Comment) == 0 {
+		el.Comment = "None"
+	}
 	emb := &discordgo.MessageEmbed{
 		Title:       el.Name + " Info",
 		Description: fmt.Sprintf("Element **#%d**\n<@%s> **You %shave this.**", el.ID, m.Author.ID, has),
