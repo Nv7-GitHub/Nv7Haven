@@ -53,8 +53,9 @@ github.com/ajstarks/svgo v0.0.0-20180226025133-644b8db467af/go.mod h1:K08gAheRH3
 github.com/andybalholm/brotli v1.0.2 h1:JKnhI/XQ75uFBTiuzXpzFrUriDPiZjlOSzh6wXogP0E=
 github.com/andybalholm/brotli v1.0.2/go.mod h1:loMXtMfwqflxFJPmdbJO0a3KNoPuLBgiu3qAvBg8x/Y=
 github.com/bwmarrin/discordgo v0.23.3-0.20210818201646-9d9602318a29/go.mod h1:NJZpH+1AfhIcyQsPeuBKsUtYrRnjkyu0kIVMCHkZtRY=
-github.com/bwmarrin/discordgo v0.23.3-0.20211027235626-007bf7679048 h1:DnSeHZm0ZWwQkc5x9GTokTUULmrkkJbPfvUP5s5vLhM=
 github.com/bwmarrin/discordgo v0.23.3-0.20211027235626-007bf7679048/go.mod h1:NJZpH+1AfhIcyQsPeuBKsUtYrRnjkyu0kIVMCHkZtRY=
+github.com/bwmarrin/discordgo v0.23.3-0.20211204170245-092735083ddf h1:7N5Yd4rEIrHR21kuBNVOAECBY5mQTogFlFkuXbB6xmc=
+github.com/bwmarrin/discordgo v0.23.3-0.20211204170245-092735083ddf/go.mod h1:NJZpH+1AfhIcyQsPeuBKsUtYrRnjkyu0kIVMCHkZtRY=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=
 github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e/go.mod h1:nSuG5e5PlCu98SY8svDHJxuZscDgtXS6KTTbou5AhLI=
