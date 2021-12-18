@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
+	"github.com/bwmarrin/discordgo"
 )
 
 func handle(err error) {
@@ -25,6 +27,13 @@ func main() {
 	handle(err)
 	fmt.Println("Loaded in", time.Since(start))
 
+	token, err := os.ReadFile("../../token.txt")
+	handle(err)
+	dg, err := discordgo.New("Bot " + strings.TrimSpace(string(token)))
+	if err != nil {
+		panic(err)
+	}
+
 	// Get polls
 	for _, db := range db.DB {
 		fmt.Println(db.Guild, len(db.Polls))
@@ -34,6 +43,7 @@ func main() {
 
 				// delete?
 				if len(os.Args) > 2 {
+					dg.ChannelMessageDelete(poll.Channel, poll.Message)
 					db.DeletePoll(poll)
 				}
 			}
