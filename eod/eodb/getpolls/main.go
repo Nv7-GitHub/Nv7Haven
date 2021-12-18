@@ -31,6 +31,11 @@ func main() {
 		if len(os.Args) > 1 && os.Args[1] == db.Guild {
 			for _, poll := range db.Polls {
 				fmt.Println(poll.Suggestor)
+
+				// delete?
+				if len(os.Args) > 2 {
+					db.DeletePoll(poll)
+				}
 			}
 		}
 
