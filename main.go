@@ -83,6 +83,7 @@ func main() {
 		panic(err)
 	}
 
+	fmt.Println("Loading average joe...")
 	j, err := joe.NewJoe(joe_token)
 	if err != nil {
 		panic(err)

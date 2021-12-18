@@ -107,25 +107,50 @@ func (b *EoD) start() {
 	}
 }
 
-func (b *EoD) optimize(msg types.Msg, rsp types.Rsp) {
+func (b *EoD) optimize(m types.Msg, rsp types.Rsp) {
 	b.Data.RLock()
 	defer b.Data.RUnlock()
 
 	id := rsp.Message(fmt.Sprintf("Optimizing [0/%d]...", len(b.DB)))
 
-	var taken time.Time
+	taken := time.Duration(0)
 	i := 0
+	lastUpdated := 0
 	for _, db := range b.DB {
+		if (len(db.Elements) > 100) || (i-lastUpdated > 10) { // If it has enough elements to take a significant amount of time
+			hasEdited := false
+			gld, err := b.dg.Guild(db.Guild)
+			if err == nil {
+				isCommunity := false
+				for _, feature := range gld.Features {
+					if feature == "COMMUNITY" {
+						isCommunity = true
+						break
+					}
+				}
+
+				if isCommunity {
+					b.dg.ChannelMessageEdit(m.ChannelID, id, fmt.Sprintf("<@%s> Optimizing **%s**... [%d/%d]", m.Author.ID, gld.Name, i+1, len(b.DB)))
+					hasEdited = true
+				}
+			}
+
+			if !hasEdited {
+				b.dg.ChannelMessageEdit(m.ChannelID, id, fmt.Sprintf("<@%s> Optimizing... [%d/%d]", m.Author.ID, i+1, len(b.DB)))
+			}
+
+			lastUpdated = i
+		}
+
 		start := time.Now()
 		err := db.Optimize()
 		if rsp.Error(err) {
 			return
 		}
-		taken.Add(time.Since(start))
+		taken += time.Since(start)
 
-		b.dg.ChannelMessageEdit(msg.ChannelID, id, fmt.Sprintf("Optimizing [%d/%d]...", i+1, len(b.DB)))
 		i++
 	}
 
-	b.dg.ChannelMessageEdit(msg.ChannelID, id, fmt.Sprintf("Optimized in %s.", taken.String()))
+	b.dg.ChannelMessageEdit(m.ChannelID, id, fmt.Sprintf("<@%s> Optimized in **%s**.", m.Author.ID, taken.String()))
 }
