@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
@@ -104,4 +105,27 @@ func (b *EoD) start() {
 
 		os.Remove("restartinfo.gob")
 	}
+}
+
+func (b *EoD) optimize(msg types.Msg, rsp types.Rsp) {
+	b.Data.RLock()
+	defer b.Data.RUnlock()
+
+	id := rsp.Message(fmt.Sprintf("Optimizing [0/%d]...", len(b.DB)))
+
+	var taken time.Time
+	i := 0
+	for _, db := range b.DB {
+		start := time.Now()
+		err := db.Optimize()
+		if rsp.Error(err) {
+			return
+		}
+		taken.Add(time.Since(start))
+
+		b.dg.ChannelMessageEdit(msg.ChannelID, id, fmt.Sprintf("Optimizing [%d/%d]...", i+1, len(b.DB)))
+		i++
+	}
+
+	b.dg.ChannelMessageEdit(msg.ChannelID, id, fmt.Sprintf("Optimized in %s.", taken.String()))
 }

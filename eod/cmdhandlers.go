@@ -180,7 +180,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			b.elements.InfoCmd(strings.TrimSpace(m.Content[len(cmd)+2:]), msg, rsp)
 			return
 		}
-		if cmd == "restart" || cmd == "update" {
+		if cmd == "restart" || cmd == "update" || cmd == "optimize" {
 			if m.GuildID == "705084182673621033" {
 				user, err := b.dg.GuildMember(msg.GuildID, msg.Author.ID)
 				if rsp.Error(err) {
@@ -188,10 +188,15 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 				}
 				for _, roleID := range user.Roles {
 					if roleID == "918309924008775691" {
-						if cmd == "restart" {
+						switch cmd {
+						case "restart":
 							b.restart(msg, rsp)
-						} else {
+
+						case "update":
 							b.update(msg, rsp)
+
+						case "optimize":
+							b.optimize(msg, rsp)
 						}
 					}
 				}
