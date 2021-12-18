@@ -28,7 +28,7 @@ func main() {
 	// Get polls
 	for _, db := range db.DB {
 		fmt.Println(db.Guild, db.Polls)
-		if os.Args[1] == db.Guild {
+		if len(os.Args) > 1 && os.Args[1] == db.Guild {
 			for _, poll := range db.Polls {
 				fmt.Println(poll.Suggestor)
 			}
