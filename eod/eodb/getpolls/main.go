@@ -29,10 +29,7 @@ func main() {
 				fmt.Println(poll.Suggestor)
 			}
 		}
-	}
 
-	// Cleanup
-	for _, db := range db.DB {
 		db.Close()
 	}
 }
