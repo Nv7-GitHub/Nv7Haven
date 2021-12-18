@@ -22,14 +22,20 @@ func (b *Elements) Autocomplete(m types.Msg, query string) ([]string, types.GetR
 	results := make([]searchResult, 0)
 	db.RLock()
 	for _, el := range db.Elements {
-		if strings.HasPrefix(strings.ToLower(el.Name), query) {
+		if strings.EqualFold(el.Name, query) {
 			results = append(results, searchResult{0, el.ID})
-		} else if strings.Contains(strings.ToLower(el.Name), query) {
+		} else if strings.HasPrefix(strings.ToLower(el.Name), query) {
 			results = append(results, searchResult{1, el.ID})
+		} else if strings.Contains(strings.ToLower(el.Name), query) {
+			results = append(results, searchResult{2, el.ID})
 		}
 	}
 	db.RUnlock()
 
+	// sort by id
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].id < results[j].id
+	})
 	// sort by priority
 	sort.Slice(results, func(i, j int) bool {
 		return results[i].priority < results[j].priority
@@ -49,6 +55,7 @@ func (b *Elements) Autocomplete(m types.Msg, query string) ([]string, types.GetR
 	}
 	db.RUnlock()
 
+	// sort by name
 	sort.Strings(names)
 
 	return names, types.GetResponse{Exists: true}
