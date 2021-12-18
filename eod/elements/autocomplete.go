@@ -29,6 +29,9 @@ func (b *Elements) Autocomplete(m types.Msg, query string) ([]string, types.GetR
 		} else if strings.Contains(strings.ToLower(el.Name), query) {
 			results = append(results, searchResult{2, el.ID})
 		}
+		if len(results) > 1000 {
+			break
+		}
 	}
 	db.RUnlock()
 
