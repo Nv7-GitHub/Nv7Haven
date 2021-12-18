@@ -53,7 +53,7 @@ func commandsAreEqual(a *discordgo.ApplicationCommand, b *discordgo.ApplicationC
 func optionsArrEqual(a []*discordgo.ApplicationCommandOption, b []*discordgo.ApplicationCommandOption) bool {
 	for i, o1 := range a {
 		o2 := b[i]
-		if o1.Type != o2.Type || o1.Name != o2.Name || o1.Description != o2.Description || len(o1.Choices) != len(o2.Choices) {
+		if o1.Type != o2.Type || o1.Name != o2.Name || o1.Description != o2.Description || len(o1.Choices) != len(o2.Choices) || o1.Autocomplete != o2.Autocomplete {
 			return false
 		}
 		sort.Slice(o1.Choices, func(i, j int) bool {

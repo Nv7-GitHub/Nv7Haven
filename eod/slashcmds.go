@@ -768,10 +768,11 @@ var (
 					Description: "Get the info of an element!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "element",
-							Description: "Name of the element!",
-							Required:    false,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "element",
+							Description:  "Name of the element!",
+							Autocomplete: true,
+							Required:     false,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionInteger,
@@ -1588,6 +1589,31 @@ var (
 					}
 				}
 				bot.polls.CatColorCmd(resp.Options[0].StringValue(), int(color), bot.newMsgSlash(i), bot.newRespSlash(i))
+			}
+		},
+	}
+	autocompleteHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
+		"get": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData().Options[0]
+			if data.Name == "info" {
+				// autocomplete element names
+				names, res := bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[0].StringValue())
+				if !res.Exists {
+					return
+				}
+				results := make([]*discordgo.ApplicationCommandOptionChoice, len(names))
+				for i, name := range names {
+					results[i] = &discordgo.ApplicationCommandOptionChoice{
+						Name:  name,
+						Value: name,
+					}
+				}
+				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+					Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+					Data: &discordgo.InteractionResponseData{
+						Choices: results,
+					},
+				})
 			}
 		},
 	}

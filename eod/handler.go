@@ -75,6 +75,13 @@ func (b *EoD) initHandlers() {
 			}
 			return
 		}
+
+		// Autocomplete
+		if i.Type == discordgo.InteractionApplicationCommandAutocomplete {
+			if h, ok := autocompleteHandlers[i.ApplicationCommandData().Name]; ok {
+				h(s, i)
+			}
+		}
 	})
 	b.dg.AddHandler(b.cmdHandler)
 	b.dg.AddHandler(b.polls.ReactionHandler)
