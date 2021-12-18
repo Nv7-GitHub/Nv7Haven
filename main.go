@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/anarchy"
 	"github.com/Nv7-Github/Nv7Haven/db"
@@ -83,11 +84,13 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println("Loading average joe...")
+	fmt.Println("\nLoading average joe...")
+	start := time.Now()
 	j, err := joe.NewJoe(joe_token)
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println("Loaded joe in", time.Since(start))
 
 	single.InitSingle(app, db)
 	b := discord.InitDiscord(db, e)
