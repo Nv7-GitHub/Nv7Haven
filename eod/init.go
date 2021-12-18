@@ -1,6 +1,7 @@
 package eod
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/admin"
@@ -94,7 +95,20 @@ func (b *EoD) init(app *fiber.App) {
 		}
 	}
 
-	// heavserver
+	// Change starters
+	for _, db := range b.DB {
+		for _, el := range base.StarterElements {
+			e, res := db.GetElement(el.ID)
+			if !res.Exists {
+				continue
+			}
+			e.Creator = el.Creator
+			err := db.SaveElement(e)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+	}
 	/*db, res := b.GetDB("733813103891972130")
 	if !res.Exists {
 		var err error
