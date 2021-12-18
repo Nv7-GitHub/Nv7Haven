@@ -117,7 +117,6 @@ func (b *Elements) HintCmd(elem string, hasElem bool, inverse bool, m types.Msg,
 func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, author string, guild string, inverse bool, m types.Msg, rsp types.Rsp) (*discordgo.MessageEmbed, string, bool) {
 	rand.Seed(time.Now().UnixNano())
 	inv := db.GetInv(author)
-	fmt.Println("hi", hasElem)
 	var el types.Element
 	if !hasElem {
 		hasFound := false
@@ -152,7 +151,6 @@ func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, author string, g
 		el, _ = db.GetElement(elem)
 	}
 
-	fmt.Println("got element")
 	vals := make(map[string]types.Empty)
 	if !inverse {
 		db.RLock()
