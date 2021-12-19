@@ -66,6 +66,19 @@ func (b *Elements) LbImageCmd(m types.Msg, rsp types.Rsp, sorter string) {
 		invs = invs[:num]
 	}
 
+	// Max vals
+	maxElems := 0
+	maxMade := 0
+	for _, inv := range invs {
+		if len(inv.Elements) > maxElems {
+			maxElems = len(inv.Elements)
+		}
+
+		if inv.MadeCnt > maxMade {
+			maxMade = inv.MadeCnt
+		}
+	}
+
 	// Process
 	height := 100 * num
 
@@ -84,13 +97,13 @@ func (b *Elements) LbImageCmd(m types.Msg, rsp types.Rsp, sorter string) {
 		space := width/2 - (width / (spacing / 2))
 
 		// Made
-		size := (float64(len(inv.Elements)) / float64(len(invs[0].Elements))) * float64(space)
+		size := (float64(len(inv.Elements)) / float64(maxElems)) * float64(space)
 		dc.DrawRectangle(width/2+(width/spacing), float64(i*height/len(invs))+float64(height)/float64(heightSpacing), size, float64(height/len(invs))-float64(height/(heightSpacing/2)))
 		dc.SetRGB(0, 1, 0)
 		dc.Fill()
 
 		// Suggested
-		size = (float64(inv.MadeCnt) / float64(invs[0].MadeCnt)) * float64(space)
+		size = (float64(inv.MadeCnt) / float64(maxMade)) * float64(space)
 		dc.DrawRectangle(width/2-width/spacing-size, float64(i*height/len(invs))+float64(height)/float64(heightSpacing), size, float64(height/len(invs))-float64(height/(heightSpacing/2)))
 		dc.SetRGB(0, 1, 1)
 		dc.Fill()
