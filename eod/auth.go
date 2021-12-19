@@ -13,6 +13,7 @@ var noModCmds = map[string]types.Empty{
 	"image":                    {},
 	"inv":                      {},
 	"lb":                       {},
+	"lbimage":                  {},
 	"addcat":                   {},
 	"cat":                      {},
 	"hint":                     {},
