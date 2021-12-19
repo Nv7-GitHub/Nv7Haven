@@ -235,6 +235,7 @@ type Rsp interface {
 	Resp(msg string, components ...discordgo.MessageComponent)
 	Acknowledge()
 	DM(msg string)
+	Attachment(text string, files []*discordgo.File)
 }
 
 func NewServerConfig() *ServerConfig {

@@ -147,6 +147,16 @@ func (n *normalResp) Acknowledge() {
 	n.b.dg.ChannelTyping(n.msg.ChannelID)
 }
 
+func (n *normalResp) Attachment(text string, files []*discordgo.File) {
+	if n.typing {
+		n.b.dg.ChannelTyping(n.msg.ChannelID)
+	}
+	n.b.dg.ChannelMessageSendComplex(n.msg.ChannelID, &discordgo.MessageSend{
+		Content: text,
+		Files:   files,
+	})
+}
+
 func (b *EoD) newMsgNormal(m *discordgo.MessageCreate) types.Msg {
 	return types.Msg{
 		Author:    m.Author,
@@ -328,6 +338,22 @@ func (s *slashResp) DM(msg string) {
 			return
 		}
 	}
+}
+
+func (s *slashResp) Attachment(text string, files []*discordgo.File) {
+	if s.isFollowup {
+		s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
+			Content: text,
+			Files:   files,
+		})
+	}
+	s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: text,
+			Files:   files,
+		},
+	})
 }
 
 func (b *EoD) newMsgSlash(i *discordgo.InteractionCreate) types.Msg {

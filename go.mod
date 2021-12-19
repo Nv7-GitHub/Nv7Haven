@@ -8,6 +8,7 @@ require (
 	github.com/Nv7-Github/firebase v0.0.0-20201012033747-47c56e1d869d
 	github.com/bwmarrin/discordgo v0.23.3-0.20211204170245-092735083ddf
 	github.com/finnbear/moderation v0.11.4
+	github.com/fogleman/gg v1.3.0
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/goccy/go-graphviz v0.0.9
 	github.com/gofiber/fiber/v2 v2.13.0
@@ -23,6 +24,7 @@ require (
 	github.com/schollz/progressbar/v3 v3.8.2
 	github.com/valyala/fasthttp v1.27.0
 	golang.org/x/crypto v0.0.0-20210616213533-5ff15b29337e
+	golang.org/x/image v0.0.0-20200119044424-58c23975cae1
 	google.golang.org/grpc v1.38.0
 	google.golang.org/protobuf v1.26.0
 )

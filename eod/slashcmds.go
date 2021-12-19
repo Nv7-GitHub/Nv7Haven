@@ -251,6 +251,29 @@ var (
 			},
 		},
 		{
+			Name:        "lbimage",
+			Type:        discordgo.ChatApplicationCommand,
+			Description: "See the leaderboard, as a chart!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "sortby",
+					Description: "What to sort the leaderboard by!",
+					Required:    false,
+					Choices: []*discordgo.ApplicationCommandOptionChoice{
+						{
+							Name:  "Elements Found",
+							Value: "count",
+						},
+						{
+							Name:  "Elements Made",
+							Value: "made",
+						},
+					},
+				},
+			},
+		},
+		{
 			Name:        "addcat",
 			Type:        discordgo.ChatApplicationCommand,
 			Description: "Suggest or add an element to a category!",
@@ -1105,6 +1128,16 @@ var (
 				}
 			}
 			bot.elements.LbCmd(bot.newMsgSlash(i), bot.newRespSlash(i), sort, user)
+		},
+		"lbimage": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
+			sort := "count"
+			for _, opt := range resp.Options {
+				if opt.Name == "sortby" {
+					sort = resp.Options[0].StringValue()
+				}
+			}
+			bot.elements.LbImageCmd(bot.newMsgSlash(i), bot.newRespSlash(i), sort)
 		},
 		"addcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
