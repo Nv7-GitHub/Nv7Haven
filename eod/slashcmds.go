@@ -860,6 +860,12 @@ var (
 							Description: "Whether to use a RegEx!",
 							Required:    false,
 						},
+						{
+							Type:        discordgo.ApplicationCommandOptionBoolean,
+							Name:        "postfix",
+							Description: "Whether to postfix!",
+							Required:    false,
+						},
 					},
 				},
 				{
@@ -1466,6 +1472,7 @@ var (
 			switch resp.Name {
 			case "elements":
 				regex := false
+				postfix := true
 				sort := "name"
 				for _, opt := range resp.Options {
 					if opt.Name == "regex" {
@@ -1475,12 +1482,17 @@ var (
 					if opt.Name == "sort" {
 						sort = opt.StringValue()
 					}
+
+					if opt.Name == "postfix" {
+						postfix = opt.BoolValue()
+					}
 				}
-				bot.elements.SearchCmd(resp.Options[0].StringValue(), sort, "elements", "", regex, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.elements.SearchCmd(resp.Options[0].StringValue(), sort, "elements", "", regex, postfix, bot.newMsgSlash(i), bot.newRespSlash(i))
 
 			case "inventory":
 				regex := false
 				sort := "name"
+				postfix := true
 				m := bot.newMsgSlash(i)
 				user := m.Author.ID
 				for _, opt := range resp.Options {
@@ -1495,12 +1507,17 @@ var (
 					if opt.Name == "user" {
 						user = opt.UserValue(bot.dg).ID
 					}
+
+					if opt.Name == "postfix" {
+						postfix = opt.BoolValue()
+					}
 				}
-				bot.elements.SearchCmd(resp.Options[0].StringValue(), sort, "inventory", user, regex, m, bot.newRespSlash(i))
+				bot.elements.SearchCmd(resp.Options[0].StringValue(), sort, "inventory", user, regex, postfix, m, bot.newRespSlash(i))
 
 			case "category":
 				regex := false
 				sort := "name"
+				postfix := true
 				m := bot.newMsgSlash(i)
 				var category string
 				for _, opt := range resp.Options {
@@ -1515,8 +1532,12 @@ var (
 					if opt.Name == "category" {
 						category = opt.StringValue()
 					}
+
+					if opt.Name == "postfix" {
+						postfix = opt.BoolValue()
+					}
 				}
-				bot.elements.SearchCmd(resp.Options[0].StringValue(), sort, "category", category, regex, m, bot.newRespSlash(i))
+				bot.elements.SearchCmd(resp.Options[0].StringValue(), sort, "category", category, regex, postfix, m, bot.newRespSlash(i))
 			}
 		},
 		"View Inventory": func(s *discordgo.Session, i *discordgo.InteractionCreate) {

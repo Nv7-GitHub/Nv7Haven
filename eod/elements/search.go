@@ -9,7 +9,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
-func (b *Elements) SearchCmd(search string, sort string, source string, opt string, regex bool, m types.Msg, rsp types.Rsp) {
+func (b *Elements) SearchCmd(search string, sort string, source string, opt string, regex bool, postfix bool, m types.Msg, rsp types.Rsp) {
 	db, res := b.GetDB(m.GuildID)
 	if !res.Exists {
 		return
@@ -111,7 +111,7 @@ func (b *Elements) SearchCmd(search string, sort string, source string, opt stri
 		return results[index].name
 	}, func(index int, val string) {
 		results[index].name = val
-	}, sort, m.Author.ID, db, false)
+	}, sort, m.Author.ID, db, postfix)
 
 	txt := make([]string, len(results))
 	for i, val := range results {
