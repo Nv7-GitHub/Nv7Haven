@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-const url = "http://localhost:8000/download_eodb"
+const url = "https://api.nv7haven.com/download_eodb"
 
 func main() {
 	fmt.Println("Requesting...")
@@ -45,8 +45,12 @@ func main() {
 		panic(err)
 	}
 
-	dst := filepath.Join(home, "go/src/github.com/Nv7-Github/Nv7haven/data/eodtest")
 	fmt.Println("Unzipping...")
+	dst := filepath.Join(home, "go/src/github.com/Nv7-Github/Nv7haven/data/eod")
+	err = os.RemoveAll(dst)
+	if err != nil {
+		panic(err)
+	}
 
 	// From https://golang.cafe/blog/golang-unzip-file-example.html mostly
 	for _, f := range archive.File {
