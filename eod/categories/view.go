@@ -84,16 +84,13 @@ func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user
 		return
 
 	default:
-		eodsort.SortElemObj(out, len(out), func(index int) int {
+		eodsort.Sort(out, len(out), func(index int) int {
 			return out[index].id
 		}, func(index int) string {
-			if sortKind == "found" {
-				return out[index].name
-			}
 			return out[index].text
 		}, func(index int, val string) {
 			out[index].text = val
-		}, sortKind, m.Author.ID, db)
+		}, sortKind, m.Author.ID, db, false)
 	}
 
 	o = make([]string, len(out))

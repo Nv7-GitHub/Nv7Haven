@@ -105,13 +105,13 @@ func (b *Elements) SearchCmd(search string, sort string, source string, opt stri
 		return
 	}
 
-	eodsort.SortElemObj(results, len(results), func(index int) int {
+	eodsort.Sort(results, len(results), func(index int) int {
 		return results[index].id
 	}, func(index int) string {
 		return results[index].name
 	}, func(index int, val string) {
 		results[index].name = val
-	}, sort, m.Author.ID, db)
+	}, sort, m.Author.ID, db, false)
 
 	txt := make([]string, len(results))
 	for i, val := range results {

@@ -24,27 +24,36 @@ func (b *Elements) SortCmd(sort string, postfix bool, m types.Msg, rsp types.Rsp
 
 	rsp.Acknowledge()
 
-	ids := make([]int, len(db.Elements))
-	i := 0
+	type sortItem struct {
+		id   int
+		name string
+	}
+	items := make([]sortItem, len(db.Elements))
+
 	db.RLock()
-	for _, el := range db.Elements {
-		ids[i] = el.ID
-		i++
+	for i, el := range db.Elements {
+		items[i] = sortItem{el.ID, el.Name}
 	}
 	db.RUnlock()
 
-	var items []string
-	if postfix {
-		items = eodsort.SortElemList(ids, sort, db, m.Author.ID)
-	} else {
-		items = eodsort.SortElemList(ids, sort, db, m.Author.ID, true)
+	eodsort.Sort(items, len(items), func(index int) int {
+		return items[index].id
+	}, func(index int) string {
+		return items[index].name
+	}, func(index int, val string) {
+		items[index].name = val
+	}, sort, m.Author.ID, db, postfix)
+
+	text := make([]string, len(items))
+	for i, val := range items {
+		text[i] = val.name
 	}
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
 		Title:      "Element Sort",
 		PageGetter: b.base.InvPageGetter,
-		Items:      items,
+		Items:      text,
 	}, m, rsp)
 }
 

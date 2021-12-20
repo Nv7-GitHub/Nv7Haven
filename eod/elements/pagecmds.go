@@ -9,7 +9,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
-func (b *Elements) InvCmd(user string, m types.Msg, rsp types.Rsp, sorter string, filter string) {
+func (b *Elements) InvCmd(user string, m types.Msg, rsp types.Rsp, sorter string, filter string, postfix bool, defaul bool) {
 	rsp.Acknowledge()
 
 	db, res := b.GetDB(m.GuildID)
@@ -19,42 +19,51 @@ func (b *Elements) InvCmd(user string, m types.Msg, rsp types.Rsp, sorter string
 	}
 
 	inv := db.GetInv(user)
-	items := make([]int, len(inv.Elements))
+	type invItem struct {
+		name string
+		id   int
+	}
+	items := make([]invItem, len(inv.Elements))
 	i := 0
 	db.RLock()
 	for k := range inv.Elements {
 		el, _ := db.GetElement(k, true)
-		items[i] = el.ID
+		items[i] = invItem{el.Name, el.ID}
 		i++
 	}
 
 	switch filter {
 	case "madeby":
 		count := 0
-		outs := make([]int, len(items))
+		outs := make([]invItem, len(items))
 		for _, val := range items {
 			creator := ""
-			elem, res := db.GetElement(val, true)
+			elem, res := db.GetElement(val.id, true)
 			if res.Exists {
 				creator = elem.Creator
 			}
 			if creator == user {
-				outs[count] = elem.ID
+				outs[count] = invItem{elem.Name, elem.ID}
 				count++
 			}
 		}
 		outs = outs[:count]
 		items = outs
 	}
-	eodsort.SortElemList(items, sorter, db, m.Author.ID)
+	if defaul && m.Author.ID != user {
+		postfix = true
+	}
+	eodsort.Sort(items, len(items), func(index int) int {
+		return items[index].id
+	}, func(index int) string {
+		return items[index].name
+	}, func(index int, val string) {
+		items[index].name = val
+	}, sorter, user, db, postfix)
 
 	text := make([]string, len(items))
 	for i, v := range items {
-		elem, res := db.GetElement(v, true)
-		if !res.Exists {
-			continue
-		}
-		text[i] = elem.Name
+		text[i] = v.name
 	}
 	db.RUnlock()
 

@@ -204,77 +204,7 @@ func CompareStrings(a, b string) bool {
 	return a < b
 }
 
-func SortElemList(elems []int, sortName string, db *eodb.DB, user string, noget ...bool) []string {
-	lock.RLock()
-	sorter := sorts[sortName]
-	lock.RUnlock()
-
-	out := make([]string, len(elems))
-
-	// Data
-	var data interface{}
-	switch sortName {
-	case "found":
-		data = db.GetInv(user)
-	}
-
-	db.RLock()
-	// Lock data
-	switch sortName {
-	case "found":
-		data.(*types.Inventory).Lock.RLock()
-	}
-
-	// Sort
-	sort.Slice(elems, func(i, j int) bool {
-		return sorter(elems[i], elems[j], db, data)
-	})
-
-	// Unlock data
-	switch sortName {
-	case "found":
-		data.(*types.Inventory).Lock.RLock()
-	}
-
-	if len(noget) == 0 {
-		lock.RLock()
-		getter, exists := getters[sortName]
-		lock.RUnlock()
-
-		// Lock data
-		switch sortName {
-		case "found":
-			data.(*types.Inventory).Lock.RLock()
-		}
-
-		if exists {
-			for i, val := range elems {
-				el, res := db.GetElement(val, true)
-				if res.Exists {
-					out[i] = el.Name + getter(el, data)
-				}
-			}
-		}
-
-		// Unlock data
-		switch sortName {
-		case "found":
-			data.(*types.Inventory).Lock.RLock()
-		}
-	} else {
-		for i, val := range elems {
-			el, res := db.GetElement(val, true)
-			if res.Exists {
-				out[i] = el.Name
-			}
-		}
-	}
-	db.RUnlock()
-
-	return out
-}
-
-func SortElemObj(vals interface{}, length int, elemGet func(index int) int, elemTxt func(index int) string, elemSet func(index int, val string), sortName string, user string, db *eodb.DB, noget ...bool) {
+func Sort(vals interface{}, length int, elemGet func(index int) int, elemTxt func(index int) string, elemSet func(index int, val string), sortName string, user string, db *eodb.DB, postfix bool) {
 	lock.RLock()
 	sorter := sorts[sortName]
 	lock.RUnlock()
@@ -303,7 +233,7 @@ func SortElemObj(vals interface{}, length int, elemGet func(index int) int, elem
 		data.(*types.Inventory).Lock.RLock()
 	}
 
-	if len(noget) == 0 {
+	if postfix {
 		lock.RLock()
 		getter, exists := getters[sortName]
 		lock.RUnlock()

@@ -136,7 +136,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		if cmd == "inv" {
-			b.elements.InvCmd(m.Author.ID, msg, rsp, "name", "none")
+			b.elements.InvCmd(m.Author.ID, msg, rsp, "name", "none", false, true)
 			return
 		}
 

@@ -219,6 +219,12 @@ var (
 						},
 					},
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "postfix",
+					Description: "Whether to postfix!",
+					Required:    false,
+				},
 			},
 		},
 		{
@@ -1091,6 +1097,9 @@ var (
 			sortby := "name"
 			filter := "none"
 			id := i.Member.User.ID
+
+			defaul := true
+			postfix := false
 			for _, val := range resp.Options {
 				if val.Name == "sortby" {
 					sortby = val.StringValue()
@@ -1103,8 +1112,13 @@ var (
 				if val.Name == "user" {
 					id = val.UserValue(bot.dg).ID
 				}
+
+				if val.Name == "postfix" {
+					postfix = val.BoolValue()
+					defaul = false
+				}
 			}
-			bot.elements.InvCmd(id, bot.newMsgSlash(i), bot.newRespSlash(i), sortby, filter)
+			bot.elements.InvCmd(id, bot.newMsgSlash(i), bot.newRespSlash(i), sortby, filter, postfix, defaul)
 		},
 		"lb": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -1507,7 +1521,7 @@ var (
 		},
 		"View Inventory": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.elements.InvCmd(resp.TargetID, bot.newMsgSlash(i), bot.newRespSlash(i), "name", "none")
+			bot.elements.InvCmd(resp.TargetID, bot.newMsgSlash(i), bot.newRespSlash(i), "name", "none", false, true)
 		},
 		"View Info": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()

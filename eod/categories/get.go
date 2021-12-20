@@ -76,26 +76,33 @@ func (b *Categories) DownloadCatCmd(catName string, sort string, postfix bool, m
 		return
 	}
 
+	type catSortVal struct {
+		id   int
+		name string
+	}
 	db.RLock()
-	elems := make([]int, len(cat.Elements))
+	elems := make([]catSortVal, len(cat.Elements))
 	i := 0
-
+	cat.Lock.RLock()
 	for elem := range cat.Elements {
-		elems[i] = elem
+		el, _ := db.GetElement(elem, true)
+		elems[i] = catSortVal{elem, el.Name}
 		i++
 	}
+	cat.Lock.RUnlock()
 	db.RUnlock()
 
-	var vals []string
-	if postfix {
-		vals = eodsort.SortElemList(elems, sort, db, m.Author.ID)
-	} else {
-		vals = eodsort.SortElemList(elems, sort, db, m.Author.ID, true)
-	}
+	eodsort.Sort(elems, len(elems), func(index int) int {
+		return elems[index].id
+	}, func(index int) string {
+		return elems[index].name
+	}, func(index int, val string) {
+		elems[index].name = val
+	}, sort, m.Author.ID, db, postfix)
 
 	out := &strings.Builder{}
-	for _, elem := range vals {
-		out.WriteString(elem + "\n")
+	for _, elem := range elems {
+		out.WriteString(elem.name + "\n")
 	}
 	buf := strings.NewReader(out.String())
 
