@@ -3,7 +3,6 @@ package nv7haven
 import (
 	"archive/zip"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -31,11 +30,10 @@ func addFiles(w *zip.Writer, basePath, baseInZip string) error {
 	// Open the Directory
 	files, err := ioutil.ReadDir(basePath)
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
 
 	for _, file := range files {
-		fmt.Println(basePath + file.Name())
 		if !file.IsDir() {
 			dat, err := ioutil.ReadFile(basePath + file.Name())
 			if err != nil {
