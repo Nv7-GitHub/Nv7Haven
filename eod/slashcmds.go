@@ -220,7 +220,7 @@ var (
 					},
 				},
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
+					Type:        discordgo.ApplicationCommandOptionBoolean,
 					Name:        "postfix",
 					Description: "Whether to postfix!",
 					Required:    false,
