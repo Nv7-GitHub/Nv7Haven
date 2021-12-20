@@ -144,13 +144,13 @@ var sorts = map[string]func(a, b int, db *eodb.DB, data interface{}) bool{
 	},
 	"found": func(a, b int, db *eodb.DB, data interface{}) bool {
 		inv := data.(*types.Inventory)
-		v1 := 0
-		v2 := 0
+		v1 := 1
+		v2 := 1
 		if inv.Contains(a, true) {
-			v1++
+			v1--
 		}
 		if inv.Contains(b, true) {
-			v2++
+			v2--
 		}
 		return v1 < v2
 	},

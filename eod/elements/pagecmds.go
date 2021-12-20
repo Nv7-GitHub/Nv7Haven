@@ -59,7 +59,7 @@ func (b *Elements) InvCmd(user string, m types.Msg, rsp types.Rsp, sorter string
 		return items[index].name
 	}, func(index int, val string) {
 		items[index].name = val
-	}, sorter, user, db, postfix)
+	}, sorter, m.Author.ID, db, postfix)
 
 	text := make([]string, len(items))
 	for i, v := range items {

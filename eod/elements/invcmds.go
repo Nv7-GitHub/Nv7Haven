@@ -76,7 +76,7 @@ func (b *Elements) DownloadInvCmd(user string, sorter string, filter string, pos
 		return items[index].name
 	}, func(index int, val string) {
 		items[index].name = val
-	}, sorter, user, db, postfix)
+	}, sorter, m.Author.ID, db, postfix)
 
 	out := &strings.Builder{}
 	for _, val := range items {
