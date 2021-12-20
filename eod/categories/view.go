@@ -45,6 +45,7 @@ func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user
 	out := make([]struct {
 		text string
 		id   int
+		name string
 	}, len(cat.Elements))
 
 	found := 0
@@ -65,9 +66,11 @@ func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user
 		out[i] = struct {
 			text string
 			id   int
+			name string
 		}{
 			text: text,
 			id:   el.ID,
+			name: el.Name,
 		}
 
 		i++
@@ -84,6 +87,9 @@ func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user
 		eodsort.SortElemObj(out, len(out), func(index int) int {
 			return out[index].id
 		}, func(index int) string {
+			if sortKind == "found" {
+				return out[index].name
+			}
 			return out[index].text
 		}, func(index int, val string) {
 			out[index].text = val

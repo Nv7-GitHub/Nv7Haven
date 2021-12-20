@@ -188,9 +188,9 @@ var getters = map[string]func(el types.Element, data interface{}) string{
 	"found": func(el types.Element, data interface{}) string {
 		inv := data.(*types.Inventory)
 		if inv.Contains(el.ID, true) {
-			return el.Name + types.Check
+			return " " + types.Check
 		}
-		return el.Name + types.X
+		return " " + types.X
 	},
 }
 
