@@ -54,6 +54,7 @@ func (c *Nv7Haven) routing(app *fiber.App) {
 	app.Post("/http_get", c.httpGet)
 	app.Get("/eod_stats", c.getEodStats)
 	app.Get("/name_count/:name", c.nameCount)
+	app.Get("/get_eodb", c.getEoDDB)
 }
 
 // InitNv7Haven initializes the handlers for Nv7Haven

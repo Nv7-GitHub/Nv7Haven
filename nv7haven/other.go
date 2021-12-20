@@ -30,6 +30,9 @@ func (n *Nv7Haven) getURL(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var jsonData = []byte(`{ "context": { "client": { "hl": "en", "clientName": "WEB", "clientVersion": "2.20210721.00.00" } }, "videoId": "` + id + `" }`)
 	request, err := http.NewRequest("POST", "https://youtubei.googleapis.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return err
+	}
 	request.Header.Set("Content-Type", "application/json; charset=UTF-8")
 
 	client := &http.Client{}
