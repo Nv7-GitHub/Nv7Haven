@@ -46,7 +46,7 @@ func (b *Elements) InvCmd(user string, m types.Msg, rsp types.Rsp, sorter string
 		outs = outs[:count]
 		items = outs
 	}
-	eodsort.SortElemList(items, sorter, db)
+	eodsort.SortElemList(items, sorter, db, m.Author.ID)
 
 	text := make([]string, len(items))
 	for i, v := range items {

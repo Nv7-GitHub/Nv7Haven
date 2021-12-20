@@ -111,7 +111,7 @@ func (b *Elements) SearchCmd(search string, sort string, source string, opt stri
 		return results[index].name
 	}, func(index int, val string) {
 		results[index].name = val
-	}, sort, db)
+	}, sort, m.Author.ID, db)
 
 	txt := make([]string, len(results))
 	for i, val := range results {

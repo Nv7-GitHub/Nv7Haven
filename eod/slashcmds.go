@@ -334,14 +334,6 @@ var (
 					Required:    false,
 					Choices: append([]*discordgo.ApplicationCommandOptionChoice{
 						{
-							Name:  "Found",
-							Value: "catfound",
-						},
-						{
-							Name:  "Not Found",
-							Value: "catnotfound",
-						},
-						{
 							Name:  "Element Count",
 							Value: "catelemcount",
 						},

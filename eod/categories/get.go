@@ -88,9 +88,9 @@ func (b *Categories) DownloadCatCmd(catName string, sort string, postfix bool, m
 
 	var vals []string
 	if postfix {
-		vals = eodsort.SortElemList(elems, sort, db)
+		vals = eodsort.SortElemList(elems, sort, db, m.Author.ID)
 	} else {
-		vals = eodsort.SortElemList(elems, sort, db, true)
+		vals = eodsort.SortElemList(elems, sort, db, m.Author.ID, true)
 	}
 
 	out := &strings.Builder{}

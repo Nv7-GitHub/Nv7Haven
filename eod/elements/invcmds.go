@@ -67,9 +67,9 @@ func (b *Elements) DownloadInvCmd(user string, sorter string, filter string, pos
 	}
 
 	if postfix {
-		eodsort.SortElemList(items, sorter, db)
+		eodsort.SortElemList(items, sorter, db, m.Author.ID)
 	} else {
-		eodsort.SortElemList(items, sorter, db, true)
+		eodsort.SortElemList(items, sorter, db, m.Author.ID, true)
 	}
 
 	out := &strings.Builder{}

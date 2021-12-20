@@ -35,9 +35,9 @@ func (b *Elements) SortCmd(sort string, postfix bool, m types.Msg, rsp types.Rsp
 
 	var items []string
 	if postfix {
-		items = eodsort.SortElemList(ids, sort, db)
+		items = eodsort.SortElemList(ids, sort, db, m.Author.ID)
 	} else {
-		items = eodsort.SortElemList(ids, sort, db, true)
+		items = eodsort.SortElemList(ids, sort, db, m.Author.ID, true)
 	}
 
 	b.base.NewPageSwitcher(types.PageSwitcher{

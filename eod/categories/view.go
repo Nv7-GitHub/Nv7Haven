@@ -43,14 +43,12 @@ func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user
 	category = cat.Name
 
 	out := make([]struct {
-		found int
-		text  string
-		id    int
+		text string
+		id   int
 	}, len(cat.Elements))
 
 	found := 0
 	i := 0
-	fnd := 0
 	var text string
 
 	db.RLock()
@@ -60,20 +58,16 @@ func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user
 		if exists {
 			text = el.Name + " " + types.Check
 			found++
-			fnd = 1
 		} else {
 			text = el.Name + " " + types.X
-			fnd = 0
 		}
 
 		out[i] = struct {
-			found int
-			text  string
-			id    int
+			text string
+			id   int
 		}{
-			found: fnd,
-			text:  text,
-			id:    el.ID,
+			text: text,
+			id:   el.ID,
 		}
 
 		i++
@@ -82,16 +76,6 @@ func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user
 
 	var o []string
 	switch sortKind {
-	case "catfound":
-		sort.Slice(out, func(i, j int) bool {
-			return out[i].found > out[j].found
-		})
-
-	case "catnotfound":
-		sort.Slice(out, func(i, j int) bool {
-			return out[i].found < out[j].found
-		})
-
 	case "catelemcount":
 		rsp.ErrorMessage("Invalid sort!")
 		return
@@ -103,7 +87,7 @@ func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user
 			return out[index].text
 		}, func(index int, val string) {
 			out[index].text = val
-		}, sortKind, db)
+		}, sortKind, m.Author.ID, db)
 	}
 
 	o = make([]string, len(out))
