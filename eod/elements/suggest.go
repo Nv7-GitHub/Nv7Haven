@@ -10,7 +10,6 @@ import (
 )
 
 var invalidNames = []string{
-	"+",
 	"@everyone",
 	"@here",
 	"<@",
