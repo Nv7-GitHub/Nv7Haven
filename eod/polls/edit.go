@@ -23,7 +23,7 @@ func (b *Polls) mark(guild string, elem int, mark string, creator string, contro
 	}
 }
 
-func (b *Polls) image(guild string, elem int, image string, creator string, controversial string) {
+func (b *Polls) image(guild string, elem int, image string, creator string, changed bool, controversial string) {
 	db, res := b.GetDB(guild)
 	if !res.Exists {
 		return
@@ -36,7 +36,11 @@ func (b *Polls) image(guild string, elem int, image string, creator string, cont
 	el.Image = image
 	_ = db.SaveElement(el)
 	if creator != "" {
-		b.dg.ChannelMessageSend(db.Config.NewsChannel, "📸 Added Image - **"+el.Name+"** (By <@"+creator+">)"+controversial)
+		word := "Added"
+		if changed {
+			word = "Changed"
+		}
+		b.dg.ChannelMessageSend(db.Config.NewsChannel, "📸 "+word+" Image - **"+el.Name+"** (By <@"+creator+">)"+controversial)
 	}
 }
 

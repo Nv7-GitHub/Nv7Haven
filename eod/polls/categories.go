@@ -112,7 +112,7 @@ func (b *Polls) UnCategorize(elem int, catName string, guild string) error {
 	return nil
 }
 
-func (b *Polls) catImage(guild string, catName string, image string, creator string, controversial string) {
+func (b *Polls) catImage(guild string, catName string, image string, creator string, changed bool, controversial string) {
 	db, res := b.GetDB(guild)
 	if !res.Exists {
 		return
@@ -128,7 +128,11 @@ func (b *Polls) catImage(guild string, catName string, image string, creator str
 		return
 	}
 	if creator != "" {
-		b.dg.ChannelMessageSend(db.Config.NewsChannel, "📸 Added Category Image - **"+cat.Name+"** (By <@"+creator+">)"+controversial)
+		word := "Added"
+		if changed {
+			word = "Changed"
+		}
+		b.dg.ChannelMessageSend(db.Config.NewsChannel, "📸 "+word+" Category Image - **"+cat.Name+"** (By <@"+creator+">)"+controversial)
 	}
 }
 

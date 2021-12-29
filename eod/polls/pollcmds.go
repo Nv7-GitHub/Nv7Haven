@@ -88,14 +88,20 @@ func (b *Polls) ImageCmd(elem string, image string, m types.Msg, rsp types.Rsp) 
 		return
 	}
 
+	changed := el.Image != ""
+
 	if el.Creator == m.Author.ID {
 		id, res := db.GetIDByName(elem)
 		if !res.Exists {
 			rsp.ErrorMessage(res.Message)
 			return
 		}
-		b.image(m.GuildID, id, image, "", "")
-		rsp.Message(fmt.Sprintf("You added an image to **%s**! 📷", el.Name))
+		b.image(m.GuildID, id, image, "", changed, "")
+		if !changed {
+			rsp.Message(fmt.Sprintf("You added an image to **%s**! 📷", el.Name))
+		} else {
+			rsp.Message(fmt.Sprintf("You changed the image of **%s**! 📷", el.Name))
+		}
 		return
 	}
 
@@ -109,6 +115,7 @@ func (b *Polls) ImageCmd(elem string, image string, m types.Msg, rsp types.Rsp) 
 			Elem:     el.ID,
 			NewImage: image,
 			OldImage: el.Image,
+			Changed:  changed,
 		},
 	})
 	if rsp.Error(err) {
@@ -184,6 +191,8 @@ func (b *Polls) CatImgCmd(catName string, url string, m types.Msg, rsp types.Rsp
 		return
 	}
 
+	changed := cat.Image != ""
+
 	err := b.CreatePoll(types.Poll{
 		Channel:   db.Config.VotingChannel,
 		Guild:     m.GuildID,
@@ -194,6 +203,7 @@ func (b *Polls) CatImgCmd(catName string, url string, m types.Msg, rsp types.Rsp
 			Category: cat.Name,
 			NewImage: url,
 			OldImage: cat.Image,
+			Changed:  changed,
 		},
 	})
 	if rsp.Error(err) {

@@ -24,7 +24,7 @@ func (b *Polls) handlePollSuccess(p types.Poll) {
 	case types.PollSign:
 		b.mark(p.Guild, p.PollSignData.Elem, p.PollSignData.NewNote, p.Suggestor, controversialTxt)
 	case types.PollImage:
-		b.image(p.Guild, p.PollImageData.Elem, p.PollImageData.NewImage, p.Suggestor, controversialTxt)
+		b.image(p.Guild, p.PollImageData.Elem, p.PollImageData.NewImage, p.Suggestor, p.PollImageData.Changed, controversialTxt)
 	case types.PollCategorize:
 		els := p.PollCategorizeData.Elems
 		for _, val := range els {
@@ -48,7 +48,7 @@ func (b *Polls) handlePollSuccess(p types.Poll) {
 			b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf("🗃️ Removed **%d elements** from **%s** (By <@%s>)%s", len(els), p.PollCategorizeData.Category, p.Suggestor, controversialTxt))
 		}
 	case types.PollCatImage:
-		b.catImage(p.Guild, p.PollCatImageData.Category, p.PollCatImageData.NewImage, p.Suggestor, controversialTxt)
+		b.catImage(p.Guild, p.PollCatImageData.Category, p.PollCatImageData.NewImage, p.Suggestor, p.PollCatImageData.Changed, controversialTxt)
 	case types.PollColor:
 		b.color(p.Guild, p.PollColorData.Element, p.PollColorData.Color, p.Suggestor, controversialTxt)
 	case types.PollCatColor:

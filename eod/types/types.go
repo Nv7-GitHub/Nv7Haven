@@ -145,6 +145,7 @@ type PollImageData struct {
 	Elem     int
 	NewImage string
 	OldImage string
+	Changed  bool
 }
 
 type PollCategorizeData struct {
@@ -156,6 +157,7 @@ type PollCatImageData struct {
 	Category string
 	NewImage string
 	OldImage string
+	Changed  bool
 }
 
 type PollColorData struct {
