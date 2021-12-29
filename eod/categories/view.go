@@ -16,7 +16,7 @@ type catSortInfo struct {
 	Cnt  int
 }
 
-func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user string, m types.Msg, rsp types.Rsp) {
+func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user string, postfix bool, m types.Msg, rsp types.Rsp) {
 	db, res := b.GetDB(m.GuildID)
 	if !res.Exists {
 		return
@@ -84,13 +84,16 @@ func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user
 		return
 
 	default:
+		if sortKind == "found" {
+			postfix = false
+		}
 		eodsort.Sort(out, len(out), func(index int) int {
 			return out[index].id
 		}, func(index int) string {
 			return out[index].text
 		}, func(index int, val string) {
 			out[index].text = val
-		}, sortKind, m.Author.ID, db, false)
+		}, sortKind, m.Author.ID, db, postfix)
 	}
 
 	o = make([]string, len(out))
