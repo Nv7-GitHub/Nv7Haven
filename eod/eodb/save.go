@@ -145,7 +145,7 @@ func (d *DB) SaveCat(elems *types.Category) error {
 
 func (d *DB) SaveInv(inv *types.Inventory, recalc ...bool) error {
 	d.RLock()
-	if len(recalc) > 0 {
+	if len(recalc) == 1 {
 		for elem := range inv.Elements {
 			elem, res := d.GetElement(elem, true)
 			if !res.Exists {
@@ -155,6 +155,8 @@ func (d *DB) SaveInv(inv *types.Inventory, recalc ...bool) error {
 				inv.MadeCnt++
 			}
 		}
+	} else if len(recalc) == 2 {
+		inv.MadeCnt++
 	}
 	d.RUnlock()
 

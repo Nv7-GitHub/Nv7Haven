@@ -27,7 +27,11 @@ func (b *TreeCmds) GiveCmd(elem string, giveTree bool, user string, m types.Msg,
 		return
 	}
 
-	err := db.SaveInv(inv)
+	opts := []bool{true, true}
+	if giveTree {
+		opts = []bool{true}
+	}
+	err := db.SaveInv(inv, opts...)
 	if rsp.Error(err) {
 		return
 	}

@@ -139,7 +139,7 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 	// Add Element to Inv
 	inv := db.GetInv(creator)
 	inv.Add(el.ID)
-	err = db.SaveInv(inv)
+	err = db.SaveInv(inv, true, true)
 	if err != nil {
 		log.SetOutput(logs.DataFile)
 		log.Println(err)
