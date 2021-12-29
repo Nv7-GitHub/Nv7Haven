@@ -166,8 +166,9 @@ func (b *Polls) ColorCmd(elem string, color int, m types.Msg, rsp types.Rsp) {
 		Suggestor: m.Author.ID,
 
 		PollColorData: &types.PollColorData{
-			Element: el.ID,
-			Color:   color,
+			Element:  el.ID,
+			Color:    color,
+			OldColor: el.Color,
 		},
 	})
 	if rsp.Error(err) {
@@ -234,6 +235,7 @@ func (b *Polls) CatColorCmd(catName string, color int, m types.Msg, rsp types.Rs
 		PollCatColorData: &types.PollCatColorData{
 			Category: cat.Name,
 			Color:    color,
+			OldColor: cat.Color,
 		},
 	})
 	if rsp.Error(err) {

@@ -161,12 +161,14 @@ type PollCatImageData struct {
 }
 
 type PollColorData struct {
-	Element int
-	Color   int
+	Element  int
+	Color    int
+	OldColor int
 }
 type PollCatColorData struct {
 	Category string
 	Color    int
+	OldColor int
 }
 
 type Poll struct {

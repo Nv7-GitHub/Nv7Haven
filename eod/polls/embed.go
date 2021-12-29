@@ -104,7 +104,7 @@ func (b *Polls) GetPollEmbed(db *eodb.DB, p types.Poll) (*discordgo.MessageEmbed
 		el, _ := db.GetElement(p.PollColorData.Element)
 		return &discordgo.MessageEmbed{
 			Title:       "Set Color",
-			Description: fmt.Sprintf("**%s**\n%s (Shown on Left)\n\nSuggested by <@%s>", el.Name, util.FormatHex(p.PollColorData.Color), p.Suggestor),
+			Description: fmt.Sprintf("**%s**\n#%s (Shown on Left)\nOld Color: #%s\n\nSuggested by <@%s>", el.Name, util.FormatHex(p.PollColorData.Color), util.FormatHex(p.PollColorData.OldColor), p.Suggestor),
 			Color:       p.PollColorData.Color,
 			Footer: &discordgo.MessageEmbedFooter{
 				Text: "You can change your vote",
@@ -120,9 +120,13 @@ func (b *Polls) GetPollEmbed(db *eodb.DB, p types.Poll) (*discordgo.MessageEmbed
 			},
 		}
 		if p.PollCatColorData.Color != 0 {
+			txt := fmt.Sprintf("**%s**\n%s (Shown on Left)\n\nSuggested by <@%s>", p.PollCatColorData.Category, util.FormatHex(p.PollCatColorData.Color), p.Suggestor)
+			if p.PollCatColorData.OldColor != 0 {
+				txt = fmt.Sprintf("**%s**\n#%s (Shown on Left)\nOld Color: #%s\n\nSuggested by <@%s>", p.PollCatColorData.Category, util.FormatHex(p.PollCatColorData.Color), util.FormatHex(p.PollCatColorData.OldColor), p.Suggestor)
+			}
 			emb = &discordgo.MessageEmbed{
 				Title:       "Set Category Color",
-				Description: fmt.Sprintf("**%s**\n%s (Shown on Left)\n\nSuggested by <@%s>", p.PollCatColorData.Category, util.FormatHex(p.PollCatColorData.Color), p.Suggestor),
+				Description: txt,
 				Color:       p.PollCatColorData.Color,
 				Footer: &discordgo.MessageEmbedFooter{
 					Text: "You can change your vote",
