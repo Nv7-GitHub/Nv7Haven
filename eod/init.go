@@ -1,6 +1,7 @@
 package eod
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/admin"
@@ -108,4 +109,12 @@ func (b *EoD) init(app *fiber.App) {
 			}
 		}
 	}*/
+	for _, db := range b.DB {
+		for _, inv := range db.Invs() {
+			err := db.SaveInv(inv, true)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+	}
 }
