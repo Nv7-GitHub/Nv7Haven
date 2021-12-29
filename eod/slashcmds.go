@@ -904,6 +904,12 @@ var (
 							Description: "Whether to use a RegEx!",
 							Required:    false,
 						},
+						{
+							Type:        discordgo.ApplicationCommandOptionBoolean,
+							Name:        "postfix",
+							Description: "Whether to postfix!",
+							Required:    false,
+						},
 					},
 				},
 				{
@@ -934,6 +940,12 @@ var (
 							Type:        discordgo.ApplicationCommandOptionBoolean,
 							Name:        "regex",
 							Description: "Whether to use a RegEx!",
+							Required:    false,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionBoolean,
+							Name:        "postfix",
+							Description: "Whether to postfix!",
 							Required:    false,
 						},
 					},
