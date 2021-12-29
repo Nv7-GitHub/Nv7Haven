@@ -146,6 +146,7 @@ func (d *DB) SaveCat(elems *types.Category) error {
 func (d *DB) SaveInv(inv *types.Inventory, recalc ...bool) error {
 	d.RLock()
 	if len(recalc) == 1 {
+		inv.MadeCnt = 0
 		for elem := range inv.Elements {
 			elem, res := d.GetElement(elem, true)
 			if !res.Exists {
