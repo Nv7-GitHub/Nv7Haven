@@ -61,6 +61,7 @@ func (b *Categories) CategoriesCmd(elem string, m types.Msg, rsp types.Rsp) {
 		PageGetter: b.base.InvPageGetter,
 		Items:      out,
 		User:       m.Author.ID,
+		Thumbnail:  el.Image,
 	}, m, rsp)
 }
 
