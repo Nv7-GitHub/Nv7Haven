@@ -50,6 +50,9 @@ func (d *DB) AddCombo(elems []int, result int) error {
 	defer d.Unlock()
 
 	d.combos[body] = result
+	// Add to AI
+	d.AI.AddCombo(body, false)
+
 	_, err := d.comboFile.WriteString(body + "=" + strconv.Itoa(result) + "\n")
 	return err
 }

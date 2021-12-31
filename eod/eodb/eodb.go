@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"sync"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/ai"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
@@ -29,6 +30,9 @@ func NewData(path string) (*Data, error) {
 		path: path,
 	}
 	for _, folder := range folders {
+		if !folder.IsDir() {
+			continue
+		}
 		db, err := NewDB(folder.Name(), filepath.Join(path, folder.Name()))
 		if err != nil {
 			return nil, err
@@ -97,6 +101,8 @@ type DB struct {
 	elemFile   *os.File
 	comboFile  *os.File
 	configFile *os.File
+
+	AI *ai.AI
 }
 
 func (d *DB) Invs() map[string]*types.Inventory {
@@ -129,6 +135,8 @@ func newDB(path string, guild string) *DB {
 
 		invFiles: make(map[string]*os.File),
 		catFiles: make(map[string]*os.File),
+
+		AI: ai.NewAI(),
 	}
 }
 

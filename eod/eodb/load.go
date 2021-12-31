@@ -81,6 +81,9 @@ func (d *DB) loadCombos() error {
 			return err
 		}
 		d.combos[parts[0]] = result
+
+		// Add to AI
+		d.AI.AddCombo(parts[0], true)
 	}
 
 	// Save
