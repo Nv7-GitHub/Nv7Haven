@@ -122,7 +122,7 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 		_, res = db.GetCombo(elems)
 		tries++
 
-		if tries > 21 {
+		if tries > types.MaxTries {
 			return "Couldn't find a random unused combination, maybe try again later?", false
 		}
 	}

@@ -9,3 +9,5 @@ const UpArrow = "⬆️"
 const DownArrow = "⬇️"
 
 var MaxComboLength = 21
+
+const MaxTries = 20

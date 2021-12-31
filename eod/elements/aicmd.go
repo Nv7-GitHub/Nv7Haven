@@ -44,7 +44,20 @@ func (b *Elements) genAi(guild string, author string) (string, bool) {
 		return res.Message, false
 	}
 
-	comb := db.AI.PredictCombo()
+	tries := 0
+	var comb []int
+	success := false
+	for !success {
+		comb = db.AI.PredictCombo()
+		_, res := db.GetCombo(comb)
+		if !res.Exists {
+			success = true
+		}
+		tries++
+		if tries > types.MaxTries {
+			return "Failed to generate a valid idea!", false
+		}
+	}
 
 	text := ""
 	for i, el := range comb {
