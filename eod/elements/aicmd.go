@@ -30,7 +30,7 @@ func (c *aiComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCrea
 		Type: discordgo.InteractionResponseUpdateMessage,
 		Data: &discordgo.InteractionResponseData{
 			Content:    res,
-			Components: []discordgo.MessageComponent{ideaCmp},
+			Components: []discordgo.MessageComponent{aiCmp},
 		},
 	})
 	if err != nil {
