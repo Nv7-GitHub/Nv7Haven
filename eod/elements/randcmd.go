@@ -144,6 +144,7 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 
 	return fmt.Sprintf("Your random unused combination is... **%s**\n 	Suggest it by typing **/suggest**", text), true
 }
+
 func (b *Elements) IdeaCmd(count int, catName string, hasCat bool, elemName string, hasEl bool, m types.Msg, rsp types.Rsp) {
 	res, suc := b.genIdea(count, catName, hasCat, elemName, hasEl, m.GuildID, m.Author.ID)
 	if !suc {

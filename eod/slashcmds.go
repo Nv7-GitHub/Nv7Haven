@@ -587,6 +587,12 @@ var (
 			},
 		},
 		{
+			Name:        "ai_idea",
+			Type:        discordgo.ChatApplicationCommand,
+			Description: "Get an AI generated combination!",
+			Options:     []*discordgo.ApplicationCommandOption{},
+		},
+		{
 			Name:        "download",
 			Type:        discordgo.ChatApplicationCommand,
 			Description: "Download an inventory or category!",
@@ -1300,6 +1306,9 @@ var (
 				}
 			}
 			bot.elements.IdeaCmd(count, catName, hasCat, elName, hasEl, bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"ai_idea": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.elements.AiCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"download": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
