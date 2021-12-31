@@ -22,7 +22,7 @@ type aiComponent struct {
 }
 
 func (c *aiComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCreate) {
-	res, suc := c.b.genAi(i.GuildID)
+	res, suc := c.b.genAi(i.GuildID, i.Member.User.ID)
 	if !suc {
 		res += " " + types.RedCircle
 	}
@@ -38,7 +38,7 @@ func (c *aiComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCrea
 	}
 }
 
-func (b *Elements) genAi(guild string) (string, bool) {
+func (b *Elements) genAi(guild string, author string) (string, bool) {
 	db, res := b.GetDB(guild)
 	if !res.Exists {
 		return res.Message, false
@@ -55,11 +55,33 @@ func (b *Elements) genAi(guild string) (string, bool) {
 		}
 	}
 
-	return fmt.Sprintf("Your AI generated combination is... **%s**", text), true
+	// Check if you can suggest
+	suggest := ""
+	canSuggest := true
+	inv := db.GetInv(author)
+	for _, el := range comb {
+		if !inv.Contains(el) {
+			canSuggest = false
+			break
+		}
+	}
+	if canSuggest {
+		data, res := b.GetData(guild)
+		if !res.Exists {
+			return res.Message, false
+		}
+		suggest = "\n 	Suggest it by typing **/suggest**"
+		data.SetComb(author, types.Comb{
+			Elems: comb,
+			Elem3: -1,
+		})
+	}
+
+	return fmt.Sprintf("Your AI generated combination is... **%s**%s", text, suggest), true
 }
 
 func (b *Elements) AiCmd(m types.Msg, rsp types.Rsp) {
-	res, suc := b.genAi(m.GuildID)
+	res, suc := b.genAi(m.GuildID, m.Author.ID)
 	if !suc {
 		rsp.ErrorMessage(res)
 		return
