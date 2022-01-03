@@ -20,6 +20,13 @@ func (r *RemoDrive) Drive(w http.ResponseWriter, req *http.Request) {
 	for {
 		_, message, err := conn.ReadMessage()
 		if err != nil {
+			// Send leave message
+			lock.RLock()
+			room, exists := r.Rooms[room]
+			lock.RUnlock()
+			if exists {
+				room.Msgs <- "host_event_leave:" + name
+			}
 			return
 		}
 
