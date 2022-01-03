@@ -35,7 +35,6 @@ func (r *RemoDrive) Drive(w http.ResponseWriter, req *http.Request) {
 			if !exists {
 				return
 			}
-			room.Names[name] = struct{}{}
 
 			room.Msgs <- "host_event_join:" + name
 			continue
