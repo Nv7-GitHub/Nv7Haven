@@ -23,7 +23,8 @@ type RemoDrive struct {
 }
 
 type Room struct {
-	Msgs chan string
+	Msgs  chan string
+	Names map[string]struct{}
 }
 
 func InitRemoDrive(app *fiber.App) {

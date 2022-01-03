@@ -2,6 +2,7 @@ package remodrive
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/websocket"
 )
@@ -14,6 +15,7 @@ func (r *RemoDrive) Drive(w http.ResponseWriter, req *http.Request) {
 	defer conn.Close()
 
 	room := ""
+	name := ""
 
 	for {
 		_, message, err := conn.ReadMessage()
@@ -22,7 +24,20 @@ func (r *RemoDrive) Drive(w http.ResponseWriter, req *http.Request) {
 		}
 
 		if room == "" {
-			room = string(message)
+			parts := strings.Split(string(message), ":")
+			room = parts[0]
+			name = parts[1]
+
+			// Save name
+			lock.RLock()
+			room, exists := r.Rooms[room]
+			lock.RUnlock()
+			if !exists {
+				return
+			}
+			room.Names[name] = struct{}{}
+
+			room.Msgs <- "host_event_join:" + name
 			continue
 		}
 
@@ -37,6 +52,7 @@ func (r *RemoDrive) Drive(w http.ResponseWriter, req *http.Request) {
 
 		err = conn.WriteMessage(websocket.TextMessage, []byte("recv"))
 		if err != nil {
+			room.Msgs <- "host_event_leave:" + name
 			return
 		}
 	}
