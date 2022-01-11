@@ -285,10 +285,11 @@ var (
 			Description: "Suggest or add an element to a category!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "category",
-					Description: "The name of the category to add the element to!",
-					Required:    true,
+					Type:         discordgo.ApplicationCommandOptionString,
+					Name:         "category",
+					Description:  "The name of the category to add the element to!",
+					Required:     true,
+					Autocomplete: true,
 				},
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
@@ -525,10 +526,11 @@ var (
 			Description: "Suggest or remove an element from a category!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "category",
-					Description: "The name of the category to add the element to!",
-					Required:    true,
+					Type:         discordgo.ApplicationCommandOptionString,
+					Name:         "category",
+					Description:  "The name of the category to add the element to!",
+					Required:     true,
+					Autocomplete: true,
 				},
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
@@ -1702,23 +1704,42 @@ var (
 				},
 			})
 		},
-		"cat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			data := i.ApplicationCommandData()
-
-			// autocomplete element names
-			if len(data.Options) < 1 || data.Options[0].Name != "category" {
-				return
-			}
-			names, res := bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[0].StringValue())
-			if !res.Exists {
-				return
-			}
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
-				Data: &discordgo.InteractionResponseData{
-					Choices: stringsToAutocomplete(names),
-				},
-			})
-		},
+		"cat":    catAutocomplete,
+		"addcat": catAutocomplete,
+		"rmcat":  catAutocomplete,
 	}
 )
+
+func catAutocomplete(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	data := i.ApplicationCommandData()
+
+	// autocomplete element names
+	if len(data.Options) < 1 {
+		return
+	}
+	// Check for focused and being named category
+	focusedInd := -1
+	for i, opt := range data.Options {
+		if opt.Focused {
+			focusedInd = i
+			if opt.Name != "category" {
+				return
+			}
+			break
+		}
+	}
+	if focusedInd == -1 {
+		return
+	}
+
+	names, res := bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[focusedInd].StringValue())
+	if !res.Exists {
+		return
+	}
+	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+		Data: &discordgo.InteractionResponseData{
+			Choices: stringsToAutocomplete(names),
+		},
+	})
+}
