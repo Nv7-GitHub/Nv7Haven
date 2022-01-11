@@ -1703,8 +1703,12 @@ var (
 			})
 		},
 		"cat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			data := i.ApplicationCommandData().Options[0]
+			data := i.ApplicationCommandData()
+
 			// autocomplete element names
+			if len(data.Options) < 1 || data.Options[0].Name != "category" {
+				return
+			}
 			names, res := bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[0].StringValue())
 			if !res.Exists {
 				return
