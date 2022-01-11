@@ -328,10 +328,11 @@ var (
 			Description: "Get info on a category!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "category",
-					Description: "Name of the category",
-					Required:    false,
+					Type:         discordgo.ApplicationCommandOptionString,
+					Name:         "category",
+					Description:  "Name of the category",
+					Required:     false,
+					Autocomplete: true,
 				},
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
@@ -775,10 +776,11 @@ var (
 					Description: "See the user's who have found an element!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "element",
-							Description: "Name of the element!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "element",
+							Description:  "Name of the element!",
+							Required:     true,
+							Autocomplete: true,
 						},
 					},
 				},
@@ -788,10 +790,11 @@ var (
 					Description: "See the categories an element is in!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "element",
-							Description: "Name of the element!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "element",
+							Description:  "Name of the element!",
+							Required:     true,
+							Autocomplete: true,
 						},
 					},
 				},
@@ -1687,26 +1690,31 @@ var (
 	autocompleteHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"get": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			data := i.ApplicationCommandData().Options[0]
-			if data.Name == "info" {
-				// autocomplete element names
-				names, res := bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[0].StringValue())
-				if !res.Exists {
-					return
-				}
-				results := make([]*discordgo.ApplicationCommandOptionChoice, len(names))
-				for i, name := range names {
-					results[i] = &discordgo.ApplicationCommandOptionChoice{
-						Name:  name,
-						Value: name,
-					}
-				}
-				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-					Type: discordgo.InteractionApplicationCommandAutocompleteResult,
-					Data: &discordgo.InteractionResponseData{
-						Choices: results,
-					},
-				})
+			// autocomplete element names
+			names, res := bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[0].StringValue())
+			if !res.Exists {
+				return
 			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
+		"cat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData().Options[0]
+			// autocomplete element names
+			names, res := bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[0].StringValue())
+			if !res.Exists {
+				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
 		},
 	}
 )

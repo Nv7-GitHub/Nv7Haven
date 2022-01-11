@@ -1,4 +1,4 @@
-package elements
+package categories
 
 import (
 	"sort"
@@ -7,7 +7,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
-func (b *Elements) Autocomplete(m types.Msg, query string) ([]string, types.GetResponse) {
+func (b *Categories) Autocomplete(m types.Msg, query string) ([]string, types.GetResponse) {
 	db, res := b.GetDB(m.GuildID)
 	if !res.Exists {
 		return nil, res
@@ -15,17 +15,18 @@ func (b *Elements) Autocomplete(m types.Msg, query string) ([]string, types.GetR
 
 	type searchResult struct {
 		priority int
-		id       int
+		name     string
+		size     int
 	}
 	results := make([]searchResult, 0)
 	db.RLock()
-	for _, el := range db.Elements {
-		if strings.EqualFold(el.Name, query) {
-			results = append(results, searchResult{0, el.ID})
-		} else if strings.HasPrefix(strings.ToLower(el.Name), query) {
-			results = append(results, searchResult{1, el.ID})
-		} else if strings.Contains(strings.ToLower(el.Name), query) {
-			results = append(results, searchResult{2, el.ID})
+	for _, cat := range db.Cats() {
+		if strings.EqualFold(cat.Name, query) {
+			results = append(results, searchResult{0, cat.Name, len(cat.Elements)})
+		} else if strings.HasPrefix(strings.ToLower(cat.Name), query) {
+			results = append(results, searchResult{1, cat.Name, len(cat.Elements)})
+		} else if strings.Contains(strings.ToLower(cat.Name), query) {
+			results = append(results, searchResult{2, cat.Name, len(cat.Elements)})
 		}
 		if len(results) > 1000 {
 			break
@@ -33,14 +34,15 @@ func (b *Elements) Autocomplete(m types.Msg, query string) ([]string, types.GetR
 	}
 	db.RUnlock()
 
-	// sort by id
+	// sort by length
 	sort.Slice(results, func(i, j int) bool {
-		return results[i].id < results[j].id
+		return results[i].size > results[j].size
 	})
 	// sort by priority
 	sort.Slice(results, func(i, j int) bool {
 		return results[i].priority < results[j].priority
 	})
+	// shorten to max results
 	if len(results) > types.AutocompleteResults {
 		results = results[:types.AutocompleteResults]
 	}
@@ -48,11 +50,7 @@ func (b *Elements) Autocomplete(m types.Msg, query string) ([]string, types.GetR
 	names := make([]string, len(results))
 	db.RLock()
 	for i, res := range results {
-		el, res := db.GetElement(res.id, true)
-		if !res.Exists {
-			continue
-		}
-		names[i] = el.Name
+		names[i] = res.name
 	}
 	db.RUnlock()
 

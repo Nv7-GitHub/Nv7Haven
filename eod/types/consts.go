@@ -11,3 +11,4 @@ const DownArrow = "⬇️"
 var MaxComboLength = 21
 
 const MaxTries = 20
+const AutocompleteResults = 25

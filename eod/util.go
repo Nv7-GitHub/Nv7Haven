@@ -104,3 +104,14 @@ func (b *EoD) getMessageElem(id string, guild string) (int, string, bool) {
 
 //go:embed fools.txt
 var foolsRaw string
+
+func stringsToAutocomplete(vals []string) []*discordgo.ApplicationCommandOptionChoice {
+	results := make([]*discordgo.ApplicationCommandOptionChoice, len(vals))
+	for i, name := range vals {
+		results[i] = &discordgo.ApplicationCommandOptionChoice{
+			Name:  name,
+			Value: name,
+		}
+	}
+	return results
+}
