@@ -6,6 +6,7 @@ import (
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -1704,13 +1705,45 @@ var (
 				},
 			})
 		},
-		"cat":    catAutocomplete,
-		"addcat": catAutocomplete,
-		"rmcat":  catAutocomplete,
+		"cat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData()
+
+			// autocomplete element names
+			if len(data.Options) < 1 {
+				return
+			}
+			// Check for focused and being named category
+			focusedInd := -1
+			for i, opt := range data.Options {
+				if opt.Focused {
+					focusedInd = i
+					if opt.Name != "category" {
+						return
+					}
+					break
+				}
+			}
+			if focusedInd == -1 {
+				return
+			}
+
+			names, res := bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[focusedInd].StringValue())
+			if !res.Exists {
+				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
+		"addcat": catChangeAutocomplete,
+		"rmcat":  catChangeAutocomplete,
 	}
 )
 
-func catAutocomplete(s *discordgo.Session, i *discordgo.InteractionCreate) {
+func catChangeAutocomplete(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	data := i.ApplicationCommandData()
 
 	// autocomplete element names
@@ -1719,11 +1752,12 @@ func catAutocomplete(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	}
 	// Check for focused and being named category
 	focusedInd := -1
+	isElem := false
 	for i, opt := range data.Options {
 		if opt.Focused {
 			focusedInd = i
 			if opt.Name != "category" {
-				return
+				isElem = true
 			}
 			break
 		}
@@ -1732,10 +1766,20 @@ func catAutocomplete(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		return
 	}
 
-	names, res := bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[focusedInd].StringValue())
-	if !res.Exists {
-		return
+	var names []string
+	var res types.GetResponse
+	if isElem {
+		names, res = bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[focusedInd].StringValue())
+		if !res.Exists {
+			return
+		}
+	} else {
+		names, res = bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[focusedInd].StringValue())
+		if !res.Exists {
+			return
+		}
 	}
+
 	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionApplicationCommandAutocompleteResult,
 		Data: &discordgo.InteractionResponseData{
