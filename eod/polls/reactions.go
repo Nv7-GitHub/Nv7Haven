@@ -26,10 +26,10 @@ func (b *Polls) RejectPoll(db *eodb.DB, p types.Poll, messageid, user string) {
 				if err == nil {
 					upvotes := ""
 					downvotes := ""
-					if p.Upvotes > 1 {
+					if p.Upvotes != 1 {
 						upvotes = "s"
 					}
-					if p.Downvotes > 1 {
+					if p.Downvotes != 1 {
 						downvotes = "s"
 					}
 
