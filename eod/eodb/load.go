@@ -2,6 +2,7 @@ package eodb
 
 import (
 	"bufio"
+	"encoding/json"
 	"io"
 	"net/url"
 	"os"
@@ -11,10 +12,7 @@ import (
 	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
-	jsoniter "github.com/json-iterator/go"
 )
-
-var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 func (d *DB) loadElements() error {
 	f, err := os.OpenFile(filepath.Join(d.dbPath, "elements.json"), os.O_RDWR|os.O_CREATE, os.ModePerm)
