@@ -135,12 +135,12 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		if cmd == "inv" {
+		if cmd == "inv" || "elements" {
 			b.elements.InvCmd(m.Author.ID, msg, rsp, "name", "none", false, true)
 			return
 		}
 
-		if cmd == "lb" {
+		if cmd == "lb" || cmd == "top" || cmd == "leaderboard" {
 			b.elements.LbCmd(msg, rsp, "count", msg.Author.ID)
 			return
 		}
