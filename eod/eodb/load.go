@@ -2,7 +2,6 @@ package eodb
 
 import (
 	"bufio"
-	"encoding/json"
 	"io"
 	"net/url"
 	"os"
@@ -12,12 +11,15 @@ import (
 	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	jsoniter "github.com/json-iterator/go"
 )
+
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 func (d *DB) loadElements() error {
 	f, err := os.OpenFile(filepath.Join(d.dbPath, "elements.json"), os.O_RDWR|os.O_CREATE, os.ModePerm)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	reader := bufio.NewReader(f)
 
@@ -28,14 +30,14 @@ func (d *DB) loadElements() error {
 			if err == io.EOF {
 				break
 			} else {
-				panic(err)
+				return err
 			}
 		}
 
 		// Parse
 		err = json.Unmarshal(line, &dat)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		// Add to elements
@@ -58,7 +60,7 @@ func (d *DB) loadElements() error {
 func (d *DB) loadCombos() error {
 	f, err := os.OpenFile(filepath.Join(d.dbPath, "combos.txt"), os.O_RDWR|os.O_CREATE, os.ModePerm)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	reader := bufio.NewReader(f)
 
@@ -68,7 +70,7 @@ func (d *DB) loadCombos() error {
 			if err == io.EOF {
 				break
 			} else {
-				panic(err)
+				return err
 			}
 		}
 
@@ -76,7 +78,7 @@ func (d *DB) loadCombos() error {
 		parts := strings.Split(string(line), "=") // 1+1=5
 		result, err := strconv.Atoi(parts[1])
 		if err != nil {
-			panic(err)
+			return err
 		}
 		d.combos[parts[0]] = result
 
@@ -92,11 +94,11 @@ func (d *DB) loadCombos() error {
 func (d *DB) loadConfig() error {
 	f, err := os.OpenFile(filepath.Join(d.dbPath, "config.json"), os.O_RDWR|os.O_CREATE, os.ModePerm)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	dat, err := io.ReadAll(f)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	err = json.Unmarshal(dat, &d.Config)
 	if err != nil {
@@ -111,11 +113,11 @@ func (d *DB) loadConfig() error {
 func (d *DB) loadInvs() error {
 	err := os.MkdirAll(filepath.Join(d.dbPath, "inventories"), os.ModePerm)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	files, err := os.ReadDir(filepath.Join(d.dbPath, "inventories"))
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	var inv *types.Inventory
@@ -123,17 +125,17 @@ func (d *DB) loadInvs() error {
 		name := strings.TrimSuffix(file.Name(), ".json")
 		f, err := os.OpenFile(filepath.Join(d.dbPath, "inventories", file.Name()), os.O_RDWR, os.ModePerm)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		// Read inv
 		dat, err := io.ReadAll(f)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		err = json.Unmarshal(dat, &inv)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		inv.Lock = &sync.RWMutex{}
 
@@ -148,32 +150,32 @@ func (d *DB) loadInvs() error {
 func (d *DB) loadCats() error {
 	err := os.MkdirAll(filepath.Join(d.dbPath, "categories"), os.ModePerm)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	files, err := os.ReadDir(filepath.Join(d.dbPath, "categories"))
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	var cat *types.Category
 	for _, file := range files {
 		name, err := url.PathUnescape(strings.TrimSuffix(file.Name(), ".json"))
 		if err != nil {
-			panic(err)
+			return err
 		}
 		f, err := os.OpenFile(filepath.Join(d.dbPath, "categories", file.Name()), os.O_RDWR, os.ModePerm)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		// Read cat
 		dat, err := io.ReadAll(f)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		err = json.Unmarshal(dat, &cat)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		cat.Lock = &sync.RWMutex{}
 
@@ -188,28 +190,28 @@ func (d *DB) loadCats() error {
 func (d *DB) loadPolls() error {
 	err := os.MkdirAll(filepath.Join(d.dbPath, "polls"), os.ModePerm)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	files, err := os.ReadDir(filepath.Join(d.dbPath, "polls"))
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	poll := types.Poll{}
 	for _, file := range files {
 		f, err := os.Open(filepath.Join(d.dbPath, "polls", file.Name()))
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		// Read poll
 		dat, err := io.ReadAll(f)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		err = json.Unmarshal(dat, &poll)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		// Save poll
