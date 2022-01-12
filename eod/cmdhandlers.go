@@ -72,7 +72,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		if cmd == "catimage" || cmd == "catimg" || cmd == "catpic" {
+		if cmd == "catimage" || cmd == "catimg" || cmd == "catpic" || cmd == "🐱image" || cmd == "🐱img" || cmd == "🐱pic" {
 			if len(m.Content) <= len(cmd)+2 {
 				return
 			}
@@ -99,7 +99,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		if cmd == "addcat" || cmd == "ac" {
+		if cmd == "addcat" || cmd == "ac" || cmd == "addcategory" {
 			if len(m.Content) <= len(cmd)+2 {
 				return
 			}
@@ -117,7 +117,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		if cmd == "rmcat" || cmd == "rc" {
+		if cmd == "rmcat" || cmd == "rc" || cmd == "removecat" || cmd == "removecategory" || cmd == "rmcategory" {
 			if len(m.Content) <= len(cmd)+2 {
 				return
 			}
@@ -140,12 +140,12 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		if cmd == "lb" {
+		if cmd == "lb" || cmd == "top" || cmd == "🔝" {
 			b.elements.LbCmd(msg, rsp, "count", msg.Author.ID)
 			return
 		}
 
-		if cmd == "cat" {
+		if cmd == "cat" || cmd == "🐱" || cmd == "🐈" || cmd == "category" {
 			if len(m.Content) <= len(cmd)+2 {
 				bot.categories.AllCatCmd("name", false, "", msg, rsp)
 				return
@@ -180,7 +180,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			b.elements.InfoCmd(strings.TrimSpace(m.Content[len(cmd)+2:]), msg, rsp)
 			return
 		}
-		if cmd == "restart" || cmd == "update" || cmd == "optimize" {
+		if cmd == "restart" || cmd == "update" || cmd == "optimize" || cmd == "optimise" {
 			if m.GuildID == "705084182673621033" {
 				user, err := b.dg.GuildMember(msg.GuildID, msg.Author.ID)
 				if rsp.Error(err) {
