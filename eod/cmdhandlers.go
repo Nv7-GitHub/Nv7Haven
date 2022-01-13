@@ -198,6 +198,9 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 						case "optimize":
 							b.optimize(msg, rsp)
 						}
+						case "optimise":
+							b.optimize(msg, rsp)
+						}
 					}
 				}
 			}
