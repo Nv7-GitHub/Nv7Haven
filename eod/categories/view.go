@@ -159,14 +159,9 @@ func (b *Categories) AllCatCmd(sortBy string, hasUser bool, user string, m types
 	db.RUnlock()
 
 	switch sortBy {
-	case "catfound":
+	case "found":
 		sort.Slice(out, func(i, j int) bool {
 			return out[i].found > out[j].found
-		})
-
-	case "catnotfound":
-		sort.Slice(out, func(i, j int) bool {
-			return out[i].found < out[j].found
 		})
 
 	case "catelemcount":
