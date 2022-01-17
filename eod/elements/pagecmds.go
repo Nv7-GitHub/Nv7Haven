@@ -133,10 +133,21 @@ func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string)
 	userpos := 0
 	for i, v := range invs {
 		users[i] = v.User
-		if sorter == "count" {
-			cnts[i] = len(v.Elements)
-		} else {
+		switch sorter {
+		case "made":
 			cnts[i] = v.MadeCnt
+
+		case "signed":
+			cnts[i] = v.SignedCnt
+
+		case "imaged":
+			cnts[i] = v.ImagedCnt
+
+		case "colored":
+			cnts[i] = v.ColoredCnt
+
+		default:
+			cnts[i] = len(v.Elements)
 		}
 		if v.User == user {
 			userpos = i
