@@ -198,9 +198,6 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 	if el.Colorer != "" {
 		infoFields = append(infoFields, &discordgo.MessageEmbedField{Name: "Painter", Value: fmt.Sprintf("<@%s>", el.Colorer), Inline: true})
 	}
-	if len(infoFields) > 0 {
-		infoFields[len(infoFields)-1].Inline = false
-	}
 
 	// Make fields
 	fields := []*discordgo.MessageEmbedField{
@@ -211,13 +208,11 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 		{Name: "Created By", Value: fmt.Sprintf("<@%s>", el.Creator), Inline: true},
 		{Name: "Created On", Value: createdOn, Inline: true},
 		{Name: "Color", Value: util.FormatHex(el.Color), Inline: true},
-	}
-	fields = append(fields, infoFields...)
-	fields = append(fields, []*discordgo.MessageEmbedField{
 		{Name: "Tree Size", Value: strconv.Itoa(tree.Total), Inline: true},
 		{Name: "Complexity", Value: strconv.Itoa(el.Complexity), Inline: true},
 		{Name: "Difficulty", Value: strconv.Itoa(el.Difficulty), Inline: true},
-	}...)
+	}
+	fields = append(fields, infoFields...)
 	emb := &discordgo.MessageEmbed{
 		Title:       el.Name + " Info",
 		Description: fmt.Sprintf("Element **#%d**\n<@%s> **You %shave this.**", el.ID, m.Author.ID, has),
