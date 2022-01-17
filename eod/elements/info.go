@@ -187,24 +187,41 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 	if el.CreatedOn.Unix() <= 4 {
 		createdOn = "The Dawn of Time"
 	}
+
+	infoFields := make([]*discordgo.MessageEmbedField, 0)
+	if el.Commenter != "" {
+		infoFields = append(infoFields, &discordgo.MessageEmbedField{Name: "Commenter", Value: fmt.Sprintf("<@%s>", el.Commenter), Inline: true})
+	}
+	if el.Imager != "" {
+		infoFields = append(infoFields, &discordgo.MessageEmbedField{Name: "Photographer", Value: fmt.Sprintf("<@%s>", el.Imager), Inline: true})
+	}
+	if el.Colorer != "" {
+		infoFields = append(infoFields, &discordgo.MessageEmbedField{Name: "Painter", Value: fmt.Sprintf("<@%s>", el.Colorer), Inline: true})
+	}
+	if len(infoFields) > 0 {
+		infoFields[len(infoFields)-1].Inline = false
+	}
+
+	// Make fields
+	fields := []*discordgo.MessageEmbedField{
+		{Name: "Mark", Value: el.Comment, Inline: false},
+		{Name: "Used In", Value: strconv.Itoa(el.UsedIn), Inline: true},
+		{Name: "Made With", Value: strconv.Itoa(madeby), Inline: true},
+		{Name: "Found By", Value: strconv.Itoa(foundby), Inline: true},
+		{Name: "Created By", Value: fmt.Sprintf("<@%s>", el.Creator), Inline: true},
+		{Name: "Created On", Value: createdOn, Inline: true},
+		{Name: "Color", Value: util.FormatHex(el.Color), Inline: true},
+	}
+	fields = append(fields, infoFields...)
+	fields = append(fields, []*discordgo.MessageEmbedField{
+		{Name: "Tree Size", Value: strconv.Itoa(tree.Total), Inline: true},
+		{Name: "Complexity", Value: strconv.Itoa(el.Complexity), Inline: true},
+		{Name: "Difficulty", Value: strconv.Itoa(el.Difficulty), Inline: true},
+	}...)
 	emb := &discordgo.MessageEmbed{
 		Title:       el.Name + " Info",
 		Description: fmt.Sprintf("Element **#%d**\n<@%s> **You %shave this.**", el.ID, m.Author.ID, has),
-		Fields: []*discordgo.MessageEmbedField{
-			{Name: "Mark", Value: el.Comment, Inline: false},
-			{Name: "Used In", Value: strconv.Itoa(el.UsedIn), Inline: true},
-			{Name: "Made With", Value: strconv.Itoa(madeby), Inline: true},
-			{Name: "Found By", Value: strconv.Itoa(foundby), Inline: true},
-			{Name: "Created By", Value: fmt.Sprintf("<@%s>", el.Creator), Inline: true},
-			{Name: "Created On", Value: createdOn, Inline: true},
-			{Name: "Color", Value: util.FormatHex(el.Color), Inline: true},
-			{Name: "Commenter", Value: fmt.Sprintf("<@%s>", el.Commenter), Inline: true},
-			{Name: "Photographer", Value: fmt.Sprintf("<@%s>", el.Imager), Inline: true},
-			{Name: "Painter", Value: fmt.Sprintf("<@%s>", el.Colorer), Inline: true},
-			{Name: "Tree Size", Value: strconv.Itoa(tree.Total), Inline: true},
-			{Name: "Complexity", Value: strconv.Itoa(el.Complexity), Inline: true},
-			{Name: "Difficulty", Value: strconv.Itoa(el.Difficulty), Inline: true},
-		},
+		Fields:      fields,
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
 			URL: el.Image,
 		},
