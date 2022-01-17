@@ -128,6 +128,11 @@ func (b *Polls) catImage(guild string, catName string, image string, creator str
 		return
 	}
 
+	if cat.Imager != "" {
+		inv := db.GetInv(cat.Imager)
+		inv.CatImagedCnt--
+		_ = db.SaveInv(inv)
+	}
 	inv := db.GetInv(creator)
 	inv.CatImagedCnt++
 	_ = db.SaveInv(inv)
@@ -157,6 +162,11 @@ func (b *Polls) catColor(guild string, catName string, color int, creator string
 		return
 	}
 
+	if cat.Colorer != "" {
+		inv := db.GetInv(cat.Colorer)
+		inv.CatColoredCnt--
+		_ = db.SaveInv(inv)
+	}
 	inv := db.GetInv(creator)
 	inv.CatColoredCnt++
 	_ = db.SaveInv(inv)

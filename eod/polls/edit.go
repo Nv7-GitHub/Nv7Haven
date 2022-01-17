@@ -19,6 +19,11 @@ func (b *Polls) mark(guild string, elem int, mark string, creator string, contro
 	el.Commenter = creator
 	_ = db.SaveElement(el)
 
+	if el.Commenter != "" {
+		inv := db.GetInv(el.Commenter)
+		inv.SignedCnt--
+		_ = db.SaveInv(inv)
+	}
 	inv := db.GetInv(creator)
 	inv.SignedCnt++
 	_ = db.SaveInv(inv)
@@ -42,6 +47,11 @@ func (b *Polls) image(guild string, elem int, image string, creator string, chan
 	el.Imager = creator
 	_ = db.SaveElement(el)
 
+	if el.Imager != "" {
+		inv := db.GetInv(el.Imager)
+		inv.ImagedCnt--
+		_ = db.SaveInv(inv)
+	}
 	inv := db.GetInv(creator)
 	inv.ImagedCnt++
 	_ = db.SaveInv(inv)
@@ -69,6 +79,11 @@ func (b *Polls) color(guild string, elem int, color int, creator string, controv
 	el.Colorer = creator
 	_ = db.SaveElement(el)
 
+	if el.Colorer != "" {
+		inv := db.GetInv(el.Colorer)
+		inv.ColoredCnt--
+		_ = db.SaveInv(inv)
+	}
 	inv := db.GetInv(creator)
 	inv.ColoredCnt++
 	_ = db.SaveInv(inv)
