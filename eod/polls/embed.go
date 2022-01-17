@@ -96,7 +96,7 @@ func (b *Polls) GetPollEmbed(db *eodb.DB, p types.Poll) (*discordgo.MessageEmbed
 				Text: "You can change your vote",
 			},
 			Thumbnail: &discordgo.MessageEmbedThumbnail{
-				URL: p.PollImageData.NewImage,
+				URL: p.PollCatImageData.NewImage,
 			},
 		}, nil
 
