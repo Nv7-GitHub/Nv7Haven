@@ -5,7 +5,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
-func (b *Polls) mark(guild string, elem int, mark string, creator string, controversial string) {
+func (b *Polls) mark(guild string, elem int, mark string, creator string, controversial string, news bool) {
 	db, res := b.GetDB(guild)
 	if !res.Exists {
 		return
@@ -16,14 +16,19 @@ func (b *Polls) mark(guild string, elem int, mark string, creator string, contro
 	}
 
 	el.Comment = mark
+	el.Commenter = creator
 	_ = db.SaveElement(el)
 
-	if creator != "" {
+	inv := db.GetInv(creator)
+	inv.SignedCnt++
+	_ = db.SaveInv(inv)
+
+	if news {
 		b.dg.ChannelMessageSend(db.Config.NewsChannel, "📝 Signed - **"+el.Name+"** (By <@"+creator+">)"+controversial)
 	}
 }
 
-func (b *Polls) image(guild string, elem int, image string, creator string, changed bool, controversial string) {
+func (b *Polls) image(guild string, elem int, image string, creator string, changed bool, controversial string, news bool) {
 	db, res := b.GetDB(guild)
 	if !res.Exists {
 		return
@@ -34,8 +39,14 @@ func (b *Polls) image(guild string, elem int, image string, creator string, chan
 	}
 
 	el.Image = image
+	el.Imager = creator
 	_ = db.SaveElement(el)
-	if creator != "" {
+
+	inv := db.GetInv(creator)
+	inv.ImagedCnt++
+	_ = db.SaveInv(inv)
+
+	if news {
 		word := "Added"
 		if changed {
 			word = "Changed"
@@ -44,7 +55,7 @@ func (b *Polls) image(guild string, elem int, image string, creator string, chan
 	}
 }
 
-func (b *Polls) color(guild string, elem int, color int, creator string, controversial string) {
+func (b *Polls) color(guild string, elem int, color int, creator string, controversial string, news bool) {
 	db, res := b.GetDB(guild)
 	if !res.Exists {
 		return
@@ -55,8 +66,14 @@ func (b *Polls) color(guild string, elem int, color int, creator string, controv
 	}
 
 	el.Color = color
+	el.Colorer = creator
 	_ = db.SaveElement(el)
-	if creator != "" {
+
+	inv := db.GetInv(creator)
+	inv.ColoredCnt++
+	_ = db.SaveInv(inv)
+
+	if news {
 		emoji, err := util.GetEmoji(color)
 		if err != nil {
 			emoji = types.RedCircle

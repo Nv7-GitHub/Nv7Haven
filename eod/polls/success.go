@@ -22,9 +22,9 @@ func (b *Polls) handlePollSuccess(p types.Poll) {
 	case types.PollCombo:
 		b.elemCreate(p.PollComboData.Result, p.PollComboData.Elems, p.Suggestor, controversialTxt, p.Guild)
 	case types.PollSign:
-		b.mark(p.Guild, p.PollSignData.Elem, p.PollSignData.NewNote, p.Suggestor, controversialTxt)
+		b.mark(p.Guild, p.PollSignData.Elem, p.PollSignData.NewNote, p.Suggestor, controversialTxt, true)
 	case types.PollImage:
-		b.image(p.Guild, p.PollImageData.Elem, p.PollImageData.NewImage, p.Suggestor, p.PollImageData.Changed, controversialTxt)
+		b.image(p.Guild, p.PollImageData.Elem, p.PollImageData.NewImage, p.Suggestor, p.PollImageData.Changed, controversialTxt, true)
 	case types.PollCategorize:
 		els := p.PollCategorizeData.Elems
 		for _, val := range els {
@@ -50,7 +50,7 @@ func (b *Polls) handlePollSuccess(p types.Poll) {
 	case types.PollCatImage:
 		b.catImage(p.Guild, p.PollCatImageData.Category, p.PollCatImageData.NewImage, p.Suggestor, p.PollCatImageData.Changed, controversialTxt)
 	case types.PollColor:
-		b.color(p.Guild, p.PollColorData.Element, p.PollColorData.Color, p.Suggestor, controversialTxt)
+		b.color(p.Guild, p.PollColorData.Element, p.PollColorData.Color, p.Suggestor, controversialTxt, true)
 	case types.PollCatColor:
 		b.catColor(p.Guild, p.PollCatColorData.Category, p.PollCatColorData.Color, p.Suggestor, controversialTxt)
 	}

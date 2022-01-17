@@ -256,6 +256,18 @@ var (
 							Name:  "Elements Made",
 							Value: "made",
 						},
+						{
+							Name:  "Elements Signed",
+							Value: "signed",
+						},
+						{
+							Name:  "Elements Imaged",
+							Value: "imaged",
+						},
+						{
+							Name:  "Elements Colored",
+							Value: "colored",
+						},
 					},
 				},
 				{

@@ -127,6 +127,10 @@ type Element struct {
 	Difficulty int
 	UsedIn     int
 	TreeSize   int
+
+	Commenter string
+	Colorer   string
+	Imager    string
 }
 
 type PollComboData struct {
@@ -210,9 +214,12 @@ type Msg struct {
 type Inventory struct {
 	Lock *sync.RWMutex `json:"-"`
 
-	Elements map[int]Empty
-	MadeCnt  int
-	User     string
+	Elements   map[int]Empty
+	MadeCnt    int
+	ImagedCnt  int
+	SignedCnt  int
+	ColoredCnt int
+	User       string
 }
 
 func (i *Inventory) Add(elem int) {

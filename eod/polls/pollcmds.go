@@ -40,7 +40,7 @@ func (b *Polls) MarkCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
 			rsp.ErrorMessage(res.Message)
 			return
 		}
-		b.mark(m.GuildID, id, mark, "", "")
+		b.mark(m.GuildID, id, mark, m.Author.ID, "", false)
 		rsp.Message(fmt.Sprintf("You have signed **%s**! 🖋️", el.Name))
 		return
 	}
@@ -96,7 +96,7 @@ func (b *Polls) ImageCmd(elem string, image string, m types.Msg, rsp types.Rsp) 
 			rsp.ErrorMessage(res.Message)
 			return
 		}
-		b.image(m.GuildID, id, image, "", changed, "")
+		b.image(m.GuildID, id, image, m.Author.ID, changed, "", false)
 		if !changed {
 			rsp.Message(fmt.Sprintf("You added an image to **%s**! 📷", el.Name))
 		} else {
@@ -154,7 +154,7 @@ func (b *Polls) ColorCmd(elem string, color int, m types.Msg, rsp types.Rsp) {
 			rsp.ErrorMessage(res.Message)
 			return
 		}
-		b.color(m.GuildID, id, color, "", "")
+		b.color(m.GuildID, id, color, m.Author.ID, "", false)
 		rsp.Message(fmt.Sprintf("You have set the color of **%s**! 🖌️", el.Name))
 		return
 	}

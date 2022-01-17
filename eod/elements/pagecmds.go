@@ -98,12 +98,31 @@ func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string)
 		invs[i] = v
 		i++
 	}
-	sortFn := func(a, b int) bool {
-		return len(invs[a].Elements) > len(invs[b].Elements)
-	}
-	if sorter == "made" {
+	var sortFn func(a, b int) bool
+	switch sorter {
+	case "made":
 		sortFn = func(a, b int) bool {
 			return invs[a].MadeCnt > invs[b].MadeCnt
+		}
+
+	case "signed":
+		sortFn = func(a, b int) bool {
+			return invs[a].SignedCnt > invs[b].SignedCnt
+		}
+
+	case "imaged":
+		sortFn = func(a, b int) bool {
+			return invs[a].ImagedCnt > invs[b].ImagedCnt
+		}
+
+	case "colored":
+		sortFn = func(a, b int) bool {
+			return invs[a].ColoredCnt > invs[b].ColoredCnt
+		}
+
+	default:
+		sortFn = func(a, b int) bool {
+			return len(invs[a].Elements) > len(invs[b].Elements)
 		}
 	}
 	sort.Slice(invs, sortFn)
