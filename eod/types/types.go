@@ -203,6 +203,9 @@ type Category struct {
 	Elements map[int]Empty
 	Image    string
 	Color    int
+
+	Imager  string
+	Colorer string
 }
 
 type Msg struct {
@@ -214,12 +217,14 @@ type Msg struct {
 type Inventory struct {
 	Lock *sync.RWMutex `json:"-"`
 
-	Elements   map[int]Empty
-	MadeCnt    int
-	ImagedCnt  int
-	SignedCnt  int
-	ColoredCnt int
-	User       string
+	Elements      map[int]Empty
+	MadeCnt       int
+	ImagedCnt     int
+	SignedCnt     int
+	ColoredCnt    int
+	CatImagedCnt  int
+	CatColoredCnt int
+	User          string
 }
 
 func (i *Inventory) Add(elem int) {

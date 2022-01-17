@@ -112,7 +112,7 @@ func (b *Polls) UnCategorize(elem int, catName string, guild string) error {
 	return nil
 }
 
-func (b *Polls) catImage(guild string, catName string, image string, creator string, changed bool, controversial string) {
+func (b *Polls) catImage(guild string, catName string, image string, creator string, changed bool, controversial string, news bool) {
 	db, res := b.GetDB(guild)
 	if !res.Exists {
 		return
@@ -127,7 +127,12 @@ func (b *Polls) catImage(guild string, catName string, image string, creator str
 	if err != nil {
 		return
 	}
-	if creator != "" {
+
+	inv := db.GetInv(creator)
+	inv.CatImagedCnt++
+	_ = db.SaveInv(inv)
+
+	if news {
 		word := "Added"
 		if changed {
 			word = "Changed"
@@ -136,7 +141,7 @@ func (b *Polls) catImage(guild string, catName string, image string, creator str
 	}
 }
 
-func (b *Polls) catColor(guild string, catName string, color int, creator string, controversial string) {
+func (b *Polls) catColor(guild string, catName string, color int, creator string, controversial string, news bool) {
 	db, res := b.GetDB(guild)
 	if !res.Exists {
 		return
@@ -151,7 +156,12 @@ func (b *Polls) catColor(guild string, catName string, color int, creator string
 	if err != nil {
 		return
 	}
-	if creator != "" {
+
+	inv := db.GetInv(creator)
+	inv.CatColoredCnt++
+	_ = db.SaveInv(inv)
+
+	if news {
 		if color == 0 {
 			b.dg.ChannelMessageSend(db.Config.NewsChannel, "Reset Category Color - **"+cat.Name+"** (By <@"+creator+">)"+controversial)
 		}

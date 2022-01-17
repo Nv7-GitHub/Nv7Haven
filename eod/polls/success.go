@@ -48,10 +48,10 @@ func (b *Polls) handlePollSuccess(p types.Poll) {
 			b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf("🗃️ Removed **%d elements** from **%s** (By <@%s>)%s", len(els), p.PollCategorizeData.Category, p.Suggestor, controversialTxt))
 		}
 	case types.PollCatImage:
-		b.catImage(p.Guild, p.PollCatImageData.Category, p.PollCatImageData.NewImage, p.Suggestor, p.PollCatImageData.Changed, controversialTxt)
+		b.catImage(p.Guild, p.PollCatImageData.Category, p.PollCatImageData.NewImage, p.Suggestor, p.PollCatImageData.Changed, controversialTxt, true)
 	case types.PollColor:
 		b.color(p.Guild, p.PollColorData.Element, p.PollColorData.Color, p.Suggestor, controversialTxt, true)
 	case types.PollCatColor:
-		b.catColor(p.Guild, p.PollCatColorData.Category, p.PollCatColorData.Color, p.Suggestor, controversialTxt)
+		b.catColor(p.Guild, p.PollCatColorData.Category, p.PollCatColorData.Color, p.Suggestor, controversialTxt, true)
 	}
 }

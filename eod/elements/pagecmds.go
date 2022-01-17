@@ -120,6 +120,16 @@ func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string)
 			return invs[a].ColoredCnt > invs[b].ColoredCnt
 		}
 
+	case "catimaged":
+		sortFn = func(a, b int) bool {
+			return invs[a].CatImagedCnt > invs[b].CatImagedCnt
+		}
+
+	case "catcolored":
+		sortFn = func(a, b int) bool {
+			return invs[a].CatColoredCnt > invs[b].CatColoredCnt
+		}
+
 	default:
 		sortFn = func(a, b int) bool {
 			return len(invs[a].Elements) > len(invs[b].Elements)
@@ -145,6 +155,12 @@ func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string)
 
 		case "colored":
 			cnts[i] = v.ColoredCnt
+
+		case "catimaged":
+			cnts[i] = v.CatImagedCnt
+
+		case "catcolored":
+			cnts[i] = v.CatColoredCnt
 
 		default:
 			cnts[i] = len(v.Elements)
