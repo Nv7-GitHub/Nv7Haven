@@ -268,6 +268,14 @@ var (
 							Name:  "Elements Colored",
 							Value: "colored",
 						},
+						{
+							Name:  "Categories Imaged",
+							Value: "catimaged",
+						},
+						{
+							Name:  "Categories Colored",
+							Value: "catcolored",
+						},
 					},
 				},
 				{
