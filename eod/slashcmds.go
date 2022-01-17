@@ -52,7 +52,10 @@ var (
 							Type:        discordgo.ApplicationCommandOptionChannel,
 							Name:        "channel",
 							Description: "Channel to mark as a play channel",
-							Required:    true,
+							ChannelTypes: []discordgo.ChannelType{
+								discordgo.ChannelTypeGuildText,
+							},
+							Required: true,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionBoolean,
@@ -71,7 +74,10 @@ var (
 							Type:        discordgo.ApplicationCommandOptionChannel,
 							Name:        "channel",
 							Description: "Channel to set as a voting channel",
-							Required:    true,
+							ChannelTypes: []discordgo.ChannelType{
+								discordgo.ChannelTypeGuildText,
+							},
+							Required: true,
 						},
 					},
 				},
@@ -84,7 +90,10 @@ var (
 							Type:        discordgo.ApplicationCommandOptionChannel,
 							Name:        "channel",
 							Description: "Channel to set as a news channel",
-							Required:    true,
+							ChannelTypes: []discordgo.ChannelType{
+								discordgo.ChannelTypeGuildText,
+							},
+							Required: true,
 						},
 					},
 				},
