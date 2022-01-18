@@ -1,6 +1,8 @@
 package polls
 
 import (
+	"fmt"
+
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
@@ -78,7 +80,7 @@ func (b *Polls) color(guild string, elem int, color int, creator string, controv
 	el.Color = color
 	el.Colorer = creator
 	_ = db.SaveElement(el)
-
+	fmt.Println(el.Colorer, creator)
 	if el.Colorer != "" {
 		inv := db.GetInv(el.Colorer)
 		inv.ColoredCnt--
@@ -86,7 +88,10 @@ func (b *Polls) color(guild string, elem int, color int, creator string, controv
 	}
 	inv := db.GetInv(creator)
 	inv.ColoredCnt++
-	_ = db.SaveInv(inv)
+	err := db.SaveInv(inv)
+	if err != nil {
+		panic(err)
+	}
 
 	if news {
 		emoji, err := util.GetEmoji(color)
