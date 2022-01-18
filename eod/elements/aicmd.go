@@ -13,6 +13,11 @@ var aiCmp = discordgo.ActionsRow{
 			Label:    "New AI Generated Idea",
 			Style:    discordgo.SuccessButton,
 			CustomID: "idea",
+			Emoji: discordgo.ComponentEmoji{
+				Name:     "ai",
+				ID:       "932832511459999844",
+				Animated: false,
+			},
 		},
 	},
 }

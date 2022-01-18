@@ -22,6 +22,11 @@ var hintCmp = discordgo.ActionsRow{
 			Label:    "New Hint",
 			CustomID: "hint-new",
 			Style:    discordgo.SuccessButton,
+			Emoji: discordgo.ComponentEmoji{
+				Name:     "hint",
+				ID:       "932833490066620457",
+				Animated: false,
+			},
 		},
 	},
 }

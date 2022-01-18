@@ -15,6 +15,11 @@ var ideaCmp = discordgo.ActionsRow{
 			Label:    "New Idea",
 			Style:    discordgo.SuccessButton,
 			CustomID: "idea",
+			Emoji: discordgo.ComponentEmoji{
+				Name:     "idea",
+				ID:       "932832202750820452",
+				Animated: false,
+			},
 		},
 	},
 }
