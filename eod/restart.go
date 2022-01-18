@@ -154,11 +154,3 @@ func (b *EoD) optimize(m types.Msg, rsp types.Rsp) {
 
 	b.dg.ChannelMessageEdit(m.ChannelID, id, fmt.Sprintf("<@%s> Optimized in **%s**.", m.Author.ID, taken.String()))
 }
-
-func (b *EoD) pingCmd(created discordgo.Timestamp, rsp types.Rsp) {
-	tm, err := created.Parse()
-	if rsp.Error(err) {
-		return
-	}
-	rsp.Message(fmt.Sprintf("🏓 Pong! Latency: **%s**", time.Since(tm).String()))
-}

@@ -3,6 +3,7 @@ package eod
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
@@ -1735,7 +1736,10 @@ var (
 			}
 		},
 		"ping": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.pingCmd(i.Interaction.Message.Timestamp, bot.newRespSlash(i))
+			rsp := bot.newRespSlash(i)
+			start := time.Now()
+			rsp.Acknowledge()
+			rsp.Message(fmt.Sprintf("🏓 Pong! Latency: **%s** [Slash Command]", time.Since(start)))
 		},
 	}
 	autocompleteHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){

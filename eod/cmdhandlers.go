@@ -1,8 +1,10 @@
 package eod
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
@@ -181,7 +183,12 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 		if cmd == "ping" {
-			b.pingCmd(m.Timestamp, rsp)
+			// Ping command for text
+			tm, err := m.Timestamp.Parse()
+			if rsp.Error(err) {
+				return
+			}
+			rsp.Message(fmt.Sprintf("🏓 Pong! Latency: **%s** [Text Command]", time.Since(tm).String()))
 		}
 		if cmd == "restart" || cmd == "update" || cmd == "optimize" {
 			if m.GuildID == "705084182673621033" {
