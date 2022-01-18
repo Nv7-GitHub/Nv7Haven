@@ -247,7 +247,7 @@ type Rsp interface {
 	ErrorMessage(msg string) string
 	Message(msg string, components ...discordgo.MessageComponent) string
 	Embed(emb *discordgo.MessageEmbed, components ...discordgo.MessageComponent) string
-	RawEmbed(emb *discordgo.MessageEmbed) string
+	RawEmbed(emb *discordgo.MessageEmbed, components ...discordgo.MessageComponent) string
 	Resp(msg string, components ...discordgo.MessageComponent)
 	Acknowledge()
 	DM(msg string)

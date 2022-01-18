@@ -119,7 +119,7 @@ func (n *normalResp) Embed(emb *discordgo.MessageEmbed, components ...discordgo.
 	return msg.ID
 }
 
-func (n *normalResp) RawEmbed(emb *discordgo.MessageEmbed) string {
+func (n *normalResp) RawEmbed(emb *discordgo.MessageEmbed, components ...discordgo.MessageComponent) string {
 	if n.typing {
 		n.b.dg.ChannelTyping(n.msg.ChannelID)
 	}
@@ -130,7 +130,10 @@ func (n *normalResp) RawEmbed(emb *discordgo.MessageEmbed) string {
 		}
 	}
 
-	msg, err := n.b.dg.ChannelMessageSendEmbed(n.msg.ChannelID, emb)
+	msg, err := n.b.dg.ChannelMessageSendComplex(n.msg.ChannelID, &discordgo.MessageSend{
+		Embed:      emb,
+		Components: components,
+	})
 	if err != nil {
 		if err != nil {
 			log.SetOutput(logs.DiscordLogs)
@@ -310,8 +313,8 @@ func (s *slashResp) Embed(emb *discordgo.MessageEmbed, components ...discordgo.M
 	return ""
 }
 
-func (s *slashResp) RawEmbed(emb *discordgo.MessageEmbed) string {
-	return s.Embed(emb)
+func (s *slashResp) RawEmbed(emb *discordgo.MessageEmbed, components ...discordgo.MessageComponent) string {
+	return s.Embed(emb, components...)
 }
 
 func (s *slashResp) Acknowledge() {

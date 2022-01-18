@@ -62,6 +62,53 @@ type catSortInfo struct {
 	Cnt  int
 }
 
+var cmpCollapsed = discordgo.ActionsRow{
+	Components: []discordgo.MessageComponent{
+		discordgo.Button{
+			Label:    "Expand",
+			CustomID: "expand",
+			Style:    discordgo.SuccessButton,
+		},
+	},
+}
+var cmpExpanded = discordgo.ActionsRow{
+	Components: []discordgo.MessageComponent{
+		discordgo.Button{
+			Label:    "Collapse",
+			CustomID: "collapse",
+			Style:    discordgo.SuccessButton,
+		},
+	},
+}
+
+type infoComponent struct {
+	Expand   *discordgo.MessageEmbed
+	Collapse *discordgo.MessageEmbed
+	Expanded bool
+
+	b *Elements
+}
+
+func (c *infoComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCreate) {
+	c.Expanded = !c.Expanded
+	var emb *discordgo.MessageEmbed
+	var cmp discordgo.ActionsRow
+	if c.Expanded {
+		emb = c.Expand
+		cmp = cmpExpanded
+	} else {
+		emb = c.Collapse
+		cmp = cmpCollapsed
+	}
+	c.b.dg.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseUpdateMessage,
+		Data: &discordgo.InteractionResponseData{
+			Embeds:     []*discordgo.MessageEmbed{emb},
+			Components: []discordgo.MessageComponent{cmp},
+		},
+	})
+}
+
 func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
 	if len(elem) == 0 && !isId {
 		return
@@ -200,7 +247,7 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 	}
 
 	// Make fields
-	fields := []*discordgo.MessageEmbedField{
+	fullFields := []*discordgo.MessageEmbedField{
 		{Name: "Mark", Value: el.Comment, Inline: false},
 		{Name: "Used In", Value: strconv.Itoa(el.UsedIn), Inline: true},
 		{Name: "Made With", Value: strconv.Itoa(madeby), Inline: true},
@@ -212,7 +259,20 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 		{Name: "Complexity", Value: strconv.Itoa(el.Complexity), Inline: true},
 		{Name: "Difficulty", Value: strconv.Itoa(el.Difficulty), Inline: true},
 	}
-	fields = append(fields, infoFields...)
+	fullFields = append(fullFields, infoFields...)
+
+	// Collapsed fields
+	fields := []*discordgo.MessageEmbedField{
+		{Name: "Mark", Value: el.Comment, Inline: false},
+		{Name: "Used In", Value: strconv.Itoa(el.UsedIn), Inline: true},
+		{Name: "Made With", Value: strconv.Itoa(madeby), Inline: true},
+		{Name: "Found By", Value: strconv.Itoa(foundby), Inline: true},
+		{Name: "Created By", Value: fmt.Sprintf("<@%s>", el.Creator), Inline: true},
+		{Name: "Created On", Value: createdOn, Inline: true},
+		{Name: "Tree Size", Value: strconv.Itoa(tree.Total), Inline: true},
+	}
+
+	// Embed
 	emb := &discordgo.MessageEmbed{
 		Title:       el.Name + " Info",
 		Description: fmt.Sprintf("Element **#%d**\n<@%s> **You %shave this.**", el.ID, m.Author.ID, has),
@@ -221,13 +281,6 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 			URL: el.Image,
 		},
 		Color: el.Color,
-	}
-	if m.Author.ID == "567132457820749842" {
-		for _, elem := range base.StarterElements {
-			if elem.Name == el.Name {
-				emb.Thumbnail.URL = elem.Image
-			}
-		}
 	}
 	if has != "" {
 		emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{
@@ -243,11 +296,32 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 		emb.Fields = emb.Fields[1:]
 		emb.Description = fmt.Sprintf("%s\n\n**Mark**\n%s", emb.Description, el.Comment)
 	}
+	if m.Author.ID == "567132457820749842" {
+		for _, elem := range base.StarterElements {
+			if elem.Name == el.Name {
+				emb.Thumbnail.URL = elem.Image
+			}
+		}
+	}
 
-	msgId := rsp.RawEmbed(emb)
+	// Collapsed
+	full := *emb
+	full.Fields = fullFields
 
+	// Send
+	msgId := rsp.RawEmbed(emb, cmpCollapsed)
+
+	// Component
+	cmp := &infoComponent{
+		b:        b,
+		Expand:   &full,
+		Collapse: emb,
+	}
+
+	// Data
 	data, _ := b.GetData(m.GuildID)
 	data.SetMsgElem(msgId, el.ID)
+	data.AddComponentMsg(msgId, cmp)
 }
 
 func (b *Elements) InfoCmd(elem string, m types.Msg, rsp types.Rsp) {
