@@ -24,7 +24,7 @@ var hintCmp = discordgo.ActionsRow{
 			Style:    discordgo.SuccessButton,
 			Emoji: discordgo.ComponentEmoji{
 				Name:     "hint",
-				ID:       "932833490066620457",
+				ID:       "932833472396025908",
 				Animated: false,
 			},
 		},

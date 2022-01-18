@@ -15,7 +15,7 @@ var aiCmp = discordgo.ActionsRow{
 			CustomID: "idea",
 			Emoji: discordgo.ComponentEmoji{
 				Name:     "ai",
-				ID:       "932832511459999844",
+				ID:       "932832481768517672",
 				Animated: false,
 			},
 		},

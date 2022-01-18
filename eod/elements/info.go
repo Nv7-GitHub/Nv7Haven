@@ -70,7 +70,7 @@ var cmpCollapsed = discordgo.ActionsRow{
 			Style:    discordgo.SuccessButton,
 			Emoji: discordgo.ComponentEmoji{
 				Name:     "expand",
-				ID:       "932830470813663262",
+				ID:       "932829946706006046",
 				Animated: false,
 			},
 		},
@@ -84,7 +84,7 @@ var cmpExpanded = discordgo.ActionsRow{
 			Style:    discordgo.DangerButton,
 			Emoji: discordgo.ComponentEmoji{
 				Name:     "collapse",
-				ID:       "932831441400786954",
+				ID:       "932831405640155176",
 				Animated: false,
 			},
 		},
