@@ -180,6 +180,9 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			b.elements.InfoCmd(strings.TrimSpace(m.Content[len(cmd)+2:]), msg, rsp)
 			return
 		}
+		if cmd == "ping" {
+			b.pingCmd(m.Timestamp, rsp)
+		}
 		if cmd == "restart" || cmd == "update" || cmd == "optimize" {
 			if m.GuildID == "705084182673621033" {
 				user, err := b.dg.GuildMember(msg.GuildID, msg.Author.ID)

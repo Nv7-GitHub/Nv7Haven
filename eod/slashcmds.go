@@ -1122,6 +1122,12 @@ var (
 			Description: "Reset the polls!",
 			Options:     []*discordgo.ApplicationCommandOption{},
 		},
+		{
+			Name:        "ping",
+			Type:        discordgo.ChatApplicationCommand,
+			Description: "Check latency!",
+			Options:     []*discordgo.ApplicationCommandOption{},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"set": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -1727,6 +1733,9 @@ var (
 				}
 				bot.polls.CatColorCmd(resp.Options[0].StringValue(), int(color), bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
+		},
+		"ping": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.pingCmd(i.Message.Timestamp, bot.newRespSlash(i))
 		},
 	}
 	autocompleteHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
