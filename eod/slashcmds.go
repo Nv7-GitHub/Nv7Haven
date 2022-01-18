@@ -1127,7 +1127,36 @@ var (
 			Name:        "ping",
 			Type:        discordgo.ChatApplicationCommand,
 			Description: "Check latency!",
-			Options:     []*discordgo.ApplicationCommandOption{},
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "method",
+					Description: "Method to calculate ping!",
+					Required:    false,
+					Choices: []*discordgo.ApplicationCommandOptionChoice{
+						{
+							Name:  "Receive Time",
+							Value: "receive",
+						},
+						{
+							Name:  "Heartbeat Latency",
+							Value: "heartbeat",
+						},
+						{
+							Name:  "Acknowledge Time",
+							Value: "acknowledge",
+						},
+						{
+							Name:  "Send Time",
+							Value: "send",
+						},
+						{
+							Name:  "Edit Time",
+							Value: "edit",
+						},
+					},
+				},
+			},
 		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
@@ -1737,9 +1766,46 @@ var (
 		},
 		"ping": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			rsp := bot.newRespSlash(i)
-			start := time.Now()
-			rsp.Acknowledge()
-			rsp.Message(fmt.Sprintf("🏓 Pong! Latency: **%s** [Slash Command]", time.Since(start)))
+			method := "receive"
+			dat := i.ApplicationCommandData()
+			if len(dat.Options) > 0 {
+				method = dat.Options[0].StringValue()
+			}
+
+			var latency time.Duration
+			switch method {
+			case "receive":
+				tm, err := discordgo.SnowflakeTimestamp(i.ID)
+				if rsp.Error(err) {
+					return
+				}
+				latency = time.Since(tm)
+
+			case "heartbeat":
+				latency = bot.dg.HeartbeatLatency()
+
+			case "acknowledge":
+				start := time.Now()
+				rsp.Acknowledge()
+				latency = time.Since(start)
+
+			case "send":
+				start := time.Now()
+				id := rsp.Message("Calculating...")
+				latency = time.Since(start)
+				bot.dg.ChannelMessageEdit(i.ChannelID, id, fmt.Sprintf("🏓 Pong! Latency: **%s**", latency))
+				return
+
+			case "edit":
+				id := rsp.Message("Calculating [1/2]...")
+				start := time.Now()
+				bot.dg.ChannelMessageEdit(i.ChannelID, id, "Calculating [2/2]...")
+				latency = time.Since(start)
+				bot.dg.ChannelMessageEdit(i.ChannelID, id, fmt.Sprintf("🏓 Pong! Latency: **%s**", latency))
+				return
+			}
+
+			rsp.Message(fmt.Sprintf("🏓 Pong! Latency: **%s**", latency.String()))
 		},
 	}
 	autocompleteHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){

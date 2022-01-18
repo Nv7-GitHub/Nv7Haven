@@ -188,7 +188,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			if rsp.Error(err) {
 				return
 			}
-			rsp.Message(fmt.Sprintf("🏓 Pong! Latency: **%s** [Text Command]", time.Since(tm).String()))
+			rsp.Message(fmt.Sprintf("🏓 Pong! Latency: **%s**", time.Since(tm).String()))
 		}
 		if cmd == "restart" || cmd == "update" || cmd == "optimize" {
 			if m.GuildID == "705084182673621033" {
