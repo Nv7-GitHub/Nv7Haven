@@ -1790,16 +1790,17 @@ var (
 				latency = time.Since(start)
 
 			case "send":
+				rsp.Acknowledge()
+
 				start := time.Now()
 				id := rsp.Message("Calculating...")
 				latency = time.Since(start)
-				_, err := bot.dg.ChannelMessageEdit(i.ChannelID, id, fmt.Sprintf("🏓 Pong! Latency: **%s**", latency))
-				if err != nil {
-					panic(err)
-				}
+				bot.dg.ChannelMessageEdit(i.ChannelID, id, fmt.Sprintf("🏓 Pong! Latency: **%s**", latency))
 				return
 
 			case "edit":
+				rsp.Acknowledge()
+
 				id := rsp.Message("Calculating [1/2]...")
 				start := time.Now()
 				bot.dg.ChannelMessageEdit(i.ChannelID, id, "Calculating [2/2]...")
