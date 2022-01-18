@@ -291,9 +291,11 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 	}
 	if len(cats) > 0 {
 		emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{Name: "Categories", Value: catTxt.String(), Inline: false})
+		fullFields = append(fullFields, &discordgo.MessageEmbedField{Name: "Categories", Value: catTxt.String(), Inline: false})
 	}
 	if len(el.Comment) > 1024 {
 		emb.Fields = emb.Fields[1:]
+		fullFields = fullFields[1:]
 		emb.Description = fmt.Sprintf("%s\n\n**Mark**\n%s", emb.Description, el.Comment)
 	}
 	if m.Author.ID == "567132457820749842" {
