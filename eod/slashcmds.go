@@ -1735,7 +1735,7 @@ var (
 			}
 		},
 		"ping": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.pingCmd(i.Message.Timestamp, bot.newRespSlash(i))
+			bot.pingCmd(i.Interaction.Message.Timestamp, bot.newRespSlash(i))
 		},
 	}
 	autocompleteHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
