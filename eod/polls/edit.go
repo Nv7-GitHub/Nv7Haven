@@ -1,8 +1,6 @@
 package polls
 
 import (
-	"fmt"
-
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
@@ -17,15 +15,16 @@ func (b *Polls) mark(guild string, elem int, mark string, creator string, contro
 		return
 	}
 
-	el.Comment = mark
-	el.Commenter = creator
-	_ = db.SaveElement(el)
-
 	if el.Commenter != "" {
 		inv := db.GetInv(el.Commenter)
 		inv.SignedCnt--
 		_ = db.SaveInv(inv)
 	}
+
+	el.Comment = mark
+	el.Commenter = creator
+	_ = db.SaveElement(el)
+
 	inv := db.GetInv(creator)
 	inv.SignedCnt++
 	_ = db.SaveInv(inv)
@@ -45,15 +44,16 @@ func (b *Polls) image(guild string, elem int, image string, creator string, chan
 		return
 	}
 
-	el.Image = image
-	el.Imager = creator
-	_ = db.SaveElement(el)
-
 	if el.Imager != "" {
 		inv := db.GetInv(el.Imager)
 		inv.ImagedCnt--
 		_ = db.SaveInv(inv)
 	}
+
+	el.Image = image
+	el.Imager = creator
+	_ = db.SaveElement(el)
+
 	inv := db.GetInv(creator)
 	inv.ImagedCnt++
 	_ = db.SaveInv(inv)
@@ -77,20 +77,19 @@ func (b *Polls) color(guild string, elem int, color int, creator string, controv
 		return
 	}
 
-	el.Color = color
-	el.Colorer = creator
-	_ = db.SaveElement(el)
-	fmt.Println(el.Colorer, creator)
 	if el.Colorer != "" {
 		inv := db.GetInv(el.Colorer)
 		inv.ColoredCnt--
 		_ = db.SaveInv(inv)
 	}
+
+	el.Color = color
+	el.Colorer = creator
+	_ = db.SaveElement(el)
+
 	inv := db.GetInv(creator)
-	fmt.Println(inv.ColoredCnt)
 	inv.ColoredCnt++
-	err := db.SaveInv(inv)
-	fmt.Println(err)
+	_ = db.SaveInv(inv)
 
 	if news {
 		emoji, err := util.GetEmoji(color)
