@@ -160,5 +160,5 @@ func (b *EoD) pingCmd(created discordgo.Timestamp, rsp types.Rsp) {
 	if rsp.Error(err) {
 		return
 	}
-	rsp.Message(fmt.Sprintf("🏓 Pong! Latency: %s", time.Now().Sub(tm).String()))
+	rsp.Message(fmt.Sprintf("🏓 Pong! Latency: **%s**", time.Now().Sub(tm).String()))
 }
