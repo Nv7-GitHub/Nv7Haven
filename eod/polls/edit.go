@@ -87,11 +87,10 @@ func (b *Polls) color(guild string, elem int, color int, creator string, controv
 		_ = db.SaveInv(inv)
 	}
 	inv := db.GetInv(creator)
+	fmt.Println(inv.ColoredCnt)
 	inv.ColoredCnt++
 	err := db.SaveInv(inv)
-	if err != nil {
-		panic(err)
-	}
+	fmt.Println(err)
 
 	if news {
 		emoji, err := util.GetEmoji(color)
