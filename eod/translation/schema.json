@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "type": "object",
+  "properties": {
+    "Name": {
+      "type": "string",
+      "description": "The name of the language."
+    },
+
+
+
+    "MustCombine": {
+      "type": "string",
+      "description": "Tells the user the number of elements they must combine."
+    },
+    "MaxCombine": {
+      "type": "string",
+      "description": "Tells the user the most elements they can combine."
+    },
+    "DoesntExist": {
+      "type": "string",
+      "description": "Tells the user that a single element doesn't exist."
+    },
+    "DoesntExistMultiple": {
+      "type": "string",
+      "description": "Tells the user that multiple elements don't exist."
+    },
+    "DoesntExistJoiner": {
+      "type": "string",
+      "description": "The word that joins the don't have message, like in \"a, b, and c\" this would be \"and\"."
+    },
+    "DontHave": {
+      "type": "string",
+      "description": "Tells the user they don't have a single element."
+    },
+    "DontHaveMultiple": {
+      "type": "string",
+      "description": "Tells the user they don't have a set of elements."
+    },
+    "DontHaveJoiner": {
+      "type": "string",
+      "description": "The word that joins the don't have message, like in \"a, b, or c\" this would be \"or\"."
+    },
+    "YouMade": {
+      "type": "string",
+      "description": "Tells the user they made an element."
+    },
+    "YouHave": {
+      "type": "string",
+      "description": "The the user they made an element, but they already have it."
+    },
+    "ComboNoExist": {
+      "type": "string",
+      "description": "Tells the user the combo doesn't exist and they can suggest a result."
+    }
+  }
+}

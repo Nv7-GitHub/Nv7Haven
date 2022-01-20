@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/translation"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -51,6 +52,7 @@ type ServerConfig struct {
 	PollCount     int
 	ModRole       string    // role ID
 	PlayChannels  Container // channelID
+	LanguageFile  string
 }
 
 type ServerData struct {
@@ -260,6 +262,7 @@ func NewServerConfig() *ServerConfig {
 
 		UserColors:   make(map[string]int),
 		PlayChannels: make(Container),
+		LanguageFile: translation.DefaultLang,
 	}
 }
 

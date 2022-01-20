@@ -1,0 +1,16 @@
+{
+  "Name": "English",
+
+  "MustCombine": "You must combine at least %d elements!",
+  "MaxCombine": "You can only combine up to %d elements!",
+  "DoesntExist": "Element **%s** doesn't exist!",
+  "DoesntExistMultiple": "Elements %s don't exist!",
+  "DoesntExistJoiner": "and",
+  "DontHave": "You don't have **%s**!",
+  "DontHaveMultiple": "You don't have %s!",
+  "DontHaveJoiner": "or",
+  "YouMade": "You made **%s** 🆕",
+  "YouHave": "You made **%s**, but already have it 🔵",
+  "ComboNoExist": "That combination doesn't exist! 🔴\n\tSuggest it by typing **/suggest**",
+  "$schema": "../schema.json"
+}

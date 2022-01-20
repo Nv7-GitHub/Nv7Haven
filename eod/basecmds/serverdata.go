@@ -170,3 +170,21 @@ func (b *BaseCmds) SetUserColor(color string, removeColor bool, m types.Msg, rsp
 
 	rsp.Message("Successfully set color!")
 }
+
+func (b *BaseCmds) SetLanguage(lang string, msg types.Msg, rsp types.Rsp) {
+	db, res := b.GetDB(msg.GuildID)
+	if !res.Exists {
+		var err error
+		db, err = b.NewDB(msg.GuildID)
+		if rsp.Error(err) {
+			return
+		}
+	}
+	db.Config.LanguageFile = lang
+	err := db.SaveConfig()
+	if rsp.Error(err) {
+		return
+	}
+
+	rsp.Message("Succesfully updated language!")
+}

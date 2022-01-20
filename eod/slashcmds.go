@@ -111,6 +111,20 @@ var (
 						},
 					},
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "language",
+					Description: "Set the server's language!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "language",
+							Description: "The language to set the server to",
+							Required:    true,
+							Choices:     makeLanguageOptions(),
+						},
+					},
+				},
 			},
 		},
 		{
@@ -1173,6 +1187,8 @@ var (
 				bot.basecmds.SetPollCount(int(resp.Options[0].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
 			case "modrole":
 				bot.basecmds.SetModRole(resp.Options[0].RoleValue(bot.dg, i.GuildID).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+			case "language":
+				bot.basecmds.SetLanguage(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 			case "playchannel":
 				isPlayChannel := true
 				if len(resp.Options) > 1 {

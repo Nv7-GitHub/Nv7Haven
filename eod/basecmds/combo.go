@@ -8,8 +8,6 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
-const blueCircle = "🔵"
-
 func (b *BaseCmds) Combine(elems []string, m types.Msg, rsp types.Rsp) {
 	ok := b.base.CheckServer(m, rsp)
 	if !ok {
@@ -35,11 +33,11 @@ func (b *BaseCmds) Combine(elems []string, m types.Msg, rsp types.Rsp) {
 	}
 	elems = validElems[:validCnt]
 	if len(elems) == 1 {
-		rsp.ErrorMessage("You must combine at least 2 elements!")
+		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("MustCombine"), 2))
 		return
 	}
 	if len(elems) > types.MaxComboLength {
-		rsp.ErrorMessage(fmt.Sprintf("You can only combine up to %d elements!", types.MaxComboLength))
+		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("MaxCombine"), types.MaxComboLength))
 		return
 	}
 
@@ -72,11 +70,11 @@ func (b *BaseCmds) Combine(elems []string, m types.Msg, rsp types.Rsp) {
 				el = k
 				break
 			}
-			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", el))
+			rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DoesntExist"), el))
 			return
 		}
 
-		rsp.ErrorMessage("Elements " + util.JoinTxt(notExists, "and") + " don't exist!")
+		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DoesntExistMultiple"), util.JoinTxt(notExists, db.Config.LangProperty("DoesntExistJoiner"))))
 		return
 	}
 	if donthave {
@@ -102,13 +100,13 @@ func (b *BaseCmds) Combine(elems []string, m types.Msg, rsp types.Rsp) {
 				el = k
 				break
 			}
-			id := rsp.ErrorMessage(fmt.Sprintf("You don't have **%s**!", el))
+			id := rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DontHave"), el))
 			elID, _ := db.GetIDByName(el[2 : len(el)-2])
 			data.SetMsgElem(id, elID)
 			return
 		}
 
-		rsp.ErrorMessage("You don't have " + util.JoinTxt(notFound, "or") + "!")
+		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DontHaveMultiple"), util.JoinTxt(notFound, db.Config.LangProperty("DontHaveJoiner"))))
 		return
 	}
 
@@ -145,12 +143,12 @@ func (b *BaseCmds) Combine(elems []string, m types.Msg, rsp types.Rsp) {
 				return
 			}
 
-			id := rsp.Message(fmt.Sprintf("You made **%s** "+types.NewText, el3.Name))
+			id := rsp.Message(fmt.Sprintf(db.Config.LangProperty("YouMade"), el3.Name))
 			data.SetMsgElem(id, elem3)
 			return
 		}
 
-		id := rsp.Message(fmt.Sprintf("You made **%s**, but already have it "+blueCircle, el3.Name))
+		id := rsp.Message(fmt.Sprintf(db.Config.LangProperty("YouHave"), el3.Name))
 		data.SetMsgElem(id, elem3)
 		return
 	}
@@ -159,5 +157,5 @@ func (b *BaseCmds) Combine(elems []string, m types.Msg, rsp types.Rsp) {
 		Elems: ids,
 		Elem3: -1,
 	})
-	rsp.Resp("That combination doesn't exist! " + types.RedCircle + "\n 	Suggest it by typing **/suggest**")
+	rsp.Resp(db.Config.LangProperty("ComboNoExist"))
 }

@@ -1,5 +1,7 @@
 package types
 
+import "github.com/Nv7-Github/Nv7Haven/eod/translation"
+
 type GetResponse struct {
 	Exists  bool
 	Message string
@@ -42,4 +44,8 @@ func (dat *ServerData) GetMsgElem(id string) (int, GetResponse) {
 		}
 	}
 	return elem, GetResponse{Exists: true}
+}
+
+func (l *ServerConfig) LangProperty(key string) string {
+	return translation.LangProperty(l.LanguageFile, key)
 }

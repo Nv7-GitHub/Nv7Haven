@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/translation"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
@@ -111,6 +112,18 @@ func stringsToAutocomplete(vals []string) []*discordgo.ApplicationCommandOptionC
 		results[i] = &discordgo.ApplicationCommandOptionChoice{
 			Name:  name,
 			Value: name,
+		}
+	}
+	return results
+}
+
+func makeLanguageOptions() []*discordgo.ApplicationCommandOptionChoice {
+	vals := translation.LangFileList()
+	results := make([]*discordgo.ApplicationCommandOptionChoice, len(vals))
+	for i, name := range vals {
+		results[i] = &discordgo.ApplicationCommandOptionChoice{
+			Name:  name.Name,
+			Value: name.Lang,
 		}
 	}
 	return results
