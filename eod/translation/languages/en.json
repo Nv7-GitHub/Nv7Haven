@@ -44,6 +44,10 @@
 
   "Stats": "Element Count: **%s**\nCombination Count: **%s**\nMember Count: **%s**\nElements Found: **%s**\nElements Categorized: **%s**",
   "ViewMoreStats": "View More Stats",
+  
+  "ElemCategories": "%s Categories (%d)"
+  "InvalidSort": "Invalid sort!"
+  "AllCategories": "All Categories (%d)"
 
   "$schema": "../schema.json"
 }
