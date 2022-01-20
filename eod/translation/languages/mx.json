@@ -1,0 +1,49 @@
+{
+  "Name": "Mexican Spanish",
+
+  "MustCombine": "¡Debes combinar al menos %d elementos!",
+  "MaxCombine": "¡Solo puedes combinar hasta %d elementos!",
+  "DoesntExist": "¡El elemento **%s** no existe!",
+  "DoesntExistMultiple": "¡Los elementos %s no existen!",
+  "DoesntExistJoiner": "y",
+  "DontHave": "¡No tienes **%s**!",
+  "DontHaveMultiple": "¡No tienes %s!",
+  "DontHaveJoiner": "o",
+  "YouMade": "Hiciste **%s** 🆕",
+  "YouHave": "Hiciste **%s**, pero ya lo tenías 🔵",
+  "ComboNoExist": "¡Esa combinación no existe! 🔴\n\tSugiérela escribiendo **/suggest**",
+
+  "NewsChannel": "¡El canal de noticias se ha actualizado correctamente!",
+  "VotingChannel": "¡El canal de votos se ha actualizado correctamente!",
+  "VoteCount": "¡La cantidad de votos se ha actualizado correctamente!",
+  "PollCount": "¡La cantidad de votaciones se ha actualizado correctamente!",
+  "PlayChannelNew": "¡El canal se ha marcado como canal de juego correctamente!",
+  "PlayChannelRemove": "¡El canal se ha marcado como no ser un canal de juego correctamente!",
+  "ModRole": "¡El rol de moderador se ha actualizado correctamente!",
+  "UserColorReset": "¡El color se ha restablecido correctamente!",
+  "HexMustBe6": "¡Un color hexadecimal debe tener 6 carácteres!",
+  "UserColor": "¡El color se ha establecido correctamente!",
+  "Language": "¡El idioma se ha actualizado correctamente!",
+
+  "CatNameBlank": "¡El nombre de la categoría no puede estar en blanco!",
+  "CatNameTooLong": "¡El nombre de la categoría es muy largo!",
+  "CatNoExist": "¡La categoría **%s** no existe!",
+  "NotInCat": "¡El elemento **%s** no esta en la categoría **%s**!",
+  "NotInCatMult": "¡Los elementos %s no están en la categoría **%s**!",
+  "Categorized": "¡Se ha categorizado correctamente! 🗃️",
+  "SuggestCategorized": "¡Se ha sugerido añadir **%s** a **%s** 🗃️",
+  "SuggestCategorizedMult": "Se ha sugerido añadir **%d elementos** a **%s** 🗃️",
+  "CategorizeMultSuggestCategorized": "Categorizado y se ha sugerido añadir **%s** a **%s** 🗃️",
+  "CategorizeMultSuggestCategorizedMult": "Categorizado y se ha sugerido añadir **%d elementos** a **%s** 🗃️",
+
+  "UnCategorized": "¡Se ha descategorizado correctamente! 🗃️",
+  "SuggestUnCategorized": "Se ha sugerido quitar **%s** de **%s** 🗃️",
+  "SuggestUnCategorizedMult": "Se ha sugerido quitar **%d elementos** de **%s** 🗃️",
+  "UnCategorizeMultSuggestUnCategorized": "Descategorizado y se ha sugerido quitar **%s** de **%s** 🗃️",
+  "UnCategorizeMultSuggestUnCategorizedMult": "Descategorizado y se ha sugerido quitar **%d elementos** de **%s** 🗃️",
+
+  "Stats": "Cantidad de Elementos: **%s**\nCantidad de Combinaciones: **%s**\nCantidad de Miembros: **%s**\nElementos Encontrados: **%s**\nElementos Categorizados: **%s**",
+  "ViewMoreStats": "Ver Más Estadísticas",
+
+  "$schema": "../schema.json"
+}
