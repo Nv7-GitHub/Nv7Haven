@@ -162,6 +162,14 @@
       "type": "string",
       "description": "The title of the /get categories embed."
     },
+    "NameDownloadedCat": {
+      "type": "string",
+      "description": "Tell the user which category they downloaded."
+    },
+    "CatSentToDMs": {
+      "type": "string",
+      "description": "Tell the user that the category was sent to their DMs."
+    },
     "InvalidSort": {
       "type": "string",
       "description": "Tell the user the chosen sort is not valid in the current context."
