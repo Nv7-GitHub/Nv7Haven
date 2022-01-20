@@ -157,6 +157,18 @@
     "ViewMoreStats": {
       "type": "string",
       "description": "The message in the View More Stats button."
+    },
+    "ElemCategories": {
+      "type": "string",
+      "description": "The title of the /get categories embed."
+    },
+    "InvalidSort": {
+      "type": "string",
+      "description": "Tell the user the chosen sort is not valid in the current context."
+    },
+    "AllCategories": {
+      "type": "string",
+      "description": "The title of the embed shown when listing all categories using /cat without a specified category."
     }
   }
 }
