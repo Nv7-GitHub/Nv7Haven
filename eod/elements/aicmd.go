@@ -10,7 +10,7 @@ import (
 var aiCmp = discordgo.ActionsRow{
 	Components: []discordgo.MessageComponent{
 		discordgo.Button{
-			Label:    "New AI Generated Idea",
+			Label:    db.Config.LangProperty("NewAIIdea"),
 			Style:    discordgo.SuccessButton,
 			CustomID: "idea",
 			Emoji: discordgo.ComponentEmoji{
@@ -60,7 +60,7 @@ func (b *Elements) genAi(guild string, author string) (string, bool) {
 		}
 		tries++
 		if tries > types.MaxTries {
-			return "Failed to generate a valid idea!", false
+			return db.Config.LangProperty("FailedAIGenerate"), false
 		}
 	}
 
@@ -88,14 +88,14 @@ func (b *Elements) genAi(guild string, author string) (string, bool) {
 		if !res.Exists {
 			return res.Message, false
 		}
-		suggest = "\n 	Suggest it by typing **/suggest**"
+		suggest = db.Config.LangProperty("SuggestIdea")
 		data.SetComb(author, types.Comb{
 			Elems: comb,
 			Elem3: -1,
 		})
 	}
 
-	return fmt.Sprintf("Your AI generated combination is... **%s**%s", text, suggest), true
+	return fmt.Sprintf(db.config.LangProperty("YourAIIdea"), text, suggest), true
 }
 
 func (b *Elements) AiCmd(m types.Msg, rsp types.Rsp) {
