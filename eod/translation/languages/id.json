@@ -1,0 +1,49 @@
+{
+  "Name": "Bahasa Indonesia",
+
+  "MustCombine": "Anda harus menggabungkan setidaknya %d elemen!",
+  "MaxCombine": "Anda hanya dapat menggabungkan sebanyak %d elemen!",
+  "DoesntExist": "Elemen **%s** tidak ada!",
+  "DoesntExistMultiple": "Elemen-elemen %s tidak ada!",
+  "DoesntExistJoiner": "dan",
+  "DontHave": "Anda tidak memiliki **%s**!",
+  "DontHaveMultiple": "Anda tidak memiliki %s!",
+  "DontHaveJoiner": "atau",
+  "YouMade": "Anda membuat **%s** 🆕",
+  "YouHave": "Anda membuat **%s**, tetapi sudah memilikinya 🔵",
+  "ComboNoExist": "Combinasi tersebut tidak dipakai! 🔴\n\tSarankan dengan menggunakan **/suggest**",
+
+  "NewsChannel": "Telah sukses memperbarui channel berita!",
+  "VotingChannel": "Telah sukses memperbarui channel voting!",
+  "VoteCount": "Telah sukses memperbarui jumlah minimal vote!",
+  "PollCount": "Telah sukses memperbarui jumlah maksimal poll!",
+  "PlayChannelNew": "Telah sukses membuat channel menjadi channel permainan!",
+  "PlayChannelRemove": "Telah sukses membuat channel menjadi bukan channel permainan!",
+  "ModRole": "Telah sukses mengubah peran moderasi!",
+  "UserColorReset": "Telah sukses mengulang awal warna!",
+  "HexMustBe6": "Sebuah warna hex harus memiliki panjang 6 karakter!",
+  "UserColor": "Telah sukses mengubah warna!",
+  "Language": "Telah sukses mengganti bahasa!",
+
+  "CatNameBlank": "Nama kategori tidak boleh kosong!",
+  "CatNameTooLong": "Nama kategori tersebut terlalu panjang!",
+  "CatNoExist": "Kategori bernama **%s** tidak ada!",
+  "NotInCat": "Elemen **%s** tidak ada di kategori **%s**!",
+  "NotInCatMult": "Elemen-elemen %s tidak ada di kategori **%s**!",
+  "Categorized": "Sukses di kategorisasikan! 🗃️",
+  "SuggestCategorized": "Disarankan untuk menambahkan **%s** ke **%s** 🗃️",
+  "SuggestCategorizedMult": "Disarankan untuk menambahkan sebanyak **%d elemen** ke kategori **%s** 🗃️",
+  "CategorizeMultSuggestCategorized": "Terkategorisasikan dan disarankan untuk menambah **%s** ke kategori **%s** 🗃️",
+  "CategorizeMultSuggestCategorizedMult": "Terkategorisasikan dan disarankan untuk menambahkan sebanyak  **%d elemen** ke **%s** 🗃️",
+
+  "UnCategorized": "Sukses di keluarkan dari kategori! 🗃️",
+  "SuggestUnCategorized": "Disarankan untuk mengeluarkan **%s** dari **%s** 🗃️",
+  "SuggestUnCategorizedMult": "Disarankan untuk mengeluarkan sebanyak **%d elemen** dari **%s** 🗃️",
+  "UnCategorizeMultSuggestUnCategorized": "Sukses mengeluarkan dan menyarankan untuk mengeluarkan **%s** dari **%s** 🗃️",
+  "UnCategorizeMultSuggestUnCategorizedMult": "Sukses mengeluarkan dan menyarankan untuk mengeluarkan sebanyak **%d elemen** dari **%s** 🗃️",
+
+  "Stats": "Jumlah elemen: **%s**\nJumlah kombinasi: **%s**\nJumlah member: **%s**\nJumlah elemen ditemukan: **%s**\nJumlah elemen yan telah dikategorisasikan: **%s**",
+  "ViewMoreStats": "Lihat lebih banyak statistik",
+
+  "$schema": "../schema.json"
+}
