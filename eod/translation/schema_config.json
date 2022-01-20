@@ -44,7 +44,9 @@
   "Stats": "The stats message.",
   "ViewMoreStats": "The message in the View More Stats button."
   
-  "ElemCategories": "The title of the /get categories embed."
+  "ElemCats": "The title of the /get categories embed."
+  "NameDownloadedCat": "Tell the user which category they downloaded."
+  "CatSentToDMs": "Tell the user that the category was sent to their DMs."
   "InvalidSort": "Tell the user the chosen sort is not valid in the current context."
-  "AllCategories": "The title of the embed shown when listing all categories using /cat without a specified category."
+  "AllCats": "The title of the embed shown when listing all categories using /cat without a specified category."
 }
