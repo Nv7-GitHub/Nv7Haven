@@ -42,16 +42,16 @@ func (b *Elements) SuggestCmd(suggestion string, autocapitalize bool, m types.Ms
 	}
 
 	if strings.HasPrefix(suggestion, "?") {
-		rsp.ErrorMessage("Element names can't start with '?'!")
+		rsp.ErrorMessage(db.Config.LangProperty("ElemNameCannotStartWithQuestionMark"))
 		return
 	}
 	if len(suggestion) >= maxSuggestionLength {
-		rsp.ErrorMessage(fmt.Sprintf("Element names must be under %d characters!", maxSuggestionLength))
+		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("ElemNameMaxLength"), maxSuggestionLength))
 		return
 	}
 	for _, name := range invalidNames {
 		if strings.Contains(suggestion, name) {
-			rsp.ErrorMessage(fmt.Sprintf("Can't have letters '%s' in an element name!", name))
+			rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("ElemNameForbiddenChar"), name))
 			return
 		}
 	}
@@ -74,7 +74,7 @@ func (b *Elements) SuggestCmd(suggestion string, autocapitalize bool, m types.Ms
 		suggestion = suggestion[1:]
 	}
 	if len(suggestion) == 0 {
-		rsp.Resp("You need to suggest something!")
+		rsp.Resp(db.Config.LangProperty("NoSuggestElemName"))
 		return
 	}
 
@@ -90,7 +90,7 @@ func (b *Elements) SuggestCmd(suggestion string, autocapitalize bool, m types.Ms
 	_, exists := db.Config.PlayChannels[m.ChannelID]
 	db.Config.RUnlock()
 	if !exists {
-		rsp.ErrorMessage("You can only suggest in play channels!")
+		rsp.ErrorMessage(db.Config.LangProperty("MustSuggestInPlayChannel"))
 		return
 	}
 
@@ -102,7 +102,7 @@ func (b *Elements) SuggestCmd(suggestion string, autocapitalize bool, m types.Ms
 	}
 	_, res = db.GetCombo(comb.Elems)
 	if res.Exists {
-		rsp.ErrorMessage("That combo already has a result!")
+		rsp.ErrorMessage(db.Config.LangProperty("ComboHasResult"))
 		return
 	}
 
@@ -128,7 +128,7 @@ func (b *Elements) SuggestCmd(suggestion string, autocapitalize bool, m types.Ms
 		return
 	}
 
-	txt := "Suggested **"
+	txt := "**"
 	for _, val := range comb.Elems {
 		el, _ := db.GetElement(val)
 		txt += el.Name + " + "
@@ -138,12 +138,14 @@ func (b *Elements) SuggestCmd(suggestion string, autocapitalize bool, m types.Ms
 		el, _ := db.GetElement(comb.Elems[0])
 		txt += " + " + el.Name
 	}
-	txt += " = " + suggestion + "** "
+	txt += " = " + suggestion + "**"
+	
+	txt = fmt.Sprintf(db.Config.LangProperty("SuggestedElem"), txt)
 
 	if !res.Exists {
-		txt += "✨"
+		txt += " ✨"
 	} else {
-		txt += "🌟"
+		txt += " 🌟"
 	}
 
 	id := rsp.Message(txt)
