@@ -19,7 +19,7 @@ import (
 var hintCmp = discordgo.ActionsRow{
 	Components: []discordgo.MessageComponent{
 		discordgo.Button{
-			Label:    "New Hint",
+			Label:    db.Config.LangProperty("NewHint"),
 			CustomID: "hint-new",
 			Style:    discordgo.SuccessButton,
 			Emoji: discordgo.ComponentEmoji{
@@ -91,7 +91,7 @@ func (b *Elements) HintCmd(elem string, hasElem bool, inverse bool, m types.Msg,
 	rspInp := rsp
 	if !hasElem {
 		if inverse {
-			rsp.ErrorMessage("You cannot have an inverse hint without an element!")
+			rsp.ErrorMessage(db.Config.LangProperty("InvHintNoElem"))
 			return
 		}
 		rspInp = nil
@@ -202,11 +202,10 @@ func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, author string, g
 		return out[i].exists > out[j].exists
 	})
 
-	inverseTitle := ""
+	title := fmt.Sprintf(db.Config.LangProperty("HintElem"), el.Name)
 	if inverse {
-		inverseTitle = "Inverse "
+		title := fmt.Sprintf(db.Config.LangProperty("InvHintElem"), el.Name)
 	}
-	title := fmt.Sprintf("%sHints for %s", inverseTitle, el.Name)
 
 	text := &strings.Builder{}
 	for _, val := range out {
@@ -215,12 +214,11 @@ func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, author string, g
 	}
 	val := text.String()
 
-	txt := "Don't "
+	footer := fmt.Sprintf(db.Config.LangProperty("HintCountNoHasElem"), len(out))
 	hasElem = inv.Contains(el.ID)
 	if hasElem {
-		txt = ""
+		footer := fmt.Sprintf(db.Config.LangProperty("HintCountHasElem"), len(out))
 	}
-	footer := fmt.Sprintf("%d Hints • You %sHave This", len(out), txt)
 
 	db.Config.RLock()
 	isPlayChannel := db.Config.PlayChannels.Contains(m.ChannelID)
