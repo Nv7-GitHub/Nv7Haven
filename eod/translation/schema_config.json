@@ -25,6 +25,22 @@
   "PlayChannelNew": "Tell the user a channel was marked as a play channel",
   "PlayChannelRemove": "Tell the user a channel was marked as not being a play channel",
 
+  "CatNameBlank": "Tell the user the category name can't be blank.",
+  "CatNameTooLong": "Tell the user the category name is too long.",
+  "CatNoExist": "Tell the user the category doesn't exist.",
+  "NotInCat": "Tell the user the element isn't in the category.",
+  "Categorized": "Tell the user the elements were categorized.",
+  "SuggestCategorized": "Tell the user the element was suggested to be categorized.",
+  "SuggestCategorizedMult": "Tell the user the elements were suggested to be categorized.",
+  "CategorizeMultSuggestCategorized": "Tell the user the elements were categorized and one was suggested to be categorized.",
+  "CategorizeMultSuggestCategorizedMult": "Tell the user the elements were categorized and were suggested to be categorized.",
+
+  "Uncategorized": "Tell the user the elements were un-categorized.",
+  "SuggestUnCategorized": "Tell the user the element was suggested to be un-categorized.",
+  "SuggestUnCategorizedMult": "Tell the user the elements were suggested to be un-categorized.",
+  "UnCategorizeMultSuggestUnCategorized": "Tell the user the elements were un-categorized and one was suggested to be un-categorized.",
+  "UnCategorizeMultSuggestUnCategorizedMult": "Tell the user the elements were un-categorized and were suggested to be un-categorized.",
+
   "Stats": "The stats message.",
   "ViewMoreStats": "The message in the View More Stats button."
 }

@@ -25,6 +25,23 @@
   "UserColor": "Succesfully set color!",
   "Language": "Succesfully updated language!",
 
+  "CatNameBlank": "Category name can't be blank!",
+  "CatNameTooLong": "Category name is too long!",
+  "CatNoExist": "Category **%s** doesn't exist!",
+  "NotInCat": "Element **%s** isn't in category **%s**!",
+  "NotInCatMult": "Elements %s aren't in category **%s**!",
+  "Categorized": "Successfully categorized! 🗃️",
+  "SuggestCategorized": "Suggested to add **%s** to **%s** 🗃️",
+  "SuggestCategorizedMult": "Suggested to add **%d elements** to **%s** 🗃️",
+  "CategorizeMultSuggestCategorized": "Categorized and suggested to add **%s** to **%s** 🗃️",
+  "CategorizeMultSuggestCategorizedMult": "Categorized and suggested to add **%d elements** to **%s** 🗃️",
+
+  "UnCategorized": "Successfully un-categorized! 🗃️",
+  "SuggestUnCategorized": "Suggested to remove **%s** to **%s** 🗃️",
+  "SuggestUnCategorizedMult": "Suggested to remove **%d elements** to **%s** 🗃️",
+  "UnCategorizeMultSuggestUnCategorized": "Un-categorized and suggested to remove **%s** to **%s** 🗃️",
+  "UnCategorizeMultSuggestUnCategorizedMult": "Un-categorized and suggested to remove **%d elements** to **%s** 🗃️",
+
   "Stats": "Element Count: **%s**\nCombination Count: **%s**\nMember Count: **%s**\nElements Found: **%s**\nElements Categorized: **%s**",
   "ViewMoreStats": "View More Stats",
 
