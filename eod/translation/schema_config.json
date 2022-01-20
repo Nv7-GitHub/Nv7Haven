@@ -1,0 +1,27 @@
+{
+  "Name": "The name of the language.",
+
+  "MustCombine": "Tells the user the number of elements they must combine.",
+  "MaxCombine": "Tells the user the most elements they can combine.",
+  "DoesntExist": "Tells the user that a single element doesn't exist.",
+  "DoesntExistMultiple": "Tells the user that multiple elements don't exist.",
+  "DoesntExistJoiner": "The word that joins the don't have message, like in \"a, b, and c\" this would be \"and\".",
+  "DontHave": "Tells the user they don't have a single element.",
+  "DontHaveMultiple": "Tells the user they don't have a set of elements.",
+  "DontHaveJoiner": "The word that joins the don't have message, like in \"a, b, or c\" this would be \"or\".",
+  "YouMade": "Tells the user they made an element.",
+  "YouHave": "The the user they made an element, but they already have it.",
+  "ComboNoExist": "Tells the user the combo doesn't exist and they can suggest a result.",
+
+  "NewsChannel": "Tell the user the news channel was updated.",
+  "VotingChannel": "Tell the user the voting channel was updated.",
+  "VoteCount": "Tell the user the vote count was updated.",
+  "PollCount": "Tell the user the poll count was updated.",
+  "ModRole": "Tell the user the moderator role was updated.",
+  "UserColorReset": "Tell the user their color was reset.",
+  "HexMustBe6": "Tell the user that a hex color must be 6 characters.",
+  "UserColor": "Tell the user their color was updated.",
+  "Language": "Tell the user the server language was set.",
+  "PlayChannelNew": "Tell the user a channel was marked as a play channel",
+  "PlayChannelRemove": "Tell the user a channel was marked as not being a play channel"
+}

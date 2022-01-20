@@ -6,9 +6,6 @@
       "type": "string",
       "description": "The name of the language."
     },
-
-
-
     "MustCombine": {
       "type": "string",
       "description": "Tells the user the number of elements they must combine."
@@ -52,6 +49,50 @@
     "ComboNoExist": {
       "type": "string",
       "description": "Tells the user the combo doesn't exist and they can suggest a result."
+    },
+    "NewsChannel": {
+      "type": "string",
+      "description": "Tell the user the news channel was updated."
+    },
+    "VotingChannel": {
+      "type": "string",
+      "description": "Tell the user the voting channel was updated."
+    },
+    "VoteCount": {
+      "type": "string",
+      "description": "Tell the user the vote count was updated."
+    },
+    "PollCount": {
+      "type": "string",
+      "description": "Tell the user the poll count was updated."
+    },
+    "ModRole": {
+      "type": "string",
+      "description": "Tell the user the moderator role was updated."
+    },
+    "UserColorReset": {
+      "type": "string",
+      "description": "Tell the user their color was reset."
+    },
+    "HexMustBe6": {
+      "type": "string",
+      "description": "Tell the user that a hex color must be 6 characters."
+    },
+    "UserColor": {
+      "type": "string",
+      "description": "Tell the user their color was updated."
+    },
+    "Language": {
+      "type": "string",
+      "description": "Tell the user the server language was set."
+    },
+    "PlayChannelNew": {
+      "type": "string",
+      "description": "Tell the user a channel was marked as a play channel"
+    },
+    "PlayChannelRemove": {
+      "type": "string",
+      "description": "Tell the user a channel was marked as not being a play channel"
     }
   }
 }

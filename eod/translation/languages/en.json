@@ -12,5 +12,18 @@
   "YouMade": "You made **%s** 🆕",
   "YouHave": "You made **%s**, but already have it 🔵",
   "ComboNoExist": "That combination doesn't exist! 🔴\n\tSuggest it by typing **/suggest**",
+
+  "NewsChannel": "Succesfully updated news channel!",
+  "VotingChannel": "Succesfully updated voting channel!",
+  "VoteCount": "Succesfully updated vote count!",
+  "PollCount": "Succesfully updated poll count!",
+  "PlayChannelNew": "Succesfully marked channel as play channel!",
+  "PlayChannelRemove": "Succesfully marked channel as not a play channel!",
+  "ModRole": "Succesfully updated mod role!",
+  "UserColorReset": "Succesfully reset color!",
+  "HexMustBe6": "A hex color must be 6 characters long!",
+  "UserColor": "Succesfully set color!",
+  "Language": "Succesfully updated language!",
+
   "$schema": "../schema.json"
 }

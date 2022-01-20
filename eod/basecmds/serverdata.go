@@ -21,7 +21,7 @@ func (b *BaseCmds) SetNewsChannel(channelID string, msg types.Msg, rsp types.Rsp
 		return
 	}
 
-	rsp.Message("Succesfully updated news channel!")
+	rsp.Message(db.Config.LangProperty("NewsChannel"))
 }
 
 func (b *BaseCmds) SetVotingChannel(channelID string, msg types.Msg, rsp types.Rsp) {
@@ -39,7 +39,7 @@ func (b *BaseCmds) SetVotingChannel(channelID string, msg types.Msg, rsp types.R
 		return
 	}
 
-	rsp.Message("Succesfully updated voting channel!")
+	rsp.Message(db.Config.LangProperty("VotingChannel"))
 }
 
 func (b *BaseCmds) SetVoteCount(count int, msg types.Msg, rsp types.Rsp) {
@@ -57,7 +57,7 @@ func (b *BaseCmds) SetVoteCount(count int, msg types.Msg, rsp types.Rsp) {
 		return
 	}
 
-	rsp.Message("Succesfully updated vote count!")
+	rsp.Message(db.Config.LangProperty("VoteCount"))
 }
 
 func (b *BaseCmds) SetPollCount(count int, msg types.Msg, rsp types.Rsp) {
@@ -78,7 +78,7 @@ func (b *BaseCmds) SetPollCount(count int, msg types.Msg, rsp types.Rsp) {
 		return
 	}
 
-	rsp.Message("Succesfully updated poll count!")
+	rsp.Message(db.Config.LangProperty("PollCount"))
 }
 
 func (b *BaseCmds) SetPlayChannel(channelID string, isPlayChannel bool, msg types.Msg, rsp types.Rsp) {
@@ -105,7 +105,11 @@ func (b *BaseCmds) SetPlayChannel(channelID string, isPlayChannel bool, msg type
 		return
 	}
 
-	rsp.Message("Succesfully marked channel as play channel!")
+	if isPlayChannel {
+		rsp.Message(db.Config.LangProperty("PlayChannelNew"))
+	} else {
+		rsp.Message(db.Config.LangProperty("PlayChannelRemove"))
+	}
 }
 
 func (b *BaseCmds) SetModRole(roleID string, msg types.Msg, rsp types.Rsp) {
@@ -123,7 +127,7 @@ func (b *BaseCmds) SetModRole(roleID string, msg types.Msg, rsp types.Rsp) {
 		return
 	}
 
-	rsp.Message("Succesfully updated mod role!")
+	rsp.Message(db.Config.LangProperty("ModRole"))
 }
 
 func (b *BaseCmds) SetUserColor(color string, removeColor bool, m types.Msg, rsp types.Rsp) {
@@ -141,7 +145,7 @@ func (b *BaseCmds) SetUserColor(color string, removeColor bool, m types.Msg, rsp
 		if rsp.Error(err) {
 			return
 		}
-		rsp.Message("Successfully reset color!")
+		rsp.Message(db.Config.LangProperty("UserColorReset"))
 		return
 	}
 
@@ -150,7 +154,7 @@ func (b *BaseCmds) SetUserColor(color string, removeColor bool, m types.Msg, rsp
 		color = color[1:]
 	}
 	if len(color) != 6 {
-		rsp.ErrorMessage("A hex color must be 6 characters long!")
+		rsp.ErrorMessage(db.Config.LangProperty("HexMustBe6"))
 		return
 	}
 	col, err := strconv.ParseInt(color, 16, 64)
@@ -168,7 +172,7 @@ func (b *BaseCmds) SetUserColor(color string, removeColor bool, m types.Msg, rsp
 		return
 	}
 
-	rsp.Message("Successfully set color!")
+	rsp.Message(db.Config.LangProperty("UserColor"))
 }
 
 func (b *BaseCmds) SetLanguage(lang string, msg types.Msg, rsp types.Rsp) {
@@ -186,5 +190,5 @@ func (b *BaseCmds) SetLanguage(lang string, msg types.Msg, rsp types.Rsp) {
 		return
 	}
 
-	rsp.Message("Succesfully updated language!")
+	rsp.Message(db.Config.LangProperty("Language"))
 }
