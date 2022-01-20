@@ -12,7 +12,7 @@ import (
 var ideaCmp = discordgo.ActionsRow{
 	Components: []discordgo.MessageComponent{
 		discordgo.Button{
-			Label:    "New Idea",
+			Label:    db.Config.LangProperty("NewIdea"),
 			Style:    discordgo.SuccessButton,
 			CustomID: "idea",
 			Emoji: discordgo.ComponentEmoji{
@@ -52,11 +52,11 @@ func (c *ideaComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCr
 
 func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName string, hasEl bool, guild string, author string) (string, bool) {
 	if count > types.MaxComboLength {
-		return fmt.Sprintf("You can only combine up to %d elements!", types.MaxComboLength), false
+		return fmt.Sprintf(db.Config.LangProperty("MaxCombine"), types.MaxComboLength), false
 	}
 
 	if count < 2 {
-		return "You must combine at least 2 elements!", false
+		return db.Config.LangProperty("MustCombine"), false
 	}
 
 	db, res := b.GetDB(guild)
@@ -80,7 +80,7 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 
 		exists := inv.Contains(el.ID)
 		if !exists {
-			return fmt.Sprintf("Element **%s** is not in your inventory!", el.Name), false
+			return fmt.Sprintf(db.Config.LangProperty("DontHave"), el.Name), false
 		}
 	}
 
@@ -100,7 +100,7 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 		}
 
 		if len(els) == 0 {
-			return fmt.Sprintf("You don't have any elements in category **%s**!", cat.Name), false
+			return fmt.Sprintf(db.Config.LangProperty("HaveNoElemsInCat"), cat.Name), false
 		}
 	}
 
@@ -128,7 +128,7 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 		tries++
 
 		if tries > types.MaxTries {
-			return "Couldn't find a random unused combination, maybe try again later?", false
+			return db.Config.LangProperty("FailedIdea"), false
 		}
 	}
 
@@ -147,7 +147,7 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 		Elem3: -1,
 	})
 
-	return fmt.Sprintf("Your random unused combination is... **%s**\n 	Suggest it by typing **/suggest**", text), true
+	return fmt.Sprintf(db.Config.LangProperty("YourIdea"), text, db.Config.LangProperty("SuggestIdea")), true
 }
 
 func (b *Elements) IdeaCmd(count int, catName string, hasCat bool, elemName string, hasEl bool, m types.Msg, rsp types.Rsp) {
