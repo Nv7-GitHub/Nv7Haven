@@ -43,4 +43,8 @@
 
   "Stats": "The stats message.",
   "ViewMoreStats": "The message in the View More Stats button."
+  
+  "ElemCategories": "The title of the /get categories embed."
+  "InvalidSort": "Tell the user the chosen sort is not valid in the current context."
+  "AllCategories": "The title of the embed shown when listing all categories using /cat without a specified category."
 }
