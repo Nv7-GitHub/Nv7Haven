@@ -46,6 +46,8 @@
   "ViewMoreStats": "View More Stats",
   
   "ElemCategories": "%s Categories (%d)"
+  "NameDownloadedCat": "Category **%s**"
+  "CatSentToDMs": "Sent category in DMs!"
   "InvalidSort": "Invalid sort!"
   "AllCategories": "All Categories (%d)"
 
