@@ -42,11 +42,11 @@
   "UnCategorizeMultSuggestUnCategorizedMult": "Tell the user the elements were un-categorized and were suggested to be un-categorized.",
 
   "Stats": "The stats message.",
-  "ViewMoreStats": "The message in the View More Stats button."
+  "ViewMoreStats": "The message in the View More Stats button.",
   
-  "ElemCats": "The title of the /get categories embed."
-  "NameDownloadedCat": "Tell the user which category they downloaded."
-  "CatSentToDMs": "Tell the user that the category was sent to their DMs."
-  "InvalidSort": "Tell the user the chosen sort is not valid in the current context."
+  "ElemCats": "The title of the /get categories embed.",
+  "NameDownloadedCat": "Tell the user which category they downloaded.",
+  "CatSentToDMs": "Tell the user that the category was sent to their DMs.",
+  "InvalidSort": "Tell the user the chosen sort is not valid in the current context.",
   "AllCats": "The title of the embed shown when listing all categories using /cat without a specified category."
 }
