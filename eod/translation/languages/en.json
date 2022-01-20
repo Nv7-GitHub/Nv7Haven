@@ -25,5 +25,8 @@
   "UserColor": "Succesfully set color!",
   "Language": "Succesfully updated language!",
 
+  "Stats": "Element Count: **%s**\nCombination Count: **%s**\nMember Count: **%s**\nElements Found: **%s**\nElements Categorized: **%s**",
+  "ViewMoreStats": "View More Stats",
+
   "$schema": "../schema.json"
 }

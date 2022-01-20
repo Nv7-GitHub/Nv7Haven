@@ -93,6 +93,14 @@
     "PlayChannelRemove": {
       "type": "string",
       "description": "Tell the user a channel was marked as not being a play channel"
+    },
+    "Stats": {
+      "type": "string",
+      "description": "The stats message."
+    },
+    "ViewMoreStats": {
+      "type": "string",
+      "description": "The message in the View More Stats button."
     }
   }
 }

@@ -23,5 +23,8 @@
   "UserColor": "Tell the user their color was updated.",
   "Language": "Tell the user the server language was set.",
   "PlayChannelNew": "Tell the user a channel was marked as a play channel",
-  "PlayChannelRemove": "Tell the user a channel was marked as not being a play channel"
+  "PlayChannelRemove": "Tell the user a channel was marked as not being a play channel",
+
+  "Stats": "The stats message.",
+  "ViewMoreStats": "The message in the View More Stats button."
 }

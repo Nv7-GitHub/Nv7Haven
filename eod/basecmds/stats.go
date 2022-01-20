@@ -33,10 +33,10 @@ func (b *BaseCmds) StatsCmd(m types.Msg, rsp types.Rsp) {
 		categorized += len(val.Elements)
 	}
 
-	rsp.Message(fmt.Sprintf("Element Count: **%s**\nCombination Count: **%s**\nMember Count: **%s**\nElements Found: **%s**\nElements Categorized: **%s**", util.FormatInt(len(db.Elements)), util.FormatInt(db.ComboCnt()), util.FormatInt(gd.MemberCount), util.FormatInt(found), util.FormatInt(categorized)), discordgo.ActionsRow{
+	rsp.Message(fmt.Sprintf(db.Config.LangProperty("Stats"), util.FormatInt(len(db.Elements)), util.FormatInt(db.ComboCnt()), util.FormatInt(gd.MemberCount), util.FormatInt(found), util.FormatInt(categorized)), discordgo.ActionsRow{
 		Components: []discordgo.MessageComponent{
 			discordgo.Button{
-				Label: "View More Stats",
+				Label: db.Config.LangProperty("ViewMoreStats"),
 				URL:   "https://nv7haven.com/?page=eod",
 				Style: discordgo.LinkButton,
 			},
