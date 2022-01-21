@@ -95,7 +95,7 @@ func (b *Elements) genAi(guild string, author string) (string, bool) {
 		})
 	}
 
-	return fmt.Sprintf(db.config.LangProperty("YourAIIdea"), text, suggest), true
+	return fmt.Sprintf(db.Config.LangProperty("YourAIIdea"), text, suggest), true
 }
 
 func (b *Elements) AiCmd(m types.Msg, rsp types.Rsp) {
