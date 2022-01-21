@@ -56,6 +56,7 @@
   "SuggestIdea": "\n 	Suggest it by typing **/suggest**",
   "YourAIIdea": "Your AI generated combination is... **%s**%s",
   "ElemFound": "%s Found (%d)",
+  
   "NewHint": "New Hint",
   "InvHintNoElem": "You cannot have an inverse hint without an element!",
   "HintElem": "Hints for %s",
@@ -63,6 +64,7 @@
   "HintCountHasElem": "%d Hints • You Have This",
   "HintCountNoHasElem": "%d Hints • You Don't Have This",
   "ElemSort": "Element Sort",
+  
   "InfoExpand": "Expand",
   "InfoCollapse": "Collapse",
   "InfoAdditionalElemCats": ", and %d more...",
@@ -86,6 +88,7 @@
   "InfoElemIDUserNoHasElem": "Element **#%d**\n<@%s> **You don't have this.**",
   "InfoElemProgress": "Progress",
   "InfoElemCats": "Categories",
+  
   "InvalidElemID": "Invalid Element ID!",
   "ResetUserInv": "Successfully reset <@%s>'s inventory!",
   "DownloadedInvUserServer": "**%s**'s Inventory in **%s**:",
@@ -97,6 +100,7 @@
   "HaveNoElemsInCat": "You don't have any elements in category **%s**!",
   "FailedIdea": "Couldn't find a random unused combination, maybe try again later?",
   "YourIdea": "Your random unused combination is... **%s**%s",
+  
   "NoResults": "No results!",
   "ElemSearch": "Element Search (%d)",
   "ElemNameCannotStartWithQuestionMark": "Element names can't start with '?'!",
