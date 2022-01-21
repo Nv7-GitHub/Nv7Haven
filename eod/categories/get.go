@@ -113,7 +113,7 @@ func (b *Categories) DownloadCatCmd(catName string, sort string, postfix bool, m
 	}
 
 	_, err = b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: fmt.Sprintf(db.Config.langProperty("NameDownloadedCat"), cat.Name),
+		Content: fmt.Sprintf(db.Config.LangProperty("NameDownloadedCat"), cat.Name),
 		Files: []*discordgo.File{
 			{
 				Name:        "cat.txt",
