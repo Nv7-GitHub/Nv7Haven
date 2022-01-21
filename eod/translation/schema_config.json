@@ -56,6 +56,7 @@
   "SuggestIdea": "Tells the user they can suggest a result for the generated combo.",
   "YourAIIdea": "Tells the user what their AI generated combo is.",
   "ElemFound": "The title of the /get found embed.",
+  
   "NewHint": "The message in the New Hint button.",
   "InvHintNoElem": "Tells the user they must input an element to get an inverse hint.",
   "HintElem": "The title of the hint embed.",
@@ -63,6 +64,7 @@
   "HintCountHasElem": "The footer of the hint embed saying how many combos are in the hint and that the user has the element.",
   "HintCountNoHasElem": "The footer of the hint embed saying how many combos are in the hint and that the user does not have the element",
   "ElemSort": "The title of the element sort embed.",
+  
   "InfoExpand": "The message in the Expand button.",
   "InfoCollapse": "The message in the Collapse buton.",
   "InfoAdditionalElemCats": "The message that replaces any categories past the third in the info page, telling the user how many more categories the element is in besides those three.",
@@ -86,6 +88,7 @@
   "InfoElemIDUserNoHasElem": "The element ID, and the message saying that the user does not have the element.",
   "InfoElemProgress": "The label for the user's progress to the element on the info page.",
   "InfoElemCats": "The label for the Categories on the info page.",
+  
   "InvalidElemID": "Tells the user that the element ID they inputted is invalid.",
   "ResetUserInv": "Tells the user that the inventory of the specified user was sucessfully reset.",
   "DownloadedInvUserServer": "Tells the user whose inventory was downloaded, and what server it was downloaded from.",
@@ -97,6 +100,7 @@
   "HaveNoElemsInCat": "Tells the user that they have no elements in the specified category.",
   "FailedIdea": "Tells the user that no idea could be generated with the given parameters.",
   "YourIdea": "Tells the user what their random combo is.",
+  
   "NoResults": "Tells the user that no results were found for the given search parameters.",
   "ElemSearch": "The title of the Element Search embed, also displaying the number of elements found with the search.",
   "ElemNameCannotStartWithQuestionMark": "Tells the user that the suggestion cannot start with a question mark.",
