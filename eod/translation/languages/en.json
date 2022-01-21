@@ -37,10 +37,10 @@
   "CategorizeMultSuggestCategorizedMult": "Categorized and suggested to add **%d elements** to **%s** 🗃️",
 
   "UnCategorized": "Successfully un-categorized! 🗃️",
-  "SuggestUnCategorized": "Suggested to remove **%s** to **%s** 🗃️",
-  "SuggestUnCategorizedMult": "Suggested to remove **%d elements** to **%s** 🗃️",
-  "UnCategorizeMultSuggestUnCategorized": "Un-categorized and suggested to remove **%s** to **%s** 🗃️",
-  "UnCategorizeMultSuggestUnCategorizedMult": "Un-categorized and suggested to remove **%d elements** to **%s** 🗃️",
+  "SuggestUnCategorized": "Suggested to remove **%s** from **%s** 🗃️",
+  "SuggestUnCategorizedMult": "Suggested to remove **%d elements** from **%s** 🗃️",
+  "UnCategorizeMultSuggestUnCategorized": "Un-categorized and suggested to remove **%s** from **%s** 🗃️",
+  "UnCategorizeMultSuggestUnCategorizedMult": "Un-categorized and suggested to remove **%d elements** from **%s** 🗃️",
 
   "Stats": "Element Count: **%s**\nCombination Count: **%s**\nMember Count: **%s**\nElements Found: **%s**\nElements Categorized: **%s**",
   "ViewMoreStats": "View More Stats",
