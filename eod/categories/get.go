@@ -57,7 +57,7 @@ func (b *Categories) CategoriesCmd(elem string, m types.Msg, rsp types.Rsp) {
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
-		Title:      fmt.Sprintf(db.config.LangProperty("ElemCategories"), el.Name, len(out)),
+		Title:      fmt.Sprintf(db.Config.LangProperty("ElemCategories"), el.Name, len(out)),
 		PageGetter: b.base.InvPageGetter,
 		Items:      out,
 		User:       m.Author.ID,
@@ -113,7 +113,7 @@ func (b *Categories) DownloadCatCmd(catName string, sort string, postfix bool, m
 	}
 
 	_, err = b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: fmt.Sprintf(db.config.langProperty("NameDownloadedCat"), cat.Name),
+		Content: fmt.Sprintf(db.Config.langProperty("NameDownloadedCat"), cat.Name),
 		Files: []*discordgo.File{
 			{
 				Name:        "cat.txt",
@@ -125,5 +125,5 @@ func (b *Categories) DownloadCatCmd(catName string, sort string, postfix bool, m
 	if rsp.Error(err) {
 		return
 	}
-	rsp.Message(db.config.LangProperty("CatSentToDMs"))
+	rsp.Message(db.Config.LangProperty("CatSentToDMs"))
 }
