@@ -109,5 +109,5 @@
   "NoSuggestElemName": "Tells the user that their suggestion cannot be empty.",
   "MustSuggestInPlayChannel": "Tells the user that they can only suggest in play channels.",
   "ComboHasResult": "Tells the user that the combo they are trying to suggest a result for already has a result.",
-  "SuggestedElem": "Tells the user what combo they just suggested.",
+  "SuggestedElem": "Tells the user what combo they just suggested."
 }
