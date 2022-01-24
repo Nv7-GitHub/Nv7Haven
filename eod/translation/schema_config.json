@@ -109,5 +109,29 @@
   "NoSuggestElemName": "Tells the user that their suggestion cannot be empty.",
   "MustSuggestInPlayChannel": "Tells the user that they can only suggest in play channels.",
   "ComboHasResult": "Tells the user that the combo they are trying to suggest a result for already has a result.",
-  "SuggestedElem": "Tells the user what combo they just suggested."
+  "SuggestedElem": "Tells the user what combo they just suggested.",
+  
+  "BreakdownTitle": "The title of the breakdown embed.",
+  "InvBreakdownTitle": "The title of the inventory breakdown embed.",
+  "GiveElem": "Tells the user they successfully gave the specified element.",
+  "GiveCat": "Tells the user they successfully gave every element in the specified category.",
+  "GiveAll": "Tells the user they successfully gave every element to the specified user.",
+
+  "GraphLayoutInvalid": "Tells the user the specified graph layout is invalid.",
+  "GraphTooBigForLayout": "Tells the user the graph is too big for the specified layout.",
+  "GraphOutputInvalid": "Tells the user the specified output type is invalid.",
+  "SentGraphToDMs": "Tells the user the graph was sent to their DMs.",
+  "GraphNotRendered": "Tells the user the graph was not rendered by the bot.",
+  "NameGraphElem": "Tells the user which element/category was graphed.",
+  
+  "SentNotationToDMs": "Tells the user the notation was sent to their DMs.",
+  "NotationTooLong": "Tells the user the notation was sent as a file to their DMs due to being too long for a normal message.",
+  "NameNotationElem": "Tells the user which element the notation is for.",
+  "NameNotationCat": "Tells the user which category the notation is for.",
+  
+  "SentPathToDMs": "Tells the user the path as sent to their DMs.",
+  "PathTooLong": "Tells the user the path was sent as a file to their DMs due to being too long for a normal message.",
+  "NamePathElem": "Tells the user which element the path is for.",
+  "NamePathCat": "Tells the user which category the path is for."
+
 }
