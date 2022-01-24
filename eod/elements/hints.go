@@ -175,7 +175,7 @@ func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, author string, g
 					continue
 				}
 				if num == el.ID {
-					el, _ := db.GetElement(elem3)
+					el, _ := db.GetElement(elem3, true)
 					vals[el.Name] = types.Empty{}
 					break
 				}
