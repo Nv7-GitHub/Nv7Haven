@@ -218,7 +218,7 @@
       "type": "string",
       "description": "The footer of the hint embed saying how many combos are in the hint and that the user has the element."
     },
-    "HintCountHasElem": {
+    "HintCountNoHasElem": {
       "type": "string",
       "description": "The footer of the hint embed saying how many combos are in the hint and that the user does not have the element."
     },
@@ -473,6 +473,174 @@
     "NamePathCat": {
       "type": "string",
       "description": "Tells the user the which category the path is for."
+    },
+    "NewElemPoll": {
+      "type": "string",
+      "description": "The title of polls for new elements."
+    },
+    "NewComboPoll": {
+      "type": "string",
+      "description": "The title of polls for new element combinations."
+    },
+    "PollFooter": {
+      "type": "string",
+      "description": "The footer of all polls."
+    },
+    "NewMarkPoll": {
+      "type": "string",
+      "description": "The title of polls for element marks."
+    },
+    "ElemImagePoll": {
+      "type": "string",
+      "description": "The title of polls for element images."
+    },
+    "AddCatPoll": {
+      "type": "string",
+      "description": "The title of polls for element categorizations."
+    },
+    "RmCatPoll": {
+      "type": "string",
+      "description": "The title of polls for element de-categorizations."
+    },
+    "CatImagePoll": {
+      "type": "string",
+      "description": "The title of polls for category images."
+    },
+    "ElemColorPoll": {
+      "type": "string",
+      "description": "The title of polls for element colors."
+    },
+    "ResetCatColorPoll": {
+      "type": "string",
+      "description": "The title of polls for category color resets."
+    },
+    "SetCatColorPoll": {
+      "type": "string",
+      "description": "The title of polls for category color changes."
+    },
+    "NewNote": {
+      "type": "string",
+      "description": "The line displaying the new element mark in polls."
+    },
+    "OldNote": {
+      "type": "string",
+      "description": "The line displaying the old element mark in polls."
+    },
+    "NewImage": {
+      "type": "string",
+      "description": "The text on the link to the new image in polls."
+    },
+    "OldImage": {
+      "type": "string",
+      "description": "The text on the link to the old image in polls."
+    },
+    "CatPollElems": {
+      "type": "string",
+      "description": "The line with the title of the list of elements in categorization/decategorization polls."
+    },
+    "CatPollCat": {
+      "type": "string",
+      "description": "The line with the category in categorization/decategorization polls."
+    },
+    "ShownOnLeft": {
+      "type": "string",
+      "description": "The text denoting that the color of elements/categories is shown on the left color bar of the embed."
+    },
+    "OldColor": {
+      "type": "string",
+      "description": "The line with the old color in polls."
+    },
+    "PollCreatorText": {
+      "type": "string",
+      "description": "The line denoting the suggester of polls."
+    },
+    "SignedElemNews": {
+      "type": "string",
+      "description": "The news message for successful element mark polls."
+    },
+    "AddedImageNews": {
+      "type": "string",
+      "description": "The news message when an element is first given an image."
+    },
+    "ChangedImageNews": {
+      "type": "string",
+      "description": "The news message when an element's image is changed."
+    },
+    "ColoredElemNews": {
+      "type": "string",
+      "description": "The news message when an element's color is changed."
+    },
+    "RejectedPollNews": {
+      "type": "string",
+      "description": "The news message when a poll is rejected."
+    },
+    "RejectedPollDM": {
+      "type": "string",
+      "description": "The DM to the user whose poll was rejected saying which server the poll was in, how many upvotes/downvotes it had, and the poll itself."
+    },
+    "AddCatNews": {
+      "type": "string",
+      "description": "The news message when a single element is added to a category."
+    },
+    "AddCatMultNews": {
+      "type": "string",
+      "description": "The news message when multiple elements are added to a category."
+    },
+    "RmCatNews": {
+      "type": "string",
+      "description": "The news message when a single element is removed from a category."
+    },
+    "RmCatMultNews": {
+      "type": "string",
+      "description": "The news message when multiple elements are removed from a category."
+    },
+    "ResetCatColorNews": {
+      "type": "string",
+      "description": "The news message when a category's color is reset."
+    },
+    "SetCatColorNews": {
+      "type": "string",
+      "description": "The news message when a category's color is changed."
+    },
+    "MaxMarkLength": {
+      "type": "string",
+      "description": "Tells the user that a creator mark must be below 2400 characters."
+    },
+    "MarkChanged": {
+      "type": "string",
+      "description": "Tells the user that they changed the mark of their element."
+    },
+    "MarkSuggested": {
+      "type": "string",
+      "description": "Tells the user that a poll was created to change the mark of the element."
+    },
+    "ImageAdded": {
+      "type": "string",
+      "description": "Tells the user that they added an image of their element."
+    },
+    "ImageChanged": {
+      "type": "string",
+      "description": "Tells the user that they changed the image of their element."
+    },
+    "ImageSuggested": {
+      "type": "string",
+      "description": "Tells the user that a poll was created to change the image of the element."
+    },
+    "ElemColorChanged": {
+      "type": "string",
+      "description": "Tells the user that they changed the color of their element."
+    },
+    "ElemColorSuggested": {
+      "type": "string",
+      "description": "Tells the user that a poll was created to change the color of the element."
+    },
+    "CatImageSuggested": {
+      "type": "string",
+      "description": "Tells the user that a poll was created to change the image of the category."
+    },
+    "CatColorSuggested": {
+      "type": "string",
+      "description": "Tells the user that a poll was created to change the color of the category."
     }
   }
 }
