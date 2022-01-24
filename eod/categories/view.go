@@ -93,7 +93,7 @@ func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user
 			return out[index].text
 		}, func(index int, val string) {
 			out[index].text = val
-		}, sortKind, m.Author.ID, db, postfix)
+		}, sortKind, id, db, postfix)
 	}
 
 	o = make([]string, len(out))
