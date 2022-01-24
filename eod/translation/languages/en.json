@@ -110,6 +110,30 @@
   "MustSuggestInPlayChannel": "You can only suggest in play channels!",
   "ComboHasResult": "That combo already has a result!",
   "SuggestedElem": "Suggested %s",
+  
+  "BreakdownTitle": "%s Breakdown (%d)",
+  "InvBreakdownTitle": "%s's Inventory Breakdown (%d)",
+  "GiveElem": "Successfully gave element **%s**!",
+  "GiveCat": "Successfully gave all elements in category **%s**!",
+  "GiveAll": "Successfully gave every element to <@%s>!",
+
+  "GraphLayoutInvalid": "Layout **%s** is invalid!",
+  "GraphTooBigForLayout": "Graph is too big for layout **%s**!",
+  "GraphOutputInvalid": "Output type **%s** is invalid!",
+  "SentGraphToDMs": "Sent graph in DMs!",
+  "GraphNotRendered": "The graph was not rendered server-side! Check out https://github.com/Nv7-Github/graphwhiz to render it on your computer!",
+  "NameGraphElem": "Graph for **%s**:",
+
+  "SentNotationToDMs": "Sent notation in DMs!",
+  "NotationTooLong": "The notation was too long! Sending it as a file in DMs!",
+  "NameNotationElem": "Notation for **%s**:",
+  "NameNotationCat": "Notation for category **%s**:",
+  
+  "SentPathToDMs": "Sent path in DMs!",
+  "PathTooLong": "The path was too long! Sending it as a file in DMs!",
+  "NamePathElem": "Path for **%s**:",
+  "NamePathCat": "Path for category **%s**:",
+
 
   "$schema": "../schema.json"
 }
