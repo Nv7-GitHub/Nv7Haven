@@ -661,6 +661,30 @@
     "PingMessage": {
       "type": "string",
       "description": "The message given by the !ping command, also displaying the latency of the bot's response."
+    },
+    "MustHaveAdmin": {
+      "type": "string",
+      "description": "Tell the user they must have the Administrator permission."
+    },
+    "MustHaveAdminOrModRole": {
+      "type": "string",
+      "description": "Tell the user they must have the Administrator permission or the server moderator role."
+    },
+    "MustHaveElemForPath": {
+      "type": "string",
+      "description": "Tell the user they must have the element to get its path."
+    },
+    "MustHaveCatForPath": {
+      "type": "string",
+      "description": "Tell the user they must have every element in the category to get its path."
+    },
+    "MustHaveElemOrID": {
+      "type": "string",
+      "description": "Tell the user that they must input either an element or an element ID."
+    },
+    "CannotHaveBothElemAndID": {
+      "type": "string",
+      "description": "Tell the user that they cannot input both an element and an element ID."
     }
   }
 }

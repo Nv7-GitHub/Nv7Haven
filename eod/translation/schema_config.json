@@ -184,5 +184,13 @@
   "AddCatMustHaveSeparator": "Tell the user they must separate the category name and the elements to add to the category with a vertical bar.",
   "RmCatMustHaveSeparator": "Tell the user they must separate the category name and the elements to remove from the category with a vertical bar.",
   "MarkMustHaveSeparator": "Tell the user they must separate the element name and the element mark with a vertical bar.",
-  "PingMessage": "The message given by the !ping command, also displaying the latency of the bot's response."
+  "PingMessage": "The message given by the !ping command, also displaying the latency of the bot's response.",
+
+  "MustHaveAdmin": "Tell the user they must have the Administrator permission.",
+  "MustHaveAdminOrModRole": "Tell the user they must have the Administrator permission or the server moderator role.",
+  "MustHaveElemForPath": "Tell the user they must have the element to get its path.",
+  "MustHaveCatForPath": "Tell the user they must have every element in the category to get its path.",
+
+  "MustHaveElemOrID": "Tell the user that they must input either an element or an element ID.",
+  "CannotHaveBothElemAndID": "Tell the user that they cannot input both an element and an element ID."
 }

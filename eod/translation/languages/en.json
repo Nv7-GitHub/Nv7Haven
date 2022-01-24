@@ -186,5 +186,13 @@
   "MarkMustHaveSeparator": "You must have a \"|\" to separate the element and its new mark!",
   "PingMessage": "🏓 Pong! Latency: **%s**",
 
+  "MustHaveAdmin": "You need to have permission `Administrator`!",
+  "MustHaveAdminOrModRole": "You need to have permission `Administrator` or have role <@&%s>!",
+  "MustHaveElemForPath": "You must have element **%s** to get it's path!",
+  "MustHaveCatForPath": "You must have all elements in category **%s** to get its path!",
+
+  "MustHaveElemOrID": "You must input an element or an element's ID!",
+  "CannotHaveBothElemAndID": "You can't input both an element and an element's ID!",
+
   "$schema": "../schema.json"
 }
