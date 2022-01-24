@@ -230,7 +230,7 @@ func Sort(vals interface{}, length int, elemGet func(index int) int, elemTxt fun
 	// Unlock data
 	switch sortName {
 	case "found":
-		data.(*types.Inventory).Lock.RLock()
+		data.(*types.Inventory).Lock.RUnlock()
 	}
 
 	if postfix {
