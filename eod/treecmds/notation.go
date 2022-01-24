@@ -40,12 +40,12 @@ func (b *TreeCmds) NotationCmd(elem string, m types.Msg, rsp types.Rsp) {
 	}
 
 	if len(txt) <= 2000 {
-		id := rsp.Message("Sent notation in DMs!")
+		id := rsp.Message(db.Config.LangProperty("SentNotationToDMs"))
 		data.SetMsgElem(id, el.ID)
 		rsp.DM(txt)
 		return
 	}
-	id := rsp.Message("The notation was too long! Sending it as a file in DMs!")
+	id := rsp.Message(db.Config.LangProperty("NotationTooLong"))
 
 	data.SetMsgElem(id, el.ID)
 
@@ -55,7 +55,7 @@ func (b *TreeCmds) NotationCmd(elem string, m types.Msg, rsp types.Rsp) {
 	}
 	buf := strings.NewReader(txt)
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: fmt.Sprintf("Notation for **%s**:", el.Name),
+		Content: fmt.Sprintf(db.Config.LangProperty("NameNotationElem"), el.Name),
 		Files: []*discordgo.File{
 			{
 				Name:        "notation.txt",
@@ -94,12 +94,12 @@ func (b *TreeCmds) CatNotationCmd(catName string, m types.Msg, rsp types.Rsp) {
 	txt := tree.String()
 
 	if len(txt) <= 2000 {
-		rsp.Message("Sent notation in DMs!")
+		rsp.Message(db.Config.LangProperty("SentNotationToDMs"))
 
 		rsp.DM(txt)
 		return
 	}
-	rsp.Message("The notation was too long! Sending it as a file in DMs!")
+	rsp.Message(db.Config.LangProperty("NotationTooLong"))
 
 	channel, err := b.dg.UserChannelCreate(m.Author.ID)
 	if rsp.Error(err) {
@@ -107,7 +107,7 @@ func (b *TreeCmds) CatNotationCmd(catName string, m types.Msg, rsp types.Rsp) {
 	}
 	buf := strings.NewReader(txt)
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: fmt.Sprintf("Notation for category **%s**:", cat.Name),
+		Content: fmt.Sprintf(db.Config.LangProperty("NameNotationCat"), cat.Name),
 		Files: []*discordgo.File{
 			{
 				Name:        "notation.txt",
