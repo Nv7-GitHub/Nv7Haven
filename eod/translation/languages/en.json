@@ -180,5 +180,11 @@
   "CatImageSuggested": "Suggested an image for category **%s** 📷",
   "CatColorSuggested": "Suggested a color for category **%s** 🖋️",
 
+  "MustAttachImage": "You must attach an image!",
+  "AddCatMustHaveSeparator": "You must have a \"|\" to separate the category name and the elements to add!",
+  "RmCatMustHaveSeparator": "You must have a \"|\" to separate the category name and the elements to remove!",
+  "MarkMustHaveSeparator": "You must have a \"|\" to separate the element and its new mark!",
+  "PingMessage": "🏓 Pong! Latency: **%s**",
+
   "$schema": "../schema.json"
 }

@@ -641,6 +641,26 @@
     "CatColorSuggested": {
       "type": "string",
       "description": "Tells the user that a poll was created to change the color of the category."
+    },
+    "MustAttachImage": {
+      "type": "string",
+      "description": "Tell the user they must attach an image."
+    },
+    "AddCatMustHaveSeparator": {
+      "type": "string",
+      "description": "Tell the user they must separate the category name and the elements to add to the category with a vertical bar."
+    },
+    "RmCatMustHaveSeparator": {
+      "type": "string",
+      "description": "Tell the user they must separate the category name and the elements to remove from the category with a vertical bar."
+    },
+    "MarkMustHaveSeparator": {
+      "type": "string",
+      "description": "Tell the user they must separate the element name and the element mark with a vertical bar."
+    },
+    "PingMessage": {
+      "type": "string",
+      "description": "The message given by the !ping command, also displaying the latency of the bot's response."
     }
   }
 }

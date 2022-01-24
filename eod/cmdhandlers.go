@@ -67,7 +67,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
 
 			if len(m.Attachments) < 1 {
-				rsp.ErrorMessage("You must attach an image!")
+				rsp.ErrorMessage(db.Config.LangProperty("MustAttachImage"))
 				return
 			}
 			b.polls.ImageCmd(suggestion, m.Attachments[0].URL, msg, rsp)
@@ -82,7 +82,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
 
 			if len(m.Attachments) < 1 {
-				rsp.ErrorMessage("You must attach an image!")
+				rsp.ErrorMessage(db.Config.LangProperty("MustAttachImage"))
 				return
 			}
 			b.polls.CatImgCmd(suggestion, m.Attachments[0].URL, msg, rsp)
@@ -108,7 +108,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			txt := m.Content[len(cmd)+2:]
 			sepPos := strings.Index(txt, "|")
 			if sepPos == -1 {
-				rsp.ErrorMessage("You must have a \"|\" to seperate the category name and the elements to add!")
+				rsp.ErrorMessage(db.Config.LangProperty("AddCatMustHaveSeparator"))
 				return
 			}
 
@@ -126,7 +126,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			txt := m.Content[len(cmd)+2:]
 			sepPos := strings.Index(txt, "|")
 			if sepPos == -1 {
-				rsp.ErrorMessage("You must have a \"|\" to seperate the category name and the elements to remove!")
+				rsp.ErrorMessage(db.Config.LangProperty("RmCatMustHaveSeparator"))
 				return
 			}
 
@@ -166,7 +166,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			txt := m.Content[len(cmd)+2:]
 			sepPos := strings.Index(txt, "|")
 			if sepPos == -1 {
-				rsp.ErrorMessage("You must have a \"|\" to seperate element name and its new mark!")
+				rsp.ErrorMessage(db.Config.LangProperty("MarkMustHaveSeparator"))
 				return
 			}
 
@@ -188,7 +188,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			if rsp.Error(err) {
 				return
 			}
-			rsp.Message(fmt.Sprintf("🏓 Pong! Latency: **%s**", time.Since(tm).String()))
+			rsp.Message(fmt.Sprintf(db.Config.LangProperty("PingMessage"), time.Since(tm).String()))
 		}
 		if cmd == "restart" || cmd == "update" || cmd == "optimize" {
 			if m.GuildID == "705084182673621033" {
