@@ -398,5 +398,81 @@
       "type": "string",
       "description": "Tells the user what combo they just suggested."
     },
+    "BreakdownTitle": {
+      "type": "string",
+      "description": "The title of the breakdown embed."
+    },
+    "InvBreakdownTitle": {
+      "type": "string",
+      "description": "The title of the inventory breakdown embed."
+    },
+    "GiveElem": {
+      "type": "string",
+      "description": "Tells the user they successfully gave the specified element."
+    },
+    "GiveCat": {
+      "type": "string",
+      "description": "Tells the user they successfully gave every element in the specified category."
+    },
+    "GiveAll": {
+      "type": "string",
+      "description": "Tells the user they successfully gave every element to the specified user."
+    },
+    "GraphLayoutInvalid": {
+      "type": "string",
+      "description": "Tells the user the specified graph layout is invalid."
+    },
+    "GraphTooBigForLayout": {
+      "type": "string",
+      "description": "Tells the user the graph is too big for the specified layout."
+    },
+    "GraphOutputInvalid": {
+      "type": "string",
+      "description": "Tells the user the specified output type is invalid."
+    },
+    "SentGraphToDMs": {
+      "type": "string",
+      "description": "Tells the user the graph was sent to their DMs."
+    },
+    "GraphNotRendered": {
+      "type": "string",
+      "description": "Tells the user the graph was not rendered by the bot."
+    },
+    "NameGraphElem": {
+      "type": "string",
+      "description": "Tells the user which element/category was graphed."
+    },
+    "SentNotationToDMs": {
+      "type": "string",
+      "description": "Tells the user the notation was sent to their DMs."
+    },
+    "NotationTooLong": {
+      "type": "string",
+      "description": "Tells the user the notation was sent as a file to their DMs due to being too long for a normal message."
+    },
+    "NameNotationElem": {
+      "type": "string",
+      "description": "Tells the user the which element the notation is for."
+    },
+    "NameNotationCat": {
+      "type": "string",
+      "description": "Tells the user the which category the notation is for."
+    },
+    "SentPathToDMs": {
+      "type": "string",
+      "description": "Tells the user the path was sent to their DMs."
+    },
+    "PathTooLong": {
+      "type": "string",
+      "description": "Tells the user the path was sent as a file to their DMs due to being too long for a normal message."
+    },
+    "NamePathElem": {
+      "type": "string",
+      "description": "Tells the user the which element the path is for."
+    },
+    "NamePathCat": {
+      "type": "string",
+      "description": "Tells the user the which category the path is for."
+    }
   }
 }
