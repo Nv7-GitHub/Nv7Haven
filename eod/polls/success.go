@@ -32,9 +32,9 @@ func (b *Polls) handlePollSuccess(p types.Poll) {
 		}
 		if len(els) == 1 {
 			name, _ := db.GetElement(els[0])
-			b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf("🗃️ Added **%s** to **%s** (By <@%s>)%s", name.Name, p.PollCategorizeData.Category, p.Suggestor, controversialTxt))
+			b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf(db.Config.LangProperty("AddCatNews"), name.Name, p.PollCategorizeData.Category, p.Suggestor) + controversialTxt)
 		} else {
-			b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf("🗃️ Added **%d elements** to **%s** (By <@%s>)%s", len(els), p.PollCategorizeData.Category, p.Suggestor, controversialTxt))
+			b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf(db.Config.LangProperty("AddCatMultNews"), len(els), p.PollCategorizeData.Category, p.Suggestor) + controversialTxt)
 		}
 	case types.PollUnCategorize:
 		els := p.PollCategorizeData.Elems
@@ -43,9 +43,9 @@ func (b *Polls) handlePollSuccess(p types.Poll) {
 		}
 		if len(els) == 1 {
 			name, _ := db.GetElement(els[0])
-			b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf("🗃️ Removed **%s** from **%s** (By <@%s>)%s", name.Name, p.PollCategorizeData.Category, p.Suggestor, controversialTxt))
+			b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf(db.Config.LangProperty("RmCatNews"), name.Name, p.PollCategorizeData.Category, p.Suggestor) + controversialTxt)
 		} else {
-			b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf("🗃️ Removed **%d elements** from **%s** (By <@%s>)%s", len(els), p.PollCategorizeData.Category, p.Suggestor, controversialTxt))
+			b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf(db.Config.LangProperty("RmCatMultNews"), len(els), p.PollCategorizeData.Category, p.Suggestor) + controversialTxt)
 		}
 	case types.PollCatImage:
 		b.catImage(p.Guild, p.PollCatImageData.Category, p.PollCatImageData.NewImage, p.Suggestor, p.PollCatImageData.Changed, controversialTxt, true)

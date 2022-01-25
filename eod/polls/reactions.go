@@ -16,7 +16,7 @@ func (b *Polls) RejectPoll(db *eodb.DB, p types.Poll, messageid, user string) {
 
 	if user != p.Suggestor {
 		// Inform them
-		b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf("%s **Poll Rejected** (By <@%s>)", types.X, p.Suggestor))
+		b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf(db.Config.LangProperty("PollRejectedNews"), types.X, p.Suggestor))
 
 		chn, err := b.dg.UserChannelCreate(p.Suggestor)
 		if err == nil {
@@ -24,17 +24,9 @@ func (b *Polls) RejectPoll(db *eodb.DB, p types.Poll, messageid, user string) {
 			if err == nil {
 				pollemb, err := b.GetPollEmbed(db, p)
 				if err == nil {
-					upvotes := ""
-					downvotes := ""
-					if p.Upvotes != 1 {
-						upvotes = "s"
-					}
-					if p.Downvotes != 1 {
-						downvotes = "s"
-					}
 
 					b.dg.ChannelMessageSendComplex(chn.ID, &discordgo.MessageSend{
-						Content: fmt.Sprintf("Your poll in **%s** was rejected with **%d upvote%s** and **%d downvote%s**.\n\n**Your Poll**:", servname.Name, p.Upvotes, upvotes, p.Downvotes, downvotes),
+						Content: fmt.Sprintf(db.Config.LangProperty("PollRejectedDM"), servname.Name, p.Upvotes, p.Downvotes),
 						Embed:   pollemb,
 					})
 				}

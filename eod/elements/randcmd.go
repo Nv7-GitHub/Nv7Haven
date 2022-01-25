@@ -5,23 +5,26 @@ import (
 	"math/rand"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
 
-var ideaCmp = discordgo.ActionsRow{
-	Components: []discordgo.MessageComponent{
-		discordgo.Button{
-			Label:    "New Idea",
-			Style:    discordgo.SuccessButton,
-			CustomID: "idea",
-			Emoji: discordgo.ComponentEmoji{
-				Name:     "idea",
-				ID:       "932832178847502386",
-				Animated: false,
+func newIdeaCmp(db *eodb.DB) discordgo.ActionsRow {
+	return discordgo.ActionsRow{
+		Components: []discordgo.MessageComponent{
+			discordgo.Button{
+				Label:    db.Config.LangProperty("NewIdea"),
+				Style:    discordgo.SuccessButton,
+				CustomID: "idea",
+				Emoji: discordgo.ComponentEmoji{
+					Name:     "idea",
+					ID:       "932832178847502386",
+					Animated: false,
+				},
 			},
 		},
-	},
+	}
 }
 
 type ideaComponent struct {
@@ -31,6 +34,7 @@ type ideaComponent struct {
 	hasEl    bool
 	count    int
 	b        *Elements
+	db       *eodb.DB
 }
 
 func (c *ideaComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -42,7 +46,7 @@ func (c *ideaComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCr
 		Type: discordgo.InteractionResponseUpdateMessage,
 		Data: &discordgo.InteractionResponseData{
 			Content:    res,
-			Components: []discordgo.MessageComponent{ideaCmp},
+			Components: []discordgo.MessageComponent{newIdeaCmp(c.db)},
 		},
 	})
 	if err != nil {
@@ -51,19 +55,18 @@ func (c *ideaComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCr
 }
 
 func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName string, hasEl bool, guild string, author string) (string, bool) {
-	if count > types.MaxComboLength {
-		return fmt.Sprintf("You can only combine up to %d elements!", types.MaxComboLength), false
-	}
-
-	if count < 2 {
-		return "You must combine at least 2 elements!", false
-	}
-
 	db, res := b.GetDB(guild)
 	if !res.Exists {
 		return res.Message, false
 	}
 
+	if count > types.MaxComboLength {
+		return fmt.Sprintf(db.Config.LangProperty("MaxCombine"), types.MaxComboLength), false
+	}
+
+	if count < 2 {
+		return db.Config.LangProperty("MustCombine"), false
+	}
 	inv := db.GetInv(author)
 
 	var elID int
@@ -80,7 +83,7 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 
 		exists := inv.Contains(el.ID)
 		if !exists {
-			return fmt.Sprintf("Element **%s** is not in your inventory!", el.Name), false
+			return fmt.Sprintf(db.Config.LangProperty("DontHave"), el.Name), false
 		}
 	}
 
@@ -100,7 +103,7 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 		}
 
 		if len(els) == 0 {
-			return fmt.Sprintf("You don't have any elements in category **%s**!", cat.Name), false
+			return fmt.Sprintf(db.Config.LangProperty("HaveNoElemsInCat"), cat.Name), false
 		}
 	}
 
@@ -128,7 +131,7 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 		tries++
 
 		if tries > types.MaxTries {
-			return "Couldn't find a random unused combination, maybe try again later?", false
+			return db.Config.LangProperty("FailedIdea"), false
 		}
 	}
 
@@ -147,7 +150,7 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 		Elem3: -1,
 	})
 
-	return fmt.Sprintf("Your random unused combination is... **%s**\n 	Suggest it by typing **/suggest**", text), true
+	return fmt.Sprintf(db.Config.LangProperty("YourIdea"), text, db.Config.LangProperty("SuggestIdea")), true
 }
 
 func (b *Elements) IdeaCmd(count int, catName string, hasCat bool, elemName string, hasEl bool, m types.Msg, rsp types.Rsp) {
@@ -163,8 +166,9 @@ func (b *Elements) IdeaCmd(count int, catName string, hasCat bool, elemName stri
 		rsp.ErrorMessage(ex.Message)
 		return
 	}
+	db, _ := b.GetDB(m.GuildID)
 
-	id := rsp.Message(res, ideaCmp)
+	id := rsp.Message(res, newIdeaCmp(db))
 
 	data.AddComponentMsg(id, &ideaComponent{
 		catName:  catName,
@@ -173,5 +177,6 @@ func (b *Elements) IdeaCmd(count int, catName string, hasCat bool, elemName stri
 		elemName: elemName,
 		hasEl:    hasEl,
 		b:        b,
+		db:       db,
 	})
 }

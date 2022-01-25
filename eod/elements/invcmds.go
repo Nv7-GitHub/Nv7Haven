@@ -27,7 +27,7 @@ func (b *Elements) ResetInvCmd(user string, m types.Msg, rsp types.Rsp) {
 	if rsp.Error(err) {
 		return
 	}
-	rsp.Resp("Successfully reset <@" + user + ">'s inventory!")
+	rsp.Resp(fmt.Sprintf(db.Config.LangProperty("ResetUserInv"), user))
 }
 
 func (b *Elements) DownloadInvCmd(user string, sorter string, filter string, postfix bool, m types.Msg, rsp types.Rsp) {
@@ -100,7 +100,7 @@ func (b *Elements) DownloadInvCmd(user string, sorter string, filter string, pos
 	}
 
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: fmt.Sprintf("**%s**'s Inventory in **%s**:", usr.Username, gld.Name),
+		Content: fmt.Sprintf(db.Config.LangProperty("DownloadedInvUserServer"), usr.Username, gld.Name),
 		Files: []*discordgo.File{
 			{
 				Name:        "inv.txt",
@@ -109,5 +109,5 @@ func (b *Elements) DownloadInvCmd(user string, sorter string, filter string, pos
 			},
 		},
 	})
-	rsp.Message("Sent inv in DMs!")
+	rsp.Message(db.Config.LangProperty("SentInvToDMs"))
 }
