@@ -156,6 +156,8 @@
   "OldColor": "The line with the old color in polls.",
   "PollCreatorText": "The line denoting the suggester of polls.",
 
+  "NewElemNews": "The news message for when a new element is created.",
+  "NewComboNews": "The news message for when a new combination for an element is created.",
   "SignedElemNews": "The news message for successful element mark polls.",
   "AddedImageNews": "The news message when an element is first given an image.",
   "ChangedImageNews": "The news message when an element's image is changed.",

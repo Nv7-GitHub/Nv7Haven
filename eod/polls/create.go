@@ -27,7 +27,7 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 	}
 
 	_, res = db.GetElementByName(name)
-	text := "Combination"
+	text := text = db.Config.LangProperty("NewComboNews")
 
 	createLock.Lock()
 
@@ -84,14 +84,14 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 			Color:      col,
 			TreeSize:   size,
 		}
-		postTxt = " - Element **#" + strconv.Itoa(elem.ID) + "**"
+		postID = strconv.Itoa(elem.ID)
 		err = db.SaveElement(elem, true)
 		if err != nil {
 			handle(err)
 			return
 		}
 
-		text = "Element"
+		text = db.Config.LangProperty("NewElemNews")
 	} else {
 		el, res := db.GetElementByName(name)
 		if !res.Exists {
@@ -104,7 +104,7 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 		name = el.Name
 
 		id := db.ComboCnt()
-		postTxt = " - Combination **#" + strconv.Itoa(id) + "**"
+		postID = strconv.Itoa(id)
 	}
 
 	el, _ := db.GetElementByName(name)
@@ -130,7 +130,7 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 		}
 	}
 
-	txt := types.NewText + " " + text + " - **" + name + "** (By <@" + creator + ">)" + postTxt + controversial
+	txt := types.NewText + " " + fmt.Sprintf(text, name, creator, postID) + controversial
 
 	_, _ = b.dg.ChannelMessageSend(db.Config.NewsChannel, txt)
 
