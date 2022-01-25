@@ -16,7 +16,7 @@ func (b *Polls) RejectPoll(db *eodb.DB, p types.Poll, messageid, user string) {
 
 	if user != p.Suggestor {
 		// Inform them
-		b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf(db.Config.LangProperty("PollRejectedNews"), types.X, p.Suggestor))
+		b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf(db.Config.LangProperty("RejectedPollNews"), types.X, p.Suggestor))
 
 		chn, err := b.dg.UserChannelCreate(p.Suggestor)
 		if err == nil {
@@ -26,7 +26,7 @@ func (b *Polls) RejectPoll(db *eodb.DB, p types.Poll, messageid, user string) {
 				if err == nil {
 
 					b.dg.ChannelMessageSendComplex(chn.ID, &discordgo.MessageSend{
-						Content: fmt.Sprintf(db.Config.LangProperty("PollRejectedDM"), servname.Name, p.Upvotes, p.Downvotes),
+						Content: fmt.Sprintf(db.Config.LangProperty("RejectedPollDM"), servname.Name, p.Upvotes, p.Downvotes),
 						Embed:   pollemb,
 					})
 				}
