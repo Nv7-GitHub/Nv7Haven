@@ -195,6 +195,7 @@
 
   "MustHaveElemOrID": "You must input an element or an element's ID!",
   "CannotHaveBothElemAndID": "You can't input both an element and an element's ID!",
+  "CalculatingPing": "Calculating...",
 
   "$schema": "../schema.json"
 }

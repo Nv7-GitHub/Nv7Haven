@@ -194,5 +194,6 @@
   "MustHaveCatForPath": "Tell the user they must have every element in the category to get its path.",
 
   "MustHaveElemOrID": "Tell the user that they must input either an element or an element ID.",
-  "CannotHaveBothElemAndID": "Tell the user that they cannot input both an element and an element ID."
+  "CannotHaveBothElemAndID": "Tell the user that they cannot input both an element and an element ID.",
+  "CalculatingPing": "Tell the user that the bot is calculating the ping."
 }

@@ -693,6 +693,10 @@
     "CannotHaveBothElemAndID": {
       "type": "string",
       "description": "Tell the user that they cannot input both an element and an element ID."
+    },
+    "CalculatingPing": {
+      "type": "string",
+      "description": "Tell the user that the bot is calculating the ping."
     }
   }
 }
