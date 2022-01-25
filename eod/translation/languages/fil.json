@@ -193,3 +193,6 @@
 
   "MustHaveElemOrID": "Kailangan mong maglagay ng element o element ID!",
   "CannotHaveBothElemAndID": "Hindi mo maaaring ilagay nang magkasabay ang element at element ID ng isang element!",
+
+  "$schema": "../schema.json"
+}
