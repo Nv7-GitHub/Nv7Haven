@@ -299,7 +299,7 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 		},
 		Color: el.Color,
 	}
-	if has != "" {
+	if !exists {
 		emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{
 			Name:   db.Config.LangProperty("InfoElemProgress"),
 			Value:  fmt.Sprintf("%s%%", util.FormatFloat(float32(tree.Found)/float32(tree.Total)*100, 2)),
