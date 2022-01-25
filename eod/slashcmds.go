@@ -1568,6 +1568,10 @@ var (
 						id = int(opt.IntValue())
 					}
 				}
+				db, res := bot.GetDB(i.GuildID)
+				if !res.Exists {
+					return
+				}
 				rsp := bot.newRespSlash(i)
 				if !isID && elem == "" {
 					rsp.ErrorMessage(db.Config.LangProperty("MustHaveElemOrID"))
@@ -1789,6 +1793,10 @@ var (
 			}
 
 			var latency time.Duration
+			db, res := bot.GetDB(i.GuildID)
+			if !res.Exists {
+				return
+			}
 			switch method {
 			case "receive":
 				tm, err := discordgo.SnowflakeTimestamp(i.ID)

@@ -36,7 +36,7 @@ func (b *TreeCmds) GiveCmd(elem string, giveTree bool, user string, m types.Msg,
 		return
 	}
 
-	rsp.Resp(fmt.Sprintf(db.Config.LangProperty("GiveElem"), el.Name)
+	rsp.Resp(fmt.Sprintf(db.Config.LangProperty("GiveElem"), el.Name))
 }
 
 func (b *TreeCmds) GiveCatCmd(catName string, giveTree bool, user string, m types.Msg, rsp types.Rsp) {
@@ -72,7 +72,7 @@ func (b *TreeCmds) GiveCatCmd(catName string, giveTree bool, user string, m type
 		return
 	}
 
-	rsp.Resp(fmt.Sprintf(db.Config.LangProperty("GiveCat"), cat.Name)
+	rsp.Resp(fmt.Sprintf(db.Config.LangProperty("GiveCat"), cat.Name))
 }
 
 func giveElem(db *eodb.DB, giveTree bool, elem int, out *types.Inventory) (string, bool) {
@@ -114,5 +114,5 @@ func (b *TreeCmds) GiveAllCmd(user string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 
-	rsp.Resp(fmt.Sprintf(db.Config.LangProperty("GiveAll"), user)
+	rsp.Resp(fmt.Sprintf(db.Config.LangProperty("GiveAll"), user))
 }

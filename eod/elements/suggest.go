@@ -32,6 +32,13 @@ var remove = []string{"\uFE0E", "\uFE0F", "\u200B", "\u200E", "\u200F", "\u2060"
 func (b *Elements) SuggestCmd(suggestion string, autocapitalize bool, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
+		return
+	}
+	data, _ := b.GetData(m.GuildID)
+
 	if base.IsFoolsMode && !base.IsFool(suggestion) {
 		rsp.ErrorMessage(base.MakeFoolResp(suggestion))
 		return
@@ -77,13 +84,6 @@ func (b *Elements) SuggestCmd(suggestion string, autocapitalize bool, m types.Ms
 		rsp.Resp(db.Config.LangProperty("NoSuggestElemName"))
 		return
 	}
-
-	db, res := b.GetDB(m.GuildID)
-	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
-	}
-	data, _ := b.GetData(m.GuildID)
 
 	// Check if play channel
 	db.Config.RLock()
@@ -139,7 +139,7 @@ func (b *Elements) SuggestCmd(suggestion string, autocapitalize bool, m types.Ms
 		txt += " + " + el.Name
 	}
 	txt += " = " + suggestion + "**"
-	
+
 	txt = fmt.Sprintf(db.Config.LangProperty("SuggestedElem"), txt)
 
 	if !res.Exists {

@@ -5,23 +5,26 @@ import (
 	"math/rand"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
 
-var ideaCmp = discordgo.ActionsRow{
-	Components: []discordgo.MessageComponent{
-		discordgo.Button{
-			Label:    db.Config.LangProperty("NewIdea"),
-			Style:    discordgo.SuccessButton,
-			CustomID: "idea",
-			Emoji: discordgo.ComponentEmoji{
-				Name:     "idea",
-				ID:       "932832178847502386",
-				Animated: false,
+func newIdeaCmp(db *eodb.DB) discordgo.ActionsRow {
+	return discordgo.ActionsRow{
+		Components: []discordgo.MessageComponent{
+			discordgo.Button{
+				Label:    db.Config.LangProperty("NewIdea"),
+				Style:    discordgo.SuccessButton,
+				CustomID: "idea",
+				Emoji: discordgo.ComponentEmoji{
+					Name:     "idea",
+					ID:       "932832178847502386",
+					Animated: false,
+				},
 			},
 		},
-	},
+	}
 }
 
 type ideaComponent struct {
@@ -31,6 +34,7 @@ type ideaComponent struct {
 	hasEl    bool
 	count    int
 	b        *Elements
+	db       *eodb.DB
 }
 
 func (c *ideaComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -42,7 +46,7 @@ func (c *ideaComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCr
 		Type: discordgo.InteractionResponseUpdateMessage,
 		Data: &discordgo.InteractionResponseData{
 			Content:    res,
-			Components: []discordgo.MessageComponent{ideaCmp},
+			Components: []discordgo.MessageComponent{newIdeaCmp(c.db)},
 		},
 	})
 	if err != nil {
@@ -51,6 +55,11 @@ func (c *ideaComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCr
 }
 
 func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName string, hasEl bool, guild string, author string) (string, bool) {
+	db, res := b.GetDB(guild)
+	if !res.Exists {
+		return res.Message, false
+	}
+
 	if count > types.MaxComboLength {
 		return fmt.Sprintf(db.Config.LangProperty("MaxCombine"), types.MaxComboLength), false
 	}
@@ -58,12 +67,6 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 	if count < 2 {
 		return db.Config.LangProperty("MustCombine"), false
 	}
-
-	db, res := b.GetDB(guild)
-	if !res.Exists {
-		return res.Message, false
-	}
-
 	inv := db.GetInv(author)
 
 	var elID int
@@ -163,8 +166,9 @@ func (b *Elements) IdeaCmd(count int, catName string, hasCat bool, elemName stri
 		rsp.ErrorMessage(ex.Message)
 		return
 	}
+	db, _ := b.GetDB(m.GuildID)
 
-	id := rsp.Message(res, ideaCmp)
+	id := rsp.Message(res, newIdeaCmp(db))
 
 	data.AddComponentMsg(id, &ideaComponent{
 		catName:  catName,
@@ -173,5 +177,6 @@ func (b *Elements) IdeaCmd(count int, catName string, hasCat bool, elemName stri
 		elemName: elemName,
 		hasEl:    hasEl,
 		b:        b,
+		db:       db,
 	})
 }

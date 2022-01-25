@@ -10,7 +10,7 @@ import (
 var langData embed.FS
 var langFiles = make(map[string]translation)
 
-const DefaultLang = "en"
+const DefaultLang = "en_us"
 
 type translation map[string]string
 
@@ -35,6 +35,7 @@ func init() {
 		langFiles[file.Name()[:len(file.Name())-5]] = lang // Remove .json
 
 		f.Close()
+		lang = nil
 	}
 }
 
@@ -51,6 +52,7 @@ func LangFileList() []LangFileListItem {
 			Name: f["Name"],
 			Lang: lang,
 		}
+		i++
 	}
 	sort.Slice(langs, func(i, j int) bool {
 		return langs[i].Name < langs[j].Name

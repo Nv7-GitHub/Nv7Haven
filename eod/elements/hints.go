@@ -16,19 +16,21 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-var hintCmp = discordgo.ActionsRow{
-	Components: []discordgo.MessageComponent{
-		discordgo.Button{
-			Label:    db.Config.LangProperty("NewHint"),
-			CustomID: "hint-new",
-			Style:    discordgo.SuccessButton,
-			Emoji: discordgo.ComponentEmoji{
-				Name:     "hint",
-				ID:       "932833472396025908",
-				Animated: false,
+func newHintCmp(db *eodb.DB) discordgo.ActionsRow {
+	return discordgo.ActionsRow{
+		Components: []discordgo.MessageComponent{
+			discordgo.Button{
+				Label:    db.Config.LangProperty("NewHint"),
+				CustomID: "hint-new",
+				Style:    discordgo.SuccessButton,
+				Emoji: discordgo.ComponentEmoji{
+					Name:     "hint",
+					ID:       "932833472396025908",
+					Animated: false,
+				},
 			},
 		},
-	},
+	}
 }
 
 type hintComponent struct {
@@ -48,7 +50,7 @@ func (h *hintComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCr
 			Type: discordgo.InteractionResponseUpdateMessage,
 			Data: &discordgo.InteractionResponseData{
 				Content:    msg,
-				Components: []discordgo.MessageComponent{hintCmp},
+				Components: []discordgo.MessageComponent{newHintCmp(h.db)},
 			},
 		})
 		return
@@ -58,7 +60,7 @@ func (h *hintComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCr
 		Type: discordgo.InteractionResponseUpdateMessage,
 		Data: &discordgo.InteractionResponseData{
 			Embeds:     []*discordgo.MessageEmbed{hint},
-			Components: []discordgo.MessageComponent{hintCmp},
+			Components: []discordgo.MessageComponent{newHintCmp(h.db)},
 		},
 	})
 }
@@ -114,7 +116,7 @@ func (b *Elements) HintCmd(elem string, hasElem bool, inverse bool, m types.Msg,
 		return
 	}
 
-	id := rsp.Embed(hint, hintCmp)
+	id := rsp.Embed(hint, newHintCmp(db))
 
 	data.AddComponentMsg(id, &hintComponent{b: b, db: db})
 }
@@ -204,7 +206,7 @@ func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, author string, g
 
 	title := fmt.Sprintf(db.Config.LangProperty("HintElem"), el.Name)
 	if inverse {
-		title := fmt.Sprintf(db.Config.LangProperty("InvHintElem"), el.Name)
+		title = fmt.Sprintf(db.Config.LangProperty("InvHintElem"), el.Name)
 	}
 
 	text := &strings.Builder{}
@@ -217,7 +219,7 @@ func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, author string, g
 	footer := fmt.Sprintf(db.Config.LangProperty("HintCountNoHasElem"), len(out))
 	hasElem = inv.Contains(el.ID)
 	if hasElem {
-		footer := fmt.Sprintf(db.Config.LangProperty("HintCountHasElem"), len(out))
+		footer = fmt.Sprintf(db.Config.LangProperty("HintCountHasElem"), len(out))
 	}
 
 	db.Config.RLock()
