@@ -38,6 +38,11 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if strings.HasPrefix(m.Content, "!") {
+		db, res := b.GetDB(msg.GuildID)
+		if !res.Exists {
+			return
+		}
+
 		if len(m.Content) < 2 {
 			return
 		}
