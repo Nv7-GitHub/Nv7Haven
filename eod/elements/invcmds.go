@@ -27,7 +27,7 @@ func (b *Elements) ResetInvCmd(user string, m types.Msg, rsp types.Rsp) {
 	if rsp.Error(err) {
 		return
 	}
-	rsp.Resp(fmt.Sprintf(db.Config.LangProperty("ResetUserInv"), user)
+	rsp.Resp(fmt.Sprintf(db.Config.LangProperty("ResetUserInv"), user))
 }
 
 func (b *Elements) DownloadInvCmd(user string, sorter string, filter string, postfix bool, m types.Msg, rsp types.Rsp) {

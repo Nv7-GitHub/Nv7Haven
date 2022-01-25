@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
+	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -62,38 +63,44 @@ type catSortInfo struct {
 	Cnt  int
 }
 
-var cmpCollapsed = discordgo.ActionsRow{
-	Components: []discordgo.MessageComponent{
-		discordgo.Button{
-			Label:    db.Config.LangProperty("InfoExpand"),
-			CustomID: "expand",
-			Style:    discordgo.SuccessButton,
-			Emoji: discordgo.ComponentEmoji{
-				Name:     "expand",
-				ID:       "932829946706006046",
-				Animated: false,
+func newCmpCollapsed(db *eodb.DB) discordgo.ActionsRow {
+	return discordgo.ActionsRow{
+		Components: []discordgo.MessageComponent{
+			discordgo.Button{
+				Label:    db.Config.LangProperty("InfoExpand"),
+				CustomID: "expand",
+				Style:    discordgo.SuccessButton,
+				Emoji: discordgo.ComponentEmoji{
+					Name:     "expand",
+					ID:       "932829946706006046",
+					Animated: false,
+				},
 			},
 		},
-	},
+	}
 }
-var cmpExpanded = discordgo.ActionsRow{
-	Components: []discordgo.MessageComponent{
-		discordgo.Button{
-			Label:    db.Config.LangProperty("InfoCollapse"),
-			CustomID: "collapse",
-			Style:    discordgo.DangerButton,
-			Emoji: discordgo.ComponentEmoji{
-				Name:     "collapse",
-				ID:       "932831405640155176",
-				Animated: false,
+
+func newCmpExpanded(db *eodb.DB) discordgo.ActionsRow {
+	return discordgo.ActionsRow{
+		Components: []discordgo.MessageComponent{
+			discordgo.Button{
+				Label:    db.Config.LangProperty("InfoCollapse"),
+				CustomID: "collapse",
+				Style:    discordgo.DangerButton,
+				Emoji: discordgo.ComponentEmoji{
+					Name:     "collapse",
+					ID:       "932831405640155176",
+					Animated: false,
+				},
 			},
 		},
-	},
+	}
 }
 
 type infoComponent struct {
 	Expand   *discordgo.MessageEmbed
 	Collapse *discordgo.MessageEmbed
+	db       *eodb.DB
 	Expanded bool
 
 	b *Elements
@@ -105,10 +112,10 @@ func (c *infoComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCr
 	var cmp discordgo.ActionsRow
 	if c.Expanded {
 		emb = c.Expand
-		cmp = cmpExpanded
+		cmp = newCmpExpanded(c.db)
 	} else {
 		emb = c.Collapse
-		cmp = cmpCollapsed
+		cmp = newCmpCollapsed(c.db)
 	}
 	c.b.dg.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseUpdateMessage,
@@ -273,7 +280,7 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 		{Name: db.Config.LangProperty("InfoCreateTime"), Value: createdOn, Inline: true},
 		{Name: db.Config.LangProperty("InfoTreeSize"), Value: strconv.Itoa(tree.Total), Inline: true},
 	}
-	
+
 	// Get whether has element
 	has := db.Config.LangProperty("InfoElemIDUserHasElem")
 	inv := db.GetInv(m.Author.ID)
@@ -321,13 +328,14 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 	full.Fields = fullFields
 
 	// Send
-	msgId := rsp.RawEmbed(emb, cmpCollapsed)
+	msgId := rsp.RawEmbed(emb, newCmpCollapsed(db))
 
 	// Component
 	cmp := &infoComponent{
 		b:        b,
 		Expand:   &full,
 		Collapse: emb,
+		db:       db,
 	}
 
 	// Data
@@ -337,6 +345,12 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 }
 
 func (b *Elements) InfoCmd(elem string, m types.Msg, rsp types.Rsp) {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
+		return
+	}
+
 	elem = strings.TrimSpace(elem)
 	if elem[0] == '#' {
 		number, err := strconv.Atoi(elem[1:])
