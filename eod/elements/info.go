@@ -291,7 +291,7 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 
 	// Embed
 	emb := &discordgo.MessageEmbed{
-		Title:       db.Config.LangProperty("InfoTitle"),
+		Title:       fmt.Sprintf(db.Config.LangProperty("InfoTitle"), el.Name),
 		Description: fmt.Sprintf(has, el.ID, m.Author.ID),
 		Fields:      fields,
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
