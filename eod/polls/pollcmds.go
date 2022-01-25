@@ -16,22 +16,22 @@ func (b *Polls) MarkCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
 
 	el, res := db.GetElementByName(elem)
 	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
+		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DoesntExist"), elem))
 		return
 	}
 
 	inv := db.GetInv(m.Author.ID)
 	exists := inv.Contains(el.ID)
 	if !exists {
-		rsp.ErrorMessage(fmt.Sprintf("Element **%s** is not in your inventory!", el.Name))
+		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DontHave"), el.Name))
 		return
 	}
 	if len(mark) >= 2400 {
-		rsp.ErrorMessage("Creator marks must be under 2400 characters!")
+		rsp.ErrorMessage(db.Config.LangProperty("MaxMarkLength"))
 		return
 	}
 	if len(mark) == 0 {
-		mark = "None"
+		mark = db.Config.LangProperty("DefaultMark")
 	}
 
 	if el.Creator == m.Author.ID {
@@ -41,7 +41,7 @@ func (b *Polls) MarkCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
 			return
 		}
 		b.mark(m.GuildID, id, mark, m.Author.ID, "", false)
-		rsp.Message(fmt.Sprintf("You have signed **%s**! 🖋️", el.Name))
+		rsp.Message(fmt.Sprintf(db.Config.LangProperty("MarkChanged"), el.Name))
 		return
 	}
 
@@ -60,7 +60,7 @@ func (b *Polls) MarkCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
 	if rsp.Error(err) {
 		return
 	}
-	id := rsp.Message(fmt.Sprintf("Suggested a note for **%s** 🖊️", el.Name))
+	id := rsp.Message(fmt.Sprintf(db.Config.LangProperty("MarkSuggested"), el.Name))
 
 	data, _ := b.GetData(m.GuildID)
 	data.SetMsgElem(id, el.ID)
@@ -77,14 +77,14 @@ func (b *Polls) ImageCmd(elem string, image string, m types.Msg, rsp types.Rsp) 
 
 	el, res := db.GetElementByName(elem)
 	if !res.Exists {
-		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
+		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DoesntExist"), elem))
 		return
 	}
 
 	inv := db.GetInv(m.Author.ID)
 	exists := inv.Contains(el.ID)
 	if !exists {
-		rsp.ErrorMessage(fmt.Sprintf("Element **%s** is not in your inventory!", el.Name))
+		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DontHave"), el.Name))
 		return
 	}
 
@@ -98,9 +98,9 @@ func (b *Polls) ImageCmd(elem string, image string, m types.Msg, rsp types.Rsp) 
 		}
 		b.image(m.GuildID, id, image, m.Author.ID, changed, "", false)
 		if !changed {
-			rsp.Message(fmt.Sprintf("You added an image to **%s**! 📷", el.Name))
+			rsp.Message(fmt.Sprintf(db.Config.LangProperty("ImageAdded"), el.Name))
 		} else {
-			rsp.Message(fmt.Sprintf("You changed the image of **%s**! 📷", el.Name))
+			rsp.Message(fmt.Sprintf(db.Config.LangProperty("ImageChanged"), el.Name))
 		}
 		return
 	}
@@ -121,7 +121,7 @@ func (b *Polls) ImageCmd(elem string, image string, m types.Msg, rsp types.Rsp) 
 	if rsp.Error(err) {
 		return
 	}
-	id := rsp.Message(fmt.Sprintf("Suggested an image for **%s** 📷", el.Name))
+	id := rsp.Message(fmt.Sprintf(db.Config.LangProperty("ImageSuggested"), el.Name))
 	data, _ := b.GetData(m.GuildID)
 	data.SetMsgElem(id, el.ID)
 }
@@ -137,14 +137,14 @@ func (b *Polls) ColorCmd(elem string, color int, m types.Msg, rsp types.Rsp) {
 
 	el, res := db.GetElementByName(elem)
 	if !res.Exists {
-		rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", elem))
+		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DoesntExist"), elem))
 		return
 	}
 
 	inv := db.GetInv(m.Author.ID)
 	exists := inv.Contains(el.ID)
 	if !exists {
-		rsp.ErrorMessage(fmt.Sprintf("Element **%s** is not in your inventory!", el.Name))
+		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DontHave"), el.Name))
 		return
 	}
 
@@ -155,7 +155,7 @@ func (b *Polls) ColorCmd(elem string, color int, m types.Msg, rsp types.Rsp) {
 			return
 		}
 		b.color(m.GuildID, id, color, m.Author.ID, "", false)
-		rsp.Message(fmt.Sprintf("You have set the color of **%s**! 🖌️", el.Name))
+		rsp.Message(fmt.Sprintf(db.Config.LangProperty("ElemColorChanged"), el.Name))
 		return
 	}
 
@@ -174,7 +174,7 @@ func (b *Polls) ColorCmd(elem string, color int, m types.Msg, rsp types.Rsp) {
 	if rsp.Error(err) {
 		return
 	}
-	id := rsp.Message(fmt.Sprintf("Suggested a color for **%s** 🖌️", el.Name))
+	id := rsp.Message(fmt.Sprintf(db.Config.LangProperty("ElemColorSuggested"), el.Name))
 	data, _ := b.GetData(m.GuildID)
 	data.SetMsgElem(id, el.ID)
 }
@@ -210,7 +210,7 @@ func (b *Polls) CatImgCmd(catName string, url string, m types.Msg, rsp types.Rsp
 	if rsp.Error(err) {
 		return
 	}
-	rsp.Message(fmt.Sprintf("Suggested an image for category **%s** 📷", cat.Name))
+	rsp.Message(fmt.Sprintf(db.Config.LangProperty("CatImageSuggested"), cat.Name))
 }
 
 func (b *Polls) CatColorCmd(catName string, color int, m types.Msg, rsp types.Rsp) {
@@ -241,5 +241,5 @@ func (b *Polls) CatColorCmd(catName string, color int, m types.Msg, rsp types.Rs
 	if rsp.Error(err) {
 		return
 	}
-	rsp.Message(fmt.Sprintf("Suggested a color for category **%s** 🖌️", cat.Name))
+	rsp.Message(fmt.Sprintf(db.Config.LangProperty("CatColorSuggested"), cat.Name))
 }

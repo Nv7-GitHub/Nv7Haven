@@ -77,7 +77,7 @@ func (b *Elements) InvCmd(user string, m types.Msg, rsp types.Rsp, sorter string
 	}
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
-		Title:      fmt.Sprintf("%s's Inventory (%d, %s%%)", name, len(items), util.FormatFloat(float32(len(items))/float32(len(db.Elements))*100, 2)),
+		Title:      fmt.Sprintf(db.Config.LangProperty("UserInventory"), name, len(items), util.FormatFloat(float32(len(items))/float32(len(db.Elements))*100, 2)),
 		PageGetter: b.base.InvPageGetter,
 		Items:      text,
 	}, m, rsp)
@@ -172,7 +172,7 @@ func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string)
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchLdb,
-		Title:      "Top Most Elements",
+		Title:      db.Config.LangProperty("LbTitleElem"),
 		PageGetter: b.base.LbPageGetter,
 
 		User:    user,

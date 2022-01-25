@@ -3,23 +3,26 @@ package elements
 import (
 	"fmt"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
 
-var aiCmp = discordgo.ActionsRow{
-	Components: []discordgo.MessageComponent{
-		discordgo.Button{
-			Label:    "New AI Generated Idea",
-			Style:    discordgo.SuccessButton,
-			CustomID: "idea",
-			Emoji: discordgo.ComponentEmoji{
-				Name:     "ai",
-				ID:       "932832481768517672",
-				Animated: false,
+func newAiCmp(db *eodb.DB) discordgo.ActionsRow {
+	return discordgo.ActionsRow{
+		Components: []discordgo.MessageComponent{
+			discordgo.Button{
+				Label:    db.Config.LangProperty("NewAIIdea"),
+				Style:    discordgo.SuccessButton,
+				CustomID: "idea",
+				Emoji: discordgo.ComponentEmoji{
+					Name:     "ai",
+					ID:       "932832481768517672",
+					Animated: false,
+				},
 			},
 		},
-	},
+	}
 }
 
 type aiComponent struct {
@@ -27,15 +30,18 @@ type aiComponent struct {
 }
 
 func (c *aiComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCreate) {
-	res, suc := c.b.genAi(i.GuildID, i.Member.User.ID)
+	res, suc, db := c.b.genAi(i.GuildID, i.Member.User.ID)
+	components := []discordgo.MessageComponent{}
 	if !suc {
 		res += " " + types.RedCircle
+	} else {
+		components = []discordgo.MessageComponent{newAiCmp(db)}
 	}
 	err := c.b.dg.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseUpdateMessage,
 		Data: &discordgo.InteractionResponseData{
 			Content:    res,
-			Components: []discordgo.MessageComponent{aiCmp},
+			Components: components,
 		},
 	})
 	if err != nil {
@@ -43,10 +49,10 @@ func (c *aiComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCrea
 	}
 }
 
-func (b *Elements) genAi(guild string, author string) (string, bool) {
+func (b *Elements) genAi(guild string, author string) (string, bool, *eodb.DB) {
 	db, res := b.GetDB(guild)
 	if !res.Exists {
-		return res.Message, false
+		return res.Message, false, nil
 	}
 
 	tries := 0
@@ -60,7 +66,7 @@ func (b *Elements) genAi(guild string, author string) (string, bool) {
 		}
 		tries++
 		if tries > types.MaxTries {
-			return "Failed to generate a valid idea!", false
+			return db.Config.LangProperty("FailedAIGenerate"), false, db
 		}
 	}
 
@@ -86,20 +92,20 @@ func (b *Elements) genAi(guild string, author string) (string, bool) {
 	if canSuggest {
 		data, res := b.GetData(guild)
 		if !res.Exists {
-			return res.Message, false
+			return res.Message, false, db
 		}
-		suggest = "\n 	Suggest it by typing **/suggest**"
+		suggest = db.Config.LangProperty("SuggestIdea")
 		data.SetComb(author, types.Comb{
 			Elems: comb,
 			Elem3: -1,
 		})
 	}
 
-	return fmt.Sprintf("Your AI generated combination is... **%s**%s", text, suggest), true
+	return fmt.Sprintf(db.Config.LangProperty("YourAIIdea"), text, suggest), true, db
 }
 
 func (b *Elements) AiCmd(m types.Msg, rsp types.Rsp) {
-	res, suc := b.genAi(m.GuildID, m.Author.ID)
+	res, suc, db := b.genAi(m.GuildID, m.Author.ID)
 	if !suc {
 		rsp.ErrorMessage(res)
 		return
@@ -112,7 +118,7 @@ func (b *Elements) AiCmd(m types.Msg, rsp types.Rsp) {
 		return
 	}
 
-	id := rsp.Message(res, aiCmp)
+	id := rsp.Message(res, newAiCmp(db))
 
 	data.AddComponentMsg(id, &aiComponent{
 		b: b,

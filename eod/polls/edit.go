@@ -1,6 +1,8 @@
 package polls
 
 import (
+	"fmt"
+
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
@@ -30,7 +32,7 @@ func (b *Polls) mark(guild string, elem int, mark string, creator string, contro
 	_ = db.SaveInv(inv)
 
 	if news {
-		b.dg.ChannelMessageSend(db.Config.NewsChannel, "📝 Signed - **"+el.Name+"** (By <@"+creator+">)"+controversial)
+		b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf(db.Config.LangProperty("SignedElemNews"), el.Name, creator)+controversial)
 	}
 }
 
@@ -59,11 +61,11 @@ func (b *Polls) image(guild string, elem int, image string, creator string, chan
 	_ = db.SaveInv(inv)
 
 	if news {
-		word := "Added"
+		newsMsg := db.Config.LangProperty("AddedImageNews")
 		if changed {
-			word = "Changed"
+			newsMsg = db.Config.LangProperty("ChangedImageNews")
 		}
-		b.dg.ChannelMessageSend(db.Config.NewsChannel, "📸 "+word+" Image - **"+el.Name+"** (By <@"+creator+">)"+controversial)
+		b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf(newsMsg, el.Name, creator)+controversial)
 	}
 }
 
@@ -96,6 +98,6 @@ func (b *Polls) color(guild string, elem int, color int, creator string, controv
 		if err != nil {
 			emoji = types.RedCircle
 		}
-		b.dg.ChannelMessageSend(db.Config.NewsChannel, emoji+" Set Color - **"+el.Name+"** (By <@"+creator+">)"+controversial)
+		b.dg.ChannelMessageSend(db.Config.NewsChannel, emoji+" "+fmt.Sprintf(db.Config.LangProperty("ColoredElemNews"), el.Name, creator)+controversial)
 	}
 }

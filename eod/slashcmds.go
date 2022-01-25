@@ -1568,13 +1568,17 @@ var (
 						id = int(opt.IntValue())
 					}
 				}
+				db, res := bot.GetDB(i.GuildID)
+				if !res.Exists {
+					return
+				}
 				rsp := bot.newRespSlash(i)
 				if !isID && elem == "" {
-					rsp.ErrorMessage("You must input an element or an element's ID!")
+					rsp.ErrorMessage(db.Config.LangProperty("MustHaveElemOrID"))
 					return
 				}
 				if isID && elem != "" {
-					rsp.ErrorMessage("You can't input an element and an element's ID!")
+					rsp.ErrorMessage(db.Config.LangProperty("CannotHaveBothElemAndID"))
 					return
 				}
 				bot.elements.Info(elem, id, isID, bot.newMsgSlash(i), rsp)
@@ -1789,6 +1793,10 @@ var (
 			}
 
 			var latency time.Duration
+			db, res := bot.GetDB(i.GuildID)
+			if !res.Exists {
+				return
+			}
 			switch method {
 			case "receive":
 				tm, err := discordgo.SnowflakeTimestamp(i.ID)
@@ -1811,7 +1819,7 @@ var (
 				start := time.Now()
 				id := rsp.Message("Calculating...")
 				latency = time.Since(start)
-				bot.dg.ChannelMessageEdit(i.ChannelID, id, fmt.Sprintf("🏓 Pong! Latency: **%s**", latency))
+				bot.dg.ChannelMessageEdit(i.ChannelID, id, fmt.Sprintf(db.Config.LangProperty("PingMessage"), latency))
 				return
 
 			case "edit":
@@ -1821,11 +1829,11 @@ var (
 				start := time.Now()
 				bot.dg.ChannelMessageEdit(i.ChannelID, id, "Calculating [2/2]...")
 				latency = time.Since(start)
-				bot.dg.ChannelMessageEdit(i.ChannelID, id, fmt.Sprintf("🏓 Pong! Latency: **%s**", latency))
+				bot.dg.ChannelMessageEdit(i.ChannelID, id, fmt.Sprintf(db.Config.LangProperty("PingMessage"), latency))
 				return
 			}
 
-			rsp.Message(fmt.Sprintf("🏓 Pong! Latency: **%s**", latency.String()))
+			rsp.Message(fmt.Sprintf(db.Config.LangProperty("PingMessage"), latency.String()))
 		},
 	}
 	autocompleteHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){

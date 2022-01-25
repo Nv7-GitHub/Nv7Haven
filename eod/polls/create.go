@@ -75,7 +75,7 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 			ID:         len(db.Elements) + 1,
 			Name:       name,
 			Guild:      guild,
-			Comment:    "None",
+			Comment:    db.Config.LangProperty("DefaultMark"),
 			Creator:    creator,
 			CreatedOn:  types.NewTimeStamp(time.Now()),
 			Parents:    parents,
