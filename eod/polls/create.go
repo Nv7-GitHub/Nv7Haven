@@ -2,6 +2,7 @@ package polls
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"strconv"
 	"sync"
@@ -27,7 +28,7 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 	}
 
 	_, res = db.GetElementByName(name)
-	text := text = db.Config.LangProperty("NewComboNews")
+	text := db.Config.LangProperty("NewComboNews")
 
 	createLock.Lock()
 
@@ -37,7 +38,7 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 		createLock.Unlock()
 	}
 
-	var postTxt string
+	var postID string
 	if !res.Exists {
 		// Element doesnt exist
 		diff := -1
