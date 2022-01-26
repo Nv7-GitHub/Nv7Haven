@@ -156,6 +156,8 @@
   "OldColor": "The line with the old color in polls.",
   "PollCreatorText": "The line denoting the suggester of polls.",
 
+  "NewElemNews": "The news message for when a new element is created.",
+  "NewComboNews": "The news message for when a new combination for an element is created.",
   "SignedElemNews": "The news message for successful element mark polls.",
   "AddedImageNews": "The news message when an element is first given an image.",
   "ChangedImageNews": "The news message when an element's image is changed.",
@@ -192,5 +194,6 @@
   "MustHaveCatForPath": "Tell the user they must have every element in the category to get its path.",
 
   "MustHaveElemOrID": "Tell the user that they must input either an element or an element ID.",
-  "CannotHaveBothElemAndID": "Tell the user that they cannot input both an element and an element ID."
+  "CannotHaveBothElemAndID": "Tell the user that they cannot input both an element and an element ID.",
+  "CalculatingPing": "Tell the user that the bot is calculating the ping."
 }

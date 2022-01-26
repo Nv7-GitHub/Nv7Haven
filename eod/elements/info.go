@@ -239,6 +239,19 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 		el.Comment = db.Config.LangProperty("DefaultComment")
 	}
 
+	shortcomment := el.Comment
+	if len(el.Comment) > 100 {
+		shortcomment = el.Comment[:99]
+	}
+
+	if len(strings.ReplaceAll(shortcomment, "\n", ""))+4 < len(shortcomment) {
+		shortcomment = strings.Join(strings.Split(shortcomment, "\n")[:4], "\n")
+	}
+
+	if shortcomment != el.Comment {
+		shortcomment = strings.TrimSpace(shortcomment) + "..."
+	}
+
 	createdOn := fmt.Sprintf("<t:%d>", el.CreatedOn.Unix())
 	if el.CreatedOn.Unix() <= 4 {
 		createdOn = db.Config.LangProperty("StarterElemCreateTime")
@@ -272,13 +285,10 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 
 	// Collapsed fields
 	fields := []*discordgo.MessageEmbedField{
-		{Name: db.Config.LangProperty("InfoComment"), Value: el.Comment, Inline: false},
-		{Name: db.Config.LangProperty("InfoCombosUsedIn"), Value: strconv.Itoa(el.UsedIn), Inline: true},
-		{Name: db.Config.LangProperty("InfoCombosMadeWith"), Value: strconv.Itoa(madeby), Inline: true},
-		{Name: db.Config.LangProperty("InfoUsersFoundBy"), Value: strconv.Itoa(foundby), Inline: true},
+		{Name: db.Config.LangProperty("InfoComment"), Value: shortcomment, Inline: false},
 		{Name: db.Config.LangProperty("InfoCreator"), Value: fmt.Sprintf("<@%s>", el.Creator), Inline: true},
 		{Name: db.Config.LangProperty("InfoCreateTime"), Value: createdOn, Inline: true},
-		{Name: db.Config.LangProperty("InfoTreeSize"), Value: strconv.Itoa(tree.Total), Inline: true},
+		{Name: db.Config.LangProperty("InfoColor"), Value: util.FormatHex(el.Color), Inline: true},
 	}
 
 	// Get whether has element
@@ -299,8 +309,8 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 		},
 		Color: el.Color,
 	}
-	if has != "" {
-		emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{
+	if !exists {
+		fullFields = append(fullFields, &discordgo.MessageEmbedField{
 			Name:   db.Config.LangProperty("InfoElemProgress"),
 			Value:  fmt.Sprintf("%s%%", util.FormatFloat(float32(tree.Found)/float32(tree.Total)*100, 2)),
 			Inline: true,
@@ -310,11 +320,7 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 		emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{Name: db.Config.LangProperty("InfoElemCats"), Value: catTxt.String(), Inline: false})
 		fullFields = append(fullFields, &discordgo.MessageEmbedField{Name: db.Config.LangProperty("InfoElemCats"), Value: catTxt.String(), Inline: false})
 	}
-	if len(el.Comment) > 1024 {
-		emb.Fields = emb.Fields[1:]
-		fullFields = fullFields[1:]
-		emb.Description = fmt.Sprintf("%s\n\n**%s**\n%s", emb.Description, db.Config.LangProperty("InfoComment"), el.Comment)
-	}
+
 	if m.Author.ID == "567132457820749842" {
 		for _, elem := range base.StarterElements {
 			if elem.Name == el.Name {
@@ -326,6 +332,11 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 	// Collapsed
 	full := *emb
 	full.Fields = fullFields
+
+	if len(el.Comment) > 1024 {
+		full.Fields = full.Fields[1:]
+		full.Description = fmt.Sprintf("%s\n\n**%s**\n%s", emb.Description, db.Config.LangProperty("InfoComment"), el.Comment)
+	}
 
 	// Send
 	msgId := rsp.RawEmbed(emb, newCmpCollapsed(db))

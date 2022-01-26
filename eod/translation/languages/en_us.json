@@ -156,6 +156,8 @@
   "OldColor": "Old Color: %s",
   "PollCreatorText": "Suggested by <@%s>",
 
+  "NewElemNews": "Element - **%s** (By <@%s>) - Element **#%s**",
+  "NewComboNews": "Combination - **%s** (By <@%s>) - Combination **#%s**",
   "SignedElemNews": "📝 Signed - **%s** (By <@%s>)",
   "AddedImageNews": "📸 Added Image - **%s** (By <@%s>)",
   "ChangedImageNews": "📸 Changed Image - **%s** (By <@%s>)",
@@ -193,6 +195,7 @@
 
   "MustHaveElemOrID": "You must input an element or an element's ID!",
   "CannotHaveBothElemAndID": "You can't input both an element and an element's ID!",
+  "CalculatingPing": "Calculating...",
 
   "$schema": "../schema.json"
 }
