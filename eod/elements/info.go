@@ -288,7 +288,7 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 		{Name: db.Config.LangProperty("InfoComment"), Value: shortcomment, Inline: false},
 		{Name: db.Config.LangProperty("InfoCreator"), Value: fmt.Sprintf("<@%s>", el.Creator), Inline: true},
 		{Name: db.Config.LangProperty("InfoCreateTime"), Value: createdOn, Inline: true},
-		{Name: db.Config.LangProperty("InfoTreeSize"), Value: strconv.Itoa(tree.Total), Inline: true},
+		{Name: db.Config.LangProperty("InfoColor"), Value: util.FormatHex(el.Color), Inline: true},
 	}
 
 	// Get whether has element
