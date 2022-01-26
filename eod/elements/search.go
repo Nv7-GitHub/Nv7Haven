@@ -101,7 +101,7 @@ func (b *Elements) SearchCmd(search string, sort string, source string, opt stri
 	db.RUnlock()
 
 	if len(results) == 0 {
-		rsp.Message("No results!")
+		rsp.Message(db.Config.LangProperty("NoResults"))
 		return
 	}
 
@@ -120,7 +120,7 @@ func (b *Elements) SearchCmd(search string, sort string, source string, opt stri
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
-		Title:      fmt.Sprintf("Element Search (%d)", len(txt)),
+		Title:      fmt.Sprintf(db.Config.LangProperty("ElemSearch"), len(txt)),
 		PageGetter: b.base.InvPageGetter,
 		Items:      txt,
 		User:       m.Author.ID,

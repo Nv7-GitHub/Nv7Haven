@@ -36,7 +36,7 @@ func (b *TreeCmds) GiveCmd(elem string, giveTree bool, user string, m types.Msg,
 		return
 	}
 
-	rsp.Resp("Successfully gave element **" + el.Name + "**!")
+	rsp.Resp(fmt.Sprintf(db.Config.LangProperty("GiveElem"), el.Name))
 }
 
 func (b *TreeCmds) GiveCatCmd(catName string, giveTree bool, user string, m types.Msg, rsp types.Rsp) {
@@ -62,7 +62,7 @@ func (b *TreeCmds) GiveCatCmd(catName string, giveTree bool, user string, m type
 
 		msg, suc := giveElem(db, giveTree, elem, inv)
 		if !suc {
-			rsp.ErrorMessage(fmt.Sprintf("Element **%s** doesn't exist!", msg))
+			rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DoesntExist"), msg))
 			return
 		}
 	}
@@ -72,7 +72,7 @@ func (b *TreeCmds) GiveCatCmd(catName string, giveTree bool, user string, m type
 		return
 	}
 
-	rsp.Resp("Successfully gave all elements in category **" + cat.Name + "**!")
+	rsp.Resp(fmt.Sprintf(db.Config.LangProperty("GiveCat"), cat.Name))
 }
 
 func giveElem(db *eodb.DB, giveTree bool, elem int, out *types.Inventory) (string, bool) {
@@ -114,5 +114,5 @@ func (b *TreeCmds) GiveAllCmd(user string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 
-	rsp.Resp("Successfully gave every element to <@" + user + ">!")
+	rsp.Resp(fmt.Sprintf(db.Config.LangProperty("GiveAll"), user))
 }

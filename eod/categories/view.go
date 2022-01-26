@@ -80,7 +80,7 @@ func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user
 	var o []string
 	switch sortKind {
 	case "catelemcount":
-		rsp.ErrorMessage("Invalid sort!")
+		rsp.ErrorMessage(db.Config.LangProperty("InvalidSort"))
 		return
 
 	default:
@@ -93,7 +93,7 @@ func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user
 			return out[index].text
 		}, func(index int, val string) {
 			out[index].text = val
-		}, sortKind, m.Author.ID, db, postfix)
+		}, sortKind, id, db, postfix)
 	}
 
 	o = make([]string, len(out))
@@ -182,7 +182,7 @@ func (b *Categories) AllCatCmd(sortBy string, hasUser bool, user string, m types
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
-		Title:      fmt.Sprintf("All Categories (%d)", len(out)),
+		Title:      fmt.Sprintf(db.Config.LangProperty("AllCategories"), len(out)),
 		PageGetter: b.base.InvPageGetter,
 		Items:      names,
 	}, m, rsp)

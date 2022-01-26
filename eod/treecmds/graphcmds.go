@@ -64,25 +64,25 @@ func (b *TreeCmds) graphCmd(elems map[int]types.Empty, db *eodb.DB, m types.Msg,
 	if !(outputType == "Text" || outputType == "DOT") {
 		_, exists := maxSizes[layout]
 		if !exists {
-			rsp.ErrorMessage(fmt.Sprintf("Layout **%s** is invalid!", layout))
+			rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("GraphLayoutInvalid"), layout))
 			return
 		}
 
 		if maxSizes[layout] > 0 && graph.NodeCount() > maxSizes[layout] {
-			rsp.ErrorMessage(fmt.Sprintf("Graph is too big for layout **%s**!", layout))
+			rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("GraphTooBigForLayout"), layout))
 			return
 		}
 	}
 
 	_, exists := outputTypes[outputType]
 	if !exists {
-		rsp.ErrorMessage(fmt.Sprintf("Output type **%s** is invalid!", outputType))
+		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("GraphOutputInvalid"), outputType))
 		return
 	}
 
 	// Create Output
 	var file *discordgo.File
-	txt := "Sent graph in DMs!"
+	txt := db.Config.LangProperty("SentGraphToDMs")
 
 	switch outputType {
 	case "PNG", "SVG":
@@ -120,7 +120,7 @@ func (b *TreeCmds) graphCmd(elems map[int]types.Empty, db *eodb.DB, m types.Msg,
 
 		}
 	case "Text", "DOT":
-		txt = "The graph was not rendered server-side! Check out https://github.com/Nv7-Github/graphwhiz to render it on your computer!"
+		txt = db.Config.LangProperty("GraphNotRendered")
 		name := "graph.dot"
 		if outputType == "Text" {
 			name = "graph.txt"
@@ -158,7 +158,7 @@ func (b *TreeCmds) graphCmd(elems map[int]types.Empty, db *eodb.DB, m types.Msg,
 	}
 
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: fmt.Sprintf("Graph for **%s**:", name),
+		Content: fmt.Sprintf(db.Config.LangProperty("NameGraphElem"), name),
 		Files:   []*discordgo.File{file},
 	})
 }

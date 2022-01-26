@@ -449,8 +449,11 @@ func (b *Bot) startsWith(m *discordgo.MessageCreate, cmd string) bool {
 	if !exists {
 		b.checkprefix(m)
 	}
-	if strings.HasPrefix(m.Content, prefix+cmd+" ") {
+	if strings.HasPrefix(m.Content, prefix+cmd) {
 		m.Content = m.Content[len(prefix):]
+		if strings.HasPrefix(m.Content, " ") {
+			m.Content = m.Content[1:]
+		}
 		return true
 	}
 	return false
