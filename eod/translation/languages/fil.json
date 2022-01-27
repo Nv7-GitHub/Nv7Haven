@@ -156,6 +156,8 @@
   "OldColor": "Dating Kulay: %s",
   "PollCreatorText": "Iminungkahi ni <@%s>",
 
+  "NewElemNews": "Element - **%s** (Ni <@%s>) - Element **#%s**",
+  "NewComboNews": "Kombinasyon - **%s** (Ni <@%s>) - Kombinasyon **#%s**",
   "SignedElemNews": "📝 Sinulatan - **%s** (Ni <@%s>)",
   "AddedImageNews": "📸 Nagdagdag ng Larawan - **%s** (Ni <@%s>)",
   "ChangedImageNews": "📸 Pinalitan ang Larawan - **%s** (Ni <@%s>)",
@@ -193,6 +195,7 @@
 
   "MustHaveElemOrID": "Kailangan mong maglagay ng element o element ID!",
   "CannotHaveBothElemAndID": "Hindi mo maaaring ilagay nang magkasabay ang element at element ID ng isang element!",
-
+  "CalculatingPing": "Kinakalkula...",
+  
   "$schema": "../schema.json"
 }
