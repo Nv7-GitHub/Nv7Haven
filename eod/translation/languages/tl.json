@@ -47,7 +47,7 @@
   
   "ElemCategories": "%s Mga Kategorya (%d)",
   "NameDownloadedCat": "Kategoryang **%s**",
-  "CatSentToDMs": "Pinadala ang kategorya sa DMs!",
+  "CatSentToDMs": "Ipinadala ang kategorya sa DMs!",
   "InvalidSort": "Maling pagkakauri!",
   "AllCategories": "Lahat ng Kategorya (%d)",
   
@@ -120,16 +120,16 @@
   "GraphLayoutInvalid": "Ang layout na **%s** ay hindi wasto!",
   "GraphTooBigForLayout": "Masyadong malaki ang graph para sa layout **%s**!",
   "GraphOutputInvalid": "Ang output type **%s** ay hindi wasto!",
-  "SentGraphToDMs": "Pinadala ang graph sa DMs!",
+  "SentGraphToDMs": "Ipinadala ang graph sa DMs!",
   "GraphNotRendered": "Ang graph ay hindi nag-render sa server-side! Pumunta sa https://github.com/Nv7-Github/graphwhiz upang ma-render ito sa iyong computer!",
   "NameGraphElem": "Graph para sa **%s**:",
 
-  "SentNotationToDMs": "Pinadala ang notation sa DMs!",
+  "SentNotationToDMs": "Ipinadala ang notation sa DMs!",
   "NotationTooLong": "Masyadong mahaba ang notation! Ipapadala itong isang file sa DMs!",
   "NameNotationElem": "Notation para sa **%s**:",
   "NameNotationCat": "Notation para sa kategoryang **%s**:",
   
-  "SentPathToDMs": "Pinadala ang path sa DMs!",
+  "SentPathToDMs": "Ipinadala ang path sa DMs!",
   "PathTooLong": "Masyadong mahaba ang path! Ipapadala itong isang file sa DMs!!",
   "NamePathElem": "Path para sa **%s**:",
   "NamePathCat": "Path para sa kategoryang **%s**:",
@@ -199,6 +199,11 @@
   "DBNoCombo": "Wala pang ganyang kombinasyon!",
   "PollNoExist": "Wala pang ganyang poll!",
   "CalculatingPing": "Kinakalkula...",
+  
+  "SentWordCloud": "Ipinadala ang word cloud sa DMs!",
+  "WordCloudElem": "Ang word cloud para sa **%s**:",
+  "WordCloudDimensionsTooLow": "Ang pinakamababang sukat ng word cloud ay 1x1!",
+  "WordCloudDimensionsTooHigh": "Ang pinakamalaking sukat ng word cloud ay 2048x2048!",
   
   "$schema": "../schema.json"
 }
