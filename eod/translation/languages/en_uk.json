@@ -53,7 +53,7 @@
   
   "NewAIIdea": "New AI Generated Idea",
   "FailedAIGenerate": "Failed to generate a valid idea!",
-  "SuggestIdea": "\n Suggest it by typing **/suggest**",
+  "SuggestIdea": "\n\tSuggest it by typing **/suggest**",
   "YourAIIdea": "Your AI generated combination is... **%s**%s",
   "ElemFound": "%s Found (%d)",
   
