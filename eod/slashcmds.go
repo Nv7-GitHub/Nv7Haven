@@ -1245,7 +1245,7 @@ var (
 					Description: "Get the word cloud of an inventory!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
+							Type:        discordgo.ApplicationCommandOptionUser,
 							Name:        "user",
 							Description: "The user to get the word cloud of their inv!",
 							Required:    false,
