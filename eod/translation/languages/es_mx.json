@@ -53,7 +53,7 @@
   
   "NewAIIdea": "Nueva Idea Generada por Inteligencia Artificial",
   "FailedAIGenerate": "¡No se pudo generar una idea válida!",
-  "SuggestIdea": "\n Sugierela usando **/suggest**",
+  "SuggestIdea": "\n\tSugierela usando **/suggest**",
   "YourAIIdea": "Tu combinación generada por inteligencia artificial es... **%s**%s",
   "ElemFound": "%s Encontrado (%d)",
   
