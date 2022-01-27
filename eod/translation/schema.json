@@ -694,6 +694,18 @@
       "type": "string",
       "description": "Tell the user that they cannot input both an element and an element ID."
     },
+    "IDCannotBeNegative": {
+      "type": "string",
+      "description": "Tell the user their element ID cannot be negative."
+    },
+    "ComboNoExist": {
+      "type": "string",
+      "description": "Tell the user the combo doesn't exist."
+    },
+    "PollNoExist": {
+      "type": "string",
+      "description": "Tell the user the poll doesn't exist."
+    },
     "CalculatingPing": {
       "type": "string",
       "description": "Tell the user that the bot is calculating the ping."
