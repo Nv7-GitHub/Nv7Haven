@@ -195,5 +195,8 @@
 
   "MustHaveElemOrID": "Tell the user that they must input either an element or an element ID.",
   "CannotHaveBothElemAndID": "Tell the user that they cannot input both an element and an element ID.",
+  "IDCannotBeNegative": "Tell the user their element ID cannot be negative.",
+  "DBNoCombo": "Tell the user the combo doesn't exist.",
+  "PollNoExist": "Tell the user the poll doesn't exist.",
   "CalculatingPing": "Tell the user that the bot is calculating the ping."
 }

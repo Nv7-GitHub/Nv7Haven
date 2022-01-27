@@ -53,7 +53,7 @@
   
   "NewAIIdea": "New AI Generated Idea",
   "FailedAIGenerate": "Failed to generate a valid idea!",
-  "SuggestIdea": "\n Suggest it by typing **/suggest**",
+  "SuggestIdea": "\n\tSuggest it by typing **/suggest**",
   "YourAIIdea": "Your AI generated combination is... **%s**%s",
   "ElemFound": "%s Found (%d)",
   
@@ -195,6 +195,9 @@
 
   "MustHaveElemOrID": "You must input an element or an element's ID!",
   "CannotHaveBothElemAndID": "You can't input both an element and an element's ID!",
+  "IDCannotBeNegative": "Element ID can't be negative!",
+  "DBNoCombo": "Combo doesn't exist!",
+  "PollNoExist": "Poll doesn't exist!",
   "CalculatingPing": "Calculating...",
 
   "$schema": "../schema.json"
