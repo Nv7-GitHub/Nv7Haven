@@ -200,5 +200,10 @@
   "PollNoExist": "Poll doesn't exist!",
   "CalculatingPing": "Calculating...",
 
+  "SentWordCloud": "Sent word cloud in DMs!",
+  "WordCloudElem": "Word cloud for **%s**:",
+  "WordCloudDimensionsTooLow": "The minimum size of a word cloud is 1x1!",
+  "WordCloudDimensionsTooHigh": "The maximum size of a word cloud is 2048x2048!",
+
   "$schema": "../schema.json"
 }

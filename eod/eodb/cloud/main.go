@@ -71,7 +71,7 @@ func main() {
 	w := wordclouds.NewWordcloud(wordCnts,
 		wordclouds.Height(2048),
 		wordclouds.Width(2048),
-		wordclouds.FontFile("./Roboto.ttf"),
+		wordclouds.FontFile("../../assets/Roboto.ttf"),
 		wordclouds.Colors([]color.Color{
 			color.RGBA{0x1b, 0x1b, 0x1b, 0xff},
 			color.RGBA{0x48, 0x48, 0x4B, 0xff},

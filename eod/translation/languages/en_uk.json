@@ -21,8 +21,8 @@
   "PlayChannelRemove": "Successfully marked channel as not a play channel!",
   "ModRole": "Successfully updated mod role!",
   "UserColorReset": "Successfully reset colour!",
-  "HexMustBe6": "A hex color must be 6 characters long!",
-  "UserColor": "Successfully set color!",
+  "HexMustBe6": "A hex colour must be 6 characters long!",
+  "UserColor": "Successfully set colour!",
   "Language": "Successfully updated language!",
 
   "CatNameBlank": "Category name can't be blank!",
@@ -199,6 +199,11 @@
   "DBNoCombo": "Combo doesn't exist!",
   "PollNoExist": "Poll doesn't exist!",
   "CalculatingPing": "Calculating...",
+
+  "SentWordCloud": "Sent word cloud in DMs!",
+  "WordCloudElem": "Word cloud for **%s**:",
+  "WordCloudDimensionsTooLow": "The minimum size of a word cloud is 1x1!",
+  "WordCloudDimensionsTooHigh": "The maximum size of a word cloud is 2048x2048!",
 
   "$schema": "../schema.json"
 }
