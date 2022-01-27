@@ -42,6 +42,8 @@ createlogs.txt
 discordlogs.txt
 mysqlogs.txt
 eod/other/parecalc/prof.pprof
+eod/eodb/cloud/cloud.png
+eod/eodb/cloud/cloud.json
 
 # Secret!
 password.txt
