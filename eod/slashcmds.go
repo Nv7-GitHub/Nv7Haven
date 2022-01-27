@@ -1245,7 +1245,7 @@ var (
 					Description: "Get the word cloud of an inventory!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
+							Type:        discordgo.ApplicationCommandOptionUser,
 							Name:        "user",
 							Description: "The user to get the word cloud of their inv!",
 							Required:    false,
@@ -1597,7 +1597,7 @@ var (
 			switch resp.Name {
 			case "element":
 				calcTree := true
-				width, height := 1024, 1024
+				width, height := 2048, 2048
 				for _, opt := range resp.Options {
 					switch opt.Name {
 					case "calctree":
@@ -1614,7 +1614,7 @@ var (
 
 			case "category":
 				calcTree := true
-				width, height := 1024, 1024
+				width, height := 2048, 2048
 				for _, opt := range resp.Options {
 					switch opt.Name {
 					case "calctree":
@@ -1631,7 +1631,7 @@ var (
 
 			case "inv":
 				calcTree := true
-				width, height := 1024, 1024
+				width, height := 2048, 2048
 				m := bot.newMsgSlash(i)
 				user := m.Author.ID
 				for _, opt := range resp.Options {

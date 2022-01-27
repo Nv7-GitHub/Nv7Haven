@@ -22,7 +22,7 @@ func (b *TreeCmds) WordCloudCmd(name string, elems map[int]types.Empty, calcTree
 	if width < 1 || height < 1 {
 		rsp.ErrorMessage(db.Config.LangProperty("WordCloudDimensionsTooLow"))
 	}
-	if width > 2048 || height > 2048 {
+	if width > 4096 || height > 4096 {
 		rsp.ErrorMessage(db.Config.LangProperty("WordCloudDimensionsTooHigh"))
 	}
 
