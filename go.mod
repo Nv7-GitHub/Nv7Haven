@@ -20,6 +20,7 @@ require (
 	github.com/json-iterator/go v1.1.9
 	github.com/lucasb-eyer/go-colorful v1.2.0
 	github.com/mitchellh/mapstructure v1.4.3
+	github.com/psykhi/wordclouds v0.0.0-20220103101922-7e3171a66cbc
 	github.com/sasha-s/go-deadlock v0.2.0
 	github.com/schollz/progressbar/v3 v3.8.2
 	github.com/valyala/fasthttp v1.27.0

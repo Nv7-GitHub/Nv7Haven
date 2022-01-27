@@ -1172,6 +1172,106 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "wordcloud",
+			Type:        discordgo.ChatApplicationCommand,
+			Description: "Get the word cloud of an element or set of elements!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "element",
+					Description: "Get the word cloud of an element!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "element",
+							Description: "The name of the element to get the word cloud of!",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionBoolean,
+							Name:        "calctree",
+							Description: "Whether to include the parents of the elements.",
+							Required:    false,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionInteger,
+							Name:        "width",
+							Description: "The width of the image!",
+							Required:    false,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionInteger,
+							Name:        "height",
+							Description: "The width of the image!",
+							Required:    false,
+						},
+					},
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "category",
+					Description: "Get the word cloud of a category!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "category",
+							Description: "The name of the category to get the word cloud of!",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionBoolean,
+							Name:        "calctree",
+							Description: "Whether to include the parents of the elements.",
+							Required:    false,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionInteger,
+							Name:        "width",
+							Description: "The width of the image!",
+							Required:    false,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionInteger,
+							Name:        "height",
+							Description: "The width of the image!",
+							Required:    false,
+						},
+					},
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "inv",
+					Description: "Get the word cloud of an inventory!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionUser,
+							Name:        "user",
+							Description: "The user to get the word cloud of their inv!",
+							Required:    false,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionBoolean,
+							Name:        "calctree",
+							Description: "Whether to include the parents of the elements.",
+							Required:    false,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionInteger,
+							Name:        "width",
+							Description: "The width of the image!",
+							Required:    false,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionInteger,
+							Name:        "height",
+							Description: "The width of the image!",
+							Required:    false,
+						},
+					},
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"set": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -1489,6 +1589,67 @@ var (
 					}
 				}
 				bot.treecmds.InvBreakdownCmd(user, calcTree, bot.newMsgSlash(i), bot.newRespSlash(i))
+			}
+		},
+		"wordcloud": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData().Options[0]
+			rsp := bot.newRespSlash(i)
+			switch resp.Name {
+			case "element":
+				calcTree := true
+				width, height := 2048, 2048
+				for _, opt := range resp.Options {
+					switch opt.Name {
+					case "calctree":
+						calcTree = opt.BoolValue()
+
+					case "width":
+						width = int(opt.IntValue())
+
+					case "height":
+						height = int(opt.IntValue())
+					}
+				}
+				bot.treecmds.ElemWordCloudCmd(resp.Options[0].StringValue(), calcTree, width, height, bot.newMsgSlash(i), rsp)
+
+			case "category":
+				calcTree := true
+				width, height := 2048, 2048
+				for _, opt := range resp.Options {
+					switch opt.Name {
+					case "calctree":
+						calcTree = opt.BoolValue()
+
+					case "width":
+						width = int(opt.IntValue())
+
+					case "height":
+						height = int(opt.IntValue())
+					}
+				}
+				bot.treecmds.CatWordCloudCmd(resp.Options[0].StringValue(), calcTree, width, height, bot.newMsgSlash(i), rsp)
+
+			case "inv":
+				calcTree := true
+				width, height := 2048, 2048
+				m := bot.newMsgSlash(i)
+				user := m.Author.ID
+				for _, opt := range resp.Options {
+					switch opt.Name {
+					case "calctree":
+						calcTree = opt.BoolValue()
+
+					case "width":
+						width = int(opt.IntValue())
+
+					case "height":
+						height = int(opt.IntValue())
+
+					case "user":
+						user = opt.UserValue(bot.dg).ID
+					}
+				}
+				bot.treecmds.InvWordCloudCmd(user, calcTree, width, height, m, rsp)
 			}
 		},
 		"graph": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -1817,7 +1978,7 @@ var (
 				rsp.Acknowledge()
 
 				start := time.Now()
-				id := rsp.Message("Calculating...")
+				id := rsp.Message(db.Config.LangProperty("CalculatingPing"))
 				latency = time.Since(start)
 				bot.dg.ChannelMessageEdit(i.ChannelID, id, fmt.Sprintf(db.Config.LangProperty("PingMessage"), latency))
 				return
@@ -1825,9 +1986,9 @@ var (
 			case "edit":
 				rsp.Acknowledge()
 
-				id := rsp.Message("Calculating [1/2]...")
+				id := rsp.Message(db.Config.LangProperty("CalculatingPing") + "[1/2]")
 				start := time.Now()
-				bot.dg.ChannelMessageEdit(i.ChannelID, id, "Calculating [2/2]...")
+				bot.dg.ChannelMessageEdit(i.ChannelID, id, db.Config.LangProperty("CalculatingPing")+"[2/2]")
 				latency = time.Since(start)
 				bot.dg.ChannelMessageEdit(i.ChannelID, id, fmt.Sprintf(db.Config.LangProperty("PingMessage"), latency))
 				return

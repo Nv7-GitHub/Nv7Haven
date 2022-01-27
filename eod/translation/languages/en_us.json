@@ -53,7 +53,7 @@
   
   "NewAIIdea": "New AI Generated Idea",
   "FailedAIGenerate": "Failed to generate a valid idea!",
-  "SuggestIdea": "\n Suggest it by typing **/suggest**",
+  "SuggestIdea": "\n\tSuggest it by typing **/suggest**",
   "YourAIIdea": "Your AI generated combination is... **%s**%s",
   "ElemFound": "%s Found (%d)",
   
@@ -156,6 +156,8 @@
   "OldColor": "Old Color: %s",
   "PollCreatorText": "Suggested by <@%s>",
 
+  "NewElemNews": "Element - **%s** (By <@%s>) - Element **#%s**",
+  "NewComboNews": "Combination - **%s** (By <@%s>) - Combination **#%s**",
   "SignedElemNews": "📝 Signed - **%s** (By <@%s>)",
   "AddedImageNews": "📸 Added Image - **%s** (By <@%s>)",
   "ChangedImageNews": "📸 Changed Image - **%s** (By <@%s>)",
@@ -193,6 +195,15 @@
 
   "MustHaveElemOrID": "You must input an element or an element's ID!",
   "CannotHaveBothElemAndID": "You can't input both an element and an element's ID!",
+  "IDCannotBeNegative": "Element ID can't be negative!",
+  "DBNoCombo": "Combo doesn't exist!",
+  "PollNoExist": "Poll doesn't exist!",
+  "CalculatingPing": "Calculating...",
+
+  "SentWordCloud": "Sent word cloud in DMs!",
+  "WordCloudElem": "Word cloud for **%s**:",
+  "WordCloudDimensionsTooLow": "The minimum size of a word cloud is 1x1!",
+  "WordCloudDimensionsTooHigh": "The maximum size of a word cloud is 4096x4096!",
 
   "$schema": "../schema.json"
 }
