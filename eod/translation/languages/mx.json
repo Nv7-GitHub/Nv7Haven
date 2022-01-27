@@ -193,6 +193,7 @@
   
   "MustHaveElemOrID": "¡Debes entrar un elemento o el ID de un elemento!",
   "CannotHaveBothElemAndID": "¡No puedes entrar un elemento y el ID de un elemento al mismo tiempo!",
+  "CalculatingPing": "Calculando...",
 
   "$schema": "../schema.json"
 }
