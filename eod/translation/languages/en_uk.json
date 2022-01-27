@@ -195,6 +195,9 @@
 
   "MustHaveElemOrID": "You must input an element or an element's ID!",
   "CannotHaveBothElemAndID": "You can't input both an element and an element's ID!",
+  "IDCannotBeNegative": "Element ID can't be negative!",
+  "ComboNoExist": "Combo doesn't exist!",
+  "PollNoExist": "Poll doesn't exist!",
   "CalculatingPing": "Calculating...",
 
   "$schema": "../schema.json"
