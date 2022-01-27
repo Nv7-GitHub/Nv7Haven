@@ -203,7 +203,7 @@
   "SentWordCloud": "Sent word cloud in DMs!",
   "WordCloudElem": "Word cloud for **%s**:",
   "WordCloudDimensionsTooLow": "The minimum size of a word cloud is 1x1!",
-  "WordCloudDimensionsTooHigh": "The maximum size of a word cloud is 2048x2048!",
+  "WordCloudDimensionsTooHigh": "The maximum size of a word cloud is 4096x4096!",
 
   "$schema": "../schema.json"
 }
