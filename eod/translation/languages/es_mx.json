@@ -156,6 +156,8 @@
   "OldColor": "Antiguo Color: %s",
   "PollCreatorText": "Sugerido por <@%s>",
   
+  "NewElemNews": "Elemento - **%s** (Por <@%s>) - Elemento **#%s**",
+  "NewComboNews": "Combinación - **%s** (Por <@%s>) - Combinación **#%s**",
   "SignedElemNews": "📝 Firmado - **%s** (Por <@%s>)",
   "AddedImageNews": "📸 Imagen Añadida - **%s** (Por <@%s>)",
   "ChangedImageNews": "📸 Imagen Cambiada - **%s** (Por <@%s>)",
