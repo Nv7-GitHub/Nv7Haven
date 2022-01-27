@@ -56,12 +56,6 @@ func (b *Elements) SuggestCmd(suggestion string, autocapitalize bool, m types.Ms
 		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("ElemNameMaxLength"), maxSuggestionLength))
 		return
 	}
-	for _, name := range invalidNames {
-		if strings.Contains(suggestion, name) {
-			rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("ElemNameForbiddenChar"), name))
-			return
-		}
-	}
 
 	// Clean up suggestions with weird quotes
 	cleaned := []rune(suggestion)
@@ -74,6 +68,13 @@ func (b *Elements) SuggestCmd(suggestion string, autocapitalize bool, m types.Ms
 	suggestion = string(cleaned)
 	for _, val := range remove {
 		suggestion = strings.ReplaceAll(suggestion, val, "")
+	}
+
+	for _, name := range invalidNames {
+		if strings.Contains(suggestion, name) {
+			rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("ElemNameForbiddenChar"), name))
+			return
+		}
 	}
 
 	suggestion = strings.TrimSpace(suggestion)

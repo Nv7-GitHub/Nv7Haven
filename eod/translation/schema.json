@@ -130,7 +130,7 @@
       "type": "string",
       "description": "Tell the user the elements were categorized and were suggested to be categorized."
     },
-    "Uncategorized": {
+    "UnCategorized": {
       "type": "string",
       "description": "Tell the user the elements were un-categorized."
     },
@@ -174,7 +174,7 @@
       "type": "string",
       "description": "Tell the user the chosen sort is not valid in the current context."
     },
-    "AllCats": {
+    "AllCategories": {
       "type": "string",
       "description": "The title of the embed shown when listing all categories using /cat without a specified category."
     },
@@ -188,11 +188,11 @@
     },
     "SuggestIdea": {
       "type": "string",
-      "description": "Tell the user they can suggest a result for the generated combo."
+      "description": "Tells the user they can suggest a result for the generated combo."
     },
     "YourAIIdea": {
       "type": "string",
-      "description": "Tell the user what their AI generated combo is."
+      "description": "Tells the user what their AI generated combo is."
     },
     "ElemFound": {
       "type": "string",
@@ -200,7 +200,7 @@
     },
     "NewHint": {
       "type": "string",
-      "description": "The nessage in the New Hint button."
+      "description": "The message in the New Hint button."
     },
     "InvHintNoElem": {
       "type": "string",
@@ -220,7 +220,7 @@
     },
     "HintCountNoHasElem": {
       "type": "string",
-      "description": "The footer of the hint embed saying how many combos are in the hint and that the user does not have the element."
+      "description": "The footer of the hint embed saying how many combos are in the hint and that the user does not have the element"
     },
     "ElemSort": {
       "type": "string",
@@ -232,7 +232,7 @@
     },
     "InfoCollapse": {
       "type": "string",
-      "description": "The message in the Collapse button."
+      "description": "The message in the Collapse buton."
     },
     "InfoAdditionalElemCats": {
       "type": "string",
@@ -452,15 +452,15 @@
     },
     "NameNotationElem": {
       "type": "string",
-      "description": "Tells the user the which element the notation is for."
+      "description": "Tells the user which element the notation is for."
     },
     "NameNotationCat": {
       "type": "string",
-      "description": "Tells the user the which category the notation is for."
+      "description": "Tells the user which category the notation is for."
     },
     "SentPathToDMs": {
       "type": "string",
-      "description": "Tells the user the path was sent to their DMs."
+      "description": "Tells the user the path as sent to their DMs."
     },
     "PathTooLong": {
       "type": "string",
@@ -468,11 +468,11 @@
     },
     "NamePathElem": {
       "type": "string",
-      "description": "Tells the user the which element the path is for."
+      "description": "Tells the user which element the path is for."
     },
     "NamePathCat": {
       "type": "string",
-      "description": "Tells the user the which category the path is for."
+      "description": "Tells the user which category the path is for."
     },
     "NewElemPoll": {
       "type": "string",
@@ -553,6 +553,14 @@
     "PollCreatorText": {
       "type": "string",
       "description": "The line denoting the suggester of polls."
+    },
+    "NewElemNews": {
+      "type": "string",
+      "description": "The news message for when a new element is created."
+    },
+    "NewComboNews": {
+      "type": "string",
+      "description": "The news message for when a new combination for an element is created."
     },
     "SignedElemNews": {
       "type": "string",
@@ -685,6 +693,10 @@
     "CannotHaveBothElemAndID": {
       "type": "string",
       "description": "Tell the user that they cannot input both an element and an element ID."
+    },
+    "CalculatingPing": {
+      "type": "string",
+      "description": "Tell the user that the bot is calculating the ping."
     }
   }
 }
