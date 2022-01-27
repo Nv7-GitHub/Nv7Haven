@@ -698,7 +698,7 @@
       "type": "string",
       "description": "Tell the user their element ID cannot be negative."
     },
-    "ComboNoExist": {
+    "DBNoCombo": {
       "type": "string",
       "description": "Tell the user the combo doesn't exist."
     },

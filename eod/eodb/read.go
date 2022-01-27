@@ -75,7 +75,7 @@ func (d *DB) GetCombo(elems []int) (int, types.GetResponse) {
 	if !exists {
 		return 0, types.GetResponse{
 			Exists:  false,
-			Message: d.Config.LangProperty("ComboNoExist"),
+			Message: d.Config.LangProperty("DBNoCombo"),
 		}
 	}
 	return res, types.GetResponse{Exists: true}
