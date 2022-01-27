@@ -35,7 +35,7 @@
   "CategorizeMultSuggestCategorized": "Tell the user the elements were categorized and one was suggested to be categorized.",
   "CategorizeMultSuggestCategorizedMult": "Tell the user the elements were categorized and were suggested to be categorized.",
 
-  "Uncategorized": "Tell the user the elements were un-categorized.",
+  "UnCategorized": "Tell the user the elements were un-categorized.",
   "SuggestUnCategorized": "Tell the user the element was suggested to be un-categorized.",
   "SuggestUnCategorizedMult": "Tell the user the elements were suggested to be un-categorized.",
   "UnCategorizeMultSuggestUnCategorized": "Tell the user the elements were un-categorized and one was suggested to be un-categorized.",
@@ -44,11 +44,11 @@
   "Stats": "The stats message.",
   "ViewMoreStats": "The message in the View More Stats button.",
   
-  "ElemCats": "The title of the /get categories embed.",
+  "ElemCategories": "The title of the /get categories embed.",
   "NameDownloadedCat": "Tell the user which category they downloaded.",
   "CatSentToDMs": "Tell the user that the category was sent to their DMs.",
   "InvalidSort": "Tell the user the chosen sort is not valid in the current context.",
-  "AllCats": "The title of the embed shown when listing all categories using /cat without a specified category.",
+  "AllCategories": "The title of the embed shown when listing all categories using /cat without a specified category.",
   
     
   "NewAIIdea": "The message in the New AI Generated Idea button.",
