@@ -203,7 +203,7 @@
   "SentWordCloud": "Ipinadala ang word cloud sa DMs!",
   "WordCloudElem": "Ang word cloud para sa **%s**:",
   "WordCloudDimensionsTooLow": "Ang pinakamababang sukat ng word cloud ay 1x1!",
-  "WordCloudDimensionsTooHigh": "Ang pinakamalaking sukat ng word cloud ay 2048x2048!",
+  "WordCloudDimensionsTooHigh": "Ang pinakamalaking sukat ng word cloud ay 4096x4096!",
   
   "$schema": "../schema.json"
 }
