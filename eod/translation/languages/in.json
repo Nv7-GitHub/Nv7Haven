@@ -205,6 +205,5 @@
   "WordCloudDimensionsTooLow": "Besar minimum sebuah awan kata adalah 1x1!",
   "WordCloudDimensionsTooHigh": "Besar maksimal sebuah awan kata adalah 4096x4096!",
 
-
   "$schema": "../schema.json"
 }
