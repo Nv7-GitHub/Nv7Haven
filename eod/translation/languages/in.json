@@ -193,6 +193,16 @@
 
   "MustHaveElemOrID": "Anda harus memasukan sebuah elemen atau ID sebuah elemen!",
   "CannotHaveBothElemAndID": "Anda tidak dapat memasukkan sebuah elemen dan ID sebuah elemen bersamaan!",
+  "IDCannotBeNegative": "ID Elemen tidak boleh negatif!",
+  "DBNoCombo": "Kombinasi tidak nyata!",
+  "PollNoExist": "Saranan tidak nyata!",
+  "CalculatingPing": "Dikalkulasikan...",
+
+  "SentWordCloud": "Dikirim awan kata ke DM!",
+  "WordCloudElem": "Awan kata untuk **%s**:",
+  "WordCloudDimensionsTooLow": "Besar minimum sebuah awan kata adalah 1x1!",
+  "WordCloudDimensionsTooHigh": "Besar maksimal sebuah awan kata adalah 4096x4096!",
+
 
   "$schema": "../schema.json"
 }
