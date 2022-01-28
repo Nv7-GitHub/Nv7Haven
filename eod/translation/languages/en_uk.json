@@ -166,7 +166,7 @@
   "RejectedPollDM": "Your poll in **%s** was rejected with **%d upvote(s)** and **%d downvote(s)**.\n\n**Your Poll**:",
   "AddCatNews": "🗃️ Added **%s** to **%s** (By <@%s>)",
   "AddCatMultNews": "🗃️ Added **%d elements** to **%s** (By <@%s>)",
-  "RmCatNews": "🗃️ Removed **%s** to **%s** (By <@%s>)",
+  "RmCatNews": "🗃️ Removed **%s** from **%s** (By <@%s>)",
   "RmCatMultNews": "🗃️ Removed **%d elements** from **%s** (By <@%s>)",
   "ResetCatColorNews": "Reset Category Colour - **%s** (By <@%s>)",
   "SetCatColorNews": "Set Category Colour - **%s** (By <@%s>)",
