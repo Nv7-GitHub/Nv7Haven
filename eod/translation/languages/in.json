@@ -156,8 +156,8 @@
   "OldColor": "Warna Lama: %s",
   "PollCreatorText": "Disarankan oleh: <@%s>",
 
-  "NewComboNews": "🆕 Kombinasi Baru - **%s** (Oleh <@%s>)",
-  "NewElemNews": "🆕 Elemen - **%s** (Oleh <@%s>)",
+  "NewComboNews": "Kombinasi Baru - **%s** (Oleh <@%s>) - Kombinasi ke **#%s**",
+  "NewElemNews": "Elemen Baru - **%s** (Oleh <@%s>) - Elemen ke **#%s**",
   "SignedElemNews": "📝 Tertulis - **%s** (Oleh <@%s>)",
   "AddedImageNews": "📸 Ditambahkan Gambar - **%s** (Oleh <@%s>)",
   "ChangedImageNews": "📸 Ubah Gambar - **%s** (Oleh <@%s>)",
