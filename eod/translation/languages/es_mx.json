@@ -199,6 +199,11 @@
   "DBNoCombo": "¡La combinación no existe!",
   "PollNoExist": "¡La votación no existe!",
   "CalculatingPing": "Calculando...",
+  
+  "SentWordCloud": "¡Se ha mandado la nube de palabras en mensaje privado!",
+  "WordCloudElem": "Nube de palabras para **%s**:",
+  "WordCloudDimensionsTooLow": "¡El tamaño mínimo de una nube de palabras es 1x1!",
+  "WordCloudDimensionsTooHigh": "¡El tamaño máximo de una nube de palabras es 4096x4096!",
 
   "$schema": "../schema.json"
 }
