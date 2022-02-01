@@ -53,6 +53,7 @@ type ServerConfig struct {
 	ModRole       string    // role ID
 	PlayChannels  Container // channelID
 	LanguageFile  string
+	SwearFilter   bool
 }
 
 type ServerData struct {
@@ -263,6 +264,7 @@ func NewServerConfig() *ServerConfig {
 		UserColors:   make(map[string]int),
 		PlayChannels: make(Container),
 		LanguageFile: translation.DefaultLang,
+		SwearFilter:  true,
 	}
 }
 

@@ -125,6 +125,19 @@ var (
 						},
 					},
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "filter",
+					Description: "Enable or disable the swear filter!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionBoolean,
+							Name:        "enable",
+							Description: "Should the swear filter be enabled?",
+							Required:    true,
+						},
+					},
+				},
 			},
 		},
 		{
@@ -1289,6 +1302,8 @@ var (
 				bot.basecmds.SetModRole(resp.Options[0].RoleValue(bot.dg, i.GuildID).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 			case "language":
 				bot.basecmds.SetLanguage(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			case "filter":
+				bot.basecmds.SetFilter(resp.Options[0].BoolValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 			case "playchannel":
 				isPlayChannel := true
 				if len(resp.Options) > 1 {

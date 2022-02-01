@@ -24,6 +24,8 @@
   "Language": "Tell the user the server language was set.",
   "PlayChannelNew": "Tell the user a channel was marked as a play channel",
   "PlayChannelRemove": "Tell the user a channel was marked as not being a play channel",
+  "EnableFilter": "Tell the user the swear filter was enabled.",
+  "DisableFilter": "Tell the user the swear filter was disabled.",
 
   "CatNameBlank": "Tell the user the category name can't be blank.",
   "CatNameTooLong": "Tell the user the category name is too long.",
@@ -109,6 +111,7 @@
   "NoSuggestElemName": "Tells the user that their suggestion cannot be empty.",
   "MustSuggestInPlayChannel": "Tells the user that they can only suggest in play channels.",
   "ComboHasResult": "Tells the user that the combo they are trying to suggest a result for already has a result.",
+  "NoInappropriateSuggest": "Tell the user that inappropriate suggestions are not allowed.",
   "SuggestedElem": "Tells the user what combo they just suggested.",
   
   "BreakdownTitle": "The title of the breakdown embed.",

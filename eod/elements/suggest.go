@@ -7,6 +7,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
+	"github.com/finnbear/moderation"
 )
 
 var invalidNames = []string{
@@ -104,6 +105,12 @@ func (b *Elements) SuggestCmd(suggestion string, autocapitalize bool, m types.Ms
 	_, res = db.GetCombo(comb.Elems)
 	if res.Exists {
 		rsp.ErrorMessage(db.Config.LangProperty("ComboHasResult"))
+		return
+	}
+
+	// Swear filter (if enabled by server)
+	if moderation.IsInappropriate(suggestion) && db.Config.SwearFilter == true {
+		rsp.ErrorMessage(db.Config.LangProperty("NoInappropriateSuggest"))
 		return
 	}
 

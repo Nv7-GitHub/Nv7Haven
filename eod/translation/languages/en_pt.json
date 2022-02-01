@@ -24,6 +24,8 @@
     "HexMustBe6": "HECS color sit vi says!",
     "UserColor": "The color is established correct!",
     "Language": "Do you have a successful language?",
+    "EnableFilter": "Successful filter is successful!",
+    "DisableFilter": "NZA then sukases!",
   
     "CatNameBlank": "You can not empty the name of the category!",
     "CatNameTooLong": "The name of the year's anniversary is very long!",
@@ -109,6 +111,7 @@
     "NoSuggestElemName": "You should offer something!",
     "MustSuggestInPlayChannel": "You can only make a suggestion in game lines!",
     "ComboHasResult": "What combo is a result?",
+    "NoInappropriateSuggest": "There is no suitable suggestion!",
     "SuggestedElem": "Required %s",
     
     "BreakdownTitle": "%s Fast (%d)",

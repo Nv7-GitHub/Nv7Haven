@@ -24,6 +24,8 @@
   "HexMustBe6": "A hex cowow must be 6 chawactews wong!",
   "UserColor": "Successfuwwy set cowow!",
   "Language": "Successfuwwy updated wanguage!",
+  "EnableFilter": "Successfuwwy enyabowed sweaw fiwtew!",
+  "DisableFilter": "Successfuwwy disabowed sweaw fiwtew!",
 
   "CatNameBlank": "Categowy nyame can't be bwank!",
   "CatNameTooLong": "Categowy nyame is too wong!",
@@ -109,6 +111,7 @@
   "NoSuggestElemName": "You nyeed to suggest something!",
   "MustSuggestInPlayChannel": "You can onwy suggest in pway channyews!",
   "ComboHasResult": "That combo awweady has a wesuwt!",
+  "NoInappropriateSuggest": "Nyo inyappwopwiate suggestions awe awwowed!",
   "SuggestedElem": "Suggested %s",
   
   "BreakdownTitle": "%s Bweakdown (%d)",

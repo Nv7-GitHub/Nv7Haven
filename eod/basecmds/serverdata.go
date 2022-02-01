@@ -192,3 +192,28 @@ func (b *BaseCmds) SetLanguage(lang string, msg types.Msg, rsp types.Rsp) {
 
 	rsp.Message(db.Config.LangProperty("Language"))
 }
+
+func (b *BaseCmds) SetFilter(enableFilter bool, msg types.Msg, rsp types.Rsp) {
+	db, res := b.GetDB(msg.GuildID)
+	if !res.Exists {
+		var err error
+		db, err = b.NewDB(msg.GuildID)
+		if rsp.Error(err) {
+			return
+		}
+	}
+	db.Config.Lock()
+	db.Config.SwearFilter = enableFilter
+	db.Config.Unlock()
+
+	err := db.SaveConfig()
+	if rsp.Error(err) {
+		return
+	}
+
+	if enableFilter {
+		rsp.Message(db.Config.LangProperty("EnableFilter"))
+	} else {
+		rsp.Message(db.Config.LangProperty("DisableFilter"))
+	}
+}

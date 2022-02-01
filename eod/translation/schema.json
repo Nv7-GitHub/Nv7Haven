@@ -94,6 +94,14 @@
       "type": "string",
       "description": "Tell the user a channel was marked as not being a play channel"
     },
+    "EnableFilter": {
+      "type": "string",
+      "description": "Tell the user the swear filter was enabled."
+    },
+    "DisableFilter": {
+      "type": "string",
+      "description": "Tell the user the swear filter was disabled."
+    },
     "CatNameBlank": {
       "type": "string",
       "description": "Tell the user the category name can't be blank."
@@ -393,6 +401,10 @@
     "ComboHasResult": {
       "type": "string",
       "description": "Tells the user that the combo they are trying to suggest a result for already has a result."
+    },
+    "NoInappropriateSuggest": {
+      "type": "string",
+      "description": "Tell the user that inappropriate suggestions are not allowed."
     },
     "SuggestedElem": {
       "type": "string",

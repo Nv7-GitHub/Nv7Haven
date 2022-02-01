@@ -24,6 +24,8 @@
   "HexMustBe6": "A hex colour must be 6 characters long!",
   "UserColor": "Successfully set colour!",
   "Language": "Successfully updated language!",
+  "EnableFilter": "Successfully enabled swear filter!",
+  "DisableFilter": "Successfully disabled swear filter!",
 
   "CatNameBlank": "Category name can't be blank!",
   "CatNameTooLong": "Category name is too long!",
@@ -109,6 +111,7 @@
   "NoSuggestElemName": "You need to suggest something!",
   "MustSuggestInPlayChannel": "You can only suggest in play channels!",
   "ComboHasResult": "That combo already has a result!",
+  "NoInappropriateSuggest": "No inappropriate suggestions are allowed!",
   "SuggestedElem": "Suggested %s",
   
   "BreakdownTitle": "%s Breakdown (%d)",
