@@ -162,7 +162,7 @@ func (e *Elemental) NewSugg(_ context.Context, req *pb.NewSuggestionRequest) (*p
 // NewSuggestion makes a new suggestion
 func (e *Elemental) NewSuggestion(elem1, elem2 string, suggestion *pb.Suggestion) (bool, error) {
 	if moderation.IsInappropriate(suggestion.Name) {
-		return false, errors.New("no innapropriate suggestions are allowed")
+		return false, errors.New("no inappropriate suggestions are allowed")
 	}
 
 	voted, _ := json.Marshal(suggestion.Voted)
