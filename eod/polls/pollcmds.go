@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/finnbear/moderation"
 )
 
 func (b *Polls) MarkCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
@@ -32,6 +33,10 @@ func (b *Polls) MarkCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
 	}
 	if len(mark) == 0 {
 		mark = db.Config.LangProperty("DefaultMark")
+	}
+	if moderation.IsInappropriate(mark) && db.Config.SwearFilter {
+		rsp.ErrorMessage(db.Config.LangProperty("NoInappropriateSuggest"))
+		return
 	}
 
 	if el.Creator == m.Author.ID {

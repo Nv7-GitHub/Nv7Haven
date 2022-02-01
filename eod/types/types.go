@@ -264,7 +264,7 @@ func NewServerConfig() *ServerConfig {
 		UserColors:   make(map[string]int),
 		PlayChannels: make(Container),
 		LanguageFile: translation.DefaultLang,
-		SwearFilter:  true,
+		SwearFilter:  false,
 	}
 }
 
