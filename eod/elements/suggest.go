@@ -107,7 +107,7 @@ func (b *Elements) SuggestCmd(suggestion string, autocapitalize bool, m types.Ms
 		return
 	}
 
-	// Swear filter (if enabled by server)
+	// Offensive language filter (if enabled by server)
 	if moderation.Scan(suggestion).Is(moderation.Offensive) && db.Config.SwearFilter {
 		rsp.ErrorMessage(db.Config.LangProperty("NoInappropriateSuggest"))
 		return
