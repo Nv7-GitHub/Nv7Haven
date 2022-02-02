@@ -34,7 +34,7 @@ func (b *Polls) MarkCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
 	if len(mark) == 0 {
 		mark = db.Config.LangProperty("DefaultMark")
 	}
-	if moderation.IsInappropriate(mark) && db.Config.SwearFilter {
+	if moderation.Scan(mark).Is(moderation.Offensive) && db.Config.SwearFilter {
 		rsp.ErrorMessage(db.Config.LangProperty("NoInappropriateSuggest"))
 		return
 	}

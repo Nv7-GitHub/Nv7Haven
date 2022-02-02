@@ -128,12 +128,12 @@ var (
 				{
 					Type:        discordgo.ApplicationCommandOptionSubCommand,
 					Name:        "filter",
-					Description: "Enable or disable the swear filter!",
+					Description: "Enable or disable the offensive language filter!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
 							Type:        discordgo.ApplicationCommandOptionBoolean,
 							Name:        "enable",
-							Description: "Should the swear filter be enabled?",
+							Description: "Should the offensive language filter be enabled?",
 							Required:    true,
 						},
 					},
