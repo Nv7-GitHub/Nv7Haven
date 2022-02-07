@@ -2035,6 +2035,70 @@ var (
 				},
 			})
 		},
+		"mark": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData().Options[0]
+			// autocomplete element names
+			names, res := bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[0].StringValue())
+			if !res.Exists {
+				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
+		"image": catChangeAutocomplete,
+		"hint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData().Options[0]
+			// autocomplete element names
+			names, res := bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[0].StringValue())
+			if !res.Exists {
+				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
+		"give":      catChangeAutocomplete,
+		"path":      catChangeAutocomplete,
+		"idea":      catChangeAutocomplete,
+		"breakdown": catChangeAutocomplete,
+		"graph": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData().Options[0]
+			// autocomplete element names
+			names, res := bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[0].StringValue())
+			if !res.Exists {
+				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
+		"invhint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData().Options[0]
+			// autocomplete element names
+			names, res := bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[0].StringValue())
+			if !res.Exists {
+				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
+		"notation":  catChangeAutocomplete,
+		"color":     catChangeAutocomplete,
+		"wordcloud": catChangeAutocomplete,
 		"cat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			data := i.ApplicationCommandData()
 
