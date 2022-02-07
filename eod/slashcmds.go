@@ -152,10 +152,11 @@ var (
 			Description: "Suggest a mark, or add a mark to an element you created!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "element",
-					Description: "The name of the element to add a mark to!",
-					Required:    true,
+					Type:         discordgo.ApplicationCommandOptionString,
+					Name:         "element",
+					Description:  "The name of the element to add a mark to!",
+					Required:     true,
+					Autocomplete: true,
 				},
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
@@ -176,10 +177,11 @@ var (
 					Description: "Suggest an image for an element, or add an image to an element you created!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "element",
-							Description: "The name of the element to add the image to!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "element",
+							Description:  "The name of the element to add the image to!",
+							Required:     true,
+							Autocomplete: true,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionString,
@@ -195,10 +197,11 @@ var (
 					Description: "Add an image to a category!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "category",
-							Description: "The name of the category to add the image to!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "category",
+							Description:  "The name of the category to add the image to!",
+							Required:     true,
+							Autocomplete: true,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionString,
@@ -417,10 +420,11 @@ var (
 			Description: "Get a hint on an element!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "element",
-					Description: "Name of the element!",
-					Required:    false,
+					Type:         discordgo.ApplicationCommandOptionString,
+					Name:         "element",
+					Description:  "Name of the element!",
+					Required:     false,
+					Autocomplete: true,
 				},
 			},
 		},
@@ -453,10 +457,11 @@ var (
 					Description: "Give a user an element, and choose whether to give all the elements required to make that element!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "element",
-							Description: "Name of the element!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "element",
+							Description:  "Name of the element!",
+							Required:     true,
+							Autocomplete: true,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionBoolean,
@@ -478,10 +483,11 @@ var (
 					Description: "Give a user all the elements in a category, and optionally give the tree!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "category",
-							Description: "Name of the category!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "category",
+							Description:  "Name of the category!",
+							Required:     true,
+							Autocomplete: true,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionBoolean,
@@ -523,10 +529,11 @@ var (
 					Description: "Calculate the path of an element!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "element",
-							Description: "Name of the element!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "element",
+							Description:  "Name of the element!",
+							Required:     true,
+							Autocomplete: true,
 						},
 					},
 				},
@@ -536,10 +543,11 @@ var (
 					Description: "Calculate the path of a category!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "category",
-							Description: "Name of the category!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "category",
+							Description:  "Name of the category!",
+							Required:     true,
+							Autocomplete: true,
 						},
 					},
 				},
@@ -631,16 +639,18 @@ var (
 					Required:    false,
 				},
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "category",
-					Description: "Use a category for the elements to choose from!",
-					Required:    false,
+					Type:         discordgo.ApplicationCommandOptionString,
+					Name:         "category",
+					Description:  "Use a category for the elements to choose from!",
+					Required:     false,
+					Autocomplete: true,
 				},
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "element",
-					Description: "Require an element to be in the idea!",
-					Required:    false,
+					Type:         discordgo.ApplicationCommandOptionString,
+					Name:         "element",
+					Description:  "Require an element to be in the idea!",
+					Required:     false,
+					Autocomplete: true,
 				},
 			},
 		},
@@ -703,10 +713,11 @@ var (
 					Description: "Download a category!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "category",
-							Description: "Which category to download!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "category",
+							Description:  "Which category to download!",
+							Required:     true,
+							Autocomplete: true,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionString,
@@ -736,10 +747,11 @@ var (
 					Description: "Get an element's breakdown!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "element",
-							Description: "Name of the element!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "element",
+							Description:  "Name of the element!",
+							Required:     true,
+							Autocomplete: true,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionBoolean,
@@ -755,10 +767,11 @@ var (
 					Description: "Get the breakdown of a category!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "category",
-							Description: "Name of the category!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "category",
+							Description:  "Name of the category!",
+							Required:     true,
+							Autocomplete: true,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionBoolean,
@@ -800,10 +813,11 @@ var (
 					Description: "Create a graph of an element's tree!",
 					Options: append([]*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "element",
-							Description: "Name of the element!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "element",
+							Description:  "Name of the element!",
+							Required:     true,
+							Autocomplete: true,
 						},
 					}, trees.GraphOpts...),
 				},
@@ -813,10 +827,11 @@ var (
 					Description: "Create a graph of an element's tree!",
 					Options: append([]*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "category",
-							Description: "Name of the category!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "category",
+							Description:  "Name of the category!",
+							Required:     true,
+							Autocomplete: true,
 						},
 					}, trees.GraphOpts...),
 				},
@@ -896,10 +911,11 @@ var (
 			Description: "Get the inverse hint of an element!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "element",
-					Description: "Name of the element!",
-					Required:    true,
+					Type:         discordgo.ApplicationCommandOptionString,
+					Name:         "element",
+					Description:  "Name of the element!",
+					Required:     true,
+					Autocomplete: true,
 				},
 			},
 		},
@@ -990,10 +1006,11 @@ var (
 							Required:    true,
 						},
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "category",
-							Description: "The category to search in!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "category",
+							Description:  "The category to search in!",
+							Required:     true,
+							Autocomplete: true,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionString,
@@ -1064,10 +1081,11 @@ var (
 					Description: "Calculate the notation of an element!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "element",
-							Description: "Name of the element!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "element",
+							Description:  "Name of the element!",
+							Required:     true,
+							Autocomplete: true,
 						},
 					},
 				},
@@ -1077,10 +1095,11 @@ var (
 					Description: "Calculate the notation of a category!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "category",
-							Description: "Name of the category!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "category",
+							Description:  "Name of the category!",
+							Required:     true,
+							Autocomplete: true,
 						},
 					},
 				},
@@ -1097,10 +1116,11 @@ var (
 					Description: "Suggest the color for an element, or set the color of an element you created!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "element",
-							Description: "The name of the element to set the color of!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "element",
+							Description:  "The name of the element to set the color of!",
+							Required:     true,
+							Autocomplete: true,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionString,
@@ -1116,10 +1136,11 @@ var (
 					Description: "Set the color of a category!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "category",
-							Description: "The name of the category to set the color of!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "category",
+							Description:  "The name of the category to set the color of!",
+							Required:     true,
+							Autocomplete: true,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionString,
@@ -1183,10 +1204,11 @@ var (
 					Description: "Get the word cloud of an element!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "element",
-							Description: "The name of the element to get the word cloud of!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "element",
+							Description:  "The name of the element to get the word cloud of!",
+							Required:     true,
+							Autocomplete: true,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionBoolean,
@@ -1214,10 +1236,11 @@ var (
 					Description: "Get the word cloud of a category!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "category",
-							Description: "The name of the category to get the word cloud of!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "category",
+							Description:  "The name of the category to get the word cloud of!",
+							Required:     true,
+							Autocomplete: true,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionBoolean,
