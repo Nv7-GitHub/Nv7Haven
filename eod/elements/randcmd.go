@@ -65,7 +65,7 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 	}
 
 	if count < 2 {
-		return db.Config.LangProperty("MustCombine"), false
+		return fmt.Sprintf(db.Config.LangProperty("MustCombine"), 2), false
 	}
 	inv := db.GetInv(author)
 
