@@ -1,7 +1,6 @@
 package eodb
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -19,7 +18,7 @@ func (d *DB) GetElementByName(name string, nolock ...bool) (types.Element, types
 	if !exists {
 		return types.Element{}, types.GetResponse{
 			Exists:  false,
-			Message: fmt.Sprintf(d.Config.LangProperty("DoesntExist"), name),
+			Message: d.Config.LangProperty("DoesntExist", name),
 		}
 	}
 	return d.Elements[id-1], types.GetResponse{Exists: true}
@@ -33,7 +32,7 @@ func (d *DB) GetIDByName(name string) (int, types.GetResponse) {
 	if !exists {
 		return 0, types.GetResponse{
 			Exists:  false,
-			Message: fmt.Sprintf(d.Config.LangProperty("DoesntExist"), name),
+			Message: d.Config.LangProperty("DoesntExist", name),
 		}
 	}
 	return id, types.GetResponse{Exists: true}
@@ -49,18 +48,18 @@ func (d *DB) GetElement(id int, nolock ...bool) (types.Element, types.GetRespons
 		if id == 0 {
 			return types.Element{}, types.GetResponse{
 				Exists:  false,
-				Message: fmt.Sprintf(d.Config.LangProperty("DoesntExist"), "#0"),
+				Message: d.Config.LangProperty("DoesntExist", "#0"),
 			}
 		}
 		return types.Element{}, types.GetResponse{
 			Exists:  false,
-			Message: d.Config.LangProperty("IDCannotBeNegative"),
+			Message: d.Config.LangProperty("IDCannotBeNegative", nil),
 		}
 	}
 	if id > len(d.Elements) {
 		return types.Element{}, types.GetResponse{
 			Exists:  false,
-			Message: fmt.Sprintf(d.Config.LangProperty("DoesntExist"), "#"+strconv.Itoa(id)),
+			Message: d.Config.LangProperty("DoesntExist", "#"+strconv.Itoa(id)),
 		}
 	}
 
@@ -75,7 +74,7 @@ func (d *DB) GetCombo(elems []int) (int, types.GetResponse) {
 	if !exists {
 		return 0, types.GetResponse{
 			Exists:  false,
-			Message: d.Config.LangProperty("DBNoCombo"),
+			Message: d.Config.LangProperty("DBNoCombo", nil),
 		}
 	}
 	return res, types.GetResponse{Exists: true}
@@ -108,7 +107,7 @@ func (d *DB) GetCat(name string) (*types.Category, types.GetResponse) {
 	if !exists {
 		return nil, types.GetResponse{
 			Exists:  false,
-			Message: fmt.Sprintf(d.Config.LangProperty("CatNoExist"), name),
+			Message: d.Config.LangProperty("CatNoExist", name),
 		}
 	}
 	return cat, types.GetResponse{Exists: true}
@@ -121,7 +120,7 @@ func (d *DB) GetPoll(id string) (types.Poll, types.GetResponse) {
 	if !exists {
 		return types.Poll{}, types.GetResponse{
 			Exists:  false,
-			Message: d.Config.LangProperty("PollNoExist"),
+			Message: d.Config.LangProperty("PollNoExist", nil),
 		}
 	}
 	return poll, types.GetResponse{Exists: true}
