@@ -26,39 +26,39 @@ func (b *Polls) GetPollEmbed(db *eodb.DB, p types.Poll) (*discordgo.MessageEmbed
 		txt = txt[:len(txt)-2]
 		txt += " = " + p.PollComboData.Result
 
-		title := db.Config.LangProperty("NewElemPoll")
+		title := db.Config.LangProperty("NewElemPoll", nil)
 		if p.PollComboData.Exists {
-			title = db.Config.LangProperty("NewComboPoll")
+			title = db.Config.LangProperty("NewComboPoll", nil)
 		}
 		return &discordgo.MessageEmbed{
 			Title:       title,
-			Description: txt + "\n\n" + fmt.Sprintf(db.Config.LangProperty("PollCreatorText"), p.Suggestor),
+			Description: txt + "\n\n" + db.Config.LangProperty("PollCreatorText", p.Suggestor),
 			Footer: &discordgo.MessageEmbedFooter{
-				Text: db.Config.LangProperty("PollFooter"),
+				Text: db.Config.LangProperty("PollFooter", nil),
 			},
 		}, nil
 
 	case types.PollSign:
 		el, _ := db.GetElement(p.PollSignData.Elem)
 		return &discordgo.MessageEmbed{
-			Title:       db.Config.LangProperty("NewMarkPoll"),
-			Description: fmt.Sprintf("**%s**\n%s\n\n%s\n\n", el.Name, fmt.Sprintf(db.Config.LangProperty("NewNote"), p.PollSignData.NewNote), fmt.Sprintf(db.Config.LangProperty("OldNote"), p.PollSignData.OldNote)) + fmt.Sprintf(db.Config.LangProperty("PollCreatorText"), p.Suggestor),
+			Title:       db.Config.LangProperty("NewMarkPoll", nil),
+			Description: fmt.Sprintf("**%s**\n%s\n\n%s\n\n", el.Name, db.Config.LangProperty("NewNote", p.PollSignData.NewNote), db.Config.LangProperty("OldNote", p.PollSignData.OldNote)+db.Config.LangProperty("PollCreatorText", p.Suggestor)),
 			Footer: &discordgo.MessageEmbedFooter{
-				Text: db.Config.LangProperty("PollFooter"),
+				Text: db.Config.LangProperty("PollFooter", nil),
 			},
 		}, nil
 
 	case types.PollImage:
 		el, _ := db.GetElement(p.PollImageData.Elem)
-		description := fmt.Sprintf("**%s**\n[%s](%s)\n[%s](%s)\n\n", el.Name, db.Config.LangProperty("NewImage"), p.PollImageData.NewImage, db.Config.LangProperty("OldImage"), p.PollImageData.OldImage) + fmt.Sprintf(db.Config.LangProperty("PollCreatorText"), p.Suggestor)
+		description := fmt.Sprintf("**%s**\n[%s](%s)\n[%s](%s)\n\n", el.Name, db.Config.LangProperty("NewImage", p.PollImageData.NewImage), p.PollCatImageData.NewImage, db.Config.LangProperty("OldImage", p.PollImageData.OldImage), p.PollCatImageData.OldImage) + db.Config.LangProperty("PollCreatorText", p.Suggestor)
 		if p.PollImageData.OldImage == "" {
-			description = fmt.Sprintf("**%s**\n[%s](%s)\n\n", el.Name, db.Config.LangProperty("NewImage"), p.PollImageData.NewImage) + fmt.Sprintf(db.Config.LangProperty("PollCreatorText"), p.Suggestor)
+			description = fmt.Sprintf("**%s**\n[%s](%s)\n\n", el.Name, db.Config.LangProperty("NewImage", nil), p.PollImageData.NewImage) + db.Config.LangProperty("PollCreatorText", p.Suggestor)
 		}
 		return &discordgo.MessageEmbed{
-			Title:       db.Config.LangProperty("ElemImagePoll"),
+			Title:       db.Config.LangProperty("ElemImagePoll", nil),
 			Description: description,
 			Footer: &discordgo.MessageEmbedFooter{
-				Text: db.Config.LangProperty("PollFooter"),
+				Text: db.Config.LangProperty("PollFooter", nil),
 			},
 			Thumbnail: &discordgo.MessageEmbedThumbnail{
 				URL: p.PollImageData.NewImage,
@@ -72,28 +72,28 @@ func (b *Polls) GetPollEmbed(db *eodb.DB, p types.Poll) (*discordgo.MessageEmbed
 			el, _ := db.GetElement(v)
 			names[i] = el.Name
 		}
-		name := db.Config.LangProperty("AddCatPoll")
+		name := db.Config.LangProperty("AddCatPoll", nil)
 		if p.Kind == types.PollUnCategorize {
-			name = db.Config.LangProperty("RmCatPoll")
+			name = db.Config.LangProperty("RmCatPoll", nil)
 		}
 		return &discordgo.MessageEmbed{
 			Title:       name,
-			Description: fmt.Sprintf("%s\n\n%s\n\n", fmt.Sprintf(db.Config.LangProperty("CatPollElems"), strings.Join(names, "\n")), fmt.Sprintf(db.Config.LangProperty("CatPollCat"), p.PollCategorizeData.Category)) + fmt.Sprintf(db.Config.LangProperty("PollCreatorText"), p.Suggestor),
+			Description: fmt.Sprintf("%s\n\n%s\n\n", db.Config.LangProperty("CatPollElems", strings.Join(names, "\n")), db.Config.LangProperty("CatPollCat", p.PollCategorizeData.Category)) + db.Config.LangProperty("PollCreatorText", p.Suggestor),
 			Footer: &discordgo.MessageEmbedFooter{
-				Text: db.Config.LangProperty("PollFooter"),
+				Text: db.Config.LangProperty("PollFooter", nil),
 			},
 		}, nil
 
 	case types.PollCatImage:
-		description := fmt.Sprintf("**%s**\n[%s](%s)\n[%s](%s)\n\n", p.PollCatImageData.Category, db.Config.LangProperty("NewImage"), p.PollCatImageData.NewImage, db.Config.LangProperty("OldImage"), p.PollCatImageData.OldImage) + fmt.Sprintf(db.Config.LangProperty("PollCreatorText"), p.Suggestor)
+		description := fmt.Sprintf("**%s**\n[%s](%s)\n[%s](%s)\n\n", p.PollCatImageData.Category, db.Config.LangProperty("NewImage", nil), p.PollCatImageData.NewImage, db.Config.LangProperty("OldImage", nil), p.PollCatImageData.OldImage) + db.Config.LangProperty("PollCreatorText", p.Suggestor)
 		if p.PollCatImageData.OldImage == "" {
-			description = fmt.Sprintf("**%s**\n[%s](%s)\n\n", p.PollCatImageData.Category, db.Config.LangProperty("NewImage"), p.PollCatImageData.NewImage) + fmt.Sprintf(db.Config.LangProperty("PollCreatorText"), p.Suggestor)
+			description = fmt.Sprintf("**%s**\n[%s](%s)\n\n", p.PollCatImageData.Category, db.Config.LangProperty("NewImage", nil), p.PollCatImageData.NewImage) + db.Config.LangProperty("PollCreatorText", p.Suggestor)
 		}
 		return &discordgo.MessageEmbed{
-			Title:       db.Config.LangProperty("CatImagePoll"),
+			Title:       db.Config.LangProperty("CatImagePoll", nil),
 			Description: description,
 			Footer: &discordgo.MessageEmbedFooter{
-				Text: db.Config.LangProperty("PollFooter"),
+				Text: db.Config.LangProperty("PollFooter", nil),
 			},
 			Thumbnail: &discordgo.MessageEmbedThumbnail{
 				URL: p.PollCatImageData.NewImage,
@@ -103,33 +103,33 @@ func (b *Polls) GetPollEmbed(db *eodb.DB, p types.Poll) (*discordgo.MessageEmbed
 	case types.PollColor:
 		el, _ := db.GetElement(p.PollColorData.Element)
 		return &discordgo.MessageEmbed{
-			Title:       db.Config.LangProperty("ElemColorPoll"),
-			Description: fmt.Sprintf("**%s**\n%s %s\n%s\n\n", el.Name, util.FormatHex(p.PollColorData.Color), db.Config.LangProperty("ShownOnLeft"), fmt.Sprintf(db.Config.LangProperty("OldColor"), util.FormatHex(p.PollColorData.OldColor))) + fmt.Sprintf(db.Config.LangProperty("PollCreatorText"), p.Suggestor),
+			Title:       db.Config.LangProperty("ElemColorPoll", nil),
+			Description: fmt.Sprintf("**%s**\n%s %s\n%s\n\n", el.Name, util.FormatHex(p.PollColorData.Color), db.Config.LangProperty("ShownOnLeft", nil), db.Config.LangProperty("OldColor", util.FormatHex(p.PollColorData.OldColor))) + db.Config.LangProperty("PollCreatorText", p.Suggestor),
 			Color:       p.PollColorData.Color,
 			Footer: &discordgo.MessageEmbedFooter{
-				Text: db.Config.LangProperty("PollFooter"),
+				Text: db.Config.LangProperty("PollFooter", nil),
 			},
 		}, nil
 
 	case types.PollCatColor:
 		emb := &discordgo.MessageEmbed{
-			Title:       db.Config.LangProperty("ResetCatColorPoll"),
-			Description: fmt.Sprintf("**%s**\n\n", p.PollCatColorData.Category) + fmt.Sprintf(db.Config.LangProperty("PollCreatorText"), p.Suggestor),
+			Title:       db.Config.LangProperty("ResetCatColorPoll", nil),
+			Description: fmt.Sprintf("**%s**\n\n", p.PollCatColorData.Category) + db.Config.LangProperty("PollCreatorText", p.Suggestor),
 			Footer: &discordgo.MessageEmbedFooter{
-				Text: db.Config.LangProperty("PollFooter"),
+				Text: db.Config.LangProperty("PollFooter", nil),
 			},
 		}
 		if p.PollCatColorData.Color != 0 {
-			txt := fmt.Sprintf("**%s**\n%s %s\n\n", p.PollCatColorData.Category, util.FormatHex(p.PollCatColorData.Color), db.Config.LangProperty("ShownOnLeft")) + fmt.Sprintf(db.Config.LangProperty("PollCreatorText"), p.Suggestor)
+			txt := fmt.Sprintf("**%s**\n%s %s\n\n", p.PollCatColorData.Category, util.FormatHex(p.PollCatColorData.Color), db.Config.LangProperty("ShownOnLeft", nil)) + db.Config.LangProperty("PollCreatorText", p.Suggestor)
 			if p.PollCatColorData.OldColor != 0 {
-				txt = fmt.Sprintf("**%s**\n%s %s\n%s\n\n", p.PollCatColorData.Category, util.FormatHex(p.PollCatColorData.Color), db.Config.LangProperty("ShownOnLeft"), fmt.Sprintf(db.Config.LangProperty("OldColor"), util.FormatHex(p.PollCatColorData.OldColor))) + fmt.Sprintf(db.Config.LangProperty("PollCreatorText"), p.Suggestor)
+				txt = fmt.Sprintf("**%s**\n%s %s\n%s\n\n", p.PollCatColorData.Category, util.FormatHex(p.PollCatColorData.Color), db.Config.LangProperty("ShownOnLeft", nil), db.Config.LangProperty("OldColor", util.FormatHex(p.PollCatColorData.OldColor))) + db.Config.LangProperty("PollCreatorText", p.Suggestor)
 			}
 			emb = &discordgo.MessageEmbed{
-				Title:       db.Config.LangProperty("SetCatColorPoll"),
+				Title:       db.Config.LangProperty("SetCatColorPoll", nil),
 				Description: txt,
 				Color:       p.PollCatColorData.Color,
 				Footer: &discordgo.MessageEmbedFooter{
-					Text: db.Config.LangProperty("PollFooter"),
+					Text: db.Config.LangProperty("PollFooter", nil),
 				},
 			}
 		}
