@@ -18,11 +18,12 @@ func (b *Polls) handlePollSuccess(p types.Poll) {
 	if controversial {
 		controversialTxt = " 🌩️"
 	}
-	lasted := fmt.Sprintf(db.Config.LangProperty("Lasted"), time.Since(p.CreatedOn.Time).String()) + " • "
+	lasted := fmt.Sprintf(db.Config.LangProperty("Lasted"), time.Since(p.CreatedOn.Time).Round(time.Second).String()) + " • "
+	fmt.Println(lasted)
 
 	switch p.Kind {
 	case types.PollCombo:
-		b.elemCreate(p.PollComboData.Result, p.PollComboData.Elems, p.Suggestor, controversialTxt, p.Guild, lasted)
+		b.elemCreate(p.PollComboData.Result, p.PollComboData.Elems, p.Suggestor, controversialTxt, lasted, p.Guild)
 	case types.PollSign:
 		b.mark(p.Guild, p.PollSignData.Elem, p.PollSignData.NewNote, p.Suggestor, controversialTxt, lasted, true)
 	case types.PollImage:
