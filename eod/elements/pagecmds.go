@@ -76,8 +76,12 @@ func (b *Elements) InvCmd(user string, m types.Msg, rsp types.Rsp, sorter string
 		name = u.Username
 	}
 	b.base.NewPageSwitcher(types.PageSwitcher{
-		Kind:       types.PageSwitchInv,
-		Title:      fmt.Sprintf(db.Config.LangProperty("UserInventory"), name, len(items), util.FormatFloat(float32(len(items))/float32(len(db.Elements))*100, 2)),
+		Kind: types.PageSwitchInv,
+		Title: fmt.Sprintf(db.Config.LangProperty("UserInventory", map[string]interface{}{
+			"Username": name,
+			"Count":    len(items),
+			"Percent":  util.FormatFloat(float32(len(items))/float32(len(db.Elements))*100, 2),
+		})),
 		PageGetter: b.base.InvPageGetter,
 		Items:      text,
 	}, m, rsp)
@@ -172,7 +176,7 @@ func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string)
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchLdb,
-		Title:      db.Config.LangProperty("LbTitleElem"),
+		Title:      db.Config.LangProperty("LbTitleElem", nil),
 		PageGetter: b.base.LbPageGetter,
 
 		User:    user,

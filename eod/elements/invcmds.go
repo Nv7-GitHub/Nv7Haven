@@ -1,7 +1,6 @@
 package elements
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
@@ -27,7 +26,7 @@ func (b *Elements) ResetInvCmd(user string, m types.Msg, rsp types.Rsp) {
 	if rsp.Error(err) {
 		return
 	}
-	rsp.Resp(fmt.Sprintf(db.Config.LangProperty("ResetUserInv"), user))
+	rsp.Resp(db.Config.LangProperty("ResetUserInv", user))
 }
 
 func (b *Elements) DownloadInvCmd(user string, sorter string, filter string, postfix bool, m types.Msg, rsp types.Rsp) {
@@ -100,7 +99,10 @@ func (b *Elements) DownloadInvCmd(user string, sorter string, filter string, pos
 	}
 
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: fmt.Sprintf(db.Config.LangProperty("DownloadedInvUserServer"), usr.Username, gld.Name),
+		Content: db.Config.LangProperty("DownloadedInvUserServer", map[string]interface{}{
+			"Username": usr.Username,
+			"Server":   gld.Name,
+		}),
 		Files: []*discordgo.File{
 			{
 				Name:        "inv.txt",
@@ -109,5 +111,5 @@ func (b *Elements) DownloadInvCmd(user string, sorter string, filter string, pos
 			},
 		},
 	})
-	rsp.Message(db.Config.LangProperty("SentInvToDMs"))
+	rsp.Message(db.Config.LangProperty("SentInvToDMs", nil))
 }
