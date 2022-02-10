@@ -183,6 +183,7 @@ type Poll struct {
 	Guild     string
 	Kind      PollType
 	Suggestor string
+	CreatedOn *TimeStamp
 
 	// Data, pointers to different types with omitempty so that you can selectively have some data
 	PollComboData      *PollComboData      `json:"combodata,omitempty"`
