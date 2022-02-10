@@ -33,11 +33,11 @@ func (b *BaseCmds) Combine(elems []string, m types.Msg, rsp types.Rsp) {
 	}
 	elems = validElems[:validCnt]
 	if len(elems) == 1 {
-		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("MustCombine"), 2))
+		rsp.ErrorMessage(db.Config.LangProperty("MustCombine", 2))
 		return
 	}
 	if len(elems) > types.MaxComboLength {
-		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("MaxCombine"), types.MaxComboLength))
+		rsp.ErrorMessage(db.Config.LangProperty("MaxCombine", types.MaxComboLength))
 		return
 	}
 
@@ -70,11 +70,11 @@ func (b *BaseCmds) Combine(elems []string, m types.Msg, rsp types.Rsp) {
 				el = k
 				break
 			}
-			rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DoesntExist"), el))
+			rsp.ErrorMessage(db.Config.LangProperty("DoesntExist", el))
 			return
 		}
 
-		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DoesntExistMultiple"), util.JoinTxt(notExists, db.Config.LangProperty("DoesntExistJoiner"))))
+		rsp.ErrorMessage(db.Config.LangProperty("DoesntExistMultiple", util.JoinTxt(notExists, db.Config.LangProperty("DoesntExistJoiner", nil))))
 		return
 	}
 	if donthave {
@@ -100,13 +100,13 @@ func (b *BaseCmds) Combine(elems []string, m types.Msg, rsp types.Rsp) {
 				el = k
 				break
 			}
-			id := rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DontHave"), el))
+			id := rsp.ErrorMessage(db.Config.LangProperty("DontHave", el))
 			elID, _ := db.GetIDByName(el[2 : len(el)-2])
 			data.SetMsgElem(id, elID)
 			return
 		}
 
-		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DontHaveMultiple"), util.JoinTxt(notFound, db.Config.LangProperty("DontHaveJoiner"))))
+		rsp.ErrorMessage(db.Config.LangProperty("DontHaveMultiple", util.JoinTxt(notFound, db.Config.LangProperty("DontHaveJoiner", nil))))
 		return
 	}
 
@@ -143,12 +143,12 @@ func (b *BaseCmds) Combine(elems []string, m types.Msg, rsp types.Rsp) {
 				return
 			}
 
-			id := rsp.Message(fmt.Sprintf(db.Config.LangProperty("YouMade"), el3.Name))
+			id := rsp.Message(db.Config.LangProperty("YouMade", el3.Name))
 			data.SetMsgElem(id, elem3)
 			return
 		}
 
-		id := rsp.Message(fmt.Sprintf(db.Config.LangProperty("YouHave"), el3.Name))
+		id := rsp.Message(fmt.Sprintf("YouHave", el3.Name))
 		data.SetMsgElem(id, elem3)
 		return
 	}
@@ -157,5 +157,5 @@ func (b *BaseCmds) Combine(elems []string, m types.Msg, rsp types.Rsp) {
 		Elems: ids,
 		Elem3: -1,
 	})
-	rsp.Resp(db.Config.LangProperty("ComboNoExist"))
+	rsp.Resp(db.Config.LangProperty("ComboNoExist", nil))
 }
