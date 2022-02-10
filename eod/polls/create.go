@@ -16,7 +16,7 @@ import (
 
 var createLock = &sync.Mutex{}
 
-func (b *Polls) elemCreate(name string, parents []int, creator string, controversial string, guild string) {
+func (b *Polls) elemCreate(name string, parents []int, creator string, controversial string, lasted string, guild string) {
 	db, res := b.GetDB(guild)
 	if !res.Exists {
 		return
@@ -131,7 +131,7 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 		}
 	}
 
-	txt := types.NewText + " " + fmt.Sprintf(text, name, creator, postID) + controversial
+	txt := types.NewText + " " + fmt.Sprintf(text, name, lasted, creator, postID) + controversial
 
 	_, _ = b.dg.ChannelMessageSend(db.Config.NewsChannel, txt)
 
