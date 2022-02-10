@@ -19,7 +19,6 @@ func (b *Polls) handlePollSuccess(p types.Poll) {
 		controversialTxt = " 🌩️"
 	}
 	lasted := fmt.Sprintf(db.Config.LangProperty("Lasted"), time.Since(p.CreatedOn.Time).Round(time.Second).String()) + " • "
-	fmt.Println(lasted)
 
 	switch p.Kind {
 	case types.PollCombo:
