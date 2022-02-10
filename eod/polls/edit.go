@@ -7,7 +7,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
-func (b *Polls) mark(guild string, elem int, mark string, creator string, controversial string, news bool) {
+func (b *Polls) mark(guild string, elem int, mark string, creator string, controversial string, lasted string, news bool) {
 	db, res := b.GetDB(guild)
 	if !res.Exists {
 		return
@@ -32,11 +32,11 @@ func (b *Polls) mark(guild string, elem int, mark string, creator string, contro
 	_ = db.SaveInv(inv)
 
 	if news {
-		b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf(db.Config.LangProperty("SignedElemNews"), el.Name, creator)+controversial)
+		b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf(db.Config.LangProperty("SignedElemNews"), el.Name, lasted, creator)+controversial)
 	}
 }
 
-func (b *Polls) image(guild string, elem int, image string, creator string, changed bool, controversial string, news bool) {
+func (b *Polls) image(guild string, elem int, image string, creator string, changed bool, controversial string, lasted string, news bool) {
 	db, res := b.GetDB(guild)
 	if !res.Exists {
 		return
@@ -65,11 +65,11 @@ func (b *Polls) image(guild string, elem int, image string, creator string, chan
 		if changed {
 			newsMsg = db.Config.LangProperty("ChangedImageNews")
 		}
-		b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf(newsMsg, el.Name, creator)+controversial)
+		b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf(newsMsg, el.Name, lasted, creator)+controversial)
 	}
 }
 
-func (b *Polls) color(guild string, elem int, color int, creator string, controversial string, news bool) {
+func (b *Polls) color(guild string, elem int, color int, creator string, controversial string, lasted string, news bool) {
 	db, res := b.GetDB(guild)
 	if !res.Exists {
 		return
@@ -98,6 +98,6 @@ func (b *Polls) color(guild string, elem int, color int, creator string, controv
 		if err != nil {
 			emoji = types.RedCircle
 		}
-		b.dg.ChannelMessageSend(db.Config.NewsChannel, emoji+" "+fmt.Sprintf(db.Config.LangProperty("ColoredElemNews"), el.Name, creator)+controversial)
+		b.dg.ChannelMessageSend(db.Config.NewsChannel, emoji+" "+fmt.Sprintf(db.Config.LangProperty("ColoredElemNews"), el.Name, lasted, creator)+controversial)
 	}
 }

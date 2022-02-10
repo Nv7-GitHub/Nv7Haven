@@ -2,6 +2,7 @@ package polls
 
 import (
 	"errors"
+	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -61,6 +62,7 @@ func (b *Polls) CreatePoll(p types.Poll) error {
 		}
 	}
 
+	p.CreatedOn = types.NewTimeStamp(time.Now())
 	err = db.NewPoll(p)
 	if err != nil {
 		return err
