@@ -1,9 +1,11 @@
 package translation
 
 import (
+	"bytes"
 	"embed"
 	"encoding/json"
 	"sort"
+	"text/template"
 )
 
 //go:embed languages/*.json
@@ -12,7 +14,16 @@ var langFiles = make(map[string]translation)
 
 const DefaultLang = "en_us"
 
-type translation map[string]string
+type translation map[string]*template.Template
+
+func mustExecute(tmpl *template.Template, params interface{}) string {
+	out := bytes.NewBuffer(nil)
+	err := tmpl.Execute(out, params)
+	if err != nil {
+		panic(err)
+	}
+	return out.String()
+}
 
 func init() {
 	files, err := langData.ReadDir("languages")
@@ -20,22 +31,26 @@ func init() {
 		panic(err)
 	}
 
-	var lang translation
+	var langDat map[string]string
 	for _, file := range files {
 		f, err := langData.Open("languages/" + file.Name())
 		if err != nil {
 			panic(err)
 		}
 		dec := json.NewDecoder(f)
-		err = dec.Decode(&lang)
+		err = dec.Decode(&langDat)
 		if err != nil {
 			panic(err)
 		}
 
+		lang := make(translation, len(langDat))
+		for k, v := range langDat {
+			lang[k] = template.Must(template.New(k).Parse(v))
+		}
 		langFiles[file.Name()[:len(file.Name())-5]] = lang // Remove .json
 
 		f.Close()
-		lang = nil
+		langDat = nil
 	}
 }
 
@@ -49,7 +64,7 @@ func LangFileList() []LangFileListItem {
 	i := 0
 	for lang, f := range langFiles {
 		langs[i] = LangFileListItem{
-			Name: f["Name"],
+			Name: mustExecute(f["Name"], nil),
 			Lang: lang,
 		}
 		i++
@@ -60,10 +75,10 @@ func LangFileList() []LangFileListItem {
 	return langs
 }
 
-func LangProperty(lang, property string) string {
+func LangProperty(lang, property string, params interface{}) string {
 	v, exists := langFiles[lang][property]
 	if !exists {
-		return langFiles[DefaultLang][property]
+		return mustExecute(langFiles[DefaultLang][property], params)
 	}
-	return v
+	return mustExecute(v, params)
 }

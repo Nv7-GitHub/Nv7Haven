@@ -41,7 +41,7 @@ logs.txt
 createlogs.txt
 discordlogs.txt
 mysqlogs.txt
-eod/other/parecalc/prof.pprof
+*.pprof
 eod/eodb/cloud/cloud.png
 eod/eodb/cloud/cloud.json
 

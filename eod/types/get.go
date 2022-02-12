@@ -46,6 +46,6 @@ func (dat *ServerData) GetMsgElem(id string) (int, GetResponse) {
 	return elem, GetResponse{Exists: true}
 }
 
-func (l *ServerConfig) LangProperty(key string) string {
-	return translation.LangProperty(l.LanguageFile, key)
+func (l *ServerConfig) LangProperty(key string, params interface{}) string {
+	return translation.LangProperty(l.LanguageFile, key, params)
 }

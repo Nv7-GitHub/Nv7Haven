@@ -177,12 +177,20 @@ func (b *Polls) catColor(guild string, catName string, color int, creator string
 
 	if news {
 		if color == 0 {
-			b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf(db.Config.LangProperty("ResetCatColorNews"), cat.Name, lasted, creator)+controversial)
+			b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty("ResetCatColorNews", map[string]interface{}{
+				"Category":   cat.Name,
+				"LastedText": lasted,
+				"Creator":    creator,
+			})+controversial)
 		}
 		emoji, err := util.GetEmoji(color)
 		if err != nil {
 			emoji = types.RedCircle
 		}
-		b.dg.ChannelMessageSend(db.Config.NewsChannel, emoji+" "+fmt.Sprintf(db.Config.LangProperty("SetCatColorNews"), cat.Name, lasted, creator)+controversial)
+		b.dg.ChannelMessageSend(db.Config.NewsChannel, emoji+" "+db.Config.LangProperty("SetCatColorNews", map[string]interface{}{
+			"Category":   cat.Name,
+			"LastedText": lasted,
+			"Creator":    creator,
+		})+controversial)
 	}
 }

@@ -1,7 +1,6 @@
 package elements
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
@@ -15,6 +14,7 @@ var invalidNames = []string{
 	"<@",
 	"İ",
 	"\n",
+	"<t:",
 }
 
 var charReplace = map[rune]rune{
@@ -49,11 +49,11 @@ func (b *Elements) SuggestCmd(suggestion string, autocapitalize bool, m types.Ms
 	}
 
 	if strings.HasPrefix(suggestion, "?") {
-		rsp.ErrorMessage(db.Config.LangProperty("ElemNameCannotStartWithQuestionMark"))
+		rsp.ErrorMessage(db.Config.LangProperty("ElemNameCannotStartWithQuestionMark", nil))
 		return
 	}
 	if len(suggestion) >= maxSuggestionLength {
-		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("ElemNameMaxLength"), maxSuggestionLength))
+		rsp.ErrorMessage(db.Config.LangProperty("ElemNameMaxLength", maxSuggestionLength))
 		return
 	}
 
@@ -72,7 +72,7 @@ func (b *Elements) SuggestCmd(suggestion string, autocapitalize bool, m types.Ms
 
 	for _, name := range invalidNames {
 		if strings.Contains(suggestion, name) {
-			rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("ElemNameForbiddenChar"), name))
+			rsp.ErrorMessage(db.Config.LangProperty("ElemNameForbiddenChar", name))
 			return
 		}
 	}
@@ -82,7 +82,7 @@ func (b *Elements) SuggestCmd(suggestion string, autocapitalize bool, m types.Ms
 		suggestion = suggestion[1:]
 	}
 	if len(suggestion) == 0 {
-		rsp.Resp(db.Config.LangProperty("NoSuggestElemName"))
+		rsp.Resp(db.Config.LangProperty("NoSuggestElemName", nil))
 		return
 	}
 
@@ -91,7 +91,7 @@ func (b *Elements) SuggestCmd(suggestion string, autocapitalize bool, m types.Ms
 	_, exists := db.Config.PlayChannels[m.ChannelID]
 	db.Config.RUnlock()
 	if !exists {
-		rsp.ErrorMessage(db.Config.LangProperty("MustSuggestInPlayChannel"))
+		rsp.ErrorMessage(db.Config.LangProperty("MustSuggestInPlayChannel", nil))
 		return
 	}
 
@@ -103,7 +103,7 @@ func (b *Elements) SuggestCmd(suggestion string, autocapitalize bool, m types.Ms
 	}
 	_, res = db.GetCombo(comb.Elems)
 	if res.Exists {
-		rsp.ErrorMessage(db.Config.LangProperty("ComboHasResult"))
+		rsp.ErrorMessage(db.Config.LangProperty("ComboHasResult", nil))
 		return
 	}
 
@@ -141,7 +141,7 @@ func (b *Elements) SuggestCmd(suggestion string, autocapitalize bool, m types.Ms
 	}
 	txt += " = " + suggestion + "**"
 
-	txt = fmt.Sprintf(db.Config.LangProperty("SuggestedElem"), txt)
+	txt = db.Config.LangProperty("SuggestedElem", txt)
 
 	if !res.Exists {
 		txt += " ✨"

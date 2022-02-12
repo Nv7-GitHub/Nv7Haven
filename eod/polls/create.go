@@ -2,7 +2,6 @@ package polls
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"strconv"
 	"sync"
@@ -28,7 +27,7 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 	}
 
 	_, res = db.GetElementByName(name)
-	text := db.Config.LangProperty("NewComboNews")
+	prop := "NewComboNews"
 
 	createLock.Lock()
 
@@ -76,7 +75,7 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 			ID:         len(db.Elements) + 1,
 			Name:       name,
 			Guild:      guild,
-			Comment:    db.Config.LangProperty("DefaultMark"),
+			Comment:    db.Config.LangProperty("DefaultMark", nil),
 			Creator:    creator,
 			CreatedOn:  types.NewTimeStamp(time.Now()),
 			Parents:    parents,
@@ -92,7 +91,7 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 			return
 		}
 
-		text = db.Config.LangProperty("NewElemNews")
+		prop = "NewElemNews"
 	} else {
 		el, res := db.GetElementByName(name)
 		if !res.Exists {
@@ -131,7 +130,12 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 		}
 	}
 
-	txt := types.NewText + " " + fmt.Sprintf(text, name, lasted, creator, postID) + controversial
+	txt := types.NewText + " " + db.Config.LangProperty(prop, map[string]interface{}{
+		"Element":    name,
+		"LastedText": lasted,
+		"Creator":    creator,
+		"ID":         postID,
+	}) + controversial
 
 	_, _ = b.dg.ChannelMessageSend(db.Config.NewsChannel, txt)
 

@@ -1,7 +1,6 @@
 package elements
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 
@@ -101,7 +100,7 @@ func (b *Elements) SearchCmd(search string, sort string, source string, opt stri
 	db.RUnlock()
 
 	if len(results) == 0 {
-		rsp.Message(db.Config.LangProperty("NoResults"))
+		rsp.Message(db.Config.LangProperty("NoResults", nil))
 		return
 	}
 
@@ -120,7 +119,7 @@ func (b *Elements) SearchCmd(search string, sort string, source string, opt stri
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
-		Title:      fmt.Sprintf(db.Config.LangProperty("ElemSearch"), len(txt)),
+		Title:      db.Config.LangProperty("ElemSearch", len(txt)),
 		PageGetter: b.base.InvPageGetter,
 		Items:      txt,
 		User:       m.Author.ID,

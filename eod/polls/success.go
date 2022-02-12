@@ -1,7 +1,6 @@
 package polls
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -18,7 +17,7 @@ func (b *Polls) handlePollSuccess(p types.Poll) {
 	if controversial {
 		controversialTxt = " 🌩️"
 	}
-	lasted := fmt.Sprintf(db.Config.LangProperty("Lasted"), time.Since(p.CreatedOn.Time).Round(time.Second).String()) + " • "
+	lasted := db.Config.LangProperty("Lasted", time.Since(p.CreatedOn.Time).Round(time.Second).String()) + " • "
 
 	switch p.Kind {
 	case types.PollCombo:
@@ -34,9 +33,19 @@ func (b *Polls) handlePollSuccess(p types.Poll) {
 		}
 		if len(els) == 1 {
 			name, _ := db.GetElement(els[0])
-			b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf(db.Config.LangProperty("AddCatNews"), name.Name, p.PollCategorizeData.Category, lasted, p.Suggestor)+controversialTxt)
+			b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty("AddCatNews", map[string]interface{}{
+				"Element":    name.Name,
+				"Category":   p.PollCategorizeData.Category,
+				"LastedText": lasted,
+				"Creator":    p.Suggestor,
+			})+controversialTxt)
 		} else {
-			b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf(db.Config.LangProperty("AddCatMultNews"), len(els), p.PollCategorizeData.Category, lasted, p.Suggestor)+controversialTxt)
+			b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty("AddCatNews", map[string]interface{}{
+				"Elements":   len(els),
+				"Category":   p.PollCategorizeData.Category,
+				"LastedText": lasted,
+				"Creator":    p.Suggestor,
+			})+controversialTxt)
 		}
 	case types.PollUnCategorize:
 		els := p.PollCategorizeData.Elems
@@ -45,9 +54,19 @@ func (b *Polls) handlePollSuccess(p types.Poll) {
 		}
 		if len(els) == 1 {
 			name, _ := db.GetElement(els[0])
-			b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf(db.Config.LangProperty("RmCatNews"), name.Name, p.PollCategorizeData.Category, lasted, p.Suggestor)+controversialTxt)
+			b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty("RmCatNews", map[string]interface{}{
+				"Element":    name.Name,
+				"Category":   p.PollCategorizeData.Category,
+				"LastedText": lasted,
+				"Creator":    p.Suggestor,
+			})+controversialTxt)
 		} else {
-			b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf(db.Config.LangProperty("RmCatMultNews"), len(els), p.PollCategorizeData.Category, lasted, p.Suggestor)+controversialTxt)
+			b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty("RmCatNews", map[string]interface{}{
+				"Elements":   len(els),
+				"Category":   p.PollCategorizeData.Category,
+				"LastedText": lasted,
+				"Creator":    p.Suggestor,
+			})+controversialTxt)
 		}
 	case types.PollCatImage:
 		b.catImage(p.Guild, p.PollCatImageData.Category, p.PollCatImageData.NewImage, p.Suggestor, p.PollCatImageData.Changed, controversialTxt, lasted, true)
