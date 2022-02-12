@@ -116,7 +116,7 @@ func (b *Elements) LbImageCmd(m types.Msg, rsp types.Rsp, sorter string) {
 		return
 	}
 
-	rsp.Attachment(db.Config.LangProperty("LbImage"), []*discordgo.File{
+	rsp.Attachment(db.Config.LangProperty("LbImage", nil), []*discordgo.File{
 		{
 			Name:        "image.png",
 			Reader:      buf,
