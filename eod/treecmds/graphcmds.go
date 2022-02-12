@@ -2,7 +2,6 @@ package treecmds
 
 import (
 	"bytes"
-	"fmt"
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
@@ -64,25 +63,25 @@ func (b *TreeCmds) graphCmd(elems map[int]types.Empty, db *eodb.DB, m types.Msg,
 	if !(outputType == "Text" || outputType == "DOT") {
 		_, exists := maxSizes[layout]
 		if !exists {
-			rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("GraphLayoutInvalid"), layout))
+			rsp.ErrorMessage(db.Config.LangProperty("GraphLayoutInvalid", layout))
 			return
 		}
 
 		if maxSizes[layout] > 0 && graph.NodeCount() > maxSizes[layout] {
-			rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("GraphTooBigForLayout"), layout))
+			rsp.ErrorMessage(db.Config.LangProperty("GraphTooBigForLayout", layout))
 			return
 		}
 	}
 
 	_, exists := outputTypes[outputType]
 	if !exists {
-		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("GraphOutputInvalid"), outputType))
+		rsp.ErrorMessage(db.Config.LangProperty("GraphOutputInvalid", outputType))
 		return
 	}
 
 	// Create Output
 	var file *discordgo.File
-	txt := db.Config.LangProperty("SentGraphToDMs")
+	txt := db.Config.LangProperty("SentGraphToDMs", nil)
 
 	switch outputType {
 	case "PNG", "SVG":
@@ -120,7 +119,7 @@ func (b *TreeCmds) graphCmd(elems map[int]types.Empty, db *eodb.DB, m types.Msg,
 
 		}
 	case "Text", "DOT":
-		txt = db.Config.LangProperty("GraphNotRendered")
+		txt = db.Config.LangProperty("GraphNotRendered", nil)
 		name := "graph.dot"
 		if outputType == "Text" {
 			name = "graph.txt"
@@ -158,7 +157,7 @@ func (b *TreeCmds) graphCmd(elems map[int]types.Empty, db *eodb.DB, m types.Msg,
 	}
 
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: fmt.Sprintf(db.Config.LangProperty("NameGraphElem"), name),
+		Content: db.Config.LangProperty("NameGraphElem", name),
 		Files:   []*discordgo.File{file},
 	})
 }

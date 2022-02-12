@@ -1,8 +1,6 @@
 package eod
 
 import (
-	"fmt"
-
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
@@ -61,9 +59,9 @@ func (b *EoD) canRunCmd(cmd *discordgo.InteractionCreate) (bool, string) {
 	// Get dat because everything after will require it
 	db, res := b.GetDB(cmd.GuildID)
 	if !res.Exists {
-		return false, db.Config.LangProperty("MustHaveAdmin")
+		return false, db.Config.LangProperty("MustHaveAdmin", nil)
 	}
-	falseMsg := fmt.Sprintf(db.Config.LangProperty("MustHaveAdminOrModRole"), db.Config.ModRole)
+	falseMsg := db.Config.LangProperty("MustHaveAdminOrModRole", db.Config.ModRole)
 
 	// If command is path or catpath, check if has element/all elements in cat
 	// path
@@ -81,7 +79,7 @@ func (b *EoD) canRunCmd(cmd *discordgo.InteractionCreate) (bool, string) {
 
 			exists = inv.Contains(el.ID)
 			if !exists {
-				return false, fmt.Sprintf(db.Config.LangProperty("MustHaveElemForPath"), el.Name)
+				return false, db.Config.LangProperty("MustHaveElemForPath", el.Name)
 			}
 			return true, ""
 		} else {
@@ -95,7 +93,7 @@ func (b *EoD) canRunCmd(cmd *discordgo.InteractionCreate) (bool, string) {
 			for elem := range cat.Elements {
 				exists = inv.Contains(elem)
 				if !exists {
-					return false, fmt.Sprintf(db.Config.LangProperty("MustHaveCatForPath"), cat.Name)
+					return false, db.Config.LangProperty("MustHaveCatForPath", cat.Name)
 				}
 			}
 

@@ -1,7 +1,6 @@
 package treecmds
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
@@ -25,7 +24,7 @@ func (b *TreeCmds) CalcTreeCmd(elem string, m types.Msg, rsp types.Rsp) {
 	}
 	txt, suc, msg := trees.CalcTree(db, el.ID)
 	if !suc {
-		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DoesntExist"), msg))
+		rsp.ErrorMessage(msg)
 		return
 	}
 	data, res := b.GetData(m.GuildID)
@@ -34,14 +33,14 @@ func (b *TreeCmds) CalcTreeCmd(elem string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 	if len(txt) <= 2000 {
-		id := rsp.Message(db.Config.LangProperty("SentPathToDMs"))
+		id := rsp.Message(db.Config.LangProperty("SentPathToDMs", nil))
 
 		data.SetMsgElem(id, el.ID)
 
 		rsp.DM(txt)
 		return
 	}
-	id := rsp.Message(db.Config.LangProperty("PathTooLong"))
+	id := rsp.Message(db.Config.LangProperty("PathTooLong", nil))
 
 	data.SetMsgElem(id, el.ID)
 
@@ -52,7 +51,7 @@ func (b *TreeCmds) CalcTreeCmd(elem string, m types.Msg, rsp types.Rsp) {
 	buf := strings.NewReader(txt)
 
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: fmt.Sprintf(db.Config.LangProperty("NamePathElem"), el.Name),
+		Content: db.Config.LangProperty("NamePathElem", el.Name),
 		Files: []*discordgo.File{
 			{
 				Name:        "path.txt",
@@ -79,15 +78,15 @@ func (b *TreeCmds) CalcTreeCatCmd(catName string, m types.Msg, rsp types.Rsp) {
 
 	txt, suc, msg := trees.CalcTreeCat(db, cat.Elements)
 	if !suc {
-		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DoesntExist"), msg))
+		rsp.ErrorMessage(msg)
 		return
 	}
 	if len(txt) <= 2000 {
-		rsp.Message(db.Config.LangProperty("SentPathToDMs"))
+		rsp.Message(db.Config.LangProperty("SentPathToDMs", nil))
 		rsp.DM(txt)
 		return
 	}
-	rsp.Message(db.Config.LangProperty("PathTooLong"))
+	rsp.Message(db.Config.LangProperty("PathTooLong", nil))
 
 	channel, err := b.dg.UserChannelCreate(m.Author.ID)
 	if rsp.Error(err) {
@@ -95,7 +94,7 @@ func (b *TreeCmds) CalcTreeCatCmd(catName string, m types.Msg, rsp types.Rsp) {
 	}
 	buf := strings.NewReader(txt)
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: fmt.Sprintf(db.Config.LangProperty("NamePathCat"), cat.Name),
+		Content: db.Config.LangProperty("NamePathCat", cat.Name),
 		Files: []*discordgo.File{
 			{
 				Name:        "path.txt",

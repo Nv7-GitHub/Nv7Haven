@@ -292,17 +292,21 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 	}
 
 	// Get whether has element
-	has := db.Config.LangProperty("InfoElemIDUserHasElem", nil)
+	hasPars := map[string]interface{}{
+		"ID":   el.ID,
+		"User": m.Author.ID,
+	}
+	has := db.Config.LangProperty("InfoElemIDUserHasElem", hasPars)
 	inv := db.GetInv(m.Author.ID)
 	exists := inv.Contains(el.ID)
 	if !exists {
-		has = db.Config.LangProperty("InfoElemIDUserNoHasElem", nil)
+		has = db.Config.LangProperty("InfoElemIDUserNoHasElem", hasPars)
 	}
 
 	// Embed
 	emb := &discordgo.MessageEmbed{
-		Title:       fmt.Sprintf(db.Config.LangProperty("InfoTitle", nil), el.Name),
-		Description: fmt.Sprintf(has, el.ID, m.Author.ID),
+		Title:       db.Config.LangProperty("InfoTitle", el.Name),
+		Description: has,
 		Fields:      fields,
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
 			URL: el.Image,
