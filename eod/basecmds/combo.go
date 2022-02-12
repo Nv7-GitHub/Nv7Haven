@@ -1,7 +1,6 @@
 package basecmds
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -148,7 +147,7 @@ func (b *BaseCmds) Combine(elems []string, m types.Msg, rsp types.Rsp) {
 			return
 		}
 
-		id := rsp.Message(fmt.Sprintf("YouHave", el3.Name))
+		id := rsp.Message(db.Config.LangProperty("YouHave", el3.Name))
 		data.SetMsgElem(id, elem3)
 		return
 	}
