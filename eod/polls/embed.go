@@ -50,7 +50,7 @@ func (b *Polls) GetPollEmbed(db *eodb.DB, p types.Poll) (*discordgo.MessageEmbed
 
 	case types.PollImage:
 		el, _ := db.GetElement(p.PollImageData.Elem)
-		description := fmt.Sprintf("**%s**\n[%s](%s)\n[%s](%s)\n\n", el.Name, db.Config.LangProperty("NewImage", p.PollImageData.NewImage), p.PollCatImageData.NewImage, db.Config.LangProperty("OldImage", p.PollImageData.OldImage), p.PollCatImageData.OldImage) + db.Config.LangProperty("PollCreatorText", p.Suggestor)
+		description := fmt.Sprintf("**%s**\n[%s](%s)\n[%s](%s)\n\n", el.Name, db.Config.LangProperty("NewImage", p.PollImageData.NewImage), p.PollImageData.NewImage, db.Config.LangProperty("OldImage", p.PollImageData.OldImage), p.PollImageData.OldImage) + db.Config.LangProperty("PollCreatorText", p.Suggestor)
 		if p.PollImageData.OldImage == "" {
 			description = fmt.Sprintf("**%s**\n[%s](%s)\n\n", el.Name, db.Config.LangProperty("NewImage", nil), p.PollImageData.NewImage) + db.Config.LangProperty("PollCreatorText", p.Suggestor)
 		}
