@@ -17,7 +17,11 @@ func (b *Polls) handlePollSuccess(p types.Poll) {
 	if controversial {
 		controversialTxt = " 🌩️"
 	}
-	lasted := db.Config.LangProperty("Lasted", time.Since(p.CreatedOn.Time).Round(time.Second).String()) + " • "
+
+	lasted := ""
+	if p.CreatedOn != nil {
+		lasted = db.Config.LangProperty("Lasted", time.Since(p.CreatedOn.Time).Round(time.Second).String()) + " • "
+	}
 
 	switch p.Kind {
 	case types.PollCombo:
