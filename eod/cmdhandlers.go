@@ -194,7 +194,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 			rsp.Message(db.Config.LangProperty("PingMessage", time.Since(tm).String()))
 		}
-		if cmd == "restart" || cmd == "update" || cmd == "optimize" || cmd == "recalc" {
+		if cmd == "restart" || cmd == "update" || cmd == "optimize" {
 			if m.GuildID == "705084182673621033" {
 				user, err := b.dg.GuildMember(msg.GuildID, msg.Author.ID)
 				if rsp.Error(err) {
