@@ -1,6 +1,7 @@
 package eod
 
 import (
+	"github.com/Nv7-Github/Nv7Haven/eod/translation"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
@@ -59,7 +60,7 @@ func (b *EoD) canRunCmd(cmd *discordgo.InteractionCreate) (bool, string) {
 	// Get dat because everything after will require it
 	db, res := b.GetDB(cmd.GuildID)
 	if !res.Exists {
-		return false, db.Config.LangProperty("MustHaveAdmin", nil)
+		return false, translation.LangProperty(translation.DefaultLang, "MustHaveAdmin", nil)
 	}
 	falseMsg := db.Config.LangProperty("MustHaveAdminOrModRole", db.Config.ModRole)
 
