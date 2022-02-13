@@ -216,6 +216,9 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 				}
 			}
 		}
+		if cmd == "recalc" {
+			rsp.Error(db.Recalc())
+		}
 	}
 
 	if strings.HasPrefix(m.Content, "?") {
