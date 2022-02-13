@@ -30,6 +30,10 @@ func (d *DB) SaveElement(el types.Element, new ...bool) error {
 		d.Elements[el.ID-1] = el
 	}
 
+	if d.inTransaction { // Don't persist
+		return nil
+	}
+
 	// Persist
 	dat, err := json.Marshal(el)
 	if err != nil {

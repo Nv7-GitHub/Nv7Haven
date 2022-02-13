@@ -26,8 +26,14 @@ func main() {
 	handle(err)
 	fmt.Println("Loaded in", time.Since(start))
 
-	f, _ := os.Create("prof.pprof")
-	pprof.StartCPUProfile(f)
+	f, err := os.Create("prof.pprof")
+	if err != nil {
+		panic(err)
+	}
+	err = pprof.StartCPUProfile(f)
+	if err != nil {
+		panic(err)
+	}
 
 	d, _ := db.GetDB("705084182673621033")
 	fmt.Println("Recalcing...")
@@ -36,8 +42,8 @@ func main() {
 	fmt.Println(err)
 	fmt.Println(time.Since(start))
 
-	f.Close()
 	pprof.StopCPUProfile()
+	f.Close()
 
 	f2, _ := os.Create("heap.pprof")
 	pprof.WriteHeapProfile(f2)

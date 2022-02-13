@@ -1,9 +1,7 @@
 package eodb
 
 import (
-	"container/list"
 	"fmt"
-	"runtime/pprof"
 	"sort"
 	"strconv"
 	"strings"
@@ -19,7 +17,8 @@ type recalcCombo struct {
 
 func (d *DB) Recalc() error {
 	d.RLock()
-	defer d.RUnlock()
+
+	d.BeginTransaction()
 
 	// Recalc trees
 	done := make(map[int]types.Empty)
@@ -35,6 +34,7 @@ func (d *DB) Recalc() error {
 		for _, val := range strings.Split(k, "+") {
 			num, err := strconv.Atoi(val)
 			if err != nil {
+				d.RUnlock()
 				return err
 			}
 			items = append(items, num)
@@ -79,6 +79,7 @@ func (d *DB) Recalc() error {
 				// Save element
 				el, res := d.GetElement(comb.Elem3, true)
 				if !res.Exists {
+					d.RUnlock()
 					return fmt.Errorf("recalc: element %d does not exist", comb.Elem3)
 				}
 
@@ -133,11 +134,13 @@ func (d *DB) Recalc() error {
 
 	// Recalc tree size
 	for _, el := range d.Elements {
-		size, res := d.recalcGetTreeSize(el.ID)
+		done := make(map[int]types.Empty, el.TreeSize)
+		res := d.recalcGetTreeSize(el.ID, done)
 		if !res.Exists {
+			d.RUnlock()
 			return fmt.Errorf("recalc: %s", res.Message)
 		}
-		el.TreeSize = size
+		el.TreeSize = len(done)
 
 		d.RUnlock()
 		err := d.SaveElement(el)
@@ -147,50 +150,29 @@ func (d *DB) Recalc() error {
 		d.RLock()
 	}
 
-	pprof.StopCPUProfile()
-
-	// Done!
-	return nil
+	// Persist
+	d.RUnlock()
+	return d.CommitTransaction()
 }
 
-func (d *DB) recalcGetTreeSize(elem int) (int, types.GetResponse) {
-	todo := list.New()
-	todo.PushBack(elem)
-	size := 0
+func (d *DB) recalcGetTreeSize(elem int, done map[int]types.Empty) types.GetResponse {
+	_, exists := done[elem]
+	if exists {
+		return types.GetResponse{Exists: true}
+	}
+	el, res := d.GetElement(elem, true)
+	if !res.Exists {
+		return res
+	}
 
-	// Calc tree size
-	done := make(map[int]types.Empty)
-	for todo.Len() > 0 {
-		elem := todo.Remove(todo.Front()).(int)
-		_, exists := done[elem]
-		if exists {
-			continue
-		}
-
-		el, res := d.GetElement(elem, true)
+	for _, parent := range el.Parents {
+		res = d.recalcGetTreeSize(parent, done)
 		if !res.Exists {
-			return 0, res
+			return res
 		}
-
-		// Update tree size
-		size++
-
-		// Add parents to TODO
-		for _, parent := range el.Parents {
-			_, exists := done[parent]
-			if !exists {
-				todo.PushBack(parent)
-			}
-		}
-
-		// Done
-		done[elem] = types.Empty{}
 	}
 
-	// Free up memory to make GC do less work
-	for todo.Len() > 0 {
-		todo.Remove(todo.Front())
-	}
+	done[elem] = types.Empty{}
 
-	return size, types.GetResponse{Exists: true}
+	return types.GetResponse{Exists: true}
 }
