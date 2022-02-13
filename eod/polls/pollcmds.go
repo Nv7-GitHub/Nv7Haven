@@ -29,7 +29,7 @@ func (b *Polls) MarkCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 	if len(mark) == 0 {
-		mark = db.Config.LangProperty("DefaultMark", nil)
+		mark = db.Config.LangProperty("DefaultComment", nil)
 	}
 
 	if el.Creator == m.Author.ID {
