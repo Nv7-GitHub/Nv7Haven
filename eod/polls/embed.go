@@ -42,7 +42,7 @@ func (b *Polls) GetPollEmbed(db *eodb.DB, p types.Poll) (*discordgo.MessageEmbed
 		el, _ := db.GetElement(p.PollSignData.Elem)
 		return &discordgo.MessageEmbed{
 			Title:       db.Config.LangProperty("NewMarkPoll", nil),
-			Description: fmt.Sprintf("**%s**\n%s\n\n%s\n\n", el.Name, db.Config.LangProperty("NewNote", p.PollSignData.NewNote), db.Config.LangProperty("OldNote", p.PollSignData.OldNote)+db.Config.LangProperty("PollCreatorText", p.Suggestor)),
+			Description: fmt.Sprintf("**%s**\n%s\n\n%s\n\n", el.Name, db.Config.LangProperty("NewNote", p.PollSignData.NewNote), db.Config.LangProperty("OldNote", p.PollSignData.OldNote)) + db.Config.LangProperty("PollCreatorText", p.Suggestor),
 			Footer: &discordgo.MessageEmbedFooter{
 				Text: db.Config.LangProperty("PollFooter", nil),
 			},
