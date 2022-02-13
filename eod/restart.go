@@ -155,9 +155,10 @@ func (b *EoD) guildupdate(m types.Msg, rsp types.Rsp, optimize bool) {
 		} else {
 			err = db.Recalc()
 		}
-		if rsp.Error(err) {
+		rsp.Error(err)
+		/*if rsp.Error(err) {
 			return
-		}
+		}*/
 		taken += time.Since(start)
 
 		i++
