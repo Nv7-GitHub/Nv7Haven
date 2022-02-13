@@ -210,10 +210,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 							b.update(msg, rsp)
 
 						case "optimize":
-							b.guildupdate(msg, rsp, true)
-
-						case "recalc":
-							b.guildupdate(msg, rsp, false)
+							b.optimize(msg, rsp)
 						}
 					}
 				}

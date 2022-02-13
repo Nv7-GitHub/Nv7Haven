@@ -107,17 +107,11 @@ func (b *EoD) start() {
 	}
 }
 
-func (b *EoD) guildupdate(m types.Msg, rsp types.Rsp, optimize bool) {
+func (b *EoD) optimize(m types.Msg, rsp types.Rsp) {
 	b.Data.RLock()
 	defer b.Data.RUnlock()
 
-	msgContinuous := "Optimizing"
-	msgPast := "Optimized"
-	if !optimize {
-		msgContinuous = "Recalculating"
-		msgPast = "Recalculated"
-	}
-	id := rsp.Message(fmt.Sprintf("%s [0/%d]...", msgContinuous, len(b.DB)))
+	id := rsp.Message(fmt.Sprintf("Optimizing [0/%d]...", len(b.DB)))
 
 	taken := time.Duration(0)
 	i := 0
@@ -136,25 +130,20 @@ func (b *EoD) guildupdate(m types.Msg, rsp types.Rsp, optimize bool) {
 				}
 
 				if isCommunity {
-					b.dg.ChannelMessageEdit(m.ChannelID, id, fmt.Sprintf("<@%s> %s **%s**... [%d/%d]", m.Author.ID, msgContinuous, gld.Name, i+1, len(b.DB)))
+					b.dg.ChannelMessageEdit(m.ChannelID, id, fmt.Sprintf("<@%s> Optimizing **%s**... [%d/%d]", m.Author.ID, gld.Name, i+1, len(b.DB)))
 					hasEdited = true
 				}
 			}
 
 			if !hasEdited {
-				b.dg.ChannelMessageEdit(m.ChannelID, id, fmt.Sprintf("<@%s> %s... [%d/%d]", m.Author.ID, msgContinuous, i+1, len(b.DB)))
+				b.dg.ChannelMessageEdit(m.ChannelID, id, fmt.Sprintf("<@%s> Optimizing... [%d/%d]", m.Author.ID, i+1, len(b.DB)))
 			}
 
 			lastUpdated = i
 		}
 
 		start := time.Now()
-		var err error
-		if optimize {
-			err = db.Optimize()
-		} else {
-			err = db.Recalc()
-		}
+		err := db.Optimize()
 		if rsp.Error(err) {
 			return
 		}
@@ -163,5 +152,5 @@ func (b *EoD) guildupdate(m types.Msg, rsp types.Rsp, optimize bool) {
 		i++
 	}
 
-	b.dg.ChannelMessageEdit(m.ChannelID, id, fmt.Sprintf("<@%s> %s in **%s**.", m.Author.ID, msgPast, taken.String()))
+	b.dg.ChannelMessageEdit(m.ChannelID, id, fmt.Sprintf("<@%s> Optimized in **%s**.", m.Author.ID, taken.String()))
 }
