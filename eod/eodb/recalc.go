@@ -16,7 +16,7 @@ type recalcCombo struct {
 }
 
 func (d *DB) Recalc() error {
-	d.Lock()
+	d.RLock()
 
 	d.BeginTransaction()
 
@@ -34,7 +34,7 @@ func (d *DB) Recalc() error {
 		for _, val := range strings.Split(k, "+") {
 			num, err := strconv.Atoi(val)
 			if err != nil {
-				d.Unlock()
+				d.RUnlock()
 				return err
 			}
 			items = append(items, num)
@@ -79,7 +79,7 @@ func (d *DB) Recalc() error {
 				// Save element
 				el, res := d.GetElement(comb.Elem3, true)
 				if !res.Exists {
-					d.Unlock()
+					d.RUnlock()
 					return fmt.Errorf("recalc: element %d does not exist", comb.Elem3)
 				}
 
@@ -118,12 +118,12 @@ func (d *DB) Recalc() error {
 				el.Complexity = maxcomp
 
 				// Save
-				d.Unlock()
+				d.RUnlock()
 				err := d.SaveElement(el)
 				if err != nil {
 					return err
 				}
-				d.Lock()
+				d.RLock()
 
 				// Update done
 				done[comb.Elem3] = types.Empty{}
@@ -137,21 +137,21 @@ func (d *DB) Recalc() error {
 		done := make(map[int]types.Empty, el.TreeSize)
 		res := d.recalcGetTreeSize(el.ID, done)
 		if !res.Exists {
-			d.Unlock()
+			d.RUnlock()
 			return fmt.Errorf("recalc: %s", res.Message)
 		}
 		el.TreeSize = len(done)
 
-		d.Unlock()
+		d.RUnlock()
 		err := d.SaveElement(el)
 		if err != nil {
 			return err
 		}
-		d.Lock()
+		d.RLock()
 	}
 
 	// Persist
-	d.Unlock()
+	d.RUnlock()
 	return d.CommitTransaction()
 }
 
