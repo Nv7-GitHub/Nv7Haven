@@ -1,6 +1,7 @@
 package eod
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -217,7 +218,14 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 		}
 		if cmd == "recalc" {
-			rsp.Error(db.Recalc())
+			msg := rsp.Message("Recalculating...")
+			start := time.Now()
+			err := db.Recalc()
+			if err != nil {
+				b.dg.ChannelMessageEdit(m.ChannelID, msg, fmt.Sprintf("<@%s> %s Error: %s", m.Author.ID, types.RedCircle, err.Error()))
+			} else {
+				b.dg.ChannelMessageEdit(m.ChannelID, msg, fmt.Sprintf("<@%s> Recalculated in **%s**", m.Author.ID, time.Since(start).String()))
+			}
 		}
 	}
 
