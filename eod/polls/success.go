@@ -3,8 +3,17 @@ package polls
 import (
 	"time"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
+
+func (b *Polls) getLasted(db *eodb.DB, p types.Poll) string {
+	lasted := ""
+	if p.CreatedOn != nil {
+		lasted = db.Config.LangProperty("Lasted", time.Since(p.CreatedOn.Time).Round(time.Second).String()) + " • "
+	}
+	return lasted
+}
 
 func (b *Polls) handlePollSuccess(p types.Poll) {
 	db, res := b.GetDB(p.Guild)
@@ -18,10 +27,7 @@ func (b *Polls) handlePollSuccess(p types.Poll) {
 		controversialTxt = " 🌩️"
 	}
 
-	lasted := ""
-	if p.CreatedOn != nil {
-		lasted = db.Config.LangProperty("Lasted", time.Since(p.CreatedOn.Time).Round(time.Second).String()) + " • "
-	}
+	lasted := b.getLasted(db, p)
 
 	switch p.Kind {
 	case types.PollCombo:

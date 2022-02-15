@@ -51,7 +51,7 @@ func (b *Polls) CheckReactions(db *eodb.DB, p types.Poll, reactor string, downvo
 	}
 
 	if ((p.Downvotes - p.Upvotes) >= db.Config.VoteCount) || (downvote && (reactor == p.Suggestor)) {
-		b.RejectPoll(db, p, p.Message, reactor, "")
+		b.RejectPoll(db, p, p.Message, reactor, b.getLasted(db, p))
 
 		return
 	}
