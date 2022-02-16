@@ -42,7 +42,7 @@
   "UnCategorizeMultSuggestUnCategorized": "Tinanggal sa kategorya at nagmungkahing alisin ang element **{{ .Element }}** mula sa **{{ .Category }}** 🗃️",
   "UnCategorizeMultSuggestUnCategorizedMult": "Tinanggal sa kategorya at nagmungkahing alisin ang mga element **{{ .Element }} elements** mula sa **{{ .Category }}** 🗃️",
 
-  "Stats": "Bilang ng Element: **{{ .Elements }**\nBilang ng Kombinasyon: **{{ .Combos }}**\nBilang ng Miyembro: **{{ .Members }}**\nBilang ng Nahanap na Element: **{{ .Found }}**\nBilang ng Kinategoryang mga Element: **{{ .Categorized }}**",
+  "Stats": "Bilang ng Element: **{{ .Elements }}**\nBilang ng Kombinasyon: **{{ .Combos }}**\nBilang ng Miyembro: **{{ .Members }}**\nBilang ng Nahanap na Element: **{{ .Found }}**\nBilang ng Kinategoryang mga Element: **{{ .Categorized }}**",
   "ViewMoreStats": "Tumingin pa",
   
   "ElemCategories": "%s Mga Kategorya ({{ .Count }})",
@@ -168,7 +168,7 @@
   "AddCatNews": "🗃️ Dinagdag ang **{{ .Element }}** sa **{{ .Category }}** ({{ .LastedText }}Ni <@{{ .Creator }}>)",
   "AddCatMultNews": "🗃️ Dinagdag ang **{{ .Elements }} elements** sa **{{ .Category }}** ({{ .LastedText }}Ni <@{{ .Creator }}>)",
   "RmCatNews": "🗃️ Tinanggal ang **{{ .Element }}** mula sa **{{ .Category }}** ({{ .LastedText }}Ni <@{{ .Creator }}>)",
-  "RmCatMultNews": "🗃️ Tinanggal ang **{{ .Elements }} elements** mula sa **{{ .Category }}** ({{ .LastedText }Ni <@{{ .Creator }}>)",
+  "RmCatMultNews": "🗃️ Tinanggal ang **{{ .Elements }} elements** mula sa **{{ .Category }}** {{ .LastedText }}Ni <@{{ .Creator }}>)",
   "ResetCatColorNews": "Ni-Reset ang Kulay ng Kategorya - **{{ .Category }}** ({{ .LastedText }}Ni <@{{ .Creator }}>)",
   "SetCatColorNews": "Pinalitan ang Kulay ng Kategorya - **{{ .Category }}** ({{ .LastedText }}Ni <@{{ .Creator }}>)",
 

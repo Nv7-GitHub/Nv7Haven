@@ -188,11 +188,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 		if cmd == "ping" {
 			// Ping command for text
-			tm, err := m.Timestamp.Parse()
-			if rsp.Error(err) {
-				return
-			}
-			rsp.Message(db.Config.LangProperty("PingMessage", time.Since(tm).String()))
+			rsp.Message(db.Config.LangProperty("PingMessage", time.Since(m.Timestamp).String()))
 		}
 		if cmd == "restart" || cmd == "update" || cmd == "optimize" {
 			if m.GuildID == "705084182673621033" {

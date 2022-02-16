@@ -156,7 +156,7 @@
   "OldColor": "Hld Chlhr: {{ . }}",
   "PollCreatorText": "Shgghsthd by <@{{ . }}>",
 
-  "Lasted": "Lhsthd **{{ . }}**,
+  "Lasted": "Lhsthd **{{ . }}**",
   "NewElemNews": "Hlhmhnt - **{{ .Element }}** ({{ .LastedText }}By <@{{ .Creator }}>) - Hlhmhnt **#{{ .ID }}**",
   "NewComboNews": "Chmbhnhthhn - **{{ .Element }}** ({{ .LastedText }}By <@{{ .Creator }}>) - Chmbhnhthhn **#{{ .ID }}**",
   "SignedElemNews": "📝 Shgnhd - **{{ .Element }}** ({{ .LastedText }}By <@{{ .Creator }}>)",
