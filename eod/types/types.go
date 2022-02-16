@@ -42,6 +42,10 @@ type ComponentMsg interface {
 	Handler(s *discordgo.Session, i *discordgo.InteractionCreate)
 }
 
+type ModalHandler interface {
+	Handler(s *discordgo.Session, i *discordgo.InteractionCreate, rsp Rsp)
+}
+
 type ServerConfig struct {
 	*sync.RWMutex
 
@@ -62,6 +66,7 @@ type ServerData struct {
 	PageSwitchers map[string]PageSwitcher // map[messageid]pageswitcher
 	ComponentMsgs map[string]ComponentMsg // map[messageid]componentMsg
 	ElementMsgs   map[string]int          // map[messageid]elemname
+	Modals        map[string]ModalHandler // map[interactionid]modalHandler, NOTE: interactionid is CustomID
 }
 
 type PageSwitcher struct {
@@ -255,6 +260,7 @@ type Rsp interface {
 	Acknowledge()
 	DM(msg string)
 	Attachment(text string, files []*discordgo.File)
+	Modal(modal *discordgo.InteractionResponseData, handler ModalHandler)
 }
 
 func NewServerConfig() *ServerConfig {
@@ -275,6 +281,7 @@ func NewServerData() *ServerData {
 		PageSwitchers: make(map[string]PageSwitcher),
 		ComponentMsgs: make(map[string]ComponentMsg),
 		ElementMsgs:   make(map[string]int),
+		Modals:        make(map[string]ModalHandler),
 	}
 }
 

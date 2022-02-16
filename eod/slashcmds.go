@@ -157,12 +157,6 @@ var (
 					Description: "The name of the element to add a mark to!",
 					Required:    true,
 				},
-				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "mark",
-					Description: "What the new mark should be!",
-					Required:    true,
-				},
 			},
 		},
 		{
@@ -1307,7 +1301,7 @@ var (
 		},
 		"mark": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.polls.MarkCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.polls.MarkInteractionCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"image": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData().Options[0]
