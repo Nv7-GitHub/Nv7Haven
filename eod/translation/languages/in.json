@@ -109,7 +109,7 @@
   "NoSuggestElemName": "Anda harus menyarankan sesuatu!",
   "MustSuggestInPlayChannel": "Anda harus menyarankan di sebuah saluran permainan!",
   "ComboHasResult": "Kombinasi tersebut sudah terpakai!",
-  "SuggestedElem": "Disarankan %s",
+  "SuggestedElem": "Disarankan {{ . }}",
   
   "BreakdownTitle": "Rincian %s (%d)",
   "InvBreakdownTitle": "Rincian Inventori %s (%d)",
