@@ -38,7 +38,7 @@ func (d *DB) loadElements() error {
 		// Parse
 		err = json.Unmarshal(line, &dat)
 		if err != nil {
-			fmt.Println(line)
+			fmt.Println(string(line))
 			return err
 		}
 
