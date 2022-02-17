@@ -2,7 +2,7 @@ package eodb
 
 import (
 	"bufio"
-	"fmt"
+	"bytes"
 	"io"
 	"net/url"
 	"os"
@@ -17,6 +17,20 @@ import (
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
+func readLine(reader *bufio.Reader) ([]byte, error) {
+	out := bytes.NewBuffer(nil)
+	for {
+		line, isPrefix, err := reader.ReadLine()
+		if err != nil {
+			return nil, err
+		}
+		out.Write(line)
+		if !isPrefix {
+			return out.Bytes(), nil
+		}
+	}
+}
+
 func (d *DB) loadElements() error {
 	f, err := os.OpenFile(filepath.Join(d.dbPath, "elements.json"), os.O_RDWR|os.O_CREATE, os.ModePerm)
 	if err != nil {
@@ -26,7 +40,7 @@ func (d *DB) loadElements() error {
 
 	dat := types.Element{}
 	for {
-		line, _, err := reader.ReadLine()
+		line, err := readLine(reader)
 		if err != nil {
 			if err == io.EOF {
 				break
@@ -38,7 +52,6 @@ func (d *DB) loadElements() error {
 		// Parse
 		err = json.Unmarshal(line, &dat)
 		if err != nil {
-			fmt.Println(string(line))
 			return err
 		}
 
