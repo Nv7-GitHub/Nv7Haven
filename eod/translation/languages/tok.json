@@ -28,8 +28,8 @@
   "CatNameBlank": "kulupu wile e nimi!",
   "CatNameTooLong": "nimi kulupu li suli ike!",
   "CatNoExist": "kulupu **{{ . }}** li lon ala!",
-  "NotInCat": "ijo **{{ .Element }}** li lon ala kulupu **%s**!",
-  "NotInCatMult": "ijo {{ .Elements }} li lon ala kulupu **%s**!",
+  "NotInCat": "ijo **{{ .Element }}** li lon ala kulupu **{{ .Category }}**!",
+  "NotInCatMult": "ijo {{ .Elements }} li lon ala kulupu **{{ .Category }}**!",
   "Categorized": "sina pana e ijo tawa kulupu! 🗃️",
   "SuggestCategorized": "sina toki e sina wile pana e ijo **{{ .Element }}** tawa kulupu **{{ .Category }}** 🗃️",
   "SuggestCategorizedMult": "sina toki e sina wile pana e **ijo {{ .Elements }}** tawa kulupu **{{ .Category }}** 🗃️",
@@ -190,7 +190,7 @@
   "PingMessage": "🏓 mu! tenpo awen: **{{ . }}**",
 
   "MustHaveAdmin": "sina wile jo e lawa `Administrator`!",
-  "MustHaveAdminOrModRole": "sina wile jo e lawa `Administrator` anu jo e nimi lawa <@&%s>!",
+  "MustHaveAdminOrModRole": "sina wile jo e lawa `Administrator` anu jo e nimi lawa <@&{{ . }}>!",
   "MustHaveElemForPath": "sina wile jo e ijo **{{ . }}** tawa kama jo e nasin ona!",
   "MustHaveCatForPath": "sina wile jo e ijo ale pi kulupu **{{ . }}** tawa kama jo e nasin ona!",
 
