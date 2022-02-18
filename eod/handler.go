@@ -39,8 +39,9 @@ func (b *EoD) initHandlers() {
 			return
 		}
 
+		switch i.Type {
 		// Command
-		if i.Type == discordgo.InteractionApplicationCommand {
+		case discordgo.InteractionApplicationCommand:
 			rsp := b.newRespSlash(i)
 			canRun, msg := b.canRunCmd(i)
 			if !canRun {
@@ -51,11 +52,9 @@ func (b *EoD) initHandlers() {
 			if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
 				h(s, i)
 			}
-			return
-		}
 
 		// Button
-		if i.Type == discordgo.InteractionMessageComponent {
+		case discordgo.InteractionMessageComponent:
 			data, res := b.GetData(i.GuildID)
 			if !res.Exists {
 				return
@@ -73,13 +72,24 @@ func (b *EoD) initHandlers() {
 				compMsg.Handler(s, i)
 				return
 			}
-			return
-		}
 
 		// Autocomplete
-		if i.Type == discordgo.InteractionApplicationCommandAutocomplete {
+		case discordgo.InteractionApplicationCommandAutocomplete:
 			if h, ok := autocompleteHandlers[i.ApplicationCommandData().Name]; ok {
 				h(s, i)
+			}
+
+		// Modal
+		case discordgo.InteractionModalSubmit:
+			data, res := b.GetData(i.GuildID)
+			if !res.Exists {
+				return
+			}
+
+			handler, exists := data.Modals[i.ModalSubmitData().CustomID]
+			if exists {
+				handler.Handler(s, i, b.newRespSlash(i))
+				return
 			}
 		}
 	})

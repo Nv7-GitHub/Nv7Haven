@@ -1,7 +1,6 @@
 package eod
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -72,7 +71,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
 
 			if len(m.Attachments) < 1 {
-				rsp.ErrorMessage(db.Config.LangProperty("MustAttachImage"))
+				rsp.ErrorMessage(db.Config.LangProperty("MustAttachImage", nil))
 				return
 			}
 			b.polls.ImageCmd(suggestion, m.Attachments[0].URL, msg, rsp)
@@ -87,7 +86,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
 
 			if len(m.Attachments) < 1 {
-				rsp.ErrorMessage(db.Config.LangProperty("MustAttachImage"))
+				rsp.ErrorMessage(db.Config.LangProperty("MustAttachImage", nil))
 				return
 			}
 			b.polls.CatImgCmd(suggestion, m.Attachments[0].URL, msg, rsp)
@@ -113,7 +112,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			txt := m.Content[len(cmd)+2:]
 			sepPos := strings.Index(txt, "|")
 			if sepPos == -1 {
-				rsp.ErrorMessage(db.Config.LangProperty("AddCatMustHaveSeparator"))
+				rsp.ErrorMessage(db.Config.LangProperty("AddCatMustHaveSeparator", nil))
 				return
 			}
 
@@ -131,7 +130,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			txt := m.Content[len(cmd)+2:]
 			sepPos := strings.Index(txt, "|")
 			if sepPos == -1 {
-				rsp.ErrorMessage(db.Config.LangProperty("RmCatMustHaveSeparator"))
+				rsp.ErrorMessage(db.Config.LangProperty("RmCatMustHaveSeparator", nil))
 				return
 			}
 
@@ -171,7 +170,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			txt := m.Content[len(cmd)+2:]
 			sepPos := strings.Index(txt, "|")
 			if sepPos == -1 {
-				rsp.ErrorMessage(db.Config.LangProperty("MarkMustHaveSeparator"))
+				rsp.ErrorMessage(db.Config.LangProperty("MarkMustHaveSeparator", nil))
 				return
 			}
 
@@ -189,11 +188,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 		if cmd == "ping" {
 			// Ping command for text
-			tm, err := m.Timestamp.Parse()
-			if rsp.Error(err) {
-				return
-			}
-			rsp.Message(fmt.Sprintf(db.Config.LangProperty("PingMessage"), time.Since(tm).String()))
+			rsp.Message(db.Config.LangProperty("PingMessage", time.Since(m.Timestamp).String()))
 		}
 		if cmd == "restart" || cmd == "update" || cmd == "optimize" {
 			if m.GuildID == "705084182673621033" {

@@ -20,7 +20,7 @@ func newHintCmp(db *eodb.DB) discordgo.ActionsRow {
 	return discordgo.ActionsRow{
 		Components: []discordgo.MessageComponent{
 			discordgo.Button{
-				Label:    db.Config.LangProperty("NewHint"),
+				Label:    db.Config.LangProperty("NewHint", nil),
 				CustomID: "hint-new",
 				Style:    discordgo.SuccessButton,
 				Emoji: discordgo.ComponentEmoji{
@@ -93,7 +93,7 @@ func (b *Elements) HintCmd(elem string, hasElem bool, inverse bool, m types.Msg,
 	rspInp := rsp
 	if !hasElem {
 		if inverse {
-			rsp.ErrorMessage(db.Config.LangProperty("InvHintNoElem"))
+			rsp.ErrorMessage(db.Config.LangProperty("InvHintNoElem", nil))
 			return
 		}
 		rspInp = nil
@@ -204,9 +204,9 @@ func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, author string, g
 		return out[i].exists > out[j].exists
 	})
 
-	title := fmt.Sprintf(db.Config.LangProperty("HintElem"), el.Name)
+	title := db.Config.LangProperty("HintElem", el.Name)
 	if inverse {
-		title = fmt.Sprintf(db.Config.LangProperty("InvHintElem"), el.Name)
+		title = db.Config.LangProperty("InvHintElem", el.Name)
 	}
 
 	text := &strings.Builder{}
@@ -216,10 +216,10 @@ func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, author string, g
 	}
 	val := text.String()
 
-	footer := fmt.Sprintf(db.Config.LangProperty("HintCountNoHasElem"), len(out))
+	footer := db.Config.LangProperty("HintCountNoHasElem", len(out))
 	hasElem = inv.Contains(el.ID)
 	if hasElem {
-		footer = fmt.Sprintf(db.Config.LangProperty("HintCountHasElem"), len(out))
+		footer = db.Config.LangProperty("HintCountHasElem", len(out))
 	}
 
 	db.Config.RLock()

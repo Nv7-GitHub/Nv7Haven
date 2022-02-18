@@ -1,7 +1,6 @@
 package polls
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -10,13 +9,16 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-func (b *Polls) RejectPoll(db *eodb.DB, p types.Poll, messageid, user string) {
+func (b *Polls) RejectPoll(db *eodb.DB, p types.Poll, messageid, user, lasted string) {
 	_ = db.DeletePoll(p)
 	b.dg.ChannelMessageDelete(p.Channel, p.Message)
 
 	if user != p.Suggestor {
 		// Inform them
-		b.dg.ChannelMessageSend(db.Config.NewsChannel, fmt.Sprintf(db.Config.LangProperty("RejectedPollNews"), types.X, p.Suggestor))
+		b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty("RejectedPollNews", map[string]interface{}{
+			"LastedText": lasted,
+			"Creator":    p.Suggestor,
+		}))
 
 		chn, err := b.dg.UserChannelCreate(p.Suggestor)
 		if err == nil {
@@ -26,8 +28,12 @@ func (b *Polls) RejectPoll(db *eodb.DB, p types.Poll, messageid, user string) {
 				if err == nil {
 
 					b.dg.ChannelMessageSendComplex(chn.ID, &discordgo.MessageSend{
-						Content: fmt.Sprintf(db.Config.LangProperty("RejectedPollDM"), servname.Name, p.Upvotes, p.Downvotes),
-						Embed:   pollemb,
+						Content: db.Config.LangProperty("RejectedPollDM", map[string]interface{}{
+							"Server":    servname.Name,
+							"Upvotes":   p.Upvotes,
+							"Downvotes": p.Downvotes,
+						}),
+						Embed: pollemb,
 					})
 				}
 			}
@@ -45,7 +51,7 @@ func (b *Polls) CheckReactions(db *eodb.DB, p types.Poll, reactor string, downvo
 	}
 
 	if ((p.Downvotes - p.Upvotes) >= db.Config.VoteCount) || (downvote && (reactor == p.Suggestor)) {
-		b.RejectPoll(db, p, p.Message, reactor)
+		b.RejectPoll(db, p, p.Message, reactor, b.getLasted(db, p))
 
 		return
 	}

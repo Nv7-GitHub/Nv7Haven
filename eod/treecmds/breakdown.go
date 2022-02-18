@@ -1,8 +1,6 @@
 package treecmds
 
 import (
-	"fmt"
-
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
@@ -36,8 +34,11 @@ func (b *TreeCmds) ElemBreakdownCmd(elem string, calcTree bool, m types.Msg, rsp
 	}
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
-		Kind:       types.PageSwitchInv,
-		Title:      fmt.Sprintf(db.Config.LangProperty("BreakdownTitle"), el.Name, tree.Total),
+		Kind: types.PageSwitchInv,
+		Title: db.Config.LangProperty("BreakdownTitle", map[string]interface{}{
+			"Title": el.Name,
+			"Count": tree.Total,
+		}),
 		PageGetter: b.base.InvPageGetter,
 		Items:      tree.GetStringArr(),
 	}, m, rsp)
@@ -75,8 +76,11 @@ func (b *TreeCmds) CatBreakdownCmd(catName string, calcTree bool, m types.Msg, r
 	}
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
-		Kind:       types.PageSwitchInv,
-		Title:      fmt.Sprintf(db.Config.LangProperty("BreakdownTitle"), cat.Name, tree.Total),
+		Kind: types.PageSwitchInv,
+		Title: db.Config.LangProperty("BreakdownTitle", map[string]interface{}{
+			"Title": cat.Name,
+			"Count": tree.Total,
+		}),
 		PageGetter: b.base.InvPageGetter,
 		Items:      tree.GetStringArr(),
 	}, m, rsp)
@@ -118,8 +122,11 @@ func (b *TreeCmds) InvBreakdownCmd(user string, calcTree bool, m types.Msg, rsp 
 		name = u.Username
 	}
 	b.base.NewPageSwitcher(types.PageSwitcher{
-		Kind:       types.PageSwitchInv,
-		Title:      fmt.Sprintf(db.Config.LangProperty("InvBreakdownTitle"), name, tree.Total),
+		Kind: types.PageSwitchInv,
+		Title: db.Config.LangProperty("InvBreakdownTitle", map[string]interface{}{
+			"User":  name,
+			"Count": tree.Total,
+		}),
 		PageGetter: b.base.InvPageGetter,
 		Items:      tree.GetStringArr(),
 	}, m, rsp)

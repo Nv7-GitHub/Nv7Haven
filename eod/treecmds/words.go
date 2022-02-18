@@ -2,7 +2,6 @@ package treecmds
 
 import (
 	"bytes"
-	"fmt"
 	"image/png"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
@@ -20,11 +19,11 @@ func (b *TreeCmds) WordCloudCmd(name string, elems map[int]types.Empty, calcTree
 	}
 
 	if width < 1 || height < 1 {
-		rsp.ErrorMessage(db.Config.LangProperty("WordCloudDimensionsTooLow"))
+		rsp.ErrorMessage(db.Config.LangProperty("WordCloudDimensionsTooLow", nil))
 		return
 	}
 	if width > 4096 || height > 4096 {
-		rsp.ErrorMessage(db.Config.LangProperty("WordCloudDimensionsTooHigh"))
+		rsp.ErrorMessage(db.Config.LangProperty("WordCloudDimensionsTooHigh", nil))
 		return
 	}
 
@@ -45,14 +44,14 @@ func (b *TreeCmds) WordCloudCmd(name string, elems map[int]types.Empty, calcTree
 		return
 	}
 
-	rsp.Message(db.Config.LangProperty("SentWordCloud"))
+	rsp.Message(db.Config.LangProperty("SentWordCloud", nil))
 	channel, err := b.dg.UserChannelCreate(m.Author.ID)
 	if rsp.Error(err) {
 		return
 	}
 
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: fmt.Sprintf(db.Config.LangProperty("WordCloudElem"), name),
+		Content: db.Config.LangProperty("WordCloudElem", name),
 		Files: []*discordgo.File{
 			{
 				Name:        "wordcloud.png",

@@ -96,6 +96,8 @@ type DB struct {
 	Polls     map[string]types.Poll       // map[messageid]poll
 	Config    *types.ServerConfig
 
+	inTransaction bool
+
 	invFiles   map[string]*os.File
 	catFiles   map[string]*os.File
 	elemFile   *os.File

@@ -157,12 +157,6 @@ var (
 					Description: "The name of the element to add a mark to!",
 					Required:    true,
 				},
-				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "mark",
-					Description: "What the new mark should be!",
-					Required:    true,
-				},
 			},
 		},
 		{
@@ -1307,7 +1301,7 @@ var (
 		},
 		"mark": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.polls.MarkCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.polls.MarkInteractionCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"image": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData().Options[0]
@@ -1735,11 +1729,11 @@ var (
 				}
 				rsp := bot.newRespSlash(i)
 				if !isID && elem == "" {
-					rsp.ErrorMessage(db.Config.LangProperty("MustHaveElemOrID"))
+					rsp.ErrorMessage(db.Config.LangProperty("MustHaveElemOrID", nil))
 					return
 				}
 				if isID && elem != "" {
-					rsp.ErrorMessage(db.Config.LangProperty("CannotHaveBothElemAndID"))
+					rsp.ErrorMessage(db.Config.LangProperty("CannotHaveBothElemAndID", nil))
 					return
 				}
 				bot.elements.Info(elem, id, isID, bot.newMsgSlash(i), rsp)
@@ -1978,23 +1972,23 @@ var (
 				rsp.Acknowledge()
 
 				start := time.Now()
-				id := rsp.Message(db.Config.LangProperty("CalculatingPing"))
+				id := rsp.Message(db.Config.LangProperty("CalculatingPing", nil))
 				latency = time.Since(start)
-				bot.dg.ChannelMessageEdit(i.ChannelID, id, fmt.Sprintf(db.Config.LangProperty("PingMessage"), latency))
+				bot.dg.ChannelMessageEdit(i.ChannelID, id, db.Config.LangProperty("PingMessage", latency.String()))
 				return
 
 			case "edit":
 				rsp.Acknowledge()
 
-				id := rsp.Message(db.Config.LangProperty("CalculatingPing") + "[1/2]")
+				id := rsp.Message(db.Config.LangProperty("CalculatingPing", nil) + "[1/2]")
 				start := time.Now()
-				bot.dg.ChannelMessageEdit(i.ChannelID, id, db.Config.LangProperty("CalculatingPing")+"[2/2]")
+				bot.dg.ChannelMessageEdit(i.ChannelID, id, db.Config.LangProperty("CalculatingPing", nil)+"[2/2]")
 				latency = time.Since(start)
-				bot.dg.ChannelMessageEdit(i.ChannelID, id, fmt.Sprintf(db.Config.LangProperty("PingMessage"), latency))
+				bot.dg.ChannelMessageEdit(i.ChannelID, id, db.Config.LangProperty("PingMessage", latency.String()))
 				return
 			}
 
-			rsp.Message(fmt.Sprintf(db.Config.LangProperty("PingMessage"), latency.String()))
+			rsp.Message(db.Config.LangProperty("PingMessage", latency.String()))
 		},
 	}
 	autocompleteHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){

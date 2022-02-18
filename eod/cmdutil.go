@@ -160,6 +160,10 @@ func (n *normalResp) Attachment(text string, files []*discordgo.File) {
 	})
 }
 
+func (n *normalResp) Modal(modal *discordgo.InteractionResponseData, handler types.ModalHandler) {
+	n.ErrorMessage("Modals cannot be used with text commands!")
+}
+
 func (b *EoD) newMsgNormal(m *discordgo.MessageCreate) types.Msg {
 	return types.Msg{
 		Author:    m.Author,
@@ -357,6 +361,18 @@ func (s *slashResp) Attachment(text string, files []*discordgo.File) {
 			Files:   files,
 		},
 	})
+}
+
+func (s *slashResp) Modal(modal *discordgo.InteractionResponseData, handler types.ModalHandler) {
+	modal.CustomID = s.i.Interaction.ID
+	s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseModal,
+		Data: modal,
+	})
+	dat, res := s.b.GetData(s.i.GuildID)
+	if res.Exists {
+		dat.AddModal(s.i.ID, handler)
+	}
 }
 
 func (b *EoD) newMsgSlash(i *discordgo.InteractionCreate) types.Msg {

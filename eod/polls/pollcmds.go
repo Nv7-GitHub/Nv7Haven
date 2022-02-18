@@ -1,10 +1,55 @@
 package polls
 
 import (
-	"fmt"
-
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/bwmarrin/discordgo"
 )
+
+type markModal struct {
+	m    types.Msg
+	b    *Polls
+	elem string
+}
+
+func (m *markModal) Handler(s *discordgo.Session, i *discordgo.InteractionCreate, rsp types.Rsp) {
+	m.b.MarkCmd(m.elem, i.ModalSubmitData().Components[0].(*discordgo.ActionsRow).Components[0].(*discordgo.TextInput).Value, m.m, rsp)
+}
+
+func (b *Polls) MarkInteractionCmd(elem string, m types.Msg, rsp types.Rsp) {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
+		return
+	}
+	_, res = db.GetElementByName(elem)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
+		return
+	}
+
+	rsp.Modal(&discordgo.InteractionResponseData{
+		Title: "Mark Element",
+		Components: []discordgo.MessageComponent{
+			discordgo.ActionsRow{
+				Components: []discordgo.MessageComponent{
+					discordgo.TextInput{
+						CustomID:    "mark",
+						Label:       "New Element Mark",
+						Style:       discordgo.TextInputParagraph,
+						Placeholder: "None",
+						Required:    true,
+						MinLength:   1,
+						MaxLength:   2400,
+					},
+				},
+			},
+		},
+	}, &markModal{
+		m:    m,
+		b:    b,
+		elem: elem,
+	})
+}
 
 func (b *Polls) MarkCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
 	db, res := b.GetDB(m.GuildID)
@@ -16,22 +61,22 @@ func (b *Polls) MarkCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
 
 	el, res := db.GetElementByName(elem)
 	if !res.Exists {
-		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DoesntExist"), elem))
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 
 	inv := db.GetInv(m.Author.ID)
 	exists := inv.Contains(el.ID)
 	if !exists {
-		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DontHave"), el.Name))
+		rsp.ErrorMessage(db.Config.LangProperty("DontHave", el.Name))
 		return
 	}
 	if len(mark) >= 2400 {
-		rsp.ErrorMessage(db.Config.LangProperty("MaxMarkLength"))
+		rsp.ErrorMessage(db.Config.LangProperty("MaxMarkLength", nil))
 		return
 	}
 	if len(mark) == 0 {
-		mark = db.Config.LangProperty("DefaultMark")
+		mark = db.Config.LangProperty("DefaultComment", nil)
 	}
 
 	if el.Creator == m.Author.ID {
@@ -41,7 +86,7 @@ func (b *Polls) MarkCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
 			return
 		}
 		b.mark(m.GuildID, id, mark, m.Author.ID, "", "", false)
-		rsp.Message(fmt.Sprintf(db.Config.LangProperty("MarkChanged"), el.Name))
+		rsp.Message(db.Config.LangProperty("MarkChanged", el.Name))
 		return
 	}
 
@@ -60,7 +105,7 @@ func (b *Polls) MarkCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
 	if rsp.Error(err) {
 		return
 	}
-	id := rsp.Message(fmt.Sprintf(db.Config.LangProperty("MarkSuggested"), el.Name))
+	id := rsp.Message(db.Config.LangProperty("MarkSuggested", el.Name))
 
 	data, _ := b.GetData(m.GuildID)
 	data.SetMsgElem(id, el.ID)
@@ -77,14 +122,14 @@ func (b *Polls) ImageCmd(elem string, image string, m types.Msg, rsp types.Rsp) 
 
 	el, res := db.GetElementByName(elem)
 	if !res.Exists {
-		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DoesntExist"), elem))
+		rsp.ErrorMessage(db.Config.LangProperty("DoesntExist", elem))
 		return
 	}
 
 	inv := db.GetInv(m.Author.ID)
 	exists := inv.Contains(el.ID)
 	if !exists {
-		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DontHave"), el.Name))
+		rsp.ErrorMessage(db.Config.LangProperty("DontHave", el.Name))
 		return
 	}
 
@@ -98,9 +143,9 @@ func (b *Polls) ImageCmd(elem string, image string, m types.Msg, rsp types.Rsp) 
 		}
 		b.image(m.GuildID, id, image, m.Author.ID, changed, "", "", false)
 		if !changed {
-			rsp.Message(fmt.Sprintf(db.Config.LangProperty("ImageAdded"), el.Name))
+			rsp.Message(db.Config.LangProperty("ImageAdded", el.Name))
 		} else {
-			rsp.Message(fmt.Sprintf(db.Config.LangProperty("ImageChanged"), el.Name))
+			rsp.Message(db.Config.LangProperty("ImageChanged", el.Name))
 		}
 		return
 	}
@@ -121,7 +166,7 @@ func (b *Polls) ImageCmd(elem string, image string, m types.Msg, rsp types.Rsp) 
 	if rsp.Error(err) {
 		return
 	}
-	id := rsp.Message(fmt.Sprintf(db.Config.LangProperty("ImageSuggested"), el.Name))
+	id := rsp.Message(db.Config.LangProperty("ImageSuggested", el.Name))
 	data, _ := b.GetData(m.GuildID)
 	data.SetMsgElem(id, el.ID)
 }
@@ -137,14 +182,14 @@ func (b *Polls) ColorCmd(elem string, color int, m types.Msg, rsp types.Rsp) {
 
 	el, res := db.GetElementByName(elem)
 	if !res.Exists {
-		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DoesntExist"), elem))
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 
 	inv := db.GetInv(m.Author.ID)
 	exists := inv.Contains(el.ID)
 	if !exists {
-		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DontHave"), el.Name))
+		rsp.ErrorMessage(db.Config.LangProperty("DontHave", el.Name))
 		return
 	}
 
@@ -155,7 +200,7 @@ func (b *Polls) ColorCmd(elem string, color int, m types.Msg, rsp types.Rsp) {
 			return
 		}
 		b.color(m.GuildID, id, color, m.Author.ID, "", "", false)
-		rsp.Message(fmt.Sprintf(db.Config.LangProperty("ElemColorChanged"), el.Name))
+		rsp.Message(db.Config.LangProperty("ElemColorChanged", el.Name))
 		return
 	}
 
@@ -174,7 +219,7 @@ func (b *Polls) ColorCmd(elem string, color int, m types.Msg, rsp types.Rsp) {
 	if rsp.Error(err) {
 		return
 	}
-	id := rsp.Message(fmt.Sprintf(db.Config.LangProperty("ElemColorSuggested"), el.Name))
+	id := rsp.Message(db.Config.LangProperty("ElemColorSuggested", el.Name))
 	data, _ := b.GetData(m.GuildID)
 	data.SetMsgElem(id, el.ID)
 }
@@ -210,7 +255,7 @@ func (b *Polls) CatImgCmd(catName string, url string, m types.Msg, rsp types.Rsp
 	if rsp.Error(err) {
 		return
 	}
-	rsp.Message(fmt.Sprintf(db.Config.LangProperty("CatImageSuggested"), cat.Name))
+	rsp.Message(db.Config.LangProperty("CatImageSuggested", cat.Name))
 }
 
 func (b *Polls) CatColorCmd(catName string, color int, m types.Msg, rsp types.Rsp) {
@@ -241,5 +286,5 @@ func (b *Polls) CatColorCmd(catName string, color int, m types.Msg, rsp types.Rs
 	if rsp.Error(err) {
 		return
 	}
-	rsp.Message(fmt.Sprintf(db.Config.LangProperty("CatColorSuggested"), cat.Name))
+	rsp.Message(db.Config.LangProperty("CatColorSuggested", cat.Name))
 }

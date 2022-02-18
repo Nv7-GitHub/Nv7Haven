@@ -18,6 +18,12 @@ func (dat *ServerData) AddComponentMsg(id string, msg ComponentMsg) {
 	dat.Unlock()
 }
 
+func (dat *ServerData) AddModal(id string, handler ModalHandler) {
+	dat.Lock()
+	dat.Modals[id] = handler
+	dat.Unlock()
+}
+
 func (dat *ServerData) SavePageSwitcher(id string, ps PageSwitcher) {
 	dat.Lock()
 	dat.PageSwitchers[id] = ps
