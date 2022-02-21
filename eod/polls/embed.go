@@ -67,12 +67,12 @@ func (b *Polls) GetPollEmbed(db *eodb.DB, p types.Poll) (*discordgo.MessageEmbed
 
 	case types.PollCategorize, types.PollUnCategorize:
 		elems := p.PollCategorizeData.Elems
-		names := make([]string, len(elems))
 		moreTxt := ""
-		if len(names) > 20 {
-			moreTxt = "\n" + db.Config.LangProperty("MoreElemsPoll", len(names)-20)
+		if len(elems) > 20 {
+			moreTxt = "\n" + db.Config.LangProperty("MoreElemsPoll", len(elems)-20)
 			elems = elems[:20]
 		}
+		names := make([]string, len(elems))
 		for i, v := range elems {
 			el, _ := db.GetElement(v)
 			names[i] = el.Name
