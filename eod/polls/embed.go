@@ -71,8 +71,8 @@ func (b *Polls) GetPollEmbed(db *eodb.DB, p types.Poll) (*discordgo.MessageEmbed
 		moreTxt := ""
 		if len(names) > 20 {
 			moreTxt = "\n" + db.Config.LangProperty("MoreElemsPoll", len(names)-20)
+			elems = elems[:20]
 		}
-		elems = elems[:20]
 		for i, v := range elems {
 			el, _ := db.GetElement(v)
 			names[i] = el.Name
