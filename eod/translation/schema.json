@@ -500,7 +500,11 @@
     },
     "RmCatPoll": {
       "type": "string",
-      "description": "The title of polls for element de-categorizations."
+      "description": "The title of polls for element un-categorizations."
+    },
+    "DelCatPoll": {
+      "type": "string",
+      "description": "The title of polls for category deletions."
     },
     "CatImagePoll": {
       "type": "string",
@@ -517,6 +521,10 @@
     "SetCatColorPoll": {
       "type": "string",
       "description": "The title of polls for category color changes."
+    },
+    "MoreElemsPoll": {
+      "type": "string",
+      "description": "The description to put when the number of elements displayed in the poll is shortened."
     },
     "NewNote": {
       "type": "string",
@@ -556,7 +564,7 @@
     },
     "Lasted": {
       "type": "string",
-      "description": "Says how long the poll lasted"
+      "description": "How long the poll lasted."
     },
     "NewElemNews": {
       "type": "string",
