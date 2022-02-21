@@ -43,12 +43,12 @@ func (b *Categories) DeleteCatCmd(category string, m types.Msg, rsp types.Rsp) {
 		err := b.polls.CreatePoll(types.Poll{
 			Channel:   db.Config.VotingChannel,
 			Guild:     m.GuildID,
-			Kind:      types.PollCategorize,
+			Kind:      types.PollUnCategorize,
 			Suggestor: m.Author.ID,
 
 			PollCategorizeData: &types.PollCategorizeData{
 				Elems:    suggestRm,
-				Category: category,
+				Category: cat.Name,
 				Title:    db.Config.LangProperty("DelCatPoll", nil),
 			},
 		})
