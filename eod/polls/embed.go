@@ -68,17 +68,19 @@ func (b *Polls) GetPollEmbed(db *eodb.DB, p types.Poll) (*discordgo.MessageEmbed
 	case types.PollCategorize, types.PollUnCategorize:
 		elems := p.PollCategorizeData.Elems
 		names := make([]string, len(elems))
+		moreTxt := ""
+		if len(names) > 20 {
+			moreTxt = "\n" + db.Config.LangProperty("MoreElemsPoll", len(names)-20)
+		}
+		elems = elems[:20]
 		for i, v := range elems {
 			el, _ := db.GetElement(v)
 			names[i] = el.Name
 		}
-		name := db.Config.LangProperty("AddCatPoll", nil)
-		if p.Kind == types.PollUnCategorize {
-			name = db.Config.LangProperty("RmCatPoll", nil)
-		}
+		els := strings.Join(names, "\n")
 		return &discordgo.MessageEmbed{
-			Title:       name,
-			Description: fmt.Sprintf("%s\n\n%s\n\n", db.Config.LangProperty("CatPollElems", strings.Join(names, "\n")), db.Config.LangProperty("CatPollCat", p.PollCategorizeData.Category)) + db.Config.LangProperty("PollCreatorText", p.Suggestor),
+			Title:       p.PollCategorizeData.Title,
+			Description: fmt.Sprintf("%s\n\n%s%s\n\n", db.Config.LangProperty("CatPollElems", els), db.Config.LangProperty("CatPollCat", p.PollCategorizeData.Category), moreTxt) + db.Config.LangProperty("PollCreatorText", p.Suggestor),
 			Footer: &discordgo.MessageEmbedFooter{
 				Text: db.Config.LangProperty("PollFooter", nil),
 			},

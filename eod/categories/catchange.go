@@ -98,6 +98,7 @@ func (b *Categories) CategoryCmd(elems []string, category string, m types.Msg, r
 			PollCategorizeData: &types.PollCategorizeData{
 				Elems:    suggestAdd,
 				Category: category,
+				Title:    db.Config.LangProperty("AddCatPoll", nil),
 			},
 		})
 		if rsp.Error(err) {
@@ -244,32 +245,38 @@ func (b *Categories) RmCategoryCmd(elems []string, category string, m types.Msg,
 			PollCategorizeData: &types.PollCategorizeData{
 				Elems:    suggestRm,
 				Category: category,
+				Title:    db.Config.LangProperty("RmCatPoll", nil),
 			},
 		})
 		if rsp.Error(err) {
 			return
 		}
 	}
-	if len(rmed) > 0 && len(suggestRm) == 0 {
+
+	b.unCategorizeRsp(len(rmed), suggestRm, db, category, rsp)
+}
+
+func (c *Categories) unCategorizeRsp(rmed int, suggestRm []int, db *eodb.DB, category string, rsp types.Rsp) {
+	if rmed > 0 && len(suggestRm) == 0 {
 		rsp.Message(db.Config.LangProperty("UnCategorized", nil))
-	} else if len(rmed) == 0 && len(suggestRm) == 1 {
+	} else if rmed == 0 && len(suggestRm) == 1 {
 		el, _ := db.GetElement(suggestRm[0])
 		rsp.Message(db.Config.LangProperty("SuggestUnCategorized", map[string]interface{}{
 			"Element":  el.Name,
 			"Category": category,
 		}))
-	} else if len(rmed) == 0 && len(suggestRm) > 1 {
+	} else if rmed == 0 && len(suggestRm) > 1 {
 		rsp.Message(db.Config.LangProperty("SuggestUnCategorizedMult", map[string]interface{}{
 			"Elements": len(suggestRm),
 			"Category": category,
 		}))
-	} else if len(rmed) > 0 && len(suggestRm) == 1 {
+	} else if rmed > 0 && len(suggestRm) == 1 {
 		el, _ := db.GetElement(suggestRm[0])
 		rsp.Message(db.Config.LangProperty("UnCategorizeMultSuggestUnCategorized", map[string]interface{}{
 			"Element":  el.Name,
 			"Category": category,
 		}))
-	} else if len(rmed) > 0 && len(suggestRm) > 1 {
+	} else if rmed > 0 && len(suggestRm) > 1 {
 		rsp.Message(db.Config.LangProperty("UnCategorizeMultSuggestUnCategorizedMult", map[string]interface{}{
 			"Elements": len(suggestRm),
 			"Category": category,

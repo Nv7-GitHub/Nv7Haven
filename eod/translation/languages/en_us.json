@@ -141,10 +141,12 @@
   "ElemImagePoll": "Add Image",
   "AddCatPoll": "Categorize",
   "RmCatPoll": "Un-Categorize",
+  "DelCatPoll": "Delete Category",
   "CatImagePoll": "Add Category Image",
   "ElemColorPoll": "Set Color",
   "ResetCatColorPoll": "Reset Category Color",
   "SetCatColorPoll": "Set Category Color",
+  "MoreElemsPoll": "And {{ . }} more...",
 
   "NewNote": "New Note: {{ . }}",
   "OldNote": "Old Note: {{ . }}",

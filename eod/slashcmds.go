@@ -572,7 +572,7 @@ var (
 				{
 					Type:         discordgo.ApplicationCommandOptionString,
 					Name:         "category",
-					Description:  "The name of the category to add the element to!",
+					Description:  "The name of the category to remove the elements from!",
 					Required:     true,
 					Autocomplete: true,
 				},
@@ -610,6 +610,19 @@ var (
 					Description:  "Another element to remove from the category!",
 					Required:     false,
 					Autocomplete: true,
+				},
+			},
+		},
+		{
+			Name:        "delcat",
+			Type:        discordgo.ChatApplicationCommand,
+			Description: "Remove a category!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "category",
+					Description: "The name of the category to remove the elements from!",
+					Required:    true,
 				},
 			},
 		},
@@ -1989,6 +2002,10 @@ var (
 			}
 
 			rsp.Message(db.Config.LangProperty("PingMessage", latency.String()))
+		},
+		"delcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
+			bot.categories.DeleteCatCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 	autocompleteHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){

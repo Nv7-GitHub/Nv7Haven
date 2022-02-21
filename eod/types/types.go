@@ -162,6 +162,7 @@ type PollImageData struct {
 type PollCategorizeData struct {
 	Elems    []int
 	Category string
+	Title    string
 }
 
 type PollCatImageData struct {
