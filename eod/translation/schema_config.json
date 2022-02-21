@@ -147,6 +147,9 @@
   "ResetCatColorPoll": "The title of polls for category color resets.",
   "SetCatColorPoll": "The title of polls for category color changes.",
   "MoreElemsPoll": "The description to put when the number of elements displayed in the poll is shortened.",
+  "IntersectPoll": "The title of polls for category intersections.",
+  "UnionPoll": "The title of polls for category unions.",
+  "DiffPoll": "The title of polls for category differences.",
 
   "NewNote": "The line displaying the new element mark in polls.",
   "OldNote": "The line displaying the old element mark in polls.",

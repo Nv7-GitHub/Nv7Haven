@@ -60,10 +60,20 @@ func (b *Categories) CategoryCmd(elems []string, category string, m types.Msg, r
 	}
 
 	cat, res := db.GetCat(category)
+	var els map[int]types.Empty
 	if res.Exists {
 		category = cat.Name
+
+		// Copy elements
+		cat.Lock.RLock()
+		els = make(map[int]types.Empty, len(cat.Elements))
+		for el := range cat.Elements {
+			els[el] = types.Empty{}
+		}
+		cat.Lock.RUnlock()
 	} else if strings.ToLower(category) == category {
 		category = util.ToTitle(category)
+		els = make(map[int]types.Empty)
 		if len(url.PathEscape(category)) > 1024 {
 			rsp.ErrorMessage(db.Config.LangProperty("CatNameTooLong", nil))
 			return
@@ -71,20 +81,22 @@ func (b *Categories) CategoryCmd(elems []string, category string, m types.Msg, r
 	}
 
 	suggestAdd := make([]int, 0)
-	added := make([]string, 0)
+	added := 0
 	for _, val := range elems {
 		el, res := db.GetElementByName(val)
 		if !res.Exists {
 			b.GetNotExists(db, elems, m, rsp)
 			return
 		}
-
-		if el.Creator == m.Author.ID {
-			added = append(added, el.Name)
-			err := b.polls.Categorize(el.ID, category, m.GuildID)
-			rsp.Error(err)
-		} else {
-			suggestAdd = append(suggestAdd, el.ID)
+		_, exists := els[el.ID]
+		if !exists { // Only add if not already added
+			if el.Creator == m.Author.ID {
+				added++
+				err := b.polls.Categorize(el.ID, category, m.GuildID)
+				rsp.Error(err)
+			} else {
+				suggestAdd = append(suggestAdd, el.ID)
+			}
 		}
 	}
 
@@ -105,26 +117,31 @@ func (b *Categories) CategoryCmd(elems []string, category string, m types.Msg, r
 			return
 		}
 	}
-	if len(added) > 0 && len(suggestAdd) == 0 {
+
+	b.categorizeRsp(added, suggestAdd, db, category, rsp)
+}
+
+func (c *Categories) categorizeRsp(added int, suggestAdd []int, db *eodb.DB, category string, rsp types.Rsp) {
+	if added > 0 && len(suggestAdd) == 0 {
 		rsp.Message(db.Config.LangProperty("Categorized", nil))
-	} else if len(added) == 0 && len(suggestAdd) == 1 {
+	} else if added == 0 && len(suggestAdd) == 1 {
 		el, _ := db.GetElement(suggestAdd[0])
 		rsp.Message(db.Config.LangProperty("SuggestCategorized", map[string]interface{}{
 			"Element":  el.Name,
 			"Category": category,
 		}))
-	} else if len(added) == 0 && len(suggestAdd) > 1 {
+	} else if added == 0 && len(suggestAdd) > 1 {
 		rsp.Message(db.Config.LangProperty("SuggestCategorizedMult", map[string]interface{}{
 			"Elements": len(suggestAdd),
 			"Category": category,
 		}))
-	} else if len(added) > 0 && len(suggestAdd) == 1 {
+	} else if added > 0 && len(suggestAdd) == 1 {
 		el, _ := db.GetElement(suggestAdd[0])
 		rsp.Message(db.Config.LangProperty("CategorizeMultSuggestCategorized", map[string]interface{}{
 			"Element":  el.Name,
 			"Category": category,
 		}))
-	} else if len(added) > 0 && len(suggestAdd) > 1 {
+	} else if added > 0 && len(suggestAdd) > 1 {
 		rsp.Message(db.Config.LangProperty("CategorizeMultSuggestCategorizedMult", map[string]interface{}{
 			"Elements": len(suggestAdd),
 			"Category": category,
@@ -144,7 +161,7 @@ func (b *Categories) RmCategoryCmd(elems []string, category string, m types.Msg,
 
 	cat, res := db.GetCat(category)
 	if !res.Exists {
-		rsp.ErrorMessage(db.Config.LangProperty("CatNoExist", category))
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 
@@ -208,7 +225,7 @@ func (b *Categories) RmCategoryCmd(elems []string, category string, m types.Msg,
 
 	// Actually remove
 	suggestRm := make([]int, 0)
-	rmed := make([]string, 0)
+	rmed := 0
 	for _, val := range elems {
 		el, res := db.GetElementByName(val)
 		if !res.Exists {
@@ -228,7 +245,7 @@ func (b *Categories) RmCategoryCmd(elems []string, category string, m types.Msg,
 		}
 
 		if el.Creator == m.Author.ID {
-			rmed = append(rmed, el.Name)
+			rmed++
 			err := b.polls.UnCategorize(el.ID, category, m.GuildID)
 			rsp.Error(err)
 		} else {
@@ -253,7 +270,7 @@ func (b *Categories) RmCategoryCmd(elems []string, category string, m types.Msg,
 		}
 	}
 
-	b.unCategorizeRsp(len(rmed), suggestRm, db, category, rsp)
+	b.unCategorizeRsp(rmed, suggestRm, db, category, rsp)
 }
 
 func (c *Categories) unCategorizeRsp(rmed int, suggestRm []int, db *eodb.DB, category string, rsp types.Rsp) {

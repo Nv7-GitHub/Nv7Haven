@@ -526,6 +526,18 @@
       "type": "string",
       "description": "The description to put when the number of elements displayed in the poll is shortened."
     },
+    "IntersectPoll": {
+      "type": "string",
+      "description": "The title of polls for category intersections."
+    },
+    "UnionPoll": {
+      "type": "string",
+      "description": "The title of polls for category unions."
+    },
+    "DiffPoll": {
+      "type": "string",
+      "description": "The title of polls for category differences."
+    },
     "NewNote": {
       "type": "string",
       "description": "The line displaying the new element mark in polls."

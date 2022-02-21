@@ -147,6 +147,9 @@
   "ResetCatColorPoll": "Reset Category Color",
   "SetCatColorPoll": "Set Category Color",
   "MoreElemsPoll": "And {{ . }} more...",
+  "IntersectPoll": "Intersection",
+  "UnionPoll": "Union",
+  "DiffPoll": "Difference",
 
   "NewNote": "New Note: {{ . }}",
   "OldNote": "Old Note: {{ . }}",

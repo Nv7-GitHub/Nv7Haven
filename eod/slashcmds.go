@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/categories"
 	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -1279,6 +1280,51 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "catop",
+			Type:        discordgo.ChatApplicationCommand,
+			Description: "Perform a set operation on two categories!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "operation",
+					Description: "The operation to perform!",
+					Choices: []*discordgo.ApplicationCommandOptionChoice{
+						{
+							Name:  "Union",
+							Value: categories.CatOpUnion,
+						},
+						{
+							Name:  "Intersection",
+							Value: categories.CatOpIntersect,
+						},
+						{
+							Name:  "Difference",
+							Value: categories.CatOpDiff,
+						},
+					},
+					Required: true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "category1",
+					Description: "The category on the left side of the operation",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "category2",
+					Description: "The category on the right side of the operation",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "result",
+					Description: "The category to store the result into - NOTE: Will only add to the category!",
+					Required:    true,
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"set": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -2006,6 +2052,10 @@ var (
 		"delcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			bot.categories.DeleteCatCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"catop": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
+			bot.categories.CatOpCmd(categories.CategoryOperation(resp.Options[0].StringValue()), resp.Options[1].StringValue(), resp.Options[2].StringValue(), resp.Options[3].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 	autocompleteHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
