@@ -132,7 +132,7 @@ func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, author string, g
 		for i, v := range db.Elements {
 			ids[i] = v.ID
 		}
-		db.RUnlock()
+		inv.Lock.RUnlock()
 
 		// Shuffle ids
 		rand.Shuffle(len(ids), func(i, j int) {
@@ -143,8 +143,32 @@ func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, author string, g
 		for _, id := range ids {
 			exists := inv.Contains(id)
 			if !exists {
-				el, _ = db.GetElement(id)
-				hasFound = true
+				// Check if you can make the element
+				db.RLock()
+				canMake := false
+				for elems, elem3 := range db.Combos() {
+					if elem3 == id {
+						ok := true
+						parts := strings.Split(elems, "+")
+						for _, part := range parts {
+							v, _ := strconv.Atoi(part)
+							if !inv.Contains(v) {
+								ok = false
+								break
+							}
+						}
+
+						if ok {
+							canMake = true
+							break
+						}
+					}
+				}
+				db.RUnlock()
+				if canMake {
+					el, _ = db.GetElement(id)
+					hasFound = true
+				}
 				break
 			}
 		}
