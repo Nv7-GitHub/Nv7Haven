@@ -1,7 +1,6 @@
 package base
 
 import (
-	"fmt"
 	"regexp"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
@@ -91,7 +90,7 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types
 		// Calc rhs
 		var rhselems map[int]types.Empty
 		rhs := vcat.Data["rhs"].(string)
-		cat, res = db.GetCat(lhs)
+		cat, res = db.GetCat(rhs)
 		if !res.Exists {
 			vcat, res := db.GetVCat(rhs)
 			if !res.Exists {
@@ -110,8 +109,6 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types
 			}
 			cat.Lock.RUnlock()
 		}
-
-		fmt.Println(vcat.Name, lhselems, rhselems)
 
 		// Operations
 		switch types.CategoryOperation(vcat.Data["operation"].(string)) {
