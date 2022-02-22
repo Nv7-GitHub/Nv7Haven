@@ -143,6 +143,8 @@ func (b *Categories) AllCatCmd(sortBy string, hasUser bool, user string, m types
 		return
 	}
 
+	rsp.Acknowledge()
+
 	id := m.Author.ID
 	if hasUser {
 		id = user
