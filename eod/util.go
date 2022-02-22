@@ -128,3 +128,12 @@ func makeLanguageOptions() []*discordgo.ApplicationCommandOptionChoice {
 	}
 	return results
 }
+
+func getFocused(opts []*discordgo.ApplicationCommandInteractionDataOption) (int, string) {
+	for i, opt := range opts {
+		if opt.Focused {
+			return i, opt.Name
+		}
+	}
+	return -1, ""
+}

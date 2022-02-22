@@ -2245,17 +2245,8 @@ var (
 				return
 			}
 			// Check for focused and being named category
-			focusedInd := -1
-			for i, opt := range data.Options {
-				if opt.Focused {
-					focusedInd = i
-					if opt.Name != "category" {
-						return
-					}
-					break
-				}
-			}
-			if focusedInd == -1 {
+			focusedInd, name := getFocused(data.Options)
+			if name != "category" {
 				return
 			}
 
@@ -2283,19 +2274,13 @@ func catChangeAutocomplete(s *discordgo.Session, i *discordgo.InteractionCreate)
 		return
 	}
 	// Check for focused and being named category
-	focusedInd := -1
 	isElem := false
-	for i, opt := range data.Options {
-		if opt.Focused {
-			focusedInd = i
-			if opt.Name != "category" {
-				isElem = true
-			}
-			break
-		}
-	}
-	if focusedInd == -1 {
+	focusedInd, name := getFocused(data.Options)
+	if name == "" {
 		return
+	}
+	if name != "category" {
+		isElem = true
 	}
 
 	var names []string
