@@ -33,6 +33,7 @@ const (
 	PollCatImage     = 5
 	PollColor        = 6
 	PollCatColor     = 7
+	PollDeleteVCat   = 8
 
 	PageSwitchLdb = 0
 	PageSwitchInv = 1
@@ -165,6 +166,10 @@ type PollCategorizeData struct {
 	Title    string
 }
 
+type PollVCatDeleteData struct {
+	Category string
+}
+
 type PollCatImageData struct {
 	Category string
 	NewImage string
@@ -199,6 +204,7 @@ type Poll struct {
 	PollCatImageData   *PollCatImageData   `json:"catimagedata,omitempty"`
 	PollColorData      *PollColorData      `json:"colordata,omitempty"`
 	PollCatColorData   *PollCatColorData   `json:"catcolordata,omitempty"`
+	PollVCatDeleteData *PollVCatDeleteData `json:"vcatdeldata,omitempty"` // This is also the uncategorize data
 
 	Upvotes   int
 	Downvotes int

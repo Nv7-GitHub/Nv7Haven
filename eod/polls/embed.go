@@ -136,6 +136,15 @@ func (b *Polls) GetPollEmbed(db *eodb.DB, p types.Poll) (*discordgo.MessageEmbed
 			}
 		}
 		return emb, nil
+
+	case types.PollDeleteVCat:
+		return &discordgo.MessageEmbed{
+			Title:       db.Config.LangProperty("DeleteVCatPoll", nil),
+			Description: fmt.Sprintf("**%s**\n\n", p.PollVCatDeleteData.Category) + db.Config.LangProperty("PollCreatorText", p.Suggestor),
+			Footer: &discordgo.MessageEmbedFooter{
+				Text: db.Config.LangProperty("PollFooter", nil),
+			},
+		}, nil
 	}
 
 	return nil, errors.New("eod: unknown poll type")

@@ -546,6 +546,10 @@
       "type": "string",
       "description": "The title of polls for category differences."
     },
+    "DeleteVCatPoll": {
+      "type": "string",
+      "description": "The title of polls for virtual category deletion."
+    },
     "NewNote": {
       "type": "string",
       "description": "The line displaying the new element mark in polls."
@@ -642,6 +646,10 @@
       "type": "string",
       "description": "The news message when a category's color is changed."
     },
+    "DeleteVCatNews": {
+      "type": "string",
+      "description": "The news message when a virtual category is deleted."
+    },
     "MaxMarkLength": {
       "type": "string",
       "description": "Tells the user that a creator mark must be below 2400 characters."
@@ -681,6 +689,10 @@
     "CatColorSuggested": {
       "type": "string",
       "description": "Tells the user that a poll was created to change the color of the category."
+    },
+    "VCatDeleteSuggested": {
+      "type": "string",
+      "description": "Tells the user that a poll was created to delete a virtual category."
     },
     "MustAttachImage": {
       "type": "string",

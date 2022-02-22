@@ -152,6 +152,7 @@
   "IntersectPoll": "The title of polls for category intersections.",
   "UnionPoll": "The title of polls for category unions.",
   "DiffPoll": "The title of polls for category differences.",
+  "DeleteVCatPoll": "The title of polls for virtual category deletion.",
 
   "NewNote": "The line displaying the new element mark in polls.",
   "OldNote": "The line displaying the old element mark in polls.",
@@ -178,6 +179,7 @@
   "RmCatMultNews": "The news message when multiple elements are removed from a category.",
   "ResetCatColorNews": "The news message when a category's color is reset.",
   "SetCatColorNews": "The news message when a category's color is changed.",
+  "DeleteVCatNews": "The news message when a virtual category is deleted.",
 
   "MaxMarkLength": "Tells the user that a creator mark must be below 2400 characters.",
   "MarkChanged": "Tells the user that they changed the mark of their element.",
@@ -189,6 +191,7 @@
   "ElemColorSuggested": "Tells the user that a poll was created to change the color of the element.",
   "CatImageSuggested": "Tells the user that a poll was created to change the image of the category.",
   "CatColorSuggested": "Tells the user that a poll was created to change the color of the category.",
+  "VCatDeleteSuggested": "Tells the user that a poll was created to delete a virtual category.",
 
   "MustAttachImage": "Tell the user they must attach an image.",
   "AddCatMustHaveSeparator": "Tell the user they must separate the category name and the elements to add to the category with a vertical bar.",

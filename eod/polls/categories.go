@@ -216,3 +216,41 @@ func (b *Polls) catColor(guild string, catName string, color int, creator string
 		})+controversial)
 	}
 }
+
+func (b *Polls) deleteVCat(guild string, catName string, creator string, controversial string, lasted string, news bool) {
+	db, res := b.GetDB(guild)
+	if !res.Exists {
+		return
+	}
+	vcat, res := db.GetVCat(catName)
+	if !res.Exists {
+		return
+	}
+
+	// Update stats
+	if vcat.Imager != "" {
+		inv := db.GetInv(vcat.Imager)
+		inv.ImagedCnt--
+		_ = db.SaveInv(inv) // ignore error
+	}
+	if vcat.Colorer != "" {
+		inv := db.GetInv(vcat.Colorer)
+		inv.ColoredCnt--
+		_ = db.SaveInv(inv) // ignore error
+	}
+
+	// Delete
+	err := db.DeleteVCat(vcat.Name)
+	if err != nil {
+		return
+	}
+
+	// News
+	if news {
+		b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty("DeleteVCatNews", map[string]interface{}{
+			"Category":   vcat.Name,
+			"LastedText": lasted,
+			"Creator":    creator,
+		})+controversial)
+	}
+}

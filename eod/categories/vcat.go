@@ -173,24 +173,19 @@ func (b *Categories) DeleteVCatCmd(name string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 
-	// Update stats
-	if vcat.Imager != "" {
-		inv := db.GetInv(vcat.Imager)
-		inv.ImagedCnt--
-		_ = db.SaveInv(inv) // ignore error
-	}
-	if vcat.Colorer != "" {
-		inv := db.GetInv(vcat.Colorer)
-		inv.ColoredCnt--
-		_ = db.SaveInv(inv) // ignore error
-	}
-
-	// Delete
-	err := db.DeleteVCat(vcat.Name)
+	err := b.polls.CreatePoll(types.Poll{
+		Channel:   db.Config.VotingChannel,
+		Guild:     m.GuildID,
+		Kind:      types.PollDeleteVCat,
+		Suggestor: m.Author.ID,
+		PollVCatDeleteData: &types.PollVCatDeleteData{
+			Category: vcat.Name,
+		},
+	})
 	if rsp.Error(err) {
 		return
 	}
-	rsp.Message("Deleted Virtual Category!") // TODO: Translate
+	rsp.Message(db.Config.LangProperty("VCatDeleteSuggested", vcat.Name))
 }
 
 func (b *Categories) VCatOpCmd(op types.CategoryOperation, name string, lhs string, rhs string, m types.Msg, rsp types.Rsp) {

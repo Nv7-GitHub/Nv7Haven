@@ -152,6 +152,7 @@
   "IntersectPoll": "Intersection",
   "UnionPoll": "Union",
   "DiffPoll": "Difference",
+  "DeleteVCatPoll": "Delete Virtual Category",
 
   "NewNote": "New Note: {{ . }}",
   "OldNote": "Old Note: {{ . }}",
@@ -178,6 +179,7 @@
   "RmCatMultNews": "🗃️ Removed **{{ .Elements }} elements** from **{{ .Category }}** ({{ .LastedText }}By <@{{ .Creator }}>)",
   "ResetCatColorNews": "Reset Category Color - **{{ .Category }}** ({{ .LastedText }}By <@{{ .Creator }}>)",
   "SetCatColorNews": "Set Category Color - **{{ .Category }}** ({{ .LastedText }}By <@{{ .Creator }}>)",
+  "DeleteVCatNews": "🗑️ Deleted Virtual Category **{{ .Category }}** ({{ .LastedText }}By <@{{ .Creator }}>)",
 
   "MaxMarkLength": "Creator marks must be under 2400 characters!",
   "MarkChanged": "You have signed **{{ . }}**! 🖋️",
@@ -189,6 +191,7 @@
   "ElemColorSuggested": "Suggested a color for **{{ . }}** 🖋️",
   "CatImageSuggested": "Suggested an image for category **{{ . }}** 📷",
   "CatColorSuggested": "Suggested a color for category **{{ . }}** 🖋️",
+  "VCatDeleteSuggested": "Suggested to delete virtual category **{{ . }}** 🗑️",
 
   "MustAttachImage": "You must attach an image!",
   "AddCatMustHaveSeparator": "You must have a \"|\" to separate the category name and the elements to add!",
