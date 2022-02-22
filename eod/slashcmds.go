@@ -3,6 +3,7 @@ package eod
 import (
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
@@ -152,10 +153,11 @@ var (
 			Description: "Suggest a mark, or add a mark to an element you created!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "element",
-					Description: "The name of the element to add a mark to!",
-					Required:    true,
+					Type:         discordgo.ApplicationCommandOptionString,
+					Name:         "element",
+					Description:  "The name of the element to add a mark to!",
+					Required:     true,
+					Autocomplete: true,
 				},
 			},
 		},
@@ -170,10 +172,11 @@ var (
 					Description: "Suggest an image for an element, or add an image to an element you created!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "element",
-							Description: "The name of the element to add the image to!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "element",
+							Description:  "The name of the element to add the image to!",
+							Required:     true,
+							Autocomplete: true,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionAttachment,
@@ -189,10 +192,11 @@ var (
 					Description: "Add an image to a category!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "category",
-							Description: "The name of the category to add the image to!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "category",
+							Description:  "The name of the category to add the image to!",
+							Required:     true,
+							Autocomplete: true,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionAttachment,
@@ -415,10 +419,11 @@ var (
 			Description: "Get a hint on an element!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "element",
-					Description: "Name of the element!",
-					Required:    false,
+					Type:         discordgo.ApplicationCommandOptionString,
+					Name:         "element",
+					Description:  "Name of the element!",
+					Required:     false,
+					Autocomplete: true,
 				},
 			},
 		},
@@ -451,10 +456,11 @@ var (
 					Description: "Give a user an element, and choose whether to give all the elements required to make that element!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "element",
-							Description: "Name of the element!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "element",
+							Description:  "Name of the element!",
+							Required:     true,
+							Autocomplete: true,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionBoolean,
@@ -472,14 +478,15 @@ var (
 				},
 				{
 					Type:        discordgo.ApplicationCommandOptionSubCommand,
-					Name:        "cat",
+					Name:        "category",
 					Description: "Give a user all the elements in a category, and optionally give the tree!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "category",
-							Description: "Name of the category!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "category",
+							Description:  "Name of the category!",
+							Required:     true,
+							Autocomplete: true,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionBoolean,
@@ -521,10 +528,11 @@ var (
 					Description: "Calculate the path of an element!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "element",
-							Description: "Name of the element!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "element",
+							Description:  "Name of the element!",
+							Required:     true,
+							Autocomplete: true,
 						},
 					},
 				},
@@ -534,10 +542,11 @@ var (
 					Description: "Calculate the path of a category!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "category",
-							Description: "Name of the category!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "category",
+							Description:  "Name of the category!",
+							Required:     true,
+							Autocomplete: true,
 						},
 					},
 				},
@@ -623,10 +632,11 @@ var (
 			Description: "Remove a category!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "category",
-					Description: "The name of the category to remove the elements from!",
-					Required:    true,
+					Type:         discordgo.ApplicationCommandOptionString,
+					Name:         "category",
+					Description:  "The name of the category to remove the elements from!",
+					Required:     true,
+					Autocomplete: true,
 				},
 			},
 		},
@@ -642,16 +652,18 @@ var (
 					Required:    false,
 				},
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "category",
-					Description: "Use a category for the elements to choose from!",
-					Required:    false,
+					Type:         discordgo.ApplicationCommandOptionString,
+					Name:         "category",
+					Description:  "Use a category for the elements to choose from!",
+					Required:     false,
+					Autocomplete: true,
 				},
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "element",
-					Description: "Require an element to be in the idea!",
-					Required:    false,
+					Type:         discordgo.ApplicationCommandOptionString,
+					Name:         "element",
+					Description:  "Require an element to be in the idea!",
+					Required:     false,
+					Autocomplete: true,
 				},
 			},
 		},
@@ -714,10 +726,11 @@ var (
 					Description: "Download a category!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "category",
-							Description: "Which category to download!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "category",
+							Description:  "Which category to download!",
+							Required:     true,
+							Autocomplete: true,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionString,
@@ -747,10 +760,11 @@ var (
 					Description: "Get an element's breakdown!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "element",
-							Description: "Name of the element!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "element",
+							Description:  "Name of the element!",
+							Required:     true,
+							Autocomplete: true,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionBoolean,
@@ -766,10 +780,11 @@ var (
 					Description: "Get the breakdown of a category!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "category",
-							Description: "Name of the category!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "category",
+							Description:  "Name of the category!",
+							Required:     true,
+							Autocomplete: true,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionBoolean,
@@ -811,10 +826,11 @@ var (
 					Description: "Create a graph of an element's tree!",
 					Options: append([]*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "element",
-							Description: "Name of the element!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "element",
+							Description:  "Name of the element!",
+							Required:     true,
+							Autocomplete: true,
 						},
 					}, trees.GraphOpts...),
 				},
@@ -824,10 +840,11 @@ var (
 					Description: "Create a graph of an element's tree!",
 					Options: append([]*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "category",
-							Description: "Name of the category!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "category",
+							Description:  "Name of the category!",
+							Required:     true,
+							Autocomplete: true,
 						},
 					}, trees.GraphOpts...),
 				},
@@ -907,10 +924,11 @@ var (
 			Description: "Get the inverse hint of an element!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "element",
-					Description: "Name of the element!",
-					Required:    true,
+					Type:         discordgo.ApplicationCommandOptionString,
+					Name:         "element",
+					Description:  "Name of the element!",
+					Required:     true,
+					Autocomplete: true,
 				},
 			},
 		},
@@ -1001,10 +1019,11 @@ var (
 							Required:    true,
 						},
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "category",
-							Description: "The category to search in!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "category",
+							Description:  "The category to search in!",
+							Required:     true,
+							Autocomplete: true,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionString,
@@ -1075,10 +1094,11 @@ var (
 					Description: "Calculate the notation of an element!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "element",
-							Description: "Name of the element!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "element",
+							Description:  "Name of the element!",
+							Required:     true,
+							Autocomplete: true,
 						},
 					},
 				},
@@ -1088,10 +1108,11 @@ var (
 					Description: "Calculate the notation of a category!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "category",
-							Description: "Name of the category!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "category",
+							Description:  "Name of the category!",
+							Required:     true,
+							Autocomplete: true,
 						},
 					},
 				},
@@ -1108,10 +1129,11 @@ var (
 					Description: "Suggest the color for an element, or set the color of an element you created!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "element",
-							Description: "The name of the element to set the color of!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "element",
+							Description:  "The name of the element to set the color of!",
+							Required:     true,
+							Autocomplete: true,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionString,
@@ -1127,10 +1149,11 @@ var (
 					Description: "Set the color of a category!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "category",
-							Description: "The name of the category to set the color of!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "category",
+							Description:  "The name of the category to set the color of!",
+							Required:     true,
+							Autocomplete: true,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionString,
@@ -1194,10 +1217,11 @@ var (
 					Description: "Get the word cloud of an element!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "element",
-							Description: "The name of the element to get the word cloud of!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "element",
+							Description:  "The name of the element to get the word cloud of!",
+							Required:     true,
+							Autocomplete: true,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionBoolean,
@@ -1225,10 +1249,11 @@ var (
 					Description: "Get the word cloud of a category!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "category",
-							Description: "The name of the category to get the word cloud of!",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "category",
+							Description:  "The name of the category to get the word cloud of!",
+							Required:     true,
+							Autocomplete: true,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionBoolean,
@@ -1309,22 +1334,25 @@ var (
 					Required: true,
 				},
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "category1",
-					Description: "The category on the left side of the operation",
-					Required:    true,
+					Type:         discordgo.ApplicationCommandOptionString,
+					Name:         "category1",
+					Description:  "The category on the left side of the operation",
+					Required:     true,
+					Autocomplete: true,
 				},
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "category2",
-					Description: "The category on the right side of the operation",
-					Required:    true,
+					Type:         discordgo.ApplicationCommandOptionString,
+					Name:         "category2",
+					Description:  "The category on the right side of the operation",
+					Required:     true,
+					Autocomplete: true,
 				},
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "result",
-					Description: "The category to store the result into - NOTE: Will only add to the category!",
-					Required:    true,
+					Type:         discordgo.ApplicationCommandOptionString,
+					Name:         "result",
+					Description:  "The category to store the result into - NOTE: Will only add to the category!",
+					Required:     true,
+					Autocomplete: true,
 				},
 			},
 		},
@@ -1334,10 +1362,11 @@ var (
 			Description: "Delete a virtual category!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "category",
-					Description: "The name of the virtual category to delete!",
-					Required:    true,
+					Type:         discordgo.ApplicationCommandOptionString,
+					Name:         "category",
+					Description:  "The name of the virtual category to delete!",
+					Required:     true,
+					Autocomplete: true,
 				},
 			},
 		},
@@ -1445,16 +1474,18 @@ var (
 							Required: true,
 						},
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "category1",
-							Description: "The category on the left side of the operation",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "category1",
+							Description:  "The category on the left side of the operation",
+							Required:     true,
+							Autocomplete: true,
 						},
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "category2",
-							Description: "The category on the right side of the operation",
-							Required:    true,
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "category2",
+							Description:  "The category on the right side of the operation",
+							Required:     true,
+							Autocomplete: true,
 						},
 					},
 				},
@@ -1636,12 +1667,11 @@ var (
 			switch resp.Name {
 			case "element":
 				bot.treecmds.GiveCmd(resp.Options[0].StringValue(), resp.Options[1].BoolValue(), resp.Options[2].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
-			case "cat":
+			case "category":
 				bot.treecmds.GiveCatCmd(resp.Options[0].StringValue(), resp.Options[1].BoolValue(), resp.Options[2].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 			case "all":
 				bot.treecmds.GiveAllCmd(resp.Options[0].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
-
 		},
 		"path": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData().Options[0]
@@ -2240,10 +2270,6 @@ var (
 		"cat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			data := i.ApplicationCommandData()
 
-			// autocomplete element names
-			if len(data.Options) < 1 {
-				return
-			}
 			// Check for focused and being named category
 			focusedInd, name := getFocused(data.Options)
 			if name != "category" {
@@ -2263,6 +2289,338 @@ var (
 		},
 		"addcat": catChangeAutocomplete,
 		"rmcat":  catChangeAutocomplete,
+		"mark": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData()
+			names, res := bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[0].StringValue())
+			if !res.Exists {
+				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
+		"image": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData().Options[0]
+			var names []string
+			var res types.GetResponse
+			ind, _ := getFocused(data.Options)
+			if data.Name == "element" {
+				names, res = bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
+			}
+			if data.Name == "category" {
+				names, res = bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
+			}
+			if !res.Exists {
+				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
+		"hint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData()
+			if len(data.Options) == 0 {
+				return
+			}
+			names, res := bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[0].StringValue())
+			if !res.Exists {
+				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
+		"invhint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData()
+			if len(data.Options) == 0 {
+				return
+			}
+			names, res := bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[0].StringValue())
+			if !res.Exists {
+				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
+		"give": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData().Options[0]
+			var names []string
+			var res types.GetResponse
+			ind, _ := getFocused(data.Options)
+			if data.Name == "element" {
+				names, res = bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
+			}
+			if data.Name == "category" {
+				names, res = bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
+			}
+			if !res.Exists {
+				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
+		"path": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData().Options[0]
+			var names []string
+			var res types.GetResponse
+			if data.Name == "element" {
+				names, res = bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[0].StringValue())
+			}
+			if data.Name == "category" {
+				names, res = bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[0].StringValue())
+			}
+			if !res.Exists {
+				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
+		"delcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData()
+			names, res := bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[0].StringValue())
+			if !res.Exists {
+				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
+		"idea": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData()
+			ind, name := getFocused(data.Options)
+			var names []string
+			var res types.GetResponse
+			if name == "element" {
+				names, res = bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
+			}
+			if name == "category" {
+				names, res = bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
+			}
+			if !res.Exists {
+				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
+		"download": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData().Options[0]
+			if data.Name != "cat" {
+				return
+			}
+			ind, _ := getFocused(data.Options)
+			names, res := bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
+			if !res.Exists {
+				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
+		"breakdown": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData().Options[0]
+			var names []string
+			var res types.GetResponse
+			ind, _ := getFocused(data.Options)
+			if data.Name == "element" {
+				names, res = bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
+			}
+			if data.Name == "category" {
+				names, res = bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
+			}
+			if !res.Exists {
+				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
+		"graph": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData().Options[0]
+			var names []string
+			var res types.GetResponse
+			ind, _ := getFocused(data.Options)
+			if data.Name == "element" {
+				names, res = bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
+			}
+			if data.Name == "category" {
+				names, res = bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
+			}
+			if !res.Exists {
+				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
+		"search": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData().Options[0]
+			if data.Name != "category" {
+				return
+			}
+			var names []string
+			var res types.GetResponse
+			ind, _ := getFocused(data.Options)
+			names, res = bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
+			if !res.Exists {
+				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
+		"notation": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData().Options[0]
+			var names []string
+			var res types.GetResponse
+			ind, _ := getFocused(data.Options)
+			if data.Name == "element" {
+				names, res = bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
+			}
+			if data.Name == "category" {
+				names, res = bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
+			}
+			if !res.Exists {
+				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
+		"color": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData().Options[0]
+			var names []string
+			var res types.GetResponse
+			ind, _ := getFocused(data.Options)
+			if data.Name == "element" {
+				names, res = bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
+			}
+			if data.Name == "category" {
+				names, res = bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
+			}
+			if !res.Exists {
+				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
+		"wordcloud": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData().Options[0]
+			var names []string
+			var res types.GetResponse
+			ind, _ := getFocused(data.Options)
+			if data.Name == "element" {
+				names, res = bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
+			}
+			if data.Name == "category" {
+				names, res = bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
+			}
+			if !res.Exists {
+				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
+		"catop": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData().Options[0]
+			ind, name := getFocused(data.Options)
+			if !strings.HasPrefix(name, "category") && name != "result" {
+				return
+			}
+			names, res := bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
+			if !res.Exists {
+				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
+		"delvcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData().Options[0]
+			names, res := bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[0].StringValue(), true, true)
+			if !res.Exists {
+				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
+		"vcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData().Options[0]
+			if data.Name != "catop" {
+				return
+			}
+			ind, name := getFocused(data.Options)
+			if !strings.HasPrefix(name, "category") {
+				return
+			}
+			names, res := bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
+			if !res.Exists {
+				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
 	}
 )
 
@@ -2291,7 +2649,7 @@ func catChangeAutocomplete(s *discordgo.Session, i *discordgo.InteractionCreate)
 			return
 		}
 	} else {
-		names, res = bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[focusedInd].StringValue())
+		names, res = bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[focusedInd].StringValue(), true)
 		if !res.Exists {
 			return
 		}
