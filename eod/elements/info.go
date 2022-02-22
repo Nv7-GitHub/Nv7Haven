@@ -221,7 +221,7 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 		}
 	}
 	if len(cats) > catInfoCount {
-		catTxtExpanded.WriteString(db.Config.LangProperty("InfoAdditionalElemCats", len(cats)-catInfoCount))
+		catTxtExpanded.WriteString(db.Config.LangProperty("InfoAdditionalElemCats", len(cats)-catInfoCountExpanded))
 	}
 
 	// Get Madeby
