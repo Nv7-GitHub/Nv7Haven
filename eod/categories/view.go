@@ -22,6 +22,7 @@ func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user
 		return
 	}
 
+	rsp.Acknowledge()
 	category = strings.TrimSpace(category)
 
 	if base.IsFoolsMode && !base.IsFool(category) {
