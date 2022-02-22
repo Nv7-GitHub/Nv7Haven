@@ -29,7 +29,7 @@ func main() {
 		// Recalc user used cnt
 		userCnts := make(map[string]int)
 		for _, el := range db.Elements {
-			userCnts[el.Creator]++
+			userCnts[el.Creator] += el.UsedIn
 		}
 		for user, cnt := range userCnts {
 			inv := db.GetInv(user)
