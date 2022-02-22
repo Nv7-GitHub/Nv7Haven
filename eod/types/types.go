@@ -228,6 +228,14 @@ const (
 
 type VirtualCategoryData map[string]interface{}
 
+type CategoryOperation string
+
+const (
+	CatOpUnion     CategoryOperation = "union"
+	CatOpIntersect CategoryOperation = "intersect"
+	CatOpDiff      CategoryOperation = "difference"
+)
+
 type VirtualCategory struct {
 	Name  string
 	Guild string

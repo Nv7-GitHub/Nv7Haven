@@ -4,7 +4,6 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
@@ -71,31 +70,7 @@ func (b *Categories) DeleteCatCmd(category string, m types.Msg, rsp types.Rsp) {
 	b.unCategorizeRsp(rmed, suggestRm, db, category, rsp)
 }
 
-type CategoryOperation string
-
-const (
-	CatOpUnion     CategoryOperation = "union"
-	CatOpIntersect CategoryOperation = "intersect"
-	CatOpDiff      CategoryOperation = "difference"
-)
-
-func (c CategoryOperation) pollTitle(db *eodb.DB) string {
-	switch c {
-	case CatOpUnion:
-		return db.Config.LangProperty("UnionPoll", nil)
-
-	case CatOpIntersect:
-		return db.Config.LangProperty("IntersectPoll", nil)
-
-	case CatOpDiff:
-		return db.Config.LangProperty("DiffPoll", nil)
-
-	default:
-		return "unknown"
-	}
-}
-
-func (b *Categories) CatOpCmd(op CategoryOperation, lhs string, rhs string, result string, m types.Msg, rsp types.Rsp) {
+func (b *Categories) CatOpCmd(op types.CategoryOperation, lhs string, rhs string, result string, m types.Msg, rsp types.Rsp) {
 	db, res := b.GetDB(m.GuildID)
 	if !res.Exists {
 		return
@@ -119,7 +94,7 @@ func (b *Categories) CatOpCmd(op CategoryOperation, lhs string, rhs string, resu
 	lcat.Lock.RLock()
 	rcat.Lock.RLock()
 	switch op {
-	case CatOpUnion:
+	case types.CatOpUnion:
 		for elem := range lcat.Elements {
 			out[elem] = types.Empty{}
 		}
@@ -127,7 +102,7 @@ func (b *Categories) CatOpCmd(op CategoryOperation, lhs string, rhs string, resu
 			out[elem] = types.Empty{}
 		}
 
-	case CatOpIntersect:
+	case types.CatOpIntersect:
 		for elem := range lcat.Elements {
 			if _, ok := rcat.Elements[elem]; ok {
 				out[elem] = types.Empty{}
@@ -139,7 +114,7 @@ func (b *Categories) CatOpCmd(op CategoryOperation, lhs string, rhs string, resu
 			}
 		}
 
-	case CatOpDiff:
+	case types.CatOpDiff:
 		for elem := range lcat.Elements {
 			if _, ok := rcat.Elements[elem]; !ok {
 				out[elem] = types.Empty{}
@@ -203,7 +178,7 @@ func (b *Categories) CatOpCmd(op CategoryOperation, lhs string, rhs string, resu
 			PollCategorizeData: &types.PollCategorizeData{
 				Elems:    suggestAdd,
 				Category: result,
-				Title:    op.pollTitle(db),
+				Title:    b.base.CatOpPollTitle(op, db),
 			},
 		})
 		if rsp.Error(err) {

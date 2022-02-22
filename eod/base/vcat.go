@@ -7,6 +7,22 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
+func (b *Base) CatOpPollTitle(c types.CategoryOperation, db *eodb.DB) string {
+	switch c {
+	case types.CatOpUnion:
+		return db.Config.LangProperty("UnionPoll", nil)
+
+	case types.CatOpIntersect:
+		return db.Config.LangProperty("IntersectPoll", nil)
+
+	case types.CatOpDiff:
+		return db.Config.LangProperty("DiffPoll", nil)
+
+	default:
+		return "unknown"
+	}
+}
+
 func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types.Empty, types.GetResponse) {
 	var out map[int]types.Empty
 	switch vcat.Rule {
@@ -48,7 +64,84 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types
 		}
 
 	case types.VirtualCategoryRuleSetOperation:
-		// TODO: implement
+		// Calc lhs
+		var lhselems map[int]types.Empty
+		lhs := vcat.Data["lhs"].(string)
+		cat, res := db.GetCat(lhs)
+		if !res.Exists {
+			vcat, res := db.GetVCat(lhs)
+			if !res.Exists {
+				lhselems = make(map[int]types.Empty)
+			} else {
+				lhselems, res = b.CalcVCat(vcat, db)
+				if !res.Exists {
+					lhselems = make(map[int]types.Empty)
+				}
+			}
+		} else {
+			lhselems = make(map[int]types.Empty, len(cat.Elements))
+			cat.Lock.RLock()
+			for k := range cat.Elements {
+				lhselems[k] = types.Empty{}
+			}
+			cat.Lock.RUnlock()
+		}
+
+		// Calc rhs
+		var rhselems map[int]types.Empty
+		rhs := vcat.Data["rhs"].(string)
+		cat, res = db.GetCat(lhs)
+		if !res.Exists {
+			vcat, res := db.GetVCat(rhs)
+			if !res.Exists {
+				rhselems = make(map[int]types.Empty)
+			} else {
+				rhselems, res = b.CalcVCat(vcat, db)
+				if !res.Exists {
+					rhselems = make(map[int]types.Empty)
+				}
+			}
+		} else {
+			rhselems = make(map[int]types.Empty, len(cat.Elements))
+			cat.Lock.RLock()
+			for k := range cat.Elements {
+				rhselems[k] = types.Empty{}
+			}
+			cat.Lock.RUnlock()
+		}
+
+		// Operations
+		switch types.CategoryOperation(vcat.Data["operation"].(string)) {
+		case types.CatOpUnion:
+			out = make(map[int]types.Empty, len(lhselems)+len(rhselems))
+			for k := range lhselems {
+				out[k] = types.Empty{}
+			}
+			for k := range rhselems {
+				out[k] = types.Empty{}
+			}
+
+		case types.CatOpIntersect:
+			out = make(map[int]types.Empty)
+			for k := range lhselems {
+				if _, ok := rhselems[k]; ok {
+					out[k] = types.Empty{}
+				}
+			}
+			for k := range rhselems {
+				if _, ok := lhselems[k]; ok {
+					out[k] = types.Empty{}
+				}
+			}
+
+		case types.CatOpDiff:
+			out = make(map[int]types.Empty)
+			for k := range lhselems {
+				if _, ok := rhselems[k]; !ok {
+					out[k] = types.Empty{}
+				}
+			}
+		}
 
 	case types.VirtualCategoryRuleAllElements:
 		out = make(map[int]types.Empty, len(db.Elements))
