@@ -145,6 +145,10 @@
   "ElemColorPoll": "Sht Chlhr",
   "ResetCatColorPoll": "Rhsht Chthghry Chlhr",
   "SetCatColorPoll": "Sht Chthghry Chlhr",
+  "MoreElemsPoll": "And {{ . }} more...",
+  "IntersectPoll": "Hnthrshcthhn",
+  "UnionPoll": "Hnhhn",
+  "DiffPoll": "Dhffhrhnch",
 
   "NewNote": "Nhw Nhth: {{ . }}",
   "OldNote": "Hld Nhth: {{ . }}",
