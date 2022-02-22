@@ -127,6 +127,14 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 				log.SetOutput(logs.DataFile)
 				log.Println(err)
 			}
+
+			creator := db.GetInv(el.Creator)
+			creator.UsedCnt++
+			err = db.SaveInv(creator)
+			if err != nil {
+				log.SetOutput(logs.DataFile)
+				log.Println(err)
+			}
 		}
 	}
 

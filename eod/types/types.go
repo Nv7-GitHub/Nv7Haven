@@ -233,6 +233,7 @@ type Inventory struct {
 	ColoredCnt    int
 	CatImagedCnt  int
 	CatColoredCnt int
+	UsedCnt       int
 	User          string
 }
 
