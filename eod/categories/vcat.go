@@ -152,13 +152,13 @@ func (b *Categories) DeleteVCatCmd(name string, m types.Msg, rsp types.Rsp) {
 	for _, cat := range db.VCats() {
 		if cat.Rule == types.VirtualCategoryRuleSetOperation {
 			if strings.EqualFold(cat.Data["lhs"].(string), vcat.Name) {
-				vname = vcat.Name
+				vname = cat.Name
 				ok = false
 				break
 			}
 
 			if strings.EqualFold(cat.Data["rhs"].(string), vcat.Name) {
-				vname = vcat.Name
+				vname = cat.Name
 				ok = false
 				break
 			}
