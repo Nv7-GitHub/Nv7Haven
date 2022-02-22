@@ -39,6 +39,8 @@ func (b *Categories) CategoryCmd(elems []string, category string, m types.Msg, r
 		return
 	}
 
+	rsp.Acknowledge()
+
 	elems = util.RemoveDuplicates(elems)
 
 	category = strings.TrimSpace(category)
@@ -156,6 +158,8 @@ func (b *Categories) RmCategoryCmd(elems []string, category string, m types.Msg,
 	if !res.Exists {
 		return
 	}
+
+	rsp.Acknowledge()
 
 	elems = util.RemoveDuplicates(elems)
 
