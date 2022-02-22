@@ -1360,6 +1360,60 @@ var (
 						},
 					},
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "regex",
+					Description: "Create a virtual category with every element!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "name",
+							Description: "The name of the virtual category!",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "regex",
+							Description: "The regular expression to match!",
+							Required:    true,
+						},
+					},
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "inv",
+					Description: "Create a virtual category with an inventory!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "name",
+							Description: "The name of the virtual category!",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionUser,
+							Name:        "user",
+							Description: "The user whose inv to get!",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "filter",
+							Description: "How to filter the inventory!",
+							Required:    false,
+							Choices: []*discordgo.ApplicationCommandOptionChoice{
+								{
+									Name:  "None",
+									Value: "none",
+								},
+								{
+									Name:  "Made By",
+									Value: "madeby",
+								},
+							},
+						},
+					},
+				},
 			},
 		},
 	}
@@ -2099,6 +2153,16 @@ var (
 			switch resp.Name {
 			case "elements":
 				bot.categories.VCatCreateAllElementsCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+
+			case "regex":
+				bot.categories.VCatCreateRegexCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+
+			case "inv":
+				filter := "none"
+				if len(resp.Options) > 2 {
+					filter = resp.Options[2].StringValue()
+				}
+				bot.categories.VCatCreateInvFilterCmd(resp.Options[0].StringValue(), resp.Options[1].UserValue(bot.dg).ID, filter, bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
 		},
 		"delvcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {

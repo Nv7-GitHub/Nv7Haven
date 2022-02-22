@@ -1,6 +1,7 @@
 package categories
 
 import (
+	"regexp"
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -36,6 +37,91 @@ func (b *Categories) VCatCreateAllElementsCmd(name string, m types.Msg, rsp type
 		Guild: m.GuildID,
 		Rule:  types.VirtualCategoryRuleAllElements,
 		Data:  make(types.VirtualCategoryData),
+	}
+	err := db.SaveVCat(vcat)
+	if rsp.Error(err) {
+		return
+	}
+	rsp.Message("Created Virtual Category!") // TODO: Translate
+}
+
+func (b *Categories) VCatCreateRegexCmd(name string, regex string, m types.Msg, rsp types.Rsp) {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
+		return
+	}
+
+	rsp.Acknowledge()
+
+	// Check if exists
+	cat, res := db.GetCat(name)
+	if res.Exists {
+		rsp.ErrorMessage(db.Config.LangProperty("CatAlreadyExist", cat.Name))
+		return
+	}
+	vcat, res := db.GetVCat(name)
+	if res.Exists {
+		rsp.ErrorMessage(db.Config.LangProperty("CatAlreadyExist", vcat.Name))
+		return
+	}
+
+	// Check if valid regex
+	_, err := regexp.Compile(regex)
+	if rsp.Error(err) {
+		return
+	}
+
+	// Create
+	if strings.ToLower(name) == name {
+		name = util.ToTitle(name)
+	}
+	vcat = &types.VirtualCategory{
+		Name:  name,
+		Guild: m.GuildID,
+		Rule:  types.VirtualCategoryRuleRegex,
+		Data: types.VirtualCategoryData{
+			"regex": regex,
+		},
+	}
+	err = db.SaveVCat(vcat)
+	if rsp.Error(err) {
+		return
+	}
+	rsp.Message("Created Virtual Category!") // TODO: Translate
+}
+
+func (b *Categories) VCatCreateInvFilterCmd(name string, user string, filter string, m types.Msg, rsp types.Rsp) {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
+		return
+	}
+
+	rsp.Acknowledge()
+
+	// Check if exists
+	cat, res := db.GetCat(name)
+	if res.Exists {
+		rsp.ErrorMessage(db.Config.LangProperty("CatAlreadyExist", cat.Name))
+		return
+	}
+	vcat, res := db.GetVCat(name)
+	if res.Exists {
+		rsp.ErrorMessage(db.Config.LangProperty("CatAlreadyExist", vcat.Name))
+		return
+	}
+
+	// Create
+	if strings.ToLower(name) == name {
+		name = util.ToTitle(name)
+	}
+	vcat = &types.VirtualCategory{
+		Name:  name,
+		Guild: m.GuildID,
+		Rule:  types.VirtualCategoryRuleRegex,
+		Data: types.VirtualCategoryData{
+			"user":   user,
+			"filter": filter,
+		},
 	}
 	err := db.SaveVCat(vcat)
 	if rsp.Error(err) {
