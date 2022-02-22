@@ -202,7 +202,7 @@ func (b *Categories) VCatOpCmd(op types.CategoryOperation, name string, lhs stri
 		Data: types.VirtualCategoryData{
 			"lhs":       lhs,
 			"rhs":       rhs,
-			"operation": op,
+			"operation": string(op),
 		},
 	}
 	err := db.SaveVCat(vcat)
