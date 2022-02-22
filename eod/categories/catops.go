@@ -3,6 +3,7 @@ package categories
 import (
 	"net/url"
 	"strings"
+	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
@@ -80,13 +81,37 @@ func (b *Categories) CatOpCmd(op types.CategoryOperation, lhs string, rhs string
 
 	lcat, res := db.GetCat(lhs)
 	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
+		vcat, res := db.GetVCat(lhs)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		els, res := b.base.CalcVCat(vcat, db)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		lcat = &types.Category{}
+		lcat.Elements = els
+		lcat.Name = vcat.Name
+		lcat.Lock = &sync.RWMutex{}
 	}
 	rcat, res := db.GetCat(rhs)
 	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
+		vcat, res := db.GetVCat(rhs)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		els, res := b.base.CalcVCat(vcat, db)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		rcat = &types.Category{}
+		rcat.Elements = els
+		rcat.Name = vcat.Name
+		rcat.Lock = &sync.RWMutex{}
 	}
 	out := make(map[int]types.Empty)
 
