@@ -35,6 +35,7 @@
   "SuggestCategorizedMult": "Tell the user the elements were suggested to be categorized.",
   "CategorizeMultSuggestCategorized": "Tell the user the elements were categorized and one was suggested to be categorized.",
   "CategorizeMultSuggestCategorizedMult": "Tell the user the elements were categorized and were suggested to be categorized.",
+  "CategoryUsedInVCat": "Tell the user the category is used in a Virtual Category.",
 
   "UnCategorized": "Tell the user the elements were un-categorized.",
   "SuggestUnCategorized": "Tell the user the element was suggested to be un-categorized.",

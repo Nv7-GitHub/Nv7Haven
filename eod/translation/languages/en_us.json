@@ -36,6 +36,7 @@
   "SuggestCategorizedMult": "Suggested to add **{{ .Elements }} elements** to **{{ .Category }}** 🗃️",
   "CategorizeMultSuggestCategorized": "Categorized and suggested to add **{{ .Element }}** to **{{ .Category }}** 🗃️",
   "CategorizeMultSuggestCategorizedMult": "Categorized and suggested to add **{{ .Elements }} elements** to **{{ .Category }}** 🗃️",
+  "CategoryUsedInVCat": "Category **{{ .Category }}** is used in virtual category **{{ .VirtualCategory }}**!",
 
   "UnCategorized": "Successfully un-categorized! 🗃️",
   "SuggestUnCategorized": "Suggested to remove **{{ .Element }}** from **{{ .Category }}** 🗃️",

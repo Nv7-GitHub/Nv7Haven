@@ -145,6 +145,34 @@ func (b *Categories) DeleteVCatCmd(name string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 
+	// Check if affects anything else
+	ok := true
+	var vname string
+	db.RLock()
+	for _, cat := range db.VCats() {
+		if cat.Rule == types.VirtualCategoryRuleSetOperation {
+			if strings.EqualFold(cat.Data["lhs"].(string), vcat.Name) {
+				vname = vcat.Name
+				ok = false
+				break
+			}
+
+			if strings.EqualFold(cat.Data["rhs"].(string), vcat.Name) {
+				vname = vcat.Name
+				ok = false
+				break
+			}
+		}
+	}
+	db.RUnlock()
+	if !ok {
+		rsp.ErrorMessage(db.Config.LangProperty("CategoryUsedInVCat", map[string]interface{}{
+			"Category":        vcat.Name,
+			"VirtualCategory": vname,
+		}))
+		return
+	}
+
 	// Update stats
 	if vcat.Imager != "" {
 		inv := db.GetInv(vcat.Imager)
@@ -174,21 +202,29 @@ func (b *Categories) VCatOpCmd(op types.CategoryOperation, name string, lhs stri
 	rsp.Acknowledge()
 
 	// Check if exists
-	_, res = db.GetCat(lhs)
+	cat, res := db.GetCat(lhs)
 	if !res.Exists {
-		_, res := db.GetVCat(lhs)
+		vcat, res := db.GetVCat(lhs)
 		if !res.Exists {
 			rsp.ErrorMessage(res.Message)
 			return
+		} else {
+			lhs = vcat.Name
 		}
+	} else {
+		lhs = cat.Name
 	}
-	_, res = db.GetCat(rhs)
+	cat, res = db.GetCat(rhs)
 	if !res.Exists {
-		_, res := db.GetVCat(rhs)
+		vcat, res := db.GetVCat(rhs)
 		if !res.Exists {
 			rsp.ErrorMessage(res.Message)
 			return
+		} else {
+			rhs = vcat.Name
 		}
+	} else {
+		rhs = cat.Name
 	}
 
 	// Create

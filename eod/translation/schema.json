@@ -134,6 +134,10 @@
       "type": "string",
       "description": "Tell the user the elements were categorized and were suggested to be categorized."
     },
+    "CategoryUsedInVCat": {
+      "type": "string",
+      "description": "Tell the user the category is used in a Virtual Category."
+    },
     "UnCategorized": {
       "type": "string",
       "description": "Tell the user the elements were un-categorized."
