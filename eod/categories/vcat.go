@@ -198,7 +198,7 @@ func (b *Categories) VCatOpCmd(op types.CategoryOperation, name string, lhs stri
 	vcat := &types.VirtualCategory{
 		Name:  name,
 		Guild: m.GuildID,
-		Rule:  types.VirtualCategoryRuleInvFilter,
+		Rule:  types.VirtualCategoryRuleSetOperation,
 		Data: types.VirtualCategoryData{
 			"lhs":       lhs,
 			"rhs":       rhs,
