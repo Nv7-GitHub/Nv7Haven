@@ -16,6 +16,7 @@ import (
 )
 
 const catInfoCount = 3
+const catInfoCountExpanded = 6
 
 func (b *Elements) SortCmd(sort string, postfix bool, m types.Msg, rsp types.Rsp) {
 	db, res := b.GetDB(m.GuildID)
@@ -199,7 +200,7 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 		return cats[i].Cnt > cats[j].Cnt
 	})
 
-	// Make text
+	// Make text for collapsed
 	catTxt := &strings.Builder{}
 	for i := 0; i < catInfoCount && i < len(cats); i++ {
 		catTxt.WriteString(cats[i].Name)
@@ -209,6 +210,18 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 	}
 	if len(cats) > catInfoCount {
 		catTxt.WriteString(db.Config.LangProperty("InfoAdditionalElemCats", len(cats)-catInfoCount))
+	}
+
+	// Make text for expanded
+	catTxtExpanded := &strings.Builder{}
+	for i := 0; i < catInfoCountExpanded && i < len(cats); i++ {
+		catTxtExpanded.WriteString(cats[i].Name)
+		if i != catInfoCountExpanded-1 && i != len(cats)-1 {
+			catTxtExpanded.WriteString(", ")
+		}
+	}
+	if len(cats) > catInfoCount {
+		catTxtExpanded.WriteString(db.Config.LangProperty("InfoAdditionalElemCats", len(cats)-catInfoCount))
 	}
 
 	// Get Madeby
@@ -322,7 +335,7 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 	}
 	if len(cats) > 0 {
 		emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{Name: db.Config.LangProperty("InfoElemCats", nil), Value: catTxt.String(), Inline: false})
-		fullFields = append(fullFields, &discordgo.MessageEmbedField{Name: db.Config.LangProperty("InfoElemCats", nil), Value: catTxt.String(), Inline: false})
+		fullFields = append(fullFields, &discordgo.MessageEmbedField{Name: db.Config.LangProperty("InfoElemCats", nil), Value: catTxtExpanded.String(), Inline: false})
 	}
 
 	if m.Author.ID == "567132457820749842" {
