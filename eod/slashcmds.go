@@ -177,9 +177,9 @@ var (
 							Required:    true,
 						},
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "imageurl",
-							Description: "URL of an image to add to the element! You can also upload an image and then put the link here.",
+							Type:        discordgo.ApplicationCommandOptionAttachment,
+							Name:        "image",
+							Description: "The image to add to the element!",
 							Required:    true,
 						},
 					},
@@ -196,9 +196,9 @@ var (
 							Required:    true,
 						},
 						{
-							Type:        discordgo.ApplicationCommandOptionString,
+							Type:        discordgo.ApplicationCommandOptionAttachment,
 							Name:        "imageurl",
-							Description: "URL of an image to add to the category! You can also upload an image and then put the link here.",
+							Description: "The image to add to the category!",
 							Required:    true,
 						},
 					},
@@ -1454,13 +1454,19 @@ var (
 			bot.polls.MarkInteractionCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"image": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData().Options[0]
+			dat := i.ApplicationCommandData()
+			resp := dat.Options[0]
+
+			// Get attachment
+			id := resp.Options[1].Value.(string)
+			url := dat.Resolved.Attachments[id].URL
+
 			switch resp.Name {
 			case "element":
-				bot.polls.ImageCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.polls.ImageCmd(resp.Options[0].StringValue(), url, bot.newMsgSlash(i), bot.newRespSlash(i))
 
 			case "category":
-				bot.polls.CatImgCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.polls.CatImgCmd(resp.Options[0].StringValue(), url, bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
 		},
 		"inv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {

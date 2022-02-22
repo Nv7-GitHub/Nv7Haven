@@ -6,7 +6,7 @@ require (
 	github.com/Knetic/govaluate v3.0.0+incompatible
 	github.com/Nv7-Github/average-joe v0.0.0-20211218214027-dd1859d97991
 	github.com/Nv7-Github/firebase v0.0.0-20201012033747-47c56e1d869d
-	github.com/bwmarrin/discordgo v0.23.3-0.20220215231839-82c5aae79136
+	github.com/bwmarrin/discordgo v0.23.3-0.20220221211447-0b48d46eefd3
 	github.com/finnbear/moderation v0.11.4
 	github.com/fogleman/gg v1.3.0
 	github.com/go-sql-driver/mysql v1.6.0
