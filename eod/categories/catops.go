@@ -36,8 +36,10 @@ func (b *Categories) DeleteCatCmd(category string, m types.Msg, rsp types.Rsp) {
 
 		if el.Creator == m.Author.ID {
 			cat.Lock.RUnlock()
+			db.RUnlock()
 			err := b.polls.UnCategorize(el.ID, category, m.GuildID)
 			cat.Lock.RLock()
+			db.RLock()
 			rsp.Error(err)
 			rmed++
 		} else {
