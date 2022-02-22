@@ -3,6 +3,7 @@ package polls
 import (
 	"errors"
 	"log"
+	"regexp"
 	"strconv"
 	"sync"
 	"time"
@@ -157,4 +158,16 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 		log.SetOutput(logs.DataFile)
 		log.Println(err)
 	}
+
+	// Add to any VCat regex caches
+	db.RLock()
+	for _, vcat := range db.VCats() {
+		if vcat.Rule == types.VirtualCategoryRuleRegex && vcat.Cache != nil {
+			matched, err := regexp.MatchString(vcat.Data["regex"].(string), name)
+			if err == nil && matched {
+				vcat.Cache[el.ID] = types.Empty{}
+			}
+		}
+	}
+	db.RUnlock()
 }

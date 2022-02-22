@@ -226,10 +226,10 @@ type Category struct {
 type VirtualCategoryRuleType int
 
 const (
-	VirtualCategoryRuleRegex VirtualCategoryRuleType = iota
-	VirtualCategoryRuleInvFilter
-	VirtualCategoryRuleSetOperation
-	VirtualCategoryRuleAllElements
+	VirtualCategoryRuleRegex        VirtualCategoryRuleType = 0
+	VirtualCategoryRuleInvFilter    VirtualCategoryRuleType = 1
+	VirtualCategoryRuleSetOperation VirtualCategoryRuleType = 2
+	VirtualCategoryRuleAllElements  VirtualCategoryRuleType = 3
 )
 
 type VirtualCategoryData map[string]interface{}
@@ -253,6 +253,8 @@ type VirtualCategory struct {
 
 	Rule VirtualCategoryRuleType
 	Data VirtualCategoryData
+
+	Cache map[int]Empty `json:"-"`
 }
 
 type Msg struct {

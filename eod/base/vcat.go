@@ -27,8 +27,16 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types
 	var out map[int]types.Empty
 	switch vcat.Rule {
 	case types.VirtualCategoryRuleRegex:
-		reg := regexp.MustCompile(vcat.Data["regex"].(string))
+		if vcat.Cache != nil { // Has cache
+			out = make(map[int]types.Empty, len(vcat.Cache))
+			for k := range vcat.Cache {
+				out[k] = types.Empty{}
+			}
+			break
+		}
 
+		// Populate cache
+		reg := regexp.MustCompile(vcat.Data["regex"].(string))
 		out = make(map[int]types.Empty)
 		db.RLock()
 		for _, elem := range db.Elements {
@@ -37,6 +45,8 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types
 			}
 		}
 		db.RUnlock()
+
+		vcat.Cache = out
 
 	case types.VirtualCategoryRuleInvFilter:
 		inv := db.GetInv(vcat.Data["user"].(string))
