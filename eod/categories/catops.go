@@ -22,6 +22,7 @@ func (b *Categories) DeleteCatCmd(category string, m types.Msg, rsp types.Rsp) {
 		rsp.ErrorMessage(res.Message)
 		return
 	}
+	category = cat.Name
 
 	// Remove elements
 	suggestRm := make([]int, 0)
