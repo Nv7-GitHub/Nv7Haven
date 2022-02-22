@@ -220,7 +220,7 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 			catTxtExpanded.WriteString(", ")
 		}
 	}
-	if len(cats) > catInfoCount {
+	if len(cats) > catInfoCountExpanded {
 		catTxtExpanded.WriteString(db.Config.LangProperty("InfoAdditionalElemCats", len(cats)-catInfoCountExpanded))
 	}
 

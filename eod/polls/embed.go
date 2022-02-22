@@ -80,7 +80,7 @@ func (b *Polls) GetPollEmbed(db *eodb.DB, p types.Poll) (*discordgo.MessageEmbed
 		els := strings.Join(names, "\n")
 		return &discordgo.MessageEmbed{
 			Title:       p.PollCategorizeData.Title,
-			Description: fmt.Sprintf("%s\n\n%s%s\n\n", db.Config.LangProperty("CatPollElems", els), db.Config.LangProperty("CatPollCat", p.PollCategorizeData.Category), moreTxt) + db.Config.LangProperty("PollCreatorText", p.Suggestor),
+			Description: fmt.Sprintf("%s%s\n\n%s\n\n", db.Config.LangProperty("CatPollElems", els), moreTxt, db.Config.LangProperty("CatPollCat", p.PollCategorizeData.Category)) + db.Config.LangProperty("PollCreatorText", p.Suggestor),
 			Footer: &discordgo.MessageEmbedFooter{
 				Text: db.Config.LangProperty("PollFooter", nil),
 			},
