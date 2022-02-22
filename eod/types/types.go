@@ -217,6 +217,30 @@ type Category struct {
 	Colorer string
 }
 
+type VirtualCategoryRuleType int
+
+const (
+	VirtualCategoryRuleRegex VirtualCategoryRuleType = iota
+	VirtualCategoryRuleInvFilter
+	VirtualCategoryRuleSetOperation
+	VirtualCategoryRuleAllElements
+)
+
+type VirtualCategoryData map[string]interface{}
+
+type VirtualCategory struct {
+	Name  string
+	Guild string
+
+	Image   string
+	Color   int
+	Imager  string
+	Colorer string
+
+	Rule VirtualCategoryRuleType
+	Data VirtualCategoryData
+}
+
 type Msg struct {
 	Author    *discordgo.User
 	ChannelID string

@@ -106,6 +106,10 @@
       "type": "string",
       "description": "Tell the user the category doesn't exist."
     },
+    "CatAlreadyExist": {
+      "type": "string",
+      "description": "Tells the user the category already exists."
+    },
     "NotInCat": {
       "type": "string",
       "description": "Tell the user the element isn't in the category."

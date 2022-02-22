@@ -91,15 +91,25 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 	if hasCat {
 		cat, res := db.GetCat(catName)
 		if !res.Exists {
-			return res.Message, false
-		}
-		els = make(map[int]types.Empty)
-
-		for el := range cat.Elements {
-			exists := inv.Contains(el)
-			if exists {
-				els[el] = types.Empty{}
+			vcat, res := db.GetVCat(catName)
+			if !res.Exists {
+				return res.Message, false
 			}
+			els, res = b.base.CalcVCat(vcat, db)
+			if !res.Exists {
+				return res.Message, false
+			}
+		} else {
+			els = make(map[int]types.Empty, len(cat.Elements))
+
+			cat.Lock.RLock()
+			for el := range cat.Elements {
+				exists := inv.Contains(el)
+				if exists {
+					els[el] = types.Empty{}
+				}
+			}
+			cat.Lock.RUnlock()
 		}
 
 		if len(els) == 0 {

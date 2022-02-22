@@ -39,6 +39,7 @@ var noModCmds = map[string]types.Empty{
 	"wordcloud":                {},
 	"delcat":                   {},
 	"catop":                    {},
+	"vcat":                     {},
 }
 
 func (b *EoD) canRunCmd(cmd *discordgo.InteractionCreate) (bool, string) {

@@ -90,10 +90,11 @@ type DB struct {
 
 	Elements  []types.Element
 	elemNames map[string]int
-	combos    map[string]int              // map["1+1"] = 5 for air + air = wind
-	invs      map[string]*types.Inventory // map[userid]map[elemid]
-	cats      map[string]*types.Category  // map[name]cat(id: cat name)
-	Polls     map[string]types.Poll       // map[messageid]poll
+	combos    map[string]int                    // map["1+1"] = 5 for air + air = wind
+	invs      map[string]*types.Inventory       // map[userid]map[elemid]
+	cats      map[string]*types.Category        // map[name]cat(id: cat name)
+	vcats     map[string]*types.VirtualCategory // map[name]vcat
+	Polls     map[string]types.Poll             // map[messageid]poll
 	Config    *types.ServerConfig
 
 	inTransaction bool
@@ -103,6 +104,7 @@ type DB struct {
 	elemFile   *os.File
 	comboFile  *os.File
 	configFile *os.File
+	vcatsFile  *os.File
 
 	AI *ai.AI
 }
@@ -113,6 +115,10 @@ func (d *DB) Invs() map[string]*types.Inventory {
 
 func (d *DB) Cats() map[string]*types.Category {
 	return d.cats
+}
+
+func (d *DB) VCats() map[string]*types.VirtualCategory {
+	return d.vcats
 }
 
 func (d *DB) ComboCnt() int {
@@ -131,6 +137,7 @@ func newDB(path string, guild string) *DB {
 		combos:    make(map[string]int),
 		invs:      make(map[string]*types.Inventory),
 		cats:      make(map[string]*types.Category),
+		vcats:     make(map[string]*types.VirtualCategory),
 		Polls:     make(map[string]types.Poll),
 		Elements:  make([]types.Element, 0),
 		elemNames: make(map[string]int),
@@ -167,6 +174,10 @@ func NewDB(guild, path string) (*DB, error) {
 		return nil, err
 	}
 	err = db.loadCats()
+	if err != nil {
+		return nil, err
+	}
+	err = db.loadVcats()
 	if err != nil {
 		return nil, err
 	}

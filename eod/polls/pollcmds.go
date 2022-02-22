@@ -233,8 +233,14 @@ func (b *Polls) CatImgCmd(catName string, url string, m types.Msg, rsp types.Rsp
 
 	cat, res := db.GetCat(catName)
 	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
+		vcat, res := db.GetVCat(catName)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		cat = &types.Category{}
+		cat.Name = vcat.Name
+		cat.Image = vcat.Image
 	}
 
 	changed := cat.Image != ""
@@ -267,8 +273,14 @@ func (b *Polls) CatColorCmd(catName string, color int, m types.Msg, rsp types.Rs
 
 	cat, res := db.GetCat(catName)
 	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
+		vcat, res := db.GetVCat(catName)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		cat = &types.Category{}
+		cat.Name = vcat.Name
+		cat.Color = vcat.Color
 	}
 
 	err := b.CreatePoll(types.Poll{

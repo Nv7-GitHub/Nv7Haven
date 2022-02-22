@@ -28,6 +28,7 @@
   "CatNameBlank": "Tell the user the category name can't be blank.",
   "CatNameTooLong": "Tell the user the category name is too long.",
   "CatNoExist": "Tell the user the category doesn't exist.",
+  "CatAlreadyExist": "Tells the user the category already exists.",
   "NotInCat": "Tell the user the element isn't in the category.",
   "Categorized": "Tell the user the elements were categorized.",
   "SuggestCategorized": "Tell the user the element was suggested to be categorized.",

@@ -85,15 +85,6 @@ func (b *EoD) init(app *fiber.App) {
 		}
 	}()
 
-	// Recalc autocats?
-	if types.RecalcAutocats {
-		for _, db := range b.DB {
-			for _, elem := range db.Elements {
-				b.polls.Autocategorize(elem.Name, db.Guild)
-			}
-		}
-	}
-
 	// Change starters
 	/*for _, db := range b.DB {
 		for _, el := range base.StarterElements {

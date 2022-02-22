@@ -28,6 +28,7 @@
   "CatNameBlank": "Category name can't be blank!",
   "CatNameTooLong": "Category name is too long!",
   "CatNoExist": "Category **{{ . }}** doesn't exist!",
+  "CatAlreadyExist": "Category **{{ . }}** already exists!",
   "NotInCat": "Element **{{ .Element }}** isn't in category **{{ .Category }}**!",
   "NotInCatMult": "Elements {{ .Elements }} aren't in category **{{ .Category }}**!",
   "Categorized": "Successfully categorized! 🗃️",

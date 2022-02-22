@@ -86,6 +86,60 @@ func (d *DB) SaveConfig() error {
 	return nil
 }
 
+func (d *DB) SaveVCat(vcat *types.VirtualCategory) error {
+	d.Lock()
+	defer d.Unlock()
+
+	d.vcats[strings.ToLower(vcat.Name)] = vcat
+
+	dat, err := json.Marshal(d.vcats)
+	if err != nil {
+		return err
+	}
+
+	_, err = d.vcatsFile.Seek(0, 0)
+	if err != nil {
+		return err
+	}
+	err = d.vcatsFile.Truncate(0)
+	if err != nil {
+		return err
+	}
+	_, err = d.vcatsFile.Write(dat)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (d *DB) DeleteVCat(name string) error {
+	d.Lock()
+	defer d.Unlock()
+
+	delete(d.vcats, strings.ToLower(name))
+
+	dat, err := json.Marshal(d.vcats)
+	if err != nil {
+		return err
+	}
+
+	_, err = d.vcatsFile.Seek(0, 0)
+	if err != nil {
+		return err
+	}
+	err = d.vcatsFile.Truncate(0)
+	if err != nil {
+		return err
+	}
+	_, err = d.vcatsFile.Write(dat)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (d *DB) NewCat(name string) *types.Category {
 	cat := &types.Category{
 		Lock: &sync.RWMutex{},

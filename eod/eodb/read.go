@@ -113,6 +113,19 @@ func (d *DB) GetCat(name string) (*types.Category, types.GetResponse) {
 	return cat, types.GetResponse{Exists: true}
 }
 
+func (d *DB) GetVCat(name string) (*types.VirtualCategory, types.GetResponse) {
+	d.RLock()
+	vcat, exists := d.vcats[strings.ToLower(name)]
+	d.RUnlock()
+	if !exists {
+		return nil, types.GetResponse{
+			Exists:  false,
+			Message: d.Config.LangProperty("CatNoExist", name),
+		}
+	}
+	return vcat, types.GetResponse{Exists: true}
+}
+
 func (d *DB) GetPoll(id string) (types.Poll, types.GetResponse) {
 	d.RLock()
 	poll, exists := d.Polls[id]

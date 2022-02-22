@@ -1329,6 +1329,39 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "delvcat",
+			Type:        discordgo.ChatApplicationCommand,
+			Description: "Delete a virtual category!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "category",
+					Description: "The name of the virtual category to delete!",
+					Required:    true,
+				},
+			},
+		},
+		{
+			Name:        "vcat",
+			Type:        discordgo.ChatApplicationCommand,
+			Description: "Create a virtual category!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "elements",
+					Description: "Create a virtual category with every element!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "name",
+							Description: "The name of the virtual category!",
+							Required:    true,
+						},
+					},
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"set": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -2060,6 +2093,17 @@ var (
 		"catop": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			bot.categories.CatOpCmd(categories.CategoryOperation(resp.Options[0].StringValue()), resp.Options[1].StringValue(), resp.Options[2].StringValue(), resp.Options[3].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"vcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData().Options[0]
+			switch resp.Name {
+			case "elements":
+				bot.categories.VCatCreateAllElementsCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			}
+		},
+		"delvcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
+			bot.categories.DeleteVCatCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 	autocompleteHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){

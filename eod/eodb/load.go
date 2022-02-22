@@ -72,6 +72,7 @@ func (d *DB) loadElements() error {
 	d.elemFile = f
 	return nil
 }
+
 func (d *DB) loadCombos() error {
 	f, err := os.OpenFile(filepath.Join(d.dbPath, "combos.txt"), os.O_RDWR|os.O_CREATE, os.ModePerm)
 	if err != nil {
@@ -199,6 +200,23 @@ func (d *DB) loadCats() error {
 		d.catFiles[strings.ToLower(name)] = f
 		cat = nil
 	}
+	return nil
+}
+
+func (d *DB) loadVcats() error {
+	f, err := os.OpenFile(filepath.Join(d.dbPath, "vcats.json"), os.O_RDWR|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		return err
+	}
+	dat, err := io.ReadAll(f)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(dat, &d.vcats)
+	if err != nil {
+		d.vcats = make(map[string]*types.VirtualCategory)
+	}
+	d.vcatsFile = f
 	return nil
 }
 

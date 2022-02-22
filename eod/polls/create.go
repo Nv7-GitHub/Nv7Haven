@@ -157,11 +157,4 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 		log.SetOutput(logs.DataFile)
 		log.Println(err)
 	}
-
-	err = b.Autocategorize(name, guild)
-	if err != nil {
-		log.SetOutput(logs.DataFile)
-		log.Println(err)
-		return
-	}
 }
