@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Nv7-Github/Nv7Haven/eod/categories"
 	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -1296,15 +1295,15 @@ var (
 					Choices: []*discordgo.ApplicationCommandOptionChoice{
 						{
 							Name:  "Union",
-							Value: categories.CatOpUnion,
+							Value: types.CatOpUnion,
 						},
 						{
 							Name:  "Intersection",
-							Value: categories.CatOpIntersect,
+							Value: types.CatOpIntersect,
 						},
 						{
 							Name:  "Difference",
-							Value: categories.CatOpDiff,
+							Value: types.CatOpDiff,
 						},
 					},
 					Required: true,
@@ -1411,6 +1410,51 @@ var (
 									Value: "madeby",
 								},
 							},
+						},
+					},
+				},
+				{
+					Name:        "catop",
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Description: "Perform a set operation on two categories!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "name",
+							Description: "The name of the virtual category!",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "operation",
+							Description: "The operation to perform!",
+							Choices: []*discordgo.ApplicationCommandOptionChoice{
+								{
+									Name:  "Union",
+									Value: types.CatOpUnion,
+								},
+								{
+									Name:  "Intersection",
+									Value: types.CatOpIntersect,
+								},
+								{
+									Name:  "Difference",
+									Value: types.CatOpDiff,
+								},
+							},
+							Required: true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "category1",
+							Description: "The category on the left side of the operation",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "category2",
+							Description: "The category on the right side of the operation",
+							Required:    true,
 						},
 					},
 				},
@@ -2152,7 +2196,7 @@ var (
 		},
 		"catop": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.categories.CatOpCmd(categories.CategoryOperation(resp.Options[0].StringValue()), resp.Options[1].StringValue(), resp.Options[2].StringValue(), resp.Options[3].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.categories.CatOpCmd(types.CategoryOperation(resp.Options[0].StringValue()), resp.Options[1].StringValue(), resp.Options[2].StringValue(), resp.Options[3].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"vcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData().Options[0]
@@ -2169,6 +2213,8 @@ var (
 					filter = resp.Options[2].StringValue()
 				}
 				bot.categories.VCatCreateInvFilterCmd(resp.Options[0].StringValue(), resp.Options[1].UserValue(bot.dg).ID, filter, bot.newMsgSlash(i), bot.newRespSlash(i))
+			case "catop":
+				bot.categories.VCatOpCmd(types.CategoryOperation(resp.Options[1].StringValue()), resp.Options[0].StringValue(), resp.Options[2].StringValue(), resp.Options[3].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
 		},
 		"delvcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {

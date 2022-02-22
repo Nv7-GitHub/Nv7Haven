@@ -164,3 +164,50 @@ func (b *Categories) DeleteVCatCmd(name string, m types.Msg, rsp types.Rsp) {
 	}
 	rsp.Message("Deleted Virtual Category!") // TODO: Translate
 }
+
+func (b *Categories) VCatOpCmd(op types.CategoryOperation, name string, lhs string, rhs string, m types.Msg, rsp types.Rsp) {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
+		return
+	}
+
+	rsp.Acknowledge()
+
+	// Check if exists
+	_, res = db.GetCat(lhs)
+	if !res.Exists {
+		_, res := db.GetVCat(lhs)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+	}
+	_, res = db.GetCat(rhs)
+	if !res.Exists {
+		_, res := db.GetVCat(rhs)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+	}
+
+	// Create
+	if strings.ToLower(name) == name {
+		name = util.ToTitle(name)
+	}
+	vcat := &types.VirtualCategory{
+		Name:  name,
+		Guild: m.GuildID,
+		Rule:  types.VirtualCategoryRuleInvFilter,
+		Data: types.VirtualCategoryData{
+			"lhs":       lhs,
+			"rhs":       rhs,
+			"operation": op,
+		},
+	}
+	err := db.SaveVCat(vcat)
+	if rsp.Error(err) {
+		return
+	}
+	rsp.Message("Created Virtual Category!") // TODO: Translate
+}
