@@ -132,7 +132,7 @@ func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, author string, g
 		for i, v := range db.Elements {
 			ids[i] = v.ID
 		}
-		inv.Lock.RUnlock()
+		db.RUnlock()
 
 		// Shuffle ids
 		rand.Shuffle(len(ids), func(i, j int) {
