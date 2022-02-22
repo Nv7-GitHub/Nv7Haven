@@ -35,7 +35,7 @@ func (b *Categories) DeleteCatCmd(category string, m types.Msg, rsp types.Rsp) {
 		}
 
 		if el.Creator == m.Author.ID {
-			err := b.polls.Categorize(el.ID, category, m.GuildID)
+			err := b.polls.UnCategorize(el.ID, category, m.GuildID)
 			rsp.Error(err)
 			rmed++
 		} else {
