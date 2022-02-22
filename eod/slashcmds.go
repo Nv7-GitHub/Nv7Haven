@@ -2398,7 +2398,7 @@ var (
 		},
 		"delcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			data := i.ApplicationCommandData()
-			names, res := bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[0].StringValue())
+			names, res := bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[0].StringValue(), true)
 			if !res.Exists {
 				return
 			}

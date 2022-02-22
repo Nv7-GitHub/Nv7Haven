@@ -3,6 +3,7 @@ package elements
 import (
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -40,16 +41,31 @@ func (b *Elements) SearchCmd(search string, sort string, source string, opt stri
 		inv.Lock.RUnlock()
 
 	case "category":
-		cat, res := db.GetCat(opt)
+		var els map[int]types.Empty
+		var lock *sync.RWMutex
+		catv, res := db.GetCat(opt)
 		if !res.Exists {
-			rsp.ErrorMessage(res.Message)
-			return
+			vcat, res := db.GetVCat(opt)
+			if !res.Exists {
+				rsp.ErrorMessage(res.Message)
+				return
+			}
+			els, res = b.base.CalcVCat(vcat, db)
+			if !res.Exists {
+				rsp.ErrorMessage(res.Message)
+				return
+			}
+		} else {
+			els = catv.Elements
+			lock = catv.Lock
 		}
 
-		list = make(map[string]types.Empty, len(cat.Elements))
-		cat.Lock.RLock()
+		list = make(map[string]types.Empty, len(els))
+		if lock != nil {
+			lock.RLock()
+		}
 		db.RLock()
-		for el := range cat.Elements {
+		for el := range els {
 			elem, res := db.GetElement(el, true)
 			if !res.Exists {
 				continue
@@ -57,7 +73,9 @@ func (b *Elements) SearchCmd(search string, sort string, source string, opt stri
 			list[elem.Name] = types.Empty{}
 		}
 		db.RUnlock()
-		cat.Lock.RUnlock()
+		if lock != nil {
+			lock.RUnlock()
+		}
 	}
 
 	items := make(map[string]types.Empty)

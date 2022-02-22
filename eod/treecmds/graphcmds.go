@@ -186,11 +186,29 @@ func (b *TreeCmds) CatGraphCmd(catName, layout, outputType string, distinctPrima
 	}
 	rsp.Acknowledge()
 
+	var els map[int]types.Empty
 	cat, res := db.GetCat(catName)
 	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
+		vcat, res := db.GetVCat(catName)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		els, res = b.base.CalcVCat(vcat, db)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		catName = vcat.Name
+	} else {
+		cat.Lock.RLock()
+		els = make(map[int]types.Empty, len(cat.Elements))
+		for el := range cat.Elements {
+			els[el] = types.Empty{}
+		}
+		cat.Lock.RUnlock()
+		catName = cat.Name
 	}
 
-	b.graphCmd(cat.Elements, db, m, layout, outputType, catName, distinctPrimary, rsp)
+	b.graphCmd(els, db, m, layout, outputType, catName, distinctPrimary, rsp)
 }

@@ -1,6 +1,8 @@
 package treecmds
 
 import (
+	"sync"
+
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
@@ -45,13 +47,31 @@ func (b *TreeCmds) GiveCatCmd(catName string, giveTree bool, user string, m type
 
 	inv := db.GetInv(user)
 
-	cat, res := db.GetCat(catName)
+	var els map[int]types.Empty
+	var lock *sync.RWMutex
+	catv, res := db.GetCat(catName)
 	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
+		vcat, res := db.GetVCat(catName)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		catName = vcat.Name
+		els, res = b.base.CalcVCat(vcat, db)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+	} else {
+		els = catv.Elements
+		lock = catv.Lock
+		catName = catv.Name
 	}
 
-	for elem := range cat.Elements {
+	if lock != nil {
+		lock.RLock()
+	}
+	for elem := range els {
 		_, res := db.GetElement(elem)
 		if !res.Exists {
 			rsp.ErrorMessage(res.Message)
@@ -64,13 +84,16 @@ func (b *TreeCmds) GiveCatCmd(catName string, giveTree bool, user string, m type
 			return
 		}
 	}
+	if lock != nil {
+		lock.RUnlock()
+	}
 
 	err := db.SaveInv(inv)
 	if rsp.Error(err) {
 		return
 	}
 
-	rsp.Resp(db.Config.LangProperty("GiveCat", cat.Name))
+	rsp.Resp(db.Config.LangProperty("GiveCat", catName))
 }
 
 func giveElem(db *eodb.DB, giveTree bool, elem int, out *types.Inventory) (string, bool) {

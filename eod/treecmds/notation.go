@@ -2,6 +2,7 @@ package treecmds
 
 import (
 	"strings"
+	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -74,19 +75,41 @@ func (b *TreeCmds) CatNotationCmd(catName string, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 	tree := trees.NewNotationTree(db)
 
-	cat, res := db.GetCat(catName)
+	var els map[int]types.Empty
+	var lock *sync.RWMutex
+	catv, res := db.GetCat(catName)
 	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
+		vcat, res := db.GetVCat(catName)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		catName = vcat.Name
+		els, res = b.base.CalcVCat(vcat, db)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+	} else {
+		lock = catv.Lock
+		els = catv.Elements
+		catName = catv.Name
 	}
 
 	db.RLock()
-	for elem := range cat.Elements {
+	if lock != nil {
+		lock.RLock()
+	}
+	for elem := range els {
 		msg, suc := tree.AddElem(elem)
 		if !suc {
 			db.RUnlock()
 			rsp.ErrorMessage(msg)
 			return
 		}
+	}
+	if lock != nil {
+		lock.RUnlock()
 	}
 	db.RUnlock()
 
@@ -106,7 +129,7 @@ func (b *TreeCmds) CatNotationCmd(catName string, m types.Msg, rsp types.Rsp) {
 	}
 	buf := strings.NewReader(txt)
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: db.Config.LangProperty("NameNotationCat", cat.Name),
+		Content: db.Config.LangProperty("NameNotationCat", catName),
 		Files: []*discordgo.File{
 			{
 				Name:        "notation.txt",

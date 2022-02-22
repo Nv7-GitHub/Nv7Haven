@@ -70,13 +70,31 @@ func (b *TreeCmds) CalcTreeCatCmd(catName string, m types.Msg, rsp types.Rsp) {
 	}
 	rsp.Acknowledge()
 
-	cat, res := db.GetCat(catName)
+	var els map[int]types.Empty
+	catv, res := db.GetCat(catName)
 	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
+		vcat, res := db.GetVCat(catName)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		catName = vcat.Name
+		els, res = b.base.CalcVCat(vcat, db)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+	} else {
+		els = make(map[int]types.Empty, len(catv.Elements))
+		catv.Lock.RLock()
+		for k := range catv.Elements {
+			els[k] = types.Empty{}
+		}
+		catv.Lock.RUnlock()
+		catName = catv.Name
 	}
 
-	txt, suc, msg := trees.CalcTreeCat(db, cat.Elements)
+	txt, suc, msg := trees.CalcTreeCat(db, els)
 	if !suc {
 		rsp.ErrorMessage(msg)
 		return
@@ -94,7 +112,7 @@ func (b *TreeCmds) CalcTreeCatCmd(catName string, m types.Msg, rsp types.Rsp) {
 	}
 	buf := strings.NewReader(txt)
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: db.Config.LangProperty("NamePathCat", cat.Name),
+		Content: db.Config.LangProperty("NamePathCat", catName),
 		Files: []*discordgo.File{
 			{
 				Name:        "path.txt",

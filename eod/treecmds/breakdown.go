@@ -1,6 +1,8 @@
 package treecmds
 
 import (
+	"sync"
+
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
@@ -53,10 +55,24 @@ func (b *TreeCmds) CatBreakdownCmd(catName string, calcTree bool, m types.Msg, r
 		return
 	}
 
-	cat, res := db.GetCat(catName)
+	var lock *sync.RWMutex
+	var els map[int]types.Empty
+	catv, res := db.GetCat(catName)
 	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
+		vcat, res := db.GetVCat(catName)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		catName = vcat.Name
+		els, res = b.base.CalcVCat(vcat, db)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+	} else {
+		els = catv.Elements
+		catName = catv.Name
 	}
 
 	tree := &trees.BreakDownTree{
@@ -67,18 +83,24 @@ func (b *TreeCmds) CatBreakdownCmd(catName string, calcTree bool, m types.Msg, r
 		Total:     0,
 	}
 
-	for elem := range cat.Elements {
+	if lock != nil {
+		lock.RLock()
+	}
+	for elem := range els {
 		suc, err := tree.AddElem(elem)
 		if !suc {
 			rsp.ErrorMessage(err)
 			return
 		}
 	}
+	if lock != nil {
+		lock.RUnlock()
+	}
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind: types.PageSwitchInv,
 		Title: db.Config.LangProperty("BreakdownTitle", map[string]interface{}{
-			"Title": cat.Name,
+			"Title": catName,
 			"Count": tree.Total,
 		}),
 		PageGetter: b.base.InvPageGetter,

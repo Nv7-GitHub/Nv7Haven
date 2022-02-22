@@ -86,14 +86,30 @@ func (b *TreeCmds) CatWordCloudCmd(catName string, calcTree bool, width, height 
 	}
 	rsp.Acknowledge()
 
-	cat, res := db.GetCat(catName)
+	var els map[int]types.Empty
+	catv, res := db.GetCat(catName)
 	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
+		vcat, res := db.GetVCat(catName)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		catName = vcat.Name
+		els, res = b.base.CalcVCat(vcat, db)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+	} else {
+		catv.Lock.RLock()
+		els = make(map[int]types.Empty, len(catv.Elements))
+		for el := range catv.Elements {
+			els[el] = types.Empty{}
+		}
+		catv.Lock.RUnlock()
+		catName = catv.Name
 	}
-	cat.Lock.RLock()
-	defer cat.Lock.RUnlock()
-	b.WordCloudCmd(cat.Name, cat.Elements, calcTree, width, height, m, rsp)
+	b.WordCloudCmd(catName, els, calcTree, width, height, m, rsp)
 }
 
 func (b *TreeCmds) InvWordCloudCmd(user string, calcTree bool, width, height int, m types.Msg, rsp types.Rsp) {

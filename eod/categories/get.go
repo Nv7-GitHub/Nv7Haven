@@ -3,6 +3,7 @@ package categories
 import (
 	"sort"
 	"strings"
+	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -73,10 +74,25 @@ func (b *Categories) DownloadCatCmd(catName string, sort string, postfix bool, m
 		return
 	}
 
-	cat, res := db.GetCat(catName)
+	var els map[int]types.Empty
+	var lock *sync.RWMutex
+	catv, res := db.GetCat(catName)
 	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
+		vcat, res := db.GetVCat(catName)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		catName = vcat.Name
+		els, res = b.base.CalcVCat(vcat, db)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+	} else {
+		lock = catv.Lock
+		els = catv.Elements
+		catName = catv.Name
 	}
 
 	type catSortVal struct {
@@ -84,15 +100,19 @@ func (b *Categories) DownloadCatCmd(catName string, sort string, postfix bool, m
 		name string
 	}
 	db.RLock()
-	elems := make([]catSortVal, len(cat.Elements))
+	elems := make([]catSortVal, len(els))
 	i := 0
-	cat.Lock.RLock()
-	for elem := range cat.Elements {
+	if lock != nil {
+		lock.RLock()
+	}
+	for elem := range els {
 		el, _ := db.GetElement(elem, true)
 		elems[i] = catSortVal{elem, el.Name}
 		i++
 	}
-	cat.Lock.RUnlock()
+	if lock != nil {
+		lock.RUnlock()
+	}
 	db.RUnlock()
 
 	eodsort.Sort(elems, len(elems), func(index int) int {
@@ -115,7 +135,7 @@ func (b *Categories) DownloadCatCmd(catName string, sort string, postfix bool, m
 	}
 
 	_, err = b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: db.Config.LangProperty("NameDownloadedCat", cat.Name),
+		Content: db.Config.LangProperty("NameDownloadedCat", catName),
 		Files: []*discordgo.File{
 			{
 				Name:        "cat.txt",
