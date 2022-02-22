@@ -197,7 +197,7 @@ var (
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionAttachment,
-							Name:        "imageurl",
+							Name:        "image",
 							Description: "The image to add to the category!",
 							Required:    true,
 						},
