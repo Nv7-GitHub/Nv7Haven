@@ -117,7 +117,7 @@ func (b *Categories) VCatCreateInvFilterCmd(name string, user string, filter str
 	vcat = &types.VirtualCategory{
 		Name:  name,
 		Guild: m.GuildID,
-		Rule:  types.VirtualCategoryRuleRegex,
+		Rule:  types.VirtualCategoryRuleInvFilter,
 		Data: types.VirtualCategoryData{
 			"user":   user,
 			"filter": filter,
