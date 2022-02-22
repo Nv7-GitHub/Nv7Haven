@@ -286,6 +286,10 @@ var (
 							Name:  "Categories Colored",
 							Value: "catcolored",
 						},
+						{
+							Name:  "Elements Used",
+							Value: "used",
+						},
 					},
 				},
 				{
