@@ -1,6 +1,7 @@
 package base
 
 import (
+	"fmt"
 	"regexp"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
@@ -11,6 +12,7 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types
 	var out map[int]types.Empty
 	switch vcat.Rule {
 	case types.VirtualCategoryRuleRegex:
+		fmt.Println(vcat)
 		reg := regexp.MustCompile(vcat.Data["regex"].(string))
 
 		out = make(map[int]types.Empty)
