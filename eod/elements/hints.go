@@ -168,8 +168,8 @@ func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, author string, g
 				if canMake {
 					el, _ = db.GetElement(id)
 					hasFound = true
+					break
 				}
-				break
 			}
 		}
 		if !hasFound {
