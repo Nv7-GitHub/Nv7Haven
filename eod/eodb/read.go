@@ -37,6 +37,33 @@ func (d *DB) GetIDByName(name string) (int, types.GetResponse) {
 
 	id, exists := d.elemNames[strings.ToLower(name)]
 	if !exists {
+		if name[0] == '#' && len(name) > 1 {
+			id, err := strconv.Atoi(name[1:])
+			if err == nil {
+				// Code from GetElement
+				if id < 1 {
+					if id == 0 {
+						return 0, types.GetResponse{
+							Exists:  false,
+							Message: d.Config.LangProperty("DoesntExist", "#0"),
+						}
+					}
+					return 0, types.GetResponse{
+						Exists:  false,
+						Message: d.Config.LangProperty("IDCannotBeNegative", nil),
+					}
+				}
+				if id > len(d.Elements) {
+					return 0, types.GetResponse{
+						Exists:  false,
+						Message: d.Config.LangProperty("DoesntExist", "#"+strconv.Itoa(id)),
+					}
+				}
+
+				return id, types.GetResponse{Exists: true}
+			}
+		}
+
 		return 0, types.GetResponse{
 			Exists:  false,
 			Message: d.Config.LangProperty("DoesntExist", name),
