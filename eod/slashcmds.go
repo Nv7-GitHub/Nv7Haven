@@ -1941,7 +1941,6 @@ var (
 
 			case "info":
 				elem := ""
-				var id int
 				isID := false
 				for _, opt := range resp.Options {
 					if opt.Name == "element" {
@@ -1949,8 +1948,8 @@ var (
 					}
 
 					if opt.Name == "id" {
+						elem = fmt.Sprintf("#%d", opt.IntValue())
 						isID = true
-						id = int(opt.IntValue())
 					}
 				}
 				db, res := bot.GetDB(i.GuildID)
@@ -1958,7 +1957,7 @@ var (
 					return
 				}
 				rsp := bot.newRespSlash(i)
-				if !isID && elem == "" {
+				if elem == "" {
 					rsp.ErrorMessage(db.Config.LangProperty("MustHaveElemOrID", nil))
 					return
 				}
@@ -1966,7 +1965,7 @@ var (
 					rsp.ErrorMessage(db.Config.LangProperty("CannotHaveBothElemAndID", nil))
 					return
 				}
-				bot.elements.Info(elem, id, isID, bot.newMsgSlash(i), rsp)
+				bot.elements.Info(elem, bot.newMsgSlash(i), rsp)
 			}
 		},
 		"setcolor": func(s *discordgo.Session, i *discordgo.InteractionCreate) {

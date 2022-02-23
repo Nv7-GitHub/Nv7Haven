@@ -127,24 +127,11 @@ func (c *infoComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCr
 	})
 }
 
-func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
-	if len(elem) == 0 && !isId {
-		return
-	}
+func (b *Elements) Info(elem string, m types.Msg, rsp types.Rsp) {
 	db, res := b.GetDB(m.GuildID)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
 		return
-	}
-
-	// Get Element name from ID
-	var el types.Element
-	if isId {
-		el, res = db.GetElement(id)
-		if !res.Exists {
-			rsp.ErrorMessage(res.Message)
-			return
-		}
 	}
 
 	if base.IsFoolsMode && !base.IsFool(elem) {
@@ -153,25 +140,23 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 	}
 
 	// Get Element
-	if !isId {
-		el, res = db.GetElementByName(elem)
-		if !res.Exists {
-			// If what you said was "????", then stop
-			if strings.Contains(elem, "?") {
-				isValid := false
-				for _, letter := range elem {
-					if letter != '?' {
-						isValid = true
-						break
-					}
-				}
-				if !isValid {
-					return
+	el, res := db.GetElementByName(elem)
+	if !res.Exists {
+		// If what you said was "????", then stop
+		if strings.Contains(elem, "?") {
+			isValid := false
+			for _, letter := range elem {
+				if letter != '?' {
+					isValid = true
+					break
 				}
 			}
-			rsp.ErrorMessage(res.Message)
-			return
+			if !isValid {
+				return
+			}
 		}
+		rsp.ErrorMessage(res.Message)
+		return
 	}
 	rsp.Acknowledge()
 
@@ -373,21 +358,6 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 }
 
 func (b *Elements) InfoCmd(elem string, m types.Msg, rsp types.Rsp) {
-	db, res := b.GetDB(m.GuildID)
-	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
-	}
-
 	elem = strings.TrimSpace(elem)
-	if elem[0] == '#' {
-		number, err := strconv.Atoi(elem[1:])
-		if err != nil {
-			rsp.ErrorMessage(db.Config.LangProperty("InvalidElemID", nil))
-			return
-		}
-		b.Info("", number, true, m, rsp)
-		return
-	}
-	b.Info(elem, 0, false, m, rsp)
+	b.Info(elem, m, rsp)
 }
