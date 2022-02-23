@@ -28,6 +28,7 @@
   "CatNameBlank": "Hindi maaaring blanko ang pangalan ng kategorya!",
   "CatNameTooLong": "Masyadong mahaba ang pangalan ng kategorya!",
   "CatNoExist": "Wala pang kategoryang **{{ . }}**!",
+  "CatAlreadyExist": "Kategoryang **{{ . }}** ay nasa laro na!",
   "NotInCat": "Ang element **{{ .Element }}** ay wala sa kategoryang **%s**!",
   "NotInCatMult": "Mga element {{ .Elements }} ay wala sa kategoryang **%s**!",
   "Categorized": "Matagumpay na kinategorya! 🗃️",
@@ -35,6 +36,7 @@
   "SuggestCategorizedMult": "Nagmungkahing ilagay ang mga element **{{ .Elements }} elements** sa **{{ .Category }}** 🗃️",
   "CategorizeMultSuggestCategorized": "Kinategorya at nagmungkahing ilagay ang element **{{ .Element }}** sa **{{ .Category }}** 🗃️",
   "CategorizeMultSuggestCategorizedMult": "Kinategorya at nagmungkahing ilagay ang mga element **{{ .Elements }} elements** sa **{{ .Category }}** 🗃️",
+  "CategoryUsedInVCat": "Kategoryang **{{ .Category }}** ay ginamit sa kategoryang birtwal **{{ .VirtualCategory }}**!",
 
   "UnCategorized": "Matagumpay na pagtanggal sa kategorya! 🗃️",
   "SuggestUnCategorized": "Nagmungkahing alisin ang element **{{ .Element }}** mula sa **{{ .Category }}** 🗃️",
@@ -150,6 +152,7 @@
   "IntersectPoll": "Interseksyon",
   "UnionPoll": "Pag-iisa",
   "DiffPoll": "Pagkakaiba",
+  "DeleteVCatPoll": "Tanggalin ang Kategoryang Birtwal",
 
   "NewNote": "Bagong Sulat: {{ . }}",
   "OldNote": "Dating Sulat: {{ . }}s",
@@ -176,6 +179,7 @@
   "RmCatMultNews": "🗃️ Tinanggal ang **{{ .Elements }} elements** mula sa **{{ .Category }}** {{ .LastedText }}Ni <@{{ .Creator }}>)",
   "ResetCatColorNews": "Ni-Reset ang Kulay ng Kategorya - **{{ .Category }}** ({{ .LastedText }}Ni <@{{ .Creator }}>)",
   "SetCatColorNews": "Pinalitan ang Kulay ng Kategorya - **{{ .Category }}** ({{ .LastedText }}Ni <@{{ .Creator }}>)",
+  "DeleteVCatNews": "🗑️ Tinanggal ang Kategoryang Birtwal **{{ .Category }}** ({{ .LastedText }}Ni <@{{ .Creator }}>)",
 
   "MaxMarkLength": "Ang mga marka ay dapat 2400 karakter lamang at pababa!",
   "MarkChanged": "Minarkahan mo ang **{{ . }}**! 🖋️",
@@ -187,6 +191,7 @@
   "ElemColorSuggested": "Nagmungkahi ng kulay para sa **%{{ . }}** 🖋️",
   "CatImageSuggested": "Nagmungkahi ng larawan para sa kategoryang **{{ . }}** 📷",
   "CatColorSuggested": "Nagmungkahi ng kulay para sa kategoryang **{{ . }}** 🖋️",
+  "VCatDeleteSuggested": "Minungkahing tanggalin ang kategoryang birtwal **{{ . }}** 🗑️",
 
   "MustAttachImage": "Kailangan mong maglagay ng larawan!",
   "AddCatMustHaveSeparator": "Kailangan ng \"|\" upang ipaghiwalay ang pangalan ng kategorya at ang mga element na idadagdag!",
