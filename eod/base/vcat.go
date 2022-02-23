@@ -156,8 +156,8 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types
 	case types.VirtualCategoryRuleAllElements:
 		out = make(map[int]types.Empty, len(db.Elements))
 		db.RLock()
-		for k := range db.Elements {
-			out[k] = types.Empty{}
+		for _, el := range db.Elements {
+			out[el.ID] = types.Empty{}
 		}
 		db.RUnlock()
 	}
