@@ -281,18 +281,19 @@ func (b *Categories) CacheVCats() {
 		type timeData struct {
 			dur  time.Duration
 			code string
+			name string
 		}
 		i := 0
 		dat := make([]timeData, len(times))
 		for k, v := range times {
-			dat[i] = timeData{v, code[k]}
+			dat[i] = timeData{v, code[k], k}
 			i++
 		}
 		sort.Slice(dat, func(i, j int) bool {
 			return dat[i].dur > dat[j].dur
 		})
 		for _, v := range dat {
-			fmt.Printf("%s: %s\n", v.dur.String(), v.code)
+			fmt.Printf("%s: %s [%s]\n", v.dur.String(), v.code, v.name)
 		}
 	}
 }
