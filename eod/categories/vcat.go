@@ -242,3 +242,25 @@ func (b *Categories) VCatOpCmd(op types.CategoryOperation, name string, lhs stri
 	}
 	rsp.Message("Created Virtual Category!") // TODO: Translate
 }
+
+func (b *Categories) CacheVCats() {
+	for _, db := range b.DB {
+		regs := make(map[string]*regexp.Regexp)
+		vcats := make(map[string]map[int]types.Empty)
+		for _, vcat := range db.VCats() {
+			if vcat.Rule == types.VirtualCategoryRuleRegex {
+				vcat.Cache = make(map[int]types.Empty)
+				vcats[vcat.Name] = vcat.Cache
+				regs[vcat.Name] = regexp.MustCompile(vcat.Data["regex"].(string))
+			}
+		}
+
+		for _, el := range db.Elements {
+			for k, reg := range regs {
+				if reg.Match([]byte(el.Name)) {
+					vcats[k][el.ID] = types.Empty{}
+				}
+			}
+		}
+	}
+}
