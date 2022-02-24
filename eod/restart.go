@@ -81,10 +81,12 @@ func (b *EoD) start() {
 		if err != nil {
 			return
 		}
-		b.dg.ChannelMessageSendEmbed("840344139870371920", &discordgo.MessageEmbed{
-			Title:       "Bot Crash!",
-			Description: fmt.Sprintf("```\n%s\n```", string(logs)),
-		})
+		if len(strings.TrimSpace(string(logs))) != 0 { // Only send if there's something to send
+			b.dg.ChannelMessageSendEmbed("840344139870371920", &discordgo.MessageEmbed{
+				Title:       "Bot Crash!",
+				Description: fmt.Sprintf("```\n%s\n```", string(logs)),
+			})
+		}
 		os.Create("logs.txt") // Reset logs
 	}
 
