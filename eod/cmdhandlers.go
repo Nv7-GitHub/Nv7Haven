@@ -151,7 +151,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		if cmd == "cat" {
+		if cmd == "cat" || cmd == "🐱" {
 			if len(m.Content) <= len(cmd)+2 {
 				bot.categories.AllCatCmd("name", false, "", msg, rsp)
 				return
