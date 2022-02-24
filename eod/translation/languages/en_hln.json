@@ -28,6 +28,7 @@
   "CatNameBlank": "Chthghry nhmh chn't bh blhnk!",
   "CatNameTooLong": "Chthghry nhmh hs thh lhng!",
   "CatNoExist": "Chthghry **{{ . }}** dhhsn't hxhst!",
+  "CatAlreadyExist": "Chthghry **{{ . }}** hlrhhdy hxhsts!",
   "NotInCat": "Hlhmhnt **{{ .Element }}** hsn't hn chthghry **{{ .Category }}**!",
   "NotInCatMult": "Hlhmhnts {{ .Elements }} hrhn't hn chthghry **{{ .Category }}**!",
   "Categorized": "Shcchssfhlly chthghrhzhd! 🗃️",
@@ -35,6 +36,7 @@
   "SuggestCategorizedMult": "Shgghsthd th hdd **{{ .Elements }} hlhmhnts** th **{{ .Category }}** 🗃️",
   "CategorizeMultSuggestCategorized": "Chthghrhzhd hnd shgghsthd th hdd **{{ .Element }}** th **{{ .Category }}** 🗃️",
   "CategorizeMultSuggestCategorizedMult": "Chthghrhzhd hnd shgghsthd th hdd **{{ .Elements }} hlhmhnts** th **{{ .Category }}** 🗃️",
+  "CategoryUsedInVCat": "Chthghry **{{ .Category }}** hs hshd hn vhrthhl chthghry **{{ .VirtualCategory }}**!",
 
   "UnCategorized": "Shcchssfhlly hn-chthghrhzhd! 🗃️",
   "SuggestUnCategorized": "Shgghsthd th rhmhvh **{{ .Element }}** frhm **{{ .Category }}**  🗃️",
@@ -150,6 +152,7 @@
   "IntersectPoll": "Hnthrshcthhn",
   "UnionPoll": "Hnhhn",
   "DiffPoll": "Dhffhrhnch",
+  "DeleteVCatPoll": "Dhlhth Vhrthhl Chthghry",
 
   "NewNote": "Nhw Nhth: {{ . }}",
   "OldNote": "Hld Nhth: {{ . }}",
@@ -176,6 +179,7 @@
   "RmCatMultNews": "🗃️ Rhmhvhd **%d elements** frhm **{{ .Category }}** ({{ .LastedText }}By <@{{ .Creator }}>)",
   "ResetCatColorNews": "Rhsht Chthghry Chlhr - **{{ .Category }}** ({{ .LastedText }}By <@{{ .Creator }}>)",
   "SetCatColorNews": "Sht Chthghry Chlhr - **{{ .Category }}** ({{ .LastedText }}By <@{{ .Creator }}>)",
+  "DeleteVCatNews": "🗑️ Dhlhthd Vhrthhl Chthghry **{{ .Category }}** ({{ .LastedText }}By <@{{ .Creator }}>)",
 
   "MaxMarkLength": "Crhhthr mhrks mhst bh hndhr 2400 chhrhcthrs!",
   "MarkChanged": "Yhh hhvh shgnhd **{{ . }}**! 🖋️",
@@ -187,6 +191,7 @@
   "ElemColorSuggested": "Shgghsthd h chlhr fhr **%s{{ . }}** 🖋️",
   "CatImageSuggested": "Shgghsthd hn hmhgh fhr chthghry **{{ . }}** 📷",
   "CatColorSuggested": "Shgghsthd h chlhr fhr chthghry **{{ . }}** 🖋️",
+  "VCatDeleteSuggested": "Shgghsthd th dhlhth vhrthhl chthghry **{{ . }}** 🗑️",
 
   "MustAttachImage": "Yhh mhst htthch hn hmhgh!",
   "AddCatMustHaveSeparator": "Yhh mhst hhvh h \"|\" th shphrhth thh chthghry nhmh hnd thh hlhmhnts th hdd!",
