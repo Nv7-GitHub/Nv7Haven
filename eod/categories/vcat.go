@@ -36,10 +36,11 @@ func (b *Categories) VCatCreateAllElementsCmd(name string, m types.Msg, rsp type
 		name = util.ToTitle(name)
 	}
 	vcat = &types.VirtualCategory{
-		Name:  name,
-		Guild: m.GuildID,
-		Rule:  types.VirtualCategoryRuleAllElements,
-		Data:  make(types.VirtualCategoryData),
+		Name:    name,
+		Guild:   m.GuildID,
+		Creator: m.Author.ID,
+		Rule:    types.VirtualCategoryRuleAllElements,
+		Data:    make(types.VirtualCategoryData),
 	}
 	err := db.SaveVCat(vcat)
 	if rsp.Error(err) {
@@ -118,9 +119,10 @@ func (b *Categories) VCatCreateInvFilterCmd(name string, user string, filter str
 		name = util.ToTitle(name)
 	}
 	vcat = &types.VirtualCategory{
-		Name:  name,
-		Guild: m.GuildID,
-		Rule:  types.VirtualCategoryRuleInvFilter,
+		Name:    name,
+		Guild:   m.GuildID,
+		Creator: m.Author.ID,
+		Rule:    types.VirtualCategoryRuleInvFilter,
 		Data: types.VirtualCategoryData{
 			"user":   user,
 			"filter": filter,
@@ -230,9 +232,10 @@ func (b *Categories) VCatOpCmd(op types.CategoryOperation, name string, lhs stri
 		name = util.ToTitle(name)
 	}
 	vcat := &types.VirtualCategory{
-		Name:  name,
-		Guild: m.GuildID,
-		Rule:  types.VirtualCategoryRuleSetOperation,
+		Name:    name,
+		Guild:   m.GuildID,
+		Creator: m.Author.ID,
+		Rule:    types.VirtualCategoryRuleSetOperation,
 		Data: types.VirtualCategoryData{
 			"lhs":       lhs,
 			"rhs":       rhs,

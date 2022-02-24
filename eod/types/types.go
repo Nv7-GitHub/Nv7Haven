@@ -243,8 +243,9 @@ const (
 )
 
 type VirtualCategory struct {
-	Name  string
-	Guild string
+	Name    string
+	Guild   string
+	Creator string
 
 	Image   string
 	Color   int
