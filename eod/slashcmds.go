@@ -425,6 +425,13 @@ var (
 					Required:     false,
 					Autocomplete: true,
 				},
+				{
+					Type:         discordgo.ApplicationCommandOptionString,
+					Name:         "category",
+					Description:  "A category to choose the hint from!",
+					Required:     false,
+					Autocomplete: true,
+				},
 			},
 		},
 		{
@@ -1650,15 +1657,30 @@ var (
 		"hint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			hasElem := false
+			hasCat := false
 			var elem string
 			for _, opt := range resp.Options {
 				if opt.Name == "element" {
 					hasElem = true
 					elem = opt.StringValue()
 				}
+
+				if opt.Name == "category" {
+					hasCat = true
+					elem = opt.StringValue()
+				}
 			}
 
-			bot.elements.HintCmd(elem, hasElem, false, bot.newMsgSlash(i), bot.newRespSlash(i))
+			rsp := bot.newRespSlash(i)
+			if hasCat && hasElem {
+				db, res := bot.GetDB(i.GuildID)
+				if !res.Exists {
+					return
+				}
+				rsp.ErrorMessage(db.Config.LangProperty("CannotHaveBothElemAndCat", nil))
+				return
+			}
+			bot.elements.HintCmd(elem, hasElem, false, hasCat, bot.newMsgSlash(i), rsp)
 		},
 		"stats": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.basecmds.StatsCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
@@ -1987,7 +2009,7 @@ var (
 		},
 		"invhint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.elements.HintCmd(resp.Options[0].StringValue(), true, true, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.elements.HintCmd(resp.Options[0].StringValue(), true, true, false, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"search": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData().Options[0]
@@ -2100,7 +2122,7 @@ var (
 			if !r.Exists {
 				return
 			}
-			bot.elements.HintCmd(elem.Name, true, false, bot.newMsgSlash(i), rsp)
+			bot.elements.HintCmd(elem.Name, true, false, false, bot.newMsgSlash(i), rsp)
 		},
 		"Get Inverse Hint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -2118,7 +2140,7 @@ var (
 			if !r.Exists {
 				return
 			}
-			bot.elements.HintCmd(elem.Name, true, true, bot.newMsgSlash(i), rsp)
+			bot.elements.HintCmd(elem.Name, true, true, false, bot.newMsgSlash(i), rsp)
 		},
 		"Get Color": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -2350,7 +2372,15 @@ var (
 			if len(data.Options) == 0 {
 				return
 			}
-			names, res := bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[0].StringValue())
+			var names []string
+			var res types.GetResponse
+			ind, name := getFocused(data.Options)
+			if name == "element" {
+				names, res = bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
+			}
+			if name == "category" {
+				names, res = bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
+			}
 			if !res.Exists {
 				return
 			}

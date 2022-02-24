@@ -738,6 +738,10 @@
       "type": "string",
       "description": "Tell the user that they cannot input both an element and an element ID."
     },
+    "CannotHaveBothElemAndCat": {
+      "type": "string",
+      "description": "Tell the user that they cannot input both an element and a category."
+    },
     "IDCannotBeNegative": {
       "type": "string",
       "description": "Tell the user their element ID cannot be negative."
