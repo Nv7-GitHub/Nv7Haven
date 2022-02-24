@@ -1680,7 +1680,7 @@ var (
 				rsp.ErrorMessage(db.Config.LangProperty("CannotHaveBothElemAndCat", nil))
 				return
 			}
-			bot.elements.HintCmd(elem, hasElem, false, hasCat, bot.newMsgSlash(i), rsp)
+			bot.elements.HintCmd(elem, hasElem, hasCat, false, bot.newMsgSlash(i), rsp)
 		},
 		"stats": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.basecmds.StatsCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
@@ -2009,7 +2009,7 @@ var (
 		},
 		"invhint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.elements.HintCmd(resp.Options[0].StringValue(), true, true, false, bot.newMsgSlash(i), bot.newRespSlash(i))
+			bot.elements.HintCmd(resp.Options[0].StringValue(), true, false, true, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"search": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData().Options[0]
@@ -2140,7 +2140,7 @@ var (
 			if !r.Exists {
 				return
 			}
-			bot.elements.HintCmd(elem.Name, true, true, false, bot.newMsgSlash(i), rsp)
+			bot.elements.HintCmd(elem.Name, true, false, true, bot.newMsgSlash(i), rsp)
 		},
 		"Get Color": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
