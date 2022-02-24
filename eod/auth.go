@@ -30,6 +30,7 @@ var noModCmds = map[string]types.Empty{
 	"View Inventory":           {},
 	"View Info":                {},
 	"Get Hint":                 {},
+	"Get Breakdown":            {},
 	"Get Inverse Hint":         {},
 	"Get Color":                {},
 	"View Leaderboard":         {},

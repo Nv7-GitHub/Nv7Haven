@@ -1084,6 +1084,11 @@ var (
 			Type: discordgo.UserApplicationCommand,
 		},
 		{
+			Name: "Get Breakdown",
+			//Description: "Get the breakdown of an element in a message!",
+			Type: discordgo.MessageApplicationCommand,
+		},
+		{
 			Name:        "notation",
 			Type:        discordgo.ChatApplicationCommand,
 			Description: "Calculate notations!",
@@ -2128,6 +2133,24 @@ var (
 		"View Leaderboard": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			bot.elements.LbCmd(bot.newMsgSlash(i), bot.newRespSlash(i), "count", resp.TargetID)
+		},
+		"Get Breakdown": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData()
+			rsp := bot.newRespSlash(i)
+			id, res, suc := bot.getMessageElem(resp.TargetID, i.GuildID)
+			if !suc {
+				rsp.ErrorMessage(res)
+				return
+			}
+			db, r := bot.GetDB(i.GuildID)
+			if !r.Exists {
+				return
+			}
+			elem, r := db.GetElement(id)
+			if !r.Exists {
+				return
+			}
+			bot.treecmds.ElemBreakdownCmd(elem.Name, true, bot.newMsgSlash(i), rsp)
 		},
 		"notation": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData().Options[0]
