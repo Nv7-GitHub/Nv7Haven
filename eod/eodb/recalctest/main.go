@@ -16,6 +16,8 @@ func handle(err error) {
 	}
 }
 
+type empty struct{}
+
 func main() {
 	home, err := os.UserHomeDir()
 	handle(err)
@@ -35,12 +37,17 @@ func main() {
 		panic(err)
 	}
 
-	d, _ := db.GetDB("705084182673621033")
-	fmt.Println("Recalcing...")
-	start = time.Now()
-	err = d.Recalc()
-	fmt.Println(err)
-	fmt.Println(time.Since(start))
+	for _, db := range db.DB {
+		fmt.Printf("Recalcing %s...\n", db.Guild)
+		start = time.Now()
+		err = db.Recalc()
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(time.Since(start))
+
+		db.Close()
+	}
 
 	pprof.StopCPUProfile()
 	f.Close()
@@ -48,8 +55,4 @@ func main() {
 	f2, _ := os.Create("heap.pprof")
 	pprof.WriteHeapProfile(f2)
 	f2.Close()
-
-	for _, db := range db.DB {
-		db.Close()
-	}
 }
