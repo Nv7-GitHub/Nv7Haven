@@ -77,6 +77,18 @@ func Obscure(val string) string {
 }
 
 var ten = big.NewInt(10)
+var superscript = map[string]string{
+	"0": "⁰",
+	"1": "¹",
+	"2": "²",
+	"3": "³",
+	"4": "⁴",
+	"5": "⁵",
+	"6": "⁶",
+	"7": "⁷",
+	"8": "⁸",
+	"9": "⁹",
+}
 
 func FormatBigInt(b *big.Int) string {
 	if b.IsInt64() {
@@ -95,5 +107,12 @@ func FormatBigInt(b *big.Int) string {
 	div := big.NewInt(0).Exp(ten, big.NewInt(tenCnt), nil)
 	v := big.NewFloat(0).Quo(big.NewFloat(0).SetInt(b), big.NewFloat(0).SetInt(div)) // b/tenCnt
 	val, _ := v.Float64()
-	return fmt.Sprintf("%0.6fe%d", val, tenCnt)
+
+	// Format
+	exp := strconv.Itoa(int(tenCnt))
+	for k, v := range superscript {
+		exp = strings.ReplaceAll(exp, k, v)
+	}
+
+	return fmt.Sprintf("%0.6f×10%s", val, exp)
 }
