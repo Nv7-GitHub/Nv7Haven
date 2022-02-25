@@ -95,5 +95,5 @@ func FormatBigInt(b *big.Int) string {
 	div := big.NewInt(0).Exp(ten, big.NewInt(tenCnt), nil)
 	v := big.NewFloat(0).Quo(big.NewFloat(0).SetInt(b), big.NewFloat(0).SetInt(div)) // b/tenCnt
 	val, _ := v.Float64()
-	return fmt.Sprintf("%0.2fe%d", val, tenCnt)
+	return fmt.Sprintf("%0.6fe%d", val, tenCnt)
 }
