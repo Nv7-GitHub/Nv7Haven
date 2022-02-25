@@ -135,10 +135,10 @@ type Element struct {
 	Difficulty int
 	UsedIn     int
 	TreeSize   int
-	Air        int
-	Earth      int
-	Fire       int
-	Water      int
+	Air        uint64
+	Earth      uint64
+	Fire       uint64
+	Water      uint64
 
 	Commenter string
 	Colorer   string

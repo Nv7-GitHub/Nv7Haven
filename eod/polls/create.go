@@ -45,10 +45,10 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 		compl := -1
 		areUnique := false
 		parColors := make([]int, len(parents))
-		air := 0
-		earth := 0
-		fire := 0
-		water := 0
+		air := uint64(0)
+		earth := uint64(0)
+		fire := uint64(0)
+		water := uint64(0)
 		for j, val := range parents {
 			elem, _ := db.GetElement(val)
 			if elem.Difficulty > diff {

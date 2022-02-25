@@ -90,10 +90,10 @@ func (d *DB) Recalc() error {
 				// Update complexity & difficulty, element stats
 				maxdiff := -1
 				maxcomp := -1
-				air := 0
-				earth := 0
-				fire := 0
-				water := 0
+				air := uint64(0)
+				earth := uint64(0)
+				fire := uint64(0)
+				water := uint64(0)
 
 				issame := false
 				first := el.Parents[0]

@@ -278,10 +278,10 @@ func (b *Elements) Info(elem string, m types.Msg, rsp types.Rsp) {
 		{Name: db.Config.LangProperty("InfoTreeSize", nil), Value: strconv.Itoa(tree.Total), Inline: true},
 		{Name: db.Config.LangProperty("InfoComplexity", nil), Value: strconv.Itoa(el.Complexity), Inline: true},
 		{Name: db.Config.LangProperty("InfoDifficulty", nil), Value: strconv.Itoa(el.Difficulty), Inline: true},
-		{Name: "Air", Value: strconv.Itoa(el.Air), Inline: true},
-		{Name: "Earth", Value: strconv.Itoa(el.Earth), Inline: true},
-		{Name: "Fire", Value: strconv.Itoa(el.Fire), Inline: true},
-		{Name: "Water", Value: strconv.Itoa(el.Water), Inline: true}, // Does this cause anything
+		{Name: "Air", Value: strconv.FormatUint(el.Air, 10), Inline: true},
+		{Name: "Earth", Value: strconv.FormatUint(el.Earth, 10), Inline: true},
+		{Name: "Fire", Value: strconv.FormatUint(el.Fire, 10), Inline: true},
+		{Name: "Water", Value: strconv.FormatUint(el.Water, 10), Inline: true}, // Does this cause anything
 	}
 	fullFields = append(fullFields, infoFields...)
 
