@@ -1,6 +1,9 @@
 package types
 
-import "time"
+import (
+	"math/big"
+	"time"
+)
 
 const X = "❌"
 const Check = "<:eodCheck:765333533362225222>" // ✅
@@ -26,10 +29,10 @@ var StarterElements = []Element{
 		Difficulty: 0,
 		CreatedOn:  NewTimeStamp(time.Unix(1, 0)),
 		Parents:    []int{},
-		Air:        1,
-		Earth:      0,
-		Fire:       0,
-		Water:      0,
+		Air:        big.NewInt(1),
+		Earth:      big.NewInt(0),
+		Fire:       big.NewInt(0),
+		Water:      big.NewInt(0),
 	},
 	{
 		Name:       "Earth",
@@ -42,10 +45,10 @@ var StarterElements = []Element{
 		Difficulty: 0,
 		CreatedOn:  NewTimeStamp(time.Unix(2, 0)),
 		Parents:    []int{},
-		Air:        0,
-		Earth:      1,
-		Fire:       0,
-		Water:      0,
+		Air:        big.NewInt(0),
+		Earth:      big.NewInt(1),
+		Fire:       big.NewInt(0),
+		Water:      big.NewInt(0),
 	},
 	{
 		Name:       "Fire",
@@ -58,10 +61,10 @@ var StarterElements = []Element{
 		Difficulty: 0,
 		CreatedOn:  NewTimeStamp(time.Unix(3, 0)),
 		Parents:    []int{},
-		Air:        0,
-		Earth:      0,
-		Fire:       1,
-		Water:      0,
+		Air:        big.NewInt(0),
+		Earth:      big.NewInt(0),
+		Fire:       big.NewInt(1),
+		Water:      big.NewInt(0),
 	},
 	{
 		Name:       "Water",
@@ -74,9 +77,9 @@ var StarterElements = []Element{
 		Difficulty: 0,
 		CreatedOn:  NewTimeStamp(time.Unix(4, 0)),
 		Parents:    []int{},
-		Air:        0,
-		Earth:      0,
-		Fire:       0,
-		Water:      1,
+		Air:        big.NewInt(0),
+		Earth:      big.NewInt(0),
+		Fire:       big.NewInt(0),
+		Water:      big.NewInt(1),
 	},
 }

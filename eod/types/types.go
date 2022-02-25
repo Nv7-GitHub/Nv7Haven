@@ -1,6 +1,7 @@
 package types
 
 import (
+	"math/big"
 	"strconv"
 	"strings"
 	"sync"
@@ -135,10 +136,10 @@ type Element struct {
 	Difficulty int
 	UsedIn     int
 	TreeSize   int
-	Air        uint64
-	Earth      uint64
-	Fire       uint64
-	Water      uint64
+	Air        *big.Int
+	Earth      *big.Int
+	Fire       *big.Int
+	Water      *big.Int
 
 	Commenter string
 	Colorer   string

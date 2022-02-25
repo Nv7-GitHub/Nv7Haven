@@ -2,6 +2,7 @@ package eodb
 
 import (
 	"fmt"
+	"math/big"
 	"sort"
 	"strconv"
 	"strings"
@@ -90,10 +91,10 @@ func (d *DB) Recalc() error {
 				// Update complexity & difficulty, element stats
 				maxdiff := -1
 				maxcomp := -1
-				air := uint64(0)
-				earth := uint64(0)
-				fire := uint64(0)
-				water := uint64(0)
+				air := big.NewInt(0)
+				earth := big.NewInt(0)
+				fire := big.NewInt(0)
+				water := big.NewInt(0)
 
 				issame := false
 				first := el.Parents[0]
@@ -111,10 +112,10 @@ func (d *DB) Recalc() error {
 					if elem != first { // Check if all are same (for difficulty)
 						issame = false
 					}
-					air += el.Air
-					earth += el.Earth
-					fire += el.Fire
-					water += el.Water
+					air.Add(air, el.Air)
+					earth.Add(earth, el.Earth)
+					fire.Add(fire, el.Fire)
+					water.Add(water, el.Water)
 				}
 
 				maxcomp++

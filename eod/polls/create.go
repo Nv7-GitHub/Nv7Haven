@@ -3,6 +3,7 @@ package polls
 import (
 	"errors"
 	"log"
+	"math/big"
 	"regexp"
 	"strconv"
 	"sync"
@@ -45,10 +46,10 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 		compl := -1
 		areUnique := false
 		parColors := make([]int, len(parents))
-		air := uint64(0)
-		earth := uint64(0)
-		fire := uint64(0)
-		water := uint64(0)
+		air := big.NewInt(0)
+		earth := big.NewInt(0)
+		fire := big.NewInt(0)
+		water := big.NewInt(0)
 		for j, val := range parents {
 			elem, _ := db.GetElement(val)
 			if elem.Difficulty > diff {
@@ -61,10 +62,10 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 				areUnique = true
 			}
 			parColors[j] = elem.Color
-			air += elem.Air
-			fire += elem.Fire
-			earth += elem.Earth
-			water += elem.Water
+			air.Add(air, elem.Air)
+			earth.Add(earth, elem.Earth)
+			fire.Add(fire, elem.Fire)
+			water.Add(water, elem.Water)
 		}
 		compl++
 		if areUnique {
