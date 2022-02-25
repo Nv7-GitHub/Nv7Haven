@@ -2,6 +2,8 @@ package util
 
 import (
 	"fmt"
+	"math"
+	"math/big"
 	"sort"
 	"strconv"
 	"strings"
@@ -72,4 +74,26 @@ func Obscure(val string) string {
 		i++
 	}
 	return string(out)
+}
+
+var ten = big.NewInt(10)
+
+func FormatBigInt(b *big.Int) string {
+	if b.IsInt64() {
+		return FormatInt(int(b.Int64()))
+	}
+
+	// Get number of digits
+	fac := math.Log(2) / math.Log(10)
+	count := int64(fac * float64(b.BitLen()))
+	if big.NewInt(0).Exp(ten, big.NewInt(count-1), nil).Cmp(b) < 0 {
+		count++
+	}
+
+	// Get val
+	tenCnt := count - 1
+	div := big.NewInt(0).Exp(ten, big.NewInt(tenCnt), nil)
+	v := big.NewFloat(0).Quo(big.NewFloat(0).SetInt(b), big.NewFloat(0).SetInt(div)) // b/tenCnt
+	val, _ := v.Float64()
+	return fmt.Sprintf("%0.2fe%d", val, tenCnt)
 }
