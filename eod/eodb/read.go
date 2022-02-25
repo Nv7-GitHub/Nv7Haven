@@ -147,6 +147,16 @@ func (d *DB) GetCat(name string) (*types.Category, types.GetResponse) {
 	return cat, types.GetResponse{Exists: true}
 }
 
+func (d *DB) GetCatCache(name string) (map[int]types.Empty, bool) {
+	d.RLock()
+	cache, exists := d.catCache[strings.ToLower(name)]
+	d.RUnlock()
+	if !exists {
+		return nil, false
+	}
+	return cache, true
+}
+
 func (d *DB) GetVCat(name string) (*types.VirtualCategory, types.GetResponse) {
 	d.RLock()
 	vcat, exists := d.vcats[strings.ToLower(name)]

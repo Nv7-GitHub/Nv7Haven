@@ -1,12 +1,9 @@
 package categories
 
 import (
-	"fmt"
 	"net/url"
 	"regexp"
-	"sort"
 	"strings"
-	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
@@ -264,56 +261,4 @@ func (b *Categories) VCatOpCmd(op types.CategoryOperation, name string, lhs stri
 		return
 	}
 	rsp.Message("Created Virtual Category!") // TODO: Translate
-}
-
-func (b *Categories) CacheVCats() {
-	for _, db := range b.DB {
-		regs := make(map[string]*regexp.Regexp)
-		vcats := make(map[string]map[int]types.Empty)
-
-		// Performance
-		times := make(map[string]time.Duration)
-		code := make(map[string]string)
-		for _, vcat := range db.VCats() {
-			if vcat.Rule == types.VirtualCategoryRuleRegex {
-				vcat.Cache = make(map[int]types.Empty)
-				vcats[vcat.Name] = vcat.Cache
-				regs[vcat.Name] = regexp.MustCompile(vcat.Data["regex"].(string))
-
-				// Performance
-				times[vcat.Name] = 0
-				code[vcat.Name] = vcat.Data["regex"].(string)
-			}
-		}
-
-		for _, el := range db.Elements {
-			for k, reg := range regs {
-				start := time.Now()
-				match := reg.Match([]byte(el.Name))
-				times[k] += time.Since(start)
-				if match {
-					vcats[k][el.ID] = types.Empty{}
-				}
-			}
-		}
-
-		// Performance
-		type timeData struct {
-			dur  time.Duration
-			code string
-			name string
-		}
-		i := 0
-		dat := make([]timeData, len(times))
-		for k, v := range times {
-			dat[i] = timeData{v, code[k], k}
-			i++
-		}
-		sort.Slice(dat, func(i, j int) bool {
-			return dat[i].dur > dat[j].dur
-		})
-		for _, v := range dat {
-			fmt.Printf("%s: %s [%s]\n", v.dur.String(), v.code, v.name)
-		}
-	}
 }

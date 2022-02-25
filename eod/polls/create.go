@@ -183,6 +183,11 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 			matched, err := regexp.MatchString(vcat.Data["regex"].(string), name)
 			if err == nil && matched {
 				vcat.Cache[el.ID] = types.Empty{}
+				err = db.SaveCatCache(vcat.Name, vcat.Cache)
+				if err != nil {
+					log.SetOutput(logs.DataFile)
+					log.Println(err)
+				}
 			}
 		}
 	}

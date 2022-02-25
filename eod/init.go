@@ -74,12 +74,6 @@ func (b *EoD) init(app *fiber.App) {
 	}
 	bar.Finish()
 
-	// Cache vcats
-	fmt.Println("Caching Virtual Categories...")
-	start := time.Now()
-	b.categories.CacheVCats()
-	fmt.Println("Cached Virtual Categories in", time.Since(start))
-
 	b.initHandlers()
 	b.start()
 

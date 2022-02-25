@@ -48,6 +48,15 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types
 
 		vcat.Cache = out
 
+		// Save
+		err := db.SaveCatCache(vcat.Name, vcat.Cache)
+		if err != nil {
+			return nil, types.GetResponse{
+				Exists:  false,
+				Message: err.Error(),
+			}
+		}
+
 	case types.VirtualCategoryRuleInvFilter:
 		inv := db.GetInv(vcat.Data["user"].(string))
 		switch vcat.Data["filter"].(string) {

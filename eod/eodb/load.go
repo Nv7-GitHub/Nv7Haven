@@ -3,6 +3,7 @@ package eodb
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"io"
 	"net/url"
 	"os"
@@ -269,6 +270,13 @@ func (d *DB) loadCats() error {
 		}
 		cat.Lock = &sync.RWMutex{}
 
+		// Get cache
+		cache, exists := d.GetCatCache(cat.Name)
+		if !exists {
+			return fmt.Errorf("eod: cat cache not found for cat %s", cat.Name)
+		}
+		cat.Elements = cache
+
 		// Save cat
 		d.cats[strings.ToLower(name)] = cat
 		d.catFiles[strings.ToLower(name)] = f
@@ -291,6 +299,17 @@ func (d *DB) loadVcats() error {
 		d.vcats = make(map[string]*types.VirtualCategory)
 	}
 	d.vcatsFile = f
+
+	// Load caches
+	for _, vcat := range d.vcats {
+		if vcat.Rule == types.VirtualCategoryRuleRegex {
+			cache, exists := d.GetCatCache(vcat.Name)
+			if !exists {
+				return fmt.Errorf("eod: vcat cache not found for cat %s", vcat.Name)
+			}
+			vcat.Cache = cache
+		}
+	}
 	return nil
 }
 

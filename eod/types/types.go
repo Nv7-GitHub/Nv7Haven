@@ -220,7 +220,7 @@ type Category struct {
 
 	Name     string
 	Guild    string
-	Elements map[int]Empty
+	Elements map[int]Empty `json:"-"`
 	Image    string
 	Color    int
 
