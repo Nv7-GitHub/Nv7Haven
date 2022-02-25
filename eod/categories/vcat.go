@@ -2,6 +2,7 @@ package categories
 
 import (
 	"fmt"
+	"net/url"
 	"regexp"
 	"sort"
 	"strings"
@@ -34,6 +35,10 @@ func (b *Categories) VCatCreateAllElementsCmd(name string, m types.Msg, rsp type
 	// Create
 	if strings.ToLower(name) == name {
 		name = util.ToTitle(name)
+	}
+	if len(url.PathEscape(name)) > 1024 {
+		rsp.ErrorMessage(db.Config.LangProperty("CatNameTooLong", nil))
+		return
 	}
 	vcat = &types.VirtualCategory{
 		Name:    name,
@@ -79,6 +84,10 @@ func (b *Categories) VCatCreateRegexCmd(name string, regex string, m types.Msg, 
 	if strings.ToLower(name) == name {
 		name = util.ToTitle(name)
 	}
+	if len(url.PathEscape(name)) > 1024 {
+		rsp.ErrorMessage(db.Config.LangProperty("CatNameTooLong", nil))
+		return
+	}
 	vcat = &types.VirtualCategory{
 		Name:  name,
 		Guild: m.GuildID,
@@ -117,6 +126,10 @@ func (b *Categories) VCatCreateInvFilterCmd(name string, user string, filter str
 	// Create
 	if strings.ToLower(name) == name {
 		name = util.ToTitle(name)
+	}
+	if len(url.PathEscape(name)) > 1024 {
+		rsp.ErrorMessage(db.Config.LangProperty("CatNameTooLong", nil))
+		return
 	}
 	vcat = &types.VirtualCategory{
 		Name:    name,
@@ -230,6 +243,10 @@ func (b *Categories) VCatOpCmd(op types.CategoryOperation, name string, lhs stri
 	// Create
 	if strings.ToLower(name) == name {
 		name = util.ToTitle(name)
+	}
+	if len(url.PathEscape(name)) > 1024 {
+		rsp.ErrorMessage(db.Config.LangProperty("CatNameTooLong", nil))
+		return
 	}
 	vcat := &types.VirtualCategory{
 		Name:    name,
