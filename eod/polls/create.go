@@ -2,6 +2,7 @@ package polls
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"math/big"
 	"regexp"
@@ -62,6 +63,9 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 				areUnique = true
 			}
 			parColors[j] = elem.Color
+			if elem.Air == nil {
+				fmt.Println(elem.Guild)
+			}
 			air.Add(air, elem.Air)
 			earth.Add(earth, elem.Earth)
 			fire.Add(fire, elem.Fire)
