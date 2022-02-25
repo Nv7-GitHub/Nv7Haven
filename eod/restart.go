@@ -149,6 +149,10 @@ func (b *EoD) optimize(m types.Msg, rsp types.Rsp) {
 		if rsp.Error(err) {
 			return
 		}
+		err = db.OptimizeCats()
+		if rsp.Error(err) {
+			return
+		}
 		taken += time.Since(start)
 
 		i++

@@ -99,12 +99,14 @@ type DB struct {
 
 	inTransaction bool
 
-	invFiles   map[string]*os.File
-	catFiles   map[string]*os.File
-	elemFile   *os.File
-	comboFile  *os.File
-	configFile *os.File
-	vcatsFile  *os.File
+	invFiles      map[string]*os.File
+	catFiles      map[string]*os.File
+	catCacheFiles map[string]*os.File
+	catCache      map[string]map[int]types.Empty // map[name]cat(id: cat name)
+	elemFile      *os.File
+	comboFile     *os.File
+	configFile    *os.File
+	vcatsFile     *os.File
 
 	AI *ai.AI
 }
@@ -142,8 +144,10 @@ func newDB(path string, guild string) *DB {
 		Elements:  make([]types.Element, 0),
 		elemNames: make(map[string]int),
 
-		invFiles: make(map[string]*os.File),
-		catFiles: make(map[string]*os.File),
+		invFiles:      make(map[string]*os.File),
+		catFiles:      make(map[string]*os.File),
+		catCacheFiles: make(map[string]*os.File),
+		catCache:      make(map[string]map[int]types.Empty),
 
 		AI: ai.NewAI(),
 	}
@@ -173,6 +177,10 @@ func NewDB(guild, path string) (*DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	err = db.loadCatCache()
+	if err != nil {
+		return nil, err
+	}
 	err = db.loadCats()
 	if err != nil {
 		return nil, err
@@ -194,6 +202,9 @@ func (d *DB) Close() {
 		file.Close()
 	}
 	for _, file := range d.catFiles {
+		file.Close()
+	}
+	for _, file := range d.catCacheFiles {
 		file.Close()
 	}
 	d.elemFile.Close()

@@ -28,3 +28,45 @@ func (b *DB) Optimize() error {
 
 	return nil
 }
+
+func (b *DB) OptimizeCats() error {
+	b.Lock()
+	defer b.Unlock()
+
+	for name, f := range b.catCacheFiles {
+		// Delete existing data
+		_, err := f.Seek(0, 0)
+		if err != nil {
+			return err
+		}
+		err = f.Truncate(0)
+		if err != nil {
+			return err
+		}
+
+		// Create entry
+		dat := b.catCache[name]
+		els := make([]int, len(dat))
+		i := 0
+		for k := range dat {
+			els[i] = k
+			i++
+		}
+		entry := catCacheEntry{
+			Op:   catCacheOpAdd,
+			Data: els,
+		}
+		data, err := json.Marshal(entry)
+		if err != nil {
+			return err
+		}
+
+		// Rewrite elements
+		_, err = b.elemFile.WriteString(string(data) + "\n")
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

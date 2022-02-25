@@ -163,6 +163,80 @@ func (d *DB) loadInvs() error {
 	return nil
 }
 
+type catCacheOp int
+
+const (
+	catCacheOpAdd    catCacheOp = 0
+	catCacheOpRemove catCacheOp = 1
+)
+
+type catCacheEntry struct {
+	Op   catCacheOp
+	Data []int
+}
+
+func (d *DB) loadCatCache() error {
+	err := os.MkdirAll(filepath.Join(d.dbPath, "catcache"), os.ModePerm)
+	if err != nil {
+		return err
+	}
+	files, err := os.ReadDir(filepath.Join(d.dbPath, "catcache"))
+	if err != nil {
+		return err
+	}
+
+	var entry catCacheEntry
+	for _, file := range files {
+		name, err := url.PathUnescape(strings.TrimSuffix(file.Name(), ".json"))
+		if err != nil {
+			return err
+		}
+		f, err := os.OpenFile(filepath.Join(d.dbPath, "catcache", file.Name()), os.O_RDWR, os.ModePerm)
+		if err != nil {
+			return err
+		}
+		reader := bufio.NewReader(f)
+		cache := make(map[int]types.Empty)
+
+		// Read cat
+		for {
+			line, err := readLine(reader)
+			if err != nil {
+				if err == io.EOF {
+					break
+				} else {
+					return err
+				}
+			}
+
+			// Parse
+			err = json.Unmarshal(line, &entry)
+			if err != nil {
+				return err
+			}
+
+			// Apply operation
+			switch entry.Op {
+			case catCacheOpAdd:
+				for _, elem := range entry.Data {
+					cache[elem] = types.Empty{}
+				}
+
+			case catCacheOpRemove:
+				for _, elem := range entry.Data {
+					delete(cache, elem)
+				}
+			}
+			entry = catCacheEntry{}
+		}
+
+		// Save cat
+		d.catCache[strings.ToLower(name)] = cache
+		d.catCacheFiles[strings.ToLower(name)] = f
+	}
+	return nil
+}
+
 func (d *DB) loadCats() error {
 	err := os.MkdirAll(filepath.Join(d.dbPath, "categories"), os.ModePerm)
 	if err != nil {
