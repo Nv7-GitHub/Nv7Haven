@@ -354,6 +354,34 @@
       "type": "string",
       "description": "The title given to element leaderboards."
     },
+    "LbTitleMade": {
+      "type": "string",
+      "description": "The title given to elements made leaderboards."
+    },
+    "LbTitleSigned": {
+      "type": "string",
+      "description": "The title given to elements signed leaderboards."
+    },
+    "LbTitleImaged": {
+      "type": "string",
+      "description": "The title given to elements imaged leaderboards."
+    },
+    "LbTitleColored": {
+      "type": "string",
+      "description": "The title given to elements colored leaderboards."
+    },
+    "LbTitleCatImaged": {
+      "type": "string",
+      "description": "The title given to categories imaged leaderboards."
+    },
+    "LbTitleCatColored": {
+      "type": "string",
+      "description": "The title given to categories colored leaderboards."
+    },
+    "LbTitleUsed": {
+      "type": "string",
+      "description": "The title given to elements used leaderboards."
+    },
     "NewIdea": {
       "type": "string",
       "description": "The message in the New Idea button."
