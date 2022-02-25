@@ -35,7 +35,7 @@ func ToTitle(s string) string {
 		}
 
 		if ind != -1 {
-			w[ind] = rune(strings.ToUpper(string(word[ind]))[0])
+			w[ind] = []rune(strings.ToUpper(string([]rune(word)[ind])))[0]
 			words[i] = string(w)
 		}
 	}

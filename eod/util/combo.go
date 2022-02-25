@@ -7,7 +7,7 @@ import (
 )
 
 func FormatCombo(elems []int) string {
-	sort.Sort(sort.IntSlice(elems))
+	sort.Ints(elems)
 
 	out := &strings.Builder{}
 	for i, v := range elems {
