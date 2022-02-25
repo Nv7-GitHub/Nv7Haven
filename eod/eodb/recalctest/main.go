@@ -16,8 +16,6 @@ func handle(err error) {
 	}
 }
 
-type empty struct{}
-
 func main() {
 	home, err := os.UserHomeDir()
 	handle(err)
