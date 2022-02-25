@@ -45,6 +45,10 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 		compl := -1
 		areUnique := false
 		parColors := make([]int, len(parents))
+		air := 0
+		earth := 0
+		fire := 0
+		water := 0
 		for j, val := range parents {
 			elem, _ := db.GetElement(val)
 			if elem.Difficulty > diff {
@@ -57,6 +61,10 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 				areUnique = true
 			}
 			parColors[j] = elem.Color
+			air += elem.Air
+			fire += elem.Fire
+			earth += elem.Earth
+			water += elem.Water
 		}
 		compl++
 		if areUnique {
@@ -84,6 +92,10 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 			Difficulty: diff,
 			Color:      col,
 			TreeSize:   size,
+			Air:        air,
+			Earth:      earth,
+			Fire:       fire,
+			Water:      water,
 		}
 		postID = strconv.Itoa(elem.ID)
 		err = db.SaveElement(elem, true)

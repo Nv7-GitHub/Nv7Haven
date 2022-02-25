@@ -278,6 +278,10 @@ func (b *Elements) Info(elem string, m types.Msg, rsp types.Rsp) {
 		{Name: db.Config.LangProperty("InfoTreeSize", nil), Value: strconv.Itoa(tree.Total), Inline: true},
 		{Name: db.Config.LangProperty("InfoComplexity", nil), Value: strconv.Itoa(el.Complexity), Inline: true},
 		{Name: db.Config.LangProperty("InfoDifficulty", nil), Value: strconv.Itoa(el.Difficulty), Inline: true},
+		{Name: "Air", Value: strconv.Itoa(el.Air), Inline: true},
+		{Name: "Earth", Value: strconv.Itoa(el.Earth), Inline: true},
+		{Name: "Fire", Value: strconv.Itoa(el.Fire), Inline: true},
+		{Name: "Water", Value: strconv.Itoa(el.Water), Inline: true}, // Does this cause anything
 	}
 	fullFields = append(fullFields, infoFields...)
 
@@ -324,7 +328,7 @@ func (b *Elements) Info(elem string, m types.Msg, rsp types.Rsp) {
 	}
 
 	if m.Author.ID == "567132457820749842" {
-		for _, elem := range base.StarterElements {
+		for _, elem := range types.StarterElements {
 			if elem.Name == el.Name {
 				emb.Thumbnail.URL = elem.Image
 			}

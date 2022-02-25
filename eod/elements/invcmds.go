@@ -3,7 +3,6 @@ package elements
 import (
 	"strings"
 
-	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
@@ -17,7 +16,7 @@ func (b *Elements) ResetInvCmd(user string, m types.Msg, rsp types.Rsp) {
 	inv := db.GetInv(user)
 	inv.Lock.Lock()
 	inv.Elements = make(map[int]types.Empty)
-	for _, el := range base.StarterElements {
+	for _, el := range types.StarterElements {
 		inv.Elements[el.ID] = types.Empty{}
 	}
 	inv.Lock.Unlock()

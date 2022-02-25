@@ -87,9 +87,13 @@ func (d *DB) Recalc() error {
 				el.Parents = comb.Elems
 				sort.Ints(el.Parents)
 
-				// Update complexity & difficulty
+				// Update complexity & difficulty, element stats
 				maxdiff := -1
 				maxcomp := -1
+				air := 0
+				earth := 0
+				fire := 0
+				water := 0
 
 				issame := false
 				first := el.Parents[0]
@@ -107,6 +111,10 @@ func (d *DB) Recalc() error {
 					if elem != first { // Check if all are same (for difficulty)
 						issame = false
 					}
+					air += el.Air
+					earth += el.Earth
+					fire += el.Fire
+					water += el.Water
 				}
 
 				maxcomp++
@@ -116,6 +124,10 @@ func (d *DB) Recalc() error {
 
 				el.Difficulty = maxdiff
 				el.Complexity = maxcomp
+				el.Air = air
+				el.Earth = earth
+				el.Fire = fire
+				el.Water = water
 
 				// Save
 				d.RUnlock()

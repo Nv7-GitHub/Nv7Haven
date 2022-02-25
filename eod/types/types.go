@@ -135,6 +135,10 @@ type Element struct {
 	Difficulty int
 	UsedIn     int
 	TreeSize   int
+	Air        int
+	Earth      int
+	Fire       int
+	Water      int
 
 	Commenter string
 	Colorer   string

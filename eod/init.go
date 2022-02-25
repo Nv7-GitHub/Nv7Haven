@@ -93,17 +93,20 @@ func (b *EoD) init(app *fiber.App) {
 	}()
 
 	// Change starters
-	/*for _, db := range b.DB {
-		for _, el := range base.StarterElements {
+	for _, db := range b.DB {
+		for _, el := range types.StarterElements {
 			e, res := db.GetElement(el.ID)
 			if !res.Exists {
 				continue
 			}
-			e.Creator = el.Creator
+			e.Air = el.Air
+			e.Earth = el.Earth
+			e.Fire = el.Fire
+			e.Water = el.Water
 			err := db.SaveElement(e)
 			if err != nil {
 				fmt.Println(err)
 			}
 		}
-	}*/
+	}
 }
