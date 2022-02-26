@@ -183,7 +183,6 @@ func (b *Categories) AllCatCmd(sortBy string, hasUser bool, user string, m types
 		i++
 	}
 	for _, cat := range db.VCats() {
-		fmt.Println(cat.Name)
 		count := 0
 		els, res := b.base.CalcVCat(cat, db)
 		if !res.Exists {
