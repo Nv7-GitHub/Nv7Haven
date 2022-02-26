@@ -218,8 +218,8 @@ func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, hasCat bool, cat
 		}
 		if !hasFound {
 			db.RLock()
-			id := rand.Intn(len(db.Elements)-1) + 1
-			el, _ = db.GetElement(id, true)
+			ind := rand.Intn(len(ids)-1) + 1
+			el, _ = db.GetElement(ids[ind], true)
 			db.RUnlock()
 		}
 	} else {
