@@ -154,15 +154,20 @@ func (b *Categories) AllCatCmd(sortBy string, hasUser bool, user string, m types
 	db.RLock()
 	out := make([]catData, len(db.Cats())+len(db.VCats()))
 
+	fmt.Println("Hi")
+
 	i := 0
 	for _, cat := range db.Cats() {
+		fmt.Println(cat.Name)
 		count := 0
+		cat.Lock.RLock()
 		for elem := range cat.Elements {
 			exists := inv.Contains(elem)
 			if exists {
 				count++
 			}
 		}
+		cat.Lock.RUnlock()
 
 		perc := float32(count) / float32(len(cat.Elements))
 		text := "(" + util.FormatFloat(perc*100, 2) + "%)"
@@ -178,6 +183,7 @@ func (b *Categories) AllCatCmd(sortBy string, hasUser bool, user string, m types
 		i++
 	}
 	for _, cat := range db.VCats() {
+		fmt.Println(cat.Name)
 		count := 0
 		els, res := b.base.CalcVCat(cat, db)
 		if !res.Exists {
