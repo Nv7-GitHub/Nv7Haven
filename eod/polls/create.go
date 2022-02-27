@@ -142,16 +142,16 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 			el.UsedIn++
 			err := db.SaveElement(el)
 			if err != nil {
-				log.SetOutput(logs.DataFile)
-				log.Println(err)
+				handle(err)
+				return
 			}
 
 			creator := db.GetInv(el.Creator)
 			creator.UsedCnt++
 			err = db.SaveInv(creator)
 			if err != nil {
-				log.SetOutput(logs.DataFile)
-				log.Println(err)
+				handle(err)
+				return
 			}
 		}
 	}
