@@ -48,6 +48,7 @@ func (b *Categories) CategoryCmd(elems []string, category string, m types.Msg, r
 	vcat, res := db.GetVCat(category)
 	if res.Exists {
 		rsp.ErrorMessage(db.Config.LangProperty("CatAlreadyExist", vcat.Name))
+		return
 	}
 
 	for _, elem := range elems {

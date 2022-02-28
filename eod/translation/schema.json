@@ -793,14 +793,6 @@
     "WordCloudElem": {
       "type": "string",
       "description": "Tell the user which element the word cloud is for."
-    },
-    "WordCloudDimensionsTooLow": {
-      "type": "string",
-      "description": "Tell the user the dimensions of the word cloud are too low."
-    },
-    "WordCloudDimensionsTooHigh": {
-      "type": "string",
-      "description": "Tell the user the dimensions of the word cloud are too high."
     }
   }
 }
