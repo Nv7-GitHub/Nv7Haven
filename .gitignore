@@ -59,5 +59,6 @@ eod/other/parecalc/data.gob
 eod/eodb/convdb/data.gob
 restartinfo.gob
 joe_token.txt
+b_token.txt
 
 !eod/logs

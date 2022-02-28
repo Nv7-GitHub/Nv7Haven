@@ -19,6 +19,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/remodrive"
 	"github.com/Nv7-Github/Nv7Haven/single"
 	joe "github.com/Nv7-Github/average-joe"
+	bsharp "github.com/Nv7-Github/bsharp/bot"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"google.golang.org/grpc"
 
@@ -38,6 +39,9 @@ const (
 
 //go:embed joe_token.txt
 var joe_token string
+
+//go:embed b_token.txt
+var b_token string
 
 func main() {
 	logFile, err := os.OpenFile("logs.txt", os.O_WRONLY|os.O_CREATE, os.ModePerm)
@@ -91,6 +95,11 @@ func main() {
 		panic(err)
 	}
 	fmt.Println("Loaded joe in", time.Since(start))
+
+	bsharp, err := bsharp.NewBot("data/bsharp", b_token, "947593278147162113", "")
+	if err != nil {
+		panic(err)
+	}
 
 	single.InitSingle(app, db)
 	b := discord.InitDiscord(db, e)
@@ -152,4 +161,5 @@ func main() {
 	eodB.Close()
 	db.Close()
 	j.Close()
+	bsharp.Close()
 }
