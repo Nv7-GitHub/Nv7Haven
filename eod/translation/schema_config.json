@@ -220,7 +220,5 @@
   "CalculatingPing": "Tell the user that the bot is calculating the ping.",
 
   "SentWordCloud": "Tell the user the word cloud was sent in their DMs.",
-  "WordCloudElem": "Tell the user which element the word cloud is for.",
-  "WordCloudDimensionsTooLow": "Tell the user the dimensions of the word cloud are too low.",
-  "WordCloudDimensionsTooHigh": "Tell the user the dimensions of the word cloud are too high."
+  "WordCloudElem": "Tell the user which element the word cloud is for."
 }

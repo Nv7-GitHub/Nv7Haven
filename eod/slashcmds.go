@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
+	"github.com/Nv7-Github/Nv7Haven/eod/treecmds"
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
@@ -1246,12 +1247,16 @@ var (
 							Name:        "width",
 							Description: "The width of the image!",
 							Required:    false,
+							MinValue:    &treecmds.WCMinWidth,
+							MaxValue:    treecmds.WCMaxWidth,
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionInteger,
 							Name:        "height",
 							Description: "The width of the image!",
 							Required:    false,
+							MinValue:    &treecmds.WCMinHeight,
+							MaxValue:    treecmds.WCMaxHeight,
 						},
 					},
 				},

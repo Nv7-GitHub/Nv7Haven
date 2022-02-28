@@ -9,21 +9,19 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+var (
+	WCMinWidth  float64 = 1
+	WCMinHeight float64 = 1
+	WCMaxWidth  float64 = 4096
+	WCMaxHeight float64 = 4096
+)
+
 func (b *TreeCmds) WordCloudCmd(name string, elems map[int]types.Empty, calcTree bool, width, height int, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 
 	db, res := b.GetDB(m.GuildID)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
-		return
-	}
-
-	if width < 1 || height < 1 {
-		rsp.ErrorMessage(db.Config.LangProperty("WordCloudDimensionsTooLow", nil))
-		return
-	}
-	if width > 4096 || height > 4096 {
-		rsp.ErrorMessage(db.Config.LangProperty("WordCloudDimensionsTooHigh", nil))
 		return
 	}
 
