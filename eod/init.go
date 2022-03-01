@@ -65,6 +65,14 @@ func (b *EoD) init(app *fiber.App) {
 				continue
 			}
 
+			if len(downs) < 1 { // Broken poll
+				err := db.DeletePoll(po)
+				if err != nil {
+					panic(err)
+				}
+				continue
+			}
+
 			lastDown := downs[len(downs)-1].ID
 			b.polls.CheckReactions(db, po, lastDown, false)
 
