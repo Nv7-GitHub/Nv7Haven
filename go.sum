@@ -47,11 +47,13 @@ github.com/Knetic/govaluate v3.0.0+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8L
 github.com/Nv7-Github/Nv7Haven v0.0.0-20211112195030-3bbee8e990c5/go.mod h1:cppc6rJkejUqUxWJLbVAjHhiPgHiToJC4/iHzIWfGtI=
 github.com/Nv7-Github/average-joe v0.0.0-20211218214027-dd1859d97991 h1:tjq+NO30LqyzHTJI0XzGK8eLS2vlSlVlmH9HPY7baCA=
 github.com/Nv7-Github/average-joe v0.0.0-20211218214027-dd1859d97991/go.mod h1:PHuWvr1yQKszwMtibAkfYnHwYsuPoYmEW60DDtLE49k=
-github.com/Nv7-Github/bsharp v0.0.0-20220228053950-fe883ffa730d h1:EiFarvV25DNMfq1QmJV9I9V4MoB9MzY29QrqdbRs4co=
-github.com/Nv7-Github/bsharp v0.0.0-20220228053950-fe883ffa730d/go.mod h1:9MLoKlQ1t3ltcExGx04/ouKoiX51Sbg0Xykm+1HzAnE=
+github.com/Nv7-Github/bsharp v0.0.0-20220301071045-ff7eb63636c7 h1:oBYdDbxGmKQ0sUckuYeoUy3GCWXuPtUQYcgvPmEsq4E=
+github.com/Nv7-Github/bsharp v0.0.0-20220301071045-ff7eb63636c7/go.mod h1:vubZXgBLIEbO/SB9hN/2GWlFCRraF9LItJjhYprhMvU=
 github.com/Nv7-Github/firebase v0.0.0-20201012033747-47c56e1d869d h1:4h8lsgskZe3qf69Wu2V0fdKs0oEjbSR46Grzc0aLVTE=
 github.com/Nv7-Github/firebase v0.0.0-20201012033747-47c56e1d869d/go.mod h1:v6tFe6snfSAUV2p55/ebS0k8CY1hlhIjzQHTMq31H6o=
 github.com/ajstarks/svgo v0.0.0-20180226025133-644b8db467af/go.mod h1:K08gAheRH3/J6wwsYMMT4xOr94bZjxIelGM0+d/wbFw=
+github.com/alexflint/go-arg v1.4.3/go.mod h1:3PZ/wp/8HuqRZMUUgu7I+e1qcpUbvmS258mRXkFH4IA=
+github.com/alexflint/go-scalar v1.1.0/go.mod h1:LoFvNMqS1CPrMVltza4LvnGKhaSpc3oyLEBUZVhhS2o=
 github.com/andybalholm/brotli v1.0.2 h1:JKnhI/XQ75uFBTiuzXpzFrUriDPiZjlOSzh6wXogP0E=
 github.com/andybalholm/brotli v1.0.2/go.mod h1:loMXtMfwqflxFJPmdbJO0a3KNoPuLBgiu3qAvBg8x/Y=
 github.com/bwmarrin/discordgo v0.23.3-0.20210818201646-9d9602318a29/go.mod h1:NJZpH+1AfhIcyQsPeuBKsUtYrRnjkyu0kIVMCHkZtRY=
@@ -277,8 +279,9 @@ github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXf
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
 github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5cxcmMvtA=
-github.com/stretchr/testify v1.6.1 h1:hDPOHmpOpP40lSULcqw7IrRb/u7w6RpDC9399XyoNd0=
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
+github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5CcY=
+github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/ugorji/go v1.1.7 h1:/68gy2h+1mWMrwZFeD1kQialdSzAb432dtpeJ42ovdo=
 github.com/ugorji/go v1.1.7/go.mod h1:kZn38zHttfInRq0xu/PH0az30d+z6vm202qpg1oXVMw=
 github.com/ugorji/go/codec v1.1.7 h1:2SvQaVZ1ouYrrKKwoSk2pzd4A9evlKJb9oTL+OaLUSs=
