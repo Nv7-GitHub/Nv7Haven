@@ -305,13 +305,11 @@ func (d *DB) loadVcats() error {
 		if vcat.Rule == types.VirtualCategoryRuleRegex {
 			cache, exists := d.GetCatCache(vcat.Name)
 			if !exists {
-				// Delete vcat
-				err = d.DeleteVCat(vcat.Name)
-				if err != nil {
-					return err
-				}
+				// Nil cache, needs to be created
+				vcat.Cache = nil
+			} else {
+				vcat.Cache = cache
 			}
-			vcat.Cache = cache
 		}
 	}
 	return nil
