@@ -305,7 +305,11 @@ func (d *DB) loadVcats() error {
 		if vcat.Rule == types.VirtualCategoryRuleRegex {
 			cache, exists := d.GetCatCache(vcat.Name)
 			if !exists {
-				return fmt.Errorf("eod: vcat cache not found for cat %s", vcat.Name)
+				// Delete vcat
+				err = d.DeleteVCat(vcat.Name)
+				if err != nil {
+					return err
+				}
 			}
 			vcat.Cache = cache
 		}
