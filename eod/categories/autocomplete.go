@@ -38,17 +38,23 @@ func (b *Categories) Autocomplete(m types.Msg, query string, flags ...bool) ([]s
 	if len(flags) == 0 || len(flags) == 2 {
 		for _, cat := range db.VCats() {
 			if strings.EqualFold(cat.Name, query) {
+				db.RUnlock()
 				els, res := b.base.CalcVCat(cat, db)
+				db.RLock()
 				if res.Exists {
 					results = append(results, searchResult{0, cat.Name, len(els)})
 				}
 			} else if strings.HasPrefix(strings.ToLower(cat.Name), query) {
+				db.RUnlock()
 				els, res := b.base.CalcVCat(cat, db)
+				db.RLock()
 				if res.Exists {
 					results = append(results, searchResult{1, cat.Name, len(els)})
 				}
 			} else if strings.Contains(strings.ToLower(cat.Name), query) {
+				db.RUnlock()
 				els, res := b.base.CalcVCat(cat, db)
+				db.RLock()
 				if res.Exists {
 					results = append(results, searchResult{2, cat.Name, len(els)})
 				}
