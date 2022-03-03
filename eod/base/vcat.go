@@ -2,6 +2,7 @@ package base
 
 import (
 	"regexp"
+	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -22,6 +23,14 @@ func (b *Base) CatOpPollTitle(c types.CategoryOperation, db *eodb.DB) string {
 		return "unknown"
 	}
 }
+
+var Elemlock = &sync.RWMutex{}
+
+var Allelements = make(map[string]map[int]types.Empty)
+
+var Madebylock = &sync.RWMutex{}
+
+var Madeby = make(map[string]map[string]map[int]types.Empty)
 
 func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types.Empty, types.GetResponse) {
 	var out map[int]types.Empty
@@ -61,6 +70,19 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types
 		inv := db.GetInv(vcat.Data["user"].(string))
 		switch vcat.Data["filter"].(string) {
 		case "madeby":
+			// Get cat
+			Madebylock.RLock()
+			gld, exists := Madeby[db.Guild]
+			Madebylock.RUnlock()
+			if exists {
+				Madebylock.RLock()
+				out, exists = gld[vcat.Data["user"].(string)]
+				Madebylock.RUnlock()
+				if exists {
+					break
+				}
+			}
+
 			out = make(map[int]types.Empty)
 			inv.Lock.RLock()
 			db.RLock()
@@ -72,6 +94,16 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types
 			}
 			db.RUnlock()
 			inv.Lock.RUnlock()
+
+			// Save to cache
+			Madebylock.Lock()
+			gld, exists = Madeby[db.Guild]
+			if !exists {
+				gld = make(map[string]map[int]types.Empty)
+			}
+			Madeby[db.Guild] = gld
+			gld[vcat.Data["user"].(string)] = out
+			Madebylock.Unlock()
 
 		default:
 			out = make(map[int]types.Empty, len(inv.Elements))
@@ -154,7 +186,7 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types
 			}
 
 		case types.CatOpDiff:
-			out = make(map[int]types.Empty)
+			out = make(map[int]types.Empty, len(lhselems))
 			for k := range lhselems {
 				if _, ok := rhselems[k]; !ok {
 					out[k] = types.Empty{}
@@ -163,12 +195,24 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types
 		}
 
 	case types.VirtualCategoryRuleAllElements:
-		out = make(map[int]types.Empty, len(db.Elements))
-		db.RLock()
-		for _, el := range db.Elements {
-			out[el.ID] = types.Empty{}
+		// Check if available in cache
+		var exists bool
+		Elemlock.RLock()
+		out, exists = Allelements[db.Guild]
+		Elemlock.RUnlock()
+		if !exists {
+			// Calculate
+			out = make(map[int]types.Empty, len(db.Elements))
+			db.RLock()
+			for _, el := range db.Elements {
+				out[el.ID] = types.Empty{}
+			}
+			db.RUnlock()
+
+			Elemlock.Lock()
+			Allelements[db.Guild] = out
+			Elemlock.Unlock()
 		}
-		db.RUnlock()
 	}
 
 	return out, types.GetResponse{Exists: true}

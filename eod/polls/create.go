@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/logs"
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -110,6 +111,25 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 		}
 
 		prop = "NewElemNews"
+
+		// Add to all elements VCat
+		base.Elemlock.RLock()
+		v, exists := base.Allelements[guild]
+		base.Elemlock.RUnlock()
+		if exists {
+			v[elem.ID] = types.Empty{}
+		}
+
+		// Add to made by VCat
+		base.Madebylock.RLock()
+		gld, exists := base.Madeby[guild]
+		if exists {
+			v, exists := gld[creator]
+			if exists {
+				v[elem.ID] = types.Empty{}
+			}
+		}
+		base.Madebylock.RUnlock()
 	} else {
 		el, res := db.GetElementByName(name)
 		if !res.Exists {

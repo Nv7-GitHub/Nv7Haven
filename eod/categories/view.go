@@ -2,6 +2,8 @@ package categories
 
 import (
 	"fmt"
+	"os"
+	"runtime/pprof"
 	"sort"
 	"strings"
 
@@ -151,6 +153,9 @@ func (b *Categories) AllCatCmd(sortBy string, hasUser bool, user string, m types
 	}
 	inv := db.GetInv(id)
 
+	f, _ := os.Create("prof.pprof")
+	pprof.StartCPUProfile(f)
+
 	db.RLock()
 	out := make([]catData, len(db.Cats())+len(db.VCats()))
 
@@ -228,6 +233,8 @@ func (b *Categories) AllCatCmd(sortBy string, hasUser bool, user string, m types
 	for i, dat := range out {
 		names[i] = dat.text
 	}
+
+	pprof.StopCPUProfile()
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
