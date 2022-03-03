@@ -154,11 +154,8 @@ func (b *Categories) AllCatCmd(sortBy string, hasUser bool, user string, m types
 	db.RLock()
 	out := make([]catData, len(db.Cats())+len(db.VCats()))
 
-	fmt.Println("Hi")
-
 	i := 0
 	for _, cat := range db.Cats() {
-		fmt.Println(cat.Name)
 		count := 0
 		cat.Lock.RLock()
 		for elem := range cat.Elements {
