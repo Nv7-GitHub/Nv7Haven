@@ -99,6 +99,11 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 			if !res.Exists {
 				return res.Message, false
 			}
+			for el := range els {
+				if !inv.Contains(el) {
+					delete(els, el)
+				}
+			}
 		} else {
 			els = make(map[int]types.Empty, len(cat.Elements))
 
