@@ -1,10 +1,9 @@
 package treecmds
 
 import (
-	"sync"
-
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/sasha-s/go-deadlock"
 )
 
 func (b *TreeCmds) ElemBreakdownCmd(elem string, calcTree bool, m types.Msg, rsp types.Rsp) {
@@ -55,7 +54,7 @@ func (b *TreeCmds) CatBreakdownCmd(catName string, calcTree bool, m types.Msg, r
 		return
 	}
 
-	var lock *sync.RWMutex
+	var lock *deadlock.RWMutex
 	var els map[int]types.Empty
 	catv, res := db.GetCat(catName)
 	if !res.Exists {

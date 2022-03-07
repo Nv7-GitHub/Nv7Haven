@@ -3,10 +3,10 @@ package categories
 import (
 	"net/url"
 	"strings"
-	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
+	"github.com/sasha-s/go-deadlock"
 )
 
 func (b *Categories) DeleteCatCmd(category string, m types.Msg, rsp types.Rsp) {
@@ -94,7 +94,7 @@ func (b *Categories) CatOpCmd(op types.CategoryOperation, lhs string, rhs string
 		lcat = &types.Category{}
 		lcat.Elements = els
 		lcat.Name = vcat.Name
-		lcat.Lock = &sync.RWMutex{}
+		lcat.Lock = &deadlock.RWMutex{}
 	}
 	rcat, res := db.GetCat(rhs)
 	if !res.Exists {
@@ -111,7 +111,7 @@ func (b *Categories) CatOpCmd(op types.CategoryOperation, lhs string, rhs string
 		rcat = &types.Category{}
 		rcat.Elements = els
 		rcat.Name = vcat.Name
-		rcat.Lock = &sync.RWMutex{}
+		rcat.Lock = &deadlock.RWMutex{}
 	}
 	out := make(map[int]types.Empty)
 

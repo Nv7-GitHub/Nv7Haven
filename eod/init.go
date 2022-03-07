@@ -82,6 +82,12 @@ func (b *EoD) init(app *fiber.App) {
 	}
 	bar.Finish()
 
+	// Calc VCats
+	start := time.Now()
+	fmt.Println("Calculating VCats...")
+	b.categories.CacheVCats()
+	fmt.Println("Calculated in", time.Since(start))
+
 	b.initHandlers()
 	b.start()
 

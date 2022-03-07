@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
-	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
+	"github.com/sasha-s/go-deadlock"
 )
 
-var lock = &sync.RWMutex{}
+var lock = &deadlock.RWMutex{}
 
 var SortChoices = []*discordgo.ApplicationCommandOptionChoice{
 	{

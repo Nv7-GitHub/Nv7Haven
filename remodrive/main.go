@@ -2,13 +2,13 @@ package remodrive
 
 import (
 	"net/http"
-	"sync"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gorilla/websocket"
+	"github.com/sasha-s/go-deadlock"
 )
 
-var lock = &sync.RWMutex{}
+var lock = &deadlock.RWMutex{}
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,

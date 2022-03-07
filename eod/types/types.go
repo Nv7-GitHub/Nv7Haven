@@ -4,11 +4,11 @@ import (
 	"math/big"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/translation"
 	"github.com/bwmarrin/discordgo"
+	"github.com/sasha-s/go-deadlock"
 )
 
 type ServerDataType int
@@ -49,7 +49,7 @@ type ModalHandler interface {
 }
 
 type ServerConfig struct {
-	*sync.RWMutex
+	*deadlock.RWMutex
 
 	UserColors    map[string]int
 	VotingChannel string
@@ -62,7 +62,7 @@ type ServerConfig struct {
 }
 
 type ServerData struct {
-	*sync.RWMutex
+	*deadlock.RWMutex
 
 	LastCombs     map[string]Comb         // map[userID]comb
 	PageSwitchers map[string]PageSwitcher // map[messageid]pageswitcher
@@ -216,7 +216,7 @@ type Poll struct {
 }
 
 type Category struct {
-	Lock *sync.RWMutex `json:"-"`
+	Lock *deadlock.RWMutex `json:"-"`
 
 	Name     string
 	Guild    string
@@ -270,7 +270,7 @@ type Msg struct {
 }
 
 type Inventory struct {
-	Lock *sync.RWMutex `json:"-"`
+	Lock *deadlock.RWMutex `json:"-"`
 
 	Elements      map[int]Empty
 	MadeCnt       int
@@ -313,7 +313,7 @@ type Rsp interface {
 
 func NewServerConfig() *ServerConfig {
 	return &ServerConfig{
-		RWMutex: &sync.RWMutex{},
+		RWMutex: &deadlock.RWMutex{},
 
 		UserColors:   make(map[string]int),
 		PlayChannels: make(Container),
@@ -323,7 +323,7 @@ func NewServerConfig() *ServerConfig {
 
 func NewServerData() *ServerData {
 	return &ServerData{
-		RWMutex: &sync.RWMutex{},
+		RWMutex: &deadlock.RWMutex{},
 
 		LastCombs:     make(map[string]Comb),
 		PageSwitchers: make(map[string]PageSwitcher),
@@ -346,7 +346,7 @@ func (c Container) Add(elem string) {
 
 func NewInventory(user string, elements map[int]Empty, madecnt int) *Inventory {
 	return &Inventory{
-		Lock: &sync.RWMutex{},
+		Lock: &deadlock.RWMutex{},
 
 		Elements: elements,
 		User:     user,
