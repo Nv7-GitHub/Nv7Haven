@@ -3,10 +3,10 @@ package elements
 import (
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
-	"github.com/sasha-s/go-deadlock"
 )
 
 func (b *Elements) SearchCmd(search string, sort string, source string, opt string, regex bool, postfix bool, m types.Msg, rsp types.Rsp) {
@@ -42,7 +42,7 @@ func (b *Elements) SearchCmd(search string, sort string, source string, opt stri
 
 	case "category":
 		var els map[int]types.Empty
-		var lock *deadlock.RWMutex
+		var lock *sync.RWMutex
 		catv, res := db.GetCat(opt)
 		if !res.Exists {
 			vcat, res := db.GetVCat(opt)

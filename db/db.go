@@ -2,14 +2,13 @@ package db
 
 import (
 	"database/sql"
-
-	"github.com/sasha-s/go-deadlock"
+	"sync"
 )
 
 type DB struct {
 	db    *sql.DB
 	cache map[string]*sql.Stmt
-	lock  *deadlock.RWMutex
+	lock  *sync.RWMutex
 }
 
 func (d *DB) Exec(query string, args ...interface{}) (sql.Result, error) {
@@ -54,7 +53,7 @@ func (d *DB) getStmt(query string) (*sql.Stmt, error) {
 }
 
 func NewDB(db *sql.DB) *DB {
-	return &DB{db: db, cache: make(map[string]*sql.Stmt), lock: &deadlock.RWMutex{}}
+	return &DB{db: db, cache: make(map[string]*sql.Stmt), lock: &sync.RWMutex{}}
 }
 
 func (d *DB) GetSqlDB() *sql.DB {

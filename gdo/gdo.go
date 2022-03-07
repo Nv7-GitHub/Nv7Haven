@@ -1,13 +1,14 @@
 package gdo
 
 import (
+	"sync"
+
 	"github.com/gofiber/fiber/v2"
-	"github.com/sasha-s/go-deadlock"
 )
 
 type GDO struct {
 	Streams map[string]*EventStream
-	Lock    *deadlock.RWMutex
+	Lock    *sync.RWMutex
 }
 
 func (g *GDO) routing(app *fiber.App) {
@@ -20,7 +21,7 @@ func (g *GDO) routing(app *fiber.App) {
 func InitGDO(app *fiber.App) {
 	gdo := GDO{
 		Streams: make(map[string]*EventStream),
-		Lock:    &deadlock.RWMutex{},
+		Lock:    &sync.RWMutex{},
 	}
 	gdo.routing(app)
 }

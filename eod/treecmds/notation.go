@@ -2,11 +2,11 @@ package treecmds
 
 import (
 	"strings"
+	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
-	"github.com/sasha-s/go-deadlock"
 )
 
 func (b *TreeCmds) NotationCmd(elem string, m types.Msg, rsp types.Rsp) {
@@ -76,7 +76,7 @@ func (b *TreeCmds) CatNotationCmd(catName string, m types.Msg, rsp types.Rsp) {
 	tree := trees.NewNotationTree(db)
 
 	var els map[int]types.Empty
-	var lock *deadlock.RWMutex
+	var lock *sync.RWMutex
 	catv, res := db.GetCat(catName)
 	if !res.Exists {
 		vcat, res := db.GetVCat(catName)

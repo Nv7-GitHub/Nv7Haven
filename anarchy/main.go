@@ -5,12 +5,11 @@ import (
 
 	"github.com/Nv7-Github/Nv7Haven/db"
 	"github.com/Nv7-Github/Nv7Haven/pb"
-	"github.com/sasha-s/go-deadlock"
 	"github.com/schollz/progressbar/v3"
 	"google.golang.org/grpc"
 )
 
-var lock = &deadlock.RWMutex{}
+var lock = &sync.RWMutex{}
 
 type Anarchy struct {
 	*pb.UnimplementedAnarchyServer

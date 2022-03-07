@@ -3,14 +3,14 @@ package eodb
 import (
 	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/ai"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
-	"github.com/sasha-s/go-deadlock"
 )
 
 type Data struct {
-	*deadlock.RWMutex
+	*sync.RWMutex
 
 	DB   map[string]*DB
 	Data map[string]*types.ServerData
@@ -23,7 +23,7 @@ func NewData(path string) (*Data, error) {
 		return nil, err
 	}
 	d := &Data{
-		RWMutex: &deadlock.RWMutex{},
+		RWMutex: &sync.RWMutex{},
 
 		DB:   make(map[string]*DB),
 		Data: make(map[string]*types.ServerData),
@@ -83,7 +83,7 @@ func (d *Data) NewDB(guild string) (*DB, error) {
 }
 
 type DB struct {
-	deadlock.RWMutex
+	sync.RWMutex
 
 	Guild  string
 	dbPath string

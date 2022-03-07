@@ -3,15 +3,15 @@ package elemental
 import (
 	"context"
 	"encoding/json"
+	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/pb"
-	"github.com/sasha-s/go-deadlock"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 type empty struct{}
 
-var lock = &deadlock.RWMutex{}
+var lock = &sync.RWMutex{}
 
 // GetElement gets an element from the database
 func (e *Elemental) GetElement(elemName string) (*pb.Element, error) {

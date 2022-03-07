@@ -5,13 +5,13 @@ import (
 	"math"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/sasha-s/go-deadlock"
 )
 
-var lock = deadlock.RWMutex{}
+var lock = sync.RWMutex{}
 
 func (b *Bot) exists(m *discordgo.MessageCreate, table string, where string, args ...interface{}) (bool, bool) {
 	res, err := b.db.Query("SELECT COUNT(1) FROM "+table+" WHERE "+where+" LIMIT 1", args...)

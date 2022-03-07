@@ -6,10 +6,10 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
-	"github.com/sasha-s/go-deadlock"
 )
 
 func (d *DB) SaveElement(el types.Element, new ...bool) error {
@@ -142,7 +142,7 @@ func (d *DB) DeleteVCat(name string) error {
 
 func (d *DB) NewCat(name string) *types.Category {
 	cat := &types.Category{
-		Lock: &deadlock.RWMutex{},
+		Lock: &sync.RWMutex{},
 
 		Name:     name,
 		Guild:    d.Guild,

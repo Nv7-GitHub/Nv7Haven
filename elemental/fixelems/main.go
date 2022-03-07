@@ -8,7 +8,6 @@ import (
 	"sync"
 
 	_ "github.com/go-sql-driver/mysql" // mysql
-	"github.com/sasha-s/go-deadlock"
 )
 
 // Element has the data for a created element
@@ -36,7 +35,7 @@ func handle(err error) {
 	}
 }
 
-var lock = &deadlock.RWMutex{}
+var lock = &sync.RWMutex{}
 var wg = &sync.WaitGroup{}
 
 var complcache = make(map[string]int)
