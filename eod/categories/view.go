@@ -186,7 +186,9 @@ func (b *Categories) AllCatCmd(sortBy string, hasUser bool, user string, m types
 	}
 	for _, cat := range db.VCats() {
 		count := 0
+		db.RUnlock()
 		els, res := b.base.CalcVCat(cat, db)
+		db.RLock()
 		if !res.Exists {
 			continue
 		}
