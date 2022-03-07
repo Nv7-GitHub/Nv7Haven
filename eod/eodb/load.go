@@ -56,6 +56,10 @@ func (d *DB) loadElements() error {
 			return err
 		}
 
+		if dat.ID < 1 {
+			fmt.Println(dat)
+		}
+
 		// Add to elements
 		if len(d.Elements) < dat.ID {
 			d.Elements = append(d.Elements, make([]types.Element, dat.ID-len(d.Elements))...) // Grow
