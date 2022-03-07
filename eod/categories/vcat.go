@@ -262,3 +262,17 @@ func (b *Categories) VCatOpCmd(op types.CategoryOperation, name string, lhs stri
 	}
 	rsp.Message("Created Virtual Category!") // TODO: Translate
 }
+
+func (b *Categories) CacheVCats() {
+	for _, db := range b.DB {
+		for _, cat := range db.VCats() {
+			_, res := b.base.CalcVCat(cat, db)
+			if !res.Exists { // Delete if not exists
+				err := db.DeleteVCat(cat.Name)
+				if err != nil {
+					panic(err)
+				}
+			}
+		}
+	}
+}
