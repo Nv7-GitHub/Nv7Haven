@@ -62,7 +62,7 @@ func (b *DB) OptimizeCats() error {
 		}
 
 		// Rewrite elements
-		_, err = b.elemFile.WriteString(string(data) + "\n")
+		_, err = f.WriteString(string(data) + "\n")
 		if err != nil {
 			return err
 		}

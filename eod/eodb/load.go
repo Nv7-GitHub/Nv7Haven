@@ -57,7 +57,7 @@ func (d *DB) loadElements() error {
 		}
 
 		if dat.ID < 1 {
-			fmt.Println(string(line), dat)
+			continue
 		}
 
 		// Add to elements
