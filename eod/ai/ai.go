@@ -4,18 +4,19 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"sync"
+
+	"github.com/sasha-s/go-deadlock"
 )
 
 type AI struct {
-	lock     *sync.RWMutex
+	lock     *deadlock.RWMutex
 	Links    map[int]*Probability
 	Starters *Probability
 }
 
 func NewAI() *AI {
 	return &AI{
-		lock:     &sync.RWMutex{},
+		lock:     &deadlock.RWMutex{},
 		Links:    make(map[int]*Probability),
 		Starters: NewProbability(),
 	}

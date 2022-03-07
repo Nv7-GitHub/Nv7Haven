@@ -3,11 +3,11 @@ package categories
 import (
 	"sort"
 	"strings"
-	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
+	"github.com/sasha-s/go-deadlock"
 )
 
 func (b *Categories) CategoriesCmd(elem string, m types.Msg, rsp types.Rsp) {
@@ -75,7 +75,7 @@ func (b *Categories) DownloadCatCmd(catName string, sort string, postfix bool, m
 	}
 
 	var els map[int]types.Empty
-	var lock *sync.RWMutex
+	var lock *deadlock.RWMutex
 	catv, res := db.GetCat(catName)
 	if !res.Exists {
 		vcat, res := db.GetVCat(catName)

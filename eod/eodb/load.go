@@ -10,10 +10,10 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	jsoniter "github.com/json-iterator/go"
+	"github.com/sasha-s/go-deadlock"
 )
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
@@ -121,7 +121,7 @@ func (d *DB) loadConfig() error {
 	if err != nil {
 		d.Config = types.NewServerConfig()
 	}
-	d.Config.RWMutex = &sync.RWMutex{}
+	d.Config.RWMutex = &deadlock.RWMutex{}
 	d.configFile = f
 
 	return nil
@@ -154,7 +154,7 @@ func (d *DB) loadInvs() error {
 		if err != nil {
 			return err
 		}
-		inv.Lock = &sync.RWMutex{}
+		inv.Lock = &deadlock.RWMutex{}
 
 		// Save inv
 		d.invs[name] = inv
@@ -268,7 +268,7 @@ func (d *DB) loadCats() error {
 		if err != nil {
 			return err
 		}
-		cat.Lock = &sync.RWMutex{}
+		cat.Lock = &deadlock.RWMutex{}
 
 		// Get cache
 		cache, exists := d.GetCatCache(cat.Name)

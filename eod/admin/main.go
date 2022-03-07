@@ -1,10 +1,9 @@
 package admin
 
 import (
-	"sync"
-
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/gofiber/fiber/v2"
+	"github.com/sasha-s/go-deadlock"
 )
 
 type empty struct{}
@@ -12,7 +11,7 @@ type empty struct{}
 type Admin struct {
 	data *eodb.Data
 
-	lock *sync.RWMutex
+	lock *deadlock.RWMutex
 	uids map[string]empty
 }
 
@@ -27,7 +26,7 @@ func (a *Admin) Route(app *fiber.App) {
 func InitAdmin(data *eodb.Data, app *fiber.App) {
 	a := &Admin{
 		data: data,
-		lock: &sync.RWMutex{},
+		lock: &deadlock.RWMutex{},
 		uids: make(map[string]empty),
 	}
 	a.Route(app)

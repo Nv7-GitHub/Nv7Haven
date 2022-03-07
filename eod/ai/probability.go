@@ -2,18 +2,19 @@ package ai
 
 import (
 	"math/rand"
-	"sync"
+
+	"github.com/sasha-s/go-deadlock"
 )
 
 type Probability struct {
-	lock *sync.RWMutex
+	lock *deadlock.RWMutex
 	Data map[int]int
 	Sum  int
 }
 
 func NewProbability() *Probability {
 	return &Probability{
-		lock: &sync.RWMutex{},
+		lock: &deadlock.RWMutex{},
 		Data: make(map[int]int),
 	}
 }

@@ -2,10 +2,10 @@ package base
 
 import (
 	"regexp"
-	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/sasha-s/go-deadlock"
 )
 
 func (b *Base) CatOpPollTitle(c types.CategoryOperation, db *eodb.DB) string {
@@ -24,11 +24,11 @@ func (b *Base) CatOpPollTitle(c types.CategoryOperation, db *eodb.DB) string {
 	}
 }
 
-var Elemlock = &sync.RWMutex{}
+var Elemlock = &deadlock.RWMutex{}
 
 var Allelements = make(map[string]map[int]types.Empty)
 
-var Madebylock = &sync.RWMutex{}
+var Madebylock = &deadlock.RWMutex{}
 
 var Madeby = make(map[string]map[string]map[int]types.Empty)
 
