@@ -33,6 +33,10 @@ var Madebylock = &sync.RWMutex{}
 var Madeby = make(map[string]map[string]map[int]types.Empty)
 
 func (b *Base) VCatDependencies(cat string, deps map[string]types.Empty, db *eodb.DB) {
+	_, exists := deps[cat]
+	if exists {
+		return
+	}
 	vcat, res := db.GetVCat(cat)
 	if !res.Exists {
 		return
