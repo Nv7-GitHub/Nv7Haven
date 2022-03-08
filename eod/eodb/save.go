@@ -244,7 +244,8 @@ func (d *DB) DelCatCache(name string) error {
 
 	delete(d.catCache, strings.ToLower(name))
 	delete(d.catCacheFiles, strings.ToLower(name))
-	return os.Remove(filepath.Join(d.dbPath, "catcache", url.PathEscape(name)+".json"))
+	os.Remove(filepath.Join(d.dbPath, "catcache", url.PathEscape(name)+".json"))
+	return nil
 }
 
 func (d *DB) SaveCat(elems *types.Category) error {
@@ -257,7 +258,7 @@ func (d *DB) SaveCat(elems *types.Category) error {
 
 		err := os.Remove(filepath.Join(d.dbPath, "categories", url.PathEscape(elems.Name)+".json"))
 		if err != nil {
-			return err
+			//return err
 		}
 		return d.DelCatCache(elems.Name)
 	}
