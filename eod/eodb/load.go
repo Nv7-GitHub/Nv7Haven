@@ -3,7 +3,6 @@ package eodb
 import (
 	"bufio"
 	"bytes"
-	"fmt"
 	"io"
 	"net/url"
 	"os"
@@ -277,7 +276,14 @@ func (d *DB) loadCats() error {
 		// Get cache
 		cache, exists := d.GetCatCache(cat.Name)
 		if !exists {
-			return fmt.Errorf("eod: cat cache not found for cat %s", cat.Name)
+			// Remove cat
+			d.cats[strings.ToLower(name)] = cat
+			d.catFiles[strings.ToLower(name)] = f
+			cat.Elements = make(map[int]types.Empty)
+			err = d.SaveCat(cat)
+			if err != nil {
+				return err
+			}
 		}
 		cat.Elements = cache
 
