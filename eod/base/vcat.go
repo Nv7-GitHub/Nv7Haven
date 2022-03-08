@@ -1,7 +1,6 @@
 package base
 
 import (
-	"fmt"
 	"regexp"
 	"sync"
 
@@ -137,7 +136,6 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types
 	case types.VirtualCategoryRuleSetOperation:
 		deps := make(map[string]types.Empty)
 		b.VCatDependencies(vcat.Name, deps, db)
-		fmt.Println(deps)
 		_, exists := deps[vcat.Name]
 		if exists {
 			out = make(map[int]types.Empty)
