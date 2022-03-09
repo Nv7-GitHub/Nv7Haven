@@ -47,10 +47,10 @@ func (b *Base) VCatDependencies(cat string, deps *map[string]types.Empty, db *eo
 	}
 	lhs := vcat.Data["lhs"].(string)
 	rhs := vcat.Data["rhs"].(string)
-	(*deps)[lhs] = types.Empty{}
-	(*deps)[rhs] = types.Empty{}
 	b.VCatDependencies(lhs, deps, db)
 	b.VCatDependencies(rhs, deps, db)
+	(*deps)[lhs] = types.Empty{}
+	(*deps)[rhs] = types.Empty{}
 	if cat == "Lolwut1" || cat == "Lolwut2" {
 		fmt.Println(lhs, rhs, deps)
 	}
