@@ -52,7 +52,7 @@ func (b *Base) VCatDependencies(cat string, deps *map[string]types.Empty, db *eo
 	b.VCatDependencies(lhs, deps, db)
 	b.VCatDependencies(rhs, deps, db)
 	if cat == "Lolwut1" || cat == "Lolwut2" {
-		fmt.Println(cat, vcat.Rule, vcat.Data, deps)
+		fmt.Println(lhs, rhs, deps)
 	}
 }
 
