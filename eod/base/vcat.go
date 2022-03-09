@@ -1,6 +1,7 @@
 package base
 
 import (
+	"fmt"
 	"regexp"
 	"sync"
 
@@ -142,6 +143,7 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types
 			out = make(map[int]types.Empty)
 			break
 		}
+		fmt.Println(vcat.Name, deps)
 
 		// Calc lhs
 		var lhselems map[int]types.Empty
