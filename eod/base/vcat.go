@@ -42,6 +42,9 @@ func (b *Base) VCatDependencies(cat string, deps map[string]types.Empty, db *eod
 	if !res.Exists {
 		return
 	}
+	if cat == "Lolwut1" || cat == "Lolwut2" {
+		fmt.Println(cat, vcat.Rule)
+	}
 	if vcat.Rule != types.VirtualCategoryRuleSetOperation {
 		return
 	}
