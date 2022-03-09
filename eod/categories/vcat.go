@@ -211,8 +211,20 @@ func (b *Categories) VCatOpCmd(op types.CategoryOperation, name string, lhs stri
 
 	rsp.Acknowledge()
 
+	// Check if vcat already exists
+	cat, res := db.GetCat(name)
+	if res.Exists {
+		rsp.ErrorMessage(db.Config.LangProperty("CatAlreadyExist", cat.Name))
+		return
+	}
+	vcat, res := db.GetVCat(name)
+	if res.Exists {
+		rsp.ErrorMessage(db.Config.LangProperty("CatAlreadyExist", vcat.Name))
+		return
+	}
+
 	// Check if exists
-	cat, res := db.GetCat(lhs)
+	cat, res = db.GetCat(lhs)
 	if !res.Exists {
 		vcat, res := db.GetVCat(lhs)
 		if !res.Exists {
@@ -245,7 +257,7 @@ func (b *Categories) VCatOpCmd(op types.CategoryOperation, name string, lhs stri
 		rsp.ErrorMessage(db.Config.LangProperty("CatNameTooLong", nil))
 		return
 	}
-	vcat := &types.VirtualCategory{
+	vcat = &types.VirtualCategory{
 		Name:    name,
 		Guild:   m.GuildID,
 		Creator: m.Author.ID,
