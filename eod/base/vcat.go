@@ -33,8 +33,8 @@ var Madebylock = &sync.RWMutex{}
 
 var Madeby = make(map[string]map[string]map[int]types.Empty)
 
-func (b *Base) VCatDependencies(cat string, deps map[string]types.Empty, db *eodb.DB) {
-	_, exists := deps[cat]
+func (b *Base) VCatDependencies(cat string, deps *map[string]types.Empty, db *eodb.DB) {
+	_, exists := (*deps)[cat]
 	if exists {
 		return
 	}
@@ -50,8 +50,8 @@ func (b *Base) VCatDependencies(cat string, deps map[string]types.Empty, db *eod
 	}
 	lhs := vcat.Data["lhs"].(string)
 	rhs := vcat.Data["lhs"].(string)
-	deps[lhs] = types.Empty{}
-	deps[rhs] = types.Empty{}
+	(*deps)[lhs] = types.Empty{}
+	(*deps)[rhs] = types.Empty{}
 	b.VCatDependencies(lhs, deps, db)
 	b.VCatDependencies(rhs, deps, db)
 }
@@ -140,7 +140,7 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types
 
 	case types.VirtualCategoryRuleSetOperation:
 		deps := make(map[string]types.Empty)
-		b.VCatDependencies(vcat.Name, deps, db)
+		b.VCatDependencies(vcat.Name, &deps, db)
 		_, exists := deps[vcat.Name]
 		if exists {
 			out = make(map[int]types.Empty)
