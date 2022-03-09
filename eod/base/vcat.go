@@ -33,10 +33,13 @@ var Madebylock = &sync.RWMutex{}
 
 var Madeby = make(map[string]map[string]map[int]types.Empty)
 
-func (b *Base) VCatDependencies(cat string, deps *map[string]types.Empty, db *eodb.DB) {
+func (b *Base) VCatDependencies(cat string, deps *map[string]types.Empty, db *eodb.DB, notfirst ...bool) {
 	_, exists := (*deps)[cat]
 	if exists {
 		return
+	}
+	if len(notfirst) > 0 {
+		(*deps)[cat] = types.Empty{}
 	}
 	vcat, res := db.GetVCat(cat)
 	if !res.Exists {
@@ -47,10 +50,8 @@ func (b *Base) VCatDependencies(cat string, deps *map[string]types.Empty, db *eo
 	}
 	lhs := vcat.Data["lhs"].(string)
 	rhs := vcat.Data["rhs"].(string)
-	b.VCatDependencies(lhs, deps, db)
-	b.VCatDependencies(rhs, deps, db)
-	(*deps)[lhs] = types.Empty{}
-	(*deps)[rhs] = types.Empty{}
+	b.VCatDependencies(lhs, deps, db, true)
+	b.VCatDependencies(rhs, deps, db, true)
 	if cat == "Lolwut1" || cat == "Lolwut2" {
 		fmt.Println(lhs, rhs, deps)
 	}
