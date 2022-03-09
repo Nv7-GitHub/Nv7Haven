@@ -42,9 +42,6 @@ func (b *Base) VCatDependencies(cat string, deps *map[string]types.Empty, db *eo
 	if !res.Exists {
 		return
 	}
-	if cat == "Lolwut1" || cat == "Lolwut2" {
-		fmt.Println(cat, vcat.Rule, vcat.Data)
-	}
 	if vcat.Rule != types.VirtualCategoryRuleSetOperation {
 		return
 	}
@@ -52,6 +49,9 @@ func (b *Base) VCatDependencies(cat string, deps *map[string]types.Empty, db *eo
 	rhs := vcat.Data["lhs"].(string)
 	(*deps)[lhs] = types.Empty{}
 	(*deps)[rhs] = types.Empty{}
+	if cat == "Lolwut1" || cat == "Lolwut2" {
+		fmt.Println(cat, vcat.Rule, vcat.Data, deps)
+	}
 	b.VCatDependencies(lhs, deps, db)
 	b.VCatDependencies(rhs, deps, db)
 }
