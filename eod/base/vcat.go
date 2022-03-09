@@ -37,7 +37,6 @@ func (b *Base) VCatDependencies(cat string, deps map[string]types.Empty, db *eod
 	if exists {
 		return
 	}
-	deps[cat] = types.Empty{}
 	vcat, res := db.GetVCat(cat)
 	if !res.Exists {
 		return
@@ -47,6 +46,8 @@ func (b *Base) VCatDependencies(cat string, deps map[string]types.Empty, db *eod
 	}
 	lhs := vcat.Data["lhs"].(string)
 	rhs := vcat.Data["lhs"].(string)
+	deps[lhs] = types.Empty{}
+	deps[rhs] = types.Empty{}
 	b.VCatDependencies(lhs, deps, db)
 	b.VCatDependencies(rhs, deps, db)
 }
