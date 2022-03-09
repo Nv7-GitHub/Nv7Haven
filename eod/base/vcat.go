@@ -43,7 +43,7 @@ func (b *Base) VCatDependencies(cat string, deps map[string]types.Empty, db *eod
 		return
 	}
 	if cat == "Lolwut1" || cat == "Lolwut2" {
-		fmt.Println(cat, vcat.Rule)
+		fmt.Println(cat, vcat.Rule, vcat.Data)
 	}
 	if vcat.Rule != types.VirtualCategoryRuleSetOperation {
 		return
@@ -146,7 +146,6 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types
 			out = make(map[int]types.Empty)
 			break
 		}
-		fmt.Println(vcat.Name, deps)
 
 		// Calc lhs
 		var lhselems map[int]types.Empty
