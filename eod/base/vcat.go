@@ -1,7 +1,6 @@
 package base
 
 import (
-	"fmt"
 	"regexp"
 	"sync"
 
@@ -52,9 +51,6 @@ func (b *Base) VCatDependencies(cat string, deps *map[string]types.Empty, db *eo
 	rhs := vcat.Data["rhs"].(string)
 	b.VCatDependencies(lhs, deps, db, true)
 	b.VCatDependencies(rhs, deps, db, true)
-	if cat == "Lolwut1" || cat == "Lolwut2" {
-		fmt.Println(lhs, rhs, deps)
-	}
 }
 
 func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types.Empty, types.GetResponse) {
@@ -142,7 +138,6 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types
 	case types.VirtualCategoryRuleSetOperation:
 		deps := make(map[string]types.Empty)
 		b.VCatDependencies(vcat.Name, &deps, db)
-		fmt.Println(vcat.Name, deps)
 		_, exists := deps[vcat.Name]
 		if exists {
 			out = make(map[int]types.Empty)
