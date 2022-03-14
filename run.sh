@@ -1,7 +1,6 @@
 echo "Updating..."
  > logs.txt
-git pull
-git submodule update --recursive --remote --init
+git pull --recurse-submodules
 
 export PORT=8080
 export PHP_PORT=3000

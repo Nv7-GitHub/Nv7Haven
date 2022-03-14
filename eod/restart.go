@@ -41,14 +41,8 @@ func (b *EoD) update(m types.Msg, rsp types.Rsp) {
 	ping := fmt.Sprintf("<@%s> ", m.Author.ID)
 	b.dg.ChannelMessageSend(m.ChannelID, ping+"Downloading updates...")
 
-	cmd := exec.Command("git", "pull")
+	cmd := exec.Command("git", "pull", "--recurse-submodules")
 	err := cmd.Run()
-	if rsp.Error(err) {
-		return
-	}
-
-	cmd = exec.Command("git", "submodule", "update", "--recursive", "--remote", "--init")
-	err = cmd.Run()
 	if rsp.Error(err) {
 		return
 	}
