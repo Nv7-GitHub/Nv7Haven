@@ -47,6 +47,12 @@ func (b *EoD) update(m types.Msg, rsp types.Rsp) {
 		return
 	}
 
+	cmd = exec.Command("git", "submodule", "update", "--recursive", "--remote", "--init")
+	err = cmd.Run()
+	if rsp.Error(err) {
+		return
+	}
+
 	cmdStr := `go build -o main -ldflags="-s -w"`
 	if strings.HasPrefix(runtime.GOARCH, "arm") {
 		cmdStr += ` -tags="arm_logs"`
