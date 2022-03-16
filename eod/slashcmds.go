@@ -2209,7 +2209,10 @@ var (
 			switch resp.Name {
 			case "element":
 				if len(resp.Options[1].StringValue()) != 6 {
-					rsp.ErrorMessage(db.Config.LangProperty("HexMustBe6", nil))
+					db, res := bot.GetDB(i.GuildID)
+					if res.Exists {
+						rsp.ErrorMessage(db.Config.LangProperty("HexMustBe6", nil))
+					}
 					return
 				}
 				color, err := strconv.ParseInt(resp.Options[1].StringValue(), 16, 64)
@@ -2223,7 +2226,10 @@ var (
 				if len(resp.Options) > 1 {
 					var err error
 					if len(resp.Options[1].StringValue()) != 6 {
-						rsp.ErrorMessage(db.Config.LangProperty("HexMustBe6", nil))
+						db, res := bot.GetDB(i.GuildID)
+						if res.Exists {
+							rsp.ErrorMessage(db.Config.LangProperty("HexMustBe6", nil))
+						}
 						return
 					}
 					color, err = strconv.ParseInt(resp.Options[1].StringValue(), 16, 64)
