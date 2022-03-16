@@ -2208,6 +2208,10 @@ var (
 			rsp := bot.newRespSlash(i)
 			switch resp.Name {
 			case "element":
+				if len(resp.Options[1].StringValue()) != 6 {
+					rsp.ErrorMessage(db.Config.LangProperty("HexMustBe6", nil))
+					return
+				}
 				color, err := strconv.ParseInt(resp.Options[1].StringValue(), 16, 64)
 				if rsp.Error(err) {
 					return
@@ -2218,6 +2222,10 @@ var (
 				var color int64 = 0
 				if len(resp.Options) > 1 {
 					var err error
+					if len(resp.Options[1].StringValue()) != 6 {
+						rsp.ErrorMessage(db.Config.LangProperty("HexMustBe6", nil))
+						return
+					}
 					color, err = strconv.ParseInt(resp.Options[1].StringValue(), 16, 64)
 					if rsp.Error(err) {
 						return
