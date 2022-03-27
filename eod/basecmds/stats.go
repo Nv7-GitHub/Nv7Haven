@@ -33,7 +33,7 @@ func (b *BaseCmds) StatsCmd(m types.Msg, rsp types.Rsp) {
 		categorized += len(val.Elements)
 	}
 
-	rsp.Message(db.Config.LangProperty("Stats", map[string]interface{}{
+	rsp.Message(db.Config.LangProperty("Stats", map[string]any{
 		"Elements":    util.FormatInt(len(db.Elements)),
 		"Combos":      util.FormatInt(db.ComboCnt()),
 		"Members":     util.FormatInt(gd.MemberCount),

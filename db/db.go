@@ -11,7 +11,7 @@ type DB struct {
 	lock  *sync.RWMutex
 }
 
-func (d *DB) Exec(query string, args ...interface{}) (sql.Result, error) {
+func (d *DB) Exec(query string, args ...any) (sql.Result, error) {
 	quer, err := d.getStmt(query)
 	if err != nil {
 		return nil, err
@@ -19,7 +19,7 @@ func (d *DB) Exec(query string, args ...interface{}) (sql.Result, error) {
 	return quer.Exec(args...)
 }
 
-func (d *DB) Query(query string, args ...interface{}) (*sql.Rows, error) {
+func (d *DB) Query(query string, args ...any) (*sql.Rows, error) {
 	quer, err := d.getStmt(query)
 	if err != nil {
 		return nil, err
@@ -27,7 +27,7 @@ func (d *DB) Query(query string, args ...interface{}) (*sql.Rows, error) {
 	return quer.Query(args...)
 }
 
-func (d *DB) QueryRow(query string, args ...interface{}) *sql.Row {
+func (d *DB) QueryRow(query string, args ...any) *sql.Row {
 	quer, err := d.getStmt(query)
 	if err != nil {
 		return d.db.QueryRow(query, args...) // Can't return an error, so have the DB do it instead

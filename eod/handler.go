@@ -15,7 +15,7 @@ const guild = "" // 819077688371314718 for testing
 
 func (b *EoD) initHandlers() {
 	// Debugging
-	discordgo.Logger = func(msgL, caller int, format string, a ...interface{}) {
+	discordgo.Logger = func(msgL, caller int, format string, a ...any) {
 		// This code is a slightly modified version of https://github.com/bwmarrin/discordgo/blob/577e7dd4f6ccf1beb10acdb1871300c7638b84c4/logging.go#L46
 		pc, file, line, _ := runtime.Caller(caller)
 

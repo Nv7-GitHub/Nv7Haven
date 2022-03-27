@@ -176,7 +176,7 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 		}
 	}
 
-	txt := types.NewText + " " + db.Config.LangProperty(prop, map[string]interface{}{
+	txt := types.NewText + " " + db.Config.LangProperty(prop, map[string]any{
 		"Element":    name,
 		"LastedText": lasted,
 		"Creator":    creator,

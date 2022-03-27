@@ -218,7 +218,7 @@ func RegisterAnarchyServer(s grpc.ServiceRegistrar, srv AnarchyServer) {
 	s.RegisterService(&Anarchy_ServiceDesc, srv)
 }
 
-func _Anarchy_GetElem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Anarchy_GetElem_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(wrapperspb.StringValue)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -230,13 +230,13 @@ func _Anarchy_GetElem_Handler(srv interface{}, ctx context.Context, dec func(int
 		Server:     srv,
 		FullMethod: "/anarchy.Anarchy/GetElem",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AnarchyServer).GetElem(ctx, req.(*wrapperspb.StringValue))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Anarchy_GetCombination_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Anarchy_GetCombination_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AnarchyCombination)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -248,13 +248,13 @@ func _Anarchy_GetCombination_Handler(srv interface{}, ctx context.Context, dec f
 		Server:     srv,
 		FullMethod: "/anarchy.Anarchy/GetCombination",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AnarchyServer).GetCombination(ctx, req.(*AnarchyCombination))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Anarchy_GetAll_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _Anarchy_GetAll_Handler(srv any, stream grpc.ServerStream) error {
 	m := new(wrapperspb.StringValue)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
@@ -275,7 +275,7 @@ func (x *anarchyGetAllServer) Send(m *AnarchyGetAllChunk) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func _Anarchy_CreateElement_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Anarchy_CreateElement_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AnarchyElementCreate)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -287,13 +287,13 @@ func _Anarchy_CreateElement_Handler(srv interface{}, ctx context.Context, dec fu
 		Server:     srv,
 		FullMethod: "/anarchy.Anarchy/CreateElement",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AnarchyServer).CreateElement(ctx, req.(*AnarchyElementCreate))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Anarchy_GetInv_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Anarchy_GetInv_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(wrapperspb.StringValue)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -305,13 +305,13 @@ func _Anarchy_GetInv_Handler(srv interface{}, ctx context.Context, dec func(inte
 		Server:     srv,
 		FullMethod: "/anarchy.Anarchy/GetInv",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AnarchyServer).GetInv(ctx, req.(*wrapperspb.StringValue))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Anarchy_AddFound_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Anarchy_AddFound_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AnarchyUserRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -323,13 +323,13 @@ func _Anarchy_AddFound_Handler(srv interface{}, ctx context.Context, dec func(in
 		Server:     srv,
 		FullMethod: "/anarchy.Anarchy/AddFound",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AnarchyServer).AddFound(ctx, req.(*AnarchyUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Anarchy_GetRecents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Anarchy_GetRecents_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -341,13 +341,13 @@ func _Anarchy_GetRecents_Handler(srv interface{}, ctx context.Context, dec func(
 		Server:     srv,
 		FullMethod: "/anarchy.Anarchy/GetRecents",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AnarchyServer).GetRecents(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Anarchy_WaitForNextRecent_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _Anarchy_WaitForNextRecent_Handler(srv any, stream grpc.ServerStream) error {
 	m := new(emptypb.Empty)
 	if err := stream.RecvMsg(m); err != nil {
 		return err

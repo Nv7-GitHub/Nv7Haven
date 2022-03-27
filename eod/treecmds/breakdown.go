@@ -37,7 +37,7 @@ func (b *TreeCmds) ElemBreakdownCmd(elem string, calcTree bool, m types.Msg, rsp
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind: types.PageSwitchInv,
-		Title: db.Config.LangProperty("BreakdownTitle", map[string]interface{}{
+		Title: db.Config.LangProperty("BreakdownTitle", map[string]any{
 			"Title": el.Name,
 			"Count": tree.Total,
 		}),
@@ -99,7 +99,7 @@ func (b *TreeCmds) CatBreakdownCmd(catName string, calcTree bool, m types.Msg, r
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind: types.PageSwitchInv,
-		Title: db.Config.LangProperty("BreakdownTitle", map[string]interface{}{
+		Title: db.Config.LangProperty("BreakdownTitle", map[string]any{
 			"Title": catName,
 			"Count": tree.Total,
 		}),
@@ -145,7 +145,7 @@ func (b *TreeCmds) InvBreakdownCmd(user string, calcTree bool, m types.Msg, rsp 
 	}
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind: types.PageSwitchInv,
-		Title: db.Config.LangProperty("InvBreakdownTitle", map[string]interface{}{
+		Title: db.Config.LangProperty("InvBreakdownTitle", map[string]any{
 			"User":  name,
 			"Count": tree.Total,
 		}),

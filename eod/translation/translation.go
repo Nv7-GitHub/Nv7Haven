@@ -16,7 +16,7 @@ const DefaultLang = "en_us"
 
 type translation map[string]*template.Template
 
-func mustExecute(tmpl *template.Template, params interface{}) string {
+func mustExecute(tmpl *template.Template, params any) string {
 	out := bytes.NewBuffer(nil)
 	err := tmpl.Execute(out, params)
 	if err != nil {
@@ -75,7 +75,7 @@ func LangFileList() []LangFileListItem {
 	return langs
 }
 
-func LangProperty(lang, property string, params interface{}) string {
+func LangProperty(lang, property string, params any) string {
 	v, exists := langFiles[lang][property]
 	if !exists {
 		return mustExecute(langFiles[DefaultLang][property], params)

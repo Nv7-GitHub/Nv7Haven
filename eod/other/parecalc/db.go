@@ -17,7 +17,7 @@ func editDB() {
 	end("Deleted existing data")
 	times := 0
 
-	args := make([]interface{}, 0)
+	args := make([]any, 0)
 	query := "INSERT INTO eod_elements VALUES "
 	for _, gld := range glds {
 		for _, elem := range gld.Elements {
@@ -34,7 +34,7 @@ func editDB() {
 				end("Processed and wrote 5000 records to DB")
 
 				query = "INSERT INTO eod_elements VALUES "
-				args = make([]interface{}, 0)
+				args = make([]any, 0)
 			}
 			times++
 		}

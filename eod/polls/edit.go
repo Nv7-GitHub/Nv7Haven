@@ -30,7 +30,7 @@ func (b *Polls) mark(guild string, elem int, mark string, creator string, contro
 	_ = db.SaveInv(inv)
 
 	if news {
-		b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty("SignedElemNews", map[string]interface{}{
+		b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty("SignedElemNews", map[string]any{
 			"Element":    el.Name,
 			"LastedText": lasted,
 			"Creator":    creator,
@@ -67,7 +67,7 @@ func (b *Polls) image(guild string, elem int, image string, creator string, chan
 		if changed {
 			newsMsgProp = "ChangedImageNews"
 		}
-		b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty(newsMsgProp, map[string]interface{}{
+		b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty(newsMsgProp, map[string]any{
 			"Element":    el.Name,
 			"LastedText": lasted,
 			"Creator":    creator,
@@ -104,7 +104,7 @@ func (b *Polls) color(guild string, elem int, color int, creator string, controv
 		if err != nil {
 			emoji = types.RedCircle
 		}
-		b.dg.ChannelMessageSend(db.Config.NewsChannel, emoji+" "+db.Config.LangProperty("ColoredElemNews", map[string]interface{}{
+		b.dg.ChannelMessageSend(db.Config.NewsChannel, emoji+" "+db.Config.LangProperty("ColoredElemNews", map[string]any{
 			"Element":    el.Name,
 			"LastedText": lasted,
 			"Creator":    creator,

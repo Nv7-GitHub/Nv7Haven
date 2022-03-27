@@ -76,7 +76,7 @@ func (b *Elements) InvCmd(user string, m types.Msg, rsp types.Rsp, sorter string
 	}
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind: types.PageSwitchInv,
-		Title: db.Config.LangProperty("UserInventory", map[string]interface{}{
+		Title: db.Config.LangProperty("UserInventory", map[string]any{
 			"Username": name,
 			"Count":    len(items),
 			"Percent":  util.FormatFloat(float32(len(items))/float32(len(db.Elements))*100, 2),

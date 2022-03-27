@@ -38,7 +38,7 @@ func (t *Tree) AddElem(elem int) (bool, string) {
 		perf := &strings.Builder{}
 
 		perf.WriteString("%d. ")
-		params := make([]interface{}, len(el.Parents))
+		params := make([]any, len(el.Parents))
 		for i, val := range el.Parents {
 			if i == 0 {
 				perf.WriteString("%s")
@@ -46,9 +46,9 @@ func (t *Tree) AddElem(elem int) (bool, string) {
 				perf.WriteString(" + %s")
 			}
 			el, _ := t.db.GetElement(val)
-			params[i] = interface{}(el.Name)
+			params[i] = any(el.Name)
 		}
-		params = append([]interface{}{t.num}, params...)
+		params = append([]any{t.num}, params...)
 		params = append(params, el.Name)
 		if len(el.Parents) >= 2 {
 			p := perf.String()

@@ -105,7 +105,7 @@ func doGuild(guild string, db *sql.DB) {
 
 	query := "INSERT INTO eod_categories VALUES "
 	times := 0
-	args := make([]interface{}, 0)
+	args := make([]any, 0)
 	for _, cat := range cats {
 		query += "(?,?,?,?),"
 
@@ -121,7 +121,7 @@ func doGuild(guild string, db *sql.DB) {
 			endTimer(fmt.Sprintf("Processed and wrote %d records to SQL database", batchSize))
 
 			query = "INSERT INTO eod_categories VALUES "
-			args = make([]interface{}, 0)
+			args = make([]any, 0)
 			times = 0
 		}
 

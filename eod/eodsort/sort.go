@@ -61,8 +61,8 @@ var SortChoices = []*discordgo.ApplicationCommandOptionChoice{
 	},
 }
 
-var sorts = map[string]func(a, b int, db *eodb.DB, data interface{}) bool{
-	"length": func(a, b int, db *eodb.DB, data interface{}) bool {
+var sorts = map[string]func(a, b int, db *eodb.DB, data any) bool{
+	"length": func(a, b int, db *eodb.DB, data any) bool {
 		name1, res := db.GetElement(a, true)
 		name2, res2 := db.GetElement(b, true)
 		if !res.Exists || !res2.Exists {
@@ -70,7 +70,7 @@ var sorts = map[string]func(a, b int, db *eodb.DB, data interface{}) bool{
 		}
 		return len(name1.Name) < len(name2.Name)
 	},
-	"name": func(a, b int, db *eodb.DB, data interface{}) bool {
+	"name": func(a, b int, db *eodb.DB, data any) bool {
 		name1, res := db.GetElement(a, true)
 		name2, res2 := db.GetElement(b, true)
 		if !res.Exists || !res2.Exists {
@@ -78,7 +78,7 @@ var sorts = map[string]func(a, b int, db *eodb.DB, data interface{}) bool{
 		}
 		return CompareStrings(name1.Name, name2.Name)
 	},
-	"createdon": func(a, b int, db *eodb.DB, data interface{}) bool {
+	"createdon": func(a, b int, db *eodb.DB, data any) bool {
 		el1, res := db.GetElement(a, true)
 		el2, res2 := db.GetElement(b, true)
 		if !res.Exists || !res2.Exists {
@@ -86,7 +86,7 @@ var sorts = map[string]func(a, b int, db *eodb.DB, data interface{}) bool{
 		}
 		return el1.CreatedOn.Time.Before(el2.CreatedOn.Time)
 	},
-	"id": func(a, b int, db *eodb.DB, data interface{}) bool {
+	"id": func(a, b int, db *eodb.DB, data any) bool {
 		el1, res := db.GetElement(a, true)
 		el2, res2 := db.GetElement(b, true)
 		if !res.Exists || !res2.Exists {
@@ -94,7 +94,7 @@ var sorts = map[string]func(a, b int, db *eodb.DB, data interface{}) bool{
 		}
 		return el1.ID < el2.ID
 	},
-	"complexity": func(a, b int, db *eodb.DB, data interface{}) bool {
+	"complexity": func(a, b int, db *eodb.DB, data any) bool {
 		el1, res := db.GetElement(a, true)
 		el2, res2 := db.GetElement(b, true)
 		if !res.Exists || !res2.Exists {
@@ -102,7 +102,7 @@ var sorts = map[string]func(a, b int, db *eodb.DB, data interface{}) bool{
 		}
 		return el1.Complexity < el2.Complexity
 	},
-	"difficulty": func(a, b int, db *eodb.DB, data interface{}) bool {
+	"difficulty": func(a, b int, db *eodb.DB, data any) bool {
 		el1, res := db.GetElement(a, true)
 		el2, res2 := db.GetElement(b, true)
 		if !res.Exists || !res2.Exists {
@@ -110,7 +110,7 @@ var sorts = map[string]func(a, b int, db *eodb.DB, data interface{}) bool{
 		}
 		return el1.Difficulty < el2.Difficulty
 	},
-	"usedin": func(a, b int, db *eodb.DB, data interface{}) bool {
+	"usedin": func(a, b int, db *eodb.DB, data any) bool {
 		el1, res := db.GetElement(a, true)
 		el2, res2 := db.GetElement(b, true)
 		if !res.Exists || !res2.Exists {
@@ -118,7 +118,7 @@ var sorts = map[string]func(a, b int, db *eodb.DB, data interface{}) bool{
 		}
 		return el1.UsedIn < el2.UsedIn
 	},
-	"creator": func(a, b int, db *eodb.DB, data interface{}) bool {
+	"creator": func(a, b int, db *eodb.DB, data any) bool {
 		el1, res := db.GetElement(a, true)
 		el2, res2 := db.GetElement(b, true)
 		if !res.Exists || !res2.Exists {
@@ -126,7 +126,7 @@ var sorts = map[string]func(a, b int, db *eodb.DB, data interface{}) bool{
 		}
 		return el1.Creator < el2.Creator
 	},
-	"treesize": func(a, b int, db *eodb.DB, data interface{}) bool {
+	"treesize": func(a, b int, db *eodb.DB, data any) bool {
 		el1, res := db.GetElement(a, true)
 		el2, res2 := db.GetElement(b, true)
 		if !res.Exists || !res2.Exists {
@@ -134,7 +134,7 @@ var sorts = map[string]func(a, b int, db *eodb.DB, data interface{}) bool{
 		}
 		return el1.TreeSize < el2.TreeSize
 	},
-	"color": func(a, b int, db *eodb.DB, data interface{}) bool {
+	"color": func(a, b int, db *eodb.DB, data any) bool {
 		el1, res := db.GetElement(a, true)
 		el2, res2 := db.GetElement(b, true)
 		if !res.Exists || !res2.Exists {
@@ -142,7 +142,7 @@ var sorts = map[string]func(a, b int, db *eodb.DB, data interface{}) bool{
 		}
 		return el1.Color < el2.Color
 	},
-	"found": func(a, b int, db *eodb.DB, data interface{}) bool {
+	"found": func(a, b int, db *eodb.DB, data any) bool {
 		inv := data.(*types.Inventory)
 		v1 := 1
 		v2 := 1
@@ -156,36 +156,36 @@ var sorts = map[string]func(a, b int, db *eodb.DB, data interface{}) bool{
 	},
 }
 
-var getters = map[string]func(el types.Element, data interface{}) string{
-	"createdon": func(el types.Element, data interface{}) string {
+var getters = map[string]func(el types.Element, data any) string{
+	"createdon": func(el types.Element, data any) string {
 		return fmt.Sprintf(" - <t:%d>", el.CreatedOn.Unix())
 	},
-	"id": func(el types.Element, data interface{}) string {
+	"id": func(el types.Element, data any) string {
 		return fmt.Sprintf(" - #%d", el.ID)
 	},
-	"complexity": func(el types.Element, data interface{}) string {
+	"complexity": func(el types.Element, data any) string {
 		return fmt.Sprintf(" - %d", el.Complexity)
 	},
-	"difficulty": func(el types.Element, data interface{}) string {
+	"difficulty": func(el types.Element, data any) string {
 		return fmt.Sprintf(" - %d", el.Difficulty)
 	},
-	"usedin": func(el types.Element, data interface{}) string {
+	"usedin": func(el types.Element, data any) string {
 		return fmt.Sprintf(" - %d", el.UsedIn)
 	},
-	"creator": func(el types.Element, data interface{}) string {
+	"creator": func(el types.Element, data any) string {
 		return fmt.Sprintf(" - <@%s>", el.Creator)
 	},
-	"treesize": func(el types.Element, data interface{}) string {
+	"treesize": func(el types.Element, data any) string {
 		return fmt.Sprintf(" - %d", el.TreeSize)
 	},
-	"color": func(el types.Element, data interface{}) string {
+	"color": func(el types.Element, data any) string {
 		col, err := util.GetEmoji(el.Color)
 		if err == nil {
 			return fmt.Sprintf(" - %s", col)
 		}
 		return ""
 	},
-	"found": func(el types.Element, data interface{}) string {
+	"found": func(el types.Element, data any) string {
 		inv := data.(*types.Inventory)
 		if inv.Contains(el.ID, true) {
 			return " " + types.Check
@@ -204,12 +204,12 @@ func CompareStrings(a, b string) bool {
 	return a < b
 }
 
-func Sort(vals interface{}, length int, elemGet func(index int) int, elemTxt func(index int) string, elemSet func(index int, val string), sortName string, user string, db *eodb.DB, postfix bool) {
+func Sort(vals any, length int, elemGet func(index int) int, elemTxt func(index int) string, elemSet func(index int, val string), sortName string, user string, db *eodb.DB, postfix bool) {
 	lock.RLock()
 	sorter := sorts[sortName]
 	lock.RUnlock()
 
-	var data interface{}
+	var data any
 	switch sortName {
 	case "found":
 		data = db.GetInv(user)

@@ -38,7 +38,7 @@ type Bot struct {
 	pmemedat        []meme
 	pmemecache      map[string]map[int]empty
 
-	mathvars map[string]map[string]interface{}
+	mathvars map[string]map[string]any
 
 	prefixcache map[string]string
 
@@ -118,7 +118,7 @@ func InitDiscord(db *db.DB, e *elemental.Elemental) Bot {
 		e:     e,
 		props: props,
 
-		mathvars:    make(map[string]map[string]interface{}),
+		mathvars:    make(map[string]map[string]any),
 		pages:       make(map[string]reactionMsg),
 		prefixcache: make(map[string]string),
 		combos:      make(map[string]comb),

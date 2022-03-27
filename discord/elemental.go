@@ -86,7 +86,7 @@ func (b *Bot) einvCmd(m msg, rsp rsp) {
 	b.dg.MessageReactionAdd(m.ChannelID, id, rightArrow)
 	b.pages[id] = reactionMsg{
 		Type: invPageSwitcher,
-		Metadata: map[string]interface{}{
+		Metadata: map[string]any{
 			"page":  0,
 			"found": inv,
 			"name":  m.Author.Username,

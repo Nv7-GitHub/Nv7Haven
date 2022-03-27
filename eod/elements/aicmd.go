@@ -101,7 +101,7 @@ func (b *Elements) genAi(guild string, author string) (string, bool, *eodb.DB) {
 		})
 	}
 
-	return db.Config.LangProperty("YourAIIdea", map[string]interface{}{
+	return db.Config.LangProperty("YourAIIdea", map[string]any{
 		"Idea":        text,
 		"SuggestText": suggest,
 	}), true, db

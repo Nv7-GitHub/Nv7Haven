@@ -367,12 +367,12 @@ func getHintText(elemTxt string, inv *types.Inventory, db *eodb.DB, inverse bool
 			ex = 1
 		}
 		prf := "%s"
-		params := make([]interface{}, len(elems))
+		params := make([]any, len(elems))
 		i := 0
 		db.RLock()
 		for _, k := range elems {
 			elem, _ := db.GetElementByName(k, true)
-			params[i] = interface{}(elem.Name)
+			params[i] = any(elem.Name)
 
 			if i == 0 {
 				prf += " %s"
@@ -383,7 +383,7 @@ func getHintText(elemTxt string, inv *types.Inventory, db *eodb.DB, inverse bool
 		}
 		db.RUnlock()
 
-		params = append([]interface{}{pref}, params...)
+		params = append([]any{pref}, params...)
 		params[len(params)-1] = util.Obscure(params[len(params)-1].(string))
 		txt := fmt.Sprintf(prf, params...)
 		return txt, ex

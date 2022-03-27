@@ -93,7 +93,7 @@ func systemHandlers(app *fiber.App) {
 
 type Logger struct{}
 
-func (l *Logger) Print(args ...interface{}) {
+func (l *Logger) Print(args ...any) {
 	log.SetOutput(logs.MysqLogs)
 	log.Print(args...)
 }

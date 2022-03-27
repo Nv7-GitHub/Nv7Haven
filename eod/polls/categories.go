@@ -160,7 +160,7 @@ func (b *Polls) catColor(guild string, catName string, color int, creator string
 
 		if news {
 			if color == 0 {
-				b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty("ResetCatColorNews", map[string]interface{}{
+				b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty("ResetCatColorNews", map[string]any{
 					"Category":   vcat.Name,
 					"LastedText": lasted,
 					"Creator":    creator,
@@ -170,7 +170,7 @@ func (b *Polls) catColor(guild string, catName string, color int, creator string
 			if err != nil {
 				emoji = types.RedCircle
 			}
-			b.dg.ChannelMessageSend(db.Config.NewsChannel, emoji+" "+db.Config.LangProperty("SetCatColorNews", map[string]interface{}{
+			b.dg.ChannelMessageSend(db.Config.NewsChannel, emoji+" "+db.Config.LangProperty("SetCatColorNews", map[string]any{
 				"Category":   vcat.Name,
 				"LastedText": lasted,
 				"Creator":    creator,
@@ -199,7 +199,7 @@ func (b *Polls) catColor(guild string, catName string, color int, creator string
 
 	if news {
 		if color == 0 {
-			b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty("ResetCatColorNews", map[string]interface{}{
+			b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty("ResetCatColorNews", map[string]any{
 				"Category":   cat.Name,
 				"LastedText": lasted,
 				"Creator":    creator,
@@ -209,7 +209,7 @@ func (b *Polls) catColor(guild string, catName string, color int, creator string
 		if err != nil {
 			emoji = types.RedCircle
 		}
-		b.dg.ChannelMessageSend(db.Config.NewsChannel, emoji+" "+db.Config.LangProperty("SetCatColorNews", map[string]interface{}{
+		b.dg.ChannelMessageSend(db.Config.NewsChannel, emoji+" "+db.Config.LangProperty("SetCatColorNews", map[string]any{
 			"Category":   cat.Name,
 			"LastedText": lasted,
 			"Creator":    creator,
@@ -247,7 +247,7 @@ func (b *Polls) deleteVCat(guild string, catName string, creator string, controv
 
 	// News
 	if news {
-		b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty("DeleteVCatNews", map[string]interface{}{
+		b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty("DeleteVCatNews", map[string]any{
 			"Category":   vcat.Name,
 			"LastedText": lasted,
 			"Creator":    creator,

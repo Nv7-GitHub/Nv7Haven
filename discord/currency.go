@@ -14,7 +14,7 @@ const rightArrow = "➡️"
 
 type reactionMsg struct {
 	Type     reactionMsgType
-	Metadata map[string]interface{}
+	Metadata map[string]any
 	Handler  func(*discordgo.MessageReactionAdd)
 }
 
@@ -239,7 +239,7 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.MessageReactionAdd(m.ChannelID, msg.ID, rightArrow)
 		b.pages[msg.ID] = reactionMsg{
 			Type: ldbPageSwitcher,
-			Metadata: map[string]interface{}{
+			Metadata: map[string]any{
 				"page":  0,
 				"count": num,
 			},

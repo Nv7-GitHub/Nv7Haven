@@ -181,7 +181,7 @@ func (b *Categories) DeleteVCatCmd(name string, m types.Msg, rsp types.Rsp) {
 	}
 	db.RUnlock()
 	if !ok {
-		rsp.ErrorMessage(db.Config.LangProperty("CategoryUsedInVCat", map[string]interface{}{
+		rsp.ErrorMessage(db.Config.LangProperty("CategoryUsedInVCat", map[string]any{
 			"Category":        vcat.Name,
 			"VirtualCategory": vname,
 		}))

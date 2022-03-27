@@ -43,14 +43,14 @@ func (b *Polls) handlePollSuccess(p types.Poll) {
 		}
 		if len(els) == 1 {
 			name, _ := db.GetElement(els[0])
-			b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty("AddCatNews", map[string]interface{}{
+			b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty("AddCatNews", map[string]any{
 				"Element":    name.Name,
 				"Category":   p.PollCategorizeData.Category,
 				"LastedText": lasted,
 				"Creator":    p.Suggestor,
 			})+controversialTxt)
 		} else {
-			b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty("AddCatMultNews", map[string]interface{}{
+			b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty("AddCatMultNews", map[string]any{
 				"Elements":   len(els),
 				"Category":   p.PollCategorizeData.Category,
 				"LastedText": lasted,
@@ -64,14 +64,14 @@ func (b *Polls) handlePollSuccess(p types.Poll) {
 		}
 		if len(els) == 1 {
 			name, _ := db.GetElement(els[0])
-			b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty("RmCatNews", map[string]interface{}{
+			b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty("RmCatNews", map[string]any{
 				"Element":    name.Name,
 				"Category":   p.PollCategorizeData.Category,
 				"LastedText": lasted,
 				"Creator":    p.Suggestor,
 			})+controversialTxt)
 		} else {
-			b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty("RmCatMultNews", map[string]interface{}{
+			b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty("RmCatMultNews", map[string]any{
 				"Elements":   len(els),
 				"Category":   p.PollCategorizeData.Category,
 				"LastedText": lasted,

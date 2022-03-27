@@ -294,7 +294,7 @@ func (b *Elements) Info(elem string, m types.Msg, rsp types.Rsp) {
 	}
 
 	// Get whether has element
-	hasPars := map[string]interface{}{
+	hasPars := map[string]any{
 		"ID":   el.ID,
 		"User": m.Author.ID,
 	}

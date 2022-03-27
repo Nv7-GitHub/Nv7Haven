@@ -165,7 +165,7 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 		Elem3: -1,
 	})
 
-	return db.Config.LangProperty("YourIdea", map[string]interface{}{
+	return db.Config.LangProperty("YourIdea", map[string]any{
 		"Combo":       text,
 		"SuggestText": db.Config.LangProperty("SuggestIdea", nil),
 	}), true

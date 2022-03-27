@@ -98,7 +98,7 @@ func (b *Elements) DownloadInvCmd(user string, sorter string, filter string, pos
 	}
 
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: db.Config.LangProperty("DownloadedInvUserServer", map[string]interface{}{
+		Content: db.Config.LangProperty("DownloadedInvUserServer", map[string]any{
 			"Username": usr.Username,
 			"Server":   gld.Name,
 		}),

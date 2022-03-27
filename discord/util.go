@@ -13,7 +13,7 @@ import (
 
 var lock = sync.RWMutex{}
 
-func (b *Bot) exists(m *discordgo.MessageCreate, table string, where string, args ...interface{}) (bool, bool) {
+func (b *Bot) exists(m *discordgo.MessageCreate, table string, where string, args ...any) (bool, bool) {
 	res, err := b.db.Query("SELECT COUNT(1) FROM "+table+" WHERE "+where+" LIMIT 1", args...)
 	if b.handle(err, m) {
 		return false, false
@@ -29,7 +29,7 @@ func (b *Bot) exists(m *discordgo.MessageCreate, table string, where string, arg
 	return count != 0, true
 }
 
-func (b *Bot) exts(rsp rsp, table string, where string, args ...interface{}) (bool, bool) {
+func (b *Bot) exts(rsp rsp, table string, where string, args ...any) (bool, bool) {
 	res, err := b.db.Query("SELECT COUNT(1) FROM "+table+" WHERE "+where+" LIMIT 1", args...)
 	if rsp.Error(err) {
 		return false, false
@@ -61,7 +61,7 @@ type user struct {
 	Credit      int
 	Properties  map[string]int // Places they own
 	LastVisited int64
-	Metadata    map[string]interface{}
+	Metadata    map[string]any
 }
 
 func (b *Bot) getuser(m *discordgo.MessageCreate, usr string) (user, bool) {
@@ -89,7 +89,7 @@ func (b *Bot) getuser(m *discordgo.MessageCreate, usr string) (user, bool) {
 		return user{}, false
 	}
 	var properties map[string]int
-	var metadata map[string]interface{}
+	var metadata map[string]any
 	err = json.Unmarshal([]byte(props), &properties)
 	if b.handle(err, m) {
 		return user{}, false
@@ -135,7 +135,7 @@ func (b *Bot) getUser(_ msg, rsp rsp, usr string) (user, bool) {
 		return user{}, false
 	}
 	var properties map[string]int
-	var metadata map[string]interface{}
+	var metadata map[string]any
 	err = json.Unmarshal([]byte(props), &properties)
 	if rsp.Error(err) {
 		return user{}, false
@@ -328,61 +328,61 @@ func (b *Bot) isUserMod(m msg, rsp rsp, ID string) bool {
 	return false
 }
 
-func (b *Bot) getServerData(m *discordgo.MessageCreate, id string) map[string]interface{} {
+func (b *Bot) getServerData(m *discordgo.MessageCreate, id string) map[string]any {
 	exists, success := b.exists(m, "serverdata", "id=?", id)
 	if !success {
-		return map[string]interface{}{}
+		return map[string]any{}
 	}
 	if !exists {
 		_, err := b.db.Exec("INSERT INTO serverdata VALUES ( ?, ? )", id, "{}")
 		if b.handle(err, m) {
-			return map[string]interface{}{}
+			return map[string]any{}
 		}
 	} else {
 		row := b.db.QueryRow("SELECT data FROM serverdata WHERE id=?", id)
 		var data string
 		err := row.Scan(&data)
 		if b.handle(err, m) {
-			return map[string]interface{}{}
+			return map[string]any{}
 		}
-		var out map[string]interface{}
+		var out map[string]any
 		err = json.Unmarshal([]byte(data), &out)
 		if b.handle(err, m) {
-			return map[string]interface{}{}
+			return map[string]any{}
 		}
 		return out
 	}
-	return map[string]interface{}{}
+	return map[string]any{}
 }
 
-func (b *Bot) readServerData(rsp rsp, id string) map[string]interface{} {
+func (b *Bot) readServerData(rsp rsp, id string) map[string]any {
 	exists, success := b.exts(rsp, "serverdata", "id=?", id)
 	if !success {
-		return map[string]interface{}{}
+		return map[string]any{}
 	}
 	if !exists {
 		_, err := b.db.Exec("INSERT INTO serverdata VALUES ( ?, ? )", id, "{}")
 		if rsp.Error(err) {
-			return map[string]interface{}{}
+			return map[string]any{}
 		}
 	} else {
 		row := b.db.QueryRow("SELECT data FROM serverdata WHERE id=?", id)
 		var data string
 		err := row.Scan(&data)
 		if rsp.Error(err) {
-			return map[string]interface{}{}
+			return map[string]any{}
 		}
-		var out map[string]interface{}
+		var out map[string]any
 		err = json.Unmarshal([]byte(data), &out)
 		if rsp.Error(err) {
-			return map[string]interface{}{}
+			return map[string]any{}
 		}
 		return out
 	}
-	return map[string]interface{}{}
+	return map[string]any{}
 }
 
-func (b *Bot) updateServerData(m *discordgo.MessageCreate, id string, data map[string]interface{}) {
+func (b *Bot) updateServerData(m *discordgo.MessageCreate, id string, data map[string]any) {
 	dat, err := json.Marshal(data)
 	if b.handle(err, m) {
 		return
@@ -393,7 +393,7 @@ func (b *Bot) updateServerData(m *discordgo.MessageCreate, id string, data map[s
 	}
 }
 
-func (b *Bot) changeServerData(rsp rsp, id string, data map[string]interface{}) {
+func (b *Bot) changeServerData(rsp rsp, id string, data map[string]any) {
 	dat, err := json.Marshal(data)
 	if rsp.Error(err) {
 		return
@@ -404,7 +404,7 @@ func (b *Bot) changeServerData(rsp rsp, id string, data map[string]interface{}) 
 	}
 }
 
-func (b *Bot) req(m *discordgo.MessageCreate, url string, out interface{}) bool {
+func (b *Bot) req(m *discordgo.MessageCreate, url string, out any) bool {
 	res, err := http.Get(url)
 	if b.handle(err, m) {
 		return false

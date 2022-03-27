@@ -237,7 +237,7 @@ const (
 	VirtualCategoryRuleAllElements  VirtualCategoryRuleType = 3
 )
 
-type VirtualCategoryData map[string]interface{}
+type VirtualCategoryData map[string]any
 
 type CategoryOperation string
 

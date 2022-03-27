@@ -88,7 +88,7 @@ func main() {
 	// Save stats to DB
 	times := 0
 	query := "INSERT INTO eod_stats (time, elemcnt) VALUES "
-	args := make([]interface{}, 0)
+	args := make([]any, 0)
 
 	start = time.Now()
 
@@ -104,7 +104,7 @@ func main() {
 			_, err := db.Exec(query, args...)
 			handle(err)
 			query = "INSERT INTO eod_stats (time, elemcnt) VALUES "
-			args = make([]interface{}, 0)
+			args = make([]any, 0)
 		}
 
 		times++

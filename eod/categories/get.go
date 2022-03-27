@@ -57,7 +57,7 @@ func (b *Categories) CategoriesCmd(elem string, m types.Msg, rsp types.Rsp) {
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind: types.PageSwitchInv,
-		Title: db.Config.LangProperty("ElemCategories", map[string]interface{}{
+		Title: db.Config.LangProperty("ElemCategories", map[string]any{
 			"Element": el.Name,
 			"Count":   len(out),
 		}),

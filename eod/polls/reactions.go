@@ -15,7 +15,7 @@ func (b *Polls) RejectPoll(db *eodb.DB, p types.Poll, messageid, user, lasted st
 
 	if user != p.Suggestor {
 		// Inform them
-		b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty("RejectedPollNews", map[string]interface{}{
+		b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty("RejectedPollNews", map[string]any{
 			"LastedText": lasted,
 			"Creator":    p.Suggestor,
 		}))
@@ -28,7 +28,7 @@ func (b *Polls) RejectPoll(db *eodb.DB, p types.Poll, messageid, user, lasted st
 				if err == nil {
 
 					b.dg.ChannelMessageSendComplex(chn.ID, &discordgo.MessageSend{
-						Content: db.Config.LangProperty("RejectedPollDM", map[string]interface{}{
+						Content: db.Config.LangProperty("RejectedPollDM", map[string]any{
 							"Server":    servname.Name,
 							"Upvotes":   p.Upvotes,
 							"Downvotes": p.Downvotes,

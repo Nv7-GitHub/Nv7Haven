@@ -134,23 +134,23 @@ func (c *Categories) categorizeRsp(added int, suggestAdd []int, db *eodb.DB, cat
 		rsp.Message(db.Config.LangProperty("Categorized", nil))
 	} else if added == 0 && len(suggestAdd) == 1 {
 		el, _ := db.GetElement(suggestAdd[0])
-		rsp.Message(db.Config.LangProperty("SuggestCategorized", map[string]interface{}{
+		rsp.Message(db.Config.LangProperty("SuggestCategorized", map[string]any{
 			"Element":  el.Name,
 			"Category": category,
 		}))
 	} else if added == 0 && len(suggestAdd) > 1 {
-		rsp.Message(db.Config.LangProperty("SuggestCategorizedMult", map[string]interface{}{
+		rsp.Message(db.Config.LangProperty("SuggestCategorizedMult", map[string]any{
 			"Elements": len(suggestAdd),
 			"Category": category,
 		}))
 	} else if added > 0 && len(suggestAdd) == 1 {
 		el, _ := db.GetElement(suggestAdd[0])
-		rsp.Message(db.Config.LangProperty("CategorizeMultSuggestCategorized", map[string]interface{}{
+		rsp.Message(db.Config.LangProperty("CategorizeMultSuggestCategorized", map[string]any{
 			"Element":  el.Name,
 			"Category": category,
 		}))
 	} else if added > 0 && len(suggestAdd) > 1 {
-		rsp.Message(db.Config.LangProperty("CategorizeMultSuggestCategorizedMult", map[string]interface{}{
+		rsp.Message(db.Config.LangProperty("CategorizeMultSuggestCategorizedMult", map[string]any{
 			"Elements": len(suggestAdd),
 			"Category": category,
 		}))
@@ -219,14 +219,14 @@ func (b *Categories) RmCategoryCmd(elems []string, category string, m types.Msg,
 				el = k
 				break
 			}
-			rsp.ErrorMessage(db.Config.LangProperty("NotInCat", map[string]interface{}{
+			rsp.ErrorMessage(db.Config.LangProperty("NotInCat", map[string]any{
 				"Element":  el,
 				"Category": cat.Name,
 			}))
 			return
 		}
 
-		rsp.ErrorMessage(db.Config.LangProperty("NotInCatMult", map[string]interface{}{
+		rsp.ErrorMessage(db.Config.LangProperty("NotInCatMult", map[string]any{
 			"Elements": util.JoinTxt(notFound, db.Config.LangProperty("DoesntExistJoiner", nil)),
 			"Category": cat.Name,
 		}))
@@ -247,7 +247,7 @@ func (b *Categories) RmCategoryCmd(elems []string, category string, m types.Msg,
 		_, exists := cat.Elements[el.ID]
 		cat.Lock.RUnlock()
 		if !exists {
-			rsp.ErrorMessage(db.Config.LangProperty("NotInCat", map[string]interface{}{
+			rsp.ErrorMessage(db.Config.LangProperty("NotInCat", map[string]any{
 				"Element":  el.Name,
 				"Category": cat.Name,
 			}))
@@ -288,23 +288,23 @@ func (c *Categories) unCategorizeRsp(rmed int, suggestRm []int, db *eodb.DB, cat
 		rsp.Message(db.Config.LangProperty("UnCategorized", nil))
 	} else if rmed == 0 && len(suggestRm) == 1 {
 		el, _ := db.GetElement(suggestRm[0])
-		rsp.Message(db.Config.LangProperty("SuggestUnCategorized", map[string]interface{}{
+		rsp.Message(db.Config.LangProperty("SuggestUnCategorized", map[string]any{
 			"Element":  el.Name,
 			"Category": category,
 		}))
 	} else if rmed == 0 && len(suggestRm) > 1 {
-		rsp.Message(db.Config.LangProperty("SuggestUnCategorizedMult", map[string]interface{}{
+		rsp.Message(db.Config.LangProperty("SuggestUnCategorizedMult", map[string]any{
 			"Elements": len(suggestRm),
 			"Category": category,
 		}))
 	} else if rmed > 0 && len(suggestRm) == 1 {
 		el, _ := db.GetElement(suggestRm[0])
-		rsp.Message(db.Config.LangProperty("UnCategorizeMultSuggestUnCategorized", map[string]interface{}{
+		rsp.Message(db.Config.LangProperty("UnCategorizeMultSuggestUnCategorized", map[string]any{
 			"Element":  el.Name,
 			"Category": category,
 		}))
 	} else if rmed > 0 && len(suggestRm) > 1 {
-		rsp.Message(db.Config.LangProperty("UnCategorizeMultSuggestUnCategorizedMult", map[string]interface{}{
+		rsp.Message(db.Config.LangProperty("UnCategorizeMultSuggestUnCategorizedMult", map[string]any{
 			"Elements": len(suggestRm),
 			"Category": category,
 		}))

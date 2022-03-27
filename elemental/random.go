@@ -13,12 +13,12 @@ const randomQuery = `SELECT name FROM suggestions a, (SELECT found FROM users WH
 
 func (e *Elemental) randomSuggestion(where string, uid string) ([]string, error) {
 	isAnarchy := time.Now().Weekday() == anarchyDay
-	params := []interface{}{maxVotes, "%\"" + uid + "\"%"}
+	params := []any{maxVotes, "%\"" + uid + "\"%"}
 	if isAnarchy {
 		where = "1"
-		params = []interface{}{}
+		params = []any{}
 	}
-	params = append([]interface{}{uid}, params...)
+	params = append([]any{uid}, params...)
 
 	row := e.db.QueryRow(fmt.Sprintf(randomQuery, where), params...)
 	var elem3 string
