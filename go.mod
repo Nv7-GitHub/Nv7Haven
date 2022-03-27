@@ -18,7 +18,6 @@ require (
 	github.com/improbable-eng/grpc-web v0.14.0
 	github.com/jdkato/prose/v2 v2.0.0
 	github.com/jmcvetta/randutil v0.0.0-20150817122601-2bb1b664bcff
-	github.com/json-iterator/go v1.1.9
 	github.com/lucasb-eyer/go-colorful v1.2.0
 	github.com/mitchellh/mapstructure v1.4.3
 	github.com/psykhi/wordclouds v0.0.0-20220103101922-7e3171a66cbc
@@ -36,6 +35,7 @@ require (
 	github.com/deckarep/golang-set v1.7.1 // indirect
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/golang/protobuf v1.5.0 // indirect
+	github.com/json-iterator/go v1.1.9 // indirect
 	github.com/klauspost/compress v1.12.2 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/mingrammer/commonregex v1.0.1 // indirect
