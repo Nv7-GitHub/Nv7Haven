@@ -1,7 +1,5 @@
 package eodb
 
-import "encoding/json"
-
 func (b *DB) Optimize() error {
 	b.Lock()
 	defer b.Unlock()

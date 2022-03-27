@@ -3,7 +3,6 @@ package eodb
 import (
 	"bufio"
 	"bytes"
-	"encoding/json"
 	"io"
 	"net/url"
 	"os"
@@ -13,7 +12,10 @@ import (
 	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	jsoniter "github.com/json-iterator/go"
 )
+
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 func readLine(reader *bufio.Reader) ([]byte, error) {
 	out := bytes.NewBuffer(nil)
