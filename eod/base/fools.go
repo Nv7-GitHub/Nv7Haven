@@ -9,7 +9,7 @@ import (
 // FOOLS
 var fools []string
 
-var IsFoolsMode = time.Now().Month() == time.April && time.Now().Day() == 1
+var IsFoolsMode = true
 
 func IsFool(inp string) bool {
 	for _, val := range fools {
