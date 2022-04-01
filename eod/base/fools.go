@@ -12,7 +12,7 @@ var IsFoolsMode = true
 
 func IsFool(inp string) bool {
 	for _, val := range fools {
-		if strings.Contains(inp, val) {
+		if len(val) > 0 && strings.Contains(inp, val) {
 			return true
 		}
 	}
