@@ -4,7 +4,6 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
@@ -48,17 +47,6 @@ func (b *Categories) CategoryCmd(elems []string, category string, m types.Msg, r
 	vcat, res := db.GetVCat(category)
 	if res.Exists {
 		rsp.ErrorMessage(db.Config.LangProperty("CatAlreadyExist", vcat.Name))
-		return
-	}
-
-	for _, elem := range elems {
-		if base.IsFoolsMode && !base.IsFool(elem) {
-			rsp.ErrorMessage(base.MakeFoolResp(elem))
-			return
-		}
-	}
-	if base.IsFoolsMode && !base.IsFool(category) {
-		rsp.ErrorMessage(base.MakeFoolResp(category))
 		return
 	}
 

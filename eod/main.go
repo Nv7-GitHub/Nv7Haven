@@ -14,7 +14,6 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/polls"
 	"github.com/Nv7-Github/Nv7Haven/eod/treecmds"
-	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/gofiber/fiber/v2"
 
 	"github.com/bwmarrin/discordgo"
@@ -76,12 +75,6 @@ func InitEoD(sqldb *db.DB, app *fiber.App) EoD {
 
 	dg.UpdateGameStatus(0, status)
 	bot.init(app)
-
-	// FOOLS
-	bot.base.InitFools(foolsRaw)
-	if base.IsFoolsMode {
-		types.MaxComboLength = 2
-	}
 
 	return bot
 }

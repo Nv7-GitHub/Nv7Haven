@@ -7,7 +7,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
@@ -26,12 +25,6 @@ func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user
 
 	rsp.Acknowledge()
 	category = strings.TrimSpace(category)
-
-	if base.IsFoolsMode && !base.IsFool(category) {
-		rsp.ErrorMessage(base.MakeFoolResp(category))
-		return
-	}
-
 	id := m.Author.ID
 	if hasUser {
 		id = user

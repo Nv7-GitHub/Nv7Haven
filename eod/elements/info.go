@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
@@ -131,11 +130,6 @@ func (b *Elements) Info(elem string, m types.Msg, rsp types.Rsp) {
 	db, res := b.GetDB(m.GuildID)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
-		return
-	}
-
-	if base.IsFoolsMode && !base.IsFool(elem) {
-		rsp.ErrorMessage(base.MakeFoolResp(elem))
 		return
 	}
 

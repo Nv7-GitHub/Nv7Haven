@@ -3,7 +3,6 @@ package elements
 import (
 	"strings"
 
-	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
@@ -38,11 +37,6 @@ func (b *Elements) SuggestCmd(suggestion string, autocapitalize bool, m types.Ms
 		return
 	}
 	data, _ := b.GetData(m.GuildID)
-
-	if base.IsFoolsMode && !base.IsFool(suggestion) {
-		rsp.ErrorMessage(base.MakeFoolResp(suggestion))
-		return
-	}
 
 	if autocapitalize && strings.ToLower(suggestion) == suggestion {
 		suggestion = util.ToTitle(suggestion)
