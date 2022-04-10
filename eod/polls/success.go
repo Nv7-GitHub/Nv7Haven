@@ -59,9 +59,7 @@ func (b *Polls) handlePollSuccess(p types.Poll) {
 		}
 	case types.PollUnCategorize:
 		els := p.PollCategorizeData.Elems
-		for _, val := range els {
-			b.UnCategorize(val, p.PollCategorizeData.Category, p.Guild)
-		}
+		b.UnCategorize(els, p.PollCategorizeData.Category, p.Guild)
 		if len(els) == 1 {
 			name, _ := db.GetElement(els[0])
 			b.dg.ChannelMessageSend(db.Config.NewsChannel, db.Config.LangProperty("RmCatNews", map[string]any{

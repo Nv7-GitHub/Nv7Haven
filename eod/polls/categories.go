@@ -38,13 +38,8 @@ func (b *Polls) Categorize(elem int, catName string, guild string) error {
 	return nil
 }
 
-func (b *Polls) UnCategorize(elem int, catName string, guild string) error {
+func (b *Polls) UnCategorize(elems []int, catName string, guild string) error {
 	db, res := b.GetDB(guild)
-	if !res.Exists {
-		return nil
-	}
-
-	el, res := db.GetElement(elem)
 	if !res.Exists {
 		return nil
 	}
@@ -53,9 +48,17 @@ func (b *Polls) UnCategorize(elem int, catName string, guild string) error {
 	if !res.Exists {
 		cat = db.NewCat(catName)
 	}
-	cat.Lock.Lock()
-	delete(cat.Elements, el.ID)
-	cat.Lock.Unlock()
+
+	for _, elem := range elems {
+		el, res := db.GetElement(elem)
+		if !res.Exists {
+			return nil
+		}
+		cat.Lock.Lock()
+		delete(cat.Elements, el.ID)
+		cat.Lock.Unlock()
+	}
+
 	err := db.SaveCat(cat) // Will delete if empty
 	if err != nil {
 		return err

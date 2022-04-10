@@ -26,7 +26,7 @@ func (b *Categories) DeleteCatCmd(category string, m types.Msg, rsp types.Rsp) {
 
 	// Remove elements
 	suggestRm := make([]int, 0)
-	rmed := 0
+	toRm := make([]int, 0)
 	cat.Lock.RLock()
 	db.RLock()
 	for elem := range cat.Elements {
@@ -36,19 +36,18 @@ func (b *Categories) DeleteCatCmd(category string, m types.Msg, rsp types.Rsp) {
 		}
 
 		if el.Creator == m.Author.ID {
-			cat.Lock.RUnlock()
-			db.RUnlock()
-			err := b.polls.UnCategorize(el.ID, category, m.GuildID)
-			cat.Lock.RLock()
-			db.RLock()
-			rsp.Error(err)
-			rmed++
+			toRm = append(toRm, el.ID)
 		} else {
 			suggestRm = append(suggestRm, el.ID)
 		}
 	}
 	db.RUnlock()
 	cat.Lock.RUnlock()
+
+	err := b.polls.UnCategorize(toRm, category, m.GuildID)
+	if rsp.Error(err) {
+		return
+	}
 
 	// Resp
 	if len(suggestRm) > 0 {
@@ -68,7 +67,7 @@ func (b *Categories) DeleteCatCmd(category string, m types.Msg, rsp types.Rsp) {
 			return
 		}
 	}
-	b.unCategorizeRsp(rmed, suggestRm, db, category, rsp)
+	b.unCategorizeRsp(len(toRm), suggestRm, db, category, rsp)
 }
 
 func (b *Categories) CatOpCmd(op types.CategoryOperation, lhs string, rhs string, result string, m types.Msg, rsp types.Rsp) {

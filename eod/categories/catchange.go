@@ -223,7 +223,7 @@ func (b *Categories) RmCategoryCmd(elems []string, category string, m types.Msg,
 
 	// Actually remove
 	suggestRm := make([]int, 0)
-	rmed := 0
+	toRm := make([]int, 0)
 	for _, val := range elems {
 		el, res := db.GetElementByName(val)
 		if !res.Exists {
@@ -243,13 +243,17 @@ func (b *Categories) RmCategoryCmd(elems []string, category string, m types.Msg,
 		}
 
 		if el.Creator == m.Author.ID {
-			rmed++
-			err := b.polls.UnCategorize(el.ID, category, m.GuildID)
-			rsp.Error(err)
+			toRm = append(toRm, el.ID)
 		} else {
 			suggestRm = append(suggestRm, el.ID)
 		}
 	}
+
+	err := b.polls.UnCategorize(toRm, category, m.GuildID)
+	if rsp.Error(err) {
+		return
+	}
+
 	if len(suggestRm) > 0 {
 		err := b.polls.CreatePoll(types.Poll{
 			Channel:   db.Config.VotingChannel,
@@ -268,7 +272,7 @@ func (b *Categories) RmCategoryCmd(elems []string, category string, m types.Msg,
 		}
 	}
 
-	b.unCategorizeRsp(rmed, suggestRm, db, category, rsp)
+	b.unCategorizeRsp(len(toRm), suggestRm, db, category, rsp)
 }
 
 func (c *Categories) unCategorizeRsp(rmed int, suggestRm []int, db *eodb.DB, category string, rsp types.Rsp) {
