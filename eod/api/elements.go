@@ -26,7 +26,7 @@ func (a *API) MethodElem(params map[string]any, id, gld string) data.Response {
 	if !res.Exists {
 		return data.RSPError(res.Message)
 	}
-	return data.RSPSuccess(map[string]any{"id": elem})
+	return data.RSPSuccess(map[string]any{"id": elem.ID})
 }
 
 func (a *API) MethodElemInfo(params map[string]any, id, gld string) data.Response {
