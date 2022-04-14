@@ -6,6 +6,9 @@ type Method int
 
 const (
 	MethodGuild Method = iota
+	MethodElem
+	MethodCombo
+	MethodElemInfo
 )
 
 type Message struct {

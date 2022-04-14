@@ -15,6 +15,7 @@ func (a *API) Handle(w http.ResponseWriter, req *http.Request) {
 	}
 	defer conn.Close()
 	id := ""
+	gld := ""
 
 	for {
 		_, message, err := conn.ReadMessage()
@@ -40,6 +41,18 @@ func (a *API) Handle(w http.ResponseWriter, req *http.Request) {
 		switch msg.Method {
 		case data.MethodGuild:
 			out = a.MethodGuild(msg.Params, id)
+			if out.Error == nil {
+				gld = msg.Params["gld"].(string)
+			}
+
+		case data.MethodElem:
+			out = a.MethodElem(msg.Params, id, gld)
+
+		case data.MethodCombo:
+			out = a.MethodCombo(msg.Params, id, gld)
+
+		case data.MethodElemInfo:
+			out = a.MethodElemInfo(msg.Params, id, gld)
 		}
 
 		// Respond
