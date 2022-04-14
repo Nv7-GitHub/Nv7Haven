@@ -86,5 +86,13 @@ func (a *API) MethodCombo(params map[string]any, id, gld string) data.Response {
 		return data.RSPError(res.Message)
 	}
 
+	// Save to inv
+	inv := db.GetInv(id)
+	inv.Add(el3)
+	err := db.SaveInv(inv)
+	if err != nil {
+		return data.RSPError(err.Error())
+	}
+
 	return data.RSPSuccess(map[string]any{"id": el3})
 }
