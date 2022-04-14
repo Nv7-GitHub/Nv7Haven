@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/api/data"
 )
@@ -82,13 +83,25 @@ func (a *API) MethodCombo(params map[string]any, id, gld string) data.Response {
 	if !res.Exists {
 		return data.RSPError(res.Message)
 	}
+
+	// Check if you have everything
+	inv := db.GetInv(id)
+	for _, el := range elems {
+		if !inv.Contains(el) {
+			el, res := db.GetElement(el)
+			if !res.Exists {
+				return data.RSPError(res.Message)
+			}
+			return data.RSPError(fmt.Sprintf("You don't have %s!", el.Name))
+		}
+	}
+
 	el3, res := db.GetCombo(elems)
 	if !res.Exists {
 		return data.RSPError(res.Message)
 	}
 
 	// Save to inv
-	inv := db.GetInv(id)
 	exists := inv.Contains(el3)
 	if !exists {
 		inv.Add(el3)
