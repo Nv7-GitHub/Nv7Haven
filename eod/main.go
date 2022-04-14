@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/db"
+	"github.com/Nv7-Github/Nv7Haven/eod/api"
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/basecmds"
 	"github.com/Nv7-Github/Nv7Haven/eod/categories"
@@ -43,6 +44,7 @@ type EoD struct {
 	basecmds   *basecmds.BaseCmds
 	categories *categories.Categories
 	elements   *elements.Elements
+	api        *api.API
 }
 
 // InitEoD initializes the EoD bot

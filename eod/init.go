@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/admin"
+	"github.com/Nv7-Github/Nv7Haven/eod/api"
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/basecmds"
 	"github.com/Nv7-Github/Nv7Haven/eod/categories"
@@ -26,6 +27,7 @@ func (b *EoD) init(app *fiber.App) {
 	b.polls = polls.NewPolls(b.Data, b.dg, b.base)
 	b.categories = categories.NewCategories(b.Data, b.base, b.dg, b.polls)
 	b.elements = elements.NewElements(b.Data, b.polls, b.db, b.base, b.dg)
+	b.api = api.NewAPI(b.Data)
 	admin.InitAdmin(b.Data, app)
 
 	// Polls
@@ -82,6 +84,9 @@ func (b *EoD) init(app *fiber.App) {
 	}
 	bar.Finish()
 
+	// Run API
+	b.api.Run()
+
 	// Calc VCats
 	start := time.Now()
 	fmt.Println("Calculating VCats...")
@@ -101,7 +106,7 @@ func (b *EoD) init(app *fiber.App) {
 	}()
 
 	// Change starters
-	for _, db := range b.DB {
+	/*for _, db := range b.DB {
 		for _, el := range types.StarterElements {
 			e, res := db.GetElement(el.ID)
 			if !res.Exists {
@@ -116,5 +121,5 @@ func (b *EoD) init(app *fiber.App) {
 				fmt.Println(err)
 			}
 		}
-	}
+	}*/
 }
