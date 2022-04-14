@@ -2,6 +2,8 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
+	"reflect"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/api/data"
 )
@@ -66,6 +68,7 @@ func (a *API) MethodCombo(params map[string]any, id, gld string) data.Response {
 	}
 	v, ok := vals.([]interface{})
 	if !ok {
+		fmt.Println(reflect.TypeOf(v))
 		return data.RSPError("Bad request")
 	}
 	elems := make([]int, len(v))
