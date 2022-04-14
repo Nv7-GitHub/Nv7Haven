@@ -35,7 +35,7 @@ func (a *API) MethodElemInfo(params map[string]any, id, gld string) data.Respons
 	if !ok {
 		return data.RSPError("Bad request")
 	}
-	elid, ok := v.(int)
+	elid, ok := v.(float64)
 	if !ok {
 		return data.RSPError("Bad request")
 	}
@@ -45,7 +45,7 @@ func (a *API) MethodElemInfo(params map[string]any, id, gld string) data.Respons
 	if !res.Exists {
 		return data.RSPError(res.Message)
 	}
-	elem, res := db.GetElement(elid)
+	elem, res := db.GetElement(int(elid))
 	if !res.Exists {
 		return data.RSPError(res.Message)
 	}
