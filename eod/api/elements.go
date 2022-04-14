@@ -89,11 +89,14 @@ func (a *API) MethodCombo(params map[string]any, id, gld string) data.Response {
 
 	// Save to inv
 	inv := db.GetInv(id)
-	inv.Add(el3)
-	err := db.SaveInv(inv)
-	if err != nil {
-		return data.RSPError(err.Error())
+	exists := inv.Contains(el3)
+	if !exists {
+		inv.Add(el3)
+		err := db.SaveInv(inv)
+		if err != nil {
+			return data.RSPError(err.Error())
+		}
 	}
 
-	return data.RSPSuccess(map[string]any{"id": el3})
+	return data.RSPSuccess(map[string]any{"id": el3, "exists": exists})
 }
