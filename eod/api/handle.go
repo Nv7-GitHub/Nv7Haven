@@ -53,6 +53,9 @@ func (a *API) Handle(w http.ResponseWriter, req *http.Request) {
 
 		case data.MethodElemInfo:
 			out = a.MethodElemInfo(msg.Params, id, gld)
+
+		case data.MethodInv:
+			out = a.MethodInv(id, gld)
 		}
 
 		// Respond

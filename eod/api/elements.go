@@ -113,3 +113,21 @@ func (a *API) MethodCombo(params map[string]any, id, gld string) data.Response {
 
 	return data.RSPSuccess(map[string]any{"id": el3, "exists": exists})
 }
+
+func (a *API) MethodInv(id, gld string) data.Response {
+	// Get data
+	db, res := a.GetDB(gld)
+	if !res.Exists {
+		return data.RSPError(res.Message)
+	}
+	inv := db.GetInv(id)
+	els := make([]int, len(inv.Elements))
+	i := 0
+	inv.Lock.RLock()
+	for k := range inv.Elements {
+		els[i] = k
+		i++
+	}
+	inv.Lock.RUnlock()
+	return data.RSPSuccess(map[string]any{"elems": els})
+}

@@ -9,6 +9,7 @@ const (
 	MethodElem
 	MethodCombo
 	MethodElemInfo
+	MethodInv
 )
 
 type Message struct {
