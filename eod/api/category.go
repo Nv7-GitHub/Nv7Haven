@@ -2,7 +2,7 @@ package api
 
 import "github.com/Nv7-Github/Nv7Haven/eod/api/data"
 
-func (a *API) MethodCategory(params map[string]any, gld, id string) data.Response {
+func (a *API) MethodCategory(params map[string]any, id, gld string) data.Response {
 	nm, exists := params["name"]
 	if !exists {
 		return data.RSPBadRequest
