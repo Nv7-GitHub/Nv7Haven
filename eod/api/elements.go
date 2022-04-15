@@ -11,11 +11,11 @@ func (a *API) MethodElem(params map[string]any, id, gld string) data.Response {
 	// Process params
 	name, ok := params["name"]
 	if !ok {
-		return data.RSPError("Bad request")
+		return data.RSPBadRequest
 	}
 	nm, ok := name.(string)
 	if !ok {
-		return data.RSPError("Bad request")
+		return data.RSPBadRequest
 	}
 
 	// Get data
@@ -34,11 +34,11 @@ func (a *API) MethodElemInfo(params map[string]any, id, gld string) data.Respons
 	// Process params
 	v, ok := params["id"]
 	if !ok {
-		return data.RSPError("Bad request")
+		return data.RSPBadRequest
 	}
 	elid, ok := v.(float64)
 	if !ok {
-		return data.RSPError("Bad request")
+		return data.RSPBadRequest
 	}
 
 	// Get data
@@ -63,17 +63,17 @@ func (a *API) MethodCombo(params map[string]any, id, gld string) data.Response {
 	// Process params
 	vals, ok := params["elems"]
 	if !ok {
-		return data.RSPError("Bad request")
+		return data.RSPBadRequest
 	}
 	v, ok := vals.([]interface{})
 	if !ok {
-		return data.RSPError("Bad request")
+		return data.RSPBadRequest
 	}
 	elems := make([]int, len(v))
 	for i, el := range v {
 		v, ok := el.(float64)
 		if !ok {
-			return data.RSPError("Bad request")
+			return data.RSPBadRequest
 		}
 		elems[i] = int(v)
 	}

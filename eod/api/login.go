@@ -10,11 +10,11 @@ func (a *API) MethodGuild(vals map[string]any, id string) data.Response {
 	// Process params
 	gldV, ok := vals["gld"]
 	if !ok {
-		return data.RSPError("Bad request")
+		return data.RSPBadRequest
 	}
 	gld, ok := gldV.(string)
 	if !ok {
-		return data.RSPError("Bad request")
+		return data.RSPBadRequest
 	}
 
 	// Check

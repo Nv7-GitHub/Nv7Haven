@@ -10,6 +10,7 @@ const (
 	MethodCombo
 	MethodElemInfo
 	MethodInv
+	MethodCategory
 )
 
 type Message struct {
@@ -20,6 +21,13 @@ type Message struct {
 type Response struct {
 	Error *string        `json:"error,omitempty"`
 	Data  map[string]any `json:"data,omitempty"`
+}
+
+var RSPBadRequest Response
+
+func init() {
+	n := "Bad request"
+	RSPBadRequest = Response{Error: &n}
 }
 
 func RSPError(msg string) Response {

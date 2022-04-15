@@ -37,7 +37,7 @@ func (a *API) Handle(w http.ResponseWriter, req *http.Request) {
 		}
 
 		// Eval
-		out := data.RSPError("Bad request")
+		out := data.RSPBadRequest
 		switch msg.Method {
 		case data.MethodGuild:
 			out = a.MethodGuild(msg.Params, id)

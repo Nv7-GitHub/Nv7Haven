@@ -16,7 +16,7 @@ func (d *DB) GetElementByName(name string, nolock ...bool) (types.Element, types
 
 	id, exists := d.elemNames[strings.ToLower(name)]
 	if !exists {
-		if name[0] == '#' && len(name) > 1 {
+		if len(name) > 1 && name[0] == '#' {
 			id, err := strconv.Atoi(name[1:])
 			if err == nil {
 				return d.GetElement(id)
