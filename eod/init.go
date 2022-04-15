@@ -27,7 +27,7 @@ func (b *EoD) init(app *fiber.App) {
 	b.polls = polls.NewPolls(b.Data, b.dg, b.base)
 	b.categories = categories.NewCategories(b.Data, b.base, b.dg, b.polls)
 	b.elements = elements.NewElements(b.Data, b.polls, b.db, b.base, b.dg)
-	b.api = api.NewAPI(b.Data)
+	b.api = api.NewAPI(b.Data, b.base)
 	admin.InitAdmin(b.Data, app)
 
 	// Polls

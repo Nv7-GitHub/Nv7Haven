@@ -19,7 +19,21 @@ func (a *API) MethodCategory(params map[string]any, id, gld string) data.Respons
 	}
 	cat, res := db.GetCat(name)
 	if !res.Exists {
-		return data.RSPError(res.Message)
+		vcat, res := db.GetVCat(name)
+		if !res.Exists {
+			return data.RSPError(res.Message)
+		}
+		els, res := a.base.CalcVCat(vcat, db)
+		if !res.Exists {
+			return data.RSPError(res.Message)
+		}
+		elems := make([]int, len(els))
+		i := 0
+		for k := range cat.Elements {
+			elems[i] = k
+			i++
+		}
+		return data.RSPSuccess(map[string]any{"elems": elems})
 	}
 
 	cat.Lock.RLock()
