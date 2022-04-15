@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/api/data"
 )
@@ -32,13 +33,21 @@ func (a *API) MethodElem(params map[string]any, id, gld string) data.Response {
 
 func (a *API) MethodElemInfo(params map[string]any, id, gld string) data.Response {
 	// Process params
-	v, ok := params["id"]
+	v, ok := params["ids"]
 	if !ok {
 		return data.RSPBadRequest
 	}
-	elid, ok := v.(float64)
+	idsV, ok := v.([]interface{})
 	if !ok {
 		return data.RSPBadRequest
+	}
+	ids := make([]int, len(idsV))
+	for i, v := range idsV {
+		val, ok := v.(float64)
+		if !ok {
+			return data.RSPBadRequest
+		}
+		ids[i] = int(val)
 	}
 
 	// Get data
@@ -46,17 +55,22 @@ func (a *API) MethodElemInfo(params map[string]any, id, gld string) data.Respons
 	if !res.Exists {
 		return data.RSPError(res.Message)
 	}
-	elem, res := db.GetElement(int(elid))
-	if !res.Exists {
-		return data.RSPError(res.Message)
-	}
-	val, err := json.Marshal(elem)
-	if err != nil {
-		return data.RSPError(err.Error())
+
+	out := make(map[string]any)
+	for _, id := range ids {
+		elem, res := db.GetElement(id)
+		if !res.Exists {
+			return data.RSPError(res.Message)
+		}
+		val, err := json.Marshal(elem)
+		if err != nil {
+			return data.RSPError(err.Error())
+		}
+		out[strconv.Itoa(id)] = string(val)
 	}
 
 	// NOTE: Data is string, json marshalled
-	return data.RSPSuccess(map[string]any{"data": string(val)})
+	return data.RSPSuccess(out)
 }
 
 func (a *API) MethodCombo(params map[string]any, id, gld string) data.Response {
