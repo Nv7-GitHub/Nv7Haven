@@ -202,7 +202,7 @@ func (d *DB) SaveCatCache(name string, elems map[int]types.Empty) error {
 			i++
 		}
 		entry := catCacheEntry{
-			Op:   catCacheOpAdd,
+			Op:   catCacheOpRemove,
 			Data: toRm,
 		}
 		dat, err := json.Marshal(entry)
