@@ -106,7 +106,7 @@ func (b *EoD) init(app *fiber.App) {
 	}()
 
 	// Remove #0
-	for _, db := range b.DB {
+	/*for _, db := range b.DB {
 		for _, cat := range db.Cats() {
 			_, exists := cat.Elements[0]
 			if exists {
@@ -114,5 +114,5 @@ func (b *EoD) init(app *fiber.App) {
 				db.SaveCat(cat)
 			}
 		}
-	}
+	}*/
 }
