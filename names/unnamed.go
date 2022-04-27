@@ -55,7 +55,7 @@ func (n *Names) unnamedCmd(i *discordgo.InteractionCreate) {
 	// Make list
 	content := &strings.Builder{}
 	for _, id := range unnamed {
-		fmt.Fprintf(content, "<@%s>", id)
+		fmt.Fprintf(content, "<@%s>\n", id)
 	}
 
 	n.dg.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
