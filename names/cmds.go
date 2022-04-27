@@ -51,6 +51,12 @@ var (
 			},
 		},
 		{
+			Name:        "unnamed",
+			Description: "Find unnamed users!",
+			Type:        discordgo.ChatApplicationCommand,
+			Options:     []*discordgo.ApplicationCommandOption{},
+		},
+		{
 			Name: "View Name",
 			Type: discordgo.UserApplicationCommand,
 		},

@@ -7,7 +7,7 @@ import (
 )
 
 func (n *Names) setNameCmd(i *discordgo.InteractionCreate) {
-	// Get guild owner
+	// Check guild owner
 	info, err := n.dg.Guild(i.GuildID)
 	if err != nil {
 		n.Err(err.Error(), i.Interaction)

@@ -36,6 +36,9 @@ func NewNames(d *db.DB) (*Names, error) {
 			case "search":
 				n.searchCmd(i)
 
+			case "unnamed":
+				n.unnamedCmd(i)
+
 			case "View Name":
 				n.getNameCmd(cmd.TargetID, i)
 			}
