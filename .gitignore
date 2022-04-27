@@ -60,5 +60,6 @@ eod/eodb/convdb/data.gob
 restartinfo.gob
 joe_token.txt
 b_token.txt
+names/token.txt
 
 !eod/logs

@@ -15,6 +15,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/elemental"
 	"github.com/Nv7-Github/Nv7Haven/eod"
 	"github.com/Nv7-Github/Nv7Haven/gdo"
+	"github.com/Nv7-Github/Nv7Haven/names"
 	"github.com/Nv7-Github/Nv7Haven/nv7haven"
 	"github.com/Nv7-Github/Nv7Haven/remodrive"
 	"github.com/Nv7-Github/Nv7Haven/single"
@@ -101,6 +102,11 @@ func main() {
 		panic(err)
 	}
 
+	n, err := names.NewNames(db)
+	if err != nil {
+		panic(err)
+	}
+
 	single.InitSingle(app, db)
 	b := discord.InitDiscord(db, e)
 	eodB := eod.InitEoD(db, app)
@@ -162,4 +168,5 @@ func main() {
 	db.Close()
 	j.Close()
 	bsharp.Close()
+	n.Close()
 }
