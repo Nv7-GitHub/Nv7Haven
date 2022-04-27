@@ -6,6 +6,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+const max = 25
+
 func (n *Names) search(i *discordgo.InteractionCreate) {
 	d := i.ApplicationCommandData()
 	val := d.Options[0].StringValue()
@@ -30,6 +32,11 @@ func (n *Names) search(i *discordgo.InteractionCreate) {
 			Name:  nm,
 			Value: nm,
 		})
+	}
+
+	// Limit
+	if len(pars) > max {
+		pars = pars[:max]
 	}
 
 	n.dg.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
