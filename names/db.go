@@ -7,17 +7,6 @@ import (
 )
 
 func (n *Names) setNameCmd(i *discordgo.InteractionCreate) {
-	// Check guild owner
-	info, err := n.dg.Guild(i.GuildID)
-	if err != nil {
-		n.Err(err.Error(), i.Interaction)
-		return
-	}
-	if info.OwnerID != i.Member.User.ID {
-		n.Err("You must be owner to run this command!", i.Interaction)
-		return
-	}
-
 	var user string
 	var name string
 	d := i.ApplicationCommandData()
@@ -32,7 +21,7 @@ func (n *Names) setNameCmd(i *discordgo.InteractionCreate) {
 	}
 
 	// Update in DB
-	_, err = n.db.Exec("REPLACE INTO names_discord (guild, user, name) VALUES(?, ?, ?)", i.GuildID, user, name)
+	_, err := n.db.Exec("REPLACE INTO names_discord (guild, user, name) VALUES(?, ?, ?)", i.GuildID, user, name)
 	if err != nil {
 		n.Err(err.Error(), i.Interaction)
 		return

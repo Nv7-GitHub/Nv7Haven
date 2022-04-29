@@ -8,17 +8,6 @@ import (
 )
 
 func (n *Names) unnamedCmd(i *discordgo.InteractionCreate) {
-	// Check guild owner
-	info, err := n.dg.Guild(i.GuildID)
-	if err != nil {
-		n.Err(err.Error(), i.Interaction)
-		return
-	}
-	if info.OwnerID != i.Member.User.ID {
-		n.Err("You must be owner to run this command!", i.Interaction)
-		return
-	}
-
 	// Get ids of already in DB
 	res, err := n.db.Query("SELECT user FROM names_discord WHERE guild=?", i.GuildID)
 	if err != nil {

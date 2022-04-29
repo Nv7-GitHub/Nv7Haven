@@ -2,12 +2,18 @@ package names
 
 import "github.com/bwmarrin/discordgo"
 
+func PermPtr(v int) *int64 {
+	a := int64(v)
+	return &a
+}
+
 var (
 	commands = []*discordgo.ApplicationCommand{
 		{
-			Name:        "set",
-			Description: "Sets a user's name!",
-			Type:        discordgo.ChatApplicationCommand,
+			Name:                     "set",
+			Description:              "Sets a user's name!",
+			Type:                     discordgo.ChatApplicationCommand,
+			DefaultMemberPermissions: PermPtr(discordgo.PermissionManageServer),
 			Options: []*discordgo.ApplicationCommandOption{
 				{
 					Name:        "user",
@@ -51,10 +57,11 @@ var (
 			},
 		},
 		{
-			Name:        "unnamed",
-			Description: "Find unnamed users!",
-			Type:        discordgo.ChatApplicationCommand,
-			Options:     []*discordgo.ApplicationCommandOption{},
+			Name:                     "unnamed",
+			DefaultMemberPermissions: PermPtr(discordgo.PermissionManageServer),
+			Description:              "Find unnamed users!",
+			Type:                     discordgo.ChatApplicationCommand,
+			Options:                  []*discordgo.ApplicationCommandOption{},
 		},
 		{
 			Name: "View Name",
