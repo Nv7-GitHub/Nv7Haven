@@ -4,10 +4,10 @@ go 1.18
 
 require (
 	github.com/Knetic/govaluate v3.0.0+incompatible
-	github.com/Nv7-Github/average-joe v0.0.0-20211218214027-dd1859d97991
+	github.com/Nv7-Github/average-joe v0.0.0-20220429002151-7a828e7b9d17
 	github.com/Nv7-Github/bsharp v0.0.0-20220313202721-6b77962b469f
 	github.com/Nv7-Github/firebase v0.0.0-20201012033747-47c56e1d869d
-	github.com/bwmarrin/discordgo v0.23.3-0.20220227163103-4b615bec361d
+	github.com/bwmarrin/discordgo v0.23.3-0.20220428212307-9e0783c37f5d
 	github.com/finnbear/moderation v0.11.4
 	github.com/fogleman/gg v1.3.0
 	github.com/go-sql-driver/mysql v1.6.0

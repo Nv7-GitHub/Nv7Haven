@@ -188,7 +188,7 @@ type slashResp struct {
 func (s *slashResp) Error(err error) bool {
 	if err != nil {
 		if s.isFollowup {
-			_, err := s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
+			_, err := s.b.dg.FollowupMessageCreate(s.i.Interaction, true, &discordgo.WebhookParams{
 				Content: "Error: " + err.Error(),
 			})
 			if err != nil {
@@ -217,7 +217,7 @@ func (s *slashResp) Error(err error) bool {
 
 func (s *slashResp) ErrorMessage(msg string) string {
 	if s.isFollowup {
-		m, err := s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
+		m, err := s.b.dg.FollowupMessageCreate(s.i.Interaction, true, &discordgo.WebhookParams{
 			Content: "Error: " + msg,
 		})
 		if err != nil {
@@ -251,7 +251,7 @@ func (s *slashResp) Resp(msg string, components ...discordgo.MessageComponent) {
 
 func (s *slashResp) Message(msg string, components ...discordgo.MessageComponent) string {
 	if s.isFollowup {
-		msg, err := s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
+		msg, err := s.b.dg.FollowupMessageCreate(s.i.Interaction, true, &discordgo.WebhookParams{
 			Content:    msg,
 			Components: components,
 		})
@@ -288,7 +288,7 @@ func (s *slashResp) Embed(emb *discordgo.MessageEmbed, components ...discordgo.M
 		}
 	}
 	if s.isFollowup {
-		msg, err := s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
+		msg, err := s.b.dg.FollowupMessageCreate(s.i.Interaction, true, &discordgo.WebhookParams{
 			Embeds:     []*discordgo.MessageEmbed{emb},
 			Components: components,
 		})
@@ -349,7 +349,7 @@ func (s *slashResp) DM(msg string) {
 
 func (s *slashResp) Attachment(text string, files []*discordgo.File) {
 	if s.isFollowup {
-		s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
+		s.b.dg.FollowupMessageCreate(s.i.Interaction, true, &discordgo.WebhookParams{
 			Content: text,
 			Files:   files,
 		})
