@@ -59,6 +59,22 @@ var SortChoices = []*discordgo.ApplicationCommandOptionChoice{
 		Name:  "Found",
 		Value: "found",
 	},
+	{
+		Name:  "Air",
+		Value: "air",
+	},
+	{
+		Name:  "Earth",
+		Value: "earth",
+	},
+	{
+		Name:  "Fire",
+		Value: "fire",
+	},
+	{
+		Name:  "Water",
+		Value: "water",
+	},
 }
 
 var sorts = map[string]func(a, b int, db *eodb.DB, data any) bool{
@@ -154,6 +170,38 @@ var sorts = map[string]func(a, b int, db *eodb.DB, data any) bool{
 		}
 		return v1 < v2
 	},
+	"air": func(a, b int, db *eodb.DB, data any) bool {
+		el1, res := db.GetElement(a, true)
+		el2, res2 := db.GetElement(b, true)
+		if !res.Exists || !res2.Exists {
+			return false
+		}
+		return el1.Air.Cmp(el2.Air) == -1
+	},
+	"earth": func(a, b int, db *eodb.DB, data any) bool {
+		el1, res := db.GetElement(a, true)
+		el2, res2 := db.GetElement(b, true)
+		if !res.Exists || !res2.Exists {
+			return false
+		}
+		return el1.Earth.Cmp(el2.Earth) == -1
+	},
+	"fire": func(a, b int, db *eodb.DB, data any) bool {
+		el1, res := db.GetElement(a, true)
+		el2, res2 := db.GetElement(b, true)
+		if !res.Exists || !res2.Exists {
+			return false
+		}
+		return el1.Fire.Cmp(el2.Fire) == -1
+	},
+	"water": func(a, b int, db *eodb.DB, data any) bool {
+		el1, res := db.GetElement(a, true)
+		el2, res2 := db.GetElement(b, true)
+		if !res.Exists || !res2.Exists {
+			return false
+		}
+		return el1.Water.Cmp(el2.Water) == -1
+	},
 }
 
 var getters = map[string]func(el types.Element, data any) string{
@@ -191,6 +239,18 @@ var getters = map[string]func(el types.Element, data any) string{
 			return " " + types.Check
 		}
 		return " " + types.X
+	},
+	"air": func(el types.Element, data any) string {
+		return fmt.Sprintf(" - %s", util.FormatBigInt(el.Air))
+	},
+	"earth": func(el types.Element, data any) string {
+		return fmt.Sprintf(" - %s", util.FormatBigInt(el.Earth))
+	},
+	"fire": func(el types.Element, data any) string {
+		return fmt.Sprintf(" - %s", util.FormatBigInt(el.Fire))
+	},
+	"water": func(el types.Element, data any) string {
+		return fmt.Sprintf(" - %s", util.FormatBigInt(el.Water))
 	},
 }
 
