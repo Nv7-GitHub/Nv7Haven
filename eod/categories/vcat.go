@@ -288,3 +288,53 @@ func (b *Categories) CacheVCats() {
 		}
 	}
 }
+
+func (b *Categories) VCatCreateInvhint(name string, elemName string, m types.Msg, rsp types.Rsp) {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
+		return
+	}
+
+	rsp.Acknowledge()
+
+	// Check if exists
+	cat, res := db.GetCat(name)
+	if res.Exists {
+		rsp.ErrorMessage(db.Config.LangProperty("CatAlreadyExist", cat.Name))
+		return
+	}
+	vcat, res := db.GetVCat(name)
+	if res.Exists {
+		rsp.ErrorMessage(db.Config.LangProperty("CatAlreadyExist", vcat.Name))
+		return
+	}
+
+	// Get elem
+	elem, res := db.GetElementByName(elemName)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
+		return
+	}
+
+	// Create
+	if strings.ToLower(name) == name {
+		name = util.ToTitle(name)
+	}
+	if len(url.PathEscape(name)) > 1024 {
+		rsp.ErrorMessage(db.Config.LangProperty("CatNameTooLong", nil))
+		return
+	}
+	vcat = &types.VirtualCategory{
+		Name:  name,
+		Guild: m.GuildID,
+		Rule:  types.VirtualCategoryRuleInvhint,
+		Data: types.VirtualCategoryData{
+			"element": float64(elem.ID),
+		},
+	}
+	err := db.SaveVCat(vcat)
+	if rsp.Error(err) {
+		return
+	}
+	rsp.Message("Created Virtual Category!") // TODO: Translate
+}

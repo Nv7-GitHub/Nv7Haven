@@ -235,6 +235,7 @@ const (
 	VirtualCategoryRuleInvFilter    VirtualCategoryRuleType = 1
 	VirtualCategoryRuleSetOperation VirtualCategoryRuleType = 2
 	VirtualCategoryRuleAllElements  VirtualCategoryRuleType = 3
+	VirtualCategoryRuleInvhint      VirtualCategoryRuleType = 4
 )
 
 type VirtualCategoryData map[string]any

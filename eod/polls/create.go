@@ -214,4 +214,17 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 		}
 	}
 	db.RUnlock()
+
+	// Check if exists in any invhint caches
+	base.Invhintlock.RLock()
+	gld, exists := base.Invhint[guild]
+	base.Invhintlock.RUnlock()
+	if exists {
+		for _, elem := range parents {
+			els, exists := gld[elem]
+			if exists {
+				els[el.ID] = types.Empty{}
+			}
+		}
+	}
 }

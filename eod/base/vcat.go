@@ -2,6 +2,8 @@ package base
 
 import (
 	"regexp"
+	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
@@ -31,6 +33,10 @@ var Allelements = make(map[string]map[int]types.Empty)
 var Madebylock = &sync.RWMutex{}
 
 var Madeby = make(map[string]map[string]map[int]types.Empty)
+
+var Invhintlock = &sync.RWMutex{}
+
+var Invhint = make(map[string]map[int]map[int]types.Empty) // [guild][elem][elems within]
 
 func (b *Base) VCatDependencies(cat string, deps *map[string]types.Empty, db *eodb.DB, notfirst ...bool) {
 	_, exists := (*deps)[cat]
@@ -242,6 +248,47 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types
 			Allelements[db.Guild] = out
 			Elemlock.Unlock()
 		}
+
+	case types.VirtualCategoryRuleInvhint:
+		id := int(vcat.Data["element"].(float64))
+		Invhintlock.RLock()
+		gld, exists := Invhint[vcat.Guild]
+		Invhintlock.RUnlock()
+		if exists {
+			Invhintlock.RLock()
+			res, exists := gld[id]
+			Invhintlock.RUnlock()
+			if exists {
+				return res, types.GetResponse{Exists: true}
+			}
+		} else {
+			Invhintlock.Lock()
+			gld = make(map[int]map[int]types.Empty)
+			Invhint[vcat.Guild] = gld
+			Invhintlock.Unlock()
+		}
+
+		// Calculate
+		ids := make(map[int]types.Empty)
+		db.RLock()
+		for elems, elem3 := range db.Combos() {
+			parts := strings.Split(elems, "+")
+			for _, part := range parts {
+				num, err := strconv.Atoi(part)
+				if err != nil {
+					continue
+				}
+				if num == id {
+					ids[elem3] = types.Empty{}
+					break
+				}
+			}
+		}
+		db.RUnlock()
+
+		Invhintlock.Lock()
+		gld[id] = ids
+		Invhintlock.Unlock()
 	}
 
 	return out, types.GetResponse{Exists: true}

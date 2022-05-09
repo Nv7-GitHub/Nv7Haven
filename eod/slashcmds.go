@@ -1514,6 +1514,26 @@ var (
 						},
 					},
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "invhint",
+					Description: "Create a virtual category from the invhint of an element!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "name",
+							Description: "The name of the virtual category!",
+							Required:    true,
+						},
+						{
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "element",
+							Description:  "The name of the element!",
+							Required:     true,
+							Autocomplete: true,
+						},
+					},
+				},
 			},
 		},
 	}
@@ -2314,8 +2334,12 @@ var (
 					filter = resp.Options[2].StringValue()
 				}
 				bot.categories.VCatCreateInvFilterCmd(resp.Options[0].StringValue(), resp.Options[1].UserValue(bot.dg).ID, filter, bot.newMsgSlash(i), bot.newRespSlash(i))
+
 			case "catop":
 				bot.categories.VCatOpCmd(types.CategoryOperation(resp.Options[1].StringValue()), resp.Options[0].StringValue(), resp.Options[2].StringValue(), resp.Options[3].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+
+			case "invhint":
+				bot.categories.VCatCreateInvhint(resp.Options[0].StringValue(), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
 		},
 		"delvcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -2687,9 +2711,23 @@ var (
 			}
 			ind, name := getFocused(data.Options)
 			if !strings.HasPrefix(name, "category") {
+				// Elements
+				if name != "element" {
+					return
+				}
+				names, res := bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
+				if !res.Exists {
+					return
+				}
+				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+					Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+					Data: &discordgo.InteractionResponseData{
+						Choices: stringsToAutocomplete(names),
+					},
+				})
 				return
 			}
-			names, res := bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
+			names, res := bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
 			if !res.Exists {
 				return
 			}
