@@ -2706,7 +2706,7 @@ var (
 		},
 		"vcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			data := i.ApplicationCommandData().Options[0]
-			if data.Name != "catop" {
+			if data.Name != "catop" && data.Name != "invhint" {
 				return
 			}
 			ind, name := getFocused(data.Options)
