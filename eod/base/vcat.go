@@ -289,6 +289,8 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types
 		Invhintlock.Lock()
 		gld[id] = ids
 		Invhintlock.Unlock()
+
+		out = ids
 	}
 
 	return out, types.GetResponse{Exists: true}
