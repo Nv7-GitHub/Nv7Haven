@@ -10,6 +10,7 @@ fn index() -> rocket::response::Redirect {
 
 #[launch]
 fn rocket() -> _ {
+    println!("Started!");
     rocket::build()
         .mount("/", routes![index])
         .mount("/crufst", routes![crufst::newgame, crufst::join, crufst::events, crufst::place])
