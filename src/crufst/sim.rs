@@ -51,6 +51,7 @@ impl Board {
 
     // Update board
     self.cells[col][last] = Cell::Filled(pl);
+    self.last_turn = pl;
 
     // Check for connect 4
     for offset_col in -1..2 {

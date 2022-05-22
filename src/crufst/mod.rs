@@ -11,11 +11,13 @@ mod sim;
 
 /*
 View in browser by:
-1. Go to /crufst/new
+1. Go to http://127.0.0.1:49154/crufst/new
 2. Execute 
 new EventSource("http://127.0.0.1:49154/crufst/events/" + document.body.innerText)
 3. Execute
 await (await fetch("http://127.0.0.1:49154/crufst/join/" + document.body.innerText)).text()
+3. Execute
+await (await fetch("http://127.0.0.1:49154/crufst/place/" + document.body.innerText, {method: "POST", body: `{"player": "Owner", "col": 3}`})).text()
 4. View messages in Network tab
 */
 
