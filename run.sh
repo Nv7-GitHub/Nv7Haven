@@ -11,6 +11,6 @@ go build -o main -tags="arm_logs" -ldflags="-s -w"
 
 echo "Running..."
 until ./main; do
-  echo "Server 'nv7haven' crashed with exit code $?.  Respawning.." >&2
+  echo "Go crashed with exit code $?.  Respawning.." >&2
   sleep 1
 done

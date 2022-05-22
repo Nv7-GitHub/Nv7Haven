@@ -63,3 +63,8 @@ b_token.txt
 names/token.txt
 
 !eod/logs
+
+
+# Added by cargo
+
+/target
