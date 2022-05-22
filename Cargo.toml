@@ -2,8 +2,10 @@
 name = "nv7haven"
 version = "1.0.0"
 edition = "2021"
+publish = false
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rocket = "0.4.10"
+rocket = {version = "0.5.0-rc.2", features = ["json"] }
+random-string = "1.0.0"
