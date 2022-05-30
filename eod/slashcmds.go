@@ -446,22 +446,10 @@ var (
 			Description: "Get your server's stats!",
 		},
 		{
-			Name:        "resetinv",
-			Type:        discordgo.ChatApplicationCommand,
-			Description: "Reset a user's inventory!",
-			Options: []*discordgo.ApplicationCommandOption{
-				{
-					Type:        discordgo.ApplicationCommandOptionUser,
-					Name:        "user",
-					Description: "The user to reset the inventory of!",
-					Required:    true,
-				},
-			},
-		},
-		{
-			Name:        "give",
-			Type:        discordgo.ChatApplicationCommand,
-			Description: "Give elements to a user!",
+			Name:                     "give",
+			Type:                     discordgo.ChatApplicationCommand,
+			DefaultMemberPermissions: Ptr(int64(discordgo.PermissionManageServer)),
+			Description:              "Give elements to a user!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
 					Type:        discordgo.ApplicationCommandOptionSubCommand,
@@ -1184,10 +1172,31 @@ var (
 			},
 		},
 		{
-			Name:        "resetpolls",
-			Type:        discordgo.ChatApplicationCommand,
-			Description: "Reset the polls!",
-			Options:     []*discordgo.ApplicationCommandOption{},
+			Name:                     "reset",
+			DefaultMemberPermissions: Ptr(int64(discordgo.PermissionManageServer)),
+			Type:                     discordgo.ChatApplicationCommand,
+			Description:              "Reset something!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "polls",
+					Description: "Reset the polls!",
+					Options:     []*discordgo.ApplicationCommandOption{},
+				},
+				{
+					Name:        "resetinv",
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Description: "Reset a user's inventory!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionUser,
+							Name:        "user",
+							Description: "The user to reset the inventory of!",
+							Required:    true,
+						},
+					},
+				},
+			},
 		},
 		{
 			Name:        "ping",
@@ -1675,9 +1684,14 @@ var (
 		"stats": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.basecmds.StatsCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
-		"resetinv": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			bot.elements.ResetInvCmd(resp.Options[0].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+		"reset": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData().Options[0]
+			switch resp.Name {
+			case "polls":
+				bot.polls.ResetPolls(bot.newMsgSlash(i), bot.newRespSlash(i))
+			case "inv":
+				bot.elements.ResetInvCmd(resp.Options[0].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+			}
 		},
 		"give": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData().Options[0]
@@ -2176,9 +2190,6 @@ var (
 		},
 		"View Inventory Breakdown": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.treecmds.InvBreakdownCmd(i.ApplicationCommandData().TargetID, false, bot.newMsgSlash(i), bot.newRespSlash(i))
-		},
-		"resetpolls": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bot.polls.ResetPolls(bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"color": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData().Options[0]
