@@ -13,12 +13,17 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+func Ptr[T any](v T) *T {
+	return &v
+}
+
 var (
 	commands = []*discordgo.ApplicationCommand{
 		{
-			Name:        "set",
-			Type:        discordgo.ChatApplicationCommand,
-			Description: "Updates server data!",
+			Name:                     "set",
+			Type:                     discordgo.ChatApplicationCommand,
+			Description:              "Updates server data!",
+			DefaultMemberPermissions: Ptr(int64(discordgo.PermissionManageServer)),
 			Options: []*discordgo.ApplicationCommandOption{
 				{
 					Type:        discordgo.ApplicationCommandOptionSubCommand,

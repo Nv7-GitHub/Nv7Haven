@@ -43,7 +43,7 @@ func UpdateBotCommands(dg *discordgo.Session, clientID string, guild string, com
 }
 
 func commandsAreEqual(a *discordgo.ApplicationCommand, b *discordgo.ApplicationCommand) bool {
-	if a.Name != b.Name || a.Description != b.Description || len(a.Options) != len(b.Options) {
+	if a.Name != b.Name || a.Description != b.Description || len(a.Options) != len(b.Options) || a.DefaultMemberPermissions != nil && b.DefaultMemberPermissions == nil || a.DefaultMemberPermissions == nil && b.DefaultMemberPermissions != nil || (a.DefaultMemberPermissions != nil && b.DefaultMemberPermissions != nil && *a.DefaultMemberPermissions != *b.DefaultMemberPermissions) {
 		return false
 	}
 
