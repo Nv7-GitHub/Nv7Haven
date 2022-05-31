@@ -19,7 +19,7 @@ func (n *normalResp) Error(err error) bool {
 		n.b.dg.ChannelTyping(n.msg.ChannelID)
 	}
 	if err != nil {
-		_, err := n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" Error: "+err.Error()+" "+types.RedCircle)
+		_, err := n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" "+err.Error()+" "+types.RedCircle)
 		if err != nil {
 			log.SetOutput(logs.DiscordLogs)
 			log.Println(err)
@@ -189,7 +189,7 @@ func (s *slashResp) Error(err error) bool {
 	if err != nil {
 		if s.isFollowup {
 			_, err := s.b.dg.FollowupMessageCreate(s.i.Interaction, true, &discordgo.WebhookParams{
-				Content: "Error: " + err.Error(),
+				Content: err.Error(),
 			})
 			if err != nil {
 				log.SetOutput(logs.DiscordLogs)
@@ -201,7 +201,7 @@ func (s *slashResp) Error(err error) bool {
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Flags:   1 << 6,
-					Content: "Error: " + err.Error(),
+					Content: err.Error(),
 				},
 			})
 			if err != nil {
@@ -218,7 +218,7 @@ func (s *slashResp) Error(err error) bool {
 func (s *slashResp) ErrorMessage(msg string) string {
 	if s.isFollowup {
 		m, err := s.b.dg.FollowupMessageCreate(s.i.Interaction, true, &discordgo.WebhookParams{
-			Content: "Error: " + msg,
+			Content: msg,
 		})
 		if err != nil {
 			log.SetOutput(logs.DiscordLogs)
@@ -232,7 +232,7 @@ func (s *slashResp) ErrorMessage(msg string) string {
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
 			Flags:   1 << 6,
-			Content: "Error: " + msg,
+			Content: msg,
 		},
 	})
 	return ""
