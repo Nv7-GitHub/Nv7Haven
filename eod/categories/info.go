@@ -49,7 +49,7 @@ func (b *Categories) InfoCmd(catName string, m types.Msg, rsp types.Rsp) {
 	emb := &discordgo.MessageEmbed{
 		Title: fmt.Sprintf("%s Info", vcat.Name),
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
-			URL: cat.Image,
+			URL: vcat.Image,
 		},
 		Fields: []*discordgo.MessageEmbedField{
 			{Name: db.Config.LangProperty("ElementCount", nil), Value: strconv.Itoa(len(els)), Inline: true},
@@ -57,7 +57,7 @@ func (b *Categories) InfoCmd(catName string, m types.Msg, rsp types.Rsp) {
 			{Name: db.Config.LangProperty("InfoColorer", nil), Value: fmt.Sprintf("<@%s>", vcat.Colorer), Inline: true},
 			{Name: "Kind", Value: vcat.Rule.String()}, // TODO: Translate
 		},
-		Color: cat.Color,
+		Color: vcat.Color,
 	}
 
 	// TODO: Translate fields below
