@@ -175,6 +175,13 @@ func (b *TreeCmds) ElemGraphCmd(elem string, layout string, outputType string, d
 		rsp.ErrorMessage(res.Message)
 		return
 	}
+
+	inv := db.GetInv(m.Author.ID)
+	if !inv.Contains(el.ID) {
+		rsp.ErrorMessage(db.Config.LangProperty("MustHaveElemForPath", el.Name))
+		return
+	}
+
 	b.graphCmd(map[int]types.Empty{el.ID: {}}, db, m, layout, outputType, elem, distinctPrimary, rsp)
 }
 
@@ -208,6 +215,14 @@ func (b *TreeCmds) CatGraphCmd(catName, layout, outputType string, distinctPrima
 		}
 		cat.Lock.RUnlock()
 		catName = cat.Name
+	}
+
+	inv := db.GetInv(m.Author.ID)
+	for k := range els {
+		if !inv.Contains(k) {
+			rsp.ErrorMessage(db.Config.LangProperty("MustHaveCatForPath", catName))
+			return
+		}
 	}
 
 	b.graphCmd(els, db, m, layout, outputType, catName, distinctPrimary, rsp)

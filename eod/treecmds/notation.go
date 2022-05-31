@@ -23,6 +23,11 @@ func (b *TreeCmds) NotationCmd(elem string, m types.Msg, rsp types.Rsp) {
 		rsp.ErrorMessage(res.Message)
 		return
 	}
+	inv := db.GetInv(m.Author.ID)
+	if !inv.Contains(el.ID) {
+		rsp.ErrorMessage(db.Config.LangProperty("MustHaveElemForPath", el.Name))
+		return
+	}
 
 	db.RLock()
 	msg, suc := tree.AddElem(el.ID)
@@ -94,6 +99,14 @@ func (b *TreeCmds) CatNotationCmd(catName string, m types.Msg, rsp types.Rsp) {
 		lock = catv.Lock
 		els = catv.Elements
 		catName = catv.Name
+	}
+
+	inv := db.GetInv(m.Author.ID)
+	for k := range els {
+		if !inv.Contains(k) {
+			rsp.ErrorMessage(db.Config.LangProperty("MustHaveCatForPath", catName))
+			return
+		}
 	}
 
 	db.RLock()

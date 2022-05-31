@@ -42,13 +42,6 @@ func (b *EoD) initHandlers() {
 		switch i.Type {
 		// Command
 		case discordgo.InteractionApplicationCommand:
-			rsp := b.newRespSlash(i)
-			canRun, msg := b.canRunCmd(i)
-			if !canRun {
-				rsp.ErrorMessage(msg)
-				return
-			}
-
 			if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
 				h(s, i)
 			}

@@ -22,6 +22,14 @@ func (b *TreeCmds) CalcTreeCmd(elem string, m types.Msg, rsp types.Rsp) {
 		rsp.ErrorMessage(res.Message)
 		return
 	}
+
+	// Check if can
+	inv := db.GetInv(m.Author.ID)
+	if !inv.Contains(el.ID) {
+		rsp.ErrorMessage(db.Config.LangProperty("MustHaveElemForPath", el.Name))
+		return
+	}
+
 	txt, suc, msg := trees.CalcTree(db, el.ID)
 	if !suc {
 		rsp.ErrorMessage(msg)
@@ -92,6 +100,15 @@ func (b *TreeCmds) CalcTreeCatCmd(catName string, m types.Msg, rsp types.Rsp) {
 		}
 		catv.Lock.RUnlock()
 		catName = catv.Name
+	}
+
+	// Check if can
+	inv := db.GetInv(m.Author.ID)
+	for k := range els {
+		if !inv.Contains(k) {
+			rsp.ErrorMessage(db.Config.LangProperty("MustHaveCatForPath", catName))
+			return
+		}
 	}
 
 	txt, suc, msg := trees.CalcTreeCat(db, els)
