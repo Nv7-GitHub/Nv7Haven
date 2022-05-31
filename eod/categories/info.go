@@ -53,8 +53,8 @@ func (b *Categories) InfoCmd(catName string, m types.Msg, rsp types.Rsp) {
 		},
 		Fields: []*discordgo.MessageEmbedField{
 			{Name: db.Config.LangProperty("ElementCount", nil), Value: strconv.Itoa(len(els)), Inline: true},
-			{Name: db.Config.LangProperty("InfoImager", nil), Value: fmt.Sprintf("<@%s>", cat.Imager), Inline: true},
-			{Name: db.Config.LangProperty("InfoColorer", nil), Value: fmt.Sprintf("<@%s>", cat.Colorer), Inline: true},
+			{Name: db.Config.LangProperty("InfoImager", nil), Value: fmt.Sprintf("<@%s>", vcat.Imager), Inline: true},
+			{Name: db.Config.LangProperty("InfoColorer", nil), Value: fmt.Sprintf("<@%s>", vcat.Colorer), Inline: true},
 			{Name: "Kind", Value: vcat.Rule.String()}, // TODO: Translate
 		},
 		Color: cat.Color,
