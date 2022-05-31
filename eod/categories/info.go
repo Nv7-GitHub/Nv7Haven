@@ -55,7 +55,7 @@ func (b *Categories) InfoCmd(catName string, m types.Msg, rsp types.Rsp) {
 			{Name: db.Config.LangProperty("ElementCount", nil), Value: strconv.Itoa(len(els)), Inline: true},
 			{Name: db.Config.LangProperty("InfoImager", nil), Value: fmt.Sprintf("<@%s>", vcat.Imager), Inline: true},
 			{Name: db.Config.LangProperty("InfoColorer", nil), Value: fmt.Sprintf("<@%s>", vcat.Colorer), Inline: true},
-			{Name: "Kind", Value: vcat.Rule.String()}, // TODO: Translate
+			{Name: "Kind", Value: vcat.Rule.String(), Inline: true}, // TODO: Translate
 		},
 		Color: vcat.Color,
 	}
@@ -63,7 +63,7 @@ func (b *Categories) InfoCmd(catName string, m types.Msg, rsp types.Rsp) {
 	// TODO: Translate fields below
 	switch vcat.Rule {
 	case types.VirtualCategoryRuleRegex:
-		emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{Name: "Regex", Value: vcat.Data["regex"].(string), Inline: true})
+		emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{Name: "Regex", Value: "`" + vcat.Data["regex"].(string) + "`", Inline: true})
 
 	case types.VirtualCategoryRuleInvFilter:
 		emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{Name: "User", Value: fmt.Sprintf("<@%s>", vcat.Data["user"].(string)), Inline: true})
