@@ -1495,6 +1495,7 @@ var (
 						{
 							Type:         discordgo.ApplicationCommandOptionString,
 							Name:         "category",
+							Description:  "The name of the category!",
 							Required:     true,
 							Autocomplete: true,
 						},
@@ -1508,6 +1509,7 @@ var (
 						{
 							Type:         discordgo.ApplicationCommandOptionString,
 							Name:         "element",
+							Description:  "The name of the element!",
 							Required:     true,
 							Autocomplete: true,
 						},
@@ -1519,9 +1521,10 @@ var (
 					Description: "Get an element's info by it's ID!",
 					Options: []*discordgo.ApplicationCommandOption{
 						{
-							Type:     discordgo.ApplicationCommandOptionInteger,
-							Name:     "id",
-							Required: true,
+							Type:        discordgo.ApplicationCommandOptionInteger,
+							Name:        "id",
+							Description: "The ID of the element!",
+							Required:    true,
 						},
 					},
 				},
