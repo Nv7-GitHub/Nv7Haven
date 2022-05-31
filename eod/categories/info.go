@@ -47,7 +47,7 @@ func (b *Categories) InfoCmd(catName string, m types.Msg, rsp types.Rsp) {
 
 	// VCat info
 	emb := &discordgo.MessageEmbed{
-		Title: fmt.Sprintf("%s Info", cat.Name),
+		Title: fmt.Sprintf("%s Info", vcat.Name),
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
 			URL: cat.Image,
 		},
