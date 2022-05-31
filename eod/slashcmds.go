@@ -884,26 +884,6 @@ var (
 						},
 					},
 				},
-				{
-					Type:        discordgo.ApplicationCommandOptionSubCommand,
-					Name:        "info",
-					Description: "Get the info of an element!",
-					Options: []*discordgo.ApplicationCommandOption{
-						{
-							Type:         discordgo.ApplicationCommandOptionString,
-							Name:         "element",
-							Description:  "Name of the element!",
-							Autocomplete: true,
-							Required:     false,
-						},
-						{
-							Type:        discordgo.ApplicationCommandOptionInteger,
-							Name:        "id",
-							Description: "ID of the element!",
-							Required:    false,
-						},
-					},
-				},
 			},
 		},
 		{
@@ -1502,6 +1482,51 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "info",
+			Type:        discordgo.ChatApplicationCommand,
+			Description: "Get the info on an element or category!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "category",
+					Description: "Get the info of a category!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "category",
+							Required:     true,
+							Autocomplete: true,
+						},
+					},
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "element",
+					Description: "Get the info of an element!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "element",
+							Required:     true,
+							Autocomplete: true,
+						},
+					},
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "id",
+					Description: "Get an element's info by it's ID!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:     discordgo.ApplicationCommandOptionInteger,
+							Name:     "id",
+							Required: true,
+						},
+					},
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"set": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -1969,34 +1994,19 @@ var (
 
 			case "categories":
 				bot.categories.CategoriesCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			}
+		},
+		"info": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData().Options[0]
+			switch resp.Name {
+			case "element":
+				bot.elements.InfoCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 
-			case "info":
-				elem := ""
-				isID := false
-				for _, opt := range resp.Options {
-					if opt.Name == "element" {
-						elem = opt.StringValue()
-					}
+			case "id":
+				bot.elements.InfoCmd(fmt.Sprintf("#%d", resp.Options[0].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
 
-					if opt.Name == "id" {
-						elem = fmt.Sprintf("#%d", opt.IntValue())
-						isID = true
-					}
-				}
-				db, res := bot.GetDB(i.GuildID)
-				if !res.Exists {
-					return
-				}
-				rsp := bot.newRespSlash(i)
-				if elem == "" {
-					rsp.ErrorMessage(db.Config.LangProperty("MustHaveElemOrID", nil))
-					return
-				}
-				if isID && elem != "" {
-					rsp.ErrorMessage(db.Config.LangProperty("CannotHaveBothElemAndID", nil))
-					return
-				}
-				bot.elements.Info(elem, bot.newMsgSlash(i), rsp)
+			case "category":
+				bot.categories.InfoCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
 		},
 		"setcolor": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -2318,6 +2328,31 @@ var (
 			names, res := bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[0].StringValue())
 			if !res.Exists {
 				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
+		"info": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData().Options[0]
+
+			var names []string
+			var res types.GetResponse
+			switch data.Options[0].Name {
+			case "element":
+				names, res = bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[0].StringValue())
+				if !res.Exists {
+					return
+				}
+
+			case "category":
+				names, res = bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[0].StringValue())
+				if !res.Exists {
+					return
+				}
 			}
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionApplicationCommandAutocompleteResult,

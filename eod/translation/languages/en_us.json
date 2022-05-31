@@ -46,6 +46,7 @@
 
   "Stats": "Element Count: **{{ .Elements }}**\nCombination Count: **{{ .Combos }}**\nMember Count: **{{ .Members }}**\nElements Found: **{{ .Found }}**\nElements Categorized: **{{ .Categorized }}**",
   "ViewMoreStats": "View More Stats",
+  "ElementCount": "Element Count",
   
   "ElemCategories": "{{ .Element }} Categories ({{ .Count }})",
   "NameDownloadedCat": "Category **{{ . }}**",

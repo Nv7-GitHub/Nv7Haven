@@ -209,13 +209,12 @@
   "MustHaveElemForPath": "Tell the user they must have the element to get its path.",
   "MustHaveCatForPath": "Tell the user they must have every element in the category to get its path.",
 
-  "MustHaveElemOrID": "Tell the user that they must input either an element or an element ID.",
-  "CannotHaveBothElemAndID": "Tell the user that they cannot input both an element and an element ID.",
   "CannotHaveBothElemAndCat": "Tell the user that they cannot input both an element and a category.",
   "IDCannotBeNegative": "Tell the user their element ID cannot be negative.",
   "DBNoCombo": "Tell the user the combo doesn't exist.",
   "PollNoExist": "Tell the user the poll doesn't exist.",
   "CalculatingPing": "Tell the user that the bot is calculating the ping.",
+  "ElementCount": "Tell the user the number of elements.",
 
   "SentWordCloud": "Tell the user the word cloud was sent in their DMs.",
   "WordCloudElem": "Tell the user which element the word cloud is for."

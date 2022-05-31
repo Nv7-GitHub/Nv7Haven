@@ -238,6 +238,10 @@ const (
 	VirtualCategoryRuleInvhint      VirtualCategoryRuleType = 4
 )
 
+func (v VirtualCategoryRuleType) String() string {
+	return [...]string{"Regex", "Inventory", "Operation", "All Elements", "Invhint"}[v]
+}
+
 type VirtualCategoryData map[string]any
 
 type CategoryOperation string
