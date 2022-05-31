@@ -24,6 +24,7 @@ func UpdateBotCommands(dg *discordgo.Session, clientID string, guild string, com
 			_, err := dg.ApplicationCommandCreate(clientID, guild, val)
 			if err != nil {
 				fmt.Printf("Failed to update command %s\n", val.Name)
+				fmt.Println("Error:", err)
 			} else {
 				fmt.Printf("Updated command %s\n", val.Name)
 			}
