@@ -1,7 +1,6 @@
 package elements
 
 import (
-	"fmt"
 	"regexp"
 	"sort"
 	"strings"
@@ -111,11 +110,10 @@ func (b *Elements) SearchCmd(search string, sort string, source string, opt stri
 				if !res.Exists {
 					continue
 				}
-				name := []rune(elem.Name)
+				name := []byte(elem.Name)
 				pos := strings.Index(strings.ToLower(el), s)
-				fmt.Println(elem.Name, s, pos)
-				name = append(name[:pos+len(s)], append([]rune("**"), name[pos+len(s):]...)...)
-				name = append(name[:pos], append([]rune("**"), name[pos:]...)...)
+				name = append(name[:pos+len(s)], append([]byte("**"), name[pos+len(s):]...)...)
+				name = append(name[:pos], append([]byte("**"), name[pos:]...)...)
 
 				results = append(results, searchResult{name: string(name), id: elem.ID})
 			}
