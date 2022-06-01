@@ -41,20 +41,22 @@ func (b *Polls) RejectPoll(db *eodb.DB, p types.Poll, messageid, user, lasted st
 	}
 }
 
-func (b *Polls) CheckReactions(db *eodb.DB, p types.Poll, reactor string, downvote bool) {
+func (b *Polls) CheckReactions(db *eodb.DB, p types.Poll, reactor string, downvote bool) bool {
 	if (p.Upvotes - p.Downvotes) >= db.Config.VoteCount {
 		b.dg.ChannelMessageDelete(p.Channel, p.Message)
 		b.handlePollSuccess(p)
 
 		db.DeletePoll(p)
-		return
+		return true
 	}
 
 	if ((p.Downvotes - p.Upvotes) >= db.Config.VoteCount) || (downvote && (reactor == p.Suggestor)) {
 		b.RejectPoll(db, p, p.Message, reactor, b.getLasted(db, p))
 
-		return
+		return true
 	}
+
+	return false
 }
 
 func (b *Polls) UnReactionHandler(_ *discordgo.Session, r *discordgo.MessageReactionRemove) {

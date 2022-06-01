@@ -76,9 +76,9 @@ func (b *EoD) init(app *fiber.App) {
 			}
 
 			lastDown := downs[len(downs)-1].ID
-			b.polls.CheckReactions(db, po, lastDown, false)
-
-			db.SavePoll(po)
+			if !b.polls.CheckReactions(db, po, lastDown, false) {
+				db.SavePoll(po)
+			}
 			bar.Add(1)
 		}
 	}
