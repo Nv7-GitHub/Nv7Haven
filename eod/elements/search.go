@@ -112,8 +112,8 @@ func (b *Elements) SearchCmd(search string, sort string, source string, opt stri
 				}
 				name := []rune(elem.Name)
 				pos := strings.Index(strings.ToLower(el), s)
+				name = append(name[:pos+len(s)], append([]rune("**"), name[pos+len(s):]...)...)
 				name = append(name[:pos], append([]rune("**"), name[pos:]...)...)
-				name = append(name[:pos+len(s)+2], append([]rune("**"), name[pos+len(s)+2:]...)...)
 
 				results = append(results, searchResult{name: string(name), id: elem.ID})
 			}
