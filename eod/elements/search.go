@@ -1,6 +1,7 @@
 package elements
 
 import (
+	"fmt"
 	"regexp"
 	"sort"
 	"strings"
@@ -112,6 +113,7 @@ func (b *Elements) SearchCmd(search string, sort string, source string, opt stri
 				}
 				name := []rune(elem.Name)
 				pos := strings.Index(strings.ToLower(el), s)
+				fmt.Println(elem.Name, s, pos)
 				name = append(name[:pos+len(s)], append([]rune("**"), name[pos+len(s):]...)...)
 				name = append(name[:pos], append([]rune("**"), name[pos:]...)...)
 
