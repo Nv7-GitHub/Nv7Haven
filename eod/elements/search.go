@@ -91,13 +91,17 @@ func (b *Elements) SearchCmd(search string, sort string, source string, opt stri
 		}
 		db.RLock()
 		for el := range list {
-			m := reg.Find([]byte(el))
+			m := reg.FindIndex([]byte(el))
 			if m != nil {
-				el, res := db.GetElementByName(string(m), true)
+				el, res := db.GetElementByName(el, true)
 				if !res.Exists {
 					continue
 				}
-				results = append(results, searchResult{name: el.Name, id: el.ID})
+				name := []byte(el.Name)
+				name = append(name[:m[1]], append([]byte("**"), name[m[1]:]...)...)
+				name = append(name[:m[0]], append([]byte("**"), name[m[0]:]...)...)
+
+				results = append(results, searchResult{name: string(name), id: el.ID})
 			}
 		}
 		db.RUnlock()
