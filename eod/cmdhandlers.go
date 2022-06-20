@@ -38,20 +38,38 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if strings.HasPrefix(m.Content, "+") && len(m.Content) > 1 {
 		m.Content = strings.TrimSpace(m.Content[1:])
+		if !b.base.CheckServer(msg, rsp) {
+			return
+		}
+
+		data, res := b.GetData(msg.GuildID)
+		if !res.Exists {
+			return
+		}
+		db, res := b.GetDB(msg.GuildID)
+		if !res.Exists {
+			return
+		}
+
+		// Get last
+		comb, res := data.GetComb(msg.Author.ID)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		if comb.Elem3 == -1 {
+			txt := make([]string, len(comb.Elems))
+			for i, elem := range comb.Elems {
+				el, _ := db.GetElement(elem)
+				txt[i] = el.Name
+			}
+			b.basecmds.Combine(txt, msg, rsp)
+			return
+		}
+		el, _ := db.GetElement(comb.Elem3)
+
 		for _, comb := range combs {
 			if strings.Contains(m.Content, comb) {
-				if !b.base.CheckServer(msg, rsp) {
-					return
-				}
-
-				data, res := b.GetData(msg.GuildID)
-				if !res.Exists {
-					return
-				}
-				db, res := b.GetDB(msg.GuildID)
-				if !res.Exists {
-					return
-				}
 
 				// Get parts
 				parts := strings.Split(m.Content, comb)
@@ -62,27 +80,12 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 					parts[i] = strings.TrimSpace(strings.Replace(part, "\\", "", -1))
 				}
 
-				// Get last
-				comb, res := data.GetComb(msg.Author.ID)
-				if !res.Exists {
-					rsp.ErrorMessage(res.Message)
-					return
-				}
-				if comb.Elem3 == -1 {
-					txt := make([]string, len(comb.Elems))
-					for i, elem := range comb.Elems {
-						el, _ := db.GetElement(elem)
-						txt[i] = el.Name
-					}
-					b.basecmds.Combine(txt, msg, rsp)
-					return
-				}
-				el, _ := db.GetElement(comb.Elem3)
-
 				b.basecmds.Combine(append([]string{el.Name}, parts...), msg, rsp)
 				return
 			}
 		}
+		b.basecmds.Combine([]string{el.Name, m.Content}, msg, rsp)
+		return
 	}
 
 	if strings.HasPrefix(m.Content, "!") {
