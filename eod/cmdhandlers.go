@@ -25,7 +25,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "<") {
+	if strings.HasPrefix(m.Content, "=") {
 		if len(m.Content) < 2 {
 			return
 		}
