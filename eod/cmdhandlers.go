@@ -25,7 +25,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "+") {
+	if strings.HasPrefix(m.Content, ">") {
 		if len(m.Content) < 2 {
 			return
 		}
@@ -34,6 +34,55 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
 		b.elements.SuggestCmd(suggestion, true, msg, rsp)
 		return
+	}
+
+	if strings.HasPrefix(m.Content, "+") && len(m.Content) > 1 {
+		m.Content = strings.TrimSpace(m.Content[1:])
+		for _, comb := range combs {
+			if strings.Contains(m.Content, comb) {
+				if !b.base.CheckServer(msg, rsp) {
+					return
+				}
+
+				data, res := b.GetData(msg.GuildID)
+				if !res.Exists {
+					return
+				}
+				db, res := b.GetDB(msg.GuildID)
+				if !res.Exists {
+					return
+				}
+
+				// Get parts
+				parts := strings.Split(m.Content, comb)
+				if len(parts) < 2 {
+					return
+				}
+				for i, part := range parts {
+					parts[i] = strings.TrimSpace(strings.Replace(part, "\\", "", -1))
+				}
+
+				// Get last
+				comb, res := data.GetComb(msg.Author.ID)
+				if !res.Exists {
+					rsp.ErrorMessage(res.Message)
+					return
+				}
+				if comb.Elem3 == -1 {
+					txt := make([]string, len(comb.Elems))
+					for i, elem := range comb.Elems {
+						el, _ := db.GetElement(elem)
+						txt[i] = el.Name
+					}
+					b.basecmds.Combine(txt, msg, rsp)
+					return
+				}
+				el, _ := db.GetElement(comb.Elem3)
+
+				b.basecmds.Combine(append([]string{el.Name}, parts...), msg, rsp)
+				return
+			}
+		}
 	}
 
 	if strings.HasPrefix(m.Content, "!") {
@@ -265,8 +314,6 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 				rsp.ErrorMessage(res.Message)
 				return
 			}
-			el, _ := db.GetElement(comb.Elem3)
-			last = el.Name
 
 			if comb.Elem3 == -1 {
 				txt := make([]string, len(comb.Elems))
@@ -277,6 +324,9 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 				b.basecmds.Combine(txt, msg, rsp)
 				return
 			}
+
+			el, _ := db.GetElement(comb.Elem3)
+			last = el.Name
 		}
 
 		elems := make([]string, length)
