@@ -14,18 +14,37 @@ func (a *API) Handle(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	defer conn.Close()
-	id := ""
+
+	// Get ID
+	res, state := a.GenURL()
+	err = conn.WriteMessage(websocket.TextMessage, res.JSON())
+	if err != nil {
+		return
+	}
+	if res.Error != nil {
+		return
+	}
+	err = conn.WriteMessage(websocket.TextMessage, []byte(res.Data["url"].(string)))
+	if err != nil {
+		return
+	}
+
+	// Wait for ID
+	a.loginLock.RLock()
+	ch := a.loginLinks[state]
+	a.loginLock.RUnlock()
+	id := <-ch
+	a.loginLock.Lock()
+	delete(a.loginLinks, state)
+	a.loginLock.Unlock()
+	close(ch)
+
 	gld := ""
 
 	for {
 		_, message, err := conn.ReadMessage()
 		if err != nil {
 			return
-		}
-
-		if id == "" {
-			id = string(message)
-			continue
 		}
 
 		// Parse
