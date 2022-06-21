@@ -117,6 +117,14 @@ func (d *DB) DeleteVCat(name string) error {
 	d.Lock()
 	defer d.Unlock()
 
+	val := d.vcats[strings.ToLower(name)]
+	if val.Rule == types.VirtualCategoryRuleRegex {
+		err := d.DelCatCache(val.Name)
+		if err != nil {
+			return err
+		}
+	}
+
 	delete(d.vcats, strings.ToLower(name))
 
 	dat, err := json.Marshal(d.vcats)
