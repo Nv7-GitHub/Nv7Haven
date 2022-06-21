@@ -24,10 +24,6 @@ func (a *API) Handle(w http.ResponseWriter, req *http.Request) {
 	if res.Error != nil {
 		return
 	}
-	err = conn.WriteMessage(websocket.TextMessage, []byte(res.Data["url"].(string)))
-	if err != nil {
-		return
-	}
 
 	// Wait for ID
 	a.loginLock.RLock()
@@ -38,6 +34,10 @@ func (a *API) Handle(w http.ResponseWriter, req *http.Request) {
 	delete(a.loginLinks, state)
 	a.loginLock.Unlock()
 	close(ch)
+	err = conn.WriteMessage(websocket.TextMessage, []byte(id))
+	if err != nil {
+		return
+	}
 
 	gld := ""
 
