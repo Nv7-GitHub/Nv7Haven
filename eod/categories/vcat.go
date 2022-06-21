@@ -1,6 +1,7 @@
 package categories
 
 import (
+	"fmt"
 	"net/url"
 	"regexp"
 	"strings"
@@ -27,6 +28,16 @@ func (b *Categories) VCatCreateAllElementsCmd(name string, m types.Msg, rsp type
 	if res.Exists {
 		rsp.ErrorMessage(db.Config.LangProperty("CatAlreadyExist", vcat.Name))
 		return
+	}
+
+	// Check if there already is an all elements vcat
+	db.RLock()
+	for _, vcat := range db.VCats() {
+		if vcat.Rule == types.VirtualCategoryRuleAllElements {
+			rsp.ErrorMessage(fmt.Sprintf("VCat **%s** already exists with the all elements rule!", vcat.Name)) // TODO: Translate
+			db.RUnlock()
+			return
+		}
 	}
 
 	// Create
