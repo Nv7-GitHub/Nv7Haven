@@ -1,7 +1,6 @@
 package categories
 
 import (
-	"sort"
 	"strings"
 	"sync"
 
@@ -24,36 +23,7 @@ func (b *Categories) CategoriesCmd(elem string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 
-	// Get Categories
-	catsMap := make(map[catSortInfo]types.Empty)
-	db.RLock()
-	for _, cat := range db.Cats() {
-		_, exists := cat.Elements[el.ID]
-		if exists {
-			catsMap[catSortInfo{
-				Name: cat.Name,
-				Cnt:  len(cat.Elements),
-			}] = types.Empty{}
-		}
-	}
-	db.RUnlock()
-	cats := make([]catSortInfo, len(catsMap))
-	i := 0
-	for k := range catsMap {
-		cats[i] = k
-		i++
-	}
-
-	// Sort categories by count
-	sort.Slice(cats, func(i, j int) bool {
-		return cats[i].Cnt > cats[j].Cnt
-	})
-
-	// Convert to array
-	out := make([]string, len(cats))
-	for i, cat := range cats {
-		out[i] = cat.Name
-	}
+	out := b.base.ElemCategories(el.ID, db)
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind: types.PageSwitchInv,

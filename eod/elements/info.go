@@ -2,7 +2,6 @@ package elements
 
 import (
 	"fmt"
-	"sort"
 	"strconv"
 	"strings"
 
@@ -56,11 +55,6 @@ func (b *Elements) SortCmd(sort string, postfix bool, m types.Msg, rsp types.Rsp
 		PageGetter: b.base.InvPageGetter,
 		Items:      text,
 	}, m, rsp)
-}
-
-type catSortInfo struct {
-	Name string
-	Cnt  int
 }
 
 func newCmpCollapsed(db *eodb.DB) discordgo.ActionsRow {
@@ -155,34 +149,12 @@ func (b *Elements) Info(elem string, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 
 	// Get Categories
-	catsMap := make(map[catSortInfo]types.Empty)
-	db.RLock()
-	for _, cat := range db.Cats() {
-		_, exists := cat.Elements[el.ID]
-		if exists {
-			catsMap[catSortInfo{
-				Name: cat.Name,
-				Cnt:  len(cat.Elements),
-			}] = types.Empty{}
-		}
-	}
-	db.RUnlock()
-	cats := make([]catSortInfo, len(catsMap))
-	i := 0
-	for k := range catsMap {
-		cats[i] = k
-		i++
-	}
-
-	// Sort by count
-	sort.Slice(cats, func(i, j int) bool {
-		return cats[i].Cnt > cats[j].Cnt
-	})
+	cats := b.base.ElemCategories(el.ID, db)
 
 	// Make text for collapsed
 	catTxt := &strings.Builder{}
 	for i := 0; i < catInfoCount && i < len(cats); i++ {
-		catTxt.WriteString(cats[i].Name)
+		catTxt.WriteString(cats[i])
 		if i != catInfoCount-1 && i != len(cats)-1 {
 			catTxt.WriteString(", ")
 		}
@@ -194,7 +166,7 @@ func (b *Elements) Info(elem string, m types.Msg, rsp types.Rsp) {
 	// Make text for expanded
 	catTxtExpanded := &strings.Builder{}
 	for i := 0; i < catInfoCountExpanded && i < len(cats); i++ {
-		catTxtExpanded.WriteString(cats[i].Name)
+		catTxtExpanded.WriteString(cats[i])
 		if i != catInfoCountExpanded-1 && i != len(cats)-1 {
 			catTxtExpanded.WriteString(", ")
 		}
