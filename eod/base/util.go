@@ -3,11 +3,10 @@ package base
 import (
 	"errors"
 	"fmt"
-	"os"
-	"runtime/pprof"
 	"sort"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -75,12 +74,7 @@ type catSortInfo struct {
 	Cnt  int
 }
 
-func (b *Base) ElemCategories(elem int, db *eodb.DB) []string {
-	prof, _ := os.Create("prof.pprof")
-	defer prof.Close()
-	pprof.StartCPUProfile(prof)
-	defer pprof.StopCPUProfile()
-
+func (b *Base) ElemCategories(elem int, db *eodb.DB, fast bool) []string {
 	// Get Categories
 	cats := make([]catSortInfo, 0)
 	db.RLock()
@@ -94,6 +88,9 @@ func (b *Base) ElemCategories(elem int, db *eodb.DB) []string {
 		}
 	}
 	for _, vcat := range db.VCats() {
+		if fast && vcat.Rule == types.VirtualCategoryRuleSetOperation { // ignore set operations because they are slow
+			continue
+		}
 		db.RUnlock()
 		els, res := b.CalcVCat(vcat, db, true)
 		db.RLock()
