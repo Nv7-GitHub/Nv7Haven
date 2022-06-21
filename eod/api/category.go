@@ -23,7 +23,7 @@ func (a *API) MethodCategory(params map[string]any, id, gld string) data.Respons
 		if !res.Exists {
 			return data.RSPError(res.Message)
 		}
-		els, res := a.base.CalcVCat(vcat, db)
+		els, res := a.base.CalcVCat(vcat, db, true)
 		if !res.Exists {
 			return data.RSPError(res.Message)
 		}
