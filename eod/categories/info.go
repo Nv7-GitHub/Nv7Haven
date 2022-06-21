@@ -58,6 +58,7 @@ func (b *Categories) InfoCmd(catName string, m types.Msg, rsp types.Rsp) {
 		},
 		Fields: []*discordgo.MessageEmbedField{
 			{Name: db.Config.LangProperty("ElementCount", nil), Value: strconv.Itoa(len(els)), Inline: true},
+			{Name: db.Config.LangProperty("Creator", nil), Value: fmt.Sprintf("<@%s>", vcat.Creator), Inline: true},
 		},
 		Color: vcat.Color,
 	}
