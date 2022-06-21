@@ -278,18 +278,27 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB, rdonly bool) (
 		Invhintlock.RLock()
 		gld, exists := Invhint[vcat.Guild]
 		Invhintlock.RUnlock()
-		if exists && !rdonly {
-			Invhintlock.RLock()
-			res, exists := gld[id]
-			Invhintlock.RUnlock()
-			if exists {
-				return res, types.GetResponse{Exists: true}
-			}
-		} else {
+		if !exists {
 			Invhintlock.Lock()
 			gld = make(map[int]map[int]types.Empty)
 			Invhint[vcat.Guild] = gld
 			Invhintlock.Unlock()
+		}
+
+		// Check if its there
+		Invhintlock.RLock()
+		cache, exists := gld[id]
+		Invhintlock.RUnlock()
+		if exists {
+			if rdonly {
+				out = cache
+				break
+			}
+			out = make(map[int]types.Empty, len(cache))
+			for k := range cache {
+				out[k] = types.Empty{}
+			}
+			break
 		}
 
 		// Calculate
