@@ -39,8 +39,7 @@ func (a *API) MethodGuild(vals map[string]any, id string) data.Response {
 }
 
 var conf = &oauth2.Config{
-	RedirectURL: "https://api.nv7haven.com/eode/oauth",
-	// This next 2 lines must be edited before running this.
+	RedirectURL:  "https://http.nv7haven.com/eode/oauth",
 	ClientID:     "964274065508556800",
 	ClientSecret: "dRDvGpuHZAgH6u-F5_UHakTxZgLewhe4",
 	Scopes:       []string{"identify"},
