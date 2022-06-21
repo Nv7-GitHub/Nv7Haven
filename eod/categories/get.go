@@ -54,7 +54,7 @@ func (b *Categories) DownloadCatCmd(catName string, sort string, postfix bool, m
 			return
 		}
 		catName = vcat.Name
-		els, res = b.base.CalcVCat(vcat, db)
+		els, res = b.base.CalcVCat(vcat, db, true)
 		if !res.Exists {
 			rsp.ErrorMessage(res.Message)
 			return

@@ -51,7 +51,7 @@ func (b *Elements) SearchCmd(search string, sort string, source string, opt stri
 				rsp.ErrorMessage(res.Message)
 				return
 			}
-			els, res = b.base.CalcVCat(vcat, db)
+			els, res = b.base.CalcVCat(vcat, db, true)
 			if !res.Exists {
 				rsp.ErrorMessage(res.Message)
 				return

@@ -156,7 +156,7 @@ func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, hasCat bool, cat
 			cat, res := db.GetCat(catName) // Can ignore errors since checked in HintCmd
 			if !res.Exists {
 				vcat, _ := db.GetVCat(catName)
-				els, res := b.base.CalcVCat(vcat, db)
+				els, res := b.base.CalcVCat(vcat, db, true)
 				if !res.Exists {
 					return nil, res.Message, false
 				}

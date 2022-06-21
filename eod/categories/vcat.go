@@ -278,7 +278,7 @@ func (b *Categories) VCatOpCmd(op types.CategoryOperation, name string, lhs stri
 func (b *Categories) CacheVCats() {
 	for _, db := range b.DB {
 		for _, cat := range db.VCats() {
-			_, res := b.base.CalcVCat(cat, db)
+			_, res := b.base.CalcVCat(cat, db, true)
 			if !res.Exists { // Delete if not exists
 				err := db.DeleteVCat(cat.Name)
 				if err != nil {

@@ -95,7 +95,7 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 			if !res.Exists {
 				return res.Message, false
 			}
-			els, res = b.base.CalcVCat(vcat, db)
+			els, res = b.base.CalcVCat(vcat, db, true)
 			if !res.Exists {
 				return res.Message, false
 			}

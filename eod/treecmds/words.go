@@ -93,7 +93,7 @@ func (b *TreeCmds) CatWordCloudCmd(catName string, calcTree bool, width, height 
 			return
 		}
 		catName = vcat.Name
-		els, res = b.base.CalcVCat(vcat, db)
+		els, res = b.base.CalcVCat(vcat, db, true)
 		if !res.Exists {
 			rsp.ErrorMessage(res.Message)
 			return

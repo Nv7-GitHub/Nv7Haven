@@ -201,7 +201,7 @@ func (b *TreeCmds) CatGraphCmd(catName, layout, outputType string, distinctPrima
 			rsp.ErrorMessage(res.Message)
 			return
 		}
-		els, res = b.base.CalcVCat(vcat, db)
+		els, res = b.base.CalcVCat(vcat, db, true)
 		if !res.Exists {
 			rsp.ErrorMessage(res.Message)
 			return

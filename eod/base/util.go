@@ -3,6 +3,8 @@ package base
 import (
 	"errors"
 	"fmt"
+	"os"
+	"runtime/pprof"
 	"sort"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
@@ -74,6 +76,11 @@ type catSortInfo struct {
 }
 
 func (b *Base) ElemCategories(elem int, db *eodb.DB) []string {
+	prof, _ := os.Create("prof.pprof")
+	defer prof.Close()
+	pprof.StartCPUProfile(prof)
+	defer pprof.StopCPUProfile()
+
 	// Get Categories
 	cats := make([]catSortInfo, 0)
 	db.RLock()
@@ -88,7 +95,7 @@ func (b *Base) ElemCategories(elem int, db *eodb.DB) []string {
 	}
 	for _, vcat := range db.VCats() {
 		db.RUnlock()
-		els, res := b.CalcVCat(vcat, db)
+		els, res := b.CalcVCat(vcat, db, true)
 		db.RLock()
 		if res.Exists {
 			_, exists := els[elem]

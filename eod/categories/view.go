@@ -12,11 +12,6 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
 
-type catSortInfo struct {
-	Name string
-	Cnt  int
-}
-
 func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user string, postfix bool, m types.Msg, rsp types.Rsp) {
 	db, res := b.GetDB(m.GuildID)
 	if !res.Exists {
@@ -41,7 +36,7 @@ func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user
 			rsp.ErrorMessage(res.Message)
 			return
 		}
-		els, res = b.base.CalcVCat(vcat, db)
+		els, res = b.base.CalcVCat(vcat, db, true)
 		if !res.Exists {
 			rsp.ErrorMessage(res.Message)
 			return
@@ -180,7 +175,7 @@ func (b *Categories) AllCatCmd(sortBy string, hasUser bool, user string, m types
 	for _, cat := range db.VCats() {
 		count := 0
 		db.RUnlock()
-		els, res := b.base.CalcVCat(cat, db)
+		els, res := b.base.CalcVCat(cat, db, true)
 		db.RLock()
 		if !res.Exists {
 			continue

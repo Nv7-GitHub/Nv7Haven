@@ -90,7 +90,7 @@ func (b *TreeCmds) CatNotationCmd(catName string, m types.Msg, rsp types.Rsp) {
 			return
 		}
 		catName = vcat.Name
-		els, res = b.base.CalcVCat(vcat, db)
+		els, res = b.base.CalcVCat(vcat, db, true)
 		if !res.Exists {
 			rsp.ErrorMessage(res.Message)
 			return

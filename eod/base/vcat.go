@@ -59,14 +59,18 @@ func (b *Base) VCatDependencies(cat string, deps *map[string]types.Empty, db *eo
 	b.VCatDependencies(rhs, deps, db, true)
 }
 
-func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types.Empty, types.GetResponse) {
+func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB, rdonly bool) (map[int]types.Empty, types.GetResponse) {
 	var out map[int]types.Empty
 	switch vcat.Rule {
 	case types.VirtualCategoryRuleRegex:
 		if vcat.Cache != nil { // Has cache
-			out = make(map[int]types.Empty, len(vcat.Cache))
-			for k := range vcat.Cache {
-				out[k] = types.Empty{}
+			if rdonly {
+				out = vcat.Cache
+			} else {
+				out = make(map[int]types.Empty, len(vcat.Cache))
+				for k := range vcat.Cache {
+					out[k] = types.Empty{}
+				}
 			}
 			break
 		}
@@ -108,6 +112,14 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types
 				if exists {
 					break
 				}
+
+				if !rdonly {
+					v := out
+					out = make(map[int]types.Empty, len(v))
+					for k := range v {
+						out[k] = types.Empty{}
+					}
+				}
 			}
 
 			out = make(map[int]types.Empty)
@@ -132,13 +144,25 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types
 			gld[vcat.Data["user"].(string)] = out
 			Madebylock.Unlock()
 
-		default:
-			out = make(map[int]types.Empty, len(inv.Elements))
-			inv.Lock.RLock()
-			for k := range inv.Elements {
-				out[k] = types.Empty{}
+			if !rdonly {
+				v := out
+				out = make(map[int]types.Empty, len(v))
+				for k := range v {
+					out[k] = types.Empty{}
+				}
 			}
-			inv.Lock.RUnlock()
+
+		default:
+			if rdonly {
+				out = inv.Elements
+			} else {
+				out = make(map[int]types.Empty, len(inv.Elements))
+				inv.Lock.RLock()
+				for k := range inv.Elements {
+					out[k] = types.Empty{}
+				}
+				inv.Lock.RUnlock()
+			}
 		}
 
 	case types.VirtualCategoryRuleSetOperation:
@@ -159,7 +183,7 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types
 			if !res.Exists {
 				lhselems = make(map[int]types.Empty)
 			} else {
-				lhselems, res = b.CalcVCat(vcat, db)
+				lhselems, res = b.CalcVCat(vcat, db, rdonly)
 				if !res.Exists {
 					lhselems = make(map[int]types.Empty)
 				}
@@ -182,7 +206,7 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types
 			if !res.Exists {
 				rhselems = make(map[int]types.Empty)
 			} else {
-				rhselems, res = b.CalcVCat(vcat, db)
+				rhselems, res = b.CalcVCat(vcat, db, rdonly)
 				if !res.Exists {
 					rhselems = make(map[int]types.Empty)
 				}
@@ -235,7 +259,7 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types
 		Elemlock.RLock()
 		out, exists = Allelements[db.Guild]
 		Elemlock.RUnlock()
-		if !exists {
+		if !exists || !rdonly {
 			// Calculate
 			out = make(map[int]types.Empty, len(db.Elements))
 			db.RLock()
@@ -254,7 +278,7 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types
 		Invhintlock.RLock()
 		gld, exists := Invhint[vcat.Guild]
 		Invhintlock.RUnlock()
-		if exists {
+		if exists && !rdonly {
 			Invhintlock.RLock()
 			res, exists := gld[id]
 			Invhintlock.RUnlock()
@@ -291,6 +315,13 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB) (map[int]types
 		Invhintlock.Unlock()
 
 		out = ids
+		if !rdonly {
+			v := out
+			out = make(map[int]types.Empty, len(v))
+			for k := range v {
+				out[k] = types.Empty{}
+			}
+		}
 	}
 
 	return out, types.GetResponse{Exists: true}

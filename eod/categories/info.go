@@ -44,7 +44,7 @@ func (b *Categories) InfoCmd(catName string, m types.Msg, rsp types.Rsp) {
 		rsp.ErrorMessage(res.Message)
 		return
 	}
-	els, res := b.base.CalcVCat(vcat, db)
+	els, res := b.base.CalcVCat(vcat, db, true)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
 		return

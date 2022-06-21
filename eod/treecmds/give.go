@@ -57,7 +57,7 @@ func (b *TreeCmds) GiveCatCmd(catName string, giveTree bool, user string, m type
 			return
 		}
 		catName = vcat.Name
-		els, res = b.base.CalcVCat(vcat, db)
+		els, res = b.base.CalcVCat(vcat, db, true)
 		if !res.Exists {
 			rsp.ErrorMessage(res.Message)
 			return
