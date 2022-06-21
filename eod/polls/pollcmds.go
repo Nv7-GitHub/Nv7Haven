@@ -65,12 +65,6 @@ func (b *Polls) MarkCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 
-	inv := db.GetInv(m.Author.ID)
-	exists := inv.Contains(el.ID)
-	if !exists {
-		rsp.ErrorMessage(db.Config.LangProperty("DontHave", el.Name))
-		return
-	}
 	if len(mark) >= 2400 {
 		rsp.ErrorMessage(db.Config.LangProperty("MaxMarkLength", nil))
 		return
@@ -85,7 +79,7 @@ func (b *Polls) MarkCmd(elem string, mark string, m types.Msg, rsp types.Rsp) {
 			rsp.ErrorMessage(res.Message)
 			return
 		}
-		b.mark(m.GuildID, id, mark, m.Author.ID, "", "", false)
+		b.mark(m.GuildID, id, mark, m.Author.ID, "", "", true)
 		rsp.Message(db.Config.LangProperty("MarkChanged", el.Name))
 		return
 	}
@@ -126,13 +120,6 @@ func (b *Polls) ImageCmd(elem string, image string, m types.Msg, rsp types.Rsp) 
 		return
 	}
 
-	inv := db.GetInv(m.Author.ID)
-	exists := inv.Contains(el.ID)
-	if !exists {
-		rsp.ErrorMessage(db.Config.LangProperty("DontHave", el.Name))
-		return
-	}
-
 	changed := el.Image != ""
 
 	if el.Creator == m.Author.ID {
@@ -141,7 +128,7 @@ func (b *Polls) ImageCmd(elem string, image string, m types.Msg, rsp types.Rsp) 
 			rsp.ErrorMessage(res.Message)
 			return
 		}
-		b.image(m.GuildID, id, image, m.Author.ID, changed, "", "", false)
+		b.image(m.GuildID, id, image, m.Author.ID, changed, "", "", true)
 		if !changed {
 			rsp.Message(db.Config.LangProperty("ImageAdded", el.Name))
 		} else {
@@ -186,20 +173,13 @@ func (b *Polls) ColorCmd(elem string, color int, m types.Msg, rsp types.Rsp) {
 		return
 	}
 
-	inv := db.GetInv(m.Author.ID)
-	exists := inv.Contains(el.ID)
-	if !exists {
-		rsp.ErrorMessage(db.Config.LangProperty("DontHave", el.Name))
-		return
-	}
-
 	if el.Creator == m.Author.ID {
 		id, res := db.GetIDByName(elem)
 		if !res.Exists {
 			rsp.ErrorMessage(res.Message)
 			return
 		}
-		b.color(m.GuildID, id, color, m.Author.ID, "", "", false)
+		b.color(m.GuildID, id, color, m.Author.ID, "", "", true)
 		rsp.Message(db.Config.LangProperty("ElemColorChanged", el.Name))
 		return
 	}
