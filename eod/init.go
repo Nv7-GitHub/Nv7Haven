@@ -13,9 +13,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/logs"
 	"github.com/Nv7-Github/Nv7Haven/eod/polls"
 	"github.com/Nv7-Github/Nv7Haven/eod/treecmds"
-	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/gofiber/fiber/v2"
-	"github.com/schollz/progressbar/v3"
 )
 
 func (b *EoD) init(app *fiber.App) {
@@ -29,60 +27,6 @@ func (b *EoD) init(app *fiber.App) {
 	b.elements = elements.NewElements(b.Data, b.polls, b.db, b.base, b.dg)
 	b.api = api.NewAPI(b.Data, b.base)
 	admin.InitAdmin(b.Data, app)
-
-	// Polls
-	cnt := 0
-	for _, db := range b.DB {
-		cnt += len(db.Polls)
-	}
-	bar := progressbar.New(cnt)
-
-	for _, db := range b.DB {
-		for _, po := range db.Polls {
-			msg, err := b.dg.ChannelMessage(po.Channel, po.Message)
-			if err != nil {
-				err := db.DeletePoll(po)
-				if err != nil {
-					panic(err)
-				}
-				continue
-			}
-			for _, r := range msg.Reactions {
-				if r.Emoji.Name == types.UpArrow {
-					po.Upvotes = r.Count - 1
-				}
-
-				if r.Emoji.Name == types.DownArrow {
-					po.Downvotes = r.Count - 1
-				}
-			}
-
-			// Get downs to see who last reacted
-			downs, err := b.dg.MessageReactions(po.Channel, po.Message, types.DownArrow, 100, "", "")
-			if err != nil {
-				err := db.DeletePoll(po)
-				if err != nil {
-					panic(err)
-				}
-				continue
-			}
-
-			if len(downs) < 1 { // Broken poll
-				err := db.DeletePoll(po)
-				if err != nil {
-					panic(err)
-				}
-				continue
-			}
-
-			lastDown := downs[len(downs)-1].ID
-			if !b.polls.CheckReactions(db, po, lastDown, false) {
-				db.SavePoll(po)
-			}
-			bar.Add(1)
-		}
-	}
-	bar.Finish()
 
 	// Run API
 	b.api.Run()
