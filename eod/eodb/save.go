@@ -119,10 +119,12 @@ func (d *DB) DeleteVCat(name string) error {
 
 	val := d.vcats[strings.ToLower(name)]
 	if val.Rule == types.VirtualCategoryRuleRegex {
+		d.Unlock()
 		err := d.DelCatCache(val.Name)
 		if err != nil {
 			return err
 		}
+		d.Lock()
 	}
 
 	delete(d.vcats, strings.ToLower(name))
