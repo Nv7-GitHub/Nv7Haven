@@ -44,6 +44,9 @@ func (b *EoD) initHandlers() {
 		case discordgo.InteractionApplicationCommand:
 			db, res := b.GetDB(i.GuildID)
 			if res.Exists {
+				if db.Config.CommandStats == nil {
+					db.Config.CommandStats = make(map[string]int)
+				}
 				db.Config.CommandStats[i.ApplicationCommandData().Name]++
 				db.SaveConfig()
 			}

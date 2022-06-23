@@ -20,6 +20,9 @@ var combs = []string{
 func (b *EoD) addCmdCounter(m *discordgo.MessageCreate, cmd string) {
 	db, res := b.GetDB(m.GuildID)
 	if res.Exists {
+		if db.Config.CommandStats == nil {
+			db.Config.CommandStats = make(map[string]int)
+		}
 		db.Config.CommandStats[cmd]++
 		db.SaveConfig()
 	}
