@@ -12,6 +12,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+const maxprogresslen = 10000
+
 func (b *Categories) progress(els map[int]types.Empty, m types.Msg, db *eodb.DB) *discordgo.MessageEmbedField {
 	found := 0
 	total := 0
@@ -48,9 +50,11 @@ func (b *Categories) InfoCmd(catName string, m types.Msg, rsp types.Rsp) {
 			},
 			Fields: []*discordgo.MessageEmbedField{
 				{Name: db.Config.LangProperty("ElementCount", nil), Value: strconv.Itoa(len(cat.Elements))},
-				b.progress(cat.Elements, m, db),
 			},
 			Color: cat.Color,
+		}
+		if len(cat.Elements) < maxprogresslen {
+			emb.Fields = append(emb.Fields, b.progress(cat.Elements, m, db))
 		}
 		if cat.Imager != "" {
 			emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{Name: db.Config.LangProperty("InfoImager", nil), Value: fmt.Sprintf("<@%s>", cat.Imager)})
@@ -82,9 +86,11 @@ func (b *Categories) InfoCmd(catName string, m types.Msg, rsp types.Rsp) {
 		Fields: []*discordgo.MessageEmbedField{
 			{Name: db.Config.LangProperty("ElementCount", nil), Value: strconv.Itoa(len(els)), Inline: true},
 			{Name: db.Config.LangProperty("InfoCreator", nil), Value: fmt.Sprintf("<@%s>", vcat.Creator), Inline: true},
-			b.progress(cat.Elements, m, db),
 		},
 		Color: vcat.Color,
+	}
+	if len(els) < maxprogresslen {
+		emb.Fields = append(emb.Fields, b.progress(els, m, db))
 	}
 	if vcat.Imager != "" {
 		emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{Name: db.Config.LangProperty("InfoImager", nil), Value: fmt.Sprintf("<@%s>", vcat.Imager), Inline: true})
