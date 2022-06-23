@@ -1,9 +1,11 @@
 package categories
 
 import (
+	"regexp"
 	"sort"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
@@ -90,4 +92,113 @@ func (b *Categories) Autocomplete(m types.Msg, query string, flags ...bool) ([]s
 	sort.Strings(names)
 
 	return names, types.GetResponse{Exists: true}
+}
+
+func (b *Categories) SearchCmd(search string, sortKind string, regex bool, m types.Msg, rsp types.Rsp) {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
+		return
+	}
+	rsp.Acknowledge()
+
+	type searchResult struct {
+		text  string
+		name  string
+		count int
+	}
+
+	// Make results
+	results := make([]searchResult, 0)
+	if regex {
+		reg, err := regexp.Compile(search)
+		if rsp.Error(err) {
+			return
+		}
+		db.RLock()
+		for _, cat := range db.Cats() {
+			m := reg.FindIndex([]byte(cat.Name))
+			if m != nil {
+				name := []byte(cat.Name)
+				name = append(name[:m[1]], append([]byte("**"), name[m[1]:]...)...)
+				name = append(name[:m[0]], append([]byte("**"), name[m[0]:]...)...)
+
+				results = append(results, searchResult{text: string(name), name: cat.Name, count: len(cat.Elements)})
+			}
+		}
+		for _, cat := range db.VCats() {
+			m := reg.FindIndex([]byte(cat.Name))
+			if m != nil {
+				name := []byte(cat.Name)
+				name = append(name[:m[1]], append([]byte("**"), name[m[1]:]...)...)
+				name = append(name[:m[0]], append([]byte("**"), name[m[0]:]...)...)
+
+				count := 0
+				if sortKind == "count" {
+					v, res := b.base.CalcVCat(cat, db, true)
+					if res.Exists {
+						count = len(v)
+					}
+				}
+				results = append(results, searchResult{text: string(name), name: cat.Name, count: count})
+			}
+		}
+		db.RUnlock()
+	} else {
+		s := strings.ToLower(search)
+		db.RLock()
+		for _, cat := range db.Cats() {
+			if strings.Contains(strings.ToLower(cat.Name), s) {
+				name := []byte(cat.Name)
+				pos := strings.Index(strings.ToLower(cat.Name), s)
+				name = append(name[:pos+len(s)], append([]byte("**"), name[pos+len(s):]...)...)
+				name = append(name[:pos], append([]byte("**"), name[pos:]...)...)
+
+				results = append(results, searchResult{text: string(name), name: cat.Name, count: len(cat.Elements)})
+			}
+		}
+		for _, cat := range db.VCats() {
+			if strings.Contains(strings.ToLower(cat.Name), s) {
+				name := []byte(cat.Name)
+				pos := strings.Index(strings.ToLower(cat.Name), s)
+				name = append(name[:pos+len(s)], append([]byte("**"), name[pos+len(s):]...)...)
+				name = append(name[:pos], append([]byte("**"), name[pos:]...)...)
+
+				count := 0
+				if sortKind == "count" {
+					v, res := b.base.CalcVCat(cat, db, true)
+					if res.Exists {
+						count = len(v)
+					}
+				}
+				results = append(results, searchResult{text: string(name), name: cat.Name, count: count})
+			}
+		}
+		db.RUnlock()
+	}
+
+	// Sort
+	if len(results) == 0 {
+		rsp.Message(db.Config.LangProperty("NoResults", nil))
+		return
+	}
+
+	switch sortKind {
+	case "count":
+		sort.Slice(results, func(i, j int) bool { return results[i].count > results[j].count })
+
+	default:
+		sort.Slice(results, func(i, j int) bool { return eodsort.CompareStrings(results[i].name, results[j].name) })
+	}
+
+	txt := make([]string, len(results))
+	for i, val := range results {
+		txt[i] = val.text
+	}
+	b.base.NewPageSwitcher(types.PageSwitcher{
+		Kind:       types.PageSwitchInv,
+		Title:      "Category Search", // TODO: Translate
+		PageGetter: b.base.InvPageGetter,
+		Items:      txt,
+		User:       m.Author.ID,
+	}, m, rsp)
 }

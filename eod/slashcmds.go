@@ -1027,6 +1027,41 @@ var (
 						},
 					},
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "categories",
+					Description: "Search for a category by name!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "query",
+							Description: "The query to search with!",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "sort",
+							Description: "How to sort the results!",
+							Choices: []*discordgo.ApplicationCommandOptionChoice{
+								{
+									Name:  "Name",
+									Value: "name",
+								},
+								{
+									Name:  "Category Size",
+									Value: "count",
+								},
+							},
+							Required: false,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionBoolean,
+							Name:        "regex",
+							Description: "Whether to use a RegEx!",
+							Required:    false,
+						},
+					},
+				},
 			},
 		},
 		{
@@ -2099,6 +2134,21 @@ var (
 					}
 				}
 				bot.elements.SearchCmd(resp.Options[0].StringValue(), sort, "category", category, regex, postfix, m, bot.newRespSlash(i))
+
+			case "categories":
+				regex := false
+				sort := "count"
+				m := bot.newMsgSlash(i)
+				for _, opt := range resp.Options {
+					if opt.Name == "regex" {
+						regex = opt.BoolValue()
+					}
+
+					if opt.Name == "sort" {
+						sort = opt.StringValue()
+					}
+				}
+				bot.categories.SearchCmd(resp.Options[0].StringValue(), sort, regex, m, bot.newRespSlash(i))
 			}
 		},
 		"View Inventory": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
