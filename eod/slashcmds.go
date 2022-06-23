@@ -2,6 +2,7 @@ package eod
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -1565,6 +1566,12 @@ var (
 				},
 			},
 		},
+		{
+			Name:        "commandslb",
+			Type:        discordgo.ChatApplicationCommand,
+			Description: "See what commands are used the most!",
+			Options:     []*discordgo.ApplicationCommandOption{},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"set": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -2372,6 +2379,31 @@ var (
 		"delvcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
 			bot.categories.DeleteVCatCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"commandlb": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			db, res := bot.GetDB(i.GuildID)
+			if !res.Exists {
+				return
+			}
+			type result struct {
+				name string
+				uses int
+			}
+			items := make([]result, len(db.Config.CommandStats))
+			for k, v := range db.Config.CommandStats {
+				items = append(items, result{k, v})
+			}
+			sort.Slice(items, func(i, j int) bool { return items[i].uses > items[j].uses })
+			out := make([]string, len(items))
+			for i, item := range items {
+				out[i] = fmt.Sprintf("%d. **%s** - %d", i+1, item.name, item.uses)
+			}
+			bot.base.NewPageSwitcher(types.PageSwitcher{
+				Kind:       types.PageSwitchInv,
+				Title:      "Command Usage",
+				PageGetter: bot.base.InvPageGetter,
+				Items:      out,
+			}, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 	}
 	autocompleteHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){

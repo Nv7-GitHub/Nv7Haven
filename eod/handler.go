@@ -42,6 +42,11 @@ func (b *EoD) initHandlers() {
 		switch i.Type {
 		// Command
 		case discordgo.InteractionApplicationCommand:
+			db, res := b.GetDB(i.GuildID)
+			if res.Exists {
+				db.Config.CommandStats[i.ApplicationCommandData().Name]++
+				db.SaveConfig()
+			}
 			if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
 				h(s, i)
 			}
