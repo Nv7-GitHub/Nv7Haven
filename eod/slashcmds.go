@@ -2390,8 +2390,10 @@ var (
 				uses int
 			}
 			items := make([]result, len(db.Config.CommandStats))
+			ind := 0
 			for k, v := range db.Config.CommandStats {
-				items = append(items, result{k, v})
+				items[ind] = result{k, v}
+				ind++
 			}
 			sort.Slice(items, func(i, j int) bool { return items[i].uses > items[j].uses })
 			out := make([]string, len(items))
