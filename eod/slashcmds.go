@@ -213,6 +213,26 @@ var (
 						},
 					},
 				},
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "url",
+					Description: "Suggest an image URL for an element, or add an image to an element you created!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "element",
+							Description:  "The name of the element to add the image to!",
+							Required:     true,
+							Autocomplete: true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "url",
+							Description: "The URL of the image to add to the element!",
+							Required:    true,
+						},
+					},
+				},
 			},
 		},
 		{
@@ -1612,6 +1632,10 @@ var (
 		"image": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			dat := i.ApplicationCommandData()
 			resp := dat.Options[0]
+
+			if resp.Name == "url" {
+				bot.polls.ImageCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			}
 
 			// Get attachment
 			id := resp.Options[1].Value.(string)
