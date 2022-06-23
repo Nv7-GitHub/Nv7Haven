@@ -11,6 +11,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/treecmds"
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -2422,7 +2423,7 @@ var (
 			sort.Slice(items, func(i, j int) bool { return items[i].uses > items[j].uses })
 			out := make([]string, len(items))
 			for i, item := range items {
-				out[i] = fmt.Sprintf("%d. **%s** - %d", i+1, item.name, item.uses)
+				out[i] = fmt.Sprintf("%d. **%s** - %s", i+1, item.name, util.FormatInt(item.uses))
 			}
 			bot.base.NewPageSwitcher(types.PageSwitcher{
 				Kind:       types.PageSwitchInv,
