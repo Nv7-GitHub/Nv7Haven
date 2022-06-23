@@ -5,9 +5,31 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
+	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/bwmarrin/discordgo"
 )
+
+func (b *Categories) progress(els map[int]types.Empty, m types.Msg, db *eodb.DB) *discordgo.MessageEmbedField {
+	found := 0
+	total := 0
+	for el := range els {
+		suc, _, tree := trees.CalcElemInfo(el, m.Author.ID, db)
+		if !suc {
+			continue
+		}
+
+		found += tree.Found
+		total += tree.Total
+	}
+	return &discordgo.MessageEmbedField{
+		Name:   db.Config.LangProperty("InfoElemProgress", nil),
+		Value:  fmt.Sprintf("%s%%", util.FormatFloat(float32(float64(found)/float64(total)*100), 2)),
+		Inline: true,
+	}
+}
 
 func (b *Categories) InfoCmd(catName string, m types.Msg, rsp types.Rsp) {
 	db, res := b.GetDB(m.GuildID)
@@ -26,6 +48,7 @@ func (b *Categories) InfoCmd(catName string, m types.Msg, rsp types.Rsp) {
 			},
 			Fields: []*discordgo.MessageEmbedField{
 				{Name: db.Config.LangProperty("ElementCount", nil), Value: strconv.Itoa(len(cat.Elements))},
+				b.progress(cat.Elements, m, db),
 			},
 			Color: cat.Color,
 		}
@@ -59,6 +82,7 @@ func (b *Categories) InfoCmd(catName string, m types.Msg, rsp types.Rsp) {
 		Fields: []*discordgo.MessageEmbedField{
 			{Name: db.Config.LangProperty("ElementCount", nil), Value: strconv.Itoa(len(els)), Inline: true},
 			{Name: db.Config.LangProperty("InfoCreator", nil), Value: fmt.Sprintf("<@%s>", vcat.Creator), Inline: true},
+			b.progress(cat.Elements, m, db),
 		},
 		Color: vcat.Color,
 	}
