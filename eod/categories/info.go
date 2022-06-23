@@ -15,20 +15,10 @@ import (
 const maxprogresslen = 10000
 
 func (b *Categories) progress(els map[int]types.Empty, m types.Msg, db *eodb.DB) *discordgo.MessageEmbedField {
-	found := 0
-	total := 0
-	for el := range els {
-		suc, _, tree := trees.CalcElemInfo(el, m.Author.ID, db)
-		if !suc {
-			continue
-		}
-
-		found += tree.Found
-		total += tree.Total
-	}
+	tree := trees.CalcCatInfo(els, m.Author.ID, db)
 	return &discordgo.MessageEmbedField{
 		Name:   db.Config.LangProperty("InfoElemProgress", nil),
-		Value:  fmt.Sprintf("%s%%", util.FormatFloat(float32(float64(found)/float64(total)*100), 2)),
+		Value:  fmt.Sprintf("%s%%", util.FormatFloat(float32(float64(tree.Found)/float64(tree.Total)*100), 2)),
 		Inline: true,
 	}
 }
