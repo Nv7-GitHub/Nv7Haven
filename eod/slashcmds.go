@@ -2380,7 +2380,7 @@ var (
 			resp := i.ApplicationCommandData()
 			bot.categories.DeleteVCatCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
-		"commandlb": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		"commandslb": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			db, res := bot.GetDB(i.GuildID)
 			if !res.Exists {
 				return
