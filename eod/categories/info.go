@@ -12,7 +12,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-const maxprogresslen = 10000
+const maxprogresslen = 25000
 
 func (b *Categories) progress(els map[int]types.Empty, m types.Msg, db *eodb.DB) *discordgo.MessageEmbedField {
 	tree := trees.CalcCatInfo(els, m.Author.ID, db)
