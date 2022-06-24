@@ -146,6 +146,12 @@ func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string)
 		}
 		titleID = "LbTitleUsed"
 
+	case "catsigned":
+		sortFn = func(a, b int) bool {
+			return invs[a].CatSignedCnt > invs[b].CatSignedCnt
+		}
+		titleID = "LbTitleCatSigned"
+
 	default:
 		sortFn = func(a, b int) bool {
 			return len(invs[a].Elements) > len(invs[b].Elements)
@@ -181,6 +187,9 @@ func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string)
 
 		case "used":
 			cnts[i] = v.UsedCnt
+
+		case "catsigned":
+			cnts[i] = v.CatSignedCnt
 
 		default:
 			cnts[i] = len(v.Elements)
