@@ -339,7 +339,7 @@ var (
 							Value: "catcolored",
 						},
 						{
-							Name:  "Elements Signed",
+							Name:  "Categories Signed",
 							Value: "catsigned",
 						},
 						{
