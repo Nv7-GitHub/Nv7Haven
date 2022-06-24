@@ -1652,6 +1652,9 @@ var (
 			switch resp.Name {
 			case "element":
 				bot.polls.MarkInteractionCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+
+			case "category":
+				bot.polls.CatMarkInteractionCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
 		},
 		"image": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
