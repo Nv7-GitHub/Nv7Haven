@@ -32,6 +32,10 @@ func (b *Categories) InfoCmd(catName string, m types.Msg, rsp types.Rsp) {
 
 	cat, exists := db.GetCat(catName)
 	if exists.Exists {
+		if cat.Comment == "" {
+			cat.Comment = "None"
+		}
+
 		// Cat info
 		emb := &discordgo.MessageEmbed{
 			Title: fmt.Sprintf("%s Info", cat.Name),
@@ -39,18 +43,22 @@ func (b *Categories) InfoCmd(catName string, m types.Msg, rsp types.Rsp) {
 				URL: cat.Image,
 			},
 			Fields: []*discordgo.MessageEmbedField{
-				{Name: db.Config.LangProperty("ElementCount", nil), Value: strconv.Itoa(len(cat.Elements))},
+				{Name: db.Config.LangProperty("InfoComment", nil), Value: cat.Comment, Inline: false},
+				{Name: db.Config.LangProperty("ElementCount", nil), Value: strconv.Itoa(len(cat.Elements)), Inline: true},
 			},
 			Color: cat.Color,
 		}
 		if len(cat.Elements) < maxprogresslen {
 			emb.Fields = append(emb.Fields, b.progress(cat.Elements, m, db))
 		}
+		if cat.Commenter != "" {
+			emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{Name: db.Config.LangProperty("InfoCommenter", nil), Value: fmt.Sprintf("<@%s>", cat.Commenter), Inline: true})
+		}
 		if cat.Imager != "" {
-			emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{Name: db.Config.LangProperty("InfoImager", nil), Value: fmt.Sprintf("<@%s>", cat.Imager)})
+			emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{Name: db.Config.LangProperty("InfoImager", nil), Value: fmt.Sprintf("<@%s>", cat.Imager), Inline: true})
 		}
 		if cat.Colorer != "" {
-			emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{Name: db.Config.LangProperty("InfoColorer", nil), Value: fmt.Sprintf("<@%s>", cat.Colorer)})
+			emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{Name: db.Config.LangProperty("InfoColorer", nil), Value: fmt.Sprintf("<@%s>", cat.Colorer), Inline: true})
 		}
 		rsp.Embed(emb)
 		return
@@ -60,6 +68,9 @@ func (b *Categories) InfoCmd(catName string, m types.Msg, rsp types.Rsp) {
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
 		return
+	}
+	if vcat.Comment == "" {
+		vcat.Comment = "None"
 	}
 	els, res := b.base.CalcVCat(vcat, db, true)
 	if !res.Exists {
@@ -74,6 +85,7 @@ func (b *Categories) InfoCmd(catName string, m types.Msg, rsp types.Rsp) {
 			URL: vcat.Image,
 		},
 		Fields: []*discordgo.MessageEmbedField{
+			{Name: db.Config.LangProperty("InfoComment", nil), Value: cat.Comment, Inline: false},
 			{Name: db.Config.LangProperty("ElementCount", nil), Value: strconv.Itoa(len(els)), Inline: true},
 			{Name: db.Config.LangProperty("InfoCreator", nil), Value: fmt.Sprintf("<@%s>", vcat.Creator), Inline: true},
 		},
@@ -81,6 +93,9 @@ func (b *Categories) InfoCmd(catName string, m types.Msg, rsp types.Rsp) {
 	}
 	if len(els) < maxprogresslen {
 		emb.Fields = append(emb.Fields, b.progress(els, m, db))
+	}
+	if vcat.Commenter != "" {
+		emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{Name: db.Config.LangProperty("InfoCommenter", nil), Value: fmt.Sprintf("<@%s>", vcat.Commenter), Inline: true})
 	}
 	if vcat.Imager != "" {
 		emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{Name: db.Config.LangProperty("InfoImager", nil), Value: fmt.Sprintf("<@%s>", vcat.Imager), Inline: true})
