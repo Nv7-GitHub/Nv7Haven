@@ -35,6 +35,7 @@ const (
 	PollColor        = 6
 	PollCatColor     = 7
 	PollDeleteVCat   = 8
+	PollCatSign      = 9
 
 	PageSwitchLdb = 0
 	PageSwitchInv = 1
@@ -188,10 +189,17 @@ type PollColorData struct {
 	Color    int
 	OldColor int
 }
+
 type PollCatColorData struct {
 	Category string
 	Color    int
 	OldColor int
+}
+
+type PollCatSignData struct {
+	CatName string
+	NewNote string
+	OldNote string
 }
 
 type Poll struct {
@@ -211,6 +219,7 @@ type Poll struct {
 	PollColorData      *PollColorData      `json:"colordata,omitempty"`
 	PollCatColorData   *PollCatColorData   `json:"catcolordata,omitempty"`
 	PollVCatDeleteData *PollVCatDeleteData `json:"vcatdeldata,omitempty"` // This is also the uncategorize data
+	PollCatSignData    *PollCatSignData    `json:"catsigndata,omitempty"`
 
 	Upvotes   int
 	Downvotes int
@@ -224,9 +233,11 @@ type Category struct {
 	Elements map[int]Empty `json:"-"`
 	Image    string
 	Color    int
+	Comment  string
 
-	Imager  string
-	Colorer string
+	Imager    string
+	Colorer   string
+	Commenter string
 }
 
 type VirtualCategoryRuleType int
@@ -260,8 +271,11 @@ type VirtualCategory struct {
 
 	Image   string
 	Color   int
-	Imager  string
-	Colorer string
+	Comment string
+
+	Imager    string
+	Colorer   string
+	Commenter string
 
 	Rule VirtualCategoryRuleType
 	Data VirtualCategoryData
@@ -285,6 +299,7 @@ type Inventory struct {
 	ColoredCnt    int
 	CatImagedCnt  int
 	CatColoredCnt int
+	CatSignedCnt  int
 	UsedCnt       int
 	User          string
 }

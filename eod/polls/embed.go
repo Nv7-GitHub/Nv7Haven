@@ -48,6 +48,15 @@ func (b *Polls) GetPollEmbed(db *eodb.DB, p types.Poll) (*discordgo.MessageEmbed
 			},
 		}, nil
 
+	case types.PollCatSign:
+		return &discordgo.MessageEmbed{
+			Title:       "Category Sign Note", // TODO: Translate
+			Description: fmt.Sprintf("**%s**\n%s\n\n%s\n\n", p.PollCatSignData.CatName, db.Config.LangProperty("NewNote", p.PollCatSignData.NewNote), db.Config.LangProperty("OldNote", p.PollCatSignData.OldNote)) + db.Config.LangProperty("PollCreatorText", p.Suggestor),
+			Footer: &discordgo.MessageEmbedFooter{
+				Text: db.Config.LangProperty("PollFooter", nil),
+			},
+		}, nil
+
 	case types.PollImage:
 		el, _ := db.GetElement(p.PollImageData.Elem)
 		description := fmt.Sprintf("**%s**\n[%s](%s)\n[%s](%s)\n\n", el.Name, db.Config.LangProperty("NewImage", p.PollImageData.NewImage), p.PollImageData.NewImage, db.Config.LangProperty("OldImage", p.PollImageData.OldImage), p.PollImageData.OldImage) + db.Config.LangProperty("PollCreatorText", p.Suggestor)

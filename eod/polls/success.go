@@ -82,6 +82,8 @@ func (b *Polls) handlePollSuccess(p types.Poll) {
 		b.color(p.Guild, p.PollColorData.Element, p.PollColorData.Color, p.Suggestor, controversialTxt, lasted, true)
 	case types.PollCatColor:
 		b.catColor(p.Guild, p.PollCatColorData.Category, p.PollCatColorData.Color, p.Suggestor, controversialTxt, lasted, true)
+	case types.PollCatSign:
+		b.catSign(p.Guild, p.PollCatSignData.CatName, p.PollCatSignData.NewNote, p.Suggestor, controversialTxt, lasted, true)
 	case types.PollDeleteVCat:
 		b.deleteVCat(p.Guild, p.PollVCatDeleteData.Category, p.Suggestor, controversialTxt, lasted, true)
 	}

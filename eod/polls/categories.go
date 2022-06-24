@@ -257,3 +257,60 @@ func (b *Polls) deleteVCat(guild string, catName string, creator string, controv
 		})+controversial)
 	}
 }
+
+func (b *Polls) catSign(guild string, catName string, mark string, creator string, controversial string, lasted string, news bool) {
+	db, res := b.GetDB(guild)
+	if !res.Exists {
+		return
+	}
+	cat, res := db.GetCat(catName)
+	if !res.Exists {
+		vcat, res := db.GetVCat(catName)
+		if !res.Exists {
+			return
+		}
+
+		if vcat.Commenter != "" {
+			inv := db.GetInv(vcat.Commenter)
+			inv.CatSignedCnt--
+			_ = db.SaveInv(inv)
+		}
+
+		vcat.Comment = mark
+		vcat.Commenter = creator
+		err := db.SaveVCat(vcat)
+		if err != nil {
+			return
+		}
+
+		inv := db.GetInv(creator)
+		inv.CatSignedCnt++
+		_ = db.SaveInv(inv)
+
+		if news {
+			b.dg.ChannelMessageSend(db.Config.NewsChannel, "📝 Category Signed - **"+vcat.Name+"** ("+lasted+"By <@"+creator+">)"+controversial)
+		}
+		return
+	}
+
+	if cat.Commenter != "" {
+		inv := db.GetInv(cat.Commenter)
+		inv.CatSignedCnt--
+		_ = db.SaveInv(inv)
+	}
+
+	cat.Comment = mark
+	cat.Commenter = creator
+	err := db.SaveCat(cat)
+	if err != nil {
+		return
+	}
+
+	inv := db.GetInv(creator)
+	inv.CatSignedCnt++
+	_ = db.SaveInv(inv)
+
+	if news {
+		b.dg.ChannelMessageSend(db.Config.NewsChannel, "📝 Category Signed - **"+cat.Name+"** ("+lasted+"By <@"+creator+">)"+controversial)
+	}
+}

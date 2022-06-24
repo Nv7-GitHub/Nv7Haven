@@ -15,6 +15,16 @@ func (m *markModal) Handler(s *discordgo.Session, i *discordgo.InteractionCreate
 	m.b.MarkCmd(m.elem, i.ModalSubmitData().Components[0].(*discordgo.ActionsRow).Components[0].(*discordgo.TextInput).Value, m.m, rsp)
 }
 
+type catMarkModal struct {
+	m       types.Msg
+	b       *Polls
+	catName string
+}
+
+func (m *catMarkModal) Handler(s *discordgo.Session, i *discordgo.InteractionCreate, rsp types.Rsp) {
+	m.b.CatMarkCmd(m.catName, i.ModalSubmitData().Components[0].(*discordgo.ActionsRow).Components[0].(*discordgo.TextInput).Value, m.m, rsp)
+}
+
 func (b *Polls) MarkInteractionCmd(elem string, m types.Msg, rsp types.Rsp) {
 	db, res := b.GetDB(m.GuildID)
 	if !res.Exists {
@@ -279,4 +289,94 @@ func (b *Polls) CatColorCmd(catName string, color int, m types.Msg, rsp types.Rs
 		return
 	}
 	rsp.Message(db.Config.LangProperty("CatColorSuggested", cat.Name))
+}
+
+func (b *Polls) CatMarkInteractionCmd(catName string, m types.Msg, rsp types.Rsp) {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
+		return
+	}
+
+	_, res = db.GetCat(catName)
+	if !res.Exists {
+		_, res := db.GetVCat(catName)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+	}
+
+	rsp.Modal(&discordgo.InteractionResponseData{
+		Title: "Mark Element",
+		Components: []discordgo.MessageComponent{
+			discordgo.ActionsRow{
+				Components: []discordgo.MessageComponent{
+					discordgo.TextInput{
+						CustomID:    "mark",
+						Label:       "New Element Mark",
+						Style:       discordgo.TextInputParagraph,
+						Placeholder: "None",
+						Required:    true,
+						MinLength:   1,
+						MaxLength:   2400,
+					},
+				},
+			},
+		},
+	}, &catMarkModal{
+		m:       m,
+		b:       b,
+		catName: catName,
+	})
+}
+
+func (b *Polls) CatMarkCmd(catName string, mark string, m types.Msg, rsp types.Rsp) {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
+		return
+	}
+	rsp.Acknowledge()
+
+	var oldMark string
+	var name string
+	cat, res := db.GetCat(catName)
+	if !res.Exists {
+		vcat, res := db.GetVCat(catName)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		oldMark = vcat.Comment
+		name = vcat.Name
+	} else {
+		oldMark = cat.Comment
+		name = cat.Name
+	}
+
+	if len(mark) >= 2400 {
+		rsp.ErrorMessage(db.Config.LangProperty("MaxMarkLength", nil))
+		return
+	}
+	if len(mark) == 0 {
+		mark = db.Config.LangProperty("DefaultComment", nil)
+	}
+
+	err := b.CreatePoll(types.Poll{
+		Channel:   db.Config.VotingChannel,
+		Guild:     m.GuildID,
+		Kind:      types.PollCatSign,
+		Suggestor: m.Author.ID,
+
+		PollCatSignData: &types.PollCatSignData{
+			CatName: name,
+			NewNote: mark,
+			OldNote: oldMark,
+		},
+	})
+	if rsp.Error(err) {
+		return
+	}
+	rsp.Message(db.Config.LangProperty("MarkSuggested", name))
 }

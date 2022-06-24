@@ -158,14 +158,35 @@ var (
 		{
 			Name:        "mark",
 			Type:        discordgo.ChatApplicationCommand,
-			Description: "Suggest a mark, or add a mark to an element you created!",
+			Description: "Add a mark to an element or category!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:         discordgo.ApplicationCommandOptionString,
-					Name:         "element",
-					Description:  "The name of the element to add a mark to!",
-					Required:     true,
-					Autocomplete: true,
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "element",
+					Description: "Add a mark to an element!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "element",
+							Description:  "The name of the element to add a mark to!",
+							Required:     true,
+							Autocomplete: true,
+						},
+					},
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "category",
+					Description: "Add a mark to a category!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:         discordgo.ApplicationCommandOptionString,
+							Name:         "category",
+							Description:  "The name of the category to add a mark to!",
+							Required:     true,
+							Autocomplete: true,
+						},
+					},
 				},
 			},
 		},
@@ -1627,8 +1648,11 @@ var (
 			bot.elements.SuggestCmd(resp.Options[0].StringValue(), autocapitalize, bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"mark": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			resp := i.ApplicationCommandData()
-			bot.polls.MarkInteractionCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			resp := i.ApplicationCommandData().Options[0]
+			switch resp.Name {
+			case "element":
+				bot.polls.MarkInteractionCmd(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+			}
 		},
 		"image": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			dat := i.ApplicationCommandData()
@@ -2496,8 +2520,16 @@ var (
 		"addcat": catChangeAutocomplete,
 		"rmcat":  catChangeAutocomplete,
 		"mark": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			data := i.ApplicationCommandData()
-			names, res := bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[0].StringValue())
+			data := i.ApplicationCommandData().Options[0]
+			var names []string
+			var res types.GetResponse
+			ind, _ := getFocused(data.Options)
+			if data.Name == "element" {
+				names, res = bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
+			}
+			if data.Name == "category" {
+				names, res = bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
+			}
 			if !res.Exists {
 				return
 			}
