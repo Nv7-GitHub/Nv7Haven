@@ -1,7 +1,6 @@
 package eodb
 
 import (
-	"fmt"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -202,8 +201,6 @@ func (d *DB) SaveCatCache(name string, elems map[int]types.Empty) error {
 			rm[el] = types.Empty{}
 		}
 	}
-
-	fmt.Println(name, cache, elems, add, rm)
 
 	// Save
 	d.catCache[strings.ToLower(name)] = elems

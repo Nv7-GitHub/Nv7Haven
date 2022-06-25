@@ -285,7 +285,12 @@ func (d *DB) loadCats() error {
 				return err
 			}
 		}
-		cat.Elements = cache
+
+		// Copy cache
+		cat.Elements = make(map[int]types.Empty, len(cache))
+		for elem := range cache {
+			cat.Elements[elem] = types.Empty{}
+		}
 
 		// Save cat
 		d.cats[strings.ToLower(name)] = cat
