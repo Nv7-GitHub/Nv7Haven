@@ -207,7 +207,7 @@ func (d *DB) SaveCatCache(name string, elems map[int]types.Empty) error {
 	if len(rm) > 0 {
 		toRm := make([]int, len(rm))
 		i := 0
-		for k := range add {
+		for k := range rm {
 			toRm[i] = k
 			i++
 		}
