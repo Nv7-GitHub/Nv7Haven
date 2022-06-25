@@ -1618,6 +1618,20 @@ var (
 			Description: "See what commands are used the most!",
 			Options:     []*discordgo.ApplicationCommandOption{},
 		},
+		{
+			Name:        "wiki",
+			Type:        discordgo.ChatApplicationCommand,
+			Description: "Get the wikipedia summary of an element!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:         discordgo.ApplicationCommandOptionString,
+					Name:         "element",
+					Description:  "The name of the element!",
+					Required:     true,
+					Autocomplete: true,
+				},
+			},
+		},
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"set": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -1809,6 +1823,9 @@ var (
 		},
 		"stats": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			bot.basecmds.StatsCmd(bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"wiki": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			bot.basecmds.WikiCmd(i.ApplicationCommandData().Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 		},
 		"reset": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData().Options[0]
@@ -2593,6 +2610,22 @@ var (
 			})
 		},
 		"invhint": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData()
+			if len(data.Options) == 0 {
+				return
+			}
+			names, res := bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[0].StringValue())
+			if !res.Exists {
+				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
+		"wiki": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			data := i.ApplicationCommandData()
 			if len(data.Options) == 0 {
 				return
