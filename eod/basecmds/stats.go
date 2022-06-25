@@ -72,6 +72,7 @@ func (b *BaseCmds) SaveStats() {
 		elemCnt := 0
 		comboCnt := 0
 		users := make(map[string]types.Empty)
+		commandStats := make(map[string]int)
 
 		for _, dat := range b.Data.DB {
 			dat.RLock()
@@ -82,6 +83,9 @@ func (b *BaseCmds) SaveStats() {
 				found += len(val.Elements)
 				users[val.User] = types.Empty{}
 			}
+			for k, v := range dat.Config.CommandStats {
+				commandStats[k] += v
+			}
 			elemCnt += len(dat.Elements)
 			comboCnt += dat.ComboCnt()
 			dat.RUnlock()
@@ -91,6 +95,14 @@ func (b *BaseCmds) SaveStats() {
 		_, err = b.db.Exec("INSERT INTO eod_stats VALUES (?, ?, ?, ?, ?, ?, ?)", time.Now().Unix(), elemCnt, comboCnt, len(users), found, categorized, len(b.Data.DB))
 		if err != nil {
 			fmt.Println(err)
+		}
+
+		// Save command stats
+		for k, v := range commandStats {
+			_, err = b.db.Exec("INSERT INTO eod_command_stats VALUES (?, ?, ?)", time.Now().Unix(), k, v)
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 	}
 }
