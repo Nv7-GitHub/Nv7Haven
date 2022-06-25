@@ -17,11 +17,7 @@ func req(rsp types.Rsp, val any, url *url.URL) bool {
 
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(val)
-	if rsp.Error(err) {
-		return true
-	}
-
-	return false
+	return rsp.Error(err)
 }
 
 type wikiSearchResults struct {
@@ -78,12 +74,12 @@ func (b *BaseCmds) WikiCmd(elem string, m types.Msg, rsp types.Rsp) {
 	if req(rsp, &results, u) {
 		return
 	}
-	pageID := results.Search[0].PageID
 
 	if results.SearchInfo.TotalHits == 0 {
 		rsp.ErrorMessage("No results found!") // TODO: Translate
 		return
 	}
+	pageID := results.Search[0].PageID
 
 	// Get page
 	u = &url.URL{
