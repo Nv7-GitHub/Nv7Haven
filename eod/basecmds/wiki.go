@@ -20,6 +20,10 @@ func req(rsp types.Rsp, val any, url *url.URL) bool {
 	return rsp.Error(err)
 }
 
+type wikiSearchResultsVal struct {
+	Query wikiSearchResults `json:"query"`
+}
+
 type wikiSearchResults struct {
 	SearchInfo struct {
 		TotalHits int `json:"totalhits"`
@@ -70,16 +74,16 @@ func (b *BaseCmds) WikiCmd(elem string, m types.Msg, rsp types.Rsp) {
 	q.Set("format", "json")
 	u.RawQuery = q.Encode()
 
-	var results wikiSearchResults
+	var results wikiSearchResultsVal
 	if req(rsp, &results, u) {
 		return
 	}
 
-	if results.SearchInfo.TotalHits == 0 {
+	if results.Query.SearchInfo.TotalHits == 0 {
 		rsp.ErrorMessage("No results found!") // TODO: Translate
 		return
 	}
-	pageID := results.Search[0].PageID
+	pageID := results.Query.Search[0].PageID
 
 	// Get page
 	u = &url.URL{
@@ -94,6 +98,7 @@ func (b *BaseCmds) WikiCmd(elem string, m types.Msg, rsp types.Rsp) {
 	q.Set("titles", el.Name)
 	q.Set("explaintext", "1")
 	q.Set("format", "json")
+	u.RawQuery = q.Encode()
 
 	var pages wikiPages
 	if req(rsp, &pages, u) {
