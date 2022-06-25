@@ -44,7 +44,7 @@
   "UnCategorizeMultSuggestUnCategorized": "Un-categorized and suggested to remove **{{ .Element }}** from **{{ .Category }}** 🗃️",
   "UnCategorizeMultSuggestUnCategorizedMult": "Un-categorized and suggested to remove **{{ .Elements }} elements** from **{{ .Category }}** 🗃️",
 
-  "Stats": "Element Count: **{{ .Elements }}**\nCombination Count: **{{ .Combos }}**\nMember Count: **{{ .Members }}**\nElements Found: **{{ .Found }}**\nElements Categorized: **{{ .Categorized }}**",
+  "Stats": "Element Count: **{{ .Elements }}**\nCombination Count: **{{ .Combos }}**\nMember Count: **{{ .Members }}**\nElements Found: **{{ .Found }}**\nElements Categorized: **{{ .Categorized }}**\nCommands Used: **{{ .CommandsUsed }}**",
   "ViewMoreStats": "View More Stats",
   "ElementCount": "Element Count",
   

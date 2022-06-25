@@ -33,12 +33,18 @@ func (b *BaseCmds) StatsCmd(m types.Msg, rsp types.Rsp) {
 		categorized += len(val.Elements)
 	}
 
+	used := 0
+	for _, v := range db.Config.CommandStats {
+		used += v
+	}
+
 	rsp.Message(db.Config.LangProperty("Stats", map[string]any{
-		"Elements":    util.FormatInt(len(db.Elements)),
-		"Combos":      util.FormatInt(db.ComboCnt()),
-		"Members":     util.FormatInt(gd.MemberCount),
-		"Found":       util.FormatInt(found),
-		"Categorized": util.FormatInt(categorized),
+		"Elements":      util.FormatInt(len(db.Elements)),
+		"Combos":        util.FormatInt(db.ComboCnt()),
+		"Members":       util.FormatInt(gd.MemberCount),
+		"Found":         util.FormatInt(found),
+		"Categorized":   util.FormatInt(categorized),
+		"Commands Used": util.FormatInt(used),
 	}), discordgo.ActionsRow{
 		Components: []discordgo.MessageComponent{
 			discordgo.Button{
