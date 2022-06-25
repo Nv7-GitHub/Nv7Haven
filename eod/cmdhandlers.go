@@ -175,6 +175,15 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
+		if cmd == "invhint" || cmd == "ih" {
+			suggestion := m.Content[len(cmd)+2:]
+			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
+
+			b.addCmdCounter(m, "invhint")
+			b.elements.HintCmd(suggestion, true, false, true, msg, rsp)
+			return
+		}
+
 		if cmd == "addcat" || cmd == "ac" {
 			if len(m.Content) <= len(cmd)+2 {
 				return
