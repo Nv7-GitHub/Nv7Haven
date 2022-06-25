@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
@@ -106,5 +107,9 @@ func (b *BaseCmds) WikiCmd(elem string, m types.Msg, rsp types.Rsp) {
 	}
 
 	page := pages.Query.Pages[pageID]
+	if len(strings.TrimSpace(page.Extract)) == 0 {
+		rsp.ErrorMessage("No results found!") // TODO: Translate
+		return
+	}
 	rsp.Message(page.Extract)
 }
