@@ -2,7 +2,6 @@ package util
 
 import (
 	"fmt"
-	"math"
 	"math/big"
 	"sort"
 	"strconv"
@@ -76,43 +75,13 @@ func Obscure(val string) string {
 	return string(out)
 }
 
-var ten = big.NewInt(10)
-var superscript = map[string]string{
-	"0": "⁰",
-	"1": "¹",
-	"2": "²",
-	"3": "³",
-	"4": "⁴",
-	"5": "⁵",
-	"6": "⁶",
-	"7": "⁷",
-	"8": "⁸",
-	"9": "⁹",
-}
-
 func FormatBigInt(b *big.Int) string {
 	if b.IsInt64() {
 		return FormatInt(int(b.Int64()))
 	}
 
 	// Get number of digits
-	fac := math.Log(2) / math.Log(10)
-	count := int64(fac * float64(b.BitLen()))
-	if big.NewInt(0).Exp(ten, big.NewInt(count-1), nil).Cmp(b) < 0 {
-		count++
-	}
-
-	// Get val
-	tenCnt := count - 1
-	div := big.NewInt(0).Exp(ten, big.NewInt(tenCnt), nil)
-	v := big.NewFloat(0).Quo(big.NewFloat(0).SetInt(b), big.NewFloat(0).SetInt(div)) // b/tenCnt
-	val, _ := v.Float64()
-
-	// Format
-	exp := strconv.Itoa(int(tenCnt))
-	for k, v := range superscript {
-		exp = strings.ReplaceAll(exp, k, v)
-	}
-
-	return fmt.Sprintf("%0.6f×10%s", val, exp)
+	f := big.NewFloat(0).SetInt(b)
+	v, _ := f.Float64()
+	return fmt.Sprintf("%v", v)
 }
