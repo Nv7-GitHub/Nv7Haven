@@ -87,13 +87,13 @@ func (h *helpComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCr
 
 func (b *BaseCmds) HelpCmd(m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
-	id := rsp.Message(helpAbout, makeHelpComponents("about"))
-
 	data, res := b.GetData(m.GuildID)
 	if !res.Exists {
+		rsp.Message(helpSetup)
 		return
 	}
 
+	id := rsp.Message(helpAbout, makeHelpComponents("about"))
 	data.AddComponentMsg(id, &helpComponent{
 		b: b,
 	})
