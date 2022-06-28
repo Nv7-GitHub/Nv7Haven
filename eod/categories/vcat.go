@@ -39,6 +39,7 @@ func (b *Categories) VCatCreateAllElementsCmd(name string, m types.Msg, rsp type
 			return
 		}
 	}
+	db.RUnlock()
 
 	// Create
 	if strings.ToLower(name) == name {
