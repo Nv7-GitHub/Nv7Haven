@@ -153,6 +153,13 @@ func (d *DB) loadInvs() error {
 		if err != nil {
 			return err
 		}
+		if len(dat) == 0 {
+			err := os.Remove(filepath.Join(d.dbPath, "inventories", file.Name()))
+			if err != nil {
+				return err
+			}
+			continue
+		}
 		err = json.Unmarshal(dat, &inv)
 		if err != nil {
 			return err
