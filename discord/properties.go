@@ -235,7 +235,7 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 		for id, ups := range user.Properties {
 			val := b.props[id].Value
 
-			income += int(float32(val*ups) * float32(1/3600))
+			income += int(float32(val*ups) * float32(1) / 3600)
 			limbo += int(float32(val*ups) * (float32(time.Now().Unix()-user.LastVisited) / 3600))
 		}
 		if id == m.Author.ID {
