@@ -1,11 +1,9 @@
 package categories
 
 import (
-	"fmt"
 	"net/url"
 	"strings"
 
-	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
@@ -26,11 +24,11 @@ func (b *Categories) GetNotExists(db *eodb.DB, elems []string, m types.Msg, rsp 
 			el = k
 			break
 		}
-		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DoesntExist"), el))
+		rsp.ErrorMessage(db.Config.LangProperty("DoesntExist", el))
 		return
 	}
 
-	rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DoesntExistMultiple"), util.JoinTxt(notExists, db.Config.LangProperty("DoesntExistJoiner"))))
+	rsp.ErrorMessage(db.Config.LangProperty("DoesntExistMultiple", util.JoinTxt(notExists, db.Config.LangProperty("DoesntExistJoiner", nil))))
 
 }
 
@@ -40,52 +38,61 @@ func (b *Categories) CategoryCmd(elems []string, category string, m types.Msg, r
 		return
 	}
 
+	rsp.Acknowledge()
+
 	elems = util.RemoveDuplicates(elems)
 
 	category = strings.TrimSpace(category)
 
-	for _, elem := range elems {
-		if base.IsFoolsMode && !base.IsFool(elem) {
-			rsp.ErrorMessage(base.MakeFoolResp(elem))
-			return
-		}
-	}
-	if base.IsFoolsMode && !base.IsFool(category) {
-		rsp.ErrorMessage(base.MakeFoolResp(category))
+	vcat, res := db.GetVCat(category)
+	if res.Exists {
+		rsp.ErrorMessage(db.Config.LangProperty("CatAlreadyExist", vcat.Name))
 		return
 	}
 
 	if len(category) == 0 {
-		rsp.ErrorMessage(db.Config.LangProperty("CatNameBlank"))
+		rsp.ErrorMessage(db.Config.LangProperty("CatNameBlank", nil))
 		return
 	}
 
 	cat, res := db.GetCat(category)
+	var els map[int]types.Empty
 	if res.Exists {
 		category = cat.Name
+
+		// Copy elements
+		cat.Lock.RLock()
+		els = make(map[int]types.Empty, len(cat.Elements))
+		for el := range cat.Elements {
+			els[el] = types.Empty{}
+		}
+		cat.Lock.RUnlock()
 	} else if strings.ToLower(category) == category {
 		category = util.ToTitle(category)
+		els = make(map[int]types.Empty)
 		if len(url.PathEscape(category)) > 1024 {
-			rsp.ErrorMessage(db.Config.LangProperty("CatNameTooLong"))
+			rsp.ErrorMessage(db.Config.LangProperty("CatNameTooLong", nil))
 			return
 		}
 	}
 
 	suggestAdd := make([]int, 0)
-	added := make([]string, 0)
+	added := 0
 	for _, val := range elems {
 		el, res := db.GetElementByName(val)
 		if !res.Exists {
 			b.GetNotExists(db, elems, m, rsp)
 			return
 		}
-
-		if el.Creator == m.Author.ID {
-			added = append(added, el.Name)
-			err := b.polls.Categorize(el.ID, category, m.GuildID)
-			rsp.Error(err)
-		} else {
-			suggestAdd = append(suggestAdd, el.ID)
+		_, exists := els[el.ID]
+		if !exists { // Only add if not already added
+			if el.Creator == m.Author.ID {
+				added++
+				err := b.polls.Categorize(el.ID, category, m.GuildID)
+				rsp.Error(err)
+			} else {
+				suggestAdd = append(suggestAdd, el.ID)
+			}
 		}
 	}
 
@@ -99,26 +106,44 @@ func (b *Categories) CategoryCmd(elems []string, category string, m types.Msg, r
 			PollCategorizeData: &types.PollCategorizeData{
 				Elems:    suggestAdd,
 				Category: category,
+				Title:    db.Config.LangProperty("AddCatPoll", nil),
 			},
 		})
 		if rsp.Error(err) {
 			return
 		}
 	}
-	if len(added) > 0 && len(suggestAdd) == 0 {
-		rsp.Message(db.Config.LangProperty("Categorized"))
-	} else if len(added) == 0 && len(suggestAdd) == 1 {
+
+	b.categorizeRsp(added, suggestAdd, db, category, rsp)
+}
+
+func (c *Categories) categorizeRsp(added int, suggestAdd []int, db *eodb.DB, category string, rsp types.Rsp) {
+	if added > 0 && len(suggestAdd) == 0 {
+		rsp.Message(db.Config.LangProperty("Categorized", nil))
+	} else if added == 0 && len(suggestAdd) == 1 {
 		el, _ := db.GetElement(suggestAdd[0])
-		rsp.Message(fmt.Sprintf(db.Config.LangProperty("SuggestCategorized"), el.Name, category))
-	} else if len(added) == 0 && len(suggestAdd) > 1 {
-		rsp.Message(fmt.Sprintf(db.Config.LangProperty("SuggestCategorizedMult"), len(suggestAdd), category))
-	} else if len(added) > 0 && len(suggestAdd) == 1 {
+		rsp.Message(db.Config.LangProperty("SuggestCategorized", map[string]any{
+			"Element":  el.Name,
+			"Category": category,
+		}))
+	} else if added == 0 && len(suggestAdd) > 1 {
+		rsp.Message(db.Config.LangProperty("SuggestCategorizedMult", map[string]any{
+			"Elements": len(suggestAdd),
+			"Category": category,
+		}))
+	} else if added > 0 && len(suggestAdd) == 1 {
 		el, _ := db.GetElement(suggestAdd[0])
-		rsp.Message(fmt.Sprintf(db.Config.LangProperty("CategorizeMultSuggestCategorized"), el.Name, category))
-	} else if len(added) > 0 && len(suggestAdd) > 1 {
-		rsp.Message(fmt.Sprintf(db.Config.LangProperty("CategorizeMultSuggestCategorizedMult"), len(suggestAdd), category))
+		rsp.Message(db.Config.LangProperty("CategorizeMultSuggestCategorized", map[string]any{
+			"Element":  el.Name,
+			"Category": category,
+		}))
+	} else if added > 0 && len(suggestAdd) > 1 {
+		rsp.Message(db.Config.LangProperty("CategorizeMultSuggestCategorizedMult", map[string]any{
+			"Elements": len(suggestAdd),
+			"Category": category,
+		}))
 	} else {
-		rsp.Message(db.Config.LangProperty("Categorized"))
+		rsp.Message(db.Config.LangProperty("Categorized", nil))
 	}
 }
 
@@ -128,11 +153,13 @@ func (b *Categories) RmCategoryCmd(elems []string, category string, m types.Msg,
 		return
 	}
 
+	rsp.Acknowledge()
+
 	elems = util.RemoveDuplicates(elems)
 
 	cat, res := db.GetCat(category)
 	if !res.Exists {
-		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("CatNoExist"), category))
+		rsp.ErrorMessage(res.Message)
 		return
 	}
 
@@ -180,17 +207,23 @@ func (b *Categories) RmCategoryCmd(elems []string, category string, m types.Msg,
 				el = k
 				break
 			}
-			rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("NotInCat"), el, cat.Name))
+			rsp.ErrorMessage(db.Config.LangProperty("NotInCat", map[string]any{
+				"Element":  el,
+				"Category": cat.Name,
+			}))
 			return
 		}
 
-		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("NotInCatMult"), util.JoinTxt(notFound, db.Config.LangProperty("DoesntExistJoiner")), cat.Name))
+		rsp.ErrorMessage(db.Config.LangProperty("NotInCatMult", map[string]any{
+			"Elements": util.JoinTxt(notFound, db.Config.LangProperty("DoesntExistJoiner", nil)),
+			"Category": cat.Name,
+		}))
 		return
 	}
 
 	// Actually remove
 	suggestRm := make([]int, 0)
-	rmed := make([]string, 0)
+	toRm := make([]int, 0)
 	for _, val := range elems {
 		el, res := db.GetElementByName(val)
 		if !res.Exists {
@@ -202,18 +235,25 @@ func (b *Categories) RmCategoryCmd(elems []string, category string, m types.Msg,
 		_, exists := cat.Elements[el.ID]
 		cat.Lock.RUnlock()
 		if !exists {
-			rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("NotInCat"), el.Name, cat.Name))
+			rsp.ErrorMessage(db.Config.LangProperty("NotInCat", map[string]any{
+				"Element":  el.Name,
+				"Category": cat.Name,
+			}))
 			return
 		}
 
 		if el.Creator == m.Author.ID {
-			rmed = append(rmed, el.Name)
-			err := b.polls.UnCategorize(el.ID, category, m.GuildID)
-			rsp.Error(err)
+			toRm = append(toRm, el.ID)
 		} else {
 			suggestRm = append(suggestRm, el.ID)
 		}
 	}
+
+	err := b.polls.UnCategorize(toRm, category, m.GuildID)
+	if rsp.Error(err) {
+		return
+	}
+
 	if len(suggestRm) > 0 {
 		err := b.polls.CreatePoll(types.Poll{
 			Channel:   db.Config.VotingChannel,
@@ -224,25 +264,43 @@ func (b *Categories) RmCategoryCmd(elems []string, category string, m types.Msg,
 			PollCategorizeData: &types.PollCategorizeData{
 				Elems:    suggestRm,
 				Category: category,
+				Title:    db.Config.LangProperty("RmCatPoll", nil),
 			},
 		})
 		if rsp.Error(err) {
 			return
 		}
 	}
-	if len(rmed) > 0 && len(suggestRm) == 0 {
-		rsp.Message(db.Config.LangProperty("UnCategorized"))
-	} else if len(rmed) == 0 && len(suggestRm) == 1 {
+
+	b.unCategorizeRsp(len(toRm), suggestRm, db, category, rsp)
+}
+
+func (c *Categories) unCategorizeRsp(rmed int, suggestRm []int, db *eodb.DB, category string, rsp types.Rsp) {
+	if rmed > 0 && len(suggestRm) == 0 {
+		rsp.Message(db.Config.LangProperty("UnCategorized", nil))
+	} else if rmed == 0 && len(suggestRm) == 1 {
 		el, _ := db.GetElement(suggestRm[0])
-		rsp.Message(fmt.Sprintf(db.Config.LangProperty("SuggestUnCategorized"), el.Name, category))
-	} else if len(rmed) == 0 && len(suggestRm) > 1 {
-		rsp.Message(fmt.Sprintf(db.Config.LangProperty("SuggestUnCategorizedMult"), len(suggestRm), category))
-	} else if len(rmed) > 0 && len(suggestRm) == 1 {
+		rsp.Message(db.Config.LangProperty("SuggestUnCategorized", map[string]any{
+			"Element":  el.Name,
+			"Category": category,
+		}))
+	} else if rmed == 0 && len(suggestRm) > 1 {
+		rsp.Message(db.Config.LangProperty("SuggestUnCategorizedMult", map[string]any{
+			"Elements": len(suggestRm),
+			"Category": category,
+		}))
+	} else if rmed > 0 && len(suggestRm) == 1 {
 		el, _ := db.GetElement(suggestRm[0])
-		rsp.Message(fmt.Sprintf(db.Config.LangProperty("UnCategorizeMultSuggestUnCategorized"), el.Name, category))
-	} else if len(rmed) > 0 && len(suggestRm) > 1 {
-		rsp.Message(fmt.Sprintf(db.Config.LangProperty("UnCategorizeMultSuggestUnCategorizedMult"), len(suggestRm), category))
+		rsp.Message(db.Config.LangProperty("UnCategorizeMultSuggestUnCategorized", map[string]any{
+			"Element":  el.Name,
+			"Category": category,
+		}))
+	} else if rmed > 0 && len(suggestRm) > 1 {
+		rsp.Message(db.Config.LangProperty("UnCategorizeMultSuggestUnCategorizedMult", map[string]any{
+			"Elements": len(suggestRm),
+			"Category": category,
+		}))
 	} else {
-		rsp.Message(db.Config.LangProperty("UnCategorized"))
+		rsp.Message(db.Config.LangProperty("UnCategorized", nil))
 	}
 }

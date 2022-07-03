@@ -1,8 +1,8 @@
 package treecmds
 
 import (
-	"fmt"
 	"strings"
+	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -23,6 +23,11 @@ func (b *TreeCmds) NotationCmd(elem string, m types.Msg, rsp types.Rsp) {
 		rsp.ErrorMessage(res.Message)
 		return
 	}
+	inv := db.GetInv(m.Author.ID)
+	if !inv.Contains(el.ID) {
+		rsp.ErrorMessage(db.Config.LangProperty("MustHaveElemForPath", el.Name))
+		return
+	}
 
 	db.RLock()
 	msg, suc := tree.AddElem(el.ID)
@@ -40,12 +45,12 @@ func (b *TreeCmds) NotationCmd(elem string, m types.Msg, rsp types.Rsp) {
 	}
 
 	if len(txt) <= 2000 {
-		id := rsp.Message(db.Config.LangProperty("SentNotationToDMs"))
+		id := rsp.Message(db.Config.LangProperty("SentNotationToDMs", nil))
 		data.SetMsgElem(id, el.ID)
 		rsp.DM(txt)
 		return
 	}
-	id := rsp.Message(db.Config.LangProperty("NotationTooLong"))
+	id := rsp.Message(db.Config.LangProperty("NotationTooLong", nil))
 
 	data.SetMsgElem(id, el.ID)
 
@@ -55,7 +60,7 @@ func (b *TreeCmds) NotationCmd(elem string, m types.Msg, rsp types.Rsp) {
 	}
 	buf := strings.NewReader(txt)
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: fmt.Sprintf(db.Config.LangProperty("NameNotationElem"), el.Name),
+		Content: db.Config.LangProperty("NameNotationElem", el.Name),
 		Files: []*discordgo.File{
 			{
 				Name:        "notation.txt",
@@ -75,13 +80,40 @@ func (b *TreeCmds) CatNotationCmd(catName string, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 	tree := trees.NewNotationTree(db)
 
-	cat, res := db.GetCat(catName)
+	var els map[int]types.Empty
+	var lock *sync.RWMutex
+	catv, res := db.GetCat(catName)
 	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
+		vcat, res := db.GetVCat(catName)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		catName = vcat.Name
+		els, res = b.base.CalcVCat(vcat, db, true)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+	} else {
+		lock = catv.Lock
+		els = catv.Elements
+		catName = catv.Name
+	}
+
+	inv := db.GetInv(m.Author.ID)
+	for k := range els {
+		if !inv.Contains(k) {
+			rsp.ErrorMessage(db.Config.LangProperty("MustHaveCatForPath", catName))
+			return
+		}
 	}
 
 	db.RLock()
-	for elem := range cat.Elements {
+	if lock != nil {
+		lock.RLock()
+	}
+	for elem := range els {
 		msg, suc := tree.AddElem(elem)
 		if !suc {
 			db.RUnlock()
@@ -89,17 +121,20 @@ func (b *TreeCmds) CatNotationCmd(catName string, m types.Msg, rsp types.Rsp) {
 			return
 		}
 	}
+	if lock != nil {
+		lock.RUnlock()
+	}
 	db.RUnlock()
 
 	txt := tree.String()
 
 	if len(txt) <= 2000 {
-		rsp.Message(db.Config.LangProperty("SentNotationToDMs"))
+		rsp.Message(db.Config.LangProperty("SentNotationToDMs", nil))
 
 		rsp.DM(txt)
 		return
 	}
-	rsp.Message(db.Config.LangProperty("NotationTooLong"))
+	rsp.Message(db.Config.LangProperty("NotationTooLong", nil))
 
 	channel, err := b.dg.UserChannelCreate(m.Author.ID)
 	if rsp.Error(err) {
@@ -107,7 +142,7 @@ func (b *TreeCmds) CatNotationCmd(catName string, m types.Msg, rsp types.Rsp) {
 	}
 	buf := strings.NewReader(txt)
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: fmt.Sprintf(db.Config.LangProperty("NameNotationCat"), cat.Name),
+		Content: db.Config.LangProperty("NameNotationCat", catName),
 		Files: []*discordgo.File{
 			{
 				Name:        "notation.txt",

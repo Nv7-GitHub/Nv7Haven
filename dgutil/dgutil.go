@@ -24,6 +24,7 @@ func UpdateBotCommands(dg *discordgo.Session, clientID string, guild string, com
 			_, err := dg.ApplicationCommandCreate(clientID, guild, val)
 			if err != nil {
 				fmt.Printf("Failed to update command %s\n", val.Name)
+				fmt.Println("Error:", err)
 			} else {
 				fmt.Printf("Updated command %s\n", val.Name)
 			}
@@ -43,7 +44,7 @@ func UpdateBotCommands(dg *discordgo.Session, clientID string, guild string, com
 }
 
 func commandsAreEqual(a *discordgo.ApplicationCommand, b *discordgo.ApplicationCommand) bool {
-	if a.Name != b.Name || a.Description != b.Description || len(a.Options) != len(b.Options) {
+	if a.Name != b.Name || a.Description != b.Description || len(a.Options) != len(b.Options) || a.DefaultMemberPermissions != nil && b.DefaultMemberPermissions == nil || a.DefaultMemberPermissions == nil && b.DefaultMemberPermissions != nil || (a.DefaultMemberPermissions != nil && b.DefaultMemberPermissions != nil && *a.DefaultMemberPermissions != *b.DefaultMemberPermissions) {
 		return false
 	}
 
@@ -53,7 +54,7 @@ func commandsAreEqual(a *discordgo.ApplicationCommand, b *discordgo.ApplicationC
 func optionsArrEqual(a []*discordgo.ApplicationCommandOption, b []*discordgo.ApplicationCommandOption) bool {
 	for i, o1 := range a {
 		o2 := b[i]
-		if o1.Type != o2.Type || o1.Name != o2.Name || o1.Description != o2.Description || len(o1.Choices) != len(o2.Choices) || o1.Autocomplete != o2.Autocomplete {
+		if o1.Type != o2.Type || o1.Name != o2.Name || o1.Description != o2.Description || len(o1.Choices) != len(o2.Choices) || o1.Autocomplete != o2.Autocomplete || o1.MaxValue != o2.MaxValue || o1.MinValue != nil && o2.MinValue == nil || o1.MinValue == nil && o2.MinValue != nil || (o1.MinValue != nil && o2.MinValue != nil && *o1.MinValue != *o2.MinValue) {
 			return false
 		}
 		sort.Slice(o1.Choices, func(i, j int) bool {

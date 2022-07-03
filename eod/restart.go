@@ -41,7 +41,7 @@ func (b *EoD) update(m types.Msg, rsp types.Rsp) {
 	ping := fmt.Sprintf("<@%s> ", m.Author.ID)
 	b.dg.ChannelMessageSend(m.ChannelID, ping+"Downloading updates...")
 
-	cmd := exec.Command("git", "pull")
+	cmd := exec.Command("git", "pull", "--recurse-submodules")
 	err := cmd.Run()
 	if rsp.Error(err) {
 		return
@@ -81,10 +81,12 @@ func (b *EoD) start() {
 		if err != nil {
 			return
 		}
-		b.dg.ChannelMessageSendEmbed("840344139870371920", &discordgo.MessageEmbed{
-			Title:       "Bot Crash!",
-			Description: fmt.Sprintf("```\n%s\n```", string(logs)),
-		})
+		if len(strings.TrimSpace(string(logs))) != 0 { // Only send if there's something to send
+			b.dg.ChannelMessageSendEmbed("840344139870371920", &discordgo.MessageEmbed{
+				Title:       "Bot Crash!",
+				Description: fmt.Sprintf("```\n%s\n```", string(logs)),
+			})
+		}
 		os.Create("logs.txt") // Reset logs
 	}
 
@@ -144,6 +146,10 @@ func (b *EoD) optimize(m types.Msg, rsp types.Rsp) {
 
 		start := time.Now()
 		err := db.Optimize()
+		if rsp.Error(err) {
+			return
+		}
+		err = db.OptimizeCats()
 		if rsp.Error(err) {
 			return
 		}

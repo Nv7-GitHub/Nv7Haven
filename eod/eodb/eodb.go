@@ -90,17 +90,23 @@ type DB struct {
 
 	Elements  []types.Element
 	elemNames map[string]int
-	combos    map[string]int              // map["1+1"] = 5 for air + air = wind
-	invs      map[string]*types.Inventory // map[userid]map[elemid]
-	cats      map[string]*types.Category  // map[name]cat(id: cat name)
-	Polls     map[string]types.Poll       // map[messageid]poll
+	combos    map[string]int                    // map["1+1"] = 5 for air + air = wind
+	invs      map[string]*types.Inventory       // map[userid]map[elemid]
+	cats      map[string]*types.Category        // map[name]cat(id: cat name)
+	vcats     map[string]*types.VirtualCategory // map[name]vcat
+	Polls     map[string]types.Poll             // map[messageid]poll
 	Config    *types.ServerConfig
 
-	invFiles   map[string]*os.File
-	catFiles   map[string]*os.File
-	elemFile   *os.File
-	comboFile  *os.File
-	configFile *os.File
+	inTransaction bool
+
+	invFiles      map[string]*os.File
+	catFiles      map[string]*os.File
+	catCacheFiles map[string]*os.File
+	catCache      map[string]map[int]types.Empty // map[name]cat(id: cat name)
+	elemFile      *os.File
+	comboFile     *os.File
+	configFile    *os.File
+	vcatsFile     *os.File
 
 	AI *ai.AI
 }
@@ -111,6 +117,10 @@ func (d *DB) Invs() map[string]*types.Inventory {
 
 func (d *DB) Cats() map[string]*types.Category {
 	return d.cats
+}
+
+func (d *DB) VCats() map[string]*types.VirtualCategory {
+	return d.vcats
 }
 
 func (d *DB) ComboCnt() int {
@@ -129,12 +139,15 @@ func newDB(path string, guild string) *DB {
 		combos:    make(map[string]int),
 		invs:      make(map[string]*types.Inventory),
 		cats:      make(map[string]*types.Category),
+		vcats:     make(map[string]*types.VirtualCategory),
 		Polls:     make(map[string]types.Poll),
 		Elements:  make([]types.Element, 0),
 		elemNames: make(map[string]int),
 
-		invFiles: make(map[string]*os.File),
-		catFiles: make(map[string]*os.File),
+		invFiles:      make(map[string]*os.File),
+		catFiles:      make(map[string]*os.File),
+		catCacheFiles: make(map[string]*os.File),
+		catCache:      make(map[string]map[int]types.Empty),
 
 		AI: ai.NewAI(),
 	}
@@ -164,7 +177,15 @@ func NewDB(guild, path string) (*DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	err = db.loadCatCache()
+	if err != nil {
+		return nil, err
+	}
 	err = db.loadCats()
+	if err != nil {
+		return nil, err
+	}
+	err = db.loadVcats()
 	if err != nil {
 		return nil, err
 	}
@@ -181,6 +202,9 @@ func (d *DB) Close() {
 		file.Close()
 	}
 	for _, file := range d.catFiles {
+		file.Close()
+	}
+	for _, file := range d.catCacheFiles {
 		file.Close()
 	}
 	d.elemFile.Close()

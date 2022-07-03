@@ -32,17 +32,17 @@ func (b *Bot) warnCmd(user string, mod string, text string, m msg, rsp rsp) {
 		serverData := b.readServerData(rsp, m.GuildID)
 		_, exists := serverData["warns"]
 		if !exists {
-			serverData["warns"] = make(map[string]interface{})
+			serverData["warns"] = make(map[string]any)
 		}
-		var existing []interface{}
-		_, exists = serverData["warns"].(map[string]interface{})[user]
+		var existing []any
+		_, exists = serverData["warns"].(map[string]any)[user]
 		if !exists {
-			existing = make([]interface{}, 0)
+			existing = make([]any, 0)
 		} else {
-			existing = serverData["warns"].(map[string]interface{})[user].([]interface{})
+			existing = serverData["warns"].(map[string]any)[user].([]any)
 		}
 		existing = append(existing, warn)
-		serverData["warns"].(map[string]interface{})[user] = existing
+		serverData["warns"].(map[string]any)[user] = existing
 		b.changeServerData(rsp, m.GuildID, serverData)
 		rsp.Resp(`Successfully warned user.`)
 		return
@@ -56,13 +56,13 @@ func (b *Bot) warnsCmd(hasMention bool, mentionID string, m msg, rsp rsp) {
 		return
 	}
 
-	users := make(map[string]interface{})
+	users := make(map[string]any)
 	serverData := b.readServerData(rsp, m.GuildID)
 	_, exists := serverData["warns"]
 	if !exists {
-		serverData["warns"] = make(map[string]interface{})
+		serverData["warns"] = make(map[string]any)
 	}
-	warns := serverData["warns"].(map[string]interface{})
+	warns := serverData["warns"].(map[string]any)
 	if hasMention {
 		_, exists := warns[mentionID]
 		if exists {
@@ -78,7 +78,7 @@ func (b *Bot) warnsCmd(hasMention bool, mentionID string, m msg, rsp rsp) {
 	for userID, warnVals := range warns {
 		var warn warning
 		var text string
-		for _, warning := range warnVals.([]interface{}) {
+		for _, warning := range warnVals.([]any) {
 			err := mapstructure.Decode(warning, &warn)
 			if rsp.Error(err) {
 				return
@@ -150,9 +150,9 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 		dat := b.getServerData(m, m.GuildID)
 		_, exists := dat["roles"]
 		if !exists {
-			dat["roles"] = make(map[string]interface{})
+			dat["roles"] = make(map[string]any)
 		}
-		dat["roles"].(map[string]interface{})[name] = empty{}
+		dat["roles"].(map[string]any)[name] = empty{}
 		b.updateServerData(m, m.GuildID, dat)
 
 		role, err := s.GuildRoleCreate(m.GuildID)
@@ -194,7 +194,7 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 		dat := b.getServerData(m, m.GuildID)
 		_, exists := dat["roles"]
 		if exists {
-			delete(dat["roles"].(map[string]interface{}), name)
+			delete(dat["roles"].(map[string]any), name)
 		}
 		b.updateServerData(m, m.GuildID, dat)
 
@@ -234,7 +234,7 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Role `%s` hasn't been created by this bot!", name))
 			return
 		}
-		_, exists = dat["roles"].(map[string]interface{})[name]
+		_, exists = dat["roles"].(map[string]any)[name]
 		if !exists {
 			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Role `%s` hasn't been created by this bot!", name))
 			return
@@ -281,7 +281,7 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Role `%s` hasn't been created by this bot!", name))
 			return
 		}
-		_, exists = dat["roles"].(map[string]interface{})[name]
+		_, exists = dat["roles"].(map[string]any)[name]
 		if !exists {
 			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Role `%s` hasn't been created by this bot!", name))
 			return

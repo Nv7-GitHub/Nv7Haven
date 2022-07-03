@@ -1,7 +1,6 @@
 package eod
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -18,6 +17,17 @@ var combs = []string{
 	"plus",
 }
 
+func (b *EoD) addCmdCounter(m *discordgo.MessageCreate, cmd string) {
+	db, res := b.GetDB(m.GuildID)
+	if res.Exists {
+		if db.Config.CommandStats == nil {
+			db.Config.CommandStats = make(map[string]int)
+		}
+		db.Config.CommandStats[cmd]++
+		db.SaveConfig()
+	}
+}
+
 func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	msg := b.newMsgNormal(m)
 	rsp := b.newRespNormal(m)
@@ -26,14 +36,69 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if strings.HasPrefix(m.Content, "+") {
+	if strings.HasPrefix(m.Content, "=") {
 		if len(m.Content) < 2 {
 			return
 		}
 		suggestion := m.Content[1:]
 
 		suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
+		b.addCmdCounter(m, "suggest")
 		b.elements.SuggestCmd(suggestion, true, msg, rsp)
+		return
+	}
+
+	if strings.HasPrefix(m.Content, "+") && len(m.Content) > 1 {
+		m.Content = strings.TrimSpace(m.Content[1:])
+		if !b.base.CheckServer(msg, rsp) {
+			return
+		}
+
+		data, res := b.GetData(msg.GuildID)
+		if !res.Exists {
+			return
+		}
+		db, res := b.GetDB(msg.GuildID)
+		if !res.Exists {
+			return
+		}
+
+		// Get last
+		comb, res := data.GetComb(msg.Author.ID)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		if comb.Elem3 == -1 {
+			txt := make([]string, len(comb.Elems))
+			for i, elem := range comb.Elems {
+				el, _ := db.GetElement(elem)
+				txt[i] = el.Name
+			}
+			b.basecmds.Combine(txt, msg, rsp)
+			return
+		}
+		el, _ := db.GetElement(comb.Elem3)
+
+		for _, comb := range combs {
+			if strings.Contains(m.Content, comb) {
+
+				// Get parts
+				parts := strings.Split(m.Content, comb)
+				if len(parts) < 2 {
+					return
+				}
+				for i, part := range parts {
+					parts[i] = strings.TrimSpace(strings.Replace(part, "\\", "", -1))
+				}
+
+				b.addCmdCounter(m, "combine")
+				b.basecmds.Combine(append([]string{el.Name}, parts...), msg, rsp)
+				return
+			}
+		}
+		b.addCmdCounter(m, "combine")
+		b.basecmds.Combine([]string{el.Name, m.Content}, msg, rsp)
 		return
 	}
 
@@ -55,6 +120,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			suggestion := m.Content[len(cmd)+2:]
 
 			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
+			b.addCmdCounter(m, "suggest")
 			b.elements.SuggestCmd(suggestion, true, msg, rsp)
 			return
 		}
@@ -72,9 +138,10 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
 
 			if len(m.Attachments) < 1 {
-				rsp.ErrorMessage(db.Config.LangProperty("MustAttachImage"))
+				rsp.ErrorMessage(db.Config.LangProperty("MustAttachImage", nil))
 				return
 			}
+			b.addCmdCounter(m, "image")
 			b.polls.ImageCmd(suggestion, m.Attachments[0].URL, msg, rsp)
 			return
 		}
@@ -87,22 +154,33 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
 
 			if len(m.Attachments) < 1 {
-				rsp.ErrorMessage(db.Config.LangProperty("MustAttachImage"))
+				rsp.ErrorMessage(db.Config.LangProperty("MustAttachImage", nil))
 				return
 			}
+			b.addCmdCounter(m, "image")
 			b.polls.CatImgCmd(suggestion, m.Attachments[0].URL, msg, rsp)
 			return
 		}
 
 		if cmd == "hint" || cmd == "h" {
 			if len(m.Content) <= len(cmd)+2 {
-				b.elements.HintCmd("", false, false, msg, rsp)
+				b.elements.HintCmd("", false, false, false, msg, rsp)
 				return
 			}
 			suggestion := m.Content[len(cmd)+2:]
 			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
 
-			b.elements.HintCmd(suggestion, true, false, msg, rsp)
+			b.addCmdCounter(m, "hint")
+			b.elements.HintCmd(suggestion, true, false, false, msg, rsp)
+			return
+		}
+
+		if cmd == "invhint" || cmd == "ih" {
+			suggestion := m.Content[len(cmd)+2:]
+			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
+
+			b.addCmdCounter(m, "invhint")
+			b.elements.HintCmd(suggestion, true, false, true, msg, rsp)
 			return
 		}
 
@@ -113,13 +191,14 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			txt := m.Content[len(cmd)+2:]
 			sepPos := strings.Index(txt, "|")
 			if sepPos == -1 {
-				rsp.ErrorMessage(db.Config.LangProperty("AddCatMustHaveSeparator"))
+				rsp.ErrorMessage(db.Config.LangProperty("AddCatMustHaveSeparator", nil))
 				return
 			}
 
 			catName := strings.TrimSpace(txt[:sepPos])
 			elems := util.TrimArray(splitByCombs(txt[sepPos+1:]))
 
+			b.addCmdCounter(m, "addcat")
 			b.categories.CategoryCmd(elems, catName, msg, rsp)
 			return
 		}
@@ -131,28 +210,31 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			txt := m.Content[len(cmd)+2:]
 			sepPos := strings.Index(txt, "|")
 			if sepPos == -1 {
-				rsp.ErrorMessage(db.Config.LangProperty("RmCatMustHaveSeparator"))
+				rsp.ErrorMessage(db.Config.LangProperty("RmCatMustHaveSeparator", nil))
 				return
 			}
 
 			catName := strings.TrimSpace(txt[:sepPos])
 			elems := util.TrimArray(splitByCombs(txt[sepPos+1:]))
 
+			b.addCmdCounter(m, "rmcat")
 			b.categories.RmCategoryCmd(elems, catName, msg, rsp)
 			return
 		}
 
 		if cmd == "inv" || cmd == "elements" {
+			b.addCmdCounter(m, "inv")
 			b.elements.InvCmd(m.Author.ID, msg, rsp, "name", "none", false, true)
 			return
 		}
 
 		if cmd == "lb" || cmd == "top" || cmd == "leaderboard" {
+			b.addCmdCounter(m, "lb")
 			b.elements.LbCmd(msg, rsp, "count", msg.Author.ID)
 			return
 		}
 
-		if cmd == "cat" {
+		if cmd == "cat" || cmd == "🐱" {
 			if len(m.Content) <= len(cmd)+2 {
 				bot.categories.AllCatCmd("name", false, "", msg, rsp)
 				return
@@ -160,6 +242,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			suggestion := m.Content[len(cmd)+2:]
 			suggestion = strings.TrimSpace(strings.ReplaceAll(suggestion, "\n", ""))
 
+			b.addCmdCounter(m, "cat")
 			b.categories.CatCmd(suggestion, "name", false, "", true, msg, rsp)
 			return
 		}
@@ -171,29 +254,30 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			txt := m.Content[len(cmd)+2:]
 			sepPos := strings.Index(txt, "|")
 			if sepPos == -1 {
-				rsp.ErrorMessage(db.Config.LangProperty("MarkMustHaveSeparator"))
+				rsp.ErrorMessage(db.Config.LangProperty("MarkMustHaveSeparator", nil))
 				return
 			}
 
 			elem := strings.TrimSpace(txt[:sepPos])
 			mark := strings.TrimSpace(txt[sepPos+1:])
+			b.addCmdCounter(m, "mark")
 			b.polls.MarkCmd(elem, mark, msg, rsp)
 			return
 		}
+
 		if cmd == "info" || cmd == "get" {
 			if len(m.Content) <= len(cmd)+2 {
 				return
 			}
+			b.addCmdCounter(m, "info")
 			b.elements.InfoCmd(strings.TrimSpace(m.Content[len(cmd)+2:]), msg, rsp)
 			return
 		}
+
 		if cmd == "ping" {
 			// Ping command for text
-			tm, err := m.Timestamp.Parse()
-			if rsp.Error(err) {
-				return
-			}
-			rsp.Message(fmt.Sprintf(db.Config.LangProperty("PingMessage"), time.Since(tm).String()))
+			b.addCmdCounter(m, "ping")
+			rsp.Message(db.Config.LangProperty("PingMessage", time.Since(m.Timestamp).String()))
 		}
 		if cmd == "restart" || cmd == "update" || cmd == "optimize" {
 			if m.GuildID == "705084182673621033" {
@@ -205,12 +289,15 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 					if roleID == "918309924008775691" {
 						switch cmd {
 						case "restart":
+							b.addCmdCounter(m, "restart")
 							b.restart(msg, rsp)
 
 						case "update":
+							b.addCmdCounter(m, "update")
 							b.update(msg, rsp)
 
 						case "optimize":
+							b.addCmdCounter(m, "optimize")
 							b.optimize(msg, rsp)
 						}
 					}
@@ -223,6 +310,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if len(m.Content) < 2 {
 			return
 		}
+		b.addCmdCounter(m, "info")
 		b.elements.InfoCmd(strings.TrimSpace(m.Content[1:]), msg, rsp)
 		return
 	}
@@ -270,8 +358,6 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 				rsp.ErrorMessage(res.Message)
 				return
 			}
-			el, _ := db.GetElement(comb.Elem3)
-			last = el.Name
 
 			if comb.Elem3 == -1 {
 				txt := make([]string, len(comb.Elems))
@@ -279,9 +365,13 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 					el, _ := db.GetElement(elem)
 					txt[i] = el.Name
 				}
+				b.addCmdCounter(m, "combine")
 				b.basecmds.Combine(txt, msg, rsp)
 				return
 			}
+
+			el, _ := db.GetElement(comb.Elem3)
+			last = el.Name
 		}
 
 		elems := make([]string, length)
@@ -289,6 +379,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			elems[i] = last
 		}
 
+		b.addCmdCounter(m, "combine")
 		b.basecmds.Combine(elems, msg, rsp)
 		return
 	}
@@ -305,6 +396,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			for i, part := range parts {
 				parts[i] = strings.TrimSpace(strings.Replace(part, "\\", "", -1))
 			}
+			b.addCmdCounter(m, "combine")
 			b.basecmds.Combine(parts, msg, rsp)
 			return
 		}

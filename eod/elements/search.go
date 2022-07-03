@@ -1,9 +1,10 @@
 package elements
 
 import (
-	"fmt"
 	"regexp"
+	"sort"
 	"strings"
+	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -41,16 +42,31 @@ func (b *Elements) SearchCmd(search string, sort string, source string, opt stri
 		inv.Lock.RUnlock()
 
 	case "category":
-		cat, res := db.GetCat(opt)
+		var els map[int]types.Empty
+		var lock *sync.RWMutex
+		catv, res := db.GetCat(opt)
 		if !res.Exists {
-			rsp.ErrorMessage(res.Message)
-			return
+			vcat, res := db.GetVCat(opt)
+			if !res.Exists {
+				rsp.ErrorMessage(res.Message)
+				return
+			}
+			els, res = b.base.CalcVCat(vcat, db, true)
+			if !res.Exists {
+				rsp.ErrorMessage(res.Message)
+				return
+			}
+		} else {
+			els = catv.Elements
+			lock = catv.Lock
 		}
 
-		list = make(map[string]types.Empty, len(cat.Elements))
-		cat.Lock.RLock()
+		list = make(map[string]types.Empty, len(els))
+		if lock != nil {
+			lock.RLock()
+		}
 		db.RLock()
-		for el := range cat.Elements {
+		for el := range els {
 			elem, res := db.GetElement(el, true)
 			if !res.Exists {
 				continue
@@ -58,27 +74,8 @@ func (b *Elements) SearchCmd(search string, sort string, source string, opt stri
 			list[elem.Name] = types.Empty{}
 		}
 		db.RUnlock()
-		cat.Lock.RUnlock()
-	}
-
-	items := make(map[string]types.Empty)
-	if regex {
-		reg, err := regexp.Compile(search)
-		if rsp.Error(err) {
-			return
-		}
-		for el := range list {
-			m := reg.Find([]byte(el))
-			if m != nil {
-				items[el] = types.Empty{}
-			}
-		}
-	} else {
-		s := strings.ToLower(search)
-		for el := range list {
-			if strings.Contains(strings.ToLower(el), s) {
-				items[el] = types.Empty{}
-			}
+		if lock != nil {
+			lock.RUnlock()
 		}
 	}
 
@@ -86,22 +83,50 @@ func (b *Elements) SearchCmd(search string, sort string, source string, opt stri
 		name string
 		id   int
 	}
-	results := make([]searchResult, len(items))
-	i := 0
-	db.RLock()
-	for k := range items {
-		results[i].name = k
-		i++
-		el, res := db.GetElementByName(k, true)
-		if !res.Exists {
-			continue
+	results := make([]searchResult, 0)
+	if regex {
+		reg, err := regexp.Compile(search)
+		if rsp.Error(err) {
+			return
 		}
-		results[i-1].id = el.ID
+		db.RLock()
+		for el := range list {
+			m := reg.FindIndex([]byte(el))
+			if m != nil {
+				el, res := db.GetElementByName(el, true)
+				if !res.Exists {
+					continue
+				}
+				name := []byte(el.Name)
+				name = append(name[:m[1]], append([]byte("**"), name[m[1]:]...)...)
+				name = append(name[:m[0]], append([]byte("**"), name[m[0]:]...)...)
+
+				results = append(results, searchResult{name: string(name), id: el.ID})
+			}
+		}
+		db.RUnlock()
+	} else {
+		s := strings.ToLower(search)
+		db.RLock()
+		for el := range list {
+			if strings.Contains(strings.ToLower(el), s) {
+				elem, res := db.GetElementByName(el, true)
+				if !res.Exists {
+					continue
+				}
+				name := []byte(elem.Name)
+				pos := strings.Index(strings.ToLower(el), s)
+				name = append(name[:pos+len(s)], append([]byte("**"), name[pos+len(s):]...)...)
+				name = append(name[:pos], append([]byte("**"), name[pos:]...)...)
+
+				results = append(results, searchResult{name: string(name), id: elem.ID})
+			}
+		}
+		db.RUnlock()
 	}
-	db.RUnlock()
 
 	if len(results) == 0 {
-		rsp.Message(db.Config.LangProperty("NoResults"))
+		rsp.Message(db.Config.LangProperty("NoResults", nil))
 		return
 	}
 
@@ -120,9 +145,64 @@ func (b *Elements) SearchCmd(search string, sort string, source string, opt stri
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
-		Title:      fmt.Sprintf(db.Config.LangProperty("ElemSearch"), len(txt)),
+		Title:      db.Config.LangProperty("ElemSearch", len(txt)),
 		PageGetter: b.base.InvPageGetter,
 		Items:      txt,
 		User:       m.Author.ID,
 	}, m, rsp)
+}
+
+func (b *Elements) Autocomplete(m types.Msg, query string) ([]string, types.GetResponse) {
+	db, res := b.GetDB(m.GuildID)
+	if !res.Exists {
+		return nil, res
+	}
+
+	type searchResult struct {
+		priority int
+		id       int
+	}
+	results := make([]searchResult, 0)
+	db.RLock()
+	for _, el := range db.Elements {
+		if strings.EqualFold(el.Name, query) {
+			results = append(results, searchResult{0, el.ID})
+		} else if strings.HasPrefix(strings.ToLower(el.Name), query) {
+			results = append(results, searchResult{1, el.ID})
+		} else if strings.Contains(strings.ToLower(el.Name), query) {
+			results = append(results, searchResult{2, el.ID})
+		}
+		if len(results) > 1000 {
+			break
+		}
+	}
+	db.RUnlock()
+
+	// sort by id
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].id < results[j].id
+	})
+	// sort by priority
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].priority < results[j].priority
+	})
+	if len(results) > types.AutocompleteResults {
+		results = results[:types.AutocompleteResults]
+	}
+
+	names := make([]string, len(results))
+	db.RLock()
+	for i, res := range results {
+		el, res := db.GetElement(res.id, true)
+		if !res.Exists {
+			continue
+		}
+		names[i] = el.Name
+	}
+	db.RUnlock()
+
+	// sort by name
+	sort.Strings(names)
+
+	return names, types.GetResponse{Exists: true}
 }

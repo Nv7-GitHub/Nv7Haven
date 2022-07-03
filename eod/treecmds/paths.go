@@ -1,7 +1,6 @@
 package treecmds
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
@@ -23,9 +22,17 @@ func (b *TreeCmds) CalcTreeCmd(elem string, m types.Msg, rsp types.Rsp) {
 		rsp.ErrorMessage(res.Message)
 		return
 	}
+
+	// Check if can
+	inv := db.GetInv(m.Author.ID)
+	if !inv.Contains(el.ID) {
+		rsp.ErrorMessage(db.Config.LangProperty("MustHaveElemForPath", el.Name))
+		return
+	}
+
 	txt, suc, msg := trees.CalcTree(db, el.ID)
 	if !suc {
-		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DoesntExist"), msg))
+		rsp.ErrorMessage(msg)
 		return
 	}
 	data, res := b.GetData(m.GuildID)
@@ -34,14 +41,14 @@ func (b *TreeCmds) CalcTreeCmd(elem string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 	if len(txt) <= 2000 {
-		id := rsp.Message(db.Config.LangProperty("SentPathToDMs"))
+		id := rsp.Message(db.Config.LangProperty("SentPathToDMs", nil))
 
 		data.SetMsgElem(id, el.ID)
 
 		rsp.DM(txt)
 		return
 	}
-	id := rsp.Message(db.Config.LangProperty("PathTooLong"))
+	id := rsp.Message(db.Config.LangProperty("PathTooLong", nil))
 
 	data.SetMsgElem(id, el.ID)
 
@@ -52,7 +59,7 @@ func (b *TreeCmds) CalcTreeCmd(elem string, m types.Msg, rsp types.Rsp) {
 	buf := strings.NewReader(txt)
 
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: fmt.Sprintf(db.Config.LangProperty("NamePathElem"), el.Name),
+		Content: db.Config.LangProperty("NamePathElem", el.Name),
 		Files: []*discordgo.File{
 			{
 				Name:        "path.txt",
@@ -71,23 +78,50 @@ func (b *TreeCmds) CalcTreeCatCmd(catName string, m types.Msg, rsp types.Rsp) {
 	}
 	rsp.Acknowledge()
 
-	cat, res := db.GetCat(catName)
+	var els map[int]types.Empty
+	catv, res := db.GetCat(catName)
 	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
+		vcat, res := db.GetVCat(catName)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		catName = vcat.Name
+		els, res = b.base.CalcVCat(vcat, db, true)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+	} else {
+		els = make(map[int]types.Empty, len(catv.Elements))
+		catv.Lock.RLock()
+		for k := range catv.Elements {
+			els[k] = types.Empty{}
+		}
+		catv.Lock.RUnlock()
+		catName = catv.Name
 	}
 
-	txt, suc, msg := trees.CalcTreeCat(db, cat.Elements)
+	// Check if can
+	inv := db.GetInv(m.Author.ID)
+	for k := range els {
+		if !inv.Contains(k) {
+			rsp.ErrorMessage(db.Config.LangProperty("MustHaveCatForPath", catName))
+			return
+		}
+	}
+
+	txt, suc, msg := trees.CalcTreeCat(db, els)
 	if !suc {
-		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DoesntExist"), msg))
+		rsp.ErrorMessage(msg)
 		return
 	}
 	if len(txt) <= 2000 {
-		rsp.Message(db.Config.LangProperty("SentPathToDMs"))
+		rsp.Message(db.Config.LangProperty("SentPathToDMs", nil))
 		rsp.DM(txt)
 		return
 	}
-	rsp.Message(db.Config.LangProperty("PathTooLong"))
+	rsp.Message(db.Config.LangProperty("PathTooLong", nil))
 
 	channel, err := b.dg.UserChannelCreate(m.Author.ID)
 	if rsp.Error(err) {
@@ -95,7 +129,7 @@ func (b *TreeCmds) CalcTreeCatCmd(catName string, m types.Msg, rsp types.Rsp) {
 	}
 	buf := strings.NewReader(txt)
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: fmt.Sprintf(db.Config.LangProperty("NamePathCat"), cat.Name),
+		Content: db.Config.LangProperty("NamePathCat", catName),
 		Files: []*discordgo.File{
 			{
 				Name:        "path.txt",

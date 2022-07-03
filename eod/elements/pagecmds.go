@@ -1,7 +1,6 @@
 package elements
 
 import (
-	"fmt"
 	"sort"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
@@ -76,8 +75,12 @@ func (b *Elements) InvCmd(user string, m types.Msg, rsp types.Rsp, sorter string
 		name = u.Username
 	}
 	b.base.NewPageSwitcher(types.PageSwitcher{
-		Kind:       types.PageSwitchInv,
-		Title:      fmt.Sprintf(db.Config.LangProperty("UserInventory"), name, len(items), util.FormatFloat(float32(len(items))/float32(len(db.Elements))*100, 2)),
+		Kind: types.PageSwitchInv,
+		Title: db.Config.LangProperty("UserInventory", map[string]any{
+			"Username": name,
+			"Count":    len(items),
+			"Percent":  util.FormatFloat(float32(len(items))/float32(len(db.Elements))*100, 2),
+		}),
 		PageGetter: b.base.InvPageGetter,
 		Items:      text,
 	}, m, rsp)
@@ -99,41 +102,61 @@ func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string)
 		i++
 	}
 	var sortFn func(a, b int) bool
+	var titleID string
 	switch sorter {
 	case "made":
 		sortFn = func(a, b int) bool {
 			return invs[a].MadeCnt > invs[b].MadeCnt
 		}
+		titleID = "LbTitleMade"
 
 	case "signed":
 		sortFn = func(a, b int) bool {
 			return invs[a].SignedCnt > invs[b].SignedCnt
 		}
+		titleID = "LbTitleSigned"
 
 	case "imaged":
 		sortFn = func(a, b int) bool {
 			return invs[a].ImagedCnt > invs[b].ImagedCnt
 		}
+		titleID = "LbTitleImaged"
 
 	case "colored":
 		sortFn = func(a, b int) bool {
 			return invs[a].ColoredCnt > invs[b].ColoredCnt
 		}
+		titleID = "LbTitleColored"
 
 	case "catimaged":
 		sortFn = func(a, b int) bool {
 			return invs[a].CatImagedCnt > invs[b].CatImagedCnt
 		}
+		titleID = "LbTitleCatImaged"
 
 	case "catcolored":
 		sortFn = func(a, b int) bool {
 			return invs[a].CatColoredCnt > invs[b].CatColoredCnt
 		}
+		titleID = "LbTitleCatColored"
+
+	case "used":
+		sortFn = func(a, b int) bool {
+			return invs[a].UsedCnt > invs[b].UsedCnt
+		}
+		titleID = "LbTitleUsed"
+
+	case "catsigned":
+		sortFn = func(a, b int) bool {
+			return invs[a].CatSignedCnt > invs[b].CatSignedCnt
+		}
+		titleID = "LbTitleCatSigned"
 
 	default:
 		sortFn = func(a, b int) bool {
 			return len(invs[a].Elements) > len(invs[b].Elements)
 		}
+		titleID = "LbTitleElem"
 	}
 	sort.Slice(invs, sortFn)
 
@@ -162,6 +185,12 @@ func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string)
 		case "catcolored":
 			cnts[i] = v.CatColoredCnt
 
+		case "used":
+			cnts[i] = v.UsedCnt
+
+		case "catsigned":
+			cnts[i] = v.CatSignedCnt
+
 		default:
 			cnts[i] = len(v.Elements)
 		}
@@ -172,7 +201,7 @@ func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string)
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchLdb,
-		Title:      db.Config.LangProperty("LbTitleElem"),
+		Title:      db.Config.LangProperty(titleID, nil),
 		PageGetter: b.base.LbPageGetter,
 
 		User:    user,

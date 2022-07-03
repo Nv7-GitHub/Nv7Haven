@@ -12,7 +12,7 @@ func newAiCmp(db *eodb.DB) discordgo.ActionsRow {
 	return discordgo.ActionsRow{
 		Components: []discordgo.MessageComponent{
 			discordgo.Button{
-				Label:    db.Config.LangProperty("NewAIIdea"),
+				Label:    db.Config.LangProperty("NewAIIdea", nil),
 				Style:    discordgo.SuccessButton,
 				CustomID: "idea",
 				Emoji: discordgo.ComponentEmoji{
@@ -66,7 +66,7 @@ func (b *Elements) genAi(guild string, author string) (string, bool, *eodb.DB) {
 		}
 		tries++
 		if tries > types.MaxTries {
-			return db.Config.LangProperty("FailedAIGenerate"), false, db
+			return db.Config.LangProperty("FailedAIGenerate", nil), false, db
 		}
 	}
 
@@ -94,14 +94,17 @@ func (b *Elements) genAi(guild string, author string) (string, bool, *eodb.DB) {
 		if !res.Exists {
 			return res.Message, false, db
 		}
-		suggest = db.Config.LangProperty("SuggestIdea")
+		suggest = db.Config.LangProperty("SuggestIdea", nil)
 		data.SetComb(author, types.Comb{
 			Elems: comb,
 			Elem3: -1,
 		})
 	}
 
-	return fmt.Sprintf(db.Config.LangProperty("YourAIIdea"), text, suggest), true, db
+	return db.Config.LangProperty("YourAIIdea", map[string]any{
+		"Idea":        text,
+		"SuggestText": suggest,
+	}), true, db
 }
 
 func (b *Elements) AiCmd(m types.Msg, rsp types.Rsp) {

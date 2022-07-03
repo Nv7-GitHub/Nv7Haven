@@ -14,7 +14,7 @@ func newIdeaCmp(db *eodb.DB) discordgo.ActionsRow {
 	return discordgo.ActionsRow{
 		Components: []discordgo.MessageComponent{
 			discordgo.Button{
-				Label:    db.Config.LangProperty("NewIdea"),
+				Label:    db.Config.LangProperty("NewIdea", nil),
 				Style:    discordgo.SuccessButton,
 				CustomID: "idea",
 				Emoji: discordgo.ComponentEmoji{
@@ -61,11 +61,11 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 	}
 
 	if count > types.MaxComboLength {
-		return fmt.Sprintf(db.Config.LangProperty("MaxCombine"), types.MaxComboLength), false
+		return db.Config.LangProperty("MaxCombine", types.MaxComboLength), false
 	}
 
 	if count < 2 {
-		return db.Config.LangProperty("MustCombine"), false
+		return db.Config.LangProperty("MustCombine", 2), false
 	}
 	inv := db.GetInv(author)
 
@@ -83,7 +83,7 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 
 		exists := inv.Contains(el.ID)
 		if !exists {
-			return fmt.Sprintf(db.Config.LangProperty("DontHave"), el.Name), false
+			return db.Config.LangProperty("DontHave", el.Name), false
 		}
 	}
 
@@ -91,19 +91,34 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 	if hasCat {
 		cat, res := db.GetCat(catName)
 		if !res.Exists {
-			return res.Message, false
-		}
-		els = make(map[int]types.Empty)
-
-		for el := range cat.Elements {
-			exists := inv.Contains(el)
-			if exists {
-				els[el] = types.Empty{}
+			vcat, res := db.GetVCat(catName)
+			if !res.Exists {
+				return res.Message, false
 			}
+			els, res = b.base.CalcVCat(vcat, db, true)
+			if !res.Exists {
+				return res.Message, false
+			}
+			for el := range els {
+				if !inv.Contains(el) {
+					delete(els, el)
+				}
+			}
+		} else {
+			els = make(map[int]types.Empty, len(cat.Elements))
+
+			cat.Lock.RLock()
+			for el := range cat.Elements {
+				exists := inv.Contains(el)
+				if exists {
+					els[el] = types.Empty{}
+				}
+			}
+			cat.Lock.RUnlock()
 		}
 
 		if len(els) == 0 {
-			return fmt.Sprintf(db.Config.LangProperty("HaveNoElemsInCat"), cat.Name), false
+			return db.Config.LangProperty("HaveNoElemsInCat", cat.Name), false
 		}
 	}
 
@@ -131,7 +146,7 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 		tries++
 
 		if tries > types.MaxTries {
-			return db.Config.LangProperty("FailedIdea"), false
+			return db.Config.LangProperty("FailedIdea", nil), false
 		}
 	}
 
@@ -150,7 +165,10 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 		Elem3: -1,
 	})
 
-	return fmt.Sprintf(db.Config.LangProperty("YourIdea"), text, db.Config.LangProperty("SuggestIdea")), true
+	return db.Config.LangProperty("YourIdea", map[string]any{
+		"Combo":       text,
+		"SuggestText": db.Config.LangProperty("SuggestIdea", nil),
+	}), true
 }
 
 func (b *Elements) IdeaCmd(count int, catName string, hasCat bool, elemName string, hasEl bool, m types.Msg, rsp types.Rsp) {

@@ -60,3 +60,18 @@ func CalcElemInfo(elem int, user string, db *eodb.DB) (bool, string, InfoTree) {
 	}
 	return true, "", i
 }
+
+func CalcCatInfo(elems map[int]types.Empty, user string, db *eodb.DB) InfoTree {
+	inv := db.GetInv(user)
+	i := InfoTree{
+		Total: 0,
+		Found: 0,
+		DB:    db,
+		added: make(map[int]types.Empty),
+		inv:   inv,
+	}
+	for k := range elems {
+		i.AddElem(k) // Ignore output since there are more elements
+	}
+	return i
+}

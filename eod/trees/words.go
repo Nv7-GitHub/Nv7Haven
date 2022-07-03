@@ -69,6 +69,14 @@ func (w *WordTree) AddElem(elem int, notoplevel ...bool) (bool, string) {
 }
 
 func (w *WordTree) Render(width, height int) image.Image {
+	// Remove all words used one time if more than 2K words
+	if len(w.wordCnts) > 2000 {
+		for word, cnt := range w.wordCnts {
+			if cnt <= 1 {
+				delete(w.wordCnts, word)
+			}
+		}
+	}
 	cloud := wordclouds.NewWordcloud(w.wordCnts, wordclouds.Width(width), wordclouds.Height(height), wordclouds.FontFile("eod/assets/Roboto.ttf"), wordclouds.Colors(colors))
 	return cloud.Draw()
 }

@@ -2,11 +2,9 @@ package elements
 
 import (
 	"fmt"
-	"sort"
 	"strconv"
 	"strings"
 
-	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
@@ -16,6 +14,7 @@ import (
 )
 
 const catInfoCount = 3
+const catInfoCountExpanded = 6
 
 func (b *Elements) SortCmd(sort string, postfix bool, m types.Msg, rsp types.Rsp) {
 	db, res := b.GetDB(m.GuildID)
@@ -52,22 +51,17 @@ func (b *Elements) SortCmd(sort string, postfix bool, m types.Msg, rsp types.Rsp
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
-		Title:      db.Config.LangProperty("ElemSort"),
+		Title:      db.Config.LangProperty("ElemSort", nil),
 		PageGetter: b.base.InvPageGetter,
 		Items:      text,
 	}, m, rsp)
-}
-
-type catSortInfo struct {
-	Name string
-	Cnt  int
 }
 
 func newCmpCollapsed(db *eodb.DB) discordgo.ActionsRow {
 	return discordgo.ActionsRow{
 		Components: []discordgo.MessageComponent{
 			discordgo.Button{
-				Label:    db.Config.LangProperty("InfoExpand"),
+				Label:    db.Config.LangProperty("InfoExpand", nil),
 				CustomID: "expand",
 				Style:    discordgo.SuccessButton,
 				Emoji: discordgo.ComponentEmoji{
@@ -84,7 +78,7 @@ func newCmpExpanded(db *eodb.DB) discordgo.ActionsRow {
 	return discordgo.ActionsRow{
 		Components: []discordgo.MessageComponent{
 			discordgo.Button{
-				Label:    db.Config.LangProperty("InfoCollapse"),
+				Label:    db.Config.LangProperty("InfoCollapse", nil),
 				CustomID: "collapse",
 				Style:    discordgo.DangerButton,
 				Emoji: discordgo.ComponentEmoji{
@@ -126,89 +120,59 @@ func (c *infoComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCr
 	})
 }
 
-func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.Rsp) {
-	if len(elem) == 0 && !isId {
-		return
-	}
+func (b *Elements) Info(elem string, m types.Msg, rsp types.Rsp) {
 	db, res := b.GetDB(m.GuildID)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
 		return
 	}
 
-	// Get Element name from ID
-	var el types.Element
-	if isId {
-		el, res = db.GetElement(id)
-		if !res.Exists {
-			rsp.ErrorMessage(res.Message)
-			return
-		}
-	}
-
-	if base.IsFoolsMode && !base.IsFool(elem) {
-		rsp.ErrorMessage(base.MakeFoolResp(elem))
-		return
-	}
-
 	// Get Element
-	if !isId {
-		el, res = db.GetElementByName(elem)
-		if !res.Exists {
-			// If what you said was "????", then stop
-			if strings.Contains(elem, "?") {
-				isValid := false
-				for _, letter := range elem {
-					if letter != '?' {
-						isValid = true
-						break
-					}
-				}
-				if !isValid {
-					return
+	el, res := db.GetElementByName(elem)
+	if !res.Exists {
+		// If what you said was "????", then stop
+		if strings.Contains(elem, "?") {
+			isValid := false
+			for _, letter := range elem {
+				if letter != '?' {
+					isValid = true
+					break
 				}
 			}
-			rsp.ErrorMessage(res.Message)
-			return
+			if !isValid {
+				return
+			}
 		}
+		rsp.ErrorMessage(res.Message)
+		return
 	}
 	rsp.Acknowledge()
 
 	// Get Categories
-	catsMap := make(map[catSortInfo]types.Empty)
-	db.RLock()
-	for _, cat := range db.Cats() {
-		_, exists := cat.Elements[el.ID]
-		if exists {
-			catsMap[catSortInfo{
-				Name: cat.Name,
-				Cnt:  len(cat.Elements),
-			}] = types.Empty{}
-		}
-	}
-	db.RUnlock()
-	cats := make([]catSortInfo, len(catsMap))
-	i := 0
-	for k := range catsMap {
-		cats[i] = k
-		i++
-	}
+	cats := b.base.ElemCategories(el.ID, db, true)
 
-	// Sort by count
-	sort.Slice(cats, func(i, j int) bool {
-		return cats[i].Cnt > cats[j].Cnt
-	})
-
-	// Make text
+	// Make text for collapsed
 	catTxt := &strings.Builder{}
 	for i := 0; i < catInfoCount && i < len(cats); i++ {
-		catTxt.WriteString(cats[i].Name)
+		catTxt.WriteString(cats[i])
 		if i != catInfoCount-1 && i != len(cats)-1 {
 			catTxt.WriteString(", ")
 		}
 	}
 	if len(cats) > catInfoCount {
-		fmt.Fprintf(catTxt, db.Config.LangProperty("InfoAdditionalElemCats"), len(cats)-catInfoCount)
+		catTxt.WriteString(db.Config.LangProperty("InfoAdditionalElemCats", len(cats)-catInfoCount))
+	}
+
+	// Make text for expanded
+	catTxtExpanded := &strings.Builder{}
+	for i := 0; i < catInfoCountExpanded && i < len(cats); i++ {
+		catTxtExpanded.WriteString(cats[i])
+		if i != catInfoCountExpanded-1 && i != len(cats)-1 {
+			catTxtExpanded.WriteString(", ")
+		}
+	}
+	if len(cats) > catInfoCountExpanded {
+		catTxtExpanded.WriteString(db.Config.LangProperty("InfoAdditionalElemCats", len(cats)-catInfoCountExpanded))
 	}
 
 	// Get Madeby
@@ -236,7 +200,7 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 	}
 
 	if len(el.Comment) == 0 {
-		el.Comment = db.Config.LangProperty("DefaultComment")
+		el.Comment = db.Config.LangProperty("DefaultComment", nil)
 	}
 
 	shortcomment := el.Comment
@@ -254,55 +218,63 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 
 	createdOn := fmt.Sprintf("<t:%d>", el.CreatedOn.Unix())
 	if el.CreatedOn.Unix() <= 4 {
-		createdOn = db.Config.LangProperty("StarterElemCreateTime")
+		createdOn = db.Config.LangProperty("StarterElemCreateTime", nil)
 	}
 
 	infoFields := make([]*discordgo.MessageEmbedField, 0)
 	if el.Commenter != "" {
-		infoFields = append(infoFields, &discordgo.MessageEmbedField{Name: db.Config.LangProperty("InfoCommenter"), Value: fmt.Sprintf("<@%s>", el.Commenter), Inline: true})
+		infoFields = append(infoFields, &discordgo.MessageEmbedField{Name: db.Config.LangProperty("InfoCommenter", nil), Value: fmt.Sprintf("<@%s>", el.Commenter), Inline: true})
 	}
 	if el.Imager != "" {
-		infoFields = append(infoFields, &discordgo.MessageEmbedField{Name: db.Config.LangProperty("InfoImager"), Value: fmt.Sprintf("<@%s>", el.Imager), Inline: true})
+		infoFields = append(infoFields, &discordgo.MessageEmbedField{Name: db.Config.LangProperty("InfoImager", nil), Value: fmt.Sprintf("<@%s>", el.Imager), Inline: true})
 	}
 	if el.Colorer != "" {
-		infoFields = append(infoFields, &discordgo.MessageEmbedField{Name: db.Config.LangProperty("InfoColorer"), Value: fmt.Sprintf("<@%s>", el.Colorer), Inline: true})
+		infoFields = append(infoFields, &discordgo.MessageEmbedField{Name: db.Config.LangProperty("InfoColorer", nil), Value: fmt.Sprintf("<@%s>", el.Colorer), Inline: true})
 	}
 
 	// Make fields
 	fullFields := []*discordgo.MessageEmbedField{
-		{Name: db.Config.LangProperty("InfoComment"), Value: el.Comment, Inline: false},
-		{Name: db.Config.LangProperty("InfoCombosUsedIn"), Value: strconv.Itoa(el.UsedIn), Inline: true},
-		{Name: db.Config.LangProperty("InfoCombosMadeWith"), Value: strconv.Itoa(madeby), Inline: true},
-		{Name: db.Config.LangProperty("InfoUsersFoundBy"), Value: strconv.Itoa(foundby), Inline: true},
-		{Name: db.Config.LangProperty("InfoCreator"), Value: fmt.Sprintf("<@%s>", el.Creator), Inline: true},
-		{Name: db.Config.LangProperty("InfoCreateTime"), Value: createdOn, Inline: true},
-		{Name: db.Config.LangProperty("InfoColor"), Value: util.FormatHex(el.Color), Inline: true},
-		{Name: db.Config.LangProperty("InfoTreeSize"), Value: strconv.Itoa(tree.Total), Inline: true},
-		{Name: db.Config.LangProperty("InfoComplexity"), Value: strconv.Itoa(el.Complexity), Inline: true},
-		{Name: db.Config.LangProperty("InfoDifficulty"), Value: strconv.Itoa(el.Difficulty), Inline: true},
+		{Name: db.Config.LangProperty("InfoComment", nil), Value: el.Comment, Inline: false},
+		{Name: db.Config.LangProperty("InfoCombosUsedIn", nil), Value: strconv.Itoa(el.UsedIn), Inline: true},
+		{Name: db.Config.LangProperty("InfoCombosMadeWith", nil), Value: strconv.Itoa(madeby), Inline: true},
+		{Name: db.Config.LangProperty("InfoUsersFoundBy", nil), Value: strconv.Itoa(foundby), Inline: true},
+		{Name: db.Config.LangProperty("InfoCreator", nil), Value: fmt.Sprintf("<@%s>", el.Creator), Inline: true},
+		{Name: db.Config.LangProperty("InfoCreateTime", nil), Value: createdOn, Inline: true},
+		{Name: db.Config.LangProperty("InfoColor", nil), Value: util.FormatHex(el.Color), Inline: true},
+		{Name: db.Config.LangProperty("InfoTreeSize", nil), Value: strconv.Itoa(tree.Total), Inline: true},
+		{Name: db.Config.LangProperty("InfoComplexity", nil), Value: strconv.Itoa(el.Complexity), Inline: true},
+		{Name: db.Config.LangProperty("InfoDifficulty", nil), Value: strconv.Itoa(el.Difficulty), Inline: true},
+		{Name: "Air", Value: util.FormatBigInt(el.Air), Inline: true},
+		{Name: "Earth", Value: util.FormatBigInt(el.Earth), Inline: true},
+		{Name: "Fire", Value: util.FormatBigInt(el.Fire), Inline: true},
+		{Name: "Water", Value: util.FormatBigInt(el.Water), Inline: true}, // Does this cause anything
 	}
 	fullFields = append(fullFields, infoFields...)
 
 	// Collapsed fields
 	fields := []*discordgo.MessageEmbedField{
-		{Name: db.Config.LangProperty("InfoComment"), Value: shortcomment, Inline: false},
-		{Name: db.Config.LangProperty("InfoCreator"), Value: fmt.Sprintf("<@%s>", el.Creator), Inline: true},
-		{Name: db.Config.LangProperty("InfoCreateTime"), Value: createdOn, Inline: true},
-		{Name: db.Config.LangProperty("InfoColor"), Value: util.FormatHex(el.Color), Inline: true},
+		{Name: db.Config.LangProperty("InfoComment", nil), Value: shortcomment, Inline: false},
+		{Name: db.Config.LangProperty("InfoCreator", nil), Value: fmt.Sprintf("<@%s>", el.Creator), Inline: true},
+		{Name: db.Config.LangProperty("InfoCreateTime", nil), Value: createdOn, Inline: true},
+		{Name: db.Config.LangProperty("InfoTreeSize", nil), Value: strconv.Itoa(tree.Total), Inline: true},
 	}
 
 	// Get whether has element
-	has := db.Config.LangProperty("InfoElemIDUserHasElem")
+	hasPars := map[string]any{
+		"ID":   el.ID,
+		"User": m.Author.ID,
+	}
+	has := db.Config.LangProperty("InfoElemIDUserHasElem", hasPars)
 	inv := db.GetInv(m.Author.ID)
 	exists := inv.Contains(el.ID)
 	if !exists {
-		has = db.Config.LangProperty("InfoElemIDUserNoHasElem")
+		has = db.Config.LangProperty("InfoElemIDUserNoHasElem", hasPars)
 	}
 
 	// Embed
 	emb := &discordgo.MessageEmbed{
-		Title:       fmt.Sprintf(db.Config.LangProperty("InfoTitle"), el.Name),
-		Description: fmt.Sprintf(has, el.ID, m.Author.ID),
+		Title:       db.Config.LangProperty("InfoTitle", el.Name),
+		Description: has,
 		Fields:      fields,
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
 			URL: el.Image,
@@ -311,18 +283,18 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 	}
 	if !exists {
 		fullFields = append(fullFields, &discordgo.MessageEmbedField{
-			Name:   db.Config.LangProperty("InfoElemProgress"),
+			Name:   db.Config.LangProperty("InfoElemProgress", nil),
 			Value:  fmt.Sprintf("%s%%", util.FormatFloat(float32(tree.Found)/float32(tree.Total)*100, 2)),
 			Inline: true,
 		})
 	}
 	if len(cats) > 0 {
-		emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{Name: db.Config.LangProperty("InfoElemCats"), Value: catTxt.String(), Inline: false})
-		fullFields = append(fullFields, &discordgo.MessageEmbedField{Name: db.Config.LangProperty("InfoElemCats"), Value: catTxt.String(), Inline: false})
+		emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{Name: db.Config.LangProperty("InfoElemCats", nil), Value: catTxt.String(), Inline: false})
+		fullFields = append(fullFields, &discordgo.MessageEmbedField{Name: db.Config.LangProperty("InfoElemCats", nil), Value: catTxtExpanded.String(), Inline: false})
 	}
 
 	if m.Author.ID == "567132457820749842" {
-		for _, elem := range base.StarterElements {
+		for _, elem := range types.StarterElements {
 			if elem.Name == el.Name {
 				emb.Thumbnail.URL = elem.Image
 			}
@@ -335,7 +307,7 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 
 	if len(el.Comment) > 1024 {
 		full.Fields = full.Fields[1:]
-		full.Description = fmt.Sprintf("%s\n\n**%s**\n%s", emb.Description, db.Config.LangProperty("InfoComment"), el.Comment)
+		full.Description = fmt.Sprintf("%s\n\n**%s**\n%s", emb.Description, db.Config.LangProperty("InfoComment", nil), el.Comment)
 	}
 
 	// Send
@@ -356,21 +328,6 @@ func (b *Elements) Info(elem string, id int, isId bool, m types.Msg, rsp types.R
 }
 
 func (b *Elements) InfoCmd(elem string, m types.Msg, rsp types.Rsp) {
-	db, res := b.GetDB(m.GuildID)
-	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
-	}
-
 	elem = strings.TrimSpace(elem)
-	if elem[0] == '#' {
-		number, err := strconv.Atoi(elem[1:])
-		if err != nil {
-			rsp.ErrorMessage(db.Config.LangProperty("InvalidElemID"))
-			return
-		}
-		b.Info("", number, true, m, rsp)
-		return
-	}
-	b.Info(elem, 0, false, m, rsp)
+	b.Info(elem, m, rsp)
 }

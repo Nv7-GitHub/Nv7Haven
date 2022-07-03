@@ -19,7 +19,7 @@ func (n *normalResp) Error(err error) bool {
 		n.b.dg.ChannelTyping(n.msg.ChannelID)
 	}
 	if err != nil {
-		_, err := n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" Error: "+err.Error()+" "+types.RedCircle)
+		_, err := n.b.dg.ChannelMessageSend(n.msg.ChannelID, n.msg.Author.Mention()+" "+err.Error()+" "+types.RedCircle)
 		if err != nil {
 			log.SetOutput(logs.DiscordLogs)
 			log.Println(err)
@@ -160,6 +160,10 @@ func (n *normalResp) Attachment(text string, files []*discordgo.File) {
 	})
 }
 
+func (n *normalResp) Modal(modal *discordgo.InteractionResponseData, handler types.ModalHandler) {
+	n.ErrorMessage("Modals cannot be used with text commands!")
+}
+
 func (b *EoD) newMsgNormal(m *discordgo.MessageCreate) types.Msg {
 	return types.Msg{
 		Author:    m.Author,
@@ -184,8 +188,8 @@ type slashResp struct {
 func (s *slashResp) Error(err error) bool {
 	if err != nil {
 		if s.isFollowup {
-			_, err := s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
-				Content: "Error: " + err.Error(),
+			_, err := s.b.dg.FollowupMessageCreate(s.i.Interaction, true, &discordgo.WebhookParams{
+				Content: err.Error(),
 			})
 			if err != nil {
 				log.SetOutput(logs.DiscordLogs)
@@ -197,7 +201,7 @@ func (s *slashResp) Error(err error) bool {
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Flags:   1 << 6,
-					Content: "Error: " + err.Error(),
+					Content: err.Error(),
 				},
 			})
 			if err != nil {
@@ -213,8 +217,8 @@ func (s *slashResp) Error(err error) bool {
 
 func (s *slashResp) ErrorMessage(msg string) string {
 	if s.isFollowup {
-		m, err := s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
-			Content: "Error: " + msg,
+		m, err := s.b.dg.FollowupMessageCreate(s.i.Interaction, true, &discordgo.WebhookParams{
+			Content: msg,
 		})
 		if err != nil {
 			log.SetOutput(logs.DiscordLogs)
@@ -228,7 +232,7 @@ func (s *slashResp) ErrorMessage(msg string) string {
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
 			Flags:   1 << 6,
-			Content: "Error: " + msg,
+			Content: msg,
 		},
 	})
 	return ""
@@ -247,7 +251,7 @@ func (s *slashResp) Resp(msg string, components ...discordgo.MessageComponent) {
 
 func (s *slashResp) Message(msg string, components ...discordgo.MessageComponent) string {
 	if s.isFollowup {
-		msg, err := s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
+		msg, err := s.b.dg.FollowupMessageCreate(s.i.Interaction, true, &discordgo.WebhookParams{
 			Content:    msg,
 			Components: components,
 		})
@@ -284,7 +288,7 @@ func (s *slashResp) Embed(emb *discordgo.MessageEmbed, components ...discordgo.M
 		}
 	}
 	if s.isFollowup {
-		msg, err := s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
+		msg, err := s.b.dg.FollowupMessageCreate(s.i.Interaction, true, &discordgo.WebhookParams{
 			Embeds:     []*discordgo.MessageEmbed{emb},
 			Components: components,
 		})
@@ -345,7 +349,7 @@ func (s *slashResp) DM(msg string) {
 
 func (s *slashResp) Attachment(text string, files []*discordgo.File) {
 	if s.isFollowup {
-		s.b.dg.FollowupMessageCreate(clientID, s.i.Interaction, true, &discordgo.WebhookParams{
+		s.b.dg.FollowupMessageCreate(s.i.Interaction, true, &discordgo.WebhookParams{
 			Content: text,
 			Files:   files,
 		})
@@ -357,6 +361,18 @@ func (s *slashResp) Attachment(text string, files []*discordgo.File) {
 			Files:   files,
 		},
 	})
+}
+
+func (s *slashResp) Modal(modal *discordgo.InteractionResponseData, handler types.ModalHandler) {
+	modal.CustomID = s.i.Interaction.ID
+	s.b.dg.InteractionRespond(s.i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseModal,
+		Data: modal,
+	})
+	dat, res := s.b.GetData(s.i.GuildID)
+	if res.Exists {
+		dat.AddModal(s.i.ID, handler)
+	}
 }
 
 func (b *EoD) newMsgSlash(i *discordgo.InteractionCreate) types.Msg {

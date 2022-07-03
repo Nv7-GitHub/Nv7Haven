@@ -2,7 +2,6 @@ package treecmds
 
 import (
 	"bytes"
-	"fmt"
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
@@ -64,25 +63,25 @@ func (b *TreeCmds) graphCmd(elems map[int]types.Empty, db *eodb.DB, m types.Msg,
 	if !(outputType == "Text" || outputType == "DOT") {
 		_, exists := maxSizes[layout]
 		if !exists {
-			rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("GraphLayoutInvalid"), layout))
+			rsp.ErrorMessage(db.Config.LangProperty("GraphLayoutInvalid", layout))
 			return
 		}
 
 		if maxSizes[layout] > 0 && graph.NodeCount() > maxSizes[layout] {
-			rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("GraphTooBigForLayout"), layout))
+			rsp.ErrorMessage(db.Config.LangProperty("GraphTooBigForLayout", layout))
 			return
 		}
 	}
 
 	_, exists := outputTypes[outputType]
 	if !exists {
-		rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("GraphOutputInvalid"), outputType))
+		rsp.ErrorMessage(db.Config.LangProperty("GraphOutputInvalid", outputType))
 		return
 	}
 
 	// Create Output
 	var file *discordgo.File
-	txt := db.Config.LangProperty("SentGraphToDMs")
+	txt := db.Config.LangProperty("SentGraphToDMs", nil)
 
 	switch outputType {
 	case "PNG", "SVG":
@@ -120,7 +119,7 @@ func (b *TreeCmds) graphCmd(elems map[int]types.Empty, db *eodb.DB, m types.Msg,
 
 		}
 	case "Text", "DOT":
-		txt = db.Config.LangProperty("GraphNotRendered")
+		txt = db.Config.LangProperty("GraphNotRendered", nil)
 		name := "graph.dot"
 		if outputType == "Text" {
 			name = "graph.txt"
@@ -158,7 +157,7 @@ func (b *TreeCmds) graphCmd(elems map[int]types.Empty, db *eodb.DB, m types.Msg,
 	}
 
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: fmt.Sprintf(db.Config.LangProperty("NameGraphElem"), name),
+		Content: db.Config.LangProperty("NameGraphElem", name),
 		Files:   []*discordgo.File{file},
 	})
 }
@@ -176,6 +175,13 @@ func (b *TreeCmds) ElemGraphCmd(elem string, layout string, outputType string, d
 		rsp.ErrorMessage(res.Message)
 		return
 	}
+
+	inv := db.GetInv(m.Author.ID)
+	if !inv.Contains(el.ID) {
+		rsp.ErrorMessage(db.Config.LangProperty("MustHaveElemForPath", el.Name))
+		return
+	}
+
 	b.graphCmd(map[int]types.Empty{el.ID: {}}, db, m, layout, outputType, elem, distinctPrimary, rsp)
 }
 
@@ -187,11 +193,37 @@ func (b *TreeCmds) CatGraphCmd(catName, layout, outputType string, distinctPrima
 	}
 	rsp.Acknowledge()
 
+	var els map[int]types.Empty
 	cat, res := db.GetCat(catName)
 	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
+		vcat, res := db.GetVCat(catName)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		els, res = b.base.CalcVCat(vcat, db, true)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		catName = vcat.Name
+	} else {
+		cat.Lock.RLock()
+		els = make(map[int]types.Empty, len(cat.Elements))
+		for el := range cat.Elements {
+			els[el] = types.Empty{}
+		}
+		cat.Lock.RUnlock()
+		catName = cat.Name
 	}
 
-	b.graphCmd(cat.Elements, db, m, layout, outputType, catName, distinctPrimary, rsp)
+	inv := db.GetInv(m.Author.ID)
+	for k := range els {
+		if !inv.Contains(k) {
+			rsp.ErrorMessage(db.Config.LangProperty("MustHaveCatForPath", catName))
+			return
+		}
+	}
+
+	b.graphCmd(els, db, m, layout, outputType, catName, distinctPrimary, rsp)
 }

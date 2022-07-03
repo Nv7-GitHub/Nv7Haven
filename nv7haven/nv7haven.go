@@ -70,13 +70,14 @@ func InitNv7Haven(app *fiber.App, sql *db.DB) error {
 		sql: sql,
 
 		eodStats: eodStats{
-			Elemcnt:     make([]int, 0),
-			Combcnt:     make([]int, 0),
-			Usercnt:     make([]int, 0),
-			Found:       make([]int, 0),
-			Categorized: make([]int, 0),
-			Servercnt:   make([]int, 0),
-			Labels:      make([]string, 0),
+			Elemcnt:       make([]int, 0),
+			Combcnt:       make([]int, 0),
+			Usercnt:       make([]int, 0),
+			Found:         make([]int, 0),
+			Categorized:   make([]int, 0),
+			Servercnt:     make([]int, 0),
+			Labels:        make([]string, 0),
+			CommandCounts: make([]CommandCount, 0),
 		},
 	}
 

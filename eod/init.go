@@ -1,9 +1,11 @@
 package eod
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/admin"
+	"github.com/Nv7-Github/Nv7Haven/eod/api"
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/basecmds"
 	"github.com/Nv7-Github/Nv7Haven/eod/categories"
@@ -11,9 +13,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/logs"
 	"github.com/Nv7-Github/Nv7Haven/eod/polls"
 	"github.com/Nv7-Github/Nv7Haven/eod/treecmds"
-	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/gofiber/fiber/v2"
-	"github.com/schollz/progressbar/v3"
 )
 
 func (b *EoD) init(app *fiber.App) {
@@ -25,53 +25,17 @@ func (b *EoD) init(app *fiber.App) {
 	b.polls = polls.NewPolls(b.Data, b.dg, b.base)
 	b.categories = categories.NewCategories(b.Data, b.base, b.dg, b.polls)
 	b.elements = elements.NewElements(b.Data, b.polls, b.db, b.base, b.dg)
+	b.api = api.NewAPI(b.Data, b.base)
 	admin.InitAdmin(b.Data, app)
 
-	// Polls
-	cnt := 0
-	for _, db := range b.DB {
-		cnt += len(db.Polls)
-	}
-	bar := progressbar.New(cnt)
+	// Run API
+	b.api.Run()
 
-	for _, db := range b.DB {
-		for _, po := range db.Polls {
-			msg, err := b.dg.ChannelMessage(po.Channel, po.Message)
-			if err != nil {
-				err := db.DeletePoll(po)
-				if err != nil {
-					panic(err)
-				}
-				continue
-			}
-			for _, r := range msg.Reactions {
-				if r.Emoji.Name == types.UpArrow {
-					po.Upvotes = r.Count - 1
-				}
-
-				if r.Emoji.Name == types.DownArrow {
-					po.Downvotes = r.Count - 1
-				}
-			}
-
-			// Get downs to see who last reacted
-			downs, err := b.dg.MessageReactions(po.Channel, po.Message, types.DownArrow, 100, "", "")
-			if err != nil {
-				err := db.DeletePoll(po)
-				if err != nil {
-					panic(err)
-				}
-				continue
-			}
-
-			lastDown := downs[len(downs)-1].ID
-			b.polls.CheckReactions(db, po, lastDown, false)
-
-			db.SavePoll(po)
-			bar.Add(1)
-		}
-	}
-	bar.Finish()
+	// Calc VCats
+	start := time.Now()
+	fmt.Println("Calculating VCats...")
+	b.categories.CacheVCats()
+	fmt.Println("Calculated in", time.Since(start))
 
 	b.initHandlers()
 	b.start()
@@ -85,27 +49,14 @@ func (b *EoD) init(app *fiber.App) {
 		}
 	}()
 
-	// Recalc autocats?
-	if types.RecalcAutocats {
-		for _, db := range b.DB {
-			for _, elem := range db.Elements {
-				b.polls.Autocategorize(elem.Name, db.Guild)
+	// Remove #0
+	for _, db := range b.DB {
+		for _, cat := range db.Cats() {
+			_, exists := cat.Elements[0]
+			if exists {
+				delete(cat.Elements, 0)
+				db.SaveCat(cat)
 			}
 		}
 	}
-
-	// Change starters
-	/*for _, db := range b.DB {
-		for _, el := range base.StarterElements {
-			e, res := db.GetElement(el.ID)
-			if !res.Exists {
-				continue
-			}
-			e.Creator = el.Creator
-			err := db.SaveElement(e)
-			if err != nil {
-				fmt.Println(err)
-			}
-		}
-	}*/
 }

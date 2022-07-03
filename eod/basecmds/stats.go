@@ -33,10 +33,22 @@ func (b *BaseCmds) StatsCmd(m types.Msg, rsp types.Rsp) {
 		categorized += len(val.Elements)
 	}
 
-	rsp.Message(fmt.Sprintf(db.Config.LangProperty("Stats"), util.FormatInt(len(db.Elements)), util.FormatInt(db.ComboCnt()), util.FormatInt(gd.MemberCount), util.FormatInt(found), util.FormatInt(categorized)), discordgo.ActionsRow{
+	used := 0
+	for _, v := range db.Config.CommandStats {
+		used += v
+	}
+
+	rsp.Message(db.Config.LangProperty("Stats", map[string]any{
+		"Elements":     util.FormatInt(len(db.Elements)),
+		"Combos":       util.FormatInt(db.ComboCnt()),
+		"Members":      util.FormatInt(gd.MemberCount),
+		"Found":        util.FormatInt(found),
+		"Categorized":  util.FormatInt(categorized),
+		"CommandsUsed": util.FormatInt(used),
+	}), discordgo.ActionsRow{
 		Components: []discordgo.MessageComponent{
 			discordgo.Button{
-				Label: db.Config.LangProperty("ViewMoreStats"),
+				Label: db.Config.LangProperty("ViewMoreStats", nil),
 				URL:   "https://nv7haven.com/?page=eod",
 				Style: discordgo.LinkButton,
 			},
@@ -60,6 +72,7 @@ func (b *BaseCmds) SaveStats() {
 		elemCnt := 0
 		comboCnt := 0
 		users := make(map[string]types.Empty)
+		commandStats := make(map[string]int)
 
 		for _, dat := range b.Data.DB {
 			dat.RLock()
@@ -70,6 +83,9 @@ func (b *BaseCmds) SaveStats() {
 				found += len(val.Elements)
 				users[val.User] = types.Empty{}
 			}
+			for k, v := range dat.Config.CommandStats {
+				commandStats[k] += v
+			}
 			elemCnt += len(dat.Elements)
 			comboCnt += dat.ComboCnt()
 			dat.RUnlock()
@@ -79,6 +95,14 @@ func (b *BaseCmds) SaveStats() {
 		_, err = b.db.Exec("INSERT INTO eod_stats VALUES (?, ?, ?, ?, ?, ?, ?)", time.Now().Unix(), elemCnt, comboCnt, len(users), found, categorized, len(b.Data.DB))
 		if err != nil {
 			fmt.Println(err)
+		}
+
+		// Save command stats
+		for k, v := range commandStats {
+			_, err = b.db.Exec("INSERT INTO eod_command_stats VALUES (?, ?, ?)", time.Now().Unix(), k, v)
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 	}
 }

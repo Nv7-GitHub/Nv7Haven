@@ -2,8 +2,8 @@ package polls
 
 import (
 	"errors"
+	"time"
 
-	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
@@ -44,23 +44,15 @@ func (b *Polls) CreatePoll(p types.Poll) error {
 	p.Message = m.ID
 
 	// Add reactions
-	if !base.IsFoolsMode {
-		err := b.dg.MessageReactionAdd(p.Channel, p.Message, types.UpArrow)
-		if err != nil {
-			return err
-		}
+	err = b.dg.MessageReactionAdd(p.Channel, p.Message, types.UpArrow)
+	if err != nil {
+		return err
 	}
 	err = b.dg.MessageReactionAdd(p.Channel, p.Message, types.DownArrow)
 	if err != nil {
 		return err
 	}
-	if base.IsFoolsMode {
-		err := b.dg.MessageReactionAdd(p.Channel, p.Message, types.UpArrow)
-		if err != nil {
-			return err
-		}
-	}
-
+	p.CreatedOn = types.NewTimeStamp(time.Now())
 	err = db.NewPoll(p)
 	if err != nil {
 		return err

@@ -1,9 +1,8 @@
 package categories
 
 import (
-	"fmt"
-	"sort"
 	"strings"
+	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -24,40 +23,14 @@ func (b *Categories) CategoriesCmd(elem string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 
-	// Get Categories
-	catsMap := make(map[catSortInfo]types.Empty)
-	db.RLock()
-	for _, cat := range db.Cats() {
-		_, exists := cat.Elements[el.ID]
-		if exists {
-			catsMap[catSortInfo{
-				Name: cat.Name,
-				Cnt:  len(cat.Elements),
-			}] = types.Empty{}
-		}
-	}
-	db.RUnlock()
-	cats := make([]catSortInfo, len(catsMap))
-	i := 0
-	for k := range catsMap {
-		cats[i] = k
-		i++
-	}
-
-	// Sort categories by count
-	sort.Slice(cats, func(i, j int) bool {
-		return cats[i].Cnt > cats[j].Cnt
-	})
-
-	// Convert to array
-	out := make([]string, len(cats))
-	for i, cat := range cats {
-		out[i] = cat.Name
-	}
+	out := b.base.ElemCategories(el.ID, db, false)
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
-		Kind:       types.PageSwitchInv,
-		Title:      fmt.Sprintf(db.Config.LangProperty("ElemCategories"), el.Name, len(out)),
+		Kind: types.PageSwitchInv,
+		Title: db.Config.LangProperty("ElemCategories", map[string]any{
+			"Element": el.Name,
+			"Count":   len(out),
+		}),
 		PageGetter: b.base.InvPageGetter,
 		Items:      out,
 		User:       m.Author.ID,
@@ -71,10 +44,25 @@ func (b *Categories) DownloadCatCmd(catName string, sort string, postfix bool, m
 		return
 	}
 
-	cat, res := db.GetCat(catName)
+	var els map[int]types.Empty
+	var lock *sync.RWMutex
+	catv, res := db.GetCat(catName)
 	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
+		vcat, res := db.GetVCat(catName)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		catName = vcat.Name
+		els, res = b.base.CalcVCat(vcat, db, true)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+	} else {
+		lock = catv.Lock
+		els = catv.Elements
+		catName = catv.Name
 	}
 
 	type catSortVal struct {
@@ -82,15 +70,19 @@ func (b *Categories) DownloadCatCmd(catName string, sort string, postfix bool, m
 		name string
 	}
 	db.RLock()
-	elems := make([]catSortVal, len(cat.Elements))
+	elems := make([]catSortVal, len(els))
 	i := 0
-	cat.Lock.RLock()
-	for elem := range cat.Elements {
+	if lock != nil {
+		lock.RLock()
+	}
+	for elem := range els {
 		el, _ := db.GetElement(elem, true)
 		elems[i] = catSortVal{elem, el.Name}
 		i++
 	}
-	cat.Lock.RUnlock()
+	if lock != nil {
+		lock.RUnlock()
+	}
 	db.RUnlock()
 
 	eodsort.Sort(elems, len(elems), func(index int) int {
@@ -113,7 +105,7 @@ func (b *Categories) DownloadCatCmd(catName string, sort string, postfix bool, m
 	}
 
 	_, err = b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: fmt.Sprintf(db.Config.LangProperty("NameDownloadedCat"), cat.Name),
+		Content: db.Config.LangProperty("NameDownloadedCat", catName),
 		Files: []*discordgo.File{
 			{
 				Name:        "cat.txt",
@@ -125,5 +117,5 @@ func (b *Categories) DownloadCatCmd(catName string, sort string, postfix bool, m
 	if rsp.Error(err) {
 		return
 	}
-	rsp.Message(db.Config.LangProperty("CatSentToDMs"))
+	rsp.Message(db.Config.LangProperty("CatSentToDMs", nil))
 }

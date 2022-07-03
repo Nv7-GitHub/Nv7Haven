@@ -4,10 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math/big"
+	"regexp"
 	"strconv"
 	"sync"
 	"time"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/logs"
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -16,7 +19,7 @@ import (
 
 var createLock = &sync.Mutex{}
 
-func (b *Polls) elemCreate(name string, parents []int, creator string, controversial string, guild string) {
+func (b *Polls) elemCreate(name string, parents []int, creator string, controversial string, lasted string, guild string) {
 	db, res := b.GetDB(guild)
 	if !res.Exists {
 		return
@@ -28,7 +31,7 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 	}
 
 	_, res = db.GetElementByName(name)
-	text := db.Config.LangProperty("NewComboNews")
+	prop := "NewComboNews"
 
 	createLock.Lock()
 
@@ -45,6 +48,10 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 		compl := -1
 		areUnique := false
 		parColors := make([]int, len(parents))
+		air := big.NewInt(0)
+		earth := big.NewInt(0)
+		fire := big.NewInt(0)
+		water := big.NewInt(0)
 		for j, val := range parents {
 			elem, _ := db.GetElement(val)
 			if elem.Difficulty > diff {
@@ -57,6 +64,13 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 				areUnique = true
 			}
 			parColors[j] = elem.Color
+			if elem.Air == nil {
+				fmt.Println(elem.Guild)
+			}
+			air.Add(air, elem.Air)
+			earth.Add(earth, elem.Earth)
+			fire.Add(fire, elem.Fire)
+			water.Add(water, elem.Water)
 		}
 		compl++
 		if areUnique {
@@ -76,7 +90,7 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 			ID:         len(db.Elements) + 1,
 			Name:       name,
 			Guild:      guild,
-			Comment:    db.Config.LangProperty("DefaultMark"),
+			Comment:    db.Config.LangProperty("DefaultComment", nil),
 			Creator:    creator,
 			CreatedOn:  types.NewTimeStamp(time.Now()),
 			Parents:    parents,
@@ -84,6 +98,10 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 			Difficulty: diff,
 			Color:      col,
 			TreeSize:   size,
+			Air:        air,
+			Earth:      earth,
+			Fire:       fire,
+			Water:      water,
 		}
 		postID = strconv.Itoa(elem.ID)
 		err = db.SaveElement(elem, true)
@@ -92,7 +110,26 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 			return
 		}
 
-		text = db.Config.LangProperty("NewElemNews")
+		prop = "NewElemNews"
+
+		// Add to all elements VCat
+		base.Elemlock.RLock()
+		v, exists := base.Allelements[guild]
+		base.Elemlock.RUnlock()
+		if exists {
+			v[elem.ID] = types.Empty{}
+		}
+
+		// Add to made by VCat
+		base.Madebylock.RLock()
+		gld, exists := base.Madeby[guild]
+		if exists {
+			v, exists := gld[creator]
+			if exists {
+				v[elem.ID] = types.Empty{}
+			}
+		}
+		base.Madebylock.RUnlock()
 	} else {
 		el, res := db.GetElementByName(name)
 		if !res.Exists {
@@ -125,13 +162,26 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 			el.UsedIn++
 			err := db.SaveElement(el)
 			if err != nil {
-				log.SetOutput(logs.DataFile)
-				log.Println(err)
+				handle(err)
+				return
+			}
+
+			creator := db.GetInv(el.Creator)
+			creator.UsedCnt++
+			err = db.SaveInv(creator)
+			if err != nil {
+				handle(err)
+				return
 			}
 		}
 	}
 
-	txt := types.NewText + " " + fmt.Sprintf(text, name, creator, postID) + controversial
+	txt := types.NewText + " " + db.Config.LangProperty(prop, map[string]any{
+		"Element":    name,
+		"LastedText": lasted,
+		"Creator":    creator,
+		"ID":         postID,
+	}) + controversial
 
 	_, _ = b.dg.ChannelMessageSend(db.Config.NewsChannel, txt)
 
@@ -146,10 +196,35 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 		log.Println(err)
 	}
 
-	err = b.Autocategorize(name, guild)
-	if err != nil {
-		log.SetOutput(logs.DataFile)
-		log.Println(err)
-		return
+	// Add to any VCat regex caches
+	db.RLock()
+	for _, vcat := range db.VCats() {
+		if vcat.Rule == types.VirtualCategoryRuleRegex && vcat.Cache != nil {
+			matched, err := regexp.MatchString(vcat.Data["regex"].(string), name)
+			if err == nil && matched {
+				vcat.Cache[el.ID] = types.Empty{}
+				db.RUnlock()
+				err = db.SaveCatCache(vcat.Name, vcat.Cache)
+				db.RLock()
+				if err != nil {
+					log.SetOutput(logs.DataFile)
+					log.Println(err)
+				}
+			}
+		}
+	}
+	db.RUnlock()
+
+	// Check if exists in any invhint caches
+	base.Invhintlock.RLock()
+	gld, exists := base.Invhint[guild]
+	base.Invhintlock.RUnlock()
+	if exists {
+		for _, elem := range parents {
+			els, exists := gld[elem]
+			if exists {
+				els[el.ID] = types.Empty{}
+			}
+		}
 	}
 }

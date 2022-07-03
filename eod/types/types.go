@@ -1,6 +1,7 @@
 package types
 
 import (
+	"math/big"
 	"strconv"
 	"strings"
 	"sync"
@@ -33,6 +34,8 @@ const (
 	PollCatImage     = 5
 	PollColor        = 6
 	PollCatColor     = 7
+	PollDeleteVCat   = 8
+	PollCatSign      = 9
 
 	PageSwitchLdb = 0
 	PageSwitchInv = 1
@@ -40,6 +43,10 @@ const (
 
 type ComponentMsg interface {
 	Handler(s *discordgo.Session, i *discordgo.InteractionCreate)
+}
+
+type ModalHandler interface {
+	Handler(s *discordgo.Session, i *discordgo.InteractionCreate, rsp Rsp)
 }
 
 type ServerConfig struct {
@@ -53,6 +60,7 @@ type ServerConfig struct {
 	ModRole       string    // role ID
 	PlayChannels  Container // channelID
 	LanguageFile  string
+	CommandStats  map[string]int
 }
 
 type ServerData struct {
@@ -62,6 +70,7 @@ type ServerData struct {
 	PageSwitchers map[string]PageSwitcher // map[messageid]pageswitcher
 	ComponentMsgs map[string]ComponentMsg // map[messageid]componentMsg
 	ElementMsgs   map[string]int          // map[messageid]elemname
+	Modals        map[string]ModalHandler // map[interactionid]modalHandler, NOTE: interactionid is CustomID
 }
 
 type PageSwitcher struct {
@@ -129,6 +138,10 @@ type Element struct {
 	Difficulty int
 	UsedIn     int
 	TreeSize   int
+	Air        *big.Int
+	Earth      *big.Int
+	Fire       *big.Int
+	Water      *big.Int
 
 	Commenter string
 	Colorer   string
@@ -157,6 +170,11 @@ type PollImageData struct {
 type PollCategorizeData struct {
 	Elems    []int
 	Category string
+	Title    string
+}
+
+type PollVCatDeleteData struct {
+	Category string
 }
 
 type PollCatImageData struct {
@@ -171,10 +189,17 @@ type PollColorData struct {
 	Color    int
 	OldColor int
 }
+
 type PollCatColorData struct {
 	Category string
 	Color    int
 	OldColor int
+}
+
+type PollCatSignData struct {
+	CatName string
+	NewNote string
+	OldNote string
 }
 
 type Poll struct {
@@ -183,6 +208,7 @@ type Poll struct {
 	Guild     string
 	Kind      PollType
 	Suggestor string
+	CreatedOn *TimeStamp
 
 	// Data, pointers to different types with omitempty so that you can selectively have some data
 	PollComboData      *PollComboData      `json:"combodata,omitempty"`
@@ -192,6 +218,8 @@ type Poll struct {
 	PollCatImageData   *PollCatImageData   `json:"catimagedata,omitempty"`
 	PollColorData      *PollColorData      `json:"colordata,omitempty"`
 	PollCatColorData   *PollCatColorData   `json:"catcolordata,omitempty"`
+	PollVCatDeleteData *PollVCatDeleteData `json:"vcatdeldata,omitempty"` // This is also the uncategorize data
+	PollCatSignData    *PollCatSignData    `json:"catsigndata,omitempty"`
 
 	Upvotes   int
 	Downvotes int
@@ -202,12 +230,57 @@ type Category struct {
 
 	Name     string
 	Guild    string
-	Elements map[int]Empty
+	Elements map[int]Empty `json:"-"`
 	Image    string
 	Color    int
+	Comment  string
 
-	Imager  string
-	Colorer string
+	Imager    string
+	Colorer   string
+	Commenter string
+}
+
+type VirtualCategoryRuleType int
+
+const (
+	VirtualCategoryRuleRegex        VirtualCategoryRuleType = 0
+	VirtualCategoryRuleInvFilter    VirtualCategoryRuleType = 1
+	VirtualCategoryRuleSetOperation VirtualCategoryRuleType = 2
+	VirtualCategoryRuleAllElements  VirtualCategoryRuleType = 3
+	VirtualCategoryRuleInvhint      VirtualCategoryRuleType = 4
+)
+
+func (v VirtualCategoryRuleType) String() string {
+	return [...]string{"Regex", "Inventory", "Operation", "All Elements", "Invhint"}[v]
+}
+
+type VirtualCategoryData map[string]any
+
+type CategoryOperation string
+
+const (
+	CatOpUnion     CategoryOperation = "union"
+	CatOpIntersect CategoryOperation = "intersect"
+	CatOpDiff      CategoryOperation = "difference"
+)
+
+type VirtualCategory struct {
+	Name    string
+	Guild   string
+	Creator string
+
+	Image   string
+	Color   int
+	Comment string
+
+	Imager    string
+	Colorer   string
+	Commenter string
+
+	Rule VirtualCategoryRuleType
+	Data VirtualCategoryData
+
+	Cache map[int]Empty `json:"-"`
 }
 
 type Msg struct {
@@ -226,6 +299,8 @@ type Inventory struct {
 	ColoredCnt    int
 	CatImagedCnt  int
 	CatColoredCnt int
+	CatSignedCnt  int
+	UsedCnt       int
 	User          string
 }
 
@@ -254,6 +329,7 @@ type Rsp interface {
 	Acknowledge()
 	DM(msg string)
 	Attachment(text string, files []*discordgo.File)
+	Modal(modal *discordgo.InteractionResponseData, handler ModalHandler)
 }
 
 func NewServerConfig() *ServerConfig {
@@ -263,6 +339,7 @@ func NewServerConfig() *ServerConfig {
 		UserColors:   make(map[string]int),
 		PlayChannels: make(Container),
 		LanguageFile: translation.DefaultLang,
+		CommandStats: make(map[string]int),
 	}
 }
 
@@ -274,6 +351,7 @@ func NewServerData() *ServerData {
 		PageSwitchers: make(map[string]PageSwitcher),
 		ComponentMsgs: make(map[string]ComponentMsg),
 		ElementMsgs:   make(map[string]int),
+		Modals:        make(map[string]ModalHandler),
 	}
 }
 

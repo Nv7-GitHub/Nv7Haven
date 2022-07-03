@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/translation"
-	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -41,47 +40,6 @@ import (
 	return out, nil
 }*/
 
-func (b *EoD) isMod(userID string, guildID string, m types.Msg) (bool, error) {
-	user, err := b.dg.GuildMember(m.GuildID, userID)
-	if err != nil {
-		return false, err
-	}
-	if (user.Permissions * discordgo.PermissionAdministrator) == discordgo.PermissionAdministrator {
-		return true, nil
-	}
-
-	db, res := b.GetDB(guildID)
-	hasLoadedRoles := false
-	var roles []*discordgo.Role
-
-	for _, roleID := range user.Roles {
-		if res.Exists && (roleID == db.Config.ModRole) {
-			return true, nil
-		}
-		role, err := b.dg.State.Role(guildID, roleID)
-		if err != nil {
-			if !hasLoadedRoles {
-				roles, err = b.dg.GuildRoles(m.GuildID)
-				if err != nil {
-					return false, err
-				}
-				hasLoadedRoles = true
-			}
-
-			for _, role := range roles {
-				if role.ID == roleID && ((role.Permissions & discordgo.PermissionAdministrator) == discordgo.PermissionAdministrator) {
-					return true, nil
-				}
-			}
-		} else {
-			if (role.Permissions & discordgo.PermissionAdministrator) == discordgo.PermissionAdministrator {
-				return true, nil
-			}
-		}
-	}
-	return false, nil
-}
-
 func splitByCombs(inp string) []string {
 	for _, val := range combs {
 		if strings.Contains(inp, val) {
@@ -102,10 +60,6 @@ func (b *EoD) getMessageElem(id string, guild string) (int, string, bool) {
 	}
 	return el, "", true
 }
-
-//go:embed fools.txt
-var foolsRaw string
-
 func stringsToAutocomplete(vals []string) []*discordgo.ApplicationCommandOptionChoice {
 	results := make([]*discordgo.ApplicationCommandOptionChoice, len(vals))
 	for i, name := range vals {
@@ -127,4 +81,13 @@ func makeLanguageOptions() []*discordgo.ApplicationCommandOptionChoice {
 		}
 	}
 	return results
+}
+
+func getFocused(opts []*discordgo.ApplicationCommandInteractionDataOption) (int, string) {
+	for i, opt := range opts {
+		if opt.Focused {
+			return i, opt.Name
+		}
+	}
+	return -1, ""
 }

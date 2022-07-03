@@ -2,6 +2,7 @@ package eodb
 
 import (
 	"bufio"
+	"bytes"
 	"io"
 	"net/url"
 	"os"
@@ -16,6 +17,20 @@ import (
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
+func readLine(reader *bufio.Reader) ([]byte, error) {
+	out := bytes.NewBuffer(nil)
+	for {
+		line, isPrefix, err := reader.ReadLine()
+		if err != nil {
+			return nil, err
+		}
+		out.Write(line)
+		if !isPrefix {
+			return out.Bytes(), nil
+		}
+	}
+}
+
 func (d *DB) loadElements() error {
 	f, err := os.OpenFile(filepath.Join(d.dbPath, "elements.json"), os.O_RDWR|os.O_CREATE, os.ModePerm)
 	if err != nil {
@@ -25,7 +40,7 @@ func (d *DB) loadElements() error {
 
 	dat := types.Element{}
 	for {
-		line, _, err := reader.ReadLine()
+		line, err := readLine(reader)
 		if err != nil {
 			if err == io.EOF {
 				break
@@ -38,6 +53,10 @@ func (d *DB) loadElements() error {
 		err = json.Unmarshal(line, &dat)
 		if err != nil {
 			return err
+		}
+
+		if dat.ID < 1 {
+			continue
 		}
 
 		// Add to elements
@@ -57,6 +76,7 @@ func (d *DB) loadElements() error {
 	d.elemFile = f
 	return nil
 }
+
 func (d *DB) loadCombos() error {
 	f, err := os.OpenFile(filepath.Join(d.dbPath, "combos.txt"), os.O_RDWR|os.O_CREATE, os.ModePerm)
 	if err != nil {
@@ -133,6 +153,13 @@ func (d *DB) loadInvs() error {
 		if err != nil {
 			return err
 		}
+		if len(dat) == 0 {
+			err := os.Remove(filepath.Join(d.dbPath, "inventories", file.Name()))
+			if err != nil {
+				return err
+			}
+			continue
+		}
 		err = json.Unmarshal(dat, &inv)
 		if err != nil {
 			return err
@@ -143,6 +170,80 @@ func (d *DB) loadInvs() error {
 		d.invs[name] = inv
 		d.invFiles[name] = f
 		inv = nil
+	}
+	return nil
+}
+
+type catCacheOp int
+
+const (
+	catCacheOpAdd    catCacheOp = 0
+	catCacheOpRemove catCacheOp = 1
+)
+
+type catCacheEntry struct {
+	Op   catCacheOp
+	Data []int
+}
+
+func (d *DB) loadCatCache() error {
+	err := os.MkdirAll(filepath.Join(d.dbPath, "catcache"), os.ModePerm)
+	if err != nil {
+		return err
+	}
+	files, err := os.ReadDir(filepath.Join(d.dbPath, "catcache"))
+	if err != nil {
+		return err
+	}
+
+	var entry catCacheEntry
+	for _, file := range files {
+		name, err := url.PathUnescape(strings.TrimSuffix(file.Name(), ".json"))
+		if err != nil {
+			return err
+		}
+		f, err := os.OpenFile(filepath.Join(d.dbPath, "catcache", file.Name()), os.O_RDWR, os.ModePerm)
+		if err != nil {
+			return err
+		}
+		reader := bufio.NewReader(f)
+		cache := make(map[int]types.Empty)
+
+		// Read cat
+		for {
+			line, err := readLine(reader)
+			if err != nil {
+				if err == io.EOF {
+					break
+				} else {
+					return err
+				}
+			}
+
+			// Parse
+			err = json.Unmarshal(line, &entry)
+			if err != nil {
+				return err
+			}
+
+			// Apply operation
+			switch entry.Op {
+			case catCacheOpAdd:
+				for _, elem := range entry.Data {
+					cache[elem] = types.Empty{}
+				}
+
+			case catCacheOpRemove:
+				for _, elem := range entry.Data {
+					delete(cache, elem)
+				}
+			}
+			entry = catCacheEntry{}
+		}
+
+		// Save cat
+		d.catCache[strings.ToLower(name)] = cache
+		d.catCacheFiles[strings.ToLower(name)] = f
 	}
 	return nil
 }
@@ -179,10 +280,59 @@ func (d *DB) loadCats() error {
 		}
 		cat.Lock = &sync.RWMutex{}
 
+		// Get cache
+		cache, exists := d.GetCatCache(cat.Name)
+		if !exists {
+			// Remove cat
+			d.cats[strings.ToLower(name)] = cat
+			d.catFiles[strings.ToLower(name)] = f
+			cat.Elements = make(map[int]types.Empty)
+			err = d.SaveCat(cat)
+			if err != nil {
+				return err
+			}
+		}
+
+		// Copy cache
+		cat.Elements = make(map[int]types.Empty, len(cache))
+		for elem := range cache {
+			cat.Elements[elem] = types.Empty{}
+		}
+
 		// Save cat
 		d.cats[strings.ToLower(name)] = cat
 		d.catFiles[strings.ToLower(name)] = f
 		cat = nil
+	}
+	return nil
+}
+
+func (d *DB) loadVcats() error {
+	f, err := os.OpenFile(filepath.Join(d.dbPath, "vcats.json"), os.O_RDWR|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		return err
+	}
+	dat, err := io.ReadAll(f)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(dat, &d.vcats)
+	if err != nil {
+		d.vcats = make(map[string]*types.VirtualCategory)
+	}
+	d.vcatsFile = f
+
+	// Load caches
+	for _, vcat := range d.vcats {
+		if vcat.Rule == types.VirtualCategoryRuleRegex {
+			cache, exists := d.GetCatCache(vcat.Name)
+			if !exists {
+				// Nil cache, needs to be created
+				vcat.Cache = nil
+			} else {
+				vcat.Cache = cache
+			}
+		}
 	}
 	return nil
 }

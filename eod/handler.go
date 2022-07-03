@@ -15,7 +15,7 @@ const guild = "" // 819077688371314718 for testing
 
 func (b *EoD) initHandlers() {
 	// Debugging
-	discordgo.Logger = func(msgL, caller int, format string, a ...interface{}) {
+	discordgo.Logger = func(msgL, caller int, format string, a ...any) {
 		// This code is a slightly modified version of https://github.com/bwmarrin/discordgo/blob/577e7dd4f6ccf1beb10acdb1871300c7638b84c4/logging.go#L46
 		pc, file, line, _ := runtime.Caller(caller)
 
@@ -39,23 +39,23 @@ func (b *EoD) initHandlers() {
 			return
 		}
 
+		switch i.Type {
 		// Command
-		if i.Type == discordgo.InteractionApplicationCommand {
-			rsp := b.newRespSlash(i)
-			canRun, msg := b.canRunCmd(i)
-			if !canRun {
-				rsp.ErrorMessage(msg)
-				return
+		case discordgo.InteractionApplicationCommand:
+			db, res := b.GetDB(i.GuildID)
+			if res.Exists {
+				if db.Config.CommandStats == nil {
+					db.Config.CommandStats = make(map[string]int)
+				}
+				db.Config.CommandStats[i.ApplicationCommandData().Name]++
+				db.SaveConfig()
 			}
-
 			if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
 				h(s, i)
 			}
-			return
-		}
 
 		// Button
-		if i.Type == discordgo.InteractionMessageComponent {
+		case discordgo.InteractionMessageComponent:
 			data, res := b.GetData(i.GuildID)
 			if !res.Exists {
 				return
@@ -73,13 +73,24 @@ func (b *EoD) initHandlers() {
 				compMsg.Handler(s, i)
 				return
 			}
-			return
-		}
 
 		// Autocomplete
-		if i.Type == discordgo.InteractionApplicationCommandAutocomplete {
+		case discordgo.InteractionApplicationCommandAutocomplete:
 			if h, ok := autocompleteHandlers[i.ApplicationCommandData().Name]; ok {
 				h(s, i)
+			}
+
+		// Modal
+		case discordgo.InteractionModalSubmit:
+			data, res := b.GetData(i.GuildID)
+			if !res.Exists {
+				return
+			}
+
+			handler, exists := data.Modals[i.ModalSubmitData().CustomID]
+			if exists {
+				handler.Handler(s, i, b.newRespSlash(i))
+				return
 			}
 		}
 	})

@@ -716,7 +716,7 @@ func file_anarchy_proto_rawDescGZIP() []byte {
 }
 
 var file_anarchy_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
-var file_anarchy_proto_goTypes = []interface{}{
+var file_anarchy_proto_goTypes = []any{
 	(*AnarchyElement)(nil),           // 0: anarchy.AnarchyElement
 	(*AnarchyCombination)(nil),       // 1: anarchy.AnarchyCombination
 	(*AnarchyCombinationResult)(nil), // 2: anarchy.AnarchyCombinationResult
@@ -761,7 +761,7 @@ func file_anarchy_proto_init() {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_anarchy_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_anarchy_proto_msgTypes[0].Exporter = func(v any, i int) any {
 			switch v := v.(*AnarchyElement); i {
 			case 0:
 				return &v.state
@@ -773,7 +773,7 @@ func file_anarchy_proto_init() {
 				return nil
 			}
 		}
-		file_anarchy_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_anarchy_proto_msgTypes[1].Exporter = func(v any, i int) any {
 			switch v := v.(*AnarchyCombination); i {
 			case 0:
 				return &v.state
@@ -785,7 +785,7 @@ func file_anarchy_proto_init() {
 				return nil
 			}
 		}
-		file_anarchy_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_anarchy_proto_msgTypes[2].Exporter = func(v any, i int) any {
 			switch v := v.(*AnarchyCombinationResult); i {
 			case 0:
 				return &v.state
@@ -797,7 +797,7 @@ func file_anarchy_proto_init() {
 				return nil
 			}
 		}
-		file_anarchy_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_anarchy_proto_msgTypes[3].Exporter = func(v any, i int) any {
 			switch v := v.(*AnarchyInventory); i {
 			case 0:
 				return &v.state
@@ -809,7 +809,7 @@ func file_anarchy_proto_init() {
 				return nil
 			}
 		}
-		file_anarchy_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_anarchy_proto_msgTypes[4].Exporter = func(v any, i int) any {
 			switch v := v.(*AnarchyUserRequest); i {
 			case 0:
 				return &v.state
@@ -821,7 +821,7 @@ func file_anarchy_proto_init() {
 				return nil
 			}
 		}
-		file_anarchy_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_anarchy_proto_msgTypes[5].Exporter = func(v any, i int) any {
 			switch v := v.(*AnarchyGetAllChunk); i {
 			case 0:
 				return &v.state
@@ -833,7 +833,7 @@ func file_anarchy_proto_init() {
 				return nil
 			}
 		}
-		file_anarchy_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_anarchy_proto_msgTypes[6].Exporter = func(v any, i int) any {
 			switch v := v.(*AnarchyRecentCombination); i {
 			case 0:
 				return &v.state
@@ -845,7 +845,7 @@ func file_anarchy_proto_init() {
 				return nil
 			}
 		}
-		file_anarchy_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_anarchy_proto_msgTypes[7].Exporter = func(v any, i int) any {
 			switch v := v.(*AnarchyRecents); i {
 			case 0:
 				return &v.state
@@ -857,7 +857,7 @@ func file_anarchy_proto_init() {
 				return nil
 			}
 		}
-		file_anarchy_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+		file_anarchy_proto_msgTypes[8].Exporter = func(v any, i int) any {
 			switch v := v.(*AnarchyElementCreate); i {
 			case 0:
 				return &v.state

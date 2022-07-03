@@ -2,19 +2,15 @@ package categories
 
 import (
 	"fmt"
+	"os"
+	"runtime/pprof"
 	"sort"
 	"strings"
 
-	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/eodsort"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
-
-type catSortInfo struct {
-	Name string
-	Cnt  int
-}
 
 func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user string, postfix bool, m types.Msg, rsp types.Rsp) {
 	db, res := b.GetDB(m.GuildID)
@@ -22,38 +18,51 @@ func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user
 		return
 	}
 
+	rsp.Acknowledge()
 	category = strings.TrimSpace(category)
-
-	if base.IsFoolsMode && !base.IsFool(category) {
-		rsp.ErrorMessage(base.MakeFoolResp(category))
-		return
-	}
-
 	id := m.Author.ID
 	if hasUser {
 		id = user
 	}
 	inv := db.GetInv(id)
 
+	var color int
+	var image string
 	cat, res := db.GetCat(category)
+	var els map[int]types.Empty
 	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
+		vcat, res := db.GetVCat(category)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		els, res = b.base.CalcVCat(vcat, db, true)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		category = vcat.Name
+		color = vcat.Color
+		image = vcat.Image
+	} else {
+		category = cat.Name
+		els = cat.Elements
+		color = cat.Color
+		image = cat.Image
 	}
-	category = cat.Name
 
 	out := make([]struct {
 		text string
 		id   int
 		name string
-	}, len(cat.Elements))
+	}, len(els))
 
 	found := 0
 	i := 0
 	var text string
 
 	db.RLock()
-	for elem := range cat.Elements {
+	for elem := range els {
 		exists := inv.Contains(elem)
 		el, _ := db.GetElement(elem, true)
 		if exists {
@@ -80,7 +89,7 @@ func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user
 	var o []string
 	switch sortKind {
 	case "catelemcount":
-		rsp.ErrorMessage(db.Config.LangProperty("InvalidSort"))
+		rsp.ErrorMessage(db.Config.LangProperty("InvalidSort", nil))
 		return
 
 	default:
@@ -103,11 +112,11 @@ func (b *Categories) CatCmd(category string, sortKind string, hasUser bool, user
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
-		Thumbnail:  cat.Image,
+		Thumbnail:  image,
 		Title:      fmt.Sprintf("%s (%d, %s%%)", category, len(out), util.FormatFloat(float32(found)/float32(len(out))*100, 2)),
 		PageGetter: b.base.InvPageGetter,
 		Items:      o,
-		Color:      cat.Color,
+		Color:      color,
 	}, m, rsp)
 }
 
@@ -124,24 +133,31 @@ func (b *Categories) AllCatCmd(sortBy string, hasUser bool, user string, m types
 		return
 	}
 
+	rsp.Acknowledge()
+
 	id := m.Author.ID
 	if hasUser {
 		id = user
 	}
 	inv := db.GetInv(id)
 
+	f, _ := os.Create("prof.pprof")
+	pprof.StartCPUProfile(f)
+
 	db.RLock()
-	out := make([]catData, len(db.Cats()))
+	out := make([]catData, len(db.Cats())+len(db.VCats()))
 
 	i := 0
 	for _, cat := range db.Cats() {
 		count := 0
+		cat.Lock.RLock()
 		for elem := range cat.Elements {
 			exists := inv.Contains(elem)
 			if exists {
 				count++
 			}
 		}
+		cat.Lock.RUnlock()
 
 		perc := float32(count) / float32(len(cat.Elements))
 		text := "(" + util.FormatFloat(perc*100, 2) + "%)"
@@ -153,6 +169,34 @@ func (b *Categories) AllCatCmd(sortBy string, hasUser bool, user string, m types
 			name:  cat.Name,
 			found: perc,
 			count: len(cat.Elements),
+		}
+		i++
+	}
+	for _, cat := range db.VCats() {
+		count := 0
+		db.RUnlock()
+		els, res := b.base.CalcVCat(cat, db, true)
+		db.RLock()
+		if !res.Exists {
+			continue
+		}
+		for elem := range els {
+			exists := inv.Contains(elem)
+			if exists {
+				count++
+			}
+		}
+
+		perc := float32(count) / float32(len(els))
+		text := "(" + util.FormatFloat(perc*100, 2) + "%)"
+		if count == len(els) {
+			text = types.Check
+		}
+		out[i] = catData{
+			text:  fmt.Sprintf("%s %s", cat.Name, text),
+			name:  cat.Name,
+			found: perc,
+			count: len(els),
 		}
 		i++
 	}
@@ -180,9 +224,11 @@ func (b *Categories) AllCatCmd(sortBy string, hasUser bool, user string, m types
 		names[i] = dat.text
 	}
 
+	pprof.StopCPUProfile()
+
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchInv,
-		Title:      fmt.Sprintf(db.Config.LangProperty("AllCategories"), len(out)),
+		Title:      db.Config.LangProperty("AllCategories", len(out)),
 		PageGetter: b.base.InvPageGetter,
 		Items:      names,
 	}, m, rsp)

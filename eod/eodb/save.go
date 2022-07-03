@@ -30,6 +30,10 @@ func (d *DB) SaveElement(el types.Element, new ...bool) error {
 		d.Elements[el.ID-1] = el
 	}
 
+	if d.inTransaction { // Don't persist
+		return nil
+	}
+
 	// Persist
 	dat, err := json.Marshal(el)
 	if err != nil {
@@ -82,6 +86,70 @@ func (d *DB) SaveConfig() error {
 	return nil
 }
 
+func (d *DB) SaveVCat(vcat *types.VirtualCategory) error {
+	d.Lock()
+	defer d.Unlock()
+
+	d.vcats[strings.ToLower(vcat.Name)] = vcat
+
+	dat, err := json.Marshal(d.vcats)
+	if err != nil {
+		return err
+	}
+
+	_, err = d.vcatsFile.Seek(0, 0)
+	if err != nil {
+		return err
+	}
+	err = d.vcatsFile.Truncate(0)
+	if err != nil {
+		return err
+	}
+	_, err = d.vcatsFile.Write(dat)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (d *DB) DeleteVCat(name string) error {
+	d.Lock()
+	defer d.Unlock()
+
+	val := d.vcats[strings.ToLower(name)]
+	if val.Rule == types.VirtualCategoryRuleRegex {
+		d.Unlock()
+		err := d.DelCatCache(val.Name)
+		if err != nil {
+			return err
+		}
+		d.Lock()
+	}
+
+	delete(d.vcats, strings.ToLower(name))
+
+	dat, err := json.Marshal(d.vcats)
+	if err != nil {
+		return err
+	}
+
+	_, err = d.vcatsFile.Seek(0, 0)
+	if err != nil {
+		return err
+	}
+	err = d.vcatsFile.Truncate(0)
+	if err != nil {
+		return err
+	}
+	_, err = d.vcatsFile.Write(dat)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (d *DB) NewCat(name string) *types.Category {
 	cat := &types.Category{
 		Lock: &sync.RWMutex{},
@@ -100,6 +168,95 @@ func (d *DB) NewCat(name string) *types.Category {
 	return cat
 }
 
+func (d *DB) SaveCatCache(name string, elems map[int]types.Empty) error {
+	d.Lock()
+	defer d.Unlock()
+
+	file, exists := d.catCacheFiles[strings.ToLower(name)]
+	var err error
+	if !exists {
+		file, err = os.Create(filepath.Join(d.dbPath, "catcache", url.PathEscape(name)+".json"))
+		if err != nil {
+			return err
+		}
+		d.catCacheFiles[strings.ToLower(name)] = file
+	}
+	cache, exists := d.catCache[strings.ToLower(name)]
+	if !exists {
+		cache = make(map[int]types.Empty)
+	}
+
+	// Calc diff
+	rm := make(map[int]types.Empty)
+	add := make(map[int]types.Empty)
+	for el := range elems {
+		_, exists := cache[el]
+		if !exists {
+			add[el] = types.Empty{}
+		}
+	}
+	for el := range cache {
+		_, exists := elems[el]
+		if !exists {
+			rm[el] = types.Empty{}
+		}
+	}
+
+	// Save
+	d.catCache[strings.ToLower(name)] = elems
+	if len(rm) > 0 {
+		toRm := make([]int, len(rm))
+		i := 0
+		for k := range rm {
+			toRm[i] = k
+			i++
+		}
+		entry := catCacheEntry{
+			Op:   catCacheOpRemove,
+			Data: toRm,
+		}
+		dat, err := json.Marshal(entry)
+		if err != nil {
+			return err
+		}
+		_, err = file.WriteString(string(dat) + "\n")
+		if err != nil {
+			return err
+		}
+	}
+	if len(add) > 0 {
+		toAdd := make([]int, len(add))
+		i := 0
+		for k := range add {
+			toAdd[i] = k
+			i++
+		}
+		entry := catCacheEntry{
+			Op:   catCacheOpAdd,
+			Data: toAdd,
+		}
+		dat, err := json.Marshal(entry)
+		if err != nil {
+			return err
+		}
+		_, err = file.WriteString(string(dat) + "\n")
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (d *DB) DelCatCache(name string) error {
+	d.Lock()
+	defer d.Unlock()
+
+	delete(d.catCache, strings.ToLower(name))
+	delete(d.catCacheFiles, strings.ToLower(name))
+	return os.Remove(filepath.Join(d.dbPath, "catcache", url.PathEscape(name)+".json"))
+}
+
 func (d *DB) SaveCat(elems *types.Category) error {
 	// Empty?
 	if len(elems.Elements) == 0 {
@@ -109,7 +266,10 @@ func (d *DB) SaveCat(elems *types.Category) error {
 		d.Unlock()
 
 		err := os.Remove(filepath.Join(d.dbPath, "categories", url.PathEscape(elems.Name)+".json"))
-		return err
+		if err != nil {
+			return err
+		}
+		return d.DelCatCache(elems.Name)
 	}
 
 	elems.Lock.RLock()
@@ -120,30 +280,41 @@ func (d *DB) SaveCat(elems *types.Category) error {
 	}
 
 	d.Lock()
-	defer d.Unlock()
 
 	file, exists := d.catFiles[strings.ToLower(elems.Name)]
 	if !exists {
 		file, err = os.Create(filepath.Join(d.dbPath, "categories", url.PathEscape(elems.Name)+".json"))
 		if err != nil {
+			d.Unlock()
 			return err
 		}
 		d.catFiles[strings.ToLower(elems.Name)] = file
 	}
 	_, err = file.Seek(0, 0)
 	if err != nil {
+		d.Unlock()
 		return err
 	}
 	err = file.Truncate(0)
 	if err != nil {
+		d.Unlock()
 		return err
 	}
 	_, err = file.Write(dat)
 	if err != nil {
+		d.Unlock()
 		return err
 	}
+	d.Unlock()
 
-	return nil
+	// Save cat cache
+	elems.Lock.RLock()
+	copy := make(map[int]types.Empty, len(elems.Elements))
+	for k := range elems.Elements {
+		copy[k] = types.Empty{}
+	}
+	elems.Lock.RUnlock()
+	return d.SaveCatCache(elems.Name, copy)
 }
 
 func (d *DB) SaveInv(inv *types.Inventory, recalc ...bool) error {

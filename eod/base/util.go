@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -65,4 +67,54 @@ func (b *Base) GetRole(id string, guild string) (*discordgo.Role, error) {
 	}
 
 	return nil, errors.New("eod: role not found")
+}
+
+type catSortInfo struct {
+	Name string
+	Cnt  int
+}
+
+func (b *Base) ElemCategories(elem int, db *eodb.DB, fast bool) []string {
+	// Get Categories
+	cats := make([]catSortInfo, 0)
+	db.RLock()
+	for _, cat := range db.Cats() {
+		_, exists := cat.Elements[elem]
+		if exists {
+			cats = append(cats, catSortInfo{
+				Name: cat.Name,
+				Cnt:  len(cat.Elements),
+			})
+		}
+	}
+	for _, vcat := range db.VCats() {
+		if fast && vcat.Rule == types.VirtualCategoryRuleSetOperation { // ignore set operations because they are slow
+			continue
+		}
+		db.RUnlock()
+		els, res := b.CalcVCat(vcat, db, true)
+		db.RLock()
+		if res.Exists {
+			_, exists := els[elem]
+			if exists {
+				cats = append(cats, catSortInfo{
+					Name: vcat.Name,
+					Cnt:  len(els),
+				})
+			}
+		}
+	}
+	db.RUnlock()
+
+	// Sort categories by count
+	sort.Slice(cats, func(i, j int) bool {
+		return cats[i].Cnt > cats[j].Cnt
+	})
+
+	// Convert to array
+	out := make([]string, len(cats))
+	for i, cat := range cats {
+		out[i] = cat.Name
+	}
+	return out
 }

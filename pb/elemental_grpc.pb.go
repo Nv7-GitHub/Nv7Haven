@@ -320,7 +320,7 @@ func RegisterElementalServer(s grpc.ServiceRegistrar, srv ElementalServer) {
 	s.RegisterService(&Elemental_ServiceDesc, srv)
 }
 
-func _Elemental_GetElem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Elemental_GetElem_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(wrapperspb.StringValue)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -332,13 +332,13 @@ func _Elemental_GetElem_Handler(srv interface{}, ctx context.Context, dec func(i
 		Server:     srv,
 		FullMethod: "/elemental.Elemental/GetElem",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ElementalServer).GetElem(ctx, req.(*wrapperspb.StringValue))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Elemental_GetCombination_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Elemental_GetCombination_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(Combination)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -350,13 +350,13 @@ func _Elemental_GetCombination_Handler(srv interface{}, ctx context.Context, dec
 		Server:     srv,
 		FullMethod: "/elemental.Elemental/GetCombination",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ElementalServer).GetCombination(ctx, req.(*Combination))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Elemental_GetAll_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _Elemental_GetAll_Handler(srv any, stream grpc.ServerStream) error {
 	m := new(wrapperspb.StringValue)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
@@ -377,7 +377,7 @@ func (x *elementalGetAllServer) Send(m *GetAllChunk) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func _Elemental_GetInv_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Elemental_GetInv_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(wrapperspb.StringValue)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -389,13 +389,13 @@ func _Elemental_GetInv_Handler(srv interface{}, ctx context.Context, dec func(in
 		Server:     srv,
 		FullMethod: "/elemental.Elemental/GetInv",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ElementalServer).GetInv(ctx, req.(*wrapperspb.StringValue))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Elemental_AddFound_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Elemental_AddFound_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(SuggestionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -407,13 +407,13 @@ func _Elemental_AddFound_Handler(srv interface{}, ctx context.Context, dec func(
 		Server:     srv,
 		FullMethod: "/elemental.Elemental/AddFound",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ElementalServer).AddFound(ctx, req.(*SuggestionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Elemental_GetSuggestion_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Elemental_GetSuggestion_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(wrapperspb.StringValue)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -425,13 +425,13 @@ func _Elemental_GetSuggestion_Handler(srv interface{}, ctx context.Context, dec 
 		Server:     srv,
 		FullMethod: "/elemental.Elemental/GetSuggestion",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ElementalServer).GetSuggestion(ctx, req.(*wrapperspb.StringValue))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Elemental_GetSuggestionCombos_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Elemental_GetSuggestionCombos_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(Combination)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -443,13 +443,13 @@ func _Elemental_GetSuggestionCombos_Handler(srv interface{}, ctx context.Context
 		Server:     srv,
 		FullMethod: "/elemental.Elemental/GetSuggestionCombos",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ElementalServer).GetSuggestionCombos(ctx, req.(*Combination))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Elemental_UpSuggestion_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Elemental_UpSuggestion_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(SuggestionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -461,13 +461,13 @@ func _Elemental_UpSuggestion_Handler(srv interface{}, ctx context.Context, dec f
 		Server:     srv,
 		FullMethod: "/elemental.Elemental/UpSuggestion",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ElementalServer).UpSuggestion(ctx, req.(*SuggestionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Elemental_DownSuggestion_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Elemental_DownSuggestion_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(SuggestionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -479,13 +479,13 @@ func _Elemental_DownSuggestion_Handler(srv interface{}, ctx context.Context, dec
 		Server:     srv,
 		FullMethod: "/elemental.Elemental/DownSuggestion",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ElementalServer).DownSuggestion(ctx, req.(*SuggestionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Elemental_CreateSugg_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Elemental_CreateSugg_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(CreateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -497,13 +497,13 @@ func _Elemental_CreateSugg_Handler(srv interface{}, ctx context.Context, dec fun
 		Server:     srv,
 		FullMethod: "/elemental.Elemental/CreateSugg",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ElementalServer).CreateSugg(ctx, req.(*CreateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Elemental_NewSugg_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Elemental_NewSugg_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(NewSuggestionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -515,13 +515,13 @@ func _Elemental_NewSugg_Handler(srv interface{}, ctx context.Context, dec func(i
 		Server:     srv,
 		FullMethod: "/elemental.Elemental/NewSugg",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ElementalServer).NewSugg(ctx, req.(*NewSuggestionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Elemental_RandomLonely_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Elemental_RandomLonely_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(wrapperspb.StringValue)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -533,13 +533,13 @@ func _Elemental_RandomLonely_Handler(srv interface{}, ctx context.Context, dec f
 		Server:     srv,
 		FullMethod: "/elemental.Elemental/RandomLonely",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ElementalServer).RandomLonely(ctx, req.(*wrapperspb.StringValue))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Elemental_UpAndComing_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Elemental_UpAndComing_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(wrapperspb.StringValue)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -551,13 +551,13 @@ func _Elemental_UpAndComing_Handler(srv interface{}, ctx context.Context, dec fu
 		Server:     srv,
 		FullMethod: "/elemental.Elemental/UpAndComing",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ElementalServer).UpAndComing(ctx, req.(*wrapperspb.StringValue))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Elemental_GetRec_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Elemental_GetRec_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -569,13 +569,13 @@ func _Elemental_GetRec_Handler(srv interface{}, ctx context.Context, dec func(in
 		Server:     srv,
 		FullMethod: "/elemental.Elemental/GetRec",
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ElementalServer).GetRec(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Elemental_WaitForNextRecent_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _Elemental_WaitForNextRecent_Handler(srv any, stream grpc.ServerStream) error {
 	m := new(emptypb.Empty)
 	if err := stream.RecvMsg(m); err != nil {
 		return err

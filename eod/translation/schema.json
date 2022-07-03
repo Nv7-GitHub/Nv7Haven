@@ -106,6 +106,10 @@
       "type": "string",
       "description": "Tell the user the category doesn't exist."
     },
+    "CatAlreadyExist": {
+      "type": "string",
+      "description": "Tells the user the category already exists."
+    },
     "NotInCat": {
       "type": "string",
       "description": "Tell the user the element isn't in the category."
@@ -129,6 +133,10 @@
     "CategorizeMultSuggestCategorizedMult": {
       "type": "string",
       "description": "Tell the user the elements were categorized and were suggested to be categorized."
+    },
+    "CategoryUsedInVCat": {
+      "type": "string",
+      "description": "Tell the user the category is used in a Virtual Category."
     },
     "UnCategorized": {
       "type": "string",
@@ -346,6 +354,38 @@
       "type": "string",
       "description": "The title given to element leaderboards."
     },
+    "LbTitleMade": {
+      "type": "string",
+      "description": "The title given to elements made leaderboards."
+    },
+    "LbTitleSigned": {
+      "type": "string",
+      "description": "The title given to elements signed leaderboards."
+    },
+    "LbTitleImaged": {
+      "type": "string",
+      "description": "The title given to elements imaged leaderboards."
+    },
+    "LbTitleColored": {
+      "type": "string",
+      "description": "The title given to elements colored leaderboards."
+    },
+    "LbTitleCatImaged": {
+      "type": "string",
+      "description": "The title given to categories imaged leaderboards."
+    },
+    "LbTitleCatColored": {
+      "type": "string",
+      "description": "The title given to categories colored leaderboards."
+    },
+    "LbTitleUsed": {
+      "type": "string",
+      "description": "The title given to elements used leaderboards."
+    },
+    "LbTitleCatSigned": {
+      "type": "string",
+      "description": "The title given to categories signed leaderboards."
+    },
     "NewIdea": {
       "type": "string",
       "description": "The message in the New Idea button."
@@ -500,7 +540,11 @@
     },
     "RmCatPoll": {
       "type": "string",
-      "description": "The title of polls for element de-categorizations."
+      "description": "The title of polls for element un-categorizations."
+    },
+    "DelCatPoll": {
+      "type": "string",
+      "description": "The title of polls for category deletions."
     },
     "CatImagePoll": {
       "type": "string",
@@ -517,6 +561,26 @@
     "SetCatColorPoll": {
       "type": "string",
       "description": "The title of polls for category color changes."
+    },
+    "MoreElemsPoll": {
+      "type": "string",
+      "description": "The description to put when the number of elements displayed in the poll is shortened."
+    },
+    "IntersectPoll": {
+      "type": "string",
+      "description": "The title of polls for category intersections."
+    },
+    "UnionPoll": {
+      "type": "string",
+      "description": "The title of polls for category unions."
+    },
+    "DiffPoll": {
+      "type": "string",
+      "description": "The title of polls for category differences."
+    },
+    "DeleteVCatPoll": {
+      "type": "string",
+      "description": "The title of polls for virtual category deletion."
     },
     "NewNote": {
       "type": "string",
@@ -553,6 +617,10 @@
     "PollCreatorText": {
       "type": "string",
       "description": "The line denoting the suggester of polls."
+    },
+    "Lasted": {
+      "type": "string",
+      "description": "How long the poll lasted."
     },
     "NewElemNews": {
       "type": "string",
@@ -610,6 +678,10 @@
       "type": "string",
       "description": "The news message when a category's color is changed."
     },
+    "DeleteVCatNews": {
+      "type": "string",
+      "description": "The news message when a virtual category is deleted."
+    },
     "MaxMarkLength": {
       "type": "string",
       "description": "Tells the user that a creator mark must be below 2400 characters."
@@ -650,6 +722,10 @@
       "type": "string",
       "description": "Tells the user that a poll was created to change the color of the category."
     },
+    "VCatDeleteSuggested": {
+      "type": "string",
+      "description": "Tells the user that a poll was created to delete a virtual category."
+    },
     "MustAttachImage": {
       "type": "string",
       "description": "Tell the user they must attach an image."
@@ -670,14 +746,6 @@
       "type": "string",
       "description": "The message given by the !ping command, also displaying the latency of the bot's response."
     },
-    "MustHaveAdmin": {
-      "type": "string",
-      "description": "Tell the user they must have the Administrator permission."
-    },
-    "MustHaveAdminOrModRole": {
-      "type": "string",
-      "description": "Tell the user they must have the Administrator permission or the server moderator role."
-    },
     "MustHaveElemForPath": {
       "type": "string",
       "description": "Tell the user they must have the element to get its path."
@@ -686,13 +754,9 @@
       "type": "string",
       "description": "Tell the user they must have every element in the category to get its path."
     },
-    "MustHaveElemOrID": {
+    "CannotHaveBothElemAndCat": {
       "type": "string",
-      "description": "Tell the user that they must input either an element or an element ID."
-    },
-    "CannotHaveBothElemAndID": {
-      "type": "string",
-      "description": "Tell the user that they cannot input both an element and an element ID."
+      "description": "Tell the user that they cannot input both an element and a category."
     },
     "IDCannotBeNegative": {
       "type": "string",
@@ -710,6 +774,10 @@
       "type": "string",
       "description": "Tell the user that the bot is calculating the ping."
     },
+    "ElementCount": {
+      "type": "string",
+      "description": "Tell the user the number of elements."
+    },
     "SentWordCloud": {
       "type": "string",
       "description": "Tell the user the word cloud was sent in their DMs."
@@ -717,14 +785,6 @@
     "WordCloudElem": {
       "type": "string",
       "description": "Tell the user which element the word cloud is for."
-    },
-    "WordCloudDimensionsTooLow": {
-      "type": "string",
-      "description": "Tell the user the dimensions of the word cloud are too low."
-    },
-    "WordCloudDimensionsTooHigh": {
-      "type": "string",
-      "description": "Tell the user the dimensions of the word cloud are too high."
     }
   }
 }

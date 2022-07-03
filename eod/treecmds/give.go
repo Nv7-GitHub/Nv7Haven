@@ -1,7 +1,7 @@
 package treecmds
 
 import (
-	"fmt"
+	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -36,7 +36,7 @@ func (b *TreeCmds) GiveCmd(elem string, giveTree bool, user string, m types.Msg,
 		return
 	}
 
-	rsp.Resp(fmt.Sprintf(db.Config.LangProperty("GiveElem"), el.Name))
+	rsp.Resp(db.Config.LangProperty("GiveElem", el.Name))
 }
 
 func (b *TreeCmds) GiveCatCmd(catName string, giveTree bool, user string, m types.Msg, rsp types.Rsp) {
@@ -47,13 +47,31 @@ func (b *TreeCmds) GiveCatCmd(catName string, giveTree bool, user string, m type
 
 	inv := db.GetInv(user)
 
-	cat, res := db.GetCat(catName)
+	var els map[int]types.Empty
+	var lock *sync.RWMutex
+	catv, res := db.GetCat(catName)
 	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
+		vcat, res := db.GetVCat(catName)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		catName = vcat.Name
+		els, res = b.base.CalcVCat(vcat, db, true)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+	} else {
+		els = catv.Elements
+		lock = catv.Lock
+		catName = catv.Name
 	}
 
-	for elem := range cat.Elements {
+	if lock != nil {
+		lock.RLock()
+	}
+	for elem := range els {
 		_, res := db.GetElement(elem)
 		if !res.Exists {
 			rsp.ErrorMessage(res.Message)
@@ -62,9 +80,12 @@ func (b *TreeCmds) GiveCatCmd(catName string, giveTree bool, user string, m type
 
 		msg, suc := giveElem(db, giveTree, elem, inv)
 		if !suc {
-			rsp.ErrorMessage(fmt.Sprintf(db.Config.LangProperty("DoesntExist"), msg))
+			rsp.ErrorMessage(db.Config.LangProperty("DoesntExist", msg))
 			return
 		}
+	}
+	if lock != nil {
+		lock.RUnlock()
 	}
 
 	err := db.SaveInv(inv)
@@ -72,7 +93,7 @@ func (b *TreeCmds) GiveCatCmd(catName string, giveTree bool, user string, m type
 		return
 	}
 
-	rsp.Resp(fmt.Sprintf(db.Config.LangProperty("GiveCat"), cat.Name))
+	rsp.Resp(db.Config.LangProperty("GiveCat", catName))
 }
 
 func giveElem(db *eodb.DB, giveTree bool, elem int, out *types.Inventory) (string, bool) {
@@ -114,5 +135,5 @@ func (b *TreeCmds) GiveAllCmd(user string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 
-	rsp.Resp(fmt.Sprintf(db.Config.LangProperty("GiveAll"), user))
+	rsp.Resp(db.Config.LangProperty("GiveAll", user))
 }

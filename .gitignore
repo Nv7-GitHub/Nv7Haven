@@ -41,9 +41,10 @@ logs.txt
 createlogs.txt
 discordlogs.txt
 mysqlogs.txt
-eod/other/parecalc/prof.pprof
+*.pprof
 eod/eodb/cloud/cloud.png
 eod/eodb/cloud/cloud.json
+eod/eodb/jsonexport/export.json
 
 # Secret!
 password.txt
@@ -59,5 +60,12 @@ eod/other/parecalc/data.gob
 eod/eodb/convdb/data.gob
 restartinfo.gob
 joe_token.txt
+b_token.txt
+names/token.txt
 
 !eod/logs
+
+
+# Added by cargo
+
+/target

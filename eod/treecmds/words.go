@@ -2,12 +2,18 @@ package treecmds
 
 import (
 	"bytes"
-	"fmt"
 	"image/png"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/trees"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
+)
+
+var (
+	WCMinWidth  float64 = 1
+	WCMinHeight float64 = 1
+	WCMaxWidth  float64 = 4096
+	WCMaxHeight float64 = 4096
 )
 
 func (b *TreeCmds) WordCloudCmd(name string, elems map[int]types.Empty, calcTree bool, width, height int, m types.Msg, rsp types.Rsp) {
@@ -16,15 +22,6 @@ func (b *TreeCmds) WordCloudCmd(name string, elems map[int]types.Empty, calcTree
 	db, res := b.GetDB(m.GuildID)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
-		return
-	}
-
-	if width < 1 || height < 1 {
-		rsp.ErrorMessage(db.Config.LangProperty("WordCloudDimensionsTooLow"))
-		return
-	}
-	if width > 4096 || height > 4096 {
-		rsp.ErrorMessage(db.Config.LangProperty("WordCloudDimensionsTooHigh"))
 		return
 	}
 
@@ -45,14 +42,14 @@ func (b *TreeCmds) WordCloudCmd(name string, elems map[int]types.Empty, calcTree
 		return
 	}
 
-	rsp.Message(db.Config.LangProperty("SentWordCloud"))
+	rsp.Message(db.Config.LangProperty("SentWordCloud", nil))
 	channel, err := b.dg.UserChannelCreate(m.Author.ID)
 	if rsp.Error(err) {
 		return
 	}
 
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-		Content: fmt.Sprintf(db.Config.LangProperty("WordCloudElem"), name),
+		Content: db.Config.LangProperty("WordCloudElem", name),
 		Files: []*discordgo.File{
 			{
 				Name:        "wordcloud.png",
@@ -87,14 +84,30 @@ func (b *TreeCmds) CatWordCloudCmd(catName string, calcTree bool, width, height 
 	}
 	rsp.Acknowledge()
 
-	cat, res := db.GetCat(catName)
+	var els map[int]types.Empty
+	catv, res := db.GetCat(catName)
 	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
+		vcat, res := db.GetVCat(catName)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		catName = vcat.Name
+		els, res = b.base.CalcVCat(vcat, db, true)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+	} else {
+		catv.Lock.RLock()
+		els = make(map[int]types.Empty, len(catv.Elements))
+		for el := range catv.Elements {
+			els[el] = types.Empty{}
+		}
+		catv.Lock.RUnlock()
+		catName = catv.Name
 	}
-	cat.Lock.RLock()
-	defer cat.Lock.RUnlock()
-	b.WordCloudCmd(cat.Name, cat.Elements, calcTree, width, height, m, rsp)
+	b.WordCloudCmd(catName, els, calcTree, width, height, m, rsp)
 }
 
 func (b *TreeCmds) InvWordCloudCmd(user string, calcTree bool, width, height int, m types.Msg, rsp types.Rsp) {

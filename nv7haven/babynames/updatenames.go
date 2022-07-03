@@ -127,7 +127,7 @@ func main() {
 	// Read CSV
 	times := 0
 	query := "INSERT INTO names VALUES "
-	args := make([]interface{}, 0)
+	args := make([]any, 0)
 	for k, v := range names {
 		query += "(?,?,?),"
 		args = append(args, k, v.isMale, v.count)
@@ -140,7 +140,7 @@ func main() {
 			endTimer("Processed and wrote 10000 records to SQL database")
 
 			query = "INSERT INTO names VALUES "
-			args = make([]interface{}, 0)
+			args = make([]any, 0)
 		}
 		times++
 	}

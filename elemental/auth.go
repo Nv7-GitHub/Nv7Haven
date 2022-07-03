@@ -192,7 +192,7 @@ func (e *Elemental) NewAnonymousUser() AuthResponse {
 func (e *Elemental) createUser(c *fiber.Ctx) error {
 	name, err := url.PathUnescape(c.Params("name"))
 	if err != nil {
-		return c.JSON(map[string]interface{}{
+		return c.JSON(map[string]any{
 			"success": false,
 			"data":    err.Error(),
 		})
@@ -200,7 +200,7 @@ func (e *Elemental) createUser(c *fiber.Ctx) error {
 	password := string(c.Body())
 
 	resp := e.CreateUser(name, password)
-	return c.JSON(map[string]interface{}{
+	return c.JSON(map[string]any{
 		"success": resp.Success,
 		"data":    resp.Data,
 	})
@@ -209,14 +209,14 @@ func (e *Elemental) createUser(c *fiber.Ctx) error {
 func (e *Elemental) loginUser(c *fiber.Ctx) error {
 	name, err := url.PathUnescape(c.Params("name"))
 	if err != nil {
-		return c.JSON(map[string]interface{}{
+		return c.JSON(map[string]any{
 			"success": false,
 			"data":    err.Error(),
 		})
 	}
 	password := string(c.Body())
 	resp := e.LoginUser(name, password)
-	return c.JSON(map[string]interface{}{
+	return c.JSON(map[string]any{
 		"success": resp.Success,
 		"data":    resp.Data,
 	})
@@ -224,7 +224,7 @@ func (e *Elemental) loginUser(c *fiber.Ctx) error {
 
 func (e *Elemental) newAnonymousUser(c *fiber.Ctx) error {
 	resp := e.NewAnonymousUser()
-	return c.JSON(map[string]interface{}{
+	return c.JSON(map[string]any{
 		"success": resp.Success,
 		"data":    resp.Data,
 	})

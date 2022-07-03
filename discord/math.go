@@ -20,7 +20,7 @@ var functions = map[string]govaluate.ExpressionFunction{
 	"asin": newFunc(math.Asin),
 	"acos": newFunc(math.Acos),
 	"atan": newFunc(math.Atan),
-	"exp": func(args ...interface{}) (interface{}, error) {
+	"exp": func(args ...any) (any, error) {
 		if len(args) < 2 {
 			return nil, errors.New("not enough arguments")
 		}
@@ -44,8 +44,8 @@ var functions = map[string]govaluate.ExpressionFunction{
 	},
 }
 
-func newFunc(fu func(float64) float64) func(...interface{}) (interface{}, error) {
-	return func(args ...interface{}) (interface{}, error) {
+func newFunc(fu func(float64) float64) func(...any) (any, error) {
+	return func(args ...any) (any, error) {
 		if len(args) < 1 {
 			return nil, errors.New("not enough arguments")
 		}
@@ -80,7 +80,7 @@ func (b *Bot) math(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 		_, exists := b.mathvars[m.GuildID]
 		if !exists {
-			b.mathvars[m.GuildID] = make(map[string]interface{})
+			b.mathvars[m.GuildID] = make(map[string]any)
 		}
 		result, err := gexp.Evaluate(b.mathvars[m.GuildID])
 		if b.handle(err, m) {
@@ -99,7 +99,7 @@ func (b *Bot) math(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		_, exists := b.mathvars[m.GuildID]
 		if !exists {
-			b.mathvars[m.GuildID] = make(map[string]interface{})
+			b.mathvars[m.GuildID] = make(map[string]any)
 		}
 		result, err := gexp.Evaluate(b.mathvars[m.GuildID])
 		if b.handle(err, m) {

@@ -50,8 +50,11 @@ func (b *Elements) FoundCmd(elem string, m types.Msg, rsp types.Rsp) {
 	}
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
-		Kind:       types.PageSwitchInv,
-		Title:      fmt.Sprintf(db.Config.LangProperty("ElemFound"), el.Name, len(out)),
+		Kind: types.PageSwitchInv,
+		Title: db.Config.LangProperty("ElemFound", map[string]any{
+			"Element": el.Name,
+			"Count":   len(out),
+		}),
 		PageGetter: b.base.InvPageGetter,
 		Items:      out,
 		User:       m.Author.ID,
