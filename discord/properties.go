@@ -211,4 +211,38 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("You collected %d coins!", moneyCollected))
 		return
 	}
+	
+	if b.startsWith(m, "income") {
+		b.checkuser(m)
+		id := m.Author.ID
+		if len(m.Mentions) > 0 {
+			id = m.Mentions[0].ID
+			b.checkuserwithid(m, id)
+		}
+
+		user, suc := b.getuser(m, m.id)
+		if !suc {
+			return
+		}
+
+		usr, err := s.User(id)
+		if b.handle(err, m) {
+			return
+		}
+
+		income := 0
+		limbo := 0
+		for id, ups := range user.Properties {
+			val := b.props[id].Value
+
+			income := int(float32(val*ups))
+			limbo := int(income * (float32(time.Now().Unix()-user.LastVisited) / 3600))
+		}
+		if id == m.Author.ID {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Your current income is %d coins, and you have %d in limbo!", income, limbo))
+		} else {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s's current income is %d coins, and they have %d in limbo!", usr.Username, income, limbo))
+		}
+		return
+	}
 }
