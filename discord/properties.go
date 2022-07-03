@@ -236,7 +236,7 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 			val := b.props[id].Value
 
 			income += int(float32(val*ups) * float32(1/3600))
-			limbo += int(income * (float32(time.Now().Unix()-user.LastVisited) / 3600))
+			limbo += int(float32(val*ups) * (float32(time.Now().Unix()-user.LastVisited) / 3600))
 		}
 		if id == m.Author.ID {
 			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Your current income is %d coins, and you have %d in limbo!", income, limbo))
