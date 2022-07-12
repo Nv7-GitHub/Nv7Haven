@@ -89,9 +89,6 @@ func (b *Base) ElemCategories(elem int, db *eodb.DB, vcats bool) []string {
 	}
 	if vcats {
 		for _, vcat := range db.VCats() {
-			if fast && vcat.Rule == types.VirtualCategoryRuleSetOperation { // ignore set operations because they are slow
-				continue
-			}
 			db.RUnlock()
 			els, res := b.CalcVCat(vcat, db, true)
 			db.RLock()
