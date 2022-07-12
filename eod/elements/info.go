@@ -149,7 +149,7 @@ func (b *Elements) Info(elem string, m types.Msg, rsp types.Rsp) {
 	rsp.Acknowledge()
 
 	// Get Categories
-	cats := b.base.ElemCategories(el.ID, db, true)
+	cats := b.base.ElemCategories(el.ID, db, true, false)
 
 	// Make text for collapsed
 	catTxt := &strings.Builder{}
