@@ -74,7 +74,7 @@ type catSortInfo struct {
 	Cnt  int
 }
 
-func (b *Base) ElemCategories(elem int, db *eodb.DB, fast bool) []string {
+func (b *Base) ElemCategories(elem int, db *eodb.DB, fast bool, vcats bool) []string {
 	// Get Categories
 	cats := make([]catSortInfo, 0)
 	db.RLock()
@@ -87,20 +87,22 @@ func (b *Base) ElemCategories(elem int, db *eodb.DB, fast bool) []string {
 			})
 		}
 	}
-	for _, vcat := range db.VCats() {
-		if fast && vcat.Rule == types.VirtualCategoryRuleSetOperation { // ignore set operations because they are slow
-			continue
-		}
-		db.RUnlock()
-		els, res := b.CalcVCat(vcat, db, true)
-		db.RLock()
-		if res.Exists {
-			_, exists := els[elem]
-			if exists {
-				cats = append(cats, catSortInfo{
-					Name: vcat.Name,
-					Cnt:  len(els),
-				})
+	if vcats {
+		for _, vcat := range db.VCats() {
+			if fast && vcat.Rule == types.VirtualCategoryRuleSetOperation { // ignore set operations because they are slow
+				continue
+			}
+			db.RUnlock()
+			els, res := b.CalcVCat(vcat, db, true)
+			db.RLock()
+			if res.Exists {
+				_, exists := els[elem]
+				if exists {
+					cats = append(cats, catSortInfo{
+						Name: vcat.Name,
+						Cnt:  len(els),
+					})
+				}
 			}
 		}
 	}
