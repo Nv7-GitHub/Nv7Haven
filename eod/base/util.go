@@ -74,7 +74,7 @@ type catSortInfo struct {
 	Cnt  int
 }
 
-func (b *Base) ElemCategories(elem int, db *eodb.DB, fast bool, vcats bool) []string {
+func (b *Base) ElemCategories(elem int, db *eodb.DB, vcats bool) []string {
 	// Get Categories
 	cats := make([]catSortInfo, 0)
 	db.RLock()
