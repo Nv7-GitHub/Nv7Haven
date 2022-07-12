@@ -23,7 +23,7 @@ func (b *Categories) CategoriesCmd(elem string, m types.Msg, rsp types.Rsp) {
 		return
 	}
 
-	out := b.base.ElemCategories(el.ID, db, false, true)
+	out := b.base.ElemCategories(el.ID, db, true)
 
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind: types.PageSwitchInv,
