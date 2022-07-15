@@ -1681,6 +1681,7 @@ var (
 
 			if resp.Name == "url" {
 				bot.polls.ImageCmd(resp.Options[0].StringValue(), resp.Options[1].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+				return
 			}
 
 			// Get attachment
