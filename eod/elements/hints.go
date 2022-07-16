@@ -109,7 +109,7 @@ func (b *Elements) HintCmd(elem string, hasElem bool, hasCat bool, inverse bool,
 	}
 
 	rspInp := rsp
-	if !hasElem {
+	if inverse {
 		if len(elem) < 1 {
 			rsp.ErrorMessage(db.Config.LangProperty("InvHintNoElem", nil))
 			return
