@@ -43,6 +43,7 @@ func (b *Categories) DownloadCatCmd(catName string, sort string, postfix bool, m
 	if !res.Exists {
 		return
 	}
+	rsp.Acknowledge()
 
 	var els map[int]types.Empty
 	var lock *sync.RWMutex
