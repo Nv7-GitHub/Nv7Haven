@@ -6,7 +6,6 @@ import (
 	"sort"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
-	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
 
