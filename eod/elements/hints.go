@@ -83,6 +83,13 @@ func (b *Elements) HintCmd(elem string, hasElem bool, hasCat bool, inverse bool,
 	elem = strings.TrimSpace(elem)
 	elem = util.EscapeElement(elem)
 	elId := 0
+	rspInp := rsp
+	if inverse {
+		if elem == "" {
+			rsp.ErrorMessage(db.Config.LangProperty("InvHintNoElem", nil))
+			return
+		}
+	}
 	if hasElem {
 		el, res := db.GetElementByName(elem)
 		if !res.Exists {
@@ -106,15 +113,6 @@ func (b *Elements) HintCmd(elem string, hasElem bool, hasCat bool, inverse bool,
 		} else {
 			catName = cat.Name
 		}
-	}
-
-	rspInp := rsp
-	if inverse {
-		if len(elem) < 1 {
-			rsp.ErrorMessage(db.Config.LangProperty("InvHintNoElem", nil))
-			return
-		}
-		rspInp = nil
 	}
 	hint, msg, suc := b.getHint(elId, db, hasElem, hasCat, catName, m.Author.ID, m.GuildID, inverse, m, rspInp)
 	if !suc && msg == "" {
