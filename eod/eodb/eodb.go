@@ -150,6 +150,8 @@ func newDB(path string, guild string) *DB {
 		catFiles:      make(map[string]*os.File),
 		catCacheFiles: make(map[string]*os.File),
 		catCache:      make(map[string]map[int]types.Empty),
+		invData:       make(map[string]map[int]types.Empty),
+		invDataFiles:  make(map[string]*os.File),
 
 		AI: ai.NewAI(),
 	}

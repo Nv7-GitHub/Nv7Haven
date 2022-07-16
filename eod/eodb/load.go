@@ -135,6 +135,10 @@ func (d *DB) loadInvs() error {
 	if err != nil {
 		return err
 	}
+	err = os.MkdirAll(filepath.Join(d.dbPath, "invdata"), os.ModePerm)
+	if err != nil {
+		return err
+	}
 	files, err := os.ReadDir(filepath.Join(d.dbPath, "inventories"))
 	if err != nil {
 		return err
@@ -208,10 +212,10 @@ func (d *DB) loadInvs() error {
 		}
 
 		// Save inv
-		inv.Elements = make(map[int]types.Empty, len(data))
+		/*inv.Elements = make(map[int]types.Empty, len(data))
 		for k := range data {
 			inv.Elements[k] = types.Empty{}
-		}
+		}*/
 		d.invs[name] = inv
 		d.invDataFiles[name] = f
 		d.invData[name] = data

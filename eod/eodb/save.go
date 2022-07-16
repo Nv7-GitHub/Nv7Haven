@@ -358,17 +358,6 @@ func (d *DB) SaveInv(inv *types.Inventory, recalc ...bool) error {
 		d.invData[inv.User] = make(map[int]types.Empty)
 	}
 
-	// TODO: Remove once inv data has been created
-	_, exists = d.invDataFiles[inv.User]
-	if !exists {
-		dataFile, err := os.Create(filepath.Join(d.dbPath, "invdata", inv.User+".json"))
-		if err != nil {
-			return err
-		}
-		d.invDataFiles[inv.User] = dataFile
-		d.invData[inv.User] = make(map[int]types.Empty)
-	}
-
 	data := d.invData[inv.User]
 
 	// Calc diff
@@ -414,7 +403,7 @@ func (d *DB) SaveInv(inv *types.Inventory, recalc ...bool) error {
 		if err != nil {
 			return err
 		}
-		_, err = file.WriteString(string(dat) + "\n")
+		_, err = dataFile.WriteString(string(dat) + "\n")
 		if err != nil {
 			return err
 		}

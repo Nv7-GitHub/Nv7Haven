@@ -292,7 +292,7 @@ type Msg struct {
 type Inventory struct {
 	Lock *sync.RWMutex `json:"-"`
 
-	Elements      map[int]Empty `json:"-"`
+	Elements      map[int]Empty
 	MadeCnt       int
 	ImagedCnt     int
 	SignedCnt     int
