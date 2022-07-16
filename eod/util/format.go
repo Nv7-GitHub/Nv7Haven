@@ -82,6 +82,5 @@ func FormatBigInt(b *big.Int) string {
 
 	// Get number of digits
 	f := big.NewFloat(0).SetInt(b)
-	v, _ := f.Float64()
-	return fmt.Sprintf("%v", v)
+	return fmt.Sprintf("%v", f)
 }
