@@ -205,6 +205,9 @@ var sorts = map[string]func(a, b int, db *eodb.DB, data any) bool{
 }
 
 var getters = map[string]func(el types.Element, data any) string{
+	"length": func(el types.Element, data any) string {
+		return fmt.Sprintf(" - %d", len(el.Name))
+	},
 	"createdon": func(el types.Element, data any) string {
 		return fmt.Sprintf(" - <t:%d>", el.CreatedOn.Unix())
 	},
