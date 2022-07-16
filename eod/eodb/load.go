@@ -212,10 +212,10 @@ func (d *DB) loadInvs() error {
 		}
 
 		// Save inv
-		/*inv.Elements = make(map[int]types.Empty, len(data))
+		inv.Elements = make(map[int]types.Empty, len(data))
 		for k := range data {
 			inv.Elements[k] = types.Empty{}
-		}*/
+		}
 		d.invs[name] = inv
 		d.invDataFiles[name] = f
 		d.invData[name] = data
