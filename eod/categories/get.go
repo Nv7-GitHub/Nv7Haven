@@ -107,11 +107,11 @@ func (b *Categories) DownloadCatCmd(catName string, sort string, postfix bool, m
 	_, err = b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
 		Content: db.Config.LangProperty("NameDownloadedCat", catName),
 		Files: []*discordgo.File{
-			{
+			b.base.PrepareFile(&discordgo.File{
 				Name:        "cat.txt",
 				ContentType: "text/plain",
 				Reader:      buf,
-			},
+			}, out.Len()),
 		},
 	})
 	if rsp.Error(err) {

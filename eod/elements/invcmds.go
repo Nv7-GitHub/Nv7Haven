@@ -103,11 +103,11 @@ func (b *Elements) DownloadInvCmd(user string, sorter string, filter string, pos
 			"Server":   gld.Name,
 		}),
 		Files: []*discordgo.File{
-			{
+			b.base.PrepareFile(&discordgo.File{
 				Name:        "inv.txt",
 				ContentType: "text/plain",
 				Reader:      buf,
-			},
+			}, out.Len()),
 		},
 	})
 	rsp.Message(db.Config.LangProperty("SentInvToDMs", nil))

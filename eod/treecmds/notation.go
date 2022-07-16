@@ -62,11 +62,11 @@ func (b *TreeCmds) NotationCmd(elem string, m types.Msg, rsp types.Rsp) {
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
 		Content: db.Config.LangProperty("NameNotationElem", el.Name),
 		Files: []*discordgo.File{
-			{
+			b.base.PrepareFile(&discordgo.File{
 				Name:        "notation.txt",
 				ContentType: "text/plain",
 				Reader:      buf,
-			},
+			}, len(txt)),
 		},
 	})
 }
@@ -144,11 +144,11 @@ func (b *TreeCmds) CatNotationCmd(catName string, m types.Msg, rsp types.Rsp) {
 	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
 		Content: db.Config.LangProperty("NameNotationCat", catName),
 		Files: []*discordgo.File{
-			{
+			b.base.PrepareFile(&discordgo.File{
 				Name:        "notation.txt",
 				ContentType: "text/plain",
 				Reader:      buf,
-			},
+			}, len(txt)),
 		},
 	})
 }
