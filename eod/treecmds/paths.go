@@ -48,9 +48,6 @@ func (b *TreeCmds) CalcTreeCmd(elem string, m types.Msg, rsp types.Rsp) {
 		rsp.DM(txt)
 		return
 	}
-	id := rsp.Message(db.Config.LangProperty("PathTooLong", nil))
-
-	data.SetMsgElem(id, el.ID)
 
 	channel, err := b.dg.UserChannelCreate(m.Author.ID)
 	if rsp.Error(err) {
@@ -58,7 +55,7 @@ func (b *TreeCmds) CalcTreeCmd(elem string, m types.Msg, rsp types.Rsp) {
 	}
 	buf := strings.NewReader(txt)
 
-	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
+	_, err = b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
 		Content: db.Config.LangProperty("NamePathElem", el.Name),
 		Files: []*discordgo.File{
 			b.base.PrepareFile(&discordgo.File{
@@ -68,6 +65,13 @@ func (b *TreeCmds) CalcTreeCmd(elem string, m types.Msg, rsp types.Rsp) {
 			}, len(txt)),
 		},
 	})
+	if rsp.Error(err) {
+		return
+	}
+
+	id := rsp.Message(db.Config.LangProperty("PathTooLong", nil))
+
+	data.SetMsgElem(id, el.ID)
 }
 
 func (b *TreeCmds) CalcTreeCatCmd(catName string, m types.Msg, rsp types.Rsp) {
@@ -121,14 +125,13 @@ func (b *TreeCmds) CalcTreeCatCmd(catName string, m types.Msg, rsp types.Rsp) {
 		rsp.DM(txt)
 		return
 	}
-	rsp.Message(db.Config.LangProperty("PathTooLong", nil))
 
 	channel, err := b.dg.UserChannelCreate(m.Author.ID)
 	if rsp.Error(err) {
 		return
 	}
 	buf := strings.NewReader(txt)
-	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
+	_, err = b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
 		Content: db.Config.LangProperty("NamePathCat", catName),
 		Files: []*discordgo.File{
 			b.base.PrepareFile(&discordgo.File{
@@ -138,4 +141,9 @@ func (b *TreeCmds) CalcTreeCatCmd(catName string, m types.Msg, rsp types.Rsp) {
 			}, len(txt)),
 		},
 	})
+	if rsp.Error(err) {
+		return
+	}
+
+	rsp.Message(db.Config.LangProperty("PathTooLong", nil))
 }

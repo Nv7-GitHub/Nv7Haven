@@ -97,7 +97,7 @@ func (b *Elements) DownloadInvCmd(user string, sorter string, filter string, pos
 		return
 	}
 
-	b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
+	_, err = b.dg.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
 		Content: db.Config.LangProperty("DownloadedInvUserServer", map[string]any{
 			"Username": usr.Username,
 			"Server":   gld.Name,
@@ -110,5 +110,8 @@ func (b *Elements) DownloadInvCmd(user string, sorter string, filter string, pos
 			}, out.Len()),
 		},
 	})
+	if rsp.Error(err) {
+		return
+	}
 	rsp.Message(db.Config.LangProperty("SentInvToDMs", nil))
 }
