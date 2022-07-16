@@ -308,13 +308,13 @@ func (b *Polls) CatMarkInteractionCmd(catName string, m types.Msg, rsp types.Rsp
 	}
 
 	rsp.Modal(&discordgo.InteractionResponseData{
-		Title: "Mark Element",
+		Title: "Mark Category",
 		Components: []discordgo.MessageComponent{
 			discordgo.ActionsRow{
 				Components: []discordgo.MessageComponent{
 					discordgo.TextInput{
 						CustomID:    "mark",
-						Label:       "New Element Mark",
+						Label:       "New Category Mark",
 						Style:       discordgo.TextInputParagraph,
 						Placeholder: "None",
 						Required:    true,
