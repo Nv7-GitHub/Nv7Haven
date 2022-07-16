@@ -141,6 +141,7 @@ func (d *DB) loadInvs() error {
 	}
 
 	var inv *types.Inventory
+	var op invOp
 	for _, file := range files {
 		name := strings.TrimSuffix(file.Name(), ".json")
 		f, err := os.OpenFile(filepath.Join(d.dbPath, "inventories", file.Name()), os.O_RDWR, os.ModePerm)
@@ -165,10 +166,55 @@ func (d *DB) loadInvs() error {
 			return err
 		}
 		inv.Lock = &sync.RWMutex{}
+		d.invFiles[name] = f
+
+		// Read inv data
+		f, err = os.OpenFile(filepath.Join(d.dbPath, "invdata", file.Name()), os.O_RDWR, os.ModePerm)
+		if err != nil {
+			return err
+		}
+
+		reader := bufio.NewReader(f)
+		data := make(map[int]types.Empty)
+		for {
+			line, err := readLine(reader)
+			if err != nil {
+				if err == io.EOF {
+					break
+				} else {
+					return err
+				}
+			}
+
+			// Parse
+			err = json.Unmarshal(line, &op)
+			if err != nil {
+				return err
+			}
+
+			// Apply operation
+			switch op.Kind {
+			case invOpAdd:
+				for _, elem := range op.Data {
+					data[elem] = types.Empty{}
+				}
+
+			case invOpRem:
+				for _, elem := range op.Data {
+					delete(data, elem)
+				}
+			}
+			op = invOp{}
+		}
 
 		// Save inv
+		inv.Elements = make(map[int]types.Empty, len(data))
+		for k := range data {
+			inv.Elements[k] = types.Empty{}
+		}
 		d.invs[name] = inv
-		d.invFiles[name] = f
+		d.invDataFiles[name] = f
+		d.invData[name] = data
 		inv = nil
 	}
 	return nil

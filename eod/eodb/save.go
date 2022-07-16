@@ -187,33 +187,27 @@ func (d *DB) SaveCatCache(name string, elems map[int]types.Empty) error {
 	}
 
 	// Calc diff
-	rm := make(map[int]types.Empty)
-	add := make(map[int]types.Empty)
+	rm := make([]int, 0)
+	add := make([]int, 0)
 	for el := range elems {
 		_, exists := cache[el]
 		if !exists {
-			add[el] = types.Empty{}
+			add = append(add, el)
 		}
 	}
 	for el := range cache {
 		_, exists := elems[el]
 		if !exists {
-			rm[el] = types.Empty{}
+			rm = append(rm, el)
 		}
 	}
 
 	// Save
 	d.catCache[strings.ToLower(name)] = elems
 	if len(rm) > 0 {
-		toRm := make([]int, len(rm))
-		i := 0
-		for k := range rm {
-			toRm[i] = k
-			i++
-		}
 		entry := catCacheEntry{
 			Op:   catCacheOpRemove,
-			Data: toRm,
+			Data: rm,
 		}
 		dat, err := json.Marshal(entry)
 		if err != nil {
@@ -225,15 +219,9 @@ func (d *DB) SaveCatCache(name string, elems map[int]types.Empty) error {
 		}
 	}
 	if len(add) > 0 {
-		toAdd := make([]int, len(add))
-		i := 0
-		for k := range add {
-			toAdd[i] = k
-			i++
-		}
 		entry := catCacheEntry{
 			Op:   catCacheOpAdd,
-			Data: toAdd,
+			Data: add,
 		}
 		dat, err := json.Marshal(entry)
 		if err != nil {
@@ -317,6 +305,18 @@ func (d *DB) SaveCat(elems *types.Category) error {
 	return d.SaveCatCache(elems.Name, copy)
 }
 
+type invOpKind int
+
+const (
+	invOpAdd invOpKind = 0
+	invOpRem invOpKind = 1
+)
+
+type invOp struct {
+	Kind invOpKind
+	Data []int
+}
+
 func (d *DB) SaveInv(inv *types.Inventory, recalc ...bool) error {
 	d.RLock()
 	if len(recalc) == 1 {
@@ -349,7 +349,85 @@ func (d *DB) SaveInv(inv *types.Inventory, recalc ...bool) error {
 			return err
 		}
 		d.invFiles[inv.User] = file
+
+		dataFile, err := os.Create(filepath.Join(d.dbPath, "invdata", inv.User+".json"))
+		if err != nil {
+			return err
+		}
+		d.invDataFiles[inv.User] = dataFile
+		d.invData[inv.User] = make(map[int]types.Empty)
 	}
+
+	// TODO: Remove once inv data has been created
+	_, exists = d.invDataFiles[inv.User]
+	if !exists {
+		dataFile, err := os.Create(filepath.Join(d.dbPath, "invdata", inv.User+".json"))
+		if err != nil {
+			return err
+		}
+		d.invDataFiles[inv.User] = dataFile
+		d.invData[inv.User] = make(map[int]types.Empty)
+	}
+
+	data := d.invData[inv.User]
+
+	// Calc diff
+	rm := make([]int, 0)
+	add := make([]int, 0)
+	inv.Lock.RLock()
+	for el := range inv.Elements {
+		_, exists := data[el]
+		if !exists {
+			add = append(add, el)
+		}
+	}
+	for el := range data {
+		_, exists := inv.Elements[el]
+		if !exists {
+			rm = append(rm, el)
+		}
+	}
+	inv.Lock.RUnlock()
+
+	// Write
+	dataFile := d.invDataFiles[inv.User]
+	if len(rm) > 0 {
+		op := invOp{
+			Kind: invOpRem,
+			Data: rm,
+		}
+		dat, err := json.Marshal(op)
+		if err != nil {
+			return err
+		}
+		_, err = dataFile.WriteString(string(dat) + "\n")
+		if err != nil {
+			return err
+		}
+	}
+	if len(add) > 0 {
+		entry := invOp{
+			Kind: invOpAdd,
+			Data: add,
+		}
+		dat, err := json.Marshal(entry)
+		if err != nil {
+			return err
+		}
+		_, err = file.WriteString(string(dat) + "\n")
+		if err != nil {
+			return err
+		}
+	}
+
+	// Save data
+	inv.Lock.RLock()
+	cop := make(map[int]types.Empty, len(inv.Elements))
+	for k := range inv.Elements {
+		cop[k] = types.Empty{}
+	}
+	inv.Lock.RUnlock()
+	d.invData[inv.User] = cop
 
 	_, err = file.Seek(0, 0)
 	if err != nil {

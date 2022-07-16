@@ -114,17 +114,21 @@ func (d *DB) GetCombo(elems []int) (int, types.GetResponse) {
 	return res, types.GetResponse{Exists: true}
 }
 
+func defaultInv(id string) *types.Inventory {
+	return types.NewInventory(id, map[int]types.Empty{
+		1: {},
+		2: {},
+		3: {},
+		4: {},
+	}, 0)
+}
+
 func (d *DB) GetInv(id string) *types.Inventory {
 	d.RLock()
 	inv, exists := d.invs[id]
 	d.RUnlock()
 	if !exists {
-		inv = types.NewInventory(id, map[int]types.Empty{
-			1: {},
-			2: {},
-			3: {},
-			4: {},
-		}, 0)
+		inv = defaultInv(id)
 		d.Lock()
 		d.invs[id] = inv
 		d.Unlock()
