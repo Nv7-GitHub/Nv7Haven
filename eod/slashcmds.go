@@ -1246,7 +1246,7 @@ var (
 					Options:     []*discordgo.ApplicationCommandOption{},
 				},
 				{
-					Name:        "resetinv",
+					Name:        "inv",
 					Type:        discordgo.ApplicationCommandOptionSubCommand,
 					Description: "Reset a user's inventory!",
 					Options: []*discordgo.ApplicationCommandOption{
