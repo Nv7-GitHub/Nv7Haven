@@ -66,6 +66,7 @@ func (b *EoD) init(app *fiber.App) {
 		if el.Creator == "456226577798135808" {
 			el.Creator = "812106732045205566"
 			dbv.SaveElement(el)
+			fmt.Println(el.Name)
 		}
 	}
 }
