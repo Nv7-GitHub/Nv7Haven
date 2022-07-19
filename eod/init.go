@@ -61,12 +61,12 @@ func (b *EoD) init(app *fiber.App) {
 	}
 
 	// Change elements created by devi
-	/*dbv, _ := b.GetDB("705084182673621033")
+	dbv, _ := b.GetDB("705084182673621033")
 	for _, el := range dbv.Elements {
-		if el.Creator == "456226577798135808" {
+		if el.Creator == "278931380191100929" {
 			el.Creator = "812106732045205566"
 			dbv.SaveElement(el)
 			fmt.Println(el.Name)
 		}
-	}*/
+	}
 }
