@@ -59,9 +59,9 @@ eod/fools.txt
 eod/other/parecalc/data.gob
 eod/eodb/convdb/data.gob
 restartinfo.gob
-joe_token.txt
-b_token.txt
 names/token.txt
+run/joe/token.txt
+run/bsharp/token.txt
 
 !eod/logs
 
