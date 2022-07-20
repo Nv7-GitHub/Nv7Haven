@@ -14,6 +14,7 @@ var invalidNames = []string{
 	"İ",
 	"\n",
 	"<t:",
+	"</",
 }
 
 var charReplace = map[rune]rune{
