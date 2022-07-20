@@ -98,9 +98,10 @@ func (b *Categories) VCatCreateRegexCmd(name string, regex string, m types.Msg, 
 		return
 	}
 	vcat = &types.VirtualCategory{
-		Name:  name,
-		Guild: m.GuildID,
-		Rule:  types.VirtualCategoryRuleRegex,
+		Name:    name,
+		Guild:   m.GuildID,
+		Rule:    types.VirtualCategoryRuleRegex,
+		Creator: m.Author.ID,
 		Data: types.VirtualCategoryData{
 			"regex": regex,
 		},
@@ -337,9 +338,10 @@ func (b *Categories) VCatCreateInvhint(name string, elemName string, m types.Msg
 		return
 	}
 	vcat = &types.VirtualCategory{
-		Name:  name,
-		Guild: m.GuildID,
-		Rule:  types.VirtualCategoryRuleInvhint,
+		Name:    name,
+		Guild:   m.GuildID,
+		Rule:    types.VirtualCategoryRuleInvhint,
+		Creator: m.Author.ID,
 		Data: types.VirtualCategoryData{
 			"element": float64(elem.ID),
 		},
