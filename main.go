@@ -14,7 +14,6 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/discord"
 	"github.com/Nv7-Github/Nv7Haven/elemental"
 	"github.com/Nv7-Github/Nv7Haven/eod"
-	"github.com/Nv7-Github/Nv7Haven/gdo"
 	"github.com/Nv7-Github/Nv7Haven/names"
 	"github.com/Nv7-Github/Nv7Haven/nv7haven"
 	"github.com/Nv7-Github/Nv7Haven/remodrive"
@@ -38,10 +37,10 @@ const (
 	dbName = "nv7haven"
 )
 
-//go:embed joe_token.txt
+//go:embed run/joe/token.txt
 var joe_token string
 
-//go:embed b_token.txt
+//go:embed run/bsharp/token.txt
 var b_token string
 
 func main() {
@@ -111,7 +110,6 @@ func main() {
 	b := discord.InitDiscord(db, e)
 	eodB := eod.InitEoD(db, app)
 	anarchy.InitAnarchy(db, grpcS)
-	gdo.InitGDO(app)
 	remodrive.InitRemoDrive(app)
 
 	go func() {
