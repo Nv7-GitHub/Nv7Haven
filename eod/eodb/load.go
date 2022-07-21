@@ -380,12 +380,6 @@ func (d *DB) loadVcats() error {
 				// Nil cache, needs to be created
 				vcat.Cache = nil
 			} else {
-				// Delete file (DELETE)
-				err = os.Remove(d.catCacheFiles[strings.ToLower(vcat.Name)].Name())
-				if err != nil {
-					panic(err)
-				}
-
 				// Copy
 				vcat.Cache = make(map[int]types.Empty, len(cache))
 				for elem := range cache {
