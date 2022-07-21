@@ -1748,15 +1748,15 @@ var (
 			resp := i.ApplicationCommandData().Options[0]
 			switch resp.Name {
 			case "newschannel":
-				bot.basecmds.SetNewsChannel(resp.Options[0].ChannelValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.basecmds.SetNewsChannel(resp.Options[0].ChannelValue(s).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 			case "votingchannel":
-				bot.basecmds.SetVotingChannel(resp.Options[0].ChannelValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.basecmds.SetVotingChannel(resp.Options[0].ChannelValue(s).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 			case "votes":
 				bot.basecmds.SetVoteCount(int(resp.Options[0].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
 			case "polls":
 				bot.basecmds.SetPollCount(int(resp.Options[0].IntValue()), bot.newMsgSlash(i), bot.newRespSlash(i))
 			case "modrole":
-				bot.basecmds.SetModRole(resp.Options[0].RoleValue(bot.dg, i.GuildID).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.basecmds.SetModRole(resp.Options[0].RoleValue(s, i.GuildID).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 			case "language":
 				bot.basecmds.SetLanguage(resp.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
 			case "playchannel":
@@ -1764,7 +1764,7 @@ var (
 				if len(resp.Options) > 1 {
 					isPlayChannel = resp.Options[1].BoolValue()
 				}
-				bot.basecmds.SetPlayChannel(resp.Options[0].ChannelValue(bot.dg).ID, isPlayChannel, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.basecmds.SetPlayChannel(resp.Options[0].ChannelValue(s).ID, isPlayChannel, bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
 		},
 		"suggest": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -1824,7 +1824,7 @@ var (
 				}
 
 				if val.Name == "user" {
-					id = val.UserValue(bot.dg).ID
+					id = val.UserValue(s).ID
 				}
 
 				if val.Name == "postfix" {
@@ -1844,7 +1844,7 @@ var (
 				}
 
 				if opt.Name == "user" {
-					user = opt.UserValue(bot.dg).ID
+					user = opt.UserValue(s).ID
 				}
 			}
 			bot.elements.LbCmd(bot.newMsgSlash(i), bot.newRespSlash(i), sort, user)
@@ -1889,7 +1889,7 @@ var (
 
 				if val.Name == "user" {
 					hasUser = true
-					user = val.UserValue(bot.dg).ID
+					user = val.UserValue(s).ID
 				}
 
 				if val.Name == "postfix" {
@@ -1944,18 +1944,18 @@ var (
 			case "polls":
 				bot.polls.ResetPolls(bot.newMsgSlash(i), bot.newRespSlash(i))
 			case "inv":
-				bot.elements.ResetInvCmd(resp.Options[0].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.elements.ResetInvCmd(resp.Options[0].UserValue(s).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
 		},
 		"give": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData().Options[0]
 			switch resp.Name {
 			case "element":
-				bot.treecmds.GiveCmd(resp.Options[0].StringValue(), resp.Options[1].BoolValue(), resp.Options[2].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.treecmds.GiveCmd(resp.Options[0].StringValue(), resp.Options[1].BoolValue(), resp.Options[2].UserValue(s).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 			case "category":
-				bot.treecmds.GiveCatCmd(resp.Options[0].StringValue(), resp.Options[1].BoolValue(), resp.Options[2].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.treecmds.GiveCatCmd(resp.Options[0].StringValue(), resp.Options[1].BoolValue(), resp.Options[2].UserValue(s).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 			case "all":
-				bot.treecmds.GiveAllCmd(resp.Options[0].UserValue(bot.dg).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.treecmds.GiveAllCmd(resp.Options[0].UserValue(s).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
 		},
 		"path": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -2036,7 +2036,7 @@ var (
 					}
 
 					if val.Name == "user" {
-						id = val.UserValue(bot.dg).ID
+						id = val.UserValue(s).ID
 					}
 
 					if val.Name == "postfix" {
@@ -2090,7 +2090,7 @@ var (
 				calcTree := false
 				for _, opt := range resp.Options {
 					if opt.Name == "user" {
-						user = opt.UserValue(bot.dg).ID
+						user = opt.UserValue(s).ID
 					}
 
 					if opt.Name == "calctree" {
@@ -2155,7 +2155,7 @@ var (
 						height = int(opt.IntValue())
 
 					case "user":
-						user = opt.UserValue(bot.dg).ID
+						user = opt.UserValue(s).ID
 					}
 				}
 				bot.treecmds.InvWordCloudCmd(user, calcTree, width, height, m, rsp)
@@ -2292,7 +2292,7 @@ var (
 					}
 
 					if opt.Name == "user" {
-						user = opt.UserValue(bot.dg).ID
+						user = opt.UserValue(s).ID
 					}
 
 					if opt.Name == "postfix" {
@@ -2504,7 +2504,7 @@ var (
 				latency = time.Since(tm)
 
 			case "heartbeat":
-				latency = bot.dg.HeartbeatLatency()
+				latency = s.HeartbeatLatency()
 
 			case "acknowledge":
 				start := time.Now()
@@ -2517,7 +2517,7 @@ var (
 				start := time.Now()
 				id := rsp.Message(db.Config.LangProperty("CalculatingPing", nil))
 				latency = time.Since(start)
-				bot.dg.ChannelMessageEdit(i.ChannelID, id, db.Config.LangProperty("PingMessage", latency.String()))
+				s.ChannelMessageEdit(i.ChannelID, id, db.Config.LangProperty("PingMessage", latency.String()))
 				return
 
 			case "edit":
@@ -2525,9 +2525,9 @@ var (
 
 				id := rsp.Message(db.Config.LangProperty("CalculatingPing", nil) + "[1/2]")
 				start := time.Now()
-				bot.dg.ChannelMessageEdit(i.ChannelID, id, db.Config.LangProperty("CalculatingPing", nil)+"[2/2]")
+				s.ChannelMessageEdit(i.ChannelID, id, db.Config.LangProperty("CalculatingPing", nil)+"[2/2]")
 				latency = time.Since(start)
-				bot.dg.ChannelMessageEdit(i.ChannelID, id, db.Config.LangProperty("PingMessage", latency.String()))
+				s.ChannelMessageEdit(i.ChannelID, id, db.Config.LangProperty("PingMessage", latency.String()))
 				return
 			}
 
@@ -2551,7 +2551,7 @@ var (
 				if len(resp.Options) > 2 {
 					filter = resp.Options[2].StringValue()
 				}
-				bot.categories.VCatCreateInvFilterCmd(resp.Options[0].StringValue(), resp.Options[1].UserValue(bot.dg).ID, filter, bot.newMsgSlash(i), bot.newRespSlash(i))
+				bot.categories.VCatCreateInvFilterCmd(resp.Options[0].StringValue(), resp.Options[1].UserValue(s).ID, filter, bot.newMsgSlash(i), bot.newRespSlash(i))
 
 			case "catop":
 				bot.categories.VCatOpCmd(types.CategoryOperation(resp.Options[1].StringValue()), resp.Options[0].StringValue(), resp.Options[2].StringValue(), resp.Options[3].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
@@ -2590,6 +2590,73 @@ var (
 				PageGetter: bot.base.InvPageGetter,
 				Items:      out,
 			}, bot.newMsgSlash(i), bot.newRespSlash(i))
+		},
+		"edit": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData().Options[0]
+			switch data.Name {
+			case "element":
+				data = data.Options[0]
+				switch data.Name {
+				case "name":
+					var elem string
+					var name string
+					for _, opt := range data.Options {
+						switch opt.Name {
+						case "element":
+							elem = opt.StringValue()
+
+						case "name":
+							name = opt.StringValue()
+						}
+					}
+					bot.elements.EditElementNameCmd(elem, name, bot.newMsgSlash(i), bot.newRespSlash(i))
+
+				case "image":
+					var elem string
+					var image string
+					for _, opt := range data.Options {
+						switch opt.Name {
+						case "element":
+							elem = opt.StringValue()
+
+						case "image":
+							image = opt.StringValue()
+						}
+					}
+					bot.elements.EditElementImageCmd(elem, image, bot.newMsgSlash(i), bot.newRespSlash(i))
+
+				case "creator":
+					var elem string
+					var creator string
+					for _, opt := range data.Options {
+						switch opt.Name {
+						case "element":
+							elem = opt.StringValue()
+
+						case "creator":
+							creator = opt.UserValue(s).ID
+						}
+					}
+					bot.elements.EditElementCreatorCmd(elem, creator, bot.newMsgSlash(i), bot.newRespSlash(i))
+
+				case "createdon":
+					var elem string
+					var createdon int64
+					for _, opt := range data.Options {
+						switch opt.Name {
+						case "element":
+							elem = opt.StringValue()
+
+						case "createdon":
+							createdon = opt.IntValue()
+						}
+					}
+					bot.elements.EditElementCreatedOnCmd(elem, createdon, bot.newMsgSlash(i), bot.newRespSlash(i))
+
+				case "mark":
+					bot.elements.EditElementMarkCmd(data.Options[0].StringValue(), bot.newMsgSlash(i), bot.newRespSlash(i))
+				}
+			}
 		},
 	}
 	autocompleteHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
