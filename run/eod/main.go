@@ -25,7 +25,7 @@ func main() {
 	}
 	db := db.NewDB(mysqldb)
 
-	e := eod.InitEoD(db, app)
+	e := eod.InitEoD(db)
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)

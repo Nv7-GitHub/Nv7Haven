@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Nv7-Github/Nv7Haven/eod/admin"
 	"github.com/Nv7-Github/Nv7Haven/eod/api"
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/basecmds"
@@ -13,10 +12,9 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/logs"
 	"github.com/Nv7-Github/Nv7Haven/eod/polls"
 	"github.com/Nv7-Github/Nv7Haven/eod/treecmds"
-	"github.com/gofiber/fiber/v2"
 )
 
-func (b *EoD) init(app *fiber.App) {
+func (b *EoD) init() {
 	// Initialize subsystems
 	logs.InitEoDLogs()
 	b.base = base.NewBase(b.Data, b.dg)
@@ -26,7 +24,6 @@ func (b *EoD) init(app *fiber.App) {
 	b.categories = categories.NewCategories(b.Data, b.base, b.dg, b.polls)
 	b.elements = elements.NewElements(b.Data, b.polls, b.db, b.base, b.dg)
 	b.api = api.NewAPI(b.Data, b.base)
-	admin.InitAdmin(b.Data, app)
 
 	// Run API
 	b.api.Run()

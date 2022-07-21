@@ -108,7 +108,7 @@ func main() {
 
 	single.InitSingle(app, db)
 	b := discord.InitDiscord(db, e)
-	eodB := eod.InitEoD(db, app)
+	eodB := eod.InitEoD(db)
 	anarchy.InitAnarchy(db, grpcS)
 	remodrive.InitRemoDrive(app)
 
