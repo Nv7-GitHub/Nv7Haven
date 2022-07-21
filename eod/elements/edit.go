@@ -28,7 +28,7 @@ func (b *Elements) EditElementNameCmd(elem string, name string, m types.Msg, rsp
 		return
 	}
 
-	rsp.Message(fmt.Sprintf("Successfully updated element **#%d***!", el.ID))
+	rsp.Message(fmt.Sprintf("Successfully updated element **#%d**!", el.ID))
 }
 
 func (b *Elements) EditElementImageCmd(elem string, image string, m types.Msg, rsp types.Rsp) {
@@ -48,7 +48,7 @@ func (b *Elements) EditElementImageCmd(elem string, image string, m types.Msg, r
 		return
 	}
 
-	rsp.Message(fmt.Sprintf("Successfully updated element **#%d***!", el.ID))
+	rsp.Message(fmt.Sprintf("Successfully updated element **#%d**!", el.ID))
 }
 
 func (b *Elements) EditElementCreatorCmd(elem string, creator string, m types.Msg, rsp types.Rsp) {
@@ -68,7 +68,7 @@ func (b *Elements) EditElementCreatorCmd(elem string, creator string, m types.Ms
 		return
 	}
 
-	rsp.Message(fmt.Sprintf("Successfully updated element **#%d***!", el.ID))
+	rsp.Message(fmt.Sprintf("Successfully updated element **#%d**!", el.ID))
 }
 
 func (b *Elements) EditElementCreatedOnCmd(elem string, createdon int64, m types.Msg, rsp types.Rsp) {
@@ -88,7 +88,7 @@ func (b *Elements) EditElementCreatedOnCmd(elem string, createdon int64, m types
 		return
 	}
 
-	rsp.Message(fmt.Sprintf("Successfully updated element **#%d***!", el.ID))
+	rsp.Message(fmt.Sprintf("Successfully updated element **#%d**!", el.ID))
 }
 
 type editMarkModal struct {
@@ -104,7 +104,7 @@ func (m *editMarkModal) Handler(s *discordgo.Session, i *discordgo.InteractionCr
 	if rsp.Error(err) {
 		return
 	}
-	rsp.Message(fmt.Sprintf("Successfully updated element **#%d***!", el.ID))
+	rsp.Message(fmt.Sprintf("Successfully updated element **#%d**!", el.ID))
 }
 
 func (b *Elements) EditElementMarkCmd(elem string, m types.Msg, rsp types.Rsp) {
