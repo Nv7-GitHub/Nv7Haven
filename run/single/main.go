@@ -28,4 +28,8 @@ func main() {
 	db := db.NewDB(mysqldb)
 
 	single.InitSingle(app, db)
+
+	if err := app.Listen(":" + os.Getenv("SINGLE_PORT")); err != nil {
+		panic(err)
+	}
 }
