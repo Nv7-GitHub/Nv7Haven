@@ -1522,7 +1522,7 @@ var (
 									Autocomplete: true,
 								},
 								{
-									Type:        discordgo.ApplicationCommandOptionNumber,
+									Type:        discordgo.ApplicationCommandOptionInteger,
 									Name:        "createdon",
 									Description: "The new date created of the element! (Unix Timestamp)",
 									Required:    true,
