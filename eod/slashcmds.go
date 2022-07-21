@@ -2721,7 +2721,7 @@ var (
 			})
 		},
 		"edit": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			data := i.ApplicationCommandData().Options[0]
+			data := i.ApplicationCommandData().Options[0].Options[0]
 			if len(data.Options) == 0 {
 				return
 			}
