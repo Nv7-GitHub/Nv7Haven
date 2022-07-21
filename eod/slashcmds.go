@@ -1295,6 +1295,7 @@ var (
 				},
 			},
 		},
+
 		{
 			Name:        "wordcloud",
 			Type:        discordgo.ChatApplicationCommand,
@@ -1420,6 +1421,115 @@ var (
 					Description:  "The name of the virtual category to delete!",
 					Required:     true,
 					Autocomplete: true,
+				},
+			},
+		},
+		{
+			Name:                     "edit",
+			Type:                     discordgo.ChatApplicationCommand,
+			Description:              "Edit an element!",
+			DefaultMemberPermissions: Ptr(int64(discordgo.PermissionManageServer)),
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommandGroup,
+					Name:        "element",
+					Description: "Edit an element!",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionSubCommand,
+							Name:        "name",
+							Description: "Edit the name of an element!",
+							Options: []*discordgo.ApplicationCommandOption{
+								{
+									Type:         discordgo.ApplicationCommandOptionString,
+									Name:         "element",
+									Description:  "The name of the element to edit!",
+									Required:     true,
+									Autocomplete: true,
+								},
+								{
+									Type:        discordgo.ApplicationCommandOptionString,
+									Name:        "name",
+									Description: "The new name of the element!",
+									Required:    true,
+								},
+							},
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionSubCommand,
+							Name:        "image",
+							Description: "Edit the image of an element!",
+							Options: []*discordgo.ApplicationCommandOption{
+								{
+									Type:         discordgo.ApplicationCommandOptionString,
+									Name:         "element",
+									Description:  "The name of the element to edit!",
+									Required:     true,
+									Autocomplete: true,
+								},
+								{
+									Type:        discordgo.ApplicationCommandOptionString,
+									Name:        "image",
+									Description: "The new image URL of the element!",
+									Required:    true,
+								},
+							},
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionSubCommand,
+							Name:        "mark",
+							Description: "Edit the mark of an element!",
+							Options: []*discordgo.ApplicationCommandOption{
+								{
+									Type:         discordgo.ApplicationCommandOptionString,
+									Name:         "element",
+									Description:  "The name of the element to edit!",
+									Required:     true,
+									Autocomplete: true,
+								},
+							},
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionSubCommand,
+							Name:        "creator",
+							Description: "Edit the creator of an element!",
+							Options: []*discordgo.ApplicationCommandOption{
+								{
+									Type:         discordgo.ApplicationCommandOptionString,
+									Name:         "element",
+									Description:  "The name of the element to edit!",
+									Required:     true,
+									Autocomplete: true,
+								},
+								{
+									Type:        discordgo.ApplicationCommandOptionUser,
+									Name:        "creator",
+									Description: "The new creator of the element!",
+									Required:    true,
+								},
+							},
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionSubCommand,
+							Name:        "createdon",
+							Description: "Edit the date created of an element!",
+							Options: []*discordgo.ApplicationCommandOption{
+								{
+									Type:         discordgo.ApplicationCommandOptionString,
+									Name:         "element",
+									Description:  "The name of the element to edit!",
+									Required:     true,
+									Autocomplete: true,
+								},
+								{
+									Type:        discordgo.ApplicationCommandOptionNumber,
+									Name:        "createdon",
+									Description: "The new date created of the element! (Unix Timestamp)",
+									Required:    true,
+								},
+							},
+						},
+					},
 				},
 			},
 		},
@@ -2599,6 +2709,27 @@ var (
 			}
 			if name == "category" {
 				names, res = bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
+			}
+			if !res.Exists {
+				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
+		"edit": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData().Options[0]
+			if len(data.Options) == 0 {
+				return
+			}
+			var names []string
+			var res types.GetResponse
+			ind, name := getFocused(data.Options)
+			if name == "element" {
+				names, res = bot.elements.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
 			}
 			if !res.Exists {
 				return
