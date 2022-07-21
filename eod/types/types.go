@@ -277,8 +277,9 @@ type VirtualCategory struct {
 	Colorer   string
 	Commenter string
 
-	Rule VirtualCategoryRuleType
-	Data VirtualCategoryData
+	Rule      VirtualCategoryRuleType
+	Data      VirtualCategoryData
+	CreatedOn *TimeStamp
 
 	Cache map[int]Empty `json:"-"`
 }

@@ -216,7 +216,7 @@ func (b *Elements) Info(elem string, m types.Msg, rsp types.Rsp) {
 		shortcomment = strings.TrimSpace(shortcomment) + "..."
 	}
 
-	createdOn := fmt.Sprintf("<t:%d:R>", el.CreatedOn.Unix())
+	createdOn := fmt.Sprintf("<t:%d>", el.CreatedOn.Unix())
 	if el.CreatedOn.Unix() <= 4 {
 		createdOn = db.Config.LangProperty("StarterElemCreateTime", nil)
 	}
