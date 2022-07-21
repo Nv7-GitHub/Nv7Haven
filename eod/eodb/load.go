@@ -3,7 +3,6 @@ package eodb
 import (
 	"bufio"
 	"bytes"
-	"fmt"
 	"io"
 	"net/url"
 	"os"
@@ -382,7 +381,10 @@ func (d *DB) loadVcats() error {
 				vcat.Cache = nil
 			} else {
 				// Delete file (DELETE)
-				fmt.Println(d.catCacheFiles[strings.ToLower(vcat.Name)].Name())
+				err = os.Remove(d.catCacheFiles[strings.ToLower(vcat.Name)].Name())
+				if err != nil {
+					panic(err)
+				}
 
 				// Copy
 				vcat.Cache = make(map[int]types.Empty, len(cache))
