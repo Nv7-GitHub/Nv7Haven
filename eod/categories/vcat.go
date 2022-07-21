@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
@@ -50,11 +51,12 @@ func (b *Categories) VCatCreateAllElementsCmd(name string, m types.Msg, rsp type
 		return
 	}
 	vcat = &types.VirtualCategory{
-		Name:    name,
-		Guild:   m.GuildID,
-		Creator: m.Author.ID,
-		Rule:    types.VirtualCategoryRuleAllElements,
-		Data:    make(types.VirtualCategoryData),
+		Name:      name,
+		Guild:     m.GuildID,
+		Creator:   m.Author.ID,
+		Rule:      types.VirtualCategoryRuleAllElements,
+		Data:      make(types.VirtualCategoryData),
+		CreatedOn: types.NewTimeStamp(time.Now()),
 	}
 	err := db.SaveVCat(vcat)
 	if rsp.Error(err) {
@@ -98,10 +100,11 @@ func (b *Categories) VCatCreateRegexCmd(name string, regex string, m types.Msg, 
 		return
 	}
 	vcat = &types.VirtualCategory{
-		Name:    name,
-		Guild:   m.GuildID,
-		Rule:    types.VirtualCategoryRuleRegex,
-		Creator: m.Author.ID,
+		Name:      name,
+		Guild:     m.GuildID,
+		Rule:      types.VirtualCategoryRuleRegex,
+		Creator:   m.Author.ID,
+		CreatedOn: types.NewTimeStamp(time.Now()),
 		Data: types.VirtualCategoryData{
 			"regex": regex,
 		},
@@ -142,10 +145,11 @@ func (b *Categories) VCatCreateInvFilterCmd(name string, user string, filter str
 		return
 	}
 	vcat = &types.VirtualCategory{
-		Name:    name,
-		Guild:   m.GuildID,
-		Creator: m.Author.ID,
-		Rule:    types.VirtualCategoryRuleInvFilter,
+		Name:      name,
+		Guild:     m.GuildID,
+		Creator:   m.Author.ID,
+		CreatedOn: types.NewTimeStamp(time.Now()),
+		Rule:      types.VirtualCategoryRuleInvFilter,
 		Data: types.VirtualCategoryData{
 			"user":   user,
 			"filter": filter,
@@ -206,6 +210,7 @@ func (b *Categories) DeleteVCatCmd(name string, m types.Msg, rsp types.Rsp) {
 		Guild:     m.GuildID,
 		Kind:      types.PollDeleteVCat,
 		Suggestor: m.Author.ID,
+		CreatedOn: types.NewTimeStamp(time.Now()),
 		PollVCatDeleteData: &types.PollVCatDeleteData{
 			Category: vcat.Name,
 		},
@@ -271,10 +276,11 @@ func (b *Categories) VCatOpCmd(op types.CategoryOperation, name string, lhs stri
 		return
 	}
 	vcat = &types.VirtualCategory{
-		Name:    name,
-		Guild:   m.GuildID,
-		Creator: m.Author.ID,
-		Rule:    types.VirtualCategoryRuleSetOperation,
+		Name:      name,
+		Guild:     m.GuildID,
+		Creator:   m.Author.ID,
+		Rule:      types.VirtualCategoryRuleSetOperation,
+		CreatedOn: types.NewTimeStamp(time.Now()),
 		Data: types.VirtualCategoryData{
 			"lhs":       lhs,
 			"rhs":       rhs,
@@ -338,10 +344,11 @@ func (b *Categories) VCatCreateInvhint(name string, elemName string, m types.Msg
 		return
 	}
 	vcat = &types.VirtualCategory{
-		Name:    name,
-		Guild:   m.GuildID,
-		Rule:    types.VirtualCategoryRuleInvhint,
-		Creator: m.Author.ID,
+		Name:      name,
+		Guild:     m.GuildID,
+		Rule:      types.VirtualCategoryRuleInvhint,
+		Creator:   m.Author.ID,
+		CreatedOn: types.NewTimeStamp(time.Now()),
 		Data: types.VirtualCategoryData{
 			"element": float64(elem.ID),
 		},

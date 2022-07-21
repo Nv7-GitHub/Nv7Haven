@@ -88,9 +88,11 @@ func (b *Categories) InfoCmd(catName string, m types.Msg, rsp types.Rsp) {
 			{Name: db.Config.LangProperty("InfoComment", nil), Value: vcat.Comment, Inline: false},
 			{Name: db.Config.LangProperty("ElementCount", nil), Value: strconv.Itoa(len(els)), Inline: true},
 			{Name: db.Config.LangProperty("InfoCreator", nil), Value: fmt.Sprintf("<@%s>", vcat.Creator), Inline: true},
-			{Name: db.Config.LangProperty("InfoCreateTime", nil), Value: fmt.Sprintf("<t:%d>", vcat.CreatedOn.Unix()), Inline: true},
 		},
 		Color: vcat.Color,
+	}
+	if vcat.CreatedOn != nil {
+		emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{Name: db.Config.LangProperty("InfoCreateTime", nil), Value: fmt.Sprintf("<t:%d>", vcat.CreatedOn.Unix()), Inline: true})
 	}
 	if len(els) < maxprogresslen {
 		emb.Fields = append(emb.Fields, b.progress(els, m, db))
