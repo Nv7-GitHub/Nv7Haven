@@ -211,7 +211,7 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("You collected %d coins!", moneyCollected))
 		return
 	}
-	
+
 	if b.startsWith(m, "income") {
 		b.checkuser(m)
 		id := m.Author.ID
@@ -220,7 +220,7 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 			b.checkuserwithid(m, id)
 		}
 
-		user, suc := b.getuser(m, m.id)
+		user, suc := b.getuser(m, m.Author.ID)
 		if !suc {
 			return
 		}
