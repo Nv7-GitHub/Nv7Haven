@@ -202,8 +202,14 @@ func (d *DB) SaveCatCache(name string, elems map[int]types.Empty) error {
 		}
 	}
 
+	// Copy cache
+	v := make(map[int]types.Empty, len(elems))
+	for k := range elems {
+		v[k] = elems[k]
+	}
+	d.catCache[strings.ToLower(name)] = v
+
 	// Save
-	d.catCache[strings.ToLower(name)] = elems
 	if len(rm) > 0 {
 		entry := catCacheEntry{
 			Op:   catCacheOpRemove,

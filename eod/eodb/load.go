@@ -380,7 +380,11 @@ func (d *DB) loadVcats() error {
 				// Nil cache, needs to be created
 				vcat.Cache = nil
 			} else {
-				vcat.Cache = cache
+				// Copy
+				vcat.Cache = make(map[int]types.Empty, len(cache))
+				for elem := range cache {
+					vcat.Cache[elem] = types.Empty{}
+				}
 			}
 		}
 	}
