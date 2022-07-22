@@ -62,5 +62,7 @@
     background-color: #f5f5f5;
     border-radius: 10px;
     padding: 1em;
+    max-height: 75vh;
+    overflow: scroll;
   }
 </style>

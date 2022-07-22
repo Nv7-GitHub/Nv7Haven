@@ -25,8 +25,9 @@ type Service struct {
 type Output struct {
 	Content *strings.Builder
 
-	Cond *sync.Cond
-	Data []byte
+	Cond   *sync.Cond
+	Data   []byte
+	Finish chan struct{}
 }
 
 func (s *Output) Write(p []byte) (n int, err error) {
@@ -46,6 +47,7 @@ var services = map[string]*Service{
 		Output: &Output{
 			Content: &strings.Builder{},
 			Cond:    sync.NewCond(&sync.Mutex{}),
+			Finish:  make(chan struct{}),
 		},
 	},
 }
@@ -100,6 +102,26 @@ func Build(s *Service) error {
 	return cmd.Run()
 }
 
+func autoRestart(s *Service, wd string) {
+	err := s.Cmd.Wait()
+	if s.Running {
+		s.Output.Write([]byte("Server crashed with error: " + err.Error() + "\n"))
+		s.Cmd = exec.Command(filepath.Join(wd, "build", s.ID))
+		s.Cmd.Stdout = s.Output
+		s.Cmd.Stderr = s.Output
+		err = s.Cmd.Start()
+		if err != nil {
+			s.Output.Write([]byte("Server couldn't start with error: " + err.Error() + "\n"))
+			s.Running = false
+			PublishServices()
+		} else {
+			go autoRestart(s, wd)
+		}
+	} else {
+		s.Output.Finish <- struct{}{}
+	}
+}
+
 func Run(s *Service) error {
 	wd, err := os.Getwd()
 	if err != nil {
@@ -117,19 +139,18 @@ func Run(s *Service) error {
 	}
 	s.Running = true
 	PublishServices()
+
+	go autoRestart(s, wd)
 	return nil
 }
 
 func Stop(s *Service) error {
+	s.Running = false
 	err := s.Cmd.Process.Signal(os.Interrupt)
 	if err != nil {
 		return err
 	}
-	err = s.Cmd.Wait()
-	if err != nil {
-		return err
-	}
-	s.Running = false
+	<-s.Output.Finish
 	s.Cmd = nil
 	PublishServices()
 	return nil
