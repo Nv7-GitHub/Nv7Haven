@@ -77,12 +77,12 @@ func main() {
 
 	go func() {
 		err = httpS.Serve(lis)
-		if err != nil {
+		if err != nil && err != http.ErrServerClosed {
 			panic(err)
 		}
 	}()
 
-	if err := app.Listen(":" + os.Getenv("LOGIN_PORT")); err != nil && err != http.ErrServerClosed {
+	if err := app.Listen(":" + os.Getenv("LOGIN_PORT")); err != nil {
 		panic(err)
 	}
 }
