@@ -243,6 +243,9 @@ func main() {
 	}()
 
 	// Run
+	m.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "https://nv7haven.com", http.StatusMovedPermanently)
+	})
 	fmt.Println("Listening on port", os.Getenv("MAIN_PORT"))
 	err = http.ListenAndServe(":"+os.Getenv("MAIN_PORT"), m)
 	if err != nil {
