@@ -14,6 +14,7 @@ require (
 	github.com/goccy/go-graphviz v0.0.9
 	github.com/gofiber/fiber/v2 v2.13.0
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
+	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/improbable-eng/grpc-web v0.14.0
 	github.com/jdkato/prose/v2 v2.0.0

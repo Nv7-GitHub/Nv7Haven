@@ -19,8 +19,8 @@ type Service struct {
 	Running  bool   `json:"running"`
 	Building bool   `json:"building"`
 
-	Cmd    *exec.Cmd
-	Output *Output
+	Cmd    *exec.Cmd `json:"-"`
+	Output *Output   `json:"-"`
 }
 
 type Output struct {
@@ -42,6 +42,10 @@ var services = map[string]*Service{
 	"test": {
 		ID:   "test",
 		Name: "Test",
+		Output: &Output{
+			Content: &strings.Builder{},
+			Cond:    sync.NewCond(&sync.Mutex{}),
+		},
 	},
 }
 
@@ -102,10 +106,7 @@ func Run(s *Service) error {
 	}
 
 	s.Cmd = exec.Command(filepath.Join(wd, "build", s.ID))
-	s.Output = &Output{
-		Content: &strings.Builder{},
-		Cond:    sync.NewCond(&sync.Mutex{}),
-	}
+	s.Output.Content = &strings.Builder{}
 	s.Cmd.Stdout = s.Output
 	s.Cmd.Stderr = s.Output
 
