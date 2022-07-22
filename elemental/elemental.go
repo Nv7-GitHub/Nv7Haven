@@ -1,7 +1,9 @@
 package elemental
 
 import (
+	"fmt"
 	"sync"
+	"time"
 
 	_ "embed"
 
@@ -9,7 +11,6 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/pb"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
-	"github.com/schollz/progressbar/v3"
 	"google.golang.org/grpc"
 )
 
@@ -29,7 +30,8 @@ func (e *Elemental) init() {
 		panic(err)
 	}
 
-	bar := progressbar.New(cnt)
+	fmt.Println("Loading elements...")
+	start := time.Now()
 
 	res, err := e.db.Query("SELECT * FROM elements WHERE 1")
 	if err != nil {
@@ -47,10 +49,8 @@ func (e *Elemental) init() {
 			elem.Parents = make([]string, 0)
 		}
 		e.cache[elem.Name] = elem
-
-		bar.Add(1)
 	}
-	bar.Finish()
+	fmt.Println("Loaded in", time.Since(start))
 }
 
 func (e *Elemental) routing(app *fiber.App) {
