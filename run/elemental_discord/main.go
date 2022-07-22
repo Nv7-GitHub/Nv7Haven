@@ -68,6 +68,7 @@ func main() {
 		fmt.Println("Gracefully shutting down...")
 		b.Close()
 		httpS.Close()
+		app.Shutdown()
 	}()
 
 	go func() {
