@@ -51,30 +51,6 @@ func checkUID(r *http.Request) bool {
 }
 
 func main() {
-	// Fill out build cache
-	err := os.MkdirAll("build", os.ModePerm)
-	if err != nil {
-		panic(err)
-	}
-	files, err := os.ReadDir("build")
-	if err != nil {
-		panic(err)
-	}
-	needed := make(map[string]struct{})
-	for _, serv := range services {
-		needed[serv.ID] = struct{}{}
-	}
-	for _, file := range files {
-		delete(needed, file.Name())
-	}
-	for k := range needed {
-		fmt.Printf("Building %s...\n", k)
-		err = Build(services[k])
-		if err != nil {
-			panic(err)
-		}
-	}
-
 	// HTTP Server
 	m := mux.NewRouter()
 
@@ -218,6 +194,30 @@ func main() {
 
 		w.Write([]byte("OK"))
 	}).Methods("POST")
+
+	// Fill out build cache
+	err := os.MkdirAll("build", os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
+	files, err := os.ReadDir("build")
+	if err != nil {
+		panic(err)
+	}
+	needed := make(map[string]struct{})
+	for _, serv := range services {
+		needed[serv.ID] = struct{}{}
+	}
+	for _, file := range files {
+		delete(needed, file.Name())
+	}
+	for k := range needed {
+		fmt.Printf("Building %s...\n", k)
+		err = Build(services[k])
+		if err != nil {
+			panic(err)
+		}
+	}
 
 	// Start services
 	for _, serv := range services {
