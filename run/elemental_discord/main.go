@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/db"
 	"github.com/Nv7-Github/Nv7Haven/discord"
@@ -67,7 +69,10 @@ func main() {
 		<-c
 		fmt.Println("Gracefully shutting down...")
 		b.Close()
-		httpS.Close()
+
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		httpS.Shutdown(ctx)
+		defer cancel()
 	}()
 
 	go func() {
@@ -77,7 +82,7 @@ func main() {
 		}
 	}()
 
-	if err := app.Listen(":" + os.Getenv("LOGIN_PORT")); err != nil {
+	if err := app.Listen(":" + os.Getenv("LOGIN_PORT")); err != nil && err != http.ErrServerClosed {
 		panic(err)
 	}
 }
