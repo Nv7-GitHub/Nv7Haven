@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	_ "embed"
 	"fmt"
 	"io/ioutil"
@@ -50,6 +51,8 @@ func checkUID(r *http.Request) bool {
 	_, res := uids[string(body)]
 	return res
 }
+
+const printerr = false
 
 func main() {
 	// HTTP Server
@@ -231,15 +234,21 @@ func main() {
 	// Handle shutdown
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
+	server := &http.Server{Addr: ":" + os.Getenv("MAIN_PORT"), Handler: m}
 	go func() {
 		<-c
 		fmt.Println("Shutting down...")
+
 		for _, serv := range services {
 			err = Stop(serv)
 			if err != nil {
 				fmt.Println(err)
 			}
 		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		server.Shutdown(ctx)
 	}()
 
 	// Run
@@ -247,8 +256,8 @@ func main() {
 		http.Redirect(w, r, "https://nv7haven.com", http.StatusMovedPermanently)
 	})
 	fmt.Println("Listening on port", os.Getenv("MAIN_PORT"))
-	err = http.ListenAndServe(":"+os.Getenv("MAIN_PORT"), m)
-	if err != nil {
+	err = server.ListenAndServe()
+	if err != nil && err != http.ErrServerClosed {
 		panic(err)
 	}
 }

@@ -2,12 +2,14 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
 	"sync"
+	"syscall"
 
 	"github.com/r3labs/sse/v2"
 )
@@ -116,6 +118,13 @@ func Build(s *Service) error {
 func autoRestart(s *Service, wd string) {
 	err := s.Cmd.Wait()
 	if s.Running {
+		if printerr {
+			if err != nil {
+				fmt.Println(s.ID + " crashed with error: " + err.Error())
+				fmt.Println(s.Output.Content.String())
+			}
+		}
+
 		s.Output.Write([]byte("Server crashed with error: " + err.Error() + "\n"))
 		s.Cmd = exec.Command(filepath.Join(wd, "build", s.ID))
 		s.Cmd.Stdout = s.Output
@@ -143,6 +152,9 @@ func Run(s *Service) error {
 	s.Output.Content = &strings.Builder{}
 	s.Cmd.Stdout = s.Output
 	s.Cmd.Stderr = s.Output
+	s.Cmd.SysProcAttr = &syscall.SysProcAttr{
+		Setpgid: true,
+	}
 
 	err = s.Cmd.Start()
 	if err != nil {
