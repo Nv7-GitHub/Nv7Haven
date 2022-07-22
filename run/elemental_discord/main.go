@@ -1,14 +1,12 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
-	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/db"
 	"github.com/Nv7-Github/Nv7Haven/discord"
@@ -69,10 +67,7 @@ func main() {
 		<-c
 		fmt.Println("Gracefully shutting down...")
 		b.Close()
-
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		httpS.Shutdown(ctx)
-		defer cancel()
+		httpS.Close()
 	}()
 
 	go func() {
