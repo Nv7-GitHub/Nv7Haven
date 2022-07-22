@@ -2,32 +2,60 @@ package main
 
 import (
 	_ "embed"
-	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 
-	_ "github.com/go-sql-driver/mysql" // mysql
 	"github.com/r3labs/sse/v2"
 )
 
 var events *sse.Server
 
+func enableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+}
+
 func main() {
+	// Fill out build cache
+	err := os.MkdirAll("build", os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
+	files, err := os.ReadDir("build")
+	if err != nil {
+		panic(err)
+	}
+	needed := make(map[string]struct{})
+	for _, serv := range services {
+		needed[serv.ID] = struct{}{}
+	}
+	for _, file := range files {
+		delete(needed, file.Name())
+	}
+	for k := range needed {
+		fmt.Printf("Building %s...\n", k)
+		err = Build(services[k])
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	// SSE
 	events = sse.New()
 	events.CreateStream("services")
-	http.HandleFunc("/events", events.ServeHTTP)
+	http.HandleFunc("/events", func(w http.ResponseWriter, r *http.Request) {
+		enableCors(&w)
+		events.ServeHTTP(w, r)
+	})
 	http.HandleFunc("/services", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		v, err := json.Marshal(services)
-		if err != nil {
-			panic(err) // Should never happen
-		}
-		w.Write(v)
+		enableCors(&w)
+		w.Write(marshalServices())
 	})
 
 	// Run
-	err := http.ListenAndServe(":"+os.Getenv("MAIN_PORT"), nil)
+	fmt.Println("Listening on port", os.Getenv("MAIN_PORT"))
+	err = http.ListenAndServe(":"+os.Getenv("MAIN_PORT"), nil)
 	if err != nil {
 		panic(err)
 	}
