@@ -2,8 +2,6 @@ echo "Updating..."
  > logs.txt
 git pull --recurse-submodules
 
-export PORT=8080
-export PHP_PORT=3000
 export MYSQL_HOST=127.0.0.1
 
 echo "Building..."
