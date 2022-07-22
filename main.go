@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"os/signal"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -226,6 +227,20 @@ func main() {
 			panic(err)
 		}
 	}
+
+	// Handle shutdown
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	go func() {
+		<-c
+		fmt.Println("Shutting down...")
+		for _, serv := range services {
+			err = Stop(serv)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+	}()
 
 	// Run
 	fmt.Println("Listening on port", os.Getenv("MAIN_PORT"))
