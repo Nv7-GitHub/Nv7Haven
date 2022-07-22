@@ -3,15 +3,21 @@ package main
 import (
 	_ "embed"
 	"fmt"
+	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/r3labs/sse/v2"
 )
 
+const uidLength = 16
+
 var events *sse.Server
+var uids = make(map[string]struct{})
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool { return true },
@@ -19,6 +25,29 @@ var upgrader = websocket.Upgrader{
 
 func enableCors(w *http.ResponseWriter) {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+}
+
+func getServ(r *http.Request) (serv *Service) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	lock.Lock()
+	for _, servic := range services {
+		if servic.ID == id {
+			serv = servic
+			break
+		}
+	}
+	lock.Unlock()
+	return
+}
+
+func checkUID(r *http.Request) bool {
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return false
+	}
+	_, res := uids[string(body)]
+	return res
 }
 
 func main() {
@@ -65,17 +94,7 @@ func main() {
 	// Stream output
 	m.HandleFunc("/logs/{id}", func(w http.ResponseWriter, r *http.Request) {
 		// Get service
-		vars := mux.Vars(r)
-		id := vars["id"]
-		var serv *Service
-		lock.Lock()
-		for _, servic := range services {
-			if servic.ID == id {
-				serv = servic
-				break
-			}
-		}
-		lock.Unlock()
+		serv := getServ(r)
 		if serv == nil {
 			http.NotFound(w, r)
 			return
@@ -103,6 +122,92 @@ func main() {
 			}
 		}
 	})
+
+	// Rebuild/Stop/Start
+	m.HandleFunc("/auth", func(w http.ResponseWriter, r *http.Request) {
+		// Get body
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Check if matches secret
+		if string(body) != os.Getenv("MOD_PASSWORD") {
+			rand.Seed(time.Now().UnixNano())
+			b := make([]byte, uidLength)
+			rand.Read(b)
+			uid := fmt.Sprintf("%x", b)[:uidLength]
+			uids[uid] = struct{}{}
+			w.Write([]byte(uid))
+		}
+	}).Methods("POST")
+
+	m.HandleFunc("/rebuild/{id}", func(w http.ResponseWriter, r *http.Request) {
+		// Get service
+		serv := getServ(r)
+		if serv == nil {
+			http.NotFound(w, r)
+			return
+		}
+		if !checkUID(r) {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		// Rebuild
+		err := Build(serv)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Write([]byte("OK"))
+	}).Methods("POST")
+
+	m.HandleFunc("/stop/{id}", func(w http.ResponseWriter, r *http.Request) {
+		// Get service
+		serv := getServ(r)
+		if serv == nil {
+			http.NotFound(w, r)
+			return
+		}
+		if !checkUID(r) {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		// Rebuild
+		err := Stop(serv)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Write([]byte("OK"))
+	}).Methods("POST")
+
+	m.HandleFunc("/start/{id}", func(w http.ResponseWriter, r *http.Request) {
+		// Get service
+		serv := getServ(r)
+		if serv == nil {
+			http.NotFound(w, r)
+			return
+		}
+		if !checkUID(r) {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		// Rebuild
+		err := Run(serv)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Write([]byte("OK"))
+	}).Methods("POST")
 
 	// Start services
 	for _, serv := range services {
