@@ -115,7 +115,9 @@ func main() {
 
 		// Start listening for new logs
 		for {
+			serv.Output.Cond.L.Lock()
 			serv.Output.Cond.Wait()
+			serv.Output.Cond.L.Unlock()
 			err = c.WriteMessage(websocket.TextMessage, serv.Output.Data)
 			if err != nil {
 				break
@@ -125,6 +127,8 @@ func main() {
 
 	// Rebuild/Stop/Start
 	m.HandleFunc("/auth", func(w http.ResponseWriter, r *http.Request) {
+		enableCors(&w)
+
 		// Get body
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
@@ -144,6 +148,8 @@ func main() {
 	}).Methods("POST")
 
 	m.HandleFunc("/rebuild/{id}", func(w http.ResponseWriter, r *http.Request) {
+		enableCors(&w)
+
 		// Get service
 		serv := getServ(r)
 		if serv == nil {
@@ -166,6 +172,8 @@ func main() {
 	}).Methods("POST")
 
 	m.HandleFunc("/stop/{id}", func(w http.ResponseWriter, r *http.Request) {
+		enableCors(&w)
+
 		// Get service
 		serv := getServ(r)
 		if serv == nil {
@@ -188,6 +196,8 @@ func main() {
 	}).Methods("POST")
 
 	m.HandleFunc("/start/{id}", func(w http.ResponseWriter, r *http.Request) {
+		enableCors(&w)
+
 		// Get service
 		serv := getServ(r)
 		if serv == nil {

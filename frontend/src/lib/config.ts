@@ -11,6 +11,7 @@ export type Service = {
 }
 
 export let services: Writable<Service[]> = writable([]);
+export let uid = writable("");
 
 async function load() {
   let val = await fetch(host + "services");
@@ -22,6 +23,7 @@ load();
 if (browser) {
   let sse = new EventSource(host + "events?stream=services");
   sse.addEventListener("message", (e) => {
-    services.set(JSON.parse(e.data));
+    let dat = JSON.parse(e.data);
+    services.set(dat);
   });
 }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -32,7 +31,9 @@ type Output struct {
 
 func (s *Output) Write(p []byte) (n int, err error) {
 	s.Data = p
+	s.Cond.L.Lock()
 	s.Cond.Broadcast()
+	s.Cond.L.Unlock()
 
 	return s.Content.Write(p)
 }
@@ -88,15 +89,7 @@ func Build(s *Service) error {
 	cmd := exec.Command("go", "build", "-o", filepath.Join(wd, "build", s.ID))
 	cmd.Dir = filepath.Join(wd, "run", s.ID)
 	cmd.Stderr = &strings.Builder{}
-	err = cmd.Run()
-	if err != nil {
-		v := strings.TrimSpace(cmd.Stderr.(*strings.Builder).String())
-		if len(v) == 0 {
-			return err
-		}
-		return errors.New(v)
-	}
-	return nil
+	return cmd.Run()
 }
 
 func Run(s *Service) error {
