@@ -1,170 +1,236 @@
 package main
 
 import (
-	"database/sql"
+	_ "embed"
 	"fmt"
-	"net"
+	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"os"
-	"os/signal"
 	"time"
 
-	"github.com/Nv7-Github/Nv7Haven/anarchy"
-	"github.com/Nv7-Github/Nv7Haven/db"
-	"github.com/Nv7-Github/Nv7Haven/discord"
-	"github.com/Nv7-Github/Nv7Haven/elemental"
-	"github.com/Nv7-Github/Nv7Haven/eod"
-	"github.com/Nv7-Github/Nv7Haven/names"
-	"github.com/Nv7-Github/Nv7Haven/nv7haven"
-	"github.com/Nv7-Github/Nv7Haven/remodrive"
-	"github.com/Nv7-Github/Nv7Haven/single"
-	joe "github.com/Nv7-Github/average-joe"
-	bsharp "github.com/Nv7-Github/bsharp/bot"
-	"github.com/improbable-eng/grpc-web/go/grpcweb"
-	"google.golang.org/grpc"
-
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/pprof"
-
-	_ "embed"
-
-	_ "github.com/go-sql-driver/mysql" // mysql
+	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
+	"github.com/r3labs/sse/v2"
 )
 
-const (
-	dbUser = "root"
-	dbName = "nv7haven"
-)
+const uidLength = 16
 
-//go:embed run/joe/token.txt
-var joe_token string
+var events *sse.Server
+var uids = make(map[string]struct{})
 
-//go:embed run/bsharp/token.txt
-var b_token string
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool { return true },
+}
+
+func enableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+}
+
+func getServ(r *http.Request) (serv *Service) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	lock.Lock()
+	for _, servic := range services {
+		if servic.ID == id {
+			serv = servic
+			break
+		}
+	}
+	lock.Unlock()
+	return
+}
+
+func checkUID(r *http.Request) bool {
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return false
+	}
+	_, res := uids[string(body)]
+	return res
+}
 
 func main() {
-	logFile, err := os.OpenFile("logs.txt", os.O_WRONLY|os.O_CREATE, os.ModePerm)
+	// Fill out build cache
+	err := os.MkdirAll("build", os.ModePerm)
 	if err != nil {
 		panic(err)
 	}
-	dupfn(int(logFile.Fd()))
+	files, err := os.ReadDir("build")
+	if err != nil {
+		panic(err)
+	}
+	needed := make(map[string]struct{})
+	for _, serv := range services {
+		needed[serv.ID] = struct{}{}
+	}
+	for _, file := range files {
+		delete(needed, file.Name())
+	}
+	for k := range needed {
+		fmt.Printf("Building %s...\n", k)
+		err = Build(services[k])
+		if err != nil {
+			panic(err)
+		}
+	}
 
-	// Error logging
-	//defer recoverer()
+	// HTTP Server
+	m := mux.NewRouter()
 
-	// Fiber app
-	app := fiber.New(fiber.Config{
-		BodyLimit: 1000000000,
+	// Service list
+	events = sse.New()
+	events.CreateStream("services")
+	m.HandleFunc("/events", func(w http.ResponseWriter, r *http.Request) {
+		enableCors(&w)
+		events.ServeHTTP(w, r)
 	})
-	app.Use(cors.New())
-	app.Use(pprof.New())
-	systemHandlers(app)
+	m.HandleFunc("/services", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		enableCors(&w)
+		w.Write(marshalServices())
+	})
 
-	// gRPC
-	lis, err := net.Listen("tcp", ":"+os.Getenv("RPC_PORT"))
-	if err != nil {
-		panic(err)
-	}
-	grpcS := grpc.NewServer()
+	// Stream output
+	m.HandleFunc("/logs/{id}", func(w http.ResponseWriter, r *http.Request) {
+		// Get service
+		serv := getServ(r)
+		if serv == nil {
+			http.NotFound(w, r)
+			return
+		}
 
-	app.Static("/", "./index.html")
+		// Stream
+		c, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			return
+		}
+		defer c.Close()
 
-	mysqldb, err := sql.Open("mysql", dbUser+":"+os.Getenv("PASSWORD")+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+dbName)
-	if err != nil {
-		panic(err)
-	}
-	db := db.NewDB(mysqldb)
+		// Send current logs
+		err = c.WriteMessage(websocket.TextMessage, []byte(serv.Output.Content.String()))
+		if err != nil {
+			return
+		}
 
-	//mysqlsetup.Mysqlsetup()
+		// Start listening for new logs
+		for {
+			serv.Output.Cond.L.Lock()
+			serv.Output.Cond.Wait()
+			serv.Output.Cond.L.Unlock()
+			err = c.WriteMessage(websocket.TextMessage, serv.Output.Data)
+			if err != nil {
+				break
+			}
+		}
+	})
 
-	e, err := elemental.InitElemental(app, db, grpcS)
-	if err != nil {
-		panic(err)
-	}
+	// Rebuild/Stop/Start
+	m.HandleFunc("/auth", func(w http.ResponseWriter, r *http.Request) {
+		enableCors(&w)
 
-	err = nv7haven.InitNv7Haven(app, db)
-	if err != nil {
-		panic(err)
-	}
+		// Get body
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-	fmt.Println("\nLoading average joe...")
-	start := time.Now()
-	j, err := joe.NewJoe(joe_token)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("Loaded joe in", time.Since(start))
+		// Check if matches secret
+		if string(body) != os.Getenv("MOD_PASSWORD") {
+			rand.Seed(time.Now().UnixNano())
+			b := make([]byte, uidLength)
+			rand.Read(b)
+			uid := fmt.Sprintf("%x", b)[:uidLength]
+			uids[uid] = struct{}{}
+			w.Write([]byte(uid))
+		}
+	}).Methods("POST")
 
-	bsharp, err := bsharp.NewBot("data/bsharp", b_token, "947593278147162113", "")
-	if err != nil {
-		panic(err)
-	}
+	m.HandleFunc("/rebuild/{id}", func(w http.ResponseWriter, r *http.Request) {
+		enableCors(&w)
 
-	n, err := names.NewNames(db)
-	if err != nil {
-		panic(err)
-	}
+		// Get service
+		serv := getServ(r)
+		if serv == nil {
+			http.NotFound(w, r)
+			return
+		}
+		if !checkUID(r) {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
 
-	single.InitSingle(app, db)
-	b := discord.InitDiscord(db, e)
-	eodB := eod.InitEoD(db)
-	anarchy.InitAnarchy(db, grpcS)
-	remodrive.InitRemoDrive(app)
+		// Rebuild
+		err := Build(serv)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-	go func() {
-		err := http.ListenAndServe(":"+os.Getenv("HTTP_PORT"), nil)
+		w.Write([]byte("OK"))
+	}).Methods("POST")
+
+	m.HandleFunc("/stop/{id}", func(w http.ResponseWriter, r *http.Request) {
+		enableCors(&w)
+
+		// Get service
+		serv := getServ(r)
+		if serv == nil {
+			http.NotFound(w, r)
+			return
+		}
+		if !checkUID(r) {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		// Rebuild
+		err := Stop(serv)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Write([]byte("OK"))
+	}).Methods("POST")
+
+	m.HandleFunc("/start/{id}", func(w http.ResponseWriter, r *http.Request) {
+		enableCors(&w)
+
+		// Get service
+		serv := getServ(r)
+		if serv == nil {
+			http.NotFound(w, r)
+			return
+		}
+		if !checkUID(r) {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		// Rebuild
+		err := Run(serv)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Write([]byte("OK"))
+	}).Methods("POST")
+
+	// Start services
+	for _, serv := range services {
+		err = Run(serv)
 		if err != nil {
 			panic(err)
 		}
-	}()
-
-	go func() {
-		wrapped := grpcweb.WrapServer(grpcS)
-		httpS := &http.Server{
-			Handler: http.HandlerFunc(func(resp http.ResponseWriter, req *http.Request) {
-				// CORS
-				resp.Header().Set("Access-Control-Allow-Origin", "*")
-				resp.Header().Set("Access-Control-Allow-Methods", "*")
-				resp.Header().Set("Access-Control-Allow-Headers", "*")
-				wrapped.ServeHTTP(resp, req)
-			}),
-		}
-		defer httpS.Close()
-
-		err = httpS.Serve(lis)
-		if err != nil {
-			panic(err)
-		}
-	}()
-
-	go func() {
-		lis, err := net.Listen("tcp", ":"+os.Getenv("GRPC_PORT"))
-		if err != nil {
-			panic(err)
-		}
-		err = grpcS.Serve(lis)
-		if err != nil {
-			panic(err)
-		}
-	}()
-
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	go func() {
-		<-c
-		fmt.Println("Gracefully shutting down...")
-		app.Shutdown()
-	}()
-
-	if err := app.Listen(":" + os.Getenv("PORT")); err != nil {
-		panic(err)
 	}
 
-	b.Close()
-	eodB.Close()
-	db.Close()
-	j.Close()
-	bsharp.Close()
-	n.Close()
+	// Run
+	fmt.Println("Listening on port", os.Getenv("MAIN_PORT"))
+	err = http.ListenAndServe(":"+os.Getenv("MAIN_PORT"), m)
+	if err != nil {
+		panic(err)
+	}
 }

@@ -45,6 +45,7 @@ mysqlogs.txt
 eod/eodb/cloud/cloud.png
 eod/eodb/cloud/cloud.json
 eod/eodb/jsonexport/export.json
+build/*
 
 # Secret!
 password.txt

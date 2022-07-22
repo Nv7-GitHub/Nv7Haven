@@ -1,11 +1,12 @@
 package anarchy
 
 import (
+	"fmt"
 	"sync"
+	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/db"
 	"github.com/Nv7-Github/Nv7Haven/pb"
-	"github.com/schollz/progressbar/v3"
 	"google.golang.org/grpc"
 )
 
@@ -26,7 +27,8 @@ func (a *Anarchy) init() {
 		panic(err)
 	}
 
-	bar := progressbar.New(cnt)
+	fmt.Println("Loading anarchy...")
+	start := time.Now()
 
 	res, err := a.db.Query("SELECT * FROM anarchy_elements WHERE 1")
 	if err != nil {
@@ -45,9 +47,8 @@ func (a *Anarchy) init() {
 		}
 		a.cache[elem.Name] = elem
 
-		bar.Add(1)
 	}
-	bar.Finish()
+	fmt.Println("Loaded in", time.Since(start))
 }
 
 // InitAnarchy initializes Elemental 7's Anarchy server
