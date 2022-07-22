@@ -15,6 +15,8 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"google.golang.org/grpc"
+
+	_ "github.com/go-sql-driver/mysql" // mysql
 )
 
 // TODO: Split this up one day

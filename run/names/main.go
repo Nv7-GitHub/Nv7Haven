@@ -9,6 +9,8 @@ import (
 
 	"github.com/Nv7-Github/Nv7Haven/db"
 	"github.com/Nv7-Github/Nv7Haven/names"
+
+	_ "github.com/go-sql-driver/mysql" // mysql
 )
 
 const (

@@ -10,6 +10,8 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/db"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"google.golang.org/grpc"
+
+	_ "github.com/go-sql-driver/mysql" // mysql
 )
 
 const (

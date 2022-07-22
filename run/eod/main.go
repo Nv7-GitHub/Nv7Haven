@@ -9,9 +9,9 @@ import (
 
 	"github.com/Nv7-Github/Nv7Haven/db"
 	"github.com/Nv7-Github/Nv7Haven/eod"
-)
 
-// TODO: Remove admin dashboard, replace with commands from bot (once thats removed no fiber app)
+	_ "github.com/go-sql-driver/mysql" // mysql
+)
 
 const (
 	dbUser = "root"

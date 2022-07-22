@@ -8,6 +8,8 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/single"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+
+	_ "github.com/go-sql-driver/mysql" // mysql
 )
 
 const (

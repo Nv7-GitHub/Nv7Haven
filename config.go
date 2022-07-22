@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -116,6 +117,8 @@ func Build(s *Service) error {
 func autoRestart(s *Service, wd string) {
 	err := s.Cmd.Wait()
 	if s.Running {
+		fmt.Println("Restarting", s.Name)
+		fmt.Println(s.Output.Content.String())
 		s.Output.Write([]byte("Server crashed with error: " + err.Error() + "\n"))
 		s.Cmd = exec.Command(filepath.Join(wd, "build", s.ID))
 		s.Cmd.Stdout = s.Output
