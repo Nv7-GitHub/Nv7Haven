@@ -1,7 +1,7 @@
 import { writable, type Writable } from "svelte/store";
 import { browser } from '$app/env';
 
-export const host = "http://localhost:8000/";
+export const host = "https://main.nv7haven.com/";
 
 export type Service = {
   id: string,
