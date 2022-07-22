@@ -13,17 +13,10 @@ export type Service = {
 export let services: Writable<Service[]> = writable([]);
 export let uid = writable("");
 
-async function load() {
-  let val = await fetch(host + "services");
-  services.set(await val.json());
-}
-
-load();
-
 if (browser) {
-  let sse = new EventSource(host + "events?stream=services");
-  sse.addEventListener("message", (e) => {
-    let dat = JSON.parse(e.data);
-    services.set(dat);
-  });
+  let sock = new WebSocket("ws" + host.substring(4) + "services");
+  sock.onmessage = (e) => {
+    let data = JSON.parse(e.data);
+    services.set(data);
+  }
 }

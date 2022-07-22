@@ -10,8 +10,6 @@ import (
 	"strings"
 	"sync"
 	"syscall"
-
-	"github.com/r3labs/sse/v2"
 )
 
 type Service struct {
@@ -42,6 +40,7 @@ func (s *Output) Write(p []byte) (n int, err error) {
 }
 
 var lock = &sync.Mutex{}
+var servicesCond = sync.NewCond(&sync.Mutex{})
 var services = map[string]*Service{
 	"anarchy":           NewService("anarchy", "Nv7's Anarchy"),
 	"bsharp":            NewService("bsharp", "B Sharpener"),
@@ -84,9 +83,9 @@ func marshalServices() []byte {
 }
 
 func PublishServices() {
-	events.Publish("services", &sse.Event{
-		Data: marshalServices(),
-	})
+	servicesCond.L.Lock()
+	servicesCond.Broadcast()
+	servicesCond.L.Unlock()
 }
 
 func Build(s *Service) error {

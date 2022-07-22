@@ -13,12 +13,10 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
-	"github.com/r3labs/sse/v2"
 )
 
 const uidLength = 16
 
-var events *sse.Server
 var uids = make(map[string]struct{})
 
 var upgrader = websocket.Upgrader{
@@ -59,16 +57,30 @@ func main() {
 	m := mux.NewRouter()
 
 	// Service list
-	events = sse.New()
-	events.CreateStream("services")
-	m.HandleFunc("/events", func(w http.ResponseWriter, r *http.Request) {
-		enableCors(&w)
-		events.ServeHTTP(w, r)
-	})
 	m.HandleFunc("/services", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		enableCors(&w)
-		w.Write(marshalServices())
+		// Stream
+		c, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			return
+		}
+		defer c.Close()
+
+		// Send current services
+		err = c.WriteMessage(websocket.TextMessage, marshalServices())
+		if err != nil {
+			return
+		}
+
+		// Listen for new services
+		for {
+			servicesCond.L.Lock()
+			servicesCond.Wait()
+			servicesCond.L.Unlock()
+			err = c.WriteMessage(websocket.TextMessage, marshalServices())
+			if err != nil {
+				return
+			}
+		}
 	})
 
 	// Stream output
@@ -117,13 +129,15 @@ func main() {
 		}
 
 		// Check if matches secret
-		if string(body) != os.Getenv("MOD_PASSWORD") {
+		if string(body) == os.Getenv("MOD_PASSWORD") {
 			rand.Seed(time.Now().UnixNano())
 			b := make([]byte, uidLength)
 			rand.Read(b)
 			uid := fmt.Sprintf("%x", b)[:uidLength]
 			uids[uid] = struct{}{}
 			w.Write([]byte(uid))
+		} else {
+			http.Error(w, "Invalid password", http.StatusUnauthorized)
 		}
 	}).Methods("POST")
 
