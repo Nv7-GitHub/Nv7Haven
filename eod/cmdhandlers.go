@@ -282,31 +282,6 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			b.addCmdCounter(m, "ping")
 			rsp.Message(db.Config.LangProperty("PingMessage", time.Since(m.Timestamp).String()))
 		}
-		if cmd == "restart" || cmd == "update" || cmd == "optimize" {
-			if m.GuildID == "705084182673621033" {
-				user, err := b.dg.GuildMember(msg.GuildID, msg.Author.ID)
-				if rsp.Error(err) {
-					return
-				}
-				for _, roleID := range user.Roles {
-					if roleID == "918309924008775691" {
-						switch cmd {
-						case "restart":
-							b.addCmdCounter(m, "restart")
-							b.restart(msg, rsp)
-
-						case "update":
-							b.addCmdCounter(m, "update")
-							b.update(msg, rsp)
-
-						case "optimize":
-							b.addCmdCounter(m, "optimize")
-							b.optimize(msg, rsp)
-						}
-					}
-				}
-			}
-		}
 	}
 
 	if strings.HasPrefix(m.Content, "?") {

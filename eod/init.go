@@ -35,7 +35,6 @@ func (b *EoD) init() {
 	fmt.Println("Calculated in", time.Since(start))
 
 	b.initHandlers()
-	b.start()
 
 	// Start stats saving
 	go func() {
