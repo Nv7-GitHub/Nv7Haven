@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	joe "github.com/Nv7-Github/average-joe"
 )
@@ -14,10 +15,13 @@ import (
 var token string
 
 func main() {
+	fmt.Println("Loading...")
+	start := time.Now()
 	j, err := joe.NewJoe(token)
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println("Loaded in", time.Since(start))
 
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
