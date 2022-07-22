@@ -86,6 +86,14 @@ func Build(s *Service) error {
 	if err != nil {
 		return err
 	}
+
+	// Pull
+	err = exec.Command("git", "pull").Run()
+	if err != nil {
+		return err
+	}
+
+	// Build
 	cmd := exec.Command("go", "build", "-o", filepath.Join(wd, "build", s.ID))
 	cmd.Dir = filepath.Join(wd, "run", s.ID)
 	cmd.Stderr = &strings.Builder{}
