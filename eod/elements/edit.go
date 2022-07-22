@@ -21,6 +21,7 @@ func (b *Elements) EditElementNameCmd(elem string, name string, m types.Msg, rsp
 	el, res := db.GetElementByName(elem)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
+		return
 	}
 	el.Name = name
 	err := db.SaveElement(el)
@@ -41,6 +42,7 @@ func (b *Elements) EditElementImageCmd(elem string, image string, m types.Msg, r
 	el, res := db.GetElementByName(elem)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
+		return
 	}
 	el.Image = image
 	err := db.SaveElement(el)
@@ -61,6 +63,7 @@ func (b *Elements) EditElementCreatorCmd(elem string, creator string, m types.Ms
 	el, res := db.GetElementByName(elem)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
+		return
 	}
 	el.Creator = creator
 	err := db.SaveElement(el)
@@ -81,6 +84,7 @@ func (b *Elements) EditElementCreatedOnCmd(elem string, createdon int64, m types
 	el, res := db.GetElementByName(elem)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
+		return
 	}
 	el.CreatedOn = types.NewTimeStamp(time.Unix(createdon, 0))
 	err := db.SaveElement(el)
@@ -116,6 +120,7 @@ func (b *Elements) EditElementMarkCmd(elem string, m types.Msg, rsp types.Rsp) {
 	el, res := db.GetElementByName(elem)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
+		return
 	}
 
 	rsp.Modal(&discordgo.InteractionResponseData{
