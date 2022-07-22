@@ -27,6 +27,8 @@ func main() {
 
 	e := eod.InitEoD(db)
 
+	fmt.Println("Running!")
+
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	go func() {
