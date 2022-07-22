@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/db"
 	"github.com/Nv7-Github/Nv7Haven/eod"
@@ -29,16 +31,22 @@ func main() {
 
 	fmt.Println("Running!")
 
+	serv := &http.Server{Addr: ":" + os.Getenv("EOD_PORT"), Handler: http.DefaultServeMux}
+
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	go func() {
 		<-c
 		fmt.Println("Gracefully shutting down...")
 		e.Close()
+
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		serv.Shutdown(ctx)
+		defer cancel()
 	}()
 
-	err = http.ListenAndServe(":"+os.Getenv("EOD_PORT"), nil)
-	if err != nil {
+	err = serv.ListenAndServe()
+	if err != nil && err != http.ErrServerClosed {
 		panic(err)
 	}
 }
