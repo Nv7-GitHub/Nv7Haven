@@ -41,15 +41,26 @@ func (s *Output) Write(p []byte) (n int, err error) {
 
 var lock = &sync.Mutex{}
 var services = map[string]*Service{
-	"test": {
-		ID:   "test",
-		Name: "Test",
+	"anarchy":           NewService("anarchy", "Nv7's Anarchy"),
+	"bsharp":            NewService("bsharp", "B Sharpener"),
+	"elemental_discord": NewService("elemental_discord", "Nv7's Elemental + Nv7 Bot"),
+	"eod":               NewService("eod", "EoD Everywhere"),
+	"joe":               NewService("joe", "Average Joe"),
+	"names":             NewService("names", "NameBot"),
+	"nv7haven":          NewService("nv7haven", "The nv7haven.com Backend"),
+	"single":            NewService("single", "Nv7's Singleplayer"),
+}
+
+func NewService(id, name string) *Service {
+	return &Service{
+		ID:   id,
+		Name: name,
 		Output: &Output{
 			Content: &strings.Builder{},
 			Cond:    sync.NewCond(&sync.Mutex{}),
 			Finish:  make(chan struct{}),
 		},
-	},
+	}
 }
 
 func marshalServices() []byte {
