@@ -242,9 +242,9 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 			limbo += int(moneyEarned)
 		}
 		if id == m.Author.ID {
-			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Your current income is %d coins, and you have %d in limbo!", income, limbo))
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Your current income is %d coins/second, and you have %d in limbo!", income, limbo))
 		} else {
-			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s's current income is %d coins, and they have %d in limbo!", usr.Username, income, limbo))
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s's current income is %d coins/second, and they have %d in limbo!", usr.Username, income, limbo))
 		}
 		return
 	}
