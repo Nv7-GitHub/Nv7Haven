@@ -220,7 +220,7 @@ func (b *Bot) properties(s *discordgo.Session, m *discordgo.MessageCreate) {
 			b.checkuserwithid(m, id)
 		}
 
-		user, suc := b.getuser(m, m.Author.ID)
+		user, suc := b.getuser(m, id)
 		if !suc {
 			return
 		}
