@@ -50,6 +50,7 @@ var services = map[string]*Service{
 	"names":             NewService("names", "NameBot"),
 	"nv7haven":          NewService("nv7haven", "The nv7haven.com Backend"),
 	"single":            NewService("single", "Nv7's Singleplayer"),
+	"vdrive":            NewService("vdrive", "VDrive"),
 }
 
 func NewService(id, name string) *Service {
