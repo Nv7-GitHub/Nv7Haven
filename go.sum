@@ -41,6 +41,8 @@ github.com/Nv7-Github/average-joe v0.0.0-20220429002151-7a828e7b9d17 h1:MGMEzxEq
 github.com/Nv7-Github/average-joe v0.0.0-20220429002151-7a828e7b9d17/go.mod h1:M/v2ZRmSFILzACry0ho9H7ut3+vuE9ubkaaoWy+bUCY=
 github.com/Nv7-Github/firebase v0.0.0-20201012033747-47c56e1d869d h1:4h8lsgskZe3qf69Wu2V0fdKs0oEjbSR46Grzc0aLVTE=
 github.com/Nv7-Github/firebase v0.0.0-20201012033747-47c56e1d869d/go.mod h1:v6tFe6snfSAUV2p55/ebS0k8CY1hlhIjzQHTMq31H6o=
+github.com/Nv7-Github/sevcord v0.0.0-20220730050849-c1404889e919 h1:JTgoEBcQIclh5qCsU8mcpRSL4qjIs4YTTa8gjTrKO8Y=
+github.com/Nv7-Github/sevcord v0.0.0-20220730050849-c1404889e919/go.mod h1:f0ewFvUHuft3bgp7NsubbW80ESvlS8BZGnhsUVOp8XY=
 github.com/ajstarks/svgo v0.0.0-20180226025133-644b8db467af/go.mod h1:K08gAheRH3/J6wwsYMMT4xOr94bZjxIelGM0+d/wbFw=
 github.com/andybalholm/brotli v1.0.2 h1:JKnhI/XQ75uFBTiuzXpzFrUriDPiZjlOSzh6wXogP0E=
 github.com/andybalholm/brotli v1.0.2/go.mod h1:loMXtMfwqflxFJPmdbJO0a3KNoPuLBgiu3qAvBg8x/Y=
@@ -232,8 +234,6 @@ github.com/psykhi/wordclouds v0.0.0-20220103101922-7e3171a66cbc h1:HuTq+Bnv9fj/k
 github.com/psykhi/wordclouds v0.0.0-20220103101922-7e3171a66cbc/go.mod h1:NvPHamM4YWi4jdLXq/sxOTmhz3D/qUnCuKrcMaDHSwo=
 github.com/r3labs/sse v0.0.0-20201007160420-c638e5516aa7 h1:iqr49uskkd+EC9lZlCrHrEq66zi5BNLJWkFOepY2L6A=
 github.com/r3labs/sse v0.0.0-20201007160420-c638e5516aa7/go.mod h1:S8xSOnV3CgpNrWd0GQ/OoQfMtlg2uPRSuTzcSGrzwK8=
-github.com/r3labs/sse/v2 v2.8.1 h1:lZH+W4XOLIq88U5MIHOsLec7+R62uhz3bIi2yn0Sg8o=
-github.com/r3labs/sse/v2 v2.8.1/go.mod h1:Igau6Whc+F17QUgML1fYe1VPZzTV6EMCnYktEmkNJ7I=
 github.com/rivo/uniseg v0.2.0 h1:S1pD9weZBuJdFmowNwbpi7BJ8TNftyUImj/0WQi72jY=
 github.com/rivo/uniseg v0.2.0/go.mod h1:J6wj4VEh+S6ZtnVlnTBMWIodfgj8LQOQFoIToxlJtxc=
 github.com/rogpeppe/fastuuid v1.2.0/go.mod h1:jVj6XXZzXRy/MSR5jhDC/2q6DgLz+nrA6LYCDYWNEvQ=

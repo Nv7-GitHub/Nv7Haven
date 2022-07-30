@@ -23,7 +23,6 @@ require (
 	github.com/lucasb-eyer/go-colorful v1.2.0
 	github.com/mitchellh/mapstructure v1.4.3
 	github.com/psykhi/wordclouds v0.0.0-20220103101922-7e3171a66cbc
-	github.com/r3labs/sse/v2 v2.8.1
 	github.com/schollz/progressbar/v3 v3.8.2
 	golang.org/x/crypto v0.0.0-20220315160706-3147a52a75dd
 	golang.org/x/image v0.0.0-20200119044424-58c23975cae1
@@ -33,6 +32,7 @@ require (
 
 require (
 	cloud.google.com/go v0.65.0 // indirect
+	github.com/Nv7-Github/sevcord v0.0.0-20220730050849-c1404889e919 // indirect
 	github.com/golang/protobuf v1.5.0 // indirect
 	github.com/klauspost/compress v1.12.2 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421 // indirect
