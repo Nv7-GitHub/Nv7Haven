@@ -39,7 +39,7 @@ type Room struct {
 }
 
 func InitVDrive() {
-	r := &VDrive{Lock: &sync.Mutex{}}
+	r := &VDrive{Lock: &sync.Mutex{}, Rooms: make(map[string]*Room)}
 	r.Handlers()
 }
 
