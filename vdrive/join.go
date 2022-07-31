@@ -3,6 +3,8 @@ package vdrive
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/gorilla/websocket"
 )
 
 type JoinParams struct {
@@ -34,6 +36,13 @@ func (r *VDrive) Join(w http.ResponseWriter, req *http.Request) {
 	if !exists {
 		return
 	}
+
+	// Send binds
+	binds, err := json.Marshal(room.Keybinds)
+	if err != nil {
+		return
+	}
+	conn.WriteMessage(websocket.TextMessage, binds)
 
 	// Join event
 	room.Events <- Event{Kind: EventKindJoin, Value: params.Name}
