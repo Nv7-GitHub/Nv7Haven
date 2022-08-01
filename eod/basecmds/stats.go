@@ -17,10 +17,6 @@ func (b *BaseCmds) StatsCmd(m types.Msg, rsp types.Rsp) {
 		rsp.ErrorMessage(res.Message)
 		return
 	}
-	gd, err := b.dg.State.Guild(m.GuildID)
-	if rsp.Error(err) {
-		return
-	}
 
 	found := 0
 	db.RLock()
@@ -41,7 +37,7 @@ func (b *BaseCmds) StatsCmd(m types.Msg, rsp types.Rsp) {
 	rsp.Message(db.Config.LangProperty("Stats", map[string]any{
 		"Elements":     util.FormatInt(len(db.Elements)),
 		"Combos":       util.FormatInt(db.ComboCnt()),
-		"Members":      util.FormatInt(gd.MemberCount),
+		"Members":      util.FormatInt(len(db.Invs())),
 		"Found":        util.FormatInt(found),
 		"Categorized":  util.FormatInt(categorized),
 		"CommandsUsed": util.FormatInt(used),

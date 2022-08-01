@@ -54,7 +54,7 @@ func InitEoD(sqldb *db.DB) EoD {
 		panic(err)
 	}
 
-	dg.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsGuildMessages | discordgo.IntentsGuildMessageReactions | discordgo.IntentsGuildMembers | discordgo.IntentsGuilds)
+	dg.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsGuildMessages | discordgo.IntentsGuildMessageReactions)
 	err = dg.Open()
 	if err != nil {
 		panic(err)
