@@ -2,6 +2,7 @@ package vdrive
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/websocket"
@@ -41,11 +42,13 @@ func (r *VDrive) Host(w http.ResponseWriter, req *http.Request) {
 	for elem := range room.Events {
 		v, err := json.Marshal(elem)
 		if err != nil {
+			fmt.Println(err)
 			return
 		}
 
 		err = conn.WriteMessage(websocket.TextMessage, v)
 		if err != nil {
+			fmt.Println(err)
 			return
 		}
 	}
