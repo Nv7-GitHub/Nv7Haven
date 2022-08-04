@@ -13,7 +13,7 @@ import (
 )
 
 func (d *Nv7Haven) getIP(c *fiber.Ctx) error {
-	return c.SendString(c.IPs()[0])
+	return c.SendString(c.IP())
 }
 
 func (n *Nv7Haven) httpGet(c *fiber.Ctx) error {

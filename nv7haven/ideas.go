@@ -34,7 +34,7 @@ func (n *Nv7Haven) getIdeas(c *fiber.Ctx) error {
 	}
 	defer res.Close()
 
-	ip := c.IPs()[0]
+	ip := c.IP()
 	var voted string
 	var votes map[string]empty
 
@@ -82,7 +82,7 @@ func (n *Nv7Haven) updateIdea(c *fiber.Ctx) error {
 		return err
 	}
 
-	ip := c.IPs()[0]
+	ip := c.IP()
 	var votes map[string]empty
 	err = json.Unmarshal([]byte(voted), &votes)
 	if err != nil {

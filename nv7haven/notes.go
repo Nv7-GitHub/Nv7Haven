@@ -15,7 +15,7 @@ func (n *Nv7Haven) newNote(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	ip := c.IPs()[0]
+	ip := c.IP()
 
 	// Does it exist?
 	res, err := n.sql.Query("SELECT COUNT(1) FROM notes WHERE ip=? AND name=?", ip, name)
@@ -51,7 +51,7 @@ func (n *Nv7Haven) changeNote(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	ip := c.IPs()[0]
+	ip := c.IP()
 
 	body := string(c.Body())
 
@@ -73,7 +73,7 @@ func (n *Nv7Haven) getNote(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	ip := c.IPs()[0]
+	ip := c.IP()
 
 	res, err := n.sql.Query("SELECT note FROM notes WHERE ip=? AND name=? AND password=?", ip, name, password)
 	if err != nil {
@@ -94,7 +94,7 @@ func (n *Nv7Haven) hasPassword(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	ip := c.IPs()[0]
+	ip := c.IP()
 
 	res, err := n.sql.Query("SELECT password FROM notes WHERE ip=? AND name=?", ip, name)
 	if err != nil {
@@ -118,7 +118,7 @@ func (n *Nv7Haven) searchNotes(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	ip := c.IPs()[0]
+	ip := c.IP()
 
 	res, err := n.sql.Query("SELECT name FROM notes WHERE ip=? AND name LIKE ?", ip, query)
 	if err != nil {
@@ -147,7 +147,7 @@ func (n *Nv7Haven) deleteNote(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	ip := c.IPs()[0]
+	ip := c.IP()
 
 	_, err = n.sql.Exec("DELETE FROM notes WHERE ip=? AND name=? AND password=?", ip, name, password)
 	if err != nil {

@@ -23,7 +23,7 @@ func (s *Single) like(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	ip := c.IPs()[0]
+	ip := c.IP()
 	_, exists := likedby[ip]
 	if exists {
 		return c.SendString("You already liked this!")
