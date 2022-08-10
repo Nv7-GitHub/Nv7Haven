@@ -69,6 +69,12 @@ func (b *Base) NewPageSwitcher(ps types.PageSwitcher, m types.Msg, rsp types.Rsp
 		footerTxt += " • " + ps.Footer
 	}
 
+	if ps.Color == 0 {
+		color, err := b.GetColor(ps.Guild, m.Author.ID)
+		if err == nil {
+			ps.Color = color
+		}
+	}
 	id := rsp.Embed(&discordgo.MessageEmbed{
 		Title:       ps.Title,
 		Description: cont,
@@ -121,10 +127,6 @@ func (b *Base) PageSwitchHandler(s *discordgo.Session, i *discordgo.InteractionC
 		footerTxt += " • " + ps.Footer
 	}
 
-	color := ps.Color
-	if color == 0 {
-		color, _ = b.GetColor(i.GuildID, i.Member.User.ID)
-	}
 	err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseUpdateMessage,
 		Data: &discordgo.InteractionResponseData{
@@ -138,7 +140,7 @@ func (b *Base) PageSwitchHandler(s *discordgo.Session, i *discordgo.InteractionC
 					Footer: &discordgo.MessageEmbedFooter{
 						Text: footerTxt,
 					},
-					Color: color,
+					Color: ps.Color,
 				},
 			},
 			Components: []discordgo.MessageComponent{btnRow},
