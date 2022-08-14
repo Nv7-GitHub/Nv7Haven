@@ -86,8 +86,8 @@
 	"InfoComplexity": "Compwexity",
 	"InfoDifficulty": "Difficuwty",
 	"InfoTitle": "{{ . }} Info",
-	"InfoElemIDUserHasElem": "Ewement **#{{ .ID }}**\n<@{{ .Usew }}> **You have this.**",
-	"InfoElemIDUserNoHasElem": "Ewement **#{{ .ID }}**\n<@{{ .Usew }}> **You don't have this.**",
+	"InfoElemIDUserHasElem": "Ewement **#{{ .ID }}**\n<@{{ .User }}> **You have this.**",
+	"InfoElemIDUserNoHasElem": "Ewement **#{{ .ID }}**\n<@{{ .User }}> **You don't have this.**",
 	"InfoElemProgress": "Pwogwess",
 	"InfoElemCats": "Categowies",
 
@@ -121,7 +121,7 @@
 	"SuggestedElem": "Suggested {{ . }}",
 
 	"BreakdownTitle": "{{ .Titwe }} Bweakdown ({{ .Count }})",
-	"InvBreakdownTitle": "{{ .Usew }}'s Inventowy Bweakdown ({{ .Count }})",
+	"InvBreakdownTitle": "{{ .User }}'s Inventowy Bweakdown ({{ .Count }})",
 	"GiveElem": "Successfuwwy gave ewement **{{ . }}**!",
 	"GiveCat": "Successfuwwy gave aww ewements in categowy **{{ . }}**!",
 	"GiveAll": "Successfuwwy gave evewy ewement to <@{{ . }}>!",
