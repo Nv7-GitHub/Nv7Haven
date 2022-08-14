@@ -281,6 +281,7 @@ type VirtualCategory struct {
 	Data      VirtualCategoryData
 	CreatedOn *TimeStamp
 
+	Lock  *sync.Mutex   `json:"-"`
 	Cache map[int]Empty `json:"-"`
 }
 

@@ -385,6 +385,7 @@ func (d *DB) loadVcats() error {
 				for elem := range cache {
 					vcat.Cache[elem] = types.Empty{}
 				}
+				vcat.Lock = &sync.Mutex{}
 			}
 		}
 	}

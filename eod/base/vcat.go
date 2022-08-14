@@ -87,6 +87,7 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB, rdonly bool) (
 		db.RUnlock()
 
 		vcat.Cache = out
+		vcat.Lock = &sync.Mutex{}
 
 		// Save
 		err := db.SaveCatCache(vcat.Name, vcat.Cache)

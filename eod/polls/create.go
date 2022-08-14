@@ -202,7 +202,10 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 		if vcat.Rule == types.VirtualCategoryRuleRegex && vcat.Cache != nil {
 			matched, err := regexp.MatchString(vcat.Data["regex"].(string), name)
 			if err == nil && matched {
+				vcat.Lock.Lock()
 				vcat.Cache[el.ID] = types.Empty{}
+				vcat.Lock.Unlock()
+
 				db.RUnlock()
 				err = db.SaveCatCache(vcat.Name, vcat.Cache)
 				db.RLock()
