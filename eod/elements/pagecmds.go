@@ -111,19 +111,38 @@ func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string,
 	if category != "" {
 		catV, res := db.GetCat(category)
 		if !res.Exists {
-			rsp.ErrorMessage(res.Message)
-			return
-		}
-		category = catV.Name
-		cat = make([]types.Element, 0, len(catV.Elements))
-		db.RLock()
-		for k := range catV.Elements {
-			el, res := db.GetElement(k, true)
-			if res.Exists {
-				cat = append(cat, el)
+			catV, res := db.GetVCat(category)
+			if !res.Exists {
+				rsp.ErrorMessage(res.Message)
+				return
 			}
+			els, res := b.base.CalcVCat(catV, db, true)
+			if !res.Exists {
+				rsp.ErrorMessage(res.Message)
+				return
+			}
+			category = catV.Name
+			cat = make([]types.Element, 0, len(els))
+			db.RLock()
+			for k := range els {
+				el, res := db.GetElement(k, true)
+				if res.Exists {
+					cat = append(cat, el)
+				}
+			}
+			db.RUnlock()
+		} else {
+			category = catV.Name
+			cat = make([]types.Element, 0, len(catV.Elements))
+			db.RLock()
+			for k := range catV.Elements {
+				el, res := db.GetElement(k, true)
+				if res.Exists {
+					cat = append(cat, el)
+				}
+			}
+			db.RUnlock()
 		}
-		db.RUnlock()
 	}
 
 	// Sort invs
