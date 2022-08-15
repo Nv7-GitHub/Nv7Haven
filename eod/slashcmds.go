@@ -2987,7 +2987,7 @@ var (
 			})
 		},
 		"lb": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			data := i.ApplicationCommandData().Options[0]
+			data := i.ApplicationCommandData()
 			ind, _ := getFocused(data.Options)
 			names, res := bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
 			if !res.Exists {
