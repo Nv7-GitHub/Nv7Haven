@@ -422,7 +422,10 @@ func (d *DB) SaveInv(inv *types.Inventory, recalc ...bool) error {
 		cop[k] = types.Empty{}
 	}
 	inv.Lock.RUnlock()
+
+	d.Lock()
 	d.invData[inv.User] = cop
+	d.Unlock()
 
 	_, err = file.Seek(0, 0)
 	if err != nil {
