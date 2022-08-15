@@ -114,6 +114,7 @@ func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string,
 			rsp.ErrorMessage(res.Message)
 			return
 		}
+		category = catV.Name
 		cat = make([]types.Element, 0, len(catV.Elements))
 		db.RLock()
 		for k := range catV.Elements {
@@ -286,9 +287,13 @@ func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string,
 		}
 	}
 
+	title := db.Config.LangProperty(titleID, nil)
+	if cat != nil {
+		title += " (" + category + ")"
+	}
 	b.base.NewPageSwitcher(types.PageSwitcher{
 		Kind:       types.PageSwitchLdb,
-		Title:      db.Config.LangProperty(titleID, nil),
+		Title:      title,
 		PageGetter: b.base.LbPageGetter,
 
 		User:    user,
