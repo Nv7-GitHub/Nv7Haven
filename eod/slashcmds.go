@@ -354,6 +354,13 @@ var (
 					Description: "User to view the leaderboard from the POV of!",
 					Required:    false,
 				},
+				{
+					Type:         discordgo.ApplicationCommandOptionString,
+					Name:         "category",
+					Description:  "Run the statistics based on the elements in a category!",
+					Required:     false,
+					Autocomplete: true,
+				},
 			},
 		},
 		{
@@ -1838,6 +1845,7 @@ var (
 			resp := i.ApplicationCommandData()
 			sort := "count"
 			user := i.Member.User.ID
+			cat := ""
 			for _, opt := range resp.Options {
 				if opt.Name == "sortby" {
 					sort = resp.Options[0].StringValue()
@@ -1846,8 +1854,12 @@ var (
 				if opt.Name == "user" {
 					user = opt.UserValue(s).ID
 				}
+
+				if opt.Name == "category" {
+					cat = opt.StringValue()
+				}
 			}
-			bot.elements.LbCmd(bot.newMsgSlash(i), bot.newRespSlash(i), sort, user)
+			bot.elements.LbCmd(bot.newMsgSlash(i), bot.newRespSlash(i), sort, user, cat)
 		},
 		"lbimage": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -2412,7 +2424,7 @@ var (
 		},
 		"View Leaderboard": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
-			bot.elements.LbCmd(bot.newMsgSlash(i), bot.newRespSlash(i), "count", resp.TargetID)
+			bot.elements.LbCmd(bot.newMsgSlash(i), bot.newRespSlash(i), "count", resp.TargetID, "")
 		},
 		"Get Breakdown": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData()
@@ -2964,6 +2976,20 @@ var (
 			if data.Name == "category" {
 				names, res = bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
 			}
+			if !res.Exists {
+				return
+			}
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+				Data: &discordgo.InteractionResponseData{
+					Choices: stringsToAutocomplete(names),
+				},
+			})
+		},
+		"lb": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.ApplicationCommandData().Options[0]
+			ind, _ := getFocused(data.Options)
+			names, res := bot.categories.Autocomplete(bot.newMsgSlash(i), data.Options[ind].StringValue())
 			if !res.Exists {
 				return
 			}

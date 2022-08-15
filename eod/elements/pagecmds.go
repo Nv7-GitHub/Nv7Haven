@@ -86,7 +86,20 @@ func (b *Elements) InvCmd(user string, m types.Msg, rsp types.Rsp, sorter string
 	}, m, rsp)
 }
 
-func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string) {
+type invInfo struct {
+	User          string
+	ElementCnt    int
+	MadeCnt       int
+	SignedCnt     int
+	ImagedCnt     int
+	ColoredCnt    int
+	CatImagedCnt  int
+	CatColoredCnt int
+	CatSignedCnt  int
+	UsedCnt       int
+}
+
+func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string, category string) {
 	db, res := b.GetDB(m.GuildID)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
@@ -94,11 +107,85 @@ func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string)
 	}
 	db.GetInv(user) // Make user exist
 
+	var cat []types.Element
+	if category != "" {
+		catV, res := db.GetCat(category)
+		if !res.Exists {
+			rsp.ErrorMessage(res.Message)
+			return
+		}
+		cat = make([]types.Element, 0, len(catV.Elements))
+		db.RLock()
+		for k := range catV.Elements {
+			el, res := db.GetElement(k, true)
+			if res.Exists {
+				cat = append(cat, el)
+			}
+		}
+		db.RUnlock()
+	}
+
 	// Sort invs
-	invs := make([]*types.Inventory, len(db.Invs()))
+	invs := make([]invInfo, len(db.Invs()))
 	i := 0
 	for _, v := range db.Invs() {
-		invs[i] = v
+		if cat != nil {
+			v := invInfo{User: v.User}
+			switch sorter {
+			case "made":
+				for _, el := range cat {
+					if el.Creator == v.User {
+						v.MadeCnt++
+					}
+				}
+
+			case "signed":
+				for _, el := range cat {
+					if el.Commenter == v.User {
+						v.SignedCnt++
+					}
+				}
+
+			case "imaged":
+				for _, el := range cat {
+					if el.Imager == v.User {
+						v.ImagedCnt++
+					}
+				}
+
+			case "colored":
+				for _, el := range cat {
+					if el.Colorer == v.User {
+						v.ColoredCnt++
+					}
+				}
+
+			default:
+				inv := db.GetInv(v.User)
+				inv.Lock.RLock()
+				for _, el := range cat {
+					_, exists := inv.Elements[el.ID]
+					if exists {
+						v.ElementCnt++
+					}
+				}
+				inv.Lock.RUnlock()
+			}
+			invs[i] = v
+		} else {
+			invs[i] = invInfo{
+				User:          v.User,
+				ElementCnt:    len(v.Elements),
+				MadeCnt:       v.MadeCnt,
+				SignedCnt:     v.SignedCnt,
+				ImagedCnt:     v.ImagedCnt,
+				ColoredCnt:    v.ColoredCnt,
+				CatImagedCnt:  v.CatImagedCnt,
+				CatColoredCnt: v.CatColoredCnt,
+				CatSignedCnt:  v.CatSignedCnt,
+				UsedCnt:       v.UsedCnt,
+			}
+		}
 		i++
 	}
 	var sortFn func(a, b int) bool
@@ -140,21 +227,21 @@ func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string)
 		}
 		titleID = "LbTitleCatColored"
 
-	case "used":
-		sortFn = func(a, b int) bool {
-			return invs[a].UsedCnt > invs[b].UsedCnt
-		}
-		titleID = "LbTitleUsed"
-
 	case "catsigned":
 		sortFn = func(a, b int) bool {
 			return invs[a].CatSignedCnt > invs[b].CatSignedCnt
 		}
 		titleID = "LbTitleCatSigned"
 
+	case "used":
+		sortFn = func(a, b int) bool {
+			return invs[a].UsedCnt > invs[b].UsedCnt
+		}
+		titleID = "LbTitleUsed"
+
 	default:
 		sortFn = func(a, b int) bool {
-			return len(invs[a].Elements) > len(invs[b].Elements)
+			return invs[a].ElementCnt > invs[b].ElementCnt
 		}
 		titleID = "LbTitleElem"
 	}
@@ -192,7 +279,7 @@ func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string)
 			cnts[i] = v.CatSignedCnt
 
 		default:
-			cnts[i] = len(v.Elements)
+			cnts[i] = v.ElementCnt
 		}
 		if v.User == user {
 			userpos = i

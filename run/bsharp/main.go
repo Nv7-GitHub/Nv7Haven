@@ -14,7 +14,7 @@ import (
 var token string
 
 func main() {
-	bsharp, err := bsharp.NewBot("data/bsharp", token, "947593278147162113", "")
+	bsharp, err := bsharp.NewBot("data/bsharp", token)
 	if err != nil {
 		panic(err)
 	}

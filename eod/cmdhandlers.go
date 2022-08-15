@@ -233,7 +233,7 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		if cmd == "lb" || cmd == "top" || cmd == "leaderboard" {
 			b.addCmdCounter(m, "lb")
-			b.elements.LbCmd(msg, rsp, "count", msg.Author.ID)
+			b.elements.LbCmd(msg, rsp, "count", msg.Author.ID, "")
 			return
 		}
 
