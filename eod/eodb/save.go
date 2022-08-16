@@ -65,7 +65,9 @@ func (d *DB) SaveConfig() error {
 	d.Lock()
 	defer d.Unlock()
 
+	d.Config.RLock()
 	dat, err := json.Marshal(d.Config)
+	d.Config.RUnlock()
 	if err != nil {
 		return err
 	}
