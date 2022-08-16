@@ -10,6 +10,14 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
+var VCatCache = false
+
+var comblist map[string][][]int
+
+func CleanupVCatCache() {
+	comblist = nil
+}
+
 func (b *Base) CatOpPollTitle(c types.CategoryOperation, db *eodb.DB) string {
 	switch c {
 	case types.CatOpUnion:
@@ -304,21 +312,47 @@ func (b *Base) CalcVCat(vcat *types.VirtualCategory, db *eodb.DB, rdonly bool) (
 
 		// Calculate
 		ids := make(map[int]types.Empty)
-		db.RLock()
-		for elems, elem3 := range db.Combos() {
-			parts := strings.Split(elems, "+")
-			for _, part := range parts {
-				num, err := strconv.Atoi(part)
-				if err != nil {
-					continue
+		if VCatCache { // TODO: Faster solution
+			if comblist == nil {
+				comblist = make(map[string][][]int)
+				v := make([][]int, 0)
+				for elems, elem3 := range db.Combos() {
+					parts := strings.Split(elems, "+")
+					vals := make([]int, 0, len(parts)+1)
+					for _, part := range parts {
+						val, _ := strconv.Atoi(part)
+						vals = append(vals, val)
+					}
+					vals = append(vals, elem3)
+					v = append(v, vals)
 				}
-				if num == id {
-					ids[elem3] = types.Empty{}
-					break
+				comblist[db.Guild] = v
+			}
+			for _, vals := range comblist[db.Guild] {
+				for _, part := range vals[:len(vals)-1] {
+					if part == id {
+						ids[vals[len(vals)-1]] = types.Empty{}
+						break
+					}
 				}
 			}
+		} else { // During runtime
+			db.RLock()
+			for elems, elem3 := range db.Combos() {
+				parts := strings.Split(elems, "+")
+				for _, part := range parts {
+					num, err := strconv.Atoi(part)
+					if err != nil {
+						continue
+					}
+					if num == id {
+						ids[elem3] = types.Empty{}
+						break
+					}
+				}
+			}
+			db.RUnlock()
 		}
-		db.RUnlock()
 
 		Invhintlock.Lock()
 		gld[id] = ids

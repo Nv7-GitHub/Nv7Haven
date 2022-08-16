@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 )
@@ -295,6 +296,7 @@ func (b *Categories) VCatOpCmd(op types.CategoryOperation, name string, lhs stri
 }
 
 func (b *Categories) CacheVCats() {
+	base.VCatCache = true
 	for _, db := range b.DB {
 		for _, cat := range db.VCats() {
 			_, res := b.base.CalcVCat(cat, db, true)
