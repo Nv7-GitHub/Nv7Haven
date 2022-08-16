@@ -13,6 +13,10 @@ func (n *Nv7Haven) syncDb(c *fiber.Ctx) error {
 	w := zip.NewWriter(c)
 	defer w.Close()
 
+	if c.Params("password") != os.Getenv("PASSWORD") {
+		return fiber.ErrUnauthorized
+	}
+
 	return filepath.Walk("data", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
