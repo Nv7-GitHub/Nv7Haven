@@ -100,6 +100,8 @@ type invInfo struct {
 }
 
 func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string, category string) {
+	rsp.Acknowledge()
+
 	db, res := b.GetDB(m.GuildID)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
