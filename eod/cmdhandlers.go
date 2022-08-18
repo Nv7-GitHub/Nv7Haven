@@ -23,7 +23,9 @@ func (b *EoD) addCmdCounter(m *discordgo.MessageCreate, cmd string) {
 		if db.Config.CommandStats == nil {
 			db.Config.CommandStats = make(map[string]int)
 		}
+		db.Config.Lock()
 		db.Config.CommandStats[cmd]++
+		db.Config.Unlock()
 		db.SaveConfig()
 	}
 }

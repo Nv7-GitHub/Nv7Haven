@@ -47,7 +47,9 @@ func (b *EoD) initHandlers() {
 				if db.Config.CommandStats == nil {
 					db.Config.CommandStats = make(map[string]int)
 				}
+				db.Config.Lock()
 				db.Config.CommandStats[i.ApplicationCommandData().Name]++
+				db.Config.Unlock()
 				db.SaveConfig()
 			}
 			if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
