@@ -2,6 +2,7 @@ package basecmds
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
@@ -201,8 +202,15 @@ type resetModal struct {
 	guild string
 }
 
+// TODO: Translate
 func (m *resetModal) Handler(s *discordgo.Session, i *discordgo.InteractionCreate, rsp types.Rsp) {
 	rsp.Acknowledge()
+
+	v := i.ModalSubmitData().Components[0].(*discordgo.ActionsRow).Components[0].(*discordgo.TextInput).Value
+	if !strings.EqualFold(v, "reset") {
+		rsp.ErrorMessage("You must type 'reset' in order to reset a server!")
+		return
+	}
 
 	// Reset
 	m.d.ResetGuild(m.guild)
@@ -221,7 +229,7 @@ func (m *resetModal) Handler(s *discordgo.Session, i *discordgo.InteractionCreat
 	base.Invhintlock.Unlock()
 
 	// Done!
-	rsp.Message("Successfuly reset server! 🗑️") // TODO: Translate
+	rsp.Message("Successfuly reset server! 🗑️")
 }
 
 // TODO: Translate
