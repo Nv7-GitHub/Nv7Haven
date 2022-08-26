@@ -226,7 +226,6 @@ func (m *resetModal) Handler(s *discordgo.Session, i *discordgo.InteractionCreat
 
 // TODO: Translate
 func (b *BaseCmds) ResetServer(msg types.Msg, rsp types.Rsp) {
-	rsp.Acknowledge()
 	_, res := b.GetDB(msg.GuildID)
 	if !res.Exists {
 		rsp.ErrorMessage(res.Message)
