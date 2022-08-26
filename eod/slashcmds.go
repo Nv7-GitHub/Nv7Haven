@@ -1263,6 +1263,12 @@ var (
 						},
 					},
 				},
+				{
+					Name:        "server",
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Description: "Completely reset this server!",
+					Options:     []*discordgo.ApplicationCommandOption{},
+				},
 			},
 		},
 		{
@@ -1967,6 +1973,9 @@ var (
 			switch resp.Name {
 			case "inv":
 				bot.elements.ResetInvCmd(resp.Options[0].UserValue(s).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+
+			case "server":
+				bot.basecmds.ResetServer(bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
 		},
 		"refresh": func(s *discordgo.Session, i *discordgo.InteractionCreate) {

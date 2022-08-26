@@ -3,7 +3,10 @@ package basecmds
 import (
 	"strconv"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/base"
+	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/bwmarrin/discordgo"
 )
 
 func (b *BaseCmds) SetNewsChannel(channelID string, msg types.Msg, rsp types.Rsp) {
@@ -191,4 +194,63 @@ func (b *BaseCmds) SetLanguage(lang string, msg types.Msg, rsp types.Rsp) {
 	}
 
 	rsp.Message(db.Config.LangProperty("Language", nil))
+}
+
+type resetModal struct {
+	d     *eodb.Data
+	guild string
+}
+
+func (m *resetModal) Handler(s *discordgo.Session, i *discordgo.InteractionCreate, rsp types.Rsp) {
+	rsp.Acknowledge()
+
+	// Reset
+	m.d.ResetGuild(m.guild)
+
+	// Clear out vcat caches
+	base.Elemlock.Lock()
+	delete(base.Allelements, m.guild)
+	base.Elemlock.Unlock()
+
+	base.Madebylock.Lock()
+	delete(base.Madeby, m.guild)
+	base.Madebylock.Unlock()
+
+	base.Invhintlock.Lock()
+	delete(base.Invhint, m.guild)
+	base.Invhintlock.Unlock()
+
+	// Done!
+	rsp.Message("Successfuly reset server! 🗑️") // TODO: Translate
+}
+
+// TODO: Translate
+func (b *BaseCmds) ResetServer(msg types.Msg, rsp types.Rsp) {
+	rsp.Acknowledge()
+	_, res := b.GetDB(msg.GuildID)
+	if !res.Exists {
+		rsp.ErrorMessage(res.Message)
+		return
+	}
+
+	// Ask for confirmation
+	modal := &resetModal{guild: msg.GuildID, d: b.Data}
+	rsp.Modal(&discordgo.InteractionResponseData{
+		Title: "Reset Server",
+		Components: []discordgo.MessageComponent{
+			discordgo.ActionsRow{
+				Components: []discordgo.MessageComponent{
+					discordgo.TextInput{
+						CustomID:    "confirm",
+						Label:       "Enter \"reset\" to confirm",
+						Style:       discordgo.TextInputShort,
+						Placeholder: "reset",
+						Required:    true,
+						MinLength:   5,
+						MaxLength:   5,
+					},
+				},
+			},
+		},
+	}, modal)
 }

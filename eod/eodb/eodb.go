@@ -215,3 +215,13 @@ func (d *DB) Close() {
 	d.comboFile.Close()
 	d.configFile.Close()
 }
+
+func (d *Data) ResetGuild(guild string) error {
+	d.Lock()
+	defer d.Unlock()
+
+	delete(d.DB, guild)
+	delete(d.Data, guild)
+
+	return os.RemoveAll(filepath.Join(d.path, guild))
+}
