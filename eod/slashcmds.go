@@ -1251,12 +1251,6 @@ var (
 			Description:              "Reset something!",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionSubCommand,
-					Name:        "polls",
-					Description: "Reset the polls!",
-					Options:     []*discordgo.ApplicationCommandOption{},
-				},
-				{
 					Name:        "inv",
 					Type:        discordgo.ApplicationCommandOptionSubCommand,
 					Description: "Reset a user's inventory!",
@@ -1268,6 +1262,20 @@ var (
 							Required:    true,
 						},
 					},
+				},
+			},
+		},
+		{
+			Name:                     "refresh",
+			DefaultMemberPermissions: Ptr(int64(discordgo.PermissionManageServer)),
+			Type:                     discordgo.ChatApplicationCommand,
+			Description:              "Refresh something!",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
+					Name:        "polls",
+					Description: "Re-create the poll messages!",
+					Options:     []*discordgo.ApplicationCommandOption{},
 				},
 			},
 		},
@@ -1957,10 +1965,15 @@ var (
 		"reset": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			resp := i.ApplicationCommandData().Options[0]
 			switch resp.Name {
-			case "polls":
-				bot.polls.ResetPolls(bot.newMsgSlash(i), bot.newRespSlash(i))
 			case "inv":
 				bot.elements.ResetInvCmd(resp.Options[0].UserValue(s).ID, bot.newMsgSlash(i), bot.newRespSlash(i))
+			}
+		},
+		"refresh": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			resp := i.ApplicationCommandData().Options[0]
+			switch resp.Name {
+			case "polls":
+				bot.polls.ResetPolls(bot.newMsgSlash(i), bot.newRespSlash(i))
 			}
 		},
 		"give": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
