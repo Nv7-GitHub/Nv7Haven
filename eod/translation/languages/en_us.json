@@ -107,6 +107,7 @@
   "LbTitleCatColored": "Top Most Categories Colored",
   "LbTitleUsed": "Top Most Used",
   "LbTitleCatSigned": "Top Most Categories Signed",
+  "LbTitleVotes": "Top Most Voted",
   "NewIdea": "New Idea",
   "HaveNoElemsInCat": "You don't have any elements in category **{{ . }}**!",
   "FailedIdea": "Couldn't find a random unused combination, maybe try again later?",

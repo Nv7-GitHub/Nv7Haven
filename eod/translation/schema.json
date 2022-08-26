@@ -386,6 +386,10 @@
       "type": "string",
       "description": "The title given to categories signed leaderboards."
     },
+    "LbTitleVotes": {
+      "type": "string",
+      "description": "The title given to vote count leaderboards."
+    },
     "NewIdea": {
       "type": "string",
       "description": "The message in the New Idea button."

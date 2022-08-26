@@ -303,6 +303,7 @@ type Inventory struct {
 	CatColoredCnt int
 	CatSignedCnt  int
 	UsedCnt       int
+	VoteCnt       int
 	User          string
 }
 

@@ -97,6 +97,7 @@ type invInfo struct {
 	CatColoredCnt int
 	CatSignedCnt  int
 	UsedCnt       int
+	VoteCnt       int
 }
 
 func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string, category string) {
@@ -206,6 +207,7 @@ func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string,
 				CatColoredCnt: v.CatColoredCnt,
 				CatSignedCnt:  v.CatSignedCnt,
 				UsedCnt:       v.UsedCnt,
+				VoteCnt:       v.VoteCnt,
 			}
 		}
 		i++
@@ -261,6 +263,12 @@ func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string,
 		}
 		titleID = "LbTitleUsed"
 
+	case "votes":
+		sortFn = func(a, b int) bool {
+			return invs[a].VoteCnt > invs[b].VoteCnt
+		}
+		titleID = "LbTitleVotes"
+
 	default:
 		sortFn = func(a, b int) bool {
 			return invs[a].ElementCnt > invs[b].ElementCnt
@@ -299,6 +307,9 @@ func (b *Elements) LbCmd(m types.Msg, rsp types.Rsp, sorter string, user string,
 
 		case "catsigned":
 			cnts[i] = v.CatSignedCnt
+
+		case "votes":
+			cnts[i] = v.VoteCnt
 
 		default:
 			cnts[i] = v.ElementCnt

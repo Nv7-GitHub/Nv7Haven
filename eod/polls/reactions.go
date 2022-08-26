@@ -63,14 +63,21 @@ func (b *Polls) UnReactionHandler(_ *discordgo.Session, r *discordgo.MessageReac
 	if r.UserID == b.dg.State.User.ID {
 		return
 	}
+
 	db, res := b.GetDB(r.GuildID)
 	if !res.Exists {
 		return
 	}
+
 	p, res := db.GetPoll(r.MessageID)
 	if !res.Exists {
 		return
 	}
+
+	inv := db.GetInv(r.UserID)
+	inv.VoteCnt--
+	db.SaveInv(inv)
+
 	if r.Emoji.Name == types.DownArrow {
 		p.Downvotes--
 		db.SavePoll(p)
@@ -86,6 +93,7 @@ func (b *Polls) ReactionHandler(_ *discordgo.Session, r *discordgo.MessageReacti
 	if r.UserID == b.dg.State.User.ID {
 		return
 	}
+
 	db, res := b.GetDB(r.GuildID)
 	if !res.Exists {
 		return
@@ -100,6 +108,11 @@ func (b *Polls) ReactionHandler(_ *discordgo.Session, r *discordgo.MessageReacti
 	if !res.Exists {
 		return
 	}
+
+	inv := db.GetInv(r.UserID)
+	inv.VoteCnt++
+	db.SaveInv(inv)
+
 	if r.Emoji.Name == types.UpArrow {
 		p.Upvotes++
 		db.SavePoll(p)

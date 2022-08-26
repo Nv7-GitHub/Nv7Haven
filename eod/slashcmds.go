@@ -346,6 +346,10 @@ var (
 							Name:  "Elements Used",
 							Value: "used",
 						},
+						{
+							Name:  "Votes Cast",
+							Value: "votes",
+						},
 					},
 				},
 				{

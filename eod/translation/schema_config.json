@@ -106,6 +106,7 @@
   "LbTitleCatColored": "The title given to categories colored leaderboards.",
   "LbTitleUsed": "The title given to elements used leaderboards.",
   "LbTitleCatSigned": "The title given to categories signed leaderboards.",
+  "LbTitleVotes": "The title given to vote count leaderboards.",
   "NewIdea": "The message in the New Idea button.",
   "HaveNoElemsInCat": "Tells the user that they have no elements in the specified category.",
   "FailedIdea": "Tells the user that no idea could be generated with the given parameters.",
