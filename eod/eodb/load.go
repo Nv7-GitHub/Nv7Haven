@@ -3,6 +3,7 @@ package eodb
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"io"
 	"net/url"
 	"os"
@@ -52,7 +53,7 @@ func (d *DB) loadElements() error {
 		// Parse
 		err = json.Unmarshal(line, &dat)
 		if err != nil {
-			return err
+			return fmt.Errorf("eodb: failed to load element JSON: %s", string(line))
 		}
 
 		if dat.ID < 1 {
@@ -167,7 +168,7 @@ func (d *DB) loadInvs() error {
 		}
 		err = json.Unmarshal(dat, &inv)
 		if err != nil {
-			return err
+			return fmt.Errorf("eodb: failed to load inventory JSON: %s", string(dat))
 		}
 		inv.Lock = &sync.RWMutex{}
 		d.invFiles[name] = f
@@ -193,7 +194,7 @@ func (d *DB) loadInvs() error {
 			// Parse
 			err = json.Unmarshal(line, &op)
 			if err != nil {
-				return err
+				return fmt.Errorf("eodb: failed to load inventory data JSON: %s", string(line))
 			}
 
 			// Apply operation
@@ -273,7 +274,7 @@ func (d *DB) loadCatCache() error {
 			// Parse
 			err = json.Unmarshal(line, &entry)
 			if err != nil {
-				return err
+				return fmt.Errorf("eodb: failed to load cat cache JSON: %s", string(line))
 			}
 
 			// Apply operation
@@ -326,7 +327,7 @@ func (d *DB) loadCats() error {
 		}
 		err = json.Unmarshal(dat, &cat)
 		if err != nil {
-			return err
+			return fmt.Errorf("eodb: failed to load category JSON: %s", string(dat))
 		}
 		cat.Lock = &sync.RWMutex{}
 
@@ -416,7 +417,7 @@ func (d *DB) loadPolls() error {
 		}
 		err = json.Unmarshal(dat, &poll)
 		if err != nil {
-			return err
+			return fmt.Errorf("eodb: failed to load poll JSON: %s", string(dat))
 		}
 
 		// Save poll
