@@ -1,8 +1,6 @@
 package elemcraft
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
 
@@ -10,7 +8,6 @@ import (
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
-	"github.com/pocketbase/pocketbase/models"
 )
 
 type ElemCraft struct {
@@ -20,21 +17,9 @@ type ElemCraft struct {
 func (e *ElemCraft) Handlers() {
 	e.app.OnBeforeServe().Add(func(ev *core.ServeEvent) error {
 		ev.Router.AddRoute(echo.Route{
-			Method: http.MethodPost,
-			Path:   "/api/combine",
-			Handler: func(c echo.Context) error {
-				var comb [][]int
-				dec := json.NewDecoder(c.Request().Body)
-				err := dec.Decode(&comb)
-				if err != nil {
-					return err
-				}
-
-				u := c.Get(apis.ContextUserKey).(*models.User)
-				inv := u.Profile.Data()["inv"]
-				fmt.Println(inv)
-				return c.String(200, "Hello world!")
-			},
+			Method:  http.MethodPost,
+			Path:    "/api/combine",
+			Handler: e.Combo,
 			Middlewares: []echo.MiddlewareFunc{
 				apis.RequireUserAuth(),
 			},
