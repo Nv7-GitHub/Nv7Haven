@@ -20,7 +20,6 @@ var invalidNames = []string{
 var charReplace = map[rune]rune{
 	'’': '\'',
 	'‘': '\'',
-	'`': '\'',
 	'”': '"',
 	'“': '"',
 }
