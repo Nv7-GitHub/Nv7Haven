@@ -49,6 +49,9 @@ func StripRecipe(recipe [][]int) [][]int {
 	}
 
 	// Strip cols
+	if len(recipe) == 0 { // Empty
+		return recipe
+	}
 	stripCnt := 0
 	for i := 0; i < len(recipe[0]); i++ {
 		allZeros := true

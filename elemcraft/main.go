@@ -30,6 +30,21 @@ func (e *ElemCraft) Handlers() {
 			Path:    "/api/element",
 			Handler: e.GetElement,
 		})
+
+		ev.Router.AddRoute(echo.Route{
+			Method:  http.MethodPost,
+			Path:    "/api/suggest",
+			Handler: e.Suggest,
+			Middlewares: []echo.MiddlewareFunc{
+				apis.RequireUserAuth(),
+			},
+		})
+
+		ev.Router.AddRoute(echo.Route{
+			Method:  http.MethodPost,
+			Path:    "/api/existing",
+			Handler: e.Existing,
+		})
 		return nil
 	})
 }
