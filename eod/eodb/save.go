@@ -39,10 +39,12 @@ func (d *DB) SaveElement(el types.Element, new ...bool) error {
 	if err != nil {
 		return err
 	}
+	d.WriteLock.Lock()
 	_, err = d.elemFile.WriteString(string(dat) + "\n")
 	if err != nil {
 		return err
 	}
+	d.WriteLock.Unlock()
 
 	return nil
 }
@@ -57,7 +59,9 @@ func (d *DB) AddCombo(elems []int, result int) error {
 	// Add to AI
 	d.AI.AddCombo(body, false)
 
+	d.WriteLock.Lock()
 	_, err := d.comboFile.WriteString(body + "=" + strconv.Itoa(result) + "\n")
+	d.WriteLock.Unlock()
 	return err
 }
 
@@ -72,6 +76,7 @@ func (d *DB) SaveConfig() error {
 		return err
 	}
 
+	d.WriteLock.Lock()
 	_, err = d.configFile.Seek(0, 0)
 	if err != nil {
 		return err
@@ -84,6 +89,7 @@ func (d *DB) SaveConfig() error {
 	if err != nil {
 		return err
 	}
+	d.WriteLock.Unlock()
 
 	return nil
 }
@@ -99,6 +105,7 @@ func (d *DB) SaveVCat(vcat *types.VirtualCategory) error {
 		return err
 	}
 
+	d.WriteLock.Lock()
 	_, err = d.vcatsFile.Seek(0, 0)
 	if err != nil {
 		return err
@@ -111,6 +118,7 @@ func (d *DB) SaveVCat(vcat *types.VirtualCategory) error {
 	if err != nil {
 		return err
 	}
+	d.WriteLock.Unlock()
 
 	return nil
 }
@@ -136,6 +144,7 @@ func (d *DB) DeleteVCat(name string) error {
 		return err
 	}
 
+	d.WriteLock.Lock()
 	_, err = d.vcatsFile.Seek(0, 0)
 	if err != nil {
 		return err
@@ -148,6 +157,7 @@ func (d *DB) DeleteVCat(name string) error {
 	if err != nil {
 		return err
 	}
+	d.WriteLock.Unlock()
 
 	return nil
 }
@@ -221,10 +231,12 @@ func (d *DB) SaveCatCache(name string, elems map[int]types.Empty) error {
 		if err != nil {
 			return err
 		}
+		d.WriteLock.Lock()
 		_, err = file.WriteString(string(dat) + "\n")
 		if err != nil {
 			return err
 		}
+		d.WriteLock.Unlock()
 	}
 	if len(add) > 0 {
 		entry := catCacheEntry{
@@ -235,10 +247,12 @@ func (d *DB) SaveCatCache(name string, elems map[int]types.Empty) error {
 		if err != nil {
 			return err
 		}
+		d.WriteLock.Lock()
 		_, err = file.WriteString(string(dat) + "\n")
 		if err != nil {
 			return err
 		}
+		d.WriteLock.Unlock()
 	}
 
 	return nil
@@ -250,6 +264,9 @@ func (d *DB) DelCatCache(name string) error {
 
 	delete(d.catCache, strings.ToLower(name))
 	delete(d.catCacheFiles, strings.ToLower(name))
+
+	d.WriteLock.Lock()
+	defer d.WriteLock.Unlock()
 	return os.Remove(filepath.Join(d.dbPath, "catcache", url.PathEscape(name)+".json"))
 }
 
@@ -261,10 +278,12 @@ func (d *DB) SaveCat(elems *types.Category) error {
 		delete(d.catFiles, strings.ToLower(elems.Name))
 		d.Unlock()
 
+		d.WriteLock.Lock()
 		err := os.Remove(filepath.Join(d.dbPath, "categories", url.PathEscape(elems.Name)+".json"))
 		if err != nil {
 			return err
 		}
+		d.WriteLock.Unlock()
 		return d.DelCatCache(elems.Name)
 	}
 
@@ -397,10 +416,12 @@ func (d *DB) SaveInv(inv *types.Inventory, recalc ...bool) error {
 		if err != nil {
 			return err
 		}
+		d.WriteLock.Lock()
 		_, err = dataFile.WriteString(string(dat) + "\n")
 		if err != nil {
 			return err
 		}
+		d.WriteLock.Unlock()
 	}
 	if len(add) > 0 {
 		entry := invOp{
@@ -411,10 +432,12 @@ func (d *DB) SaveInv(inv *types.Inventory, recalc ...bool) error {
 		if err != nil {
 			return err
 		}
+		d.WriteLock.Lock()
 		_, err = dataFile.WriteString(string(dat) + "\n")
 		if err != nil {
 			return err
 		}
+		d.WriteLock.Unlock()
 	}
 
 	// Save data
@@ -429,6 +452,7 @@ func (d *DB) SaveInv(inv *types.Inventory, recalc ...bool) error {
 	d.invData[inv.User] = cop
 	d.Unlock()
 
+	d.WriteLock.Lock()
 	_, err = file.Seek(0, 0)
 	if err != nil {
 		return err
@@ -441,6 +465,7 @@ func (d *DB) SaveInv(inv *types.Inventory, recalc ...bool) error {
 	if err != nil {
 		return err
 	}
+	d.WriteLock.Unlock()
 
 	return nil
 }
@@ -452,10 +477,12 @@ func (d *DB) SavePoll(poll types.Poll) {
 }
 
 func (d *DB) DeletePoll(poll types.Poll) error {
+	d.WriteLock.Lock()
 	err := os.Remove(filepath.Join(d.dbPath, "polls", poll.Message+".json"))
 	if err != nil {
 		return err
 	}
+	d.WriteLock.Unlock()
 
 	d.Lock()
 	delete(d.Polls, poll.Message)
@@ -465,20 +492,22 @@ func (d *DB) DeletePoll(poll types.Poll) error {
 }
 
 func (d *DB) NewPoll(poll types.Poll) error {
+	dat, err := json.Marshal(poll)
+	if err != nil {
+		return err
+	}
+
+	d.WriteLock.Lock()
 	f, err := os.Create(filepath.Join(d.dbPath, "polls", poll.Message+".json"))
 	if err != nil {
 		return err
 	}
 	defer f.Close()
-
-	dat, err := json.Marshal(poll)
-	if err != nil {
-		return err
-	}
 	_, err = f.Write(dat)
 	if err != nil {
 		return err
 	}
+	d.WriteLock.Unlock()
 
 	d.Lock()
 	d.Polls[poll.Message] = poll

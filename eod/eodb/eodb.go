@@ -85,6 +85,8 @@ func (d *Data) NewDB(guild string) (*DB, error) {
 type DB struct {
 	sync.RWMutex
 
+	WriteLock *sync.Mutex
+
 	Guild  string
 	dbPath string
 
@@ -135,8 +137,9 @@ func (d *DB) Combos() map[string]int {
 
 func newDB(path string, guild string) *DB {
 	return &DB{
-		Guild:  guild,
-		dbPath: path,
+		Guild:     guild,
+		dbPath:    path,
+		WriteLock: &sync.Mutex{},
 
 		combos:    make(map[string]int),
 		invs:      make(map[string]*types.Inventory),
