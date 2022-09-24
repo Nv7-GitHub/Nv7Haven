@@ -178,6 +178,10 @@ func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, hasCat bool, cat
 			}
 		}
 
+		if len(ids) == 0 {
+			return nil, "eod: cannot calculate hint", false
+		}
+
 		// Shuffle ids
 		rand.Shuffle(len(ids), func(i, j int) {
 			v := ids[i]
