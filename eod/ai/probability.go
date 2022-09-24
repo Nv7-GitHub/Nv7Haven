@@ -33,8 +33,13 @@ func (p *Probability) Add(id int, nolock bool) {
 }
 
 func (p *Probability) Predict() int {
-	p.lock.Lock()
-	defer p.lock.Unlock()
+	p.lock.RLock()
+	defer p.lock.RUnlock()
+
+	if p.Sum == 0 {
+		return 0
+	}
+
 	num := rand.Intn(p.Sum)
 
 	// Weighted random
