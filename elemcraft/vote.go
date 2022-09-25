@@ -3,11 +3,12 @@ package elemcraft
 import (
 	"errors"
 
+	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase/models"
 )
 
-func (e *ElemCraft) Vote(id string, user *models.User) error {
+func (e *ElemCraft) Vote(c echo.Context, id string, user *models.User) error {
 	// Check if exists
 	var cnt struct{ Cnt int }
 	err := e.app.DB().Select("COUNT(*) as cnt").From("votes").Where(&dbx.HashExp{"suggestion": id, "user": user.Id}).One(&cnt)
@@ -19,11 +20,11 @@ func (e *ElemCraft) Vote(id string, user *models.User) error {
 	}
 
 	// Add vote
-	suggs, err := e.app.Dao().FindCollectionByNameOrId("suggestions")
+	votes, err := e.app.Dao().FindCollectionByNameOrId("votes")
 	if err != nil {
 		return err
 	}
-	rec := models.NewRecord(suggs)
+	rec := models.NewRecord(votes)
 	rec.Load(map[string]any{
 		"suggestion": id,
 		"user":       user.Id,
@@ -39,6 +40,10 @@ func (e *ElemCraft) Vote(id string, user *models.User) error {
 		return err
 	}
 	if cnt.Cnt >= MinVotes {
+		suggs, err := e.app.Dao().FindCollectionByNameOrId("suggestions")
+		if err != nil {
+			return err
+		}
 		sugg, err := e.app.Dao().FindRecordById(suggs, id, nil)
 		if err != nil {
 			return err
@@ -52,25 +57,30 @@ func (e *ElemCraft) Vote(id string, user *models.User) error {
 			return err
 		}
 
-		// 1. Create element
-		var id int
-		err = e.app.DB().Select("MAX(index)").From("elements").One(&id)
-		if err != nil {
-			return err
-		}
-		id += 1
+		// 0. Check if element exists
+		el, err := e.app.Dao().FindFirstRecordByData(els, "name", sugg.GetStringDataValue("name"))
 
-		el := models.NewRecord(els)
-		el.Load(map[string]any{
-			"index":       id,
-			"name":        sugg.GetStringDataValue("name"),
-			"color":       sugg.GetIntDataValue("color"),
-			"description": sugg.GetStringDataValue("description"),
-			"creator":     sugg.GetStringDataValue("creator"),
-		})
-		err = e.app.Dao().SaveRecord(el)
-		if err != nil {
-			return err
+		// 1. Create element
+		if err == nil {
+			var id int
+			err = e.app.DB().Select("MAX(index)").From("elements").One(&id)
+			if err != nil {
+				return err
+			}
+			id += 1
+
+			el := models.NewRecord(els)
+			el.Load(map[string]any{
+				"index":       id,
+				"name":        sugg.GetStringDataValue("name"),
+				"color":       sugg.GetIntDataValue("color"),
+				"description": sugg.GetStringDataValue("description"),
+				"creator":     sugg.GetStringDataValue("creator"),
+			})
+			err = e.app.Dao().SaveRecord(el)
+			if err != nil {
+				return err
+			}
 		}
 
 		// 2. Create recipe
@@ -89,7 +99,10 @@ func (e *ElemCraft) Vote(id string, user *models.User) error {
 		if err != nil {
 			return err
 		}
+
+		// Return creation
+		return c.JSON(200, el.GetIntDataValue("index")-1)
 	}
 
-	return nil
+	return c.JSON(200, nil)
 }

@@ -29,13 +29,22 @@ func (e *ElemCraft) Suggest(c echo.Context) error {
 	user := c.Get(apis.ContextUserKey).(*models.User)
 	recStr := RecipeToString(StripRecipe(req.Recipe))
 
-	// TODO: Check if element exists
+	// Check if element exists
+	els, err := e.app.Dao().FindCollectionByNameOrId("elements")
+	if err != nil {
+		return err
+	}
+	el, err := e.app.Dao().FindFirstRecordByData(els, "name", req.Name)
+	if err == nil {
+		req.Color = el.GetIntDataValue("color")
+		req.Description = el.GetStringDataValue("description")
+	}
 
 	// Check if suggestion exists
 	var id struct{ ID string }
 	err = e.app.DB().Select("id").From("suggestions").Where(&dbx.HashExp{"recipe": recStr, "name": req.Name}).One(&id)
 	if err == nil { // Exists
-		return e.Vote(id.ID, user)
+		return e.Vote(c, id.ID, user)
 	}
 
 	// Create suggestion
@@ -57,5 +66,5 @@ func (e *ElemCraft) Suggest(c echo.Context) error {
 	}
 
 	// Vote
-	return e.Vote(sugg.Id, user)
+	return e.Vote(c, sugg.Id, user)
 }
