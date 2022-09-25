@@ -46,6 +46,7 @@ eod/eodb/cloud/cloud.png
 eod/eodb/cloud/cloud.json
 eod/eodb/jsonexport/export.json
 build/*
+eod/eodb/restoreinvs/inv.txt
 
 # Secret!
 password.txt
