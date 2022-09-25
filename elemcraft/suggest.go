@@ -34,7 +34,7 @@ func (e *ElemCraft) Suggest(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	el, err := e.app.Dao().FindFirstRecordByData(els, "name", req.Name)
+	el, err := e.app.Dao().FindFirstRecordByData(els, "name", req.Name) // TODO: Case insensitive search
 	if err == nil {
 		req.Color = el.GetIntDataValue("color")
 		req.Description = el.GetStringDataValue("description")
