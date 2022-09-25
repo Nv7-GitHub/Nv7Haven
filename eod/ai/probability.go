@@ -33,6 +33,10 @@ func (p *Probability) Add(id int, nolock bool) {
 }
 
 func (p *Probability) Predict() int {
+	if p == nil || p.lock == nil {
+		return 0
+	}
+
 	p.lock.RLock()
 	defer p.lock.RUnlock()
 
