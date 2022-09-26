@@ -45,6 +45,14 @@ func (e *ElemCraft) Handlers() {
 			Path:    "/api/existing",
 			Handler: e.Existing,
 		})
+
+		ev.Router.AddRoute(echo.Route{
+			Method: http.MethodGet,
+			Path:   "/",
+			Handler: func(c echo.Context) error {
+				return c.Redirect(http.StatusPermanentRedirect, "https://elemc.nv7haven.com")
+			},
+		})
 		return nil
 	})
 }
