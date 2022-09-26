@@ -1,11 +1,13 @@
 package elemcraft
 
 import (
+	"encoding/json"
 	"errors"
 
 	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase/models"
+	"github.com/pocketbase/pocketbase/tools/types"
 )
 
 func (e *ElemCraft) Vote(c echo.Context, id string, user *models.User) error {
@@ -61,15 +63,15 @@ func (e *ElemCraft) Vote(c echo.Context, id string, user *models.User) error {
 		el, err := e.app.Dao().FindFirstRecordByData(els, "name", sugg.GetStringDataValue("name"))
 
 		// 1. Create element
-		if err == nil {
-			var id int
-			err = e.app.DB().Select("MAX(index)").From("elements").One(&id)
+		if err != nil {
+			var idV struct{ ID int }
+			err = e.app.DB().Select("MAX(`index`) as id").From("elements").One(&idV)
 			if err != nil {
 				return err
 			}
-			id += 1
+			id := idV.ID + 1
 
-			el := models.NewRecord(els)
+			el = models.NewRecord(els)
 			el.Load(map[string]any{
 				"index":       id,
 				"name":        sugg.GetStringDataValue("name"),
@@ -96,6 +98,23 @@ func (e *ElemCraft) Vote(c echo.Context, id string, user *models.User) error {
 
 		// 3. Delete suggestion (this deletes votes)
 		err = e.app.Dao().DeleteRecord(sugg)
+		if err != nil {
+			return err
+		}
+
+		// 4. Add to inv
+		var inv []int
+		err = json.Unmarshal([]byte(user.Profile.GetDataValue("inv").(types.JsonRaw)), &inv)
+		if err != nil {
+			return err
+		}
+		inv = append(inv, el.GetIntDataValue("index")-1)
+		invRaw, err := json.Marshal(inv)
+		if err != nil {
+			return err
+		}
+		user.Profile.SetDataValue("inv", types.JsonRaw(invRaw))
+		err = e.app.Dao().SaveRecord(user.Profile)
 		if err != nil {
 			return err
 		}
