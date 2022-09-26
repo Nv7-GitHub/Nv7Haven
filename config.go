@@ -13,10 +13,11 @@ import (
 )
 
 type Service struct {
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	Running  bool   `json:"running"`
-	Building bool   `json:"building"`
+	ID       string   `json:"id"`
+	Name     string   `json:"name"`
+	Running  bool     `json:"running"`
+	Building bool     `json:"building"`
+	Flags    []string `json:"-"`
 
 	Cmd    *exec.Cmd `json:"-"`
 	Output *Output   `json:"-"`
@@ -51,9 +52,10 @@ var services = map[string]*Service{
 	"nv7haven":          NewService("nv7haven", "The nv7haven.com Backend"),
 	"single":            NewService("single", "Nv7's Singleplayer"),
 	"vdrive":            NewService("vdrive", "VDrive"),
+	"elemcraft":         NewService("elemcraft", "Elemcraft", "serve"),
 }
 
-func NewService(id, name string) *Service {
+func NewService(id, name string, flags ...string) *Service {
 	return &Service{
 		ID:   id,
 		Name: name,
@@ -62,6 +64,7 @@ func NewService(id, name string) *Service {
 			Cond:    sync.NewCond(&sync.Mutex{}),
 			Finish:  make(chan struct{}),
 		},
+		Flags: flags,
 	}
 }
 
@@ -126,9 +129,12 @@ func autoRestart(s *Service, wd string) {
 		}
 
 		s.Output.Write([]byte("Server crashed with error: " + err.Error() + "\n"))
-		s.Cmd = exec.Command(filepath.Join(wd, "build", s.ID))
+		s.Cmd = exec.Command(filepath.Join(wd, "build", s.ID), s.Flags...)
 		s.Cmd.Stdout = s.Output
 		s.Cmd.Stderr = s.Output
+		s.Cmd.SysProcAttr = &syscall.SysProcAttr{
+			Setpgid: true,
+		}
 		err = s.Cmd.Start()
 		if err != nil {
 			s.Output.Write([]byte("Server couldn't start with error: " + err.Error() + "\n"))
@@ -148,7 +154,7 @@ func Run(s *Service) error {
 		return err
 	}
 
-	s.Cmd = exec.Command(filepath.Join(wd, "build", s.ID))
+	s.Cmd = exec.Command(filepath.Join(wd, "build", s.ID), s.Flags...)
 	s.Output.Content = &strings.Builder{}
 	s.Cmd.Stdout = s.Output
 	s.Cmd.Stderr = s.Output
