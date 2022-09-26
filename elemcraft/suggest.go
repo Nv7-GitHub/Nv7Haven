@@ -2,6 +2,7 @@ package elemcraft
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/dbx"
@@ -34,8 +35,11 @@ func (e *ElemCraft) Suggest(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	el, err := e.app.Dao().FindFirstRecordByData(els, "name", req.Name) // TODO: Case insensitive search
+	resEl := dbx.NullStringMap{}
+	err = e.app.Dao().RecordQuery(els).AndWhere(dbx.HashExp{"UPPER(name)": strings.ToUpper(req.Name)}).Limit(1).One(&resEl)
 	if err == nil {
+		el := models.NewRecordFromNullStringMap(els, resEl)
+		req.Name = el.GetStringDataValue("name")
 		req.Color = el.GetIntDataValue("color")
 		req.Description = el.GetStringDataValue("description")
 	}

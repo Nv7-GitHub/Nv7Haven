@@ -3,6 +3,7 @@ package elemcraft
 import (
 	"encoding/json"
 	"errors"
+	"strings"
 
 	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/dbx"
@@ -60,7 +61,9 @@ func (e *ElemCraft) Vote(c echo.Context, id string, user *models.User) error {
 		}
 
 		// 0. Check if element exists
-		el, err := e.app.Dao().FindFirstRecordByData(els, "name", sugg.GetStringDataValue("name"))
+		resEl := dbx.NullStringMap{}
+		err = e.app.Dao().RecordQuery(els).AndWhere(dbx.HashExp{"UPPER(name)": strings.ToUpper(sugg.GetStringDataValue("name"))}).Limit(1).One(&resEl)
+		var el *models.Record
 
 		// 1. Create element
 		if err != nil {
@@ -83,6 +86,8 @@ func (e *ElemCraft) Vote(c echo.Context, id string, user *models.User) error {
 			if err != nil {
 				return err
 			}
+		} else {
+			el = models.NewRecordFromNullStringMap(els, resEl)
 		}
 
 		// 2. Create recipe
