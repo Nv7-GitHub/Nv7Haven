@@ -188,7 +188,11 @@ func (b *Elements) IdeaCmd(count int, catName string, hasCat bool, elemName stri
 		rsp.ErrorMessage(ex.Message)
 		return
 	}
-	db, _ := b.GetDB(m.GuildID)
+	db, ex := b.GetDB(m.GuildID)
+	if !ex.Exists {
+		rsp.ErrorMessage(ex.Message)
+		return
+	}
 
 	id := rsp.Message(res, newIdeaCmp(db))
 
