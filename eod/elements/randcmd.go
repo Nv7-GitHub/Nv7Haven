@@ -118,6 +118,7 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 		}
 
 		if len(els) == 0 {
+			fmt.Println("IDEALOG", db == nil, db.Config == nil, author, cat)
 			return db.Config.LangProperty("HaveNoElemsInCat", cat.Name), false
 		}
 	}
