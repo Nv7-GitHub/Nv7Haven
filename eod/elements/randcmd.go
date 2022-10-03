@@ -95,6 +95,7 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 			if !res.Exists {
 				return res.Message, false
 			}
+			catName = vcat.Name
 			els, res = b.base.CalcVCat(vcat, db, true)
 			if !res.Exists {
 				return res.Message, false
@@ -105,6 +106,7 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 				}
 			}
 		} else {
+			catName = cat.Name
 			els = make(map[int]types.Empty, len(cat.Elements))
 
 			cat.Lock.RLock()
@@ -118,8 +120,7 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 		}
 
 		if len(els) == 0 {
-			fmt.Println("IDEALOG", db == nil, db.Config == nil, author, cat)
-			return db.Config.LangProperty("HaveNoElemsInCat", cat.Name), false
+			return db.Config.LangProperty("HaveNoElemsInCat", catName), false
 		}
 	}
 
