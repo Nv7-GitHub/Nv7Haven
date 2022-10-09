@@ -1,6 +1,8 @@
 package polls
 
 import (
+	"time"
+
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/bwmarrin/discordgo"
@@ -14,10 +16,17 @@ type Polls struct {
 }
 
 func NewPolls(data *eodb.Data, dg *discordgo.Session, base *base.Base) *Polls {
-	return &Polls{
+	p := &Polls{
 		Data: data,
 
 		dg:   dg,
 		base: base,
 	}
+	go func() {
+		for {
+			time.Sleep(time.Hour)
+			p.CheckPollTime()
+		}
+	}()
+	return p
 }
