@@ -36,6 +36,7 @@ func (b *EoD) init() {
 	fmt.Println("Calculated in", time.Since(start))
 
 	// Check polls
+	start = time.Now()
 	fmt.Println("Checking polls...")
 	for _, db := range b.Data.DB {
 		for _, poll := range db.Polls {
@@ -72,6 +73,7 @@ func (b *EoD) init() {
 			b.polls.CheckReactions(db, poll, reactor, downvote)
 		}
 	}
+	fmt.Println("Checked in", time.Since(start))
 
 	b.initHandlers()
 
