@@ -14,7 +14,7 @@ func (b *Polls) CheckPollTime() {
 		b.Data.RUnlock()
 		db.RLock()
 		for _, poll := range db.Polls {
-			if time.Since(poll.CreatedOn.Time) > MaxPollTime { // Too long, delete
+			if poll.CreatedOn == nil || time.Since(poll.CreatedOn.Time) > MaxPollTime { // Too long, delete
 				db.RUnlock()
 				poll.Upvotes = 0
 				poll.Downvotes = 0
