@@ -12,6 +12,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/logs"
 	"github.com/Nv7-Github/Nv7Haven/eod/polls"
 	"github.com/Nv7-Github/Nv7Haven/eod/treecmds"
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 )
 
 func (b *EoD) init() {
@@ -33,6 +34,44 @@ func (b *EoD) init() {
 	fmt.Println("Calculating VCats...")
 	b.categories.CacheVCats()
 	fmt.Println("Calculated in", time.Since(start))
+
+	// Check polls
+	fmt.Println("Checking polls...")
+	for _, db := range b.Data.DB {
+		for _, poll := range db.Polls {
+			msg, err := b.dg.ChannelMessage(poll.Channel, poll.Message)
+			if err != nil || msg == nil {
+				db.DeletePoll(poll)
+				continue
+			}
+			for _, r := range msg.Reactions {
+				if r.Emoji.Name == types.UpArrow {
+					poll.Upvotes = r.Count - 1
+				} else if r.Emoji.Name == types.DownArrow {
+					poll.Downvotes = r.Count - 1
+				}
+			}
+
+			// Check if being deleted by author
+			reactor := ""
+			downvote := false
+			if poll.Downvotes > 0 {
+				r, err := b.dg.MessageReactions(poll.Channel, poll.Message, types.DownArrow, 100, "", "")
+				if err == nil {
+					for _, u := range r {
+						if u.ID == poll.Suggestor {
+							downvote = true
+							reactor = u.Username
+							break
+						}
+					}
+				}
+			}
+
+			// Handle poll votes
+			b.polls.CheckReactions(db, poll, reactor, downvote)
+		}
+	}
 
 	b.initHandlers()
 
