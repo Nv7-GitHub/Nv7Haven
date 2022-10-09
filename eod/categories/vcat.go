@@ -36,7 +36,7 @@ func (b *Categories) VCatCreateAllElementsCmd(name string, m types.Msg, rsp type
 	db.RLock()
 	for _, vcat := range db.VCats() {
 		if vcat.Rule == types.VirtualCategoryRuleAllElements {
-			rsp.ErrorMessage(fmt.Sprintf("VCat **%s** already exists with the all elements rule!", vcat.Name)) // TODO: Translate
+			rsp.ErrorMessage(fmt.Sprintf("VCat **%s** already exists with the same rule!", vcat.Name)) // TODO: Translate
 			db.RUnlock()
 			return
 		}
@@ -136,6 +136,17 @@ func (b *Categories) VCatCreateInvFilterCmd(name string, user string, filter str
 		rsp.ErrorMessage(db.Config.LangProperty("CatAlreadyExist", vcat.Name))
 		return
 	}
+
+	// Check if there already is an inv filter vcat
+	db.RLock()
+	for _, vcat := range db.VCats() {
+		if vcat.Rule == types.VirtualCategoryRuleInvFilter && vcat.Data["user"] == user && vcat.Data["filter"] == filter {
+			rsp.ErrorMessage(fmt.Sprintf("VCat **%s** already exists with the same rule!", vcat.Name)) // TODO: Translate
+			db.RUnlock()
+			return
+		}
+	}
+	db.RUnlock()
 
 	// Create
 	if strings.ToLower(name) == name {
@@ -268,6 +279,17 @@ func (b *Categories) VCatOpCmd(op types.CategoryOperation, name string, lhs stri
 		rhs = cat.Name
 	}
 
+	// Check if there already is an equivalent vcat
+	db.RLock()
+	for _, vcat := range db.VCats() {
+		if vcat.Rule == types.VirtualCategoryRuleSetOperation && vcat.Data["lhs"] == lhs && vcat.Data["rhs"] == rhs && vcat.Data["operation"] == string(op) {
+			rsp.ErrorMessage(fmt.Sprintf("VCat **%s** already exists with the same rule!", vcat.Name)) // TODO: Translate
+			db.RUnlock()
+			return
+		}
+	}
+	db.RUnlock()
+
 	// Create
 	if strings.ToLower(name) == name {
 		name = util.ToTitle(name)
@@ -336,6 +358,17 @@ func (b *Categories) VCatCreateInvhint(name string, elemName string, m types.Msg
 		rsp.ErrorMessage(res.Message)
 		return
 	}
+
+	// Check if there already is an invhint vcat
+	db.RLock()
+	for _, vcat := range db.VCats() {
+		if vcat.Rule == types.VirtualCategoryRuleInvhint && vcat.Data["element"] == float64(elem.ID) {
+			rsp.ErrorMessage(fmt.Sprintf("VCat **%s** already exists with the same rule!", vcat.Name)) // TODO: Translate
+			db.RUnlock()
+			return
+		}
+	}
+	db.RUnlock()
 
 	// Create
 	if strings.ToLower(name) == name {
