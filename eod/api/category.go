@@ -29,7 +29,7 @@ func (a *API) MethodCategory(params map[string]any, id, gld string) data.Respons
 		}
 		elems := make([]int, len(els))
 		i := 0
-		for k := range cat.Elements {
+		for k := range els {
 			elems[i] = k
 			i++
 		}
