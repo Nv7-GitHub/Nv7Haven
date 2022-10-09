@@ -2,6 +2,7 @@ package basecmds
 
 import (
 	_ "embed"
+	"fmt"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
@@ -86,7 +87,9 @@ func (h *helpComponent) Handler(_ *discordgo.Session, i *discordgo.InteractionCr
 }
 
 func (b *BaseCmds) HelpCmd(m types.Msg, rsp types.Rsp) {
+	fmt.Println("Help received", m.GuildID)
 	rsp.Acknowledge()
+	fmt.Println("Acknowledged")
 	data, res := b.GetData(m.GuildID)
 	if !res.Exists {
 		rsp.Message(helpSetup)
