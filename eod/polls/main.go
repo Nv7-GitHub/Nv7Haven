@@ -24,7 +24,7 @@ func NewPolls(data *eodb.Data, dg *discordgo.Session, base *base.Base) *Polls {
 	}
 	go func() {
 		for {
-			time.Sleep(time.Hour)
+			time.Sleep(time.Minute * 10)
 			p.CheckPollTime()
 		}
 	}()
