@@ -155,11 +155,14 @@ func (b *Bot) mod(s *discordgo.Session, m *discordgo.MessageCreate) {
 		dat["roles"].(map[string]any)[name] = empty{}
 		b.updateServerData(m, m.GuildID, dat)
 
-		role, err := s.GuildRoleCreate(m.GuildID)
+		t := true
+		_, err = s.GuildRoleCreate(m.GuildID, &discordgo.RoleParams{
+			Name:        name,
+			Mentionable: &t,
+		})
 		if b.handle(err, m) {
 			return
 		}
-		s.GuildRoleEdit(m.GuildID, role.ID, name, role.Color, role.Hoist, role.Permissions, true)
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Successfully created role `%s`", name))
 	}
 
