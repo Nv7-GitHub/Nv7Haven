@@ -185,8 +185,6 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 
 	_, _ = b.dg.ChannelMessageSend(db.Config.NewsChannel, txt)
 
-	createLock.Unlock()
-
 	// Add Element to Inv
 	inv := db.GetInv(creator)
 	inv.Add(el.ID)
@@ -230,4 +228,7 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 			}
 		}
 	}
+
+	// Done
+	createLock.Unlock()
 }
