@@ -1308,14 +1308,6 @@ var (
 							Name:  "Acknowledge Time",
 							Value: "acknowledge",
 						},
-						{
-							Name:  "Send Time",
-							Value: "send",
-						},
-						{
-							Name:  "Edit Time",
-							Value: "edit",
-						},
 					},
 				},
 			},
@@ -2529,10 +2521,6 @@ var (
 			}
 
 			var latency time.Duration
-			db, res := bot.GetDB(i.GuildID)
-			if !res.Exists {
-				return
-			}
 			switch method {
 			case "receive":
 				tm, err := discordgo.SnowflakeTimestamp(i.ID)
@@ -2548,27 +2536,12 @@ var (
 				start := time.Now()
 				rsp.Acknowledge()
 				latency = time.Since(start)
-
-			case "send":
-				rsp.Acknowledge()
-
-				start := time.Now()
-				id := rsp.Message(db.Config.LangProperty("CalculatingPing", nil))
-				latency = time.Since(start)
-				s.ChannelMessageEdit(i.ChannelID, id, db.Config.LangProperty("PingMessage", latency.String()))
-				return
-
-			case "edit":
-				rsp.Acknowledge()
-
-				id := rsp.Message(db.Config.LangProperty("CalculatingPing", nil) + "[1/2]")
-				start := time.Now()
-				s.ChannelMessageEdit(i.ChannelID, id, db.Config.LangProperty("CalculatingPing", nil)+"[2/2]")
-				latency = time.Since(start)
-				s.ChannelMessageEdit(i.ChannelID, id, db.Config.LangProperty("PingMessage", latency.String()))
-				return
 			}
 
+			db, res := bot.GetDB(i.GuildID)
+			if !res.Exists {
+				return
+			}
 			rsp.Message(db.Config.LangProperty("PingMessage", latency.String()))
 		},
 		"delcat": func(s *discordgo.Session, i *discordgo.InteractionCreate) {

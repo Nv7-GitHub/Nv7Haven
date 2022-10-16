@@ -105,16 +105,27 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if strings.HasPrefix(m.Content, "!") {
+		if len(m.Content) < 2 {
+			return
+		}
+		cmd := strings.ToLower(strings.Split(m.Content[1:], " ")[0])
+
+		if cmd == "ping" {
+			tm := time.Since(m.Timestamp).String()
+			// Ping command for text
+			b.addCmdCounter(m, "ping")
+			db, res := b.GetDB(msg.GuildID)
+			if !res.Exists {
+				return
+			}
+			rsp.Message(db.Config.LangProperty("PingMessage", tm))
+			return
+		}
+
 		db, res := b.GetDB(msg.GuildID)
 		if !res.Exists {
 			return
 		}
-
-		if len(m.Content) < 2 {
-			return
-		}
-
-		cmd := strings.ToLower(strings.Split(m.Content[1:], " ")[0])
 		if cmd == "s" || cmd == "suggest" {
 			if len(m.Content) <= len(cmd)+2 {
 				return
@@ -277,12 +288,6 @@ func (b *EoD) cmdHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			b.addCmdCounter(m, "info")
 			b.elements.InfoCmd(strings.TrimSpace(m.Content[len(cmd)+2:]), msg, rsp)
 			return
-		}
-
-		if cmd == "ping" {
-			// Ping command for text
-			b.addCmdCounter(m, "ping")
-			rsp.Message(db.Config.LangProperty("PingMessage", time.Since(m.Timestamp).String()))
 		}
 
 		if cmd == "optimize" {
