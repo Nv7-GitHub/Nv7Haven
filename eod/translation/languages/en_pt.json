@@ -1,5 +1,5 @@
 {
-    "Name": "English (Poorly Translated^2)",
+    "Name": "English (Poorly Translated)",
   
     "MustCombine": "You can use {{ . }} That's it!",
     "MaxCombine": "It is called {{ . }}. Time to add!",
