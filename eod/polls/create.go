@@ -2,7 +2,6 @@ package polls
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"math/big"
 	"regexp"
@@ -64,9 +63,6 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 				areUnique = true
 			}
 			parColors[j] = elem.Color
-			if elem.Air == nil {
-				fmt.Println(elem.Guild)
-			}
 			air.Add(air, elem.Air)
 			earth.Add(earth, elem.Earth)
 			fire.Add(fire, elem.Fire)
@@ -104,6 +100,14 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 			Water:      water,
 		}
 		postID = strconv.Itoa(elem.ID)
+
+		// Check if already exists
+		_, res = db.GetElementByName(name)
+		if res.Exists {
+			handle(errors.New("create: element already exists"))
+			return
+		}
+
 		err = db.SaveElement(elem, true)
 		if err != nil {
 			handle(err)
@@ -133,10 +137,7 @@ func (b *Polls) elemCreate(name string, parents []int, creator string, controver
 	} else {
 		el, res := db.GetElementByName(name)
 		if !res.Exists {
-			log.SetOutput(logs.DataFile)
-			log.Println("Doesn't exist")
-
-			createLock.Unlock()
+			handle(errors.New("create: element doesnt exist"))
 			return
 		}
 		name = el.Name
