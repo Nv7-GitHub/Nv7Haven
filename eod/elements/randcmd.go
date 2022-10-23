@@ -177,13 +177,13 @@ func (b *Elements) IdeaCmd(count int, catName string, hasCat bool, elemName stri
 	if !b.base.CheckServer(m, rsp) {
 		return
 	}
+	rsp.Acknowledge()
 
 	res, suc := b.genIdea(count, catName, hasCat, elemName, hasEl, m.GuildID, m.Author.ID)
 	if !suc {
 		rsp.ErrorMessage(res)
 		return
 	}
-	rsp.Acknowledge()
 
 	data, ex := b.GetData(m.GuildID)
 	if !ex.Exists {
