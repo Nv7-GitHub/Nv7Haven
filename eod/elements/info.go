@@ -232,6 +232,13 @@ func (b *Elements) Info(elem string, m types.Msg, rsp types.Rsp) {
 		infoFields = append(infoFields, &discordgo.MessageEmbedField{Name: db.Config.LangProperty("InfoColorer", nil), Value: fmt.Sprintf("<@%s>", el.Colorer), Inline: true})
 	}
 
+	// Get Air/Earth/Fire/Water names
+	names := make([]string, 0)
+	for i := 1; i <= 4; i++ {
+		el, _ := db.GetElement(i)
+		names = append(names, el.Name)
+	}
+
 	// Make fields
 	fullFields := []*discordgo.MessageEmbedField{
 		{Name: db.Config.LangProperty("InfoComment", nil), Value: el.Comment, Inline: false},
@@ -244,10 +251,10 @@ func (b *Elements) Info(elem string, m types.Msg, rsp types.Rsp) {
 		{Name: db.Config.LangProperty("InfoTreeSize", nil), Value: strconv.Itoa(tree.Total), Inline: true},
 		{Name: db.Config.LangProperty("InfoComplexity", nil), Value: strconv.Itoa(el.Complexity), Inline: true},
 		{Name: db.Config.LangProperty("InfoDifficulty", nil), Value: strconv.Itoa(el.Difficulty), Inline: true},
-		{Name: "Air", Value: util.FormatBigInt(el.Air), Inline: true},
-		{Name: "Earth", Value: util.FormatBigInt(el.Earth), Inline: true},
-		{Name: "Fire", Value: util.FormatBigInt(el.Fire), Inline: true},
-		{Name: "Water", Value: util.FormatBigInt(el.Water), Inline: true}, // Does this cause anything
+		{Name: names[0], Value: util.FormatBigInt(el.Air), Inline: true},
+		{Name: names[1], Value: util.FormatBigInt(el.Earth), Inline: true},
+		{Name: names[2], Value: util.FormatBigInt(el.Fire), Inline: true},
+		{Name: names[3], Value: util.FormatBigInt(el.Water), Inline: true},
 	}
 	fullFields = append(fullFields, infoFields...)
 
