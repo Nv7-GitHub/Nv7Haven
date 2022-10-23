@@ -108,10 +108,6 @@ func (b *Elements) genAi(guild string, author string) (string, bool, *eodb.DB) {
 }
 
 func (b *Elements) AiCmd(m types.Msg, rsp types.Rsp) {
-	if !b.base.CheckServer(m, rsp) {
-		return
-	}
-
 	res, suc, db := b.genAi(m.GuildID, m.Author.ID)
 	if !suc {
 		rsp.ErrorMessage(res)

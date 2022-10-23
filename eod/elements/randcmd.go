@@ -174,9 +174,6 @@ func (b *Elements) genIdea(count int, catName string, hasCat bool, elemName stri
 }
 
 func (b *Elements) IdeaCmd(count int, catName string, hasCat bool, elemName string, hasEl bool, m types.Msg, rsp types.Rsp) {
-	if !b.base.CheckServer(m, rsp) {
-		return
-	}
 	rsp.Acknowledge()
 
 	res, suc := b.genIdea(count, catName, hasCat, elemName, hasEl, m.GuildID, m.Author.ID)
