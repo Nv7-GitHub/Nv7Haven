@@ -125,6 +125,10 @@ func (b *Categories) InfoCmd(catName string, m types.Msg, rsp types.Rsp) {
 		emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{Name: "Operation", Value: strings.ToTitle(vcat.Data["operation"].(string)), Inline: true})
 		emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{Name: "Left", Value: vcat.Data["lhs"].(string), Inline: true})
 		emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{Name: "Right", Value: vcat.Data["rhs"].(string), Inline: true})
+
+	case types.VirtualCategoryRuleInvhint:
+		el, _ := db.GetElement(int(vcat.Data["element"].(float64)))
+		emb.Fields = append(emb.Fields, &discordgo.MessageEmbedField{Name: "Element", Value: el.Name})
 	}
 	rsp.Embed(emb)
 }
