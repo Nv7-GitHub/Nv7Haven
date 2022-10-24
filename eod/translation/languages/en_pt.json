@@ -46,6 +46,7 @@
 
   "Stats": "Number of Notes: **{{ .Elements }}**\n Link: **{{ .Combos }}**\nMembership Information: **{{ .Members }}**\nNote: **{{ .Found }}**\nSharing: **{{ .Categorized }}**",
   "ViewMoreStats": "See more information.",
+  "ElementCount": "There are many things.",
   
   "ElemCategories": "Business {{ .Element }} section {{ .Count }} first",
   "NameDownloadedCat": "This section **{{ . }}**",
@@ -105,6 +106,9 @@
   "LbTitleCatImaged": "Excellent article.",
   "LbTitleCatColored": "Number of numbers.",
   "LbTitleUsed": "The manager is for delivery",
+  "LbTitleUsed": "They are old.",
+  "LbTitleCatSigned": "A human voice.",
+  "LbTitleVotes": "Get more votes.",
   "NewIdea": "Come up with.",
   "HaveNoElemsInCat": "Nothing in the table **{{ . }}** OK!",
   "FailedIdea": "No such combination was found. Maybe in the future?",
