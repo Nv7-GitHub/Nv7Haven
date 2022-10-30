@@ -30,7 +30,7 @@ services:
     image: adminer
     restart: unless-stopped
     environment:
-      - ADMINER_DESIGN="nette"
+      - ADMINER_DESIGN="hydra"
     depends_on:
       - db
       - pg
