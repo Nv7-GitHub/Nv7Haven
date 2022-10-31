@@ -7,6 +7,8 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/gorilla/websocket"
+
+	_ "net/http/pprof"
 )
 
 var upgrader = websocket.Upgrader{
