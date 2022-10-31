@@ -66,9 +66,6 @@ func (d *DB) AddCombo(elems []int, result int) error {
 }
 
 func (d *DB) SaveConfig() error {
-	d.Lock()
-	defer d.Unlock()
-
 	d.Config.RLock()
 	dat, err := json.Marshal(d.Config)
 	d.Config.RUnlock()
