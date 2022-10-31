@@ -2,6 +2,7 @@ package nv7haven
 
 import (
 	_ "embed"
+	"fmt"
 	"os"
 
 	"github.com/Nv7-Github/Nv7Haven/db"
@@ -90,7 +91,7 @@ func InitNv7Haven(app *fiber.App, sql *db.DB) error {
 
 	err = nv7haven.initBestEver()
 	if err != nil {
-		return err
+		fmt.Println("Error initializing BestEver", err)
 	}
 	nv7haven.routing(app)
 
