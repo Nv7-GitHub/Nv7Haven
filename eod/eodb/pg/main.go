@@ -3,10 +3,10 @@ package main
 import (
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"path/filepath"
 	"reflect"
-	"strings"
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
@@ -63,6 +63,28 @@ type Category struct {
 	Elements interface{} `db:"elements"` // pq array
 }
 
+type Config struct {
+	Guild         string      `db:"guild"`
+	VotingChannel string      `db:"voting"`
+	NewsChannel   string      `db:"news"`
+	VoteCount     int         `db:"votecnt"`
+	PollCount     int         `db:"pollcnt"`
+	PlayChannels  interface{} `db:"play"` // pq array
+	Language      string      `db:"language"`
+}
+
+type CommandStat struct {
+	Guild   string `db:"guild"`
+	Command string `db:"command"`
+	Count   int    `db:"count"`
+}
+
+type UserColor struct {
+	Guild string `db:"guild"`
+	User  string `db:"user"`
+	Color int    `db:"color"`
+}
+
 // TODO: VCats (integrate into eod_categories?), polls
 
 func main() {
@@ -85,7 +107,7 @@ func main() {
 	fmt.Println("Connected in", time.Since(start))
 
 	// Add elements
-	start = time.Now()
+	/*start = time.Now()
 	els := make([]Element, 0)
 	for _, db := range eodb.DB {
 		for _, el := range db.Elements {
@@ -119,7 +141,7 @@ func main() {
 	}
 	fmt.Println("Got elements in", time.Since(start))
 
-	BulkInsert("INSERT INTO elements (id, guild, name, image, color, comment, creator, createdon, commenter, colorer, imager, parents) VALUES (:id, :guild, :name, :image, :color, :comment, :creator, :createdon, :commenter, :colorer, :imager, :parents)", els, db)
+	BulkInsert("INSERT INTO elements (id, guild, name, image, color, comment, creator, createdon, commenter, colorer, imager, parents) VALUES (:id, :guild, :name, :image, :color, :comment, :creator, :createdon, :commenter, :colorer, :imager, :parents)", els, db)*/
 
 	// Add combos
 	/*start = time.Now()
@@ -192,6 +214,52 @@ func main() {
 	fmt.Println("Got cats in", time.Since(start))
 
 	BulkInsert("INSERT INTO categories (guild, name, image, color, comment, imager, colorer, commenter, elements) VALUES (:guild, :name, :image, :color, :comment, :imager, :colorer, :commenter, :elements)", cats, db)*/
+
+	// Add config
+	start = time.Now()
+	configs := make([]Config, 0)
+	colors := make([]UserColor, 0)
+	commands := make([]CommandStat, 0)
+	for _, db := range eodb.DB {
+		chans := make([]string, 0, len(db.Config.PlayChannels))
+		for ch := range db.Config.PlayChannels {
+			chans = append(chans, ch)
+		}
+		if db.Config.VoteCount > math.MaxInt32 {
+			db.Config.VoteCount = math.MaxInt32
+		}
+		if db.Config.PollCount > math.MaxInt32 {
+			db.Config.PollCount = math.MaxInt32
+		}
+		configs = append(configs, Config{
+			Guild:         db.Guild,
+			VotingChannel: db.Config.VotingChannel,
+			NewsChannel:   db.Config.NewsChannel,
+			VoteCount:     db.Config.VoteCount,
+			PollCount:     db.Config.PollCount,
+			PlayChannels:  pq.Array(chans),
+			Language:      db.Config.LanguageFile,
+		})
+		for k, col := range db.Config.UserColors {
+			colors = append(colors, UserColor{
+				Guild: db.Guild,
+				User:  k,
+				Color: col,
+			})
+		}
+		for k, com := range db.Config.CommandStats {
+			commands = append(commands, CommandStat{
+				Guild:   db.Guild,
+				Command: k,
+				Count:   com,
+			})
+		}
+	}
+	fmt.Println("Got config in", time.Since(start))
+
+	BulkInsert("INSERT INTO config (guild, voting, news, votecnt, pollcnt, play, language) VALUES (:guild, :voting, :news, :votecnt, :pollcnt, :play, :language)", configs, db)
+	BulkInsert("INSERT INTO user_colors (guild, \"user\", color) VALUES (:guild, :user, :color)", colors, db)
+	BulkInsert("INSERT INTO command_stats (guild, command, count) VALUES (:guild, :command, :count)", commands, db)
 }
 
 func BulkInsert[T any](insertQuery string, myStructs []T, db *sqlx.DB) {
