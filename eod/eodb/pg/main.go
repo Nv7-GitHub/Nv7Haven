@@ -6,11 +6,13 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/jmoiron/sqlx"
 
+	"github.com/lib/pq"
 	_ "github.com/lib/pq"
 )
 
@@ -21,17 +23,18 @@ func handle(err error) {
 }
 
 type Element struct {
-	ID        int       `db:"id"`
-	Guild     string    `db:"guild"`
-	Name      string    `db:"name"`
-	Image     string    `db:"image"`
-	Color     int       `db:"color"`
-	Comment   string    `db:"comment"`
-	Creator   string    `db:"creator"`
-	CreatedOn time.Time `db:"createdon"`
-	Commenter string    `db:"commenter"`
-	Colorer   string    `db:"colorer"`
-	Imager    string    `db:"imager"`
+	ID        int         `db:"id"`
+	Guild     string      `db:"guild"`
+	Name      string      `db:"name"`
+	Image     string      `db:"image"`
+	Color     int         `db:"color"`
+	Comment   string      `db:"comment"`
+	Creator   string      `db:"creator"`
+	CreatedOn time.Time   `db:"createdon"`
+	Commenter string      `db:"commenter"`
+	Colorer   string      `db:"colorer"`
+	Imager    string      `db:"imager"`
+	Parents   interface{} `db:"parents"` // pq array
 }
 
 type Combo struct {
@@ -82,7 +85,7 @@ func main() {
 	fmt.Println("Connected in", time.Since(start))
 
 	// Add elements
-	/*start = time.Now()
+	start = time.Now()
 	els := make([]Element, 0)
 	for _, db := range eodb.DB {
 		for _, el := range db.Elements {
@@ -94,6 +97,9 @@ func main() {
 			}
 			if strings.Contains(el.Comment, string(rune(0))) {
 				el.Comment = strings.ReplaceAll(el.Comment, string(rune(0)), "")
+			}
+			if el.Parents == nil {
+				el.Parents = []int{}
 			}
 			els = append(els, Element{
 				ID:        el.ID,
@@ -107,12 +113,13 @@ func main() {
 				Commenter: el.Commenter,
 				Colorer:   el.Colorer,
 				Imager:    el.Imager,
+				Parents:   pq.Array(el.Parents),
 			})
 		}
 	}
 	fmt.Println("Got elements in", time.Since(start))
 
-	BulkInsert("INSERT INTO eod_elements (id, guild, name, image, color, comment, creator, createdon, commenter, colorer, imager) VALUES (:id, :guild, :name, :image, :color, :comment, :creator, :createdon, :commenter, :colorer, :imager)", els, db)*/
+	BulkInsert("INSERT INTO eod_elements (id, guild, name, image, color, comment, creator, createdon, commenter, colorer, imager, parents) VALUES (:id, :guild, :name, :image, :color, :comment, :creator, :createdon, :commenter, :colorer, :imager, :parents)", els, db)
 
 	// Add combos
 	/*start = time.Now()
