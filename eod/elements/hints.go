@@ -298,7 +298,7 @@ func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, hasCat bool, cat
 	isPlayChannel := db.Config.PlayChannels.Contains(m.ChannelID)
 	db.Config.RUnlock()
 
-	if len(val) > 2000 && rsp == nil {
+	if len(val) > 2000 || rsp == nil {
 		// If can't do page switcher, shorten it (cant do pageswitcher if its in a random hint)
 		text = &strings.Builder{}
 		length := 0
