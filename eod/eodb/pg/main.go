@@ -78,7 +78,7 @@ func main() {
 
 	// DB
 	start = time.Now()
-	db, err := sqlx.Connect("postgres", "user=postgres dbname=nv7haven sslmode=disable port = 5432 host="+os.Getenv("MYSQL_HOST")+" password="+os.Getenv("PASSWORD"))
+	db, err := sqlx.Connect("postgres", "user=postgres dbname=eod sslmode=disable port = 5432 host="+os.Getenv("MYSQL_HOST")+" password="+os.Getenv("PASSWORD"))
 	if err != nil {
 		panic(err)
 	}
@@ -119,7 +119,7 @@ func main() {
 	}
 	fmt.Println("Got elements in", time.Since(start))
 
-	BulkInsert("INSERT INTO eod_elements (id, guild, name, image, color, comment, creator, createdon, commenter, colorer, imager, parents) VALUES (:id, :guild, :name, :image, :color, :comment, :creator, :createdon, :commenter, :colorer, :imager, :parents)", els, db)
+	BulkInsert("INSERT INTO elements (id, guild, name, image, color, comment, creator, createdon, commenter, colorer, imager, parents) VALUES (:id, :guild, :name, :image, :color, :comment, :creator, :createdon, :commenter, :colorer, :imager, :parents)", els, db)
 
 	// Add combos
 	/*start = time.Now()
@@ -145,7 +145,7 @@ func main() {
 	}
 	fmt.Println("Got combos in", time.Since(start))
 
-	BulkInsert("INSERT INTO eod_combos (guild, result, els) VALUES (:guild, :result, :els)", combs, db)*/
+	BulkInsert("INSERT INTO combos (guild, result, els) VALUES (:guild, :result, :els)", combs, db)*/
 
 	// Add invs
 	/*start = time.Now()
@@ -165,7 +165,7 @@ func main() {
 	}
 	fmt.Println("Got invs in", time.Since(start))
 
-	BulkInsert("INSERT INTO eod_invs (guild, \"user\", inv) VALUES (:guild, :user, :inv)", invs, db)*/
+	BulkInsert("INSERT INTO inventories (guild, \"user\", inv) VALUES (:guild, :user, :inv)", invs, db)*/
 
 	// Add categories
 	/*start = time.Now()
@@ -191,7 +191,7 @@ func main() {
 	}
 	fmt.Println("Got cats in", time.Since(start))
 
-	BulkInsert("INSERT INTO eod_categories (guild, name, image, color, comment, imager, colorer, commenter, elements) VALUES (:guild, :name, :image, :color, :comment, :imager, :colorer, :commenter, :elements)", cats, db)*/
+	BulkInsert("INSERT INTO categories (guild, name, image, color, comment, imager, colorer, commenter, elements) VALUES (:guild, :name, :image, :color, :comment, :imager, :colorer, :commenter, :elements)", cats, db)*/
 }
 
 func BulkInsert[T any](insertQuery string, myStructs []T, db *sqlx.DB) {
