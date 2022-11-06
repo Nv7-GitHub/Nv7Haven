@@ -19,8 +19,10 @@ require (
 	github.com/improbable-eng/grpc-web v0.14.0
 	github.com/jdkato/prose/v2 v2.0.0
 	github.com/jmcvetta/randutil v0.0.0-20150817122601-2bb1b664bcff
+	github.com/jmoiron/sqlx v1.3.5
 	github.com/json-iterator/go v1.1.12
 	github.com/labstack/echo/v5 v5.0.0-20220201181537-ed2888cfa198
+	github.com/lib/pq v1.10.6
 	github.com/lucasb-eyer/go-colorful v1.2.0
 	github.com/mitchellh/mapstructure v1.4.3
 	github.com/pocketbase/dbx v1.6.0
