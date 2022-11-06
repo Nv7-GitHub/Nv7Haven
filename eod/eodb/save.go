@@ -14,7 +14,6 @@ import (
 
 func (d *DB) SaveElement(el types.Element, new ...bool) error {
 	d.Lock()
-	defer d.Unlock()
 
 	// Save to cache
 	if len(new) > 0 {
@@ -29,6 +28,8 @@ func (d *DB) SaveElement(el types.Element, new ...bool) error {
 		}
 		d.Elements[el.ID-1] = el
 	}
+
+	d.Unlock()
 
 	if d.inTransaction { // Don't persist
 		return nil
