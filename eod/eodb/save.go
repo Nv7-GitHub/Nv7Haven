@@ -263,8 +263,6 @@ func (d *DB) DelCatCache(name string) error {
 	delete(d.catCache, strings.ToLower(name))
 	delete(d.catCacheFiles, strings.ToLower(name))
 
-	d.WriteLock.Lock()
-	defer d.WriteLock.Unlock()
 	return os.Remove(filepath.Join(d.dbPath, "catcache", url.PathEscape(name)+".json"))
 }
 
@@ -475,12 +473,10 @@ func (d *DB) SavePoll(poll types.Poll) {
 }
 
 func (d *DB) DeletePoll(poll types.Poll) error {
-	d.WriteLock.Lock()
 	err := os.Remove(filepath.Join(d.dbPath, "polls", poll.Message+".json"))
 	if err != nil {
 		return err
 	}
-	d.WriteLock.Unlock()
 
 	d.Lock()
 	delete(d.Polls, poll.Message)
@@ -495,7 +491,6 @@ func (d *DB) NewPoll(poll types.Poll) error {
 		return err
 	}
 
-	d.WriteLock.Lock()
 	f, err := os.Create(filepath.Join(d.dbPath, "polls", poll.Message+".json"))
 	if err != nil {
 		return err
@@ -505,7 +500,6 @@ func (d *DB) NewPoll(poll types.Poll) error {
 	if err != nil {
 		return err
 	}
-	d.WriteLock.Unlock()
 
 	d.Lock()
 	d.Polls[poll.Message] = poll
