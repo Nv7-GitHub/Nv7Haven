@@ -303,12 +303,13 @@ func (b *Elements) getHint(elem int, db *eodb.DB, hasElem bool, hasCat bool, cat
 		text = &strings.Builder{}
 		length := 0
 		for _, val := range out {
-			if length+len(val.text) > 2000 {
+			if length+len(val.text)+1 > 2000 {
 				break
 			}
 
-			length += len(val.text)
+			length += len(val.text) + 1
 			text.WriteString(val.text)
+			text.WriteString("\n")
 		}
 		val = text.String()
 	} else if (len(val) > 2000) || (!isPlayChannel && len(out) > base.DefaultPageLength) || (isPlayChannel && len(out) > base.PlayPageLength) {
