@@ -1,1 +1,0 @@
-**follow discord rules, have fun!**
