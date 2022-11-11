@@ -51,7 +51,7 @@ eod/eodb/restoreinvs/inv.txt
 # Secret!
 password.txt
 discord/token.txt
-eod/token.txt
+run/eod/token.txt
 nv7haven/serviceAccount.json
 elemental/serviceAccount.json
 backups/*

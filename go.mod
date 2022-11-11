@@ -7,11 +7,10 @@ require (
 	github.com/Nv7-Github/average-joe v0.0.0-20220429002151-7a828e7b9d17
 	github.com/Nv7-Github/bsharp v0.0.0-20220313202721-6b77962b469f
 	github.com/Nv7-Github/firebase v0.0.0-20201012033747-47c56e1d869d
-	github.com/bwmarrin/discordgo v0.26.2-0.20220929202427-e57064892a9b
+	github.com/Nv7-Github/sevcord/v2 v2.0.0
+	github.com/bwmarrin/discordgo v0.26.2-0.20221109191923-4ba7062176cd
 	github.com/finnbear/moderation v0.11.4
-	github.com/fogleman/gg v1.3.0
 	github.com/go-sql-driver/mysql v1.6.0
-	github.com/goccy/go-graphviz v0.0.9
 	github.com/gofiber/fiber/v2 v2.13.0
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/gorilla/mux v1.8.0
@@ -19,16 +18,13 @@ require (
 	github.com/improbable-eng/grpc-web v0.14.0
 	github.com/jdkato/prose/v2 v2.0.0
 	github.com/jmcvetta/randutil v0.0.0-20150817122601-2bb1b664bcff
-	github.com/json-iterator/go v1.1.12
+	github.com/jmoiron/sqlx v1.3.5
 	github.com/labstack/echo/v5 v5.0.0-20220201181537-ed2888cfa198
-	github.com/lucasb-eyer/go-colorful v1.2.0
+	github.com/lib/pq v1.10.6
 	github.com/mitchellh/mapstructure v1.4.3
 	github.com/pocketbase/dbx v1.6.0
 	github.com/pocketbase/pocketbase v0.7.9
-	github.com/psykhi/wordclouds v0.0.0-20220103101922-7e3171a66cbc
-	github.com/schollz/progressbar/v3 v3.8.2
-	golang.org/x/crypto v0.0.0-20221005025214-4161e89ecf1b
-	golang.org/x/image v0.0.0-20220902085622-e7cb96979f69
+	golang.org/x/crypto v0.2.0
 	google.golang.org/grpc v1.49.0
 	google.golang.org/protobuf v1.28.1
 )
@@ -72,6 +68,7 @@ require (
 	github.com/googleapis/gax-go/v2 v2.5.1 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
+	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/klauspost/compress v1.15.1 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
@@ -87,9 +84,10 @@ require (
 	github.com/valyala/fasttemplate v1.2.1 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	gocloud.dev v0.27.0 // indirect
+	golang.org/x/image v0.0.0-20220902085622-e7cb96979f69 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/net v0.0.0-20221004154528-8021a29435af // indirect
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/net v0.2.0 // indirect
+	golang.org/x/text v0.4.0 // indirect
 	golang.org/x/time v0.0.0-20220922220347-f3bd1da661af // indirect
 	golang.org/x/tools v0.1.12 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
@@ -112,21 +110,16 @@ require (
 	github.com/andybalholm/brotli v1.0.2 // indirect
 	github.com/deckarep/golang-set v1.7.1 // indirect
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
-	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/mingrammer/commonregex v1.0.1 // indirect
-	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/r3labs/sse v0.0.0-20201007160420-c638e5516aa7 // indirect
-	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/rs/cors v1.8.2 // indirect
-	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	golang.org/x/exp v0.0.0-20210220032938-85be41e4509f // indirect
-	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1
-	golang.org/x/sys v0.0.0-20220928140112-f11e5e49a4ec // indirect
-	golang.org/x/term v0.0.0-20220919170432-7a66f970e087 // indirect
+	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1 // indirect
+	golang.org/x/sys v0.2.0 // indirect
+	golang.org/x/term v0.2.0 // indirect
 	gonum.org/v1/gonum v0.7.0 // indirect
 	gopkg.in/cenkalti/backoff.v1 v1.1.0 // indirect
 	gopkg.in/neurosnap/sentences.v1 v1.0.6 // indirect
