@@ -5,7 +5,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-const configCmdId = ""
+const configCmdId = "7"
 
 type Base struct {
 	s  *sevcord.Sevcord
