@@ -20,7 +20,7 @@ const (
 )
 
 func main() {
-	db, err := sqlx.Connect("postgres", "user="+dbUser+" dbname="+dbName+" sslmode=disable port="+dbPort+"host="+os.Getenv("MYSQL_HOST")+" password="+os.Getenv("PASSWORD"))
+	db, err := sqlx.Connect("postgres", "user="+dbUser+" dbname="+dbName+" sslmode=disable port="+dbPort+" host="+os.Getenv("MYSQL_HOST")+" password="+os.Getenv("PASSWORD"))
 	if err != nil {
 		panic(err)
 	}

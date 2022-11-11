@@ -30,3 +30,12 @@ type Element struct {
 
 	Parents pq.Int32Array `db:"parents"`
 }
+
+type Config struct {
+	Guild         string         `db:"guild"`
+	VotingChannel string         `db:"voting"`
+	NewsChannel   string         `db:"news"`
+	VoteCnt       int            `db:"votecnt"`
+	PollCnt       int            `db:"pollcnt"`
+	PlayChannels  pq.StringArray `db:"play"`
+}
