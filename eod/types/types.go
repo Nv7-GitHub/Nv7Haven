@@ -57,3 +57,5 @@ func PageSwitchBtns(handler, params string) []sevcord.Component {
 		sevcord.NewButton("", sevcord.ButtonStylePrimary, handler, "next|"+params).WithEmoji(sevcord.ComponentEmojiCustom("rightarrow", "861722690926936084", false)),
 	}
 }
+
+const RedCircle = "🔴"

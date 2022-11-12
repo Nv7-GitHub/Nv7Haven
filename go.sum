@@ -179,6 +179,10 @@ github.com/Nv7-Github/sevcord/v2 v2.1.6 h1:R8faOxlCTrLThuB+GrqCY0er5TjF4sYshfWfl
 github.com/Nv7-Github/sevcord/v2 v2.1.6/go.mod h1:I9Jbvo8E2DWkuK+d7L8Wy0DMEI3GvrUUX3G6N49JZdE=
 github.com/Nv7-Github/sevcord/v2 v2.1.7 h1:bfqplwy70nNp8DGOYMLE1WRToHud/nLOdWHMTJO/p3o=
 github.com/Nv7-Github/sevcord/v2 v2.1.7/go.mod h1:I9Jbvo8E2DWkuK+d7L8Wy0DMEI3GvrUUX3G6N49JZdE=
+github.com/Nv7-Github/sevcord/v2 v2.2.0 h1:7dwnGRIF+bWXipM9OQgDmUwhen9xvgekOxL8gsP+9Lk=
+github.com/Nv7-Github/sevcord/v2 v2.2.0/go.mod h1:I9Jbvo8E2DWkuK+d7L8Wy0DMEI3GvrUUX3G6N49JZdE=
+github.com/Nv7-Github/sevcord/v2 v2.2.1 h1:LHTFMSva338WSm3njhkwKmoyw2T1/adq25OJJj1Qxc4=
+github.com/Nv7-Github/sevcord/v2 v2.2.1/go.mod h1:I9Jbvo8E2DWkuK+d7L8Wy0DMEI3GvrUUX3G6N49JZdE=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/PuerkitoBio/purell v1.0.0/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/purell v1.1.1/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
