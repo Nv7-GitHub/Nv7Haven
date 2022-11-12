@@ -83,12 +83,6 @@ type CommandStat struct {
 	Count   int    `db:"count"`
 }
 
-type UserColor struct {
-	Guild string `db:"guild"`
-	User  string `db:"user"`
-	Color int    `db:"color"`
-}
-
 func main() {
 	// Eodb
 	home, err := os.UserHomeDir()
@@ -222,7 +216,6 @@ func main() {
 	// Add config
 	/*start = time.Now()
 	configs := make([]Config, 0)
-	colors := make([]UserColor, 0)
 	commands := make([]CommandStat, 0)
 	for _, db := range eodb.DB {
 		chans := make([]string, 0, len(db.Config.PlayChannels))
@@ -244,13 +237,6 @@ func main() {
 			PlayChannels:  pq.Array(chans),
 			Language:      db.Config.LanguageFile,
 		})
-		for k, col := range db.Config.UserColors {
-			colors = append(colors, UserColor{
-				Guild: db.Guild,
-				User:  k,
-				Color: col,
-			})
-		}
 		for k, com := range db.Config.CommandStats {
 			commands = append(commands, CommandStat{
 				Guild:   db.Guild,
@@ -262,7 +248,6 @@ func main() {
 	fmt.Println("Got config in", time.Since(start))
 
 	BulkInsert("INSERT INTO config (guild, voting, news, votecnt, pollcnt, play, language) VALUES (:guild, :voting, :news, :votecnt, :pollcnt, :play, :language)", configs, db)
-	BulkInsert("INSERT INTO user_colors (guild, \"user\", color) VALUES (:guild, :user, :color)", colors, db)
 	BulkInsert("INSERT INTO command_stats (guild, command, count) VALUES (:guild, :command, :count)", commands, db)*/
 }
 
