@@ -7,5 +7,5 @@ import (
 
 func (b *Bot) Init() {
 	b.base = base.NewBase(b.s, b.db)
-	b.elements = elements.NewElements(b.s, b.db)
+	b.elements = elements.NewElements(b.s, b.db, b.base)
 }

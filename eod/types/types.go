@@ -28,7 +28,8 @@ type Element struct {
 	Colorer   string `db:"colorer"`
 	Imager    string `db:"imager"`
 
-	Parents pq.Int32Array `db:"parents"`
+	Parents  pq.Int32Array `db:"parents"`
+	TreeSize int           `db:"treesize"`
 }
 
 type Config struct {

@@ -8,7 +8,7 @@ import (
 
 func (b *Base) CheckCtx(ctx sevcord.Ctx) bool {
 	var cnt int
-	err := b.db.Select(&[]*int{&cnt}, "SELECT COUNT(*) FROM config WHERE guild=$1", ctx.Guild())
+	err := b.db.QueryRow("SELECT COUNT(*) FROM config WHERE guild=$1", ctx.Guild()).Scan(&cnt)
 	if err != nil {
 		b.Error(ctx, err)
 		return false
