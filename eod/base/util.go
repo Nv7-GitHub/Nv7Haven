@@ -12,3 +12,8 @@ func (b *Base) Error(ctx sevcord.Ctx, err error) {
 		))
 	}
 }
+
+// TODO: make it 30 when play channel
+func (b *Base) PageLength(ctx sevcord.Ctx) int {
+	return 10
+}
