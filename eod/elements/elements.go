@@ -8,14 +8,12 @@ import (
 )
 
 type Elements struct {
-	s    *sevcord.Sevcord
 	db   *sqlx.DB
 	base *base.Base
 }
 
 func NewElements(s *sevcord.Sevcord, db *sqlx.DB, base *base.Base) *Elements {
 	e := &Elements{
-		s:    s,
 		db:   db,
 		base: base,
 	}
