@@ -32,6 +32,13 @@ func NewElements(s *sevcord.Sevcord, db *sqlx.DB, base *base.Base) *Elements {
 		sevcord.NewOption("sort", "The sort order of the inventory!", sevcord.OptionKindString, false).
 			AddChoices(types.Sorts...),
 	))
+	s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"hint",
+		"Learn how to make an element!",
+		e.Hint,
+		sevcord.NewOption("element", "An element to get the hint of!", sevcord.OptionKindInt, false).
+			AutoComplete(e.Autocomplete),
+	))
 	s.AddButtonHandler("inv", e.InvHandler)
 	return e
 }
