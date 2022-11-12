@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"log"
-	"math"
 	"os"
 	"path/filepath"
 	"reflect"
+	"sort"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
@@ -35,12 +37,14 @@ type Element struct {
 	Colorer   string      `db:"colorer"`
 	Imager    string      `db:"imager"`
 	Parents   interface{} `db:"parents"` // pq array
+	TreeSize  int         `db:"treesize"`
 }
 
 type Combo struct {
-	Guild    string      `db:"guild"`
-	Elements interface{} `db:"els"` // pq array
-	Result   int         `db:"result"`
+	Guild     string      `db:"guild"`
+	Elements  interface{} `db:"els"` // pq array
+	Result    int         `db:"result"`
+	CreatedOn time.Time   `db:"createdon"`
 }
 
 type Inventory struct {
@@ -85,8 +89,6 @@ type UserColor struct {
 	Color int    `db:"color"`
 }
 
-// TODO: VCats (integrate into eod_categories?), polls
-
 func main() {
 	// Eodb
 	home, err := os.UserHomeDir()
@@ -107,7 +109,7 @@ func main() {
 	fmt.Println("Connected in", time.Since(start))
 
 	// Add elements
-	/*start = time.Now()
+	start = time.Now()
 	els := make([]Element, 0)
 	for _, db := range eodb.DB {
 		for _, el := range db.Elements {
@@ -136,15 +138,16 @@ func main() {
 				Colorer:   el.Colorer,
 				Imager:    el.Imager,
 				Parents:   pq.Array(el.Parents),
+				TreeSize:  el.TreeSize,
 			})
 		}
 	}
 	fmt.Println("Got elements in", time.Since(start))
 
-	BulkInsert("INSERT INTO elements (id, guild, name, image, color, comment, creator, createdon, commenter, colorer, imager, parents) VALUES (:id, :guild, :name, :image, :color, :comment, :creator, :createdon, :commenter, :colorer, :imager, :parents)", els, db)*/
+	BulkInsert("INSERT INTO elements (id, guild, name, image, color, comment, creator, createdon, commenter, colorer, imager, parents, treesize) VALUES (:id, :guild, :name, :image, :color, :comment, :creator, :createdon, :commenter, :colorer, :imager, :parents, :treesize)", els, db)
 
 	// Add combos
-	/*start = time.Now()
+	start = time.Now()
 	combs := make([]Combo, 0)
 	for _, db := range eodb.DB {
 	skip:
@@ -159,15 +162,16 @@ func main() {
 			}
 			sort.Ints(els)
 			combs = append(combs, Combo{
-				Guild:    db.Guild,
-				Elements: pq.Array(els),
-				Result:   com,
+				Guild:     db.Guild,
+				Elements:  pq.Array(els),
+				Result:    com,
+				CreatedOn: time.Now(),
 			})
 		}
 	}
 	fmt.Println("Got combos in", time.Since(start))
 
-	BulkInsert("INSERT INTO combos (guild, result, els) VALUES (:guild, :result, :els)", combs, db)*/
+	BulkInsert("INSERT INTO combos (guild, result, els, createdon) VALUES (:guild, :result, :els, :createdon)", combs, db)
 
 	// Add invs
 	/*start = time.Now()
@@ -216,7 +220,7 @@ func main() {
 	BulkInsert("INSERT INTO categories (guild, name, image, color, comment, imager, colorer, commenter, elements) VALUES (:guild, :name, :image, :color, :comment, :imager, :colorer, :commenter, :elements)", cats, db)*/
 
 	// Add config
-	start = time.Now()
+	/*start = time.Now()
 	configs := make([]Config, 0)
 	colors := make([]UserColor, 0)
 	commands := make([]CommandStat, 0)
@@ -259,7 +263,7 @@ func main() {
 
 	BulkInsert("INSERT INTO config (guild, voting, news, votecnt, pollcnt, play, language) VALUES (:guild, :voting, :news, :votecnt, :pollcnt, :play, :language)", configs, db)
 	BulkInsert("INSERT INTO user_colors (guild, \"user\", color) VALUES (:guild, :user, :color)", colors, db)
-	BulkInsert("INSERT INTO command_stats (guild, command, count) VALUES (:guild, :command, :count)", commands, db)
+	BulkInsert("INSERT INTO command_stats (guild, command, count) VALUES (:guild, :command, :count)", commands, db)*/
 }
 
 func BulkInsert[T any](insertQuery string, myStructs []T, db *sqlx.DB) {
