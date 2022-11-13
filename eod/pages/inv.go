@@ -1,4 +1,4 @@
-package elements
+package pages
 
 import (
 	"fmt"
@@ -6,23 +6,22 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/bwmarrin/discordgo"
 )
 
 // Params: prevnext|user|sort|page
-func (e *Elements) InvHandler(c sevcord.Ctx, params string) {
+func (p *Pages) InvHandler(c sevcord.Ctx, params string) {
 	parts := strings.Split(params, "|")
 
 	// Get count
 	var cnt int
-	err := e.db.QueryRow(`SELECT array_length(inv, 1) FROM inventories WHERE guild=$1 AND "user"=$2`, c.Guild(), parts[1]).Scan(&cnt)
+	err := p.db.QueryRow(`SELECT array_length(inv, 1) FROM inventories WHERE guild=$1 AND "user"=$2`, c.Guild(), parts[1]).Scan(&cnt)
 	if err != nil {
-		e.base.Error(c, err)
+		p.base.Error(c, err)
 		return
 	}
-	length := e.base.PageLength(c)
+	length := p.base.PageLength(c)
 	pagecnt := int(math.Ceil(float64(cnt) / float64(length)))
 
 	// Apply page
@@ -43,9 +42,9 @@ func (e *Elements) InvHandler(c sevcord.Ctx, params string) {
 
 	// Get values
 	var inv []string
-	err = e.db.Select(&inv, `SELECT name FROM elements WHERE id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) AND guild=$1 ORDER BY $3 LIMIT $4 OFFSET $5`, c.Guild(), parts[1], parts[2], length, length*page)
+	err = p.db.Select(&inv, `SELECT name FROM elements WHERE id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) AND guild=$1 ORDER BY $3 LIMIT $4 OFFSET $5`, c.Guild(), parts[1], parts[2], length, length*page)
 	if err != nil {
-		e.base.Error(c, err)
+		p.base.Error(c, err)
 		return
 	}
 
@@ -54,7 +53,7 @@ func (e *Elements) InvHandler(c sevcord.Ctx, params string) {
 	if err != nil {
 		u, err := c.Dg().User(parts[1])
 		if err != nil {
-			e.base.Error(c, err)
+			p.base.Error(c, err)
 			return
 		}
 		m = &discordgo.Member{User: u, Nick: ""}
@@ -74,13 +73,13 @@ func (e *Elements) InvHandler(c sevcord.Ctx, params string) {
 
 	c.Respond(sevcord.NewMessage("").
 		AddEmbed(embed).
-		AddComponentRow(types.PageSwitchBtns("inv", fmt.Sprintf("%s|%s|%d", parts[1], parts[2], page))...),
+		AddComponentRow(PageSwitchBtns("inv", fmt.Sprintf("%s|%s|%d", parts[1], parts[2], page))...),
 	)
 }
 
-func (e *Elements) Inv(c sevcord.Ctx, args []any) {
+func (p *Pages) Inv(c sevcord.Ctx, args []any) {
 	c.Acknowledge()
-	e.base.IncrementCommandStat(c, "inv")
+	p.base.IncrementCommandStat(c, "inv")
 
 	// Get params
 	user := c.Author().User.ID
@@ -93,5 +92,5 @@ func (e *Elements) Inv(c sevcord.Ctx, args []any) {
 	}
 
 	// Create embed
-	e.InvHandler(c, fmt.Sprintf("next|%s|%s|-1", user, sort))
+	p.InvHandler(c, fmt.Sprintf("next|%s|%s|-1", user, sort))
 }
