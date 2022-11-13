@@ -94,11 +94,11 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 			return
 		}
 	} else {
-		// TODO: Re-calc parents & tree size if this is better
 		id = int(p.Data["result"].(float64))
 
 		// Get name
-		err = tx.QueryRow(`SELECT name FROM elements WHERE id=$1 AND guild=$2`, id, p.Guild).Scan(&name)
+		var currtreesize int
+		err = tx.QueryRow(`SELECT name, treesize FROM elements WHERE id=$1 AND guild=$2`, id, p.Guild).Scan(&name, &currtreesize)
 		if err != nil {
 			return
 		}
@@ -107,6 +107,22 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 		err = tx.QueryRow(`SELECT COUNT(*) FROM combos WHERE guild=$1`, p.Guild).Scan(&combid)
 		if err != nil {
 			return
+		}
+
+		// Check if need to update parents
+		var treesize int
+		var loop bool
+		err = tx.QueryRow(`WITH RECURSIVE parents(els, id) AS (
+			VALUES($2::integer[], 0)
+	 	UNION
+			(SELECT b.parents els, b.id id FROM elements b INNER JOIN parents p ON b.id=ANY(p.els) where guild=$1)
+	 	) SELECT COUNT(*), EXISTS(SELECT 1 FROM parents WHERE id=$3) FROM parents WHERE id>0`, p.Guild, pq.Array(els), id).Scan(&treesize, &loop)
+		if !loop && treesize < currtreesize {
+			// Update parents
+			_, err = tx.Exec(`UPDATE elements SET parents=$1, treesize=$2 WHERE id=$3 AND guild=$4`, pq.Array(els), treesize, id, p.Guild)
+			if err != nil {
+				return
+			}
 		}
 	}
 
