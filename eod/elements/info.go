@@ -21,7 +21,7 @@ func (e *Elements) Info(c sevcord.Ctx, params []any) {
 	}
 
 	// Check if you have
-	description := elem.Comment
+	description := "**Mark**\n" + elem.Comment
 	var have bool
 	err = e.db.QueryRow(`SELECT $1=ANY(inv) FROM inventories WHERE guild=$2 AND "user"=$3`, elem.ID, c.Guild(), c.Author().User.ID).Scan(&have)
 	if err != nil {

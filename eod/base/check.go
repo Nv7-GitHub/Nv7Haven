@@ -24,7 +24,7 @@ func (b *Base) CheckCtx(ctx sevcord.Ctx) bool {
 
 	// Check if user has account
 	var exists bool
-	err = b.db.QueryRow(`SELECT EXISTS(SELECT 1 FROM inventories WHERE "user"='$2 AND guild=$1)`, ctx.Guild(), ctx.Author().User.ID).Scan(&exists)
+	err = b.db.QueryRow(`SELECT EXISTS(SELECT 1 FROM inventories WHERE "user"=$2 AND guild=$1)`, ctx.Guild(), ctx.Author().User.ID).Scan(&exists)
 	if err != nil {
 		b.Error(ctx, err)
 		return false

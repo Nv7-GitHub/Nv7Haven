@@ -12,12 +12,12 @@ import (
 )
 
 func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
-	els := util.Map(p.Data["els"].([]float64), func(a float64) int { return int(a) })
+	els := util.Map(p.Data["els"].([]any), func(a any) int { return int(a.(float64)) })
 	_, exists := p.Data["result"].(float64)
 
 	// Check if combo has result
 	var cnt int
-	err = e.db.QueryRow(`SELECT COUNT(*) FROM combos WHERE els=$1 AND guild=$2`, els, p.Guild).Scan(&cnt)
+	err = e.db.QueryRow(`SELECT COUNT(*) FROM combos WHERE els=$1 AND guild=$2`, pq.Array(els), p.Guild).Scan(&cnt)
 	if err != nil {
 		return err
 	}
@@ -49,6 +49,7 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 		if err != nil {
 			return
 		}
+		id++
 
 		// Get parents
 		var parents []types.Element
@@ -65,10 +66,10 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 		// Calc treesize
 		var treeSize int
 		err = tx.QueryRow(`WITH RECURSIVE parents(els, id) AS (
-			VALUES($2, 0)
-	 UNION
-		 (SELECT b.parents els, b.id id FROM elements b INNER JOIN parents p ON b.id=ANY(p.els) where guild=$1)
-	 ) select COUNT(*) FROM parents WHERE id>0`, p.Guild, pq.Array(els)).Scan(&treeSize)
+			VALUES($2::integer[], 0)
+	 	UNION
+			(SELECT b.parents els, b.id id FROM elements b INNER JOIN parents p ON b.id=ANY(p.els) where guild=$1)
+	 	) SELECT COUNT(*) FROM parents WHERE id>0`, p.Guild, pq.Array(els)).Scan(&treeSize)
 		if err != nil {
 			return
 		}

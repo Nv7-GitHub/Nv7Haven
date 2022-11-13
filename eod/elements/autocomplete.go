@@ -10,7 +10,7 @@ import (
 
 func (e *Elements) Autocomplete(c sevcord.Ctx, val any) []sevcord.Choice {
 	var res []types.Element
-	err := e.db.Select(&res, "SELECT id, name FROM elements WHERE guild=$1 AND name ILIKE $2 ORDER BY id LIMIT 25", c.Guild(), val.(string)+"%")
+	err := e.db.Select(&res, "SELECT id, name FROM elements WHERE guild=$1 AND name ILIKE $2 || '%' ORDER BY similarity(name, $2), id LIMIT 25", c.Guild(), val.(string))
 	if err != nil {
 		log.Println("autocomplete error", err)
 		return nil

@@ -31,8 +31,8 @@ func (b *Polls) makeComboEmbed(p *types.Poll) (sevcord.EmbedBuilder, error) {
 	}
 
 	// Get list of element names to fetch
-	items := util.Map(p.Data["els"].([]float64), func(a float64) int {
-		return int(a)
+	items := util.Map(p.Data["els"].([]any), func(a any) int {
+		return int(a.(float64))
 	})
 	if ok {
 		items = append(items, int(res))

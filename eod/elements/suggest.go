@@ -54,7 +54,7 @@ func (e *Elements) Suggest(c sevcord.Ctx, opts []any) {
 	err = e.polls.CreatePoll(c, &types.Poll{
 		Kind: types.PollKindCombo,
 		Data: types.PollData{
-			"els":    util.Map(v, func(a int) float64 { return float64(a) }),
+			"els":    util.Map(v, func(a int) any { return float64(a) }),
 			"result": idV,
 		},
 	})
