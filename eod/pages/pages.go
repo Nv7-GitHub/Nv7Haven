@@ -26,5 +26,14 @@ func NewPages(base *base.Base, db *sqlx.DB, s *sevcord.Sevcord) *Pages {
 			AddChoices(types.Sorts...),
 	))
 	s.AddButtonHandler("inv", p.InvHandler)
+	s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"lb",
+		"View the leaderboard!",
+		p.Lb,
+		sevcord.NewOption("sort", "The sort order of the leaderboard!", sevcord.OptionKindString, false).
+			AddChoices(lbSorts...),
+		sevcord.NewOption("user", "The user to view the leaderboard from the point of view of!", sevcord.OptionKindUser, false),
+	))
+	s.AddButtonHandler("lb", p.LbHandler)
 	return p
 }
