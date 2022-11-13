@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/lib/pq"
 )
@@ -86,18 +87,10 @@ func (e *Elements) Hint(c sevcord.Ctx, opts []any) {
 	for _, item := range items {
 		ids = append(ids, item.Els...)
 	}
-	var names []struct {
-		ID   int32  `db:"id"`
-		Name string `db:"name"`
-	}
-	err = e.db.Select(&names, `SELECT id, name FROM elements WHERE id=ANY($1) AND guild=$2`, pq.Int32Array(ids), c.Guild())
+	nameMap, err := e.base.NameMap(util.Map(ids, func(a int32) int { return int(a) }))
 	if err != nil {
 		e.base.Error(c, err)
 		return
-	}
-	nameMap := make(map[int32]string, len(names))
-	for _, name := range names {
-		nameMap[name.ID] = name.Name
 	}
 
 	// Create message
@@ -116,7 +109,7 @@ func (e *Elements) Hint(c sevcord.Ctx, opts []any) {
 			if i > 0 {
 				description.WriteString(" + ")
 			}
-			name := nameMap[el]
+			name := nameMap[int(el)]
 			if i == len(item.Els)-1 {
 				name = Obscure(name)
 			}
@@ -128,7 +121,7 @@ func (e *Elements) Hint(c sevcord.Ctx, opts []any) {
 
 	// Embed
 	emb := sevcord.NewEmbed().
-		Title("Hints for "+nameMap[int32(el)]).
+		Title("Hints for "+nameMap[int(el)]).
 		Description(description.String()).
 		Color(3447003). // Blue
 		Footer(fmt.Sprintf("%d Hints", len(items)), "")

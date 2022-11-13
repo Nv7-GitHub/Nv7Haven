@@ -2,20 +2,23 @@ package elements
 
 import (
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
+	"github.com/Nv7-Github/Nv7Haven/eod/polls"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/jmoiron/sqlx"
 )
 
 type Elements struct {
-	db   *sqlx.DB
-	base *base.Base
+	db    *sqlx.DB
+	base  *base.Base
+	polls *polls.Polls
 }
 
-func NewElements(s *sevcord.Sevcord, db *sqlx.DB, base *base.Base) *Elements {
+func NewElements(s *sevcord.Sevcord, db *sqlx.DB, base *base.Base, polls *polls.Polls) *Elements {
 	e := &Elements{
-		db:   db,
-		base: base,
+		db:    db,
+		base:  base,
+		polls: polls,
 	}
 	s.RegisterSlashCommand(sevcord.NewSlashCommand(
 		"info",

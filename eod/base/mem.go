@@ -30,3 +30,14 @@ func (b *Base) SaveCombCache(c sevcord.Ctx, comb []int) {
 	mem.CombCache[c.Author().User.ID] = comb
 	mem.Unlock()
 }
+
+func (b *Base) GetCombCache(c sevcord.Ctx) ([]int, types.Resp) {
+	mem := b.getMem(c)
+	mem.RLock()
+	v, exists := mem.CombCache[c.Author().User.ID]
+	mem.RUnlock()
+	if exists {
+		return v, types.Ok()
+	}
+	return nil, types.Fail("You haven't combined anything!")
+}

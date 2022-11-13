@@ -6,7 +6,6 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/Nv7-Github/sevcord/v2"
-	"github.com/lib/pq"
 )
 
 const footer = "You can change your vote"
@@ -38,30 +37,25 @@ func (b *Polls) makeComboEmbed(p *types.Poll) (sevcord.EmbedBuilder, error) {
 	if ok {
 		items = append(items, int(res))
 	}
-	var names []struct {
-		ID   int    `db:"id"`
-		Name string `db:"name"`
-	}
-	err := b.db.Select(&names, "SELECT id, name FROM elements WHERE id = ANY($1)", pq.Array(items))
+	names, err := b.base.GetNames(items)
 	if err != nil {
 		return sevcord.NewEmbed(), err
 	}
-	nameMap := make(map[int]string)
-	for _, v := range names {
-		nameMap[v.ID] = v.Name
+	if ok {
+		items = items[:len(items)-1]
 	}
 
 	// Generate text
 	txt := &strings.Builder{}
-	for i, v := range items {
+	for i := range items {
 		if i > 0 {
 			txt.WriteString(" + ")
 		}
-		txt.WriteString(nameMap[v])
+		txt.WriteString(names[i])
 	}
 	txt.WriteString(" = ")
 	if ok {
-		txt.WriteString(nameMap[int(res)])
+		txt.WriteString(names[len(names)-1])
 	} else {
 		txt.WriteString(p.Data["result"].(string))
 	}

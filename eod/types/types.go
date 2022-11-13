@@ -80,17 +80,18 @@ func (p PollData) Scan(v interface{}) error {
 
 type Poll struct {
 	// Filed in by CreatePoll
-	Guild   string `db:"guild"`
-	Message string `db:"message"`
-	Channel string `db:"channel"`
-
-	// Required
-	Kind      PollKind  `db:"kind"`
+	Guild     string    `db:"guild"`
+	Message   string    `db:"message"`
+	Channel   string    `db:"channel"`
 	Creator   string    `db:"creator"`
 	CreatedOn time.Time `db:"createdon"`
-	Data      PollData  `db:"data"`
-	Upvotes   int       `db:"upvotes"`
-	Downvotes int       `db:"downvotes"`
+
+	Upvotes   int `db:"upvotes"`
+	Downvotes int `db:"downvotes"`
+
+	// Required
+	Kind PollKind `db:"kind"`
+	Data PollData `db:"data"`
 }
 
 // Buttons
