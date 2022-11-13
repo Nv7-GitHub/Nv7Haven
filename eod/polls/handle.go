@@ -1,6 +1,8 @@
 package polls
 
 import (
+	"log"
+
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
 )
@@ -15,13 +17,15 @@ func (b *Polls) reactionHandler(s *discordgo.Session, r *discordgo.MessageReacti
 
 	// Get poll & vote cnt
 	var p types.Poll
-	err := b.db.Get(&p, "SELECT * FROM polls WHERE guild=$1 AND message=$3", r.GuildID, r.ChannelID, r.MessageID)
+	err := b.db.Get(&p, "SELECT * FROM polls WHERE guild=$1 AND message=$2", r.GuildID, r.MessageID)
 	if err != nil {
+		log.Println("poll err", err)
 		return
 	}
 	var votecnt int
 	err = b.db.QueryRow("SELECT votecnt FROM config WHERE guild=$1", r.GuildID).Scan(&votecnt)
 	if err != nil {
+		log.Println("poll err", err)
 		return
 	}
 
@@ -41,6 +45,7 @@ func (b *Polls) reactionHandler(s *discordgo.Session, r *discordgo.MessageReacti
 	// Update
 	_, err = b.db.NamedExec("UPDATE polls SET upvotes=:upvotes, downvotes=:downvotes WHERE guild=:guild AND message=:message", p)
 	if err != nil {
+		log.Println("poll err", err)
 		return
 	}
 
@@ -55,7 +60,7 @@ func (b *Polls) unReactionHandler(s *discordgo.Session, r *discordgo.MessageReac
 
 	// Get poll & vote cnt
 	var p types.Poll
-	err := b.db.Get(&p, "SELECT * FROM polls WHERE guild=$1 AND message=$3", r.GuildID, r.ChannelID, r.MessageID)
+	err := b.db.Get(&p, "SELECT * FROM polls WHERE guild=$1 AND message=$2", r.GuildID, r.MessageID)
 	if err != nil {
 		return
 	}

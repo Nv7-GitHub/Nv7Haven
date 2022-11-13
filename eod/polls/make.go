@@ -51,7 +51,7 @@ func (b *Polls) CreatePoll(c sevcord.Ctx, p *types.Poll) error {
 
 func (b *Polls) checkPoll(p *types.Poll, votecnt int, dg *discordgo.Session) {
 	if p.Upvotes-p.Downvotes >= votecnt {
-		b.pollSuccess(p)
+		b.pollSuccess(p, dg)
 		return
 	}
 
@@ -62,14 +62,14 @@ func (b *Polls) checkPoll(p *types.Poll, votecnt int, dg *discordgo.Session) {
 }
 
 func (b *Polls) deletePoll(p *types.Poll, dg *discordgo.Session) {
-	// Delete from DB
-	_, err := b.db.Exec("DELETE FROM polls WHERE guild=$1 AND message=$2", p.Guild, p.Message)
+	// Delete from channel
+	err := dg.ChannelMessageDelete(p.Channel, p.Message)
 	if err != nil {
 		return
 	}
 
-	// Delete from channel
-	err = dg.ChannelMessageDelete(p.Channel, p.Message)
+	// Delete from DB
+	_, err = b.db.Exec("DELETE FROM polls WHERE guild=$1 AND message=$2", p.Guild, p.Message)
 	if err != nil {
 		return
 	}
