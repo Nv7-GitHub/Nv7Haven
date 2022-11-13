@@ -134,4 +134,7 @@ func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 		}
 		c.Respond(sevcord.NewMessage(fmt.Sprintf("You made **%s** 🆕", name)))
 	}
+
+	// Save combcache
+	e.base.SaveCombCache(c, items)
 }

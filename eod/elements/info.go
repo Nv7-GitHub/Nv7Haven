@@ -2,9 +2,9 @@ package elements
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/Nv7-Github/sevcord/v2"
 )
 
@@ -31,8 +31,6 @@ func (e *Elements) Info(c sevcord.Ctx, params []any) {
 		description = "**You have this.**\n\n" + description
 	}
 
-	// TODO: Better number formatting
-
 	// Embed
 	emb := sevcord.NewEmbed().
 		Title(elem.Name+" Info").
@@ -40,7 +38,7 @@ func (e *Elements) Info(c sevcord.Ctx, params []any) {
 		Color(elem.Color).
 		AddField("Creator", fmt.Sprintf("<@%s>", elem.Creator), true).
 		AddField("Created On", fmt.Sprintf("<t:%d>", elem.CreatedOn.Unix()), true).
-		AddField("Tree Size", strconv.Itoa(elem.TreeSize), true)
+		AddField("Tree Size", util.FormatInt(elem.TreeSize), true)
 
 	// Optional things
 	if elem.Image != "" {

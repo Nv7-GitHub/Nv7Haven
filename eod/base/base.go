@@ -1,6 +1,9 @@
 package base
 
 import (
+	"sync"
+
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/jmoiron/sqlx"
 )
@@ -10,6 +13,9 @@ const configCmdId = "7" // TODO: Put in real value
 type Base struct {
 	s  *sevcord.Sevcord
 	db *sqlx.DB
+
+	lock *sync.RWMutex
+	mem  map[string]*types.ServerMem // map[guild]data
 }
 
 func (b *Base) Init() {
