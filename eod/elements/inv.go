@@ -80,6 +80,7 @@ func (e *Elements) InvHandler(c sevcord.Ctx, params string) {
 
 func (e *Elements) Inv(c sevcord.Ctx, args []any) {
 	c.Acknowledge()
+	e.base.IncrementCommandStat(c, "inv")
 
 	// Get params
 	user := c.Author().User.ID

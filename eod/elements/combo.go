@@ -25,6 +25,7 @@ func makeListResp(start, join, end string, vals []string) string {
 
 func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 	c.Acknowledge()
+	e.base.IncrementCommandStat(c, "combine")
 
 	if len(elemVals) > maxLength {
 		c.Respond(sevcord.NewMessage(fmt.Sprintf("You can only combine up to %d elements!", maxLength)))

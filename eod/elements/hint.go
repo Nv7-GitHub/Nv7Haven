@@ -40,6 +40,7 @@ func Obscure(val string) string {
 
 func (e *Elements) Hint(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
+	e.base.IncrementCommandStat(c, "hint")
 
 	// Get element
 	var el int

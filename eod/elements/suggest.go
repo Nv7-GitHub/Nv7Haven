@@ -11,6 +11,7 @@ import (
 
 func (e *Elements) Suggest(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
+	e.base.IncrementCommandStat(c, "suggest")
 
 	// Autocapitalization
 	autocap := true

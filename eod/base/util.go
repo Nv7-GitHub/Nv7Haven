@@ -2,6 +2,7 @@ package base
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/lib/pq"
@@ -62,4 +63,11 @@ func (b *Base) GetNames(items []int, guild string) ([]string, error) {
 		names[i] = m[v]
 	}
 	return names, nil
+}
+
+func (b *Base) IncrementCommandStat(c sevcord.Ctx, name string) {
+	_, err := b.db.Exec("INSERT INTO command_stats (guild, command, count) VALUES ($1, $2, 1) ON CONFLICT (guild, command) DO UPDATE SET count = command_stats.count + 1", c.Guild(), name)
+	if err != nil {
+		log.Println("command stats error", err)
+	}
 }
