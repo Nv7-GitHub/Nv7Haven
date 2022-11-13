@@ -24,8 +24,10 @@ func (b *Base) Init() {
 
 func NewBase(s *sevcord.Sevcord, db *sqlx.DB) *Base {
 	b := &Base{
-		s:  s,
-		db: db,
+		lock: &sync.RWMutex{},
+		mem:  make(map[string]*types.ServerMem),
+		s:    s,
+		db:   db,
 	}
 	b.Init()
 	return b

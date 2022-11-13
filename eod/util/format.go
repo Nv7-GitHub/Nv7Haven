@@ -2,6 +2,8 @@ package util
 
 import (
 	"strconv"
+	"strings"
+	"unicode"
 )
 
 // https://stackoverflow.com/a/31046325/11388343
@@ -30,10 +32,44 @@ func FormatInt(n int) string {
 	}
 }
 
-func Map[T, V any](v []T, m func(a T) V) []V {
-	out := make([]V, len(v))
-	for i, val := range v {
-		out[i] = m(val)
+var smallWords = map[string]struct{}{
+	"of":  {},
+	"an":  {},
+	"on":  {},
+	"the": {},
+	"to":  {},
+}
+
+func Capitalize(s string) string {
+	words := strings.Split(strings.ToLower(s), " ")
+	for i, word := range words {
+		if len(word) < 1 {
+			continue
+		}
+		w := []rune(word)
+		ind := -1
+
+		if w[0] > unicode.MaxASCII {
+			continue
+		}
+
+		if i == 0 {
+			ind = 0
+		} else {
+			_, exists := smallWords[word]
+			if !exists {
+				ind = 0
+			}
+		}
+
+		if w[0] == '(' && len(word) > 1 {
+			ind = 1
+		}
+
+		if ind != -1 {
+			w[ind] = []rune(strings.ToUpper(string([]rune(word)[ind])))[0]
+			words[i] = string(w)
+		}
 	}
-	return out
+	return strings.Join(words, " ")
 }

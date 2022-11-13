@@ -12,7 +12,7 @@ import (
 )
 
 const maxLength = 21
-const suggestCmdId = "7" // TODO: Put in real val
+const suggestCmdId = "1041173178912878662"
 
 func makeListResp(start, join, end string, vals []string) string {
 	if len(vals) == 2 {
@@ -95,6 +95,9 @@ func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 	}
 	sort.Ints(items)
 
+	// Save combcache
+	e.base.SaveCombCache(c, items)
+
 	// Query
 	var result int
 	err = e.db.QueryRow(`SELECT result FROM combos WHERE guild=$1 AND els=$2`, c.Guild(), pq.Array(items)).Scan(&result)
@@ -134,7 +137,4 @@ func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 		}
 		c.Respond(sevcord.NewMessage(fmt.Sprintf("You made **%s** 🆕", name)))
 	}
-
-	// Save combcache
-	e.base.SaveCombCache(c, items)
 }

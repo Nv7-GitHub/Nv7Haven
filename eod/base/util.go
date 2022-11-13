@@ -36,12 +36,12 @@ func (b *Base) PageLength(ctx sevcord.Ctx) int {
 	return 10
 }
 
-func (b *Base) NameMap(items []int) (map[int]string, error) {
+func (b *Base) NameMap(items []int, guild string) (map[int]string, error) {
 	var names []struct {
 		ID   int    `db:"id"`
 		Name string `db:"name"`
 	}
-	err := b.db.Select(&names, "SELECT id, name FROM elements WHERE id = ANY($1)", pq.Array(items))
+	err := b.db.Select(&names, "SELECT id, name FROM elements WHERE id = ANY($1) AND guild=$2", pq.Array(items), guild)
 	if err != nil {
 		return nil, err
 	}
@@ -52,8 +52,8 @@ func (b *Base) NameMap(items []int) (map[int]string, error) {
 	return nameMap, nil
 }
 
-func (b *Base) GetNames(items []int) ([]string, error) {
-	m, err := b.NameMap(items)
+func (b *Base) GetNames(items []int, guild string) ([]string, error) {
+	m, err := b.NameMap(items, guild)
 	if err != nil {
 		return nil, err
 	}

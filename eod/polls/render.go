@@ -37,7 +37,7 @@ func (b *Polls) makeComboEmbed(p *types.Poll) (sevcord.EmbedBuilder, error) {
 	if ok {
 		items = append(items, int(res))
 	}
-	names, err := b.base.GetNames(items)
+	names, err := b.base.GetNames(items, p.Guild)
 	if err != nil {
 		return sevcord.NewEmbed(), err
 	}

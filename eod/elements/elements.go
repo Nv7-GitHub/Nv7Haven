@@ -42,6 +42,13 @@ func NewElements(s *sevcord.Sevcord, db *sqlx.DB, base *base.Base, polls *polls.
 		sevcord.NewOption("element", "An element to get the hint of!", sevcord.OptionKindInt, false).
 			AutoComplete(e.Autocomplete),
 	))
+	s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"suggest",
+		"Create a suggestion!",
+		e.Suggest,
+		sevcord.NewOption("result", "The result of the combination!", sevcord.OptionKindString, true),
+		sevcord.NewOption("autocapitalize", "Whether or not to autocapitalize!", sevcord.OptionKindBool, false),
+	))
 	s.AddButtonHandler("inv", e.InvHandler)
 	return e
 }

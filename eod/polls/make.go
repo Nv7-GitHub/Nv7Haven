@@ -1,6 +1,8 @@
 package polls
 
 import (
+	"time"
+
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/bwmarrin/discordgo"
@@ -9,6 +11,8 @@ import (
 func (b *Polls) CreatePoll(c sevcord.Ctx, p *types.Poll) error {
 	dg := c.Dg()
 	p.Guild = c.Guild()
+	p.Creator = c.Author().User.ID
+	p.CreatedOn = time.Now()
 
 	// Get embed
 	emb, err := b.makePollEmbed(p)

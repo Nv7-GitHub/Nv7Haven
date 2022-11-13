@@ -2,6 +2,7 @@ package elements
 
 import (
 	"database/sql"
+	"fmt"
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -12,11 +13,21 @@ import (
 func (e *Elements) Suggest(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
 
+	// Autocapitalization
+	autocap := true
+	if opts[1] != nil {
+		autocap = opts[1].(bool)
+	}
+	if autocap {
+		opts[0] = util.Capitalize(opts[0].(string))
+	}
+
 	// Check if result exists already
+	fmt.Println("H")
 	var id int
 	var name string
 	err := e.db.QueryRow(`SELECT id, name FROM elements WHERE guild=$1 AND LOWER(name)=$2`, c.Guild(), strings.ToLower(opts[0].(string))).Scan(&id, &name)
-	if err == nil {
+	if err != nil {
 		if err == sql.ErrNoRows {
 			id = -1
 		} else {
@@ -25,12 +36,16 @@ func (e *Elements) Suggest(c sevcord.Ctx, opts []any) {
 		}
 	}
 
+	fmt.Println("H")
+
 	// Get els
 	v, res := e.base.GetCombCache(c)
 	if !res.Ok {
 		c.Respond(sevcord.NewMessage(res.Message))
 		return
 	}
+
+	fmt.Println("H")
 
 	// Get res
 	var idV any
@@ -41,16 +56,21 @@ func (e *Elements) Suggest(c sevcord.Ctx, opts []any) {
 	}
 
 	// Create suggestion
-	e.polls.CreatePoll(c, &types.Poll{
+	fmt.Println("H")
+	err = e.polls.CreatePoll(c, &types.Poll{
 		Kind: types.PollKindCombo,
 		Data: types.PollData{
 			"els":    util.Map(v, func(a int) float64 { return float64(a) }),
 			"result": idV,
 		},
 	})
+	if err != nil {
+		e.base.Error(c, err)
+		return
+	}
 
 	// Make text
-	names, err := e.base.GetNames(v)
+	names, err := e.base.GetNames(v, c.Guild())
 	if err != nil {
 		e.base.Error(c, err)
 		return

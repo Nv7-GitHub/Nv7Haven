@@ -87,7 +87,7 @@ func (e *Elements) Hint(c sevcord.Ctx, opts []any) {
 	for _, item := range items {
 		ids = append(ids, item.Els...)
 	}
-	nameMap, err := e.base.NameMap(util.Map(ids, func(a int32) int { return int(a) }))
+	nameMap, err := e.base.NameMap(util.Map(ids, func(a int32) int { return int(a) }), c.Guild())
 	if err != nil {
 		e.base.Error(c, err)
 		return
