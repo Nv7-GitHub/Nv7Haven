@@ -2,6 +2,7 @@ package polls
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -10,7 +11,7 @@ import (
 	"github.com/lib/pq"
 )
 
-func (e *Polls) elemCreate(p *types.Poll) (err error) {
+func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 	els := util.Map(p.Data["els"].([]float64), func(a float64) int { return int(a) })
 	_, exists := p.Data["result"].(float64)
 
@@ -40,6 +41,8 @@ func (e *Polls) elemCreate(p *types.Poll) (err error) {
 
 	// Create elem if not exists
 	var id int
+	var combid int // ID of combo if elem exists for news
+	var name string
 	if !exists {
 		// Get id
 		err = tx.QueryRow(`SELECT COUNT(*) FROM elements WHERE guild=$1`, p.Guild).Scan(&id)
@@ -82,6 +85,7 @@ func (e *Polls) elemCreate(p *types.Poll) (err error) {
 			Parents:   pq.Int32Array(util.Map(els, func(a int) int32 { return int32(a) })),
 			TreeSize:  treeSize,
 		}
+		name = el.Name
 
 		// Insert element
 		_, err = tx.NamedExec(`INSERT INTO elements (id, guild, name, image, color, comment, creator, createdon, commenter, colorer, imager, parents, treesize) VALUES (:id, :guild, :name, :image, :color, :comment, :creator, :createdon, :commenter, :colorer, :imager, :parents, :treesize)`, el)
@@ -91,6 +95,18 @@ func (e *Polls) elemCreate(p *types.Poll) (err error) {
 	} else {
 		// TODO: Re-calc parents & tree size if this is better
 		id = int(p.Data["result"].(float64))
+
+		// Get name
+		err = tx.QueryRow(`SELECT name FROM elements WHERE id=$1 AND guild=$2`, id, p.Guild).Scan(&name)
+		if err != nil {
+			return
+		}
+
+		// Combo ID
+		err = tx.QueryRow(`SELECT COUNT(*) FROM combos WHERE guild=$1`, p.Guild).Scan(&combid)
+		if err != nil {
+			return
+		}
 	}
 
 	// Create combo
@@ -112,6 +128,11 @@ func (e *Polls) elemCreate(p *types.Poll) (err error) {
 		}
 	}
 
-	// Done!
+	// Message
+	if exists {
+		news(fmt.Sprintf("🆕 Combination - **%s** %s - Combination **#%d**", name, e.pollContextMsg(p), combid))
+	} else {
+		news(fmt.Sprintf("🆕 Element - **%s** %s - Element **#%d**", name, e.pollContextMsg(p), id))
+	}
 	return
 }
