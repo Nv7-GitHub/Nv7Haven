@@ -6,9 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"sort"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
@@ -48,9 +45,10 @@ type Combo struct {
 }
 
 type Inventory struct {
-	Guild string      `db:"guild"`
-	User  string      `db:"user"`
-	Inv   interface{} `db:"inv"` // pq array
+	Guild   string      `db:"guild"`
+	User    string      `db:"user"`
+	Inv     interface{} `db:"inv"` // pq array
+	VoteCnt int         `db:"votecnt"`
 }
 
 type Category struct {
@@ -103,7 +101,7 @@ func main() {
 	fmt.Println("Connected in", time.Since(start))
 
 	// Add elements
-	start = time.Now()
+	/*start = time.Now()
 	els := make([]Element, 0)
 	for _, db := range eodb.DB {
 		for _, el := range db.Elements {
@@ -138,10 +136,10 @@ func main() {
 	}
 	fmt.Println("Got elements in", time.Since(start))
 
-	BulkInsert("INSERT INTO elements (id, guild, name, image, color, comment, creator, createdon, commenter, colorer, imager, parents, treesize) VALUES (:id, :guild, :name, :image, :color, :comment, :creator, :createdon, :commenter, :colorer, :imager, :parents, :treesize)", els, db)
+	BulkInsert("INSERT INTO elements (id, guild, name, image, color, comment, creator, createdon, commenter, colorer, imager, parents, treesize) VALUES (:id, :guild, :name, :image, :color, :comment, :creator, :createdon, :commenter, :colorer, :imager, :parents, :treesize)", els, db)*/
 
 	// Add combos
-	start = time.Now()
+	/*start = time.Now()
 	combs := make([]Combo, 0)
 	for _, db := range eodb.DB {
 	skip:
@@ -165,10 +163,10 @@ func main() {
 	}
 	fmt.Println("Got combos in", time.Since(start))
 
-	BulkInsert("INSERT INTO combos (guild, result, els, createdon) VALUES (:guild, :result, :els, :createdon)", combs, db)
+	BulkInsert("INSERT INTO combos (guild, result, els, createdon) VALUES (:guild, :result, :els, :createdon)", combs, db)*/
 
 	// Add invs
-	/*start = time.Now()
+	start = time.Now()
 	invs := make([]Inventory, 0)
 	for _, db := range eodb.DB {
 		for user, inv := range db.Invs() {
@@ -177,15 +175,16 @@ func main() {
 				items = append(items, el)
 			}
 			invs = append(invs, Inventory{
-				Guild: db.Guild,
-				User:  user,
-				Inv:   pq.Array(items),
+				Guild:   db.Guild,
+				User:    user,
+				Inv:     pq.Array(items),
+				VoteCnt: inv.VoteCnt,
 			})
 		}
 	}
 	fmt.Println("Got invs in", time.Since(start))
 
-	BulkInsert("INSERT INTO inventories (guild, \"user\", inv) VALUES (:guild, :user, :inv)", invs, db)*/
+	BulkInsert("INSERT INTO inventories (guild, \"user\", inv, votecnt) VALUES (:guild, :user, :inv, :votecnt)", invs, db)
 
 	// Add categories
 	/*start = time.Now()
