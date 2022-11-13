@@ -16,6 +16,10 @@ var seps = []string{
 func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 	for _, sep := range seps {
 		if strings.Contains(content, sep) {
+			// Check ctx
+			if !b.base.CheckCtx(c) {
+				return
+			}
 			if !b.base.IsPlayChannel(c) {
 				return
 			}
