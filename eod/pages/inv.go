@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/bwmarrin/discordgo"
 )
@@ -26,23 +27,11 @@ func (p *Pages) InvHandler(c sevcord.Ctx, params string) {
 
 	// Apply page
 	page, _ := strconv.Atoi(parts[3])
-	switch parts[0] {
-	case "prev":
-		page--
-
-	case "next":
-		page++
-	}
-	if page < 0 {
-		page = pagecnt - 1
-	}
-	if page >= pagecnt {
-		page = 0
-	}
+	page = ApplyPage(parts[0], page, pagecnt)
 
 	// Get values
 	var inv []string
-	err = p.db.Select(&inv, `SELECT name FROM elements WHERE id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) AND guild=$1 ORDER BY $3 LIMIT $4 OFFSET $5`, c.Guild(), parts[1], parts[2], length, length*page)
+	err = p.db.Select(&inv, `SELECT name FROM elements WHERE id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) AND guild=$1 ORDER BY`+types.SortSql[parts[2]], ` LIMIT $3 OFFSET $4`, c.Guild(), parts[1], length, length*page)
 	if err != nil {
 		p.base.Error(c, err)
 		return

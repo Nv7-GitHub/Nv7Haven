@@ -14,7 +14,6 @@ import (
 
 const maxHintEls = 30
 const NoCheck = "❌"
-const Check = "<:eodCheck:765333533362225222>"
 
 var noObscure = map[rune]struct{}{
 	' ': {},
@@ -99,7 +98,7 @@ func (e *Elements) Hint(c sevcord.Ctx, opts []any) {
 	for _, item := range items {
 		// Emoji
 		if item.Cont {
-			description.WriteString(Check)
+			description.WriteString(types.Check)
 		} else {
 			description.WriteString(NoCheck)
 		}

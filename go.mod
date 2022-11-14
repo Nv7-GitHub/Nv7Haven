@@ -9,6 +9,7 @@ require (
 	github.com/Nv7-Github/firebase v0.0.0-20201012033747-47c56e1d869d
 	github.com/Nv7-Github/sevcord/v2 v2.2.3
 	github.com/bwmarrin/discordgo v0.26.2-0.20221109191923-4ba7062176cd
+	github.com/dustin/go-humanize v1.0.0
 	github.com/finnbear/moderation v0.11.4
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/gofiber/fiber/v2 v2.13.0

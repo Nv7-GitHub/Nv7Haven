@@ -8,6 +8,7 @@ import (
 
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/Nv7-Github/sevcord/v2"
+	"github.com/dustin/go-humanize"
 )
 
 var lbSorts = []sevcord.Choice{
@@ -59,19 +60,7 @@ func (p *Pages) LbHandler(c sevcord.Ctx, params string) {
 
 	// Apply page
 	page, _ := strconv.Atoi(parts[3])
-	switch parts[0] {
-	case "prev":
-		page--
-
-	case "next":
-		page++
-	}
-	if page < 0 {
-		page = pagecnt - 1
-	}
-	if page >= pagecnt {
-		page = 0
-	}
+	page = ApplyPage(parts[0], page, pagecnt)
 
 	// Get res
 	res := vals[page*length : util.Min((page+1)*length, cnt)]
@@ -103,10 +92,10 @@ func (p *Pages) LbHandler(c sevcord.Ctx, params string) {
 		if v.User == parts[1] {
 			youTxt = " *You*"
 		}
-		fmt.Fprintf(description, "%d. <@%s>%s - %s\n", i+1+length*page, v.User, youTxt, util.FormatInt(v.Cnt))
+		fmt.Fprintf(description, "%d. <@%s>%s - %s\n", i+1+length*page, v.User, youTxt, humanize.FormatInteger("", v.Cnt))
 	}
 	if !contains {
-		fmt.Fprintf(description, "\n%d. <@%s> *You* - %s", pos+1, parts[1], util.FormatInt(usercnt))
+		fmt.Fprintf(description, "\n%d. <@%s> *You* - %s", pos+1, parts[1], humanize.FormatInteger("", usercnt))
 	}
 
 	// Respond

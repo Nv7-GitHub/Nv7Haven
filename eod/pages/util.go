@@ -9,3 +9,20 @@ func PageSwitchBtns(handler, params string) []sevcord.Component {
 		sevcord.NewButton("", sevcord.ButtonStylePrimary, handler, "next|"+params).WithEmoji(sevcord.ComponentEmojiCustom("rightarrow", "861722690926936084", false)),
 	}
 }
+
+func ApplyPage(param string, page, pagecnt int) int {
+	switch param {
+	case "prev":
+		page--
+
+	case "next":
+		page++
+	}
+	if page < 0 {
+		page = pagecnt - 1
+	}
+	if page >= pagecnt {
+		page = 0
+	}
+	return page
+}

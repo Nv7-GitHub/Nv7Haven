@@ -103,5 +103,14 @@ var Sorts = []sevcord.Choice{
 	sevcord.NewChoice("Tree Size", "treesize"),
 }
 
+var SortSql = map[string]string{
+	"id":        "id",
+	"name":      "name",
+	"creator":   "creator",
+	"createdon": "createdon",
+	"treesize":  "treesize DESC",
+}
+
 // Consts
 const RedCircle = "🔴"
+const Check = "<:eodCheck:765333533362225222>"

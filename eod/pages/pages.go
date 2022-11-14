@@ -35,5 +35,12 @@ func NewPages(base *base.Base, db *sqlx.DB, s *sevcord.Sevcord) *Pages {
 		sevcord.NewOption("user", "The user to view the leaderboard from the point of view of!", sevcord.OptionKindUser, false),
 	))
 	s.AddButtonHandler("lb", p.LbHandler)
+	s.RegisterSlashCommand(sevcord.NewSlashCommandGroup("cat", "View categories!", sevcord.NewSlashCommand(
+		"list",
+		"View a list of every categories!",
+		p.CatList,
+		sevcord.NewOption("sort", "How to order the categories!", sevcord.OptionKindString, false).AddChoices(catListSorts...),
+	)))
+	s.AddButtonHandler("catlist", p.CatListHandler)
 	return p
 }
