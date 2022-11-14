@@ -39,7 +39,7 @@ func (e *Elements) Info(c sevcord.Ctx, params []any) {
 		Color(elem.Color).
 		AddField("Creator", fmt.Sprintf("<@%s>", elem.Creator), true).
 		AddField("Created On", fmt.Sprintf("<t:%d>", elem.CreatedOn.Unix()), true).
-		AddField("Tree Size", humanize.FormatInteger("", elem.TreeSize), true)
+		AddField("Tree Size", humanize.Comma(int64(elem.TreeSize)), true)
 
 	// Optional things
 	if elem.Image != "" {

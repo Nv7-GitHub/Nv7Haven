@@ -2,20 +2,23 @@ package pages
 
 import (
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
+	"github.com/Nv7-Github/Nv7Haven/eod/categories"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/jmoiron/sqlx"
 )
 
 type Pages struct {
-	base *base.Base
-	db   *sqlx.DB
+	base       *base.Base
+	db         *sqlx.DB
+	categories *categories.Categories
 }
 
-func NewPages(base *base.Base, db *sqlx.DB, s *sevcord.Sevcord) *Pages {
+func NewPages(base *base.Base, db *sqlx.DB, s *sevcord.Sevcord, categories *categories.Categories) *Pages {
 	p := &Pages{
-		base: base,
-		db:   db,
+		base:       base,
+		db:         db,
+		categories: categories,
 	}
 	s.RegisterSlashCommand(sevcord.NewSlashCommand(
 		"inv",
@@ -40,7 +43,14 @@ func NewPages(base *base.Base, db *sqlx.DB, s *sevcord.Sevcord) *Pages {
 		"View a list of every categories!",
 		p.CatList,
 		sevcord.NewOption("sort", "How to order the categories!", sevcord.OptionKindString, false).AddChoices(catListSorts...),
+	), sevcord.NewSlashCommand(
+		"view",
+		"View a category's elements",
+		p.Cat,
+		sevcord.NewOption("category", "The category to view!", sevcord.OptionKindString, true).AutoComplete(p.categories.Autocomplete),
+		sevcord.NewOption("sort", "How to order the categories!", sevcord.OptionKindString, false).AddChoices(catListSorts...),
 	)))
 	s.AddButtonHandler("catlist", p.CatListHandler)
+	s.AddButtonHandler("cat", p.CatHandler)
 	return p
 }

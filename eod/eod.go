@@ -2,6 +2,7 @@ package eod
 
 import (
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
+	"github.com/Nv7-Github/Nv7Haven/eod/categories"
 	"github.com/Nv7-Github/Nv7Haven/eod/elements"
 	"github.com/Nv7-Github/Nv7Haven/eod/pages"
 	"github.com/Nv7-Github/Nv7Haven/eod/polls"
@@ -14,10 +15,11 @@ type Bot struct {
 	db *sqlx.DB
 
 	// Modules
-	base     *base.Base
-	elements *elements.Elements
-	polls    *polls.Polls
-	pages    *pages.Pages
+	base       *base.Base
+	elements   *elements.Elements
+	polls      *polls.Polls
+	pages      *pages.Pages
+	categories *categories.Categories
 }
 
 func InitEod(db *sqlx.DB, token string) {

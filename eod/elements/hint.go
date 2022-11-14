@@ -13,7 +13,6 @@ import (
 )
 
 const maxHintEls = 30
-const NoCheck = "❌"
 
 var noObscure = map[rune]struct{}{
 	' ': {},
@@ -100,7 +99,7 @@ func (e *Elements) Hint(c sevcord.Ctx, opts []any) {
 		if item.Cont {
 			description.WriteString(types.Check)
 		} else {
-			description.WriteString(NoCheck)
+			description.WriteString(types.NoCheck)
 		}
 		description.WriteString(" ")
 

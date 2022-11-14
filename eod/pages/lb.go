@@ -92,10 +92,10 @@ func (p *Pages) LbHandler(c sevcord.Ctx, params string) {
 		if v.User == parts[1] {
 			youTxt = " *You*"
 		}
-		fmt.Fprintf(description, "%d. <@%s>%s - %s\n", i+1+length*page, v.User, youTxt, humanize.FormatInteger("", v.Cnt))
+		fmt.Fprintf(description, "%d. <@%s>%s - %s\n", i+1+length*page, v.User, youTxt, humanize.Comma(int64(v.Cnt)))
 	}
 	if !contains {
-		fmt.Fprintf(description, "\n%d. <@%s> *You* - %s", pos+1, parts[1], humanize.FormatInteger("", usercnt))
+		fmt.Fprintf(description, "\n%d. <@%s> *You* - %s", pos+1, parts[1], humanize.Comma(int64(usercnt)))
 	}
 
 	// Respond
@@ -119,6 +119,8 @@ func (p *Pages) LbHandler(c sevcord.Ctx, params string) {
 
 func (p *Pages) Lb(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
+
+	p.base.IncrementCommandStat(c, "lb")
 
 	// Params
 	sort := "found"

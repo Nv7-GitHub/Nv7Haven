@@ -31,7 +31,7 @@ func (p *Pages) InvHandler(c sevcord.Ctx, params string) {
 
 	// Get values
 	var inv []string
-	err = p.db.Select(&inv, `SELECT name FROM elements WHERE id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) AND guild=$1 ORDER BY`+types.SortSql[parts[2]], ` LIMIT $3 OFFSET $4`, c.Guild(), parts[1], length, length*page)
+	err = p.db.Select(&inv, `SELECT name FROM elements WHERE id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) AND guild=$1 ORDER BY `+types.SortSql[parts[2]], ` LIMIT $3 OFFSET $4`, c.Guild(), parts[1], length, length*page)
 	if err != nil {
 		p.base.Error(c, err)
 		return

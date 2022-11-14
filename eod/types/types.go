@@ -114,3 +114,4 @@ var SortSql = map[string]string{
 // Consts
 const RedCircle = "🔴"
 const Check = "<:eodCheck:765333533362225222>"
+const NoCheck = "❌"
