@@ -237,6 +237,9 @@ func main() {
 			Language:      db.Config.LanguageFile,
 		})
 		for k, com := range db.Config.CommandStats {
+			if k == "invhint" {
+				k = "product"
+			}
 			commands = append(commands, CommandStat{
 				Guild:   db.Guild,
 				Command: k,
