@@ -40,5 +40,12 @@ func NewElements(s *sevcord.Sevcord, db *sqlx.DB, base *base.Base, polls *polls.
 		sevcord.NewOption("result", "The result of the combination!", sevcord.OptionKindString, true),
 		sevcord.NewOption("autocapitalize", "Whether or not to autocapitalize!", sevcord.OptionKindBool, false),
 	))
+	s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"products",
+		"View the elements that can be created using this element!",
+		e.Products,
+		sevcord.NewOption("element", "The element to view the products of!", sevcord.OptionKindInt, true).
+			AutoComplete(e.Autocomplete),
+	))
 	return e
 }

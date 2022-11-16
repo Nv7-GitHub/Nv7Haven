@@ -67,19 +67,22 @@ func (e *Elements) Hint(c sevcord.Ctx, opts []any) {
 		Els  pq.Int32Array `db:"els"`
 		Cont bool          `db:"cont"` // Whether user can make it
 	}
-	err := e.db.Select(&items, `SELECT els, els <@ (SELECT inv FROM inventories WHERE guild=$1 AND "user"=$2 LIMIT 1) cont FROM combos WHERE guild=$1 AND result=$3 LIMIT $4`, c.Guild(), c.Author().User.ID, el, maxHintEls)
+	err := e.db.Select(&items, `SELECT els, els <@ (SELECT inv FROM inventories WHERE guild=$1 AND "user"=$2 LIMIT 1) cont FROM combos WHERE guild=$1 AND result=$3`, c.Guild(), c.Author().User.ID, el)
 	if err != nil {
 		e.base.Error(c, err)
 		return
 	}
 
-	// Sort
+	// Sort & limit
 	sort.Slice(items, func(i, j int) bool {
 		if items[i].Cont && !items[j].Cont {
 			return true
 		}
 		return false
 	})
+	if len(items) > maxHintEls {
+		items = items[:maxHintEls]
+	}
 
 	// Get names
 	ids := []int32{int32(el)}
