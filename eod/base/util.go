@@ -65,6 +65,12 @@ func (b *Base) GetNames(items []int, guild string) ([]string, error) {
 	return names, nil
 }
 
+func (b *Base) GetName(guild string, elem int) (string, error) {
+	var name string
+	err := b.db.QueryRow("SELECT name FROM elements WHERE id=$1 AND guild=$2", elem, guild).Scan(&name)
+	return name, err
+}
+
 func (b *Base) IncrementCommandStat(c sevcord.Ctx, name string) {
 	_, err := b.db.Exec("INSERT INTO command_stats (guild, command, count) VALUES ($1, $2, 1) ON CONFLICT (guild, command) DO UPDATE SET count = command_stats.count + 1", c.Guild(), name)
 	if err != nil {

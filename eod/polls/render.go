@@ -1,6 +1,7 @@
 package polls
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -14,6 +15,24 @@ func (b *Polls) makePollEmbed(p *types.Poll) (sevcord.EmbedBuilder, error) {
 	switch p.Kind {
 	case types.PollKindCombo:
 		return b.makeComboEmbed(p)
+
+	case types.PollKindImage:
+		title := "Add Image"
+		oldImage := ""
+		if p.Data["old"] != "" {
+			oldImage = "[Old Image](" + p.Data["old"].(string) + ")\n"
+			title = "Change Image"
+		}
+		name, err := b.base.GetName(p.Guild, int(p.Data["elem"].(float64)))
+		if err != nil {
+			return sevcord.NewEmbed(), err
+		}
+		return sevcord.NewEmbed().
+				Title(title).
+				Description(makeMessage(fmt.Sprintf("**%s**\n%s[New Image](%s)", name, oldImage, p.Data["new"].(string)), p)).
+				Footer(footer, "").
+				Thumbnail(p.Data["new"].(string)),
+			nil
 
 		// TODO: The rest
 

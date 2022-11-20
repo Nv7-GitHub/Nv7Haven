@@ -36,6 +36,12 @@ func (b *Polls) pollSuccess(p *types.Poll, dg *discordgo.Session) {
 		if err != nil {
 			log.Println("create error", err)
 		}
+
+	case types.PollKindImage:
+		err := b.elemImageSuccess(p, newsFunc)
+		if err != nil {
+			log.Println("image error", err)
+		}
 	}
 
 	b.deletePoll(p, dg)

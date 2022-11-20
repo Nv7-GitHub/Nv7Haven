@@ -2,7 +2,7 @@
 ## Combo Poll
 ```go
 struct {
-  els []float64
+  els []any (float64)
   result float64 | string // String if new, float64 if exists
 }
 ```
@@ -65,7 +65,7 @@ struct {
 ```go
 struct {
   cat string
-  elems []float64
+  elems []any (float64)
 }
 ```
 
@@ -73,6 +73,6 @@ struct {
 ```go
 struct {
   cat string
-  elems []float64
+  elems []any (float64)
 }
 ```

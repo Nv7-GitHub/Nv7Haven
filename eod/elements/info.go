@@ -43,16 +43,16 @@ func (e *Elements) Info(c sevcord.Ctx, params []any) {
 
 	// Optional things
 	if elem.Image != "" {
-		emb.Thumbnail(elem.Image)
+		emb = emb.Thumbnail(elem.Image)
 	}
 	if elem.Commenter != "" {
-		emb.AddField("Commenter", fmt.Sprintf("<@%s>", elem.Commenter), true)
+		emb = emb.AddField("Commenter", fmt.Sprintf("<@%s>", elem.Commenter), true)
 	}
 	if elem.Colorer != "" {
-		emb.AddField("Colorer", fmt.Sprintf("<@%s>", elem.Colorer), true)
+		emb = emb.AddField("Colorer", fmt.Sprintf("<@%s>", elem.Colorer), true)
 	}
 	if elem.Imager != "" {
-		emb.AddField("Imager", fmt.Sprintf("<@%s>", elem.Imager), true)
+		emb = emb.AddField("Imager", fmt.Sprintf("<@%s>", elem.Imager), true)
 	}
 
 	// Respond
