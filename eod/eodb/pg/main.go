@@ -6,7 +6,9 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/jmoiron/sqlx"
@@ -101,12 +103,12 @@ func main() {
 	fmt.Println("Connected in", time.Since(start))
 
 	// Add elements
-	/*start = time.Now()
+	start = time.Now()
 	els := make([]Element, 0)
 	for _, db := range eodb.DB {
 		for _, el := range db.Elements {
 			var timeV time.Time
-			if el.CreatedOn == nil {
+			if el.CreatedOn == nil || time.Since(el.CreatedOn.Time) < 0 {
 				timeV = time.Now()
 			} else {
 				timeV = el.CreatedOn.Time
@@ -116,6 +118,18 @@ func main() {
 			}
 			if el.Parents == nil {
 				el.Parents = []int{}
+			}
+			if len(el.Name) > 240 {
+				el.Name = el.Name[:240]
+			}
+			if len(el.Comment) > 2400 {
+				el.Comment = el.Comment[:2400]
+			}
+			if !utf8.ValidString(el.Name) {
+				el.Name = fmt.Sprintf("InvalidElementName%d", el.ID)
+			}
+			if !utf8.ValidString(el.Comment) {
+				el.Comment = "None"
 			}
 			els = append(els, Element{
 				ID:        el.ID,
@@ -136,7 +150,7 @@ func main() {
 	}
 	fmt.Println("Got elements in", time.Since(start))
 
-	BulkInsert("INSERT INTO elements (id, guild, name, image, color, comment, creator, createdon, commenter, colorer, imager, parents, treesize) VALUES (:id, :guild, :name, :image, :color, :comment, :creator, :createdon, :commenter, :colorer, :imager, :parents, :treesize)", els, db)*/
+	BulkInsert("INSERT INTO elements (id, guild, name, image, color, comment, creator, createdon, commenter, colorer, imager, parents, treesize) VALUES (:id, :guild, :name, :image, :color, :comment, :creator, :createdon, :commenter, :colorer, :imager, :parents, :treesize)", els, db)
 
 	// Add combos
 	/*start = time.Now()
@@ -166,7 +180,7 @@ func main() {
 	BulkInsert("INSERT INTO combos (guild, result, els, createdon) VALUES (:guild, :result, :els, :createdon)", combs, db)*/
 
 	// Add invs
-	start = time.Now()
+	/*start = time.Now()
 	invs := make([]Inventory, 0)
 	for _, db := range eodb.DB {
 		for user, inv := range db.Invs() {
@@ -184,7 +198,7 @@ func main() {
 	}
 	fmt.Println("Got invs in", time.Since(start))
 
-	BulkInsert("INSERT INTO inventories (guild, \"user\", inv, votecnt) VALUES (:guild, :user, :inv, :votecnt)", invs, db)
+	BulkInsert("INSERT INTO inventories (guild, \"user\", inv, votecnt) VALUES (:guild, :user, :inv, :votecnt)", invs, db)*/
 
 	// Add categories
 	/*start = time.Now()
