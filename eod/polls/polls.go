@@ -10,15 +10,21 @@ import (
 type Polls struct {
 	db   *sqlx.DB
 	base *base.Base
+	s    *sevcord.Sevcord
+}
+
+func (p *Polls) Init() {
+	p.s.Dg().AddHandler(p.reactionHandler)
+	p.s.Dg().AddHandler(p.unReactionHandler)
+	p.s.Dg().Identify.Intents |= discordgo.IntentsGuildMessageReactions
 }
 
 func NewPolls(d *sqlx.DB, b *base.Base, s *sevcord.Sevcord) *Polls {
 	p := &Polls{
 		db:   d,
 		base: b,
+		s:    s,
 	}
-	s.Dg().AddHandler(p.reactionHandler)
-	s.Dg().AddHandler(p.unReactionHandler)
-	s.Dg().Identify.Intents |= discordgo.IntentsGuildMessageReactions
+	p.Init()
 	return p
 }

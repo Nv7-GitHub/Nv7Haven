@@ -12,15 +12,12 @@ type Pages struct {
 	base       *base.Base
 	db         *sqlx.DB
 	categories *categories.Categories
+	s          *sevcord.Sevcord
 }
 
-func NewPages(base *base.Base, db *sqlx.DB, s *sevcord.Sevcord, categories *categories.Categories) *Pages {
-	p := &Pages{
-		base:       base,
-		db:         db,
-		categories: categories,
-	}
-	s.RegisterSlashCommand(sevcord.NewSlashCommand(
+func (p *Pages) Init() {
+	// Inv
+	p.s.RegisterSlashCommand(sevcord.NewSlashCommand(
 		"inv",
 		"View your inventory!",
 		p.Inv,
@@ -28,8 +25,10 @@ func NewPages(base *base.Base, db *sqlx.DB, s *sevcord.Sevcord, categories *cate
 		sevcord.NewOption("sort", "The sort order of the inventory!", sevcord.OptionKindString, false).
 			AddChoices(types.Sorts...),
 	))
-	s.AddButtonHandler("inv", p.InvHandler)
-	s.RegisterSlashCommand(sevcord.NewSlashCommand(
+	p.s.AddButtonHandler("inv", p.InvHandler)
+
+	// Lb
+	p.s.RegisterSlashCommand(sevcord.NewSlashCommand(
 		"lb",
 		"View the leaderboard!",
 		p.Lb,
@@ -37,8 +36,10 @@ func NewPages(base *base.Base, db *sqlx.DB, s *sevcord.Sevcord, categories *cate
 			AddChoices(lbSorts...),
 		sevcord.NewOption("user", "The user to view the leaderboard from the point of view of!", sevcord.OptionKindUser, false),
 	))
-	s.AddButtonHandler("lb", p.LbHandler)
-	s.RegisterSlashCommand(sevcord.NewSlashCommandGroup("cat", "View categories!", sevcord.NewSlashCommand(
+	p.s.AddButtonHandler("lb", p.LbHandler)
+
+	// Categories
+	p.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup("cat", "View categories!", sevcord.NewSlashCommand(
 		"list",
 		"View a list of every categories!",
 		p.CatList,
@@ -50,7 +51,17 @@ func NewPages(base *base.Base, db *sqlx.DB, s *sevcord.Sevcord, categories *cate
 		sevcord.NewOption("category", "The category to view!", sevcord.OptionKindString, true).AutoComplete(p.categories.Autocomplete),
 		sevcord.NewOption("sort", "How to order the categories!", sevcord.OptionKindString, false).AddChoices(catListSorts...),
 	)))
-	s.AddButtonHandler("catlist", p.CatListHandler)
-	s.AddButtonHandler("cat", p.CatHandler)
+	p.s.AddButtonHandler("catlist", p.CatListHandler)
+	p.s.AddButtonHandler("cat", p.CatHandler)
+}
+
+func NewPages(base *base.Base, db *sqlx.DB, s *sevcord.Sevcord, categories *categories.Categories) *Pages {
+	p := &Pages{
+		base:       base,
+		db:         db,
+		categories: categories,
+		s:          s,
+	}
+	p.Init()
 	return p
 }

@@ -20,6 +20,11 @@ type Base struct {
 
 func (b *Base) Init() {
 	b.s.AddMiddleware(b.CheckCtx)
+	b.s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"stats",
+		"View the statistics of this server!",
+		b.Stats,
+	))
 }
 
 func NewBase(s *sevcord.Sevcord, db *sqlx.DB) *Base {
