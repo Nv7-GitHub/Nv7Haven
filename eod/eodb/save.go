@@ -130,6 +130,7 @@ func (d *DB) DeleteVCat(name string) error {
 		d.Unlock()
 		err := d.DelCatCache(val.Name)
 		if err != nil {
+			d.Lock()
 			return err
 		}
 		d.Lock()
