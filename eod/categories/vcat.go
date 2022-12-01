@@ -325,7 +325,7 @@ func (b *Categories) CacheVCats() {
 			if !res.Exists { // Delete if not exists
 				err := db.DeleteVCat(cat.Name)
 				if err != nil {
-					panic(err)
+					fmt.Println("VCat Calc Error: ", err)
 				}
 			}
 		}
