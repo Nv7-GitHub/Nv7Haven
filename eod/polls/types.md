@@ -76,3 +76,58 @@ struct {
   elems []any (float64)
 }
 ```
+
+## Query Poll
+```go
+struct {
+  query string
+  edit bool
+  kind string // see below
+  data any // jsonb
+}
+```
+
+### Query types
+**Element**
+```go
+struct {
+  elem float64
+}
+```
+**Products**
+```go
+struct {
+  query string
+}
+```
+**Parents**
+```go
+struct {
+  query string
+}
+```
+**Inventory**
+```go
+struct {
+  user string
+}
+```
+**Elements**
+```go
+struct {}
+```
+**Regex**
+```go
+struct {
+  query string
+}
+```
+**Comparison**
+```go
+struct {
+  query string
+  field string // Valid fields: name, image, color, comment, creator, commenter, colorer, imager, treesize
+  typ string `enum:"notequal,equal,greater,less"`
+  value any // float64 or string
+}
+```
