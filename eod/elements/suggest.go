@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/Nv7-Github/sevcord/v2"
@@ -46,6 +47,14 @@ func (e *Elements) Suggest(c sevcord.Ctx, opts []any) {
 	var idV any
 	if id == -1 {
 		idV = opts[0].(string)
+
+		// Check if valid
+		var ok types.Resp
+		idV, ok = base.CheckName(idV.(string))
+		if !ok.Ok {
+			c.Respond(sevcord.NewMessage(ok.Message + " " + types.RedCircle))
+			return
+		}
 	} else {
 		idV = float64(id)
 	}

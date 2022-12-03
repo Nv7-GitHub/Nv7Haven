@@ -2,14 +2,16 @@ package base
 
 import (
 	"fmt"
+	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/lib/pq"
 )
 
 func (b *Base) CheckCtx(ctx sevcord.Ctx) bool {
 	var cnt int
-	err := b.db.QueryRow("SELECT COUNT(*) FROM config WHERE guild=$1", ctx.Guild()).Scan(&cnt)
+	err := b.db.QueryRow("SELECT COUNT(*) FROM config WHERE guild=$1 AND config IS NOT NULL", ctx.Guild()).Scan(&cnt)
 	if err != nil {
 		b.Error(ctx, err)
 		return false
@@ -39,4 +41,38 @@ func (b *Base) CheckCtx(ctx sevcord.Ctx) bool {
 	}
 
 	return true
+}
+
+var notAllowed = []string{
+	"\n",
+	"<@",
+	"\t",
+	"`",
+	"@everyone",
+	"@here",
+	"<t:",
+	"</",
+}
+
+var charReplace = map[rune]rune{
+	'’': '\'',
+	'‘': '\'',
+	'`': '\'',
+	'”': '"',
+	'“': '"',
+}
+
+// CheckName checks the validity of a name & returns a cleaned up version + error
+func CheckName(name string) (string, types.Resp) {
+	for _, v := range notAllowed {
+		if strings.Contains(name, v) {
+			return "", types.Fail("A name may not contain '" + v + "'!")
+		}
+	}
+	for k, v := range charReplace {
+		if strings.ContainsRune(name, k) {
+			name = strings.ReplaceAll(name, string(k), string(v))
+		}
+	}
+	return name, types.Ok()
 }

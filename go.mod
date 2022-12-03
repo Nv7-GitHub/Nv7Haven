@@ -8,7 +8,7 @@ require (
 	github.com/Nv7-Github/bsharp v0.0.0-20220313202721-6b77962b469f
 	github.com/Nv7-Github/firebase v0.0.0-20201012033747-47c56e1d869d
 	github.com/Nv7-Github/sevcord/v2 v2.2.3
-	github.com/bwmarrin/discordgo v0.26.2-0.20221109191923-4ba7062176cd
+	github.com/bwmarrin/discordgo v0.26.2-0.20221202224030-b8188269f98b
 	github.com/dustin/go-humanize v1.0.0
 	github.com/finnbear/moderation v0.11.4
 	github.com/go-sql-driver/mysql v1.6.0
@@ -25,7 +25,7 @@ require (
 	github.com/mitchellh/mapstructure v1.4.3
 	github.com/pocketbase/dbx v1.6.0
 	github.com/pocketbase/pocketbase v0.7.9
-	golang.org/x/crypto v0.2.0
+	golang.org/x/crypto v0.3.0
 	google.golang.org/grpc v1.49.0
 	google.golang.org/protobuf v1.28.1
 )
