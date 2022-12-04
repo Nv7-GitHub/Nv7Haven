@@ -57,17 +57,20 @@ type ServerMem struct {
 type PollKind string
 
 const (
-	PollKindCombo         PollKind = "combo"
-	PollKindCategorize    PollKind = "cat"
-	PollKindUncategorized PollKind = "rmcat"
-	PollKindComment       PollKind = "comment" // Use "Sign", not "Comment"
-	PollKindCatComment    PollKind = "catcomment"
-	PollKindImage         PollKind = "img"
-	PollKindCatImage      PollKind = "catimg"
-	PollKindColor         PollKind = "color"
-	PollKindCatColor      PollKind = "catcolor"
-	PollKindQuery         PollKind = "query"
-	PollKindDelQuery      PollKind = "delquery"
+	PollKindCombo        PollKind = "combo"
+	PollKindCategorize   PollKind = "cat"
+	PollKindUncategorize PollKind = "rmcat"
+	PollKindComment      PollKind = "comment" // Use "Sign", not "Comment"
+	PollKindCatComment   PollKind = "catcomment"
+	PollKindQueryComment PollKind = "querycomment"
+	PollKindImage        PollKind = "img"
+	PollKindCatImage     PollKind = "catimg"
+	PollKindQueryImage   PollKind = "queryimg"
+	PollKindColor        PollKind = "color"
+	PollKindCatColor     PollKind = "catcolor"
+	PollKindQueryColor   PollKind = "querycolor"
+	PollKindQuery        PollKind = "query"
+	PollKindDelQuery     PollKind = "delquery"
 )
 
 type PgData map[string]interface{}

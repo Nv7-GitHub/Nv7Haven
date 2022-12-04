@@ -1,6 +1,7 @@
 package util
 
 import (
+	"strconv"
 	"strings"
 	"unicode"
 )
@@ -45,4 +46,15 @@ func Capitalize(s string) string {
 		}
 	}
 	return strings.Join(words, " ")
+}
+
+func FormatHex(color int) string {
+	hex := strconv.FormatInt(int64(color), 16)
+	if len(hex) < 6 {
+		diff := 6 - len(hex)
+		for i := 0; i < diff; i++ {
+			hex = "0" + hex
+		}
+	}
+	return "#" + hex
 }

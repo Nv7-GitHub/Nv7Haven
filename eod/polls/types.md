@@ -25,6 +25,15 @@ struct {
 }
 ```
 
+## Query Comment Poll
+```go
+struct {
+  query string
+  new string
+  old string
+}
+```
+
 ## Image Poll
 ```go
 struct {
@@ -43,6 +52,15 @@ struct {
 }
 ```
 
+## Query Image Poll
+```go
+struct {
+  query string
+  new string
+  old string
+}
+```
+
 ## Color Poll
 ```go
 struct {
@@ -56,6 +74,15 @@ struct {
 ```go
 struct {
   cat string
+  new float64
+  old float64
+}
+```
+
+## Query Color Poll
+```go
+struct {
+  query string
   new float64
   old float64
 }
