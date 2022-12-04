@@ -21,19 +21,25 @@ var lbSorts = []sevcord.Choice{
 	sevcord.NewChoice("Categories Signed", "catsigned"),
 	sevcord.NewChoice("Categories Imaged", "catimg"),
 	sevcord.NewChoice("Categories Colored", "catcolor"),
+	sevcord.NewChoice("Queries Signed", "querysigned"),
+	sevcord.NewChoice("Queries Imaged", "queryimg"),
+	sevcord.NewChoice("Queries Colored", "querycolor"),
 }
 
 // Params: [guild]
 var lbSortCode = map[string]string{
-	"found":     "array_length(inv, 1)",
-	"made":      `(SELECT COUNT(*) FROM elements WHERE guild=$1 AND creator="user")`,
-	"votes":     "votecnt",
-	"signed":    `(SELECT COUNT(*) FROM elements WHERE guild=$1 AND commenter="user")`,
-	"img":       `(SELECT COUNT(*) FROM elements WHERE guild=$1 AND imager="user")`,
-	"color":     `(SELECT COUNT(*) FROM elements WHERE guild=$1 AND colorer="user")`,
-	"catsigned": `(SELECT COUNT(*) FROM categories WHERE guild=$1 AND commenter="user")`,
-	"catimg":    `(SELECT COUNT(*) FROM categories WHERE guild=$1 AND imager="user")`,
-	"catcolor":  `(SELECT COUNT(*) FROM categories WHERE guild=$1 AND colorer="user")`,
+	"found":       "array_length(inv, 1)",
+	"made":        `(SELECT COUNT(*) FROM elements WHERE guild=$1 AND creator="user")`,
+	"votes":       "votecnt",
+	"signed":      `(SELECT COUNT(*) FROM elements WHERE guild=$1 AND commenter="user")`,
+	"img":         `(SELECT COUNT(*) FROM elements WHERE guild=$1 AND imager="user")`,
+	"color":       `(SELECT COUNT(*) FROM elements WHERE guild=$1 AND colorer="user")`,
+	"catsigned":   `(SELECT COUNT(*) FROM categories WHERE guild=$1 AND commenter="user")`,
+	"catimg":      `(SELECT COUNT(*) FROM categories WHERE guild=$1 AND imager="user")`,
+	"catcolor":    `(SELECT COUNT(*) FROM categories WHERE guild=$1 AND colorer="user")`,
+	"querysigned": `(SELECT COUNT(*) FROM queries WHERE guild=$1 AND commenter="user")`,
+	"queryimg":    `(SELECT COUNT(*) FROM queries WHERE guild=$1 AND imager="user")`,
+	"querycolor":  `(SELECT COUNT(*) FROM queries WHERE guild=$1 AND colorer="user")`,
 }
 
 // TODO: Support queries

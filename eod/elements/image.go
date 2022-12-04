@@ -29,7 +29,7 @@ func (e *Elements) ImageCmd(c sevcord.Ctx, opts []any) {
 	// Make poll
 	e.polls.CreatePoll(c, &types.Poll{
 		Kind: types.PollKindImage,
-		Data: types.PollData{
+		Data: types.PgData{
 			"elem": float64(opts[0].(int64)),
 			"new":  opts[1].(*sevcord.SlashCommandAttachment).URL,
 			"old":  old,

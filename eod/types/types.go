@@ -66,15 +66,17 @@ const (
 	PollKindCatImage      PollKind = "catimg"
 	PollKindColor         PollKind = "color"
 	PollKindCatColor      PollKind = "catcolor"
+	PollKindQuery         PollKind = "query"
+	PollKindDelQuery      PollKind = "delquery"
 )
 
-type PollData map[string]interface{}
+type PgData map[string]interface{}
 
-func (p PollData) Value() (driver.Value, error) {
+func (p PgData) Value() (driver.Value, error) {
 	return json.Marshal(p)
 }
 
-func (p PollData) Scan(v interface{}) error {
+func (p PgData) Scan(v interface{}) error {
 	return json.Unmarshal(v.([]byte), &p)
 }
 
@@ -91,7 +93,7 @@ type Poll struct {
 
 	// Required
 	Kind PollKind `db:"kind"`
-	Data PollData `db:"data"`
+	Data PgData   `db:"data"`
 }
 
 // Discord util
@@ -109,6 +111,38 @@ var SortSql = map[string]string{
 	"creator":   "creator",
 	"createdon": "createdon",
 	"treesize":  "treesize DESC",
+}
+
+type QueryKind string
+
+const (
+	QueryKindElement    QueryKind = "element"
+	QueryKindCategory   QueryKind = "cat"
+	QueryKindProducts   QueryKind = "products"
+	QueryKindParents    QueryKind = "parents"
+	QueryKindInventory  QueryKind = "inv"
+	QueryKindElements   QueryKind = "elements"
+	QueryKindRegex      QueryKind = "regex"
+	QueryKindComparison QueryKind = "compare"
+)
+
+type Query struct {
+	Guild   string `db:"guild"`
+	Name    string `db:"name"`
+	Creator string `db:"creator"`
+
+	Image   string `db:"image"`
+	Color   int    `db:"color"`
+	Comment string `db:"comment"`
+
+	Imager    string `db:"imager"`
+	Colorer   string `db:"colorer"`
+	Commenter string `db:"commenter"`
+
+	CreatedOn time.Time
+
+	Kind QueryKind `db:"kind"`
+	Data PgData    `db:"data"`
 }
 
 // Consts

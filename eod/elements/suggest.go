@@ -62,7 +62,7 @@ func (e *Elements) Suggest(c sevcord.Ctx, opts []any) {
 	// Create suggestion
 	err = e.polls.CreatePoll(c, &types.Poll{
 		Kind: types.PollKindCombo,
-		Data: types.PollData{
+		Data: types.PgData{
 			"els":    util.Map(v, func(a int) any { return float64(a) }),
 			"result": idV,
 		},

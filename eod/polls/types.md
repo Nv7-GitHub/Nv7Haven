@@ -94,6 +94,12 @@ struct {
   elem float64
 }
 ```
+**Category**
+```go
+struct {
+  cat string
+}
+```
 **Products**
 ```go
 struct {
@@ -129,5 +135,12 @@ struct {
   field string // Valid fields: name, image, color, comment, creator, commenter, colorer, imager, treesize
   typ string `enum:"notequal,equal,greater,less"`
   value any // float64 or string
+}
+```
+
+## Delete Query Poll
+```go
+struct {
+  query string
 }
 ```
