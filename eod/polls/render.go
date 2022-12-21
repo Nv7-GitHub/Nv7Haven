@@ -131,6 +131,15 @@ func (b *Polls) makePollEmbed(p *types.Poll) (sevcord.EmbedBuilder, error) {
 			Description(makeMessage(fmt.Sprintf("**%s**\nElements:\n%s%s", p.Data["cat"].(string), strings.Join(names, "\n"), moreTxt), p)).
 			Footer(footer, ""), nil
 
+	case types.PollKindDelQuery:
+		return sevcord.NewEmbed().
+			Title("Delete Query").
+			Description(makeMessage(fmt.Sprintf("**%s**", p.Data["query"].(string)), p)).
+			Footer(footer, ""), nil
+
+	case types.PollKindQuery:
+		return b.makeQueryEmbed(p)
+
 	default:
 		return sevcord.NewEmbed(), nil // Impossible
 	}
@@ -177,6 +186,64 @@ func (b *Polls) makeComboEmbed(p *types.Poll) (sevcord.EmbedBuilder, error) {
 	return sevcord.NewEmbed().
 		Title(title).
 		Description(makeMessage(txt.String(), p)).
+		Footer(footer, ""), nil
+}
+
+func (b *Polls) makeQueryText(typ string, guild string, data map[string]any) (string, string, error) {
+	var kind string
+	var description string
+	switch typ {
+	case "element":
+		kind = "Element"
+		name, err := b.base.GetName(guild, int(data["elem"].(float64)))
+		if err != nil {
+			return "", "", err
+		}
+		description = "*Element*: **" + name + "**"
+
+	case "category":
+		kind = "Category"
+		description = "*Category*: **" + data["cat"].(string) + "**"
+
+	case "products":
+		kind = "Products"
+		description = "*Query*: **" + data["query"].(string) + "**"
+
+	case "parents":
+		kind = "Parents"
+		description = "*Query*: **" + data["elem"].(string) + "**"
+
+	case "inventory":
+		kind = "Inventory"
+		description = "*User*: <@" + data["user"].(string) + ">"
+
+	case "elements":
+		kind = "Elements"
+		description = "*All Elements*"
+	}
+
+	return kind, description, nil
+}
+
+func (b *Polls) makeQueryEmbed(p *types.Poll) (sevcord.EmbedBuilder, error) {
+	title := "New %s Query"
+	kind, desc, err := b.makeQueryText(p.Data["kind"].(string), p.Guild, p.Data["data"].(map[string]any))
+	if err != nil {
+		return sevcord.NewEmbed(), err
+	}
+	if p.Data["edit"].(bool) {
+		title = "Edit %s Query"
+		var oldquery types.Query // TODO: Fetch this from DB
+		oldkind, olddesc, err := b.makeQueryText(string(oldquery.Kind), p.Guild, map[string]any(oldquery.Data))
+		if err != nil {
+			return sevcord.NewEmbed(), err
+		}
+		desc += "\n\n**Old Query:** *" + oldkind + "*\n" + olddesc
+	}
+
+	return sevcord.NewEmbed().
+		Title(fmt.Sprintf(title, kind)).
+		Description(makeMessage(desc, p)).
 		Footer(footer, ""), nil
 }
 
