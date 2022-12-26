@@ -17,7 +17,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 	for _, sep := range seps {
 		if strings.Contains(content, sep) {
 			// Check ctx
-			if !b.base.CheckCtx(c) {
+			if !b.base.CheckCtx(c, "message") {
 				return
 			}
 			if !b.base.IsPlayChannel(c) {

@@ -7,8 +7,8 @@ require (
 	github.com/Nv7-Github/average-joe v0.0.0-20220429002151-7a828e7b9d17
 	github.com/Nv7-Github/bsharp v0.0.0-20220313202721-6b77962b469f
 	github.com/Nv7-Github/firebase v0.0.0-20201012033747-47c56e1d869d
-	github.com/Nv7-Github/sevcord/v2 v2.2.3
-	github.com/bwmarrin/discordgo v0.26.2-0.20221202224030-b8188269f98b
+	github.com/Nv7-Github/sevcord/v2 v2.3.2
+	github.com/bwmarrin/discordgo v0.26.2-0.20221217201609-8a5201aae635
 	github.com/dustin/go-humanize v1.0.0
 	github.com/finnbear/moderation v0.11.4
 	github.com/go-sql-driver/mysql v1.6.0
@@ -25,7 +25,7 @@ require (
 	github.com/mitchellh/mapstructure v1.4.3
 	github.com/pocketbase/dbx v1.6.0
 	github.com/pocketbase/pocketbase v0.7.9
-	golang.org/x/crypto v0.3.0
+	golang.org/x/crypto v0.4.0
 	google.golang.org/grpc v1.49.0
 	google.golang.org/protobuf v1.28.1
 )
@@ -87,8 +87,8 @@ require (
 	gocloud.dev v0.27.0 // indirect
 	golang.org/x/image v0.0.0-20220902085622-e7cb96979f69 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/net v0.2.0 // indirect
-	golang.org/x/text v0.4.0 // indirect
+	golang.org/x/net v0.3.0 // indirect
+	golang.org/x/text v0.5.0 // indirect
 	golang.org/x/time v0.0.0-20220922220347-f3bd1da661af // indirect
 	golang.org/x/tools v0.1.12 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
@@ -119,8 +119,8 @@ require (
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	golang.org/x/exp v0.0.0-20210220032938-85be41e4509f // indirect
 	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1 // indirect
-	golang.org/x/sys v0.2.0 // indirect
-	golang.org/x/term v0.2.0 // indirect
+	golang.org/x/sys v0.3.0 // indirect
+	golang.org/x/term v0.3.0 // indirect
 	gonum.org/v1/gonum v0.7.0 // indirect
 	gopkg.in/cenkalti/backoff.v1 v1.1.0 // indirect
 	gopkg.in/neurosnap/sentences.v1 v1.0.6 // indirect

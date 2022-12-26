@@ -9,7 +9,7 @@ import (
 	"github.com/lib/pq"
 )
 
-func (b *Base) CheckCtx(ctx sevcord.Ctx) bool {
+func (b *Base) CheckCtx(ctx sevcord.Ctx, cmd string) bool {
 	var cnt int
 	err := b.db.QueryRow("SELECT COUNT(*) FROM config WHERE guild=$1 AND config IS NOT NULL", ctx.Guild()).Scan(&cnt)
 	if err != nil {
@@ -19,6 +19,26 @@ func (b *Base) CheckCtx(ctx sevcord.Ctx) bool {
 
 	// Not configured
 	if cnt == 0 {
+		// Check if empty row
+		err := b.db.QueryRow("SELECT COUNT(*) FROM config WHERE guild=$1", ctx.Guild()).Scan(&cnt)
+		if err != nil {
+			b.Error(ctx, err)
+			return false
+		}
+
+		if cnt == 0 {
+			// Make empty row
+			_, err = b.db.Exec(`INSERT INTO config (guild, play, pollcnt) VALUES ($1, $2, $3)`, ctx.Guild(), pq.Array([]string{}), 0)
+			if err != nil {
+				b.Error(ctx, err)
+				return false
+			}
+		}
+
+		if cmd == "config" {
+			return true // Pass to config command
+		}
+
 		ctx.Acknowledge()
 		ctx.Respond(sevcord.NewMessage(fmt.Sprintf("⚠️ This server is not configured! Configure it with </config:%s>.", configCmdId)))
 		return false

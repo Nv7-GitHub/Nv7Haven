@@ -1,6 +1,7 @@
 package polls
 
 import (
+	"errors"
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -13,6 +14,23 @@ func (b *Polls) CreatePoll(c sevcord.Ctx, p *types.Poll) error {
 	p.Guild = c.Guild()
 	p.Creator = c.Author().User.ID
 	p.CreatedOn = time.Now()
+
+	// Check poll count
+	var pollcnt int
+	err := b.db.QueryRow("SELECT pollcnt FROM config WHERE guild=$1", c.Guild()).Scan(&pollcnt)
+	if err != nil {
+		return err
+	}
+	if pollcnt > 0 {
+		var cnt int
+		err = b.db.QueryRow("SELECT COUNT(*) FROM polls WHERE guild=$1 AND creator=$2", c.Guild(), p.Creator).Scan(&cnt)
+		if err != nil {
+			return err
+		}
+		if cnt >= pollcnt {
+			return errors.New("polls: limit reached")
+		}
+	}
 
 	// Get embed
 	emb, err := b.makePollEmbed(p)
