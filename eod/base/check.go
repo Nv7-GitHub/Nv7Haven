@@ -33,6 +33,21 @@ func (b *Base) CheckCtx(ctx sevcord.Ctx, cmd string) bool {
 				b.Error(ctx, err)
 				return false
 			}
+
+			// Check if starters are there
+			var exists bool
+			err = b.db.QueryRow(`SELECT EXISTS(SELECT 1 FROM elements WHERE guild=$1 LIMIT 1)`, ctx.Guild()).Scan(&exists)
+			if err != nil {
+				b.Error(ctx, err)
+				return false
+			}
+			if !exists { // No starters, insert
+				_, err = b.db.NamedExec("INSERT INTO elements (id, guild, name, image, color, comment, creator, createdon, parents, treesize, commenter, colorer, imager) VALUES (:id, :guild, :name, :image, :color, :comment, :creator, :createdon, :parents, :treesize, :commenter, :colorer, :imager)", types.Starters(ctx.Guild()))
+				if err != nil {
+					b.Error(ctx, err)
+					return false
+				}
+			}
 		}
 
 		if cmd == "config" {
