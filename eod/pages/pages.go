@@ -3,6 +3,7 @@ package pages
 import (
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/categories"
+	"github.com/Nv7-Github/Nv7Haven/eod/elements"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/jmoiron/sqlx"
@@ -12,6 +13,7 @@ type Pages struct {
 	base       *base.Base
 	db         *sqlx.DB
 	categories *categories.Categories
+	elements   *elements.Elements
 	s          *sevcord.Sevcord
 }
 
@@ -50,16 +52,29 @@ func (p *Pages) Init() {
 		p.Cat,
 		sevcord.NewOption("category", "The category to view!", sevcord.OptionKindString, true).AutoComplete(p.categories.Autocomplete),
 		sevcord.NewOption("sort", "How to order the categories!", sevcord.OptionKindString, false).AddChoices(catListSorts...),
+	), sevcord.NewSlashCommand(
+		"add",
+		"Add an element to a category!",
+		p.categories.AddCat,
+		sevcord.NewOption("category", "The category to add the elements to!", sevcord.OptionKindString, true).AutoComplete(p.categories.Autocomplete),
+		sevcord.NewOption("element", "The element to add to the category!", sevcord.OptionKindInt, true).AutoComplete(p.elements.Autocomplete),
+	), sevcord.NewSlashCommand(
+		"remove",
+		"Remove an element from a category!",
+		p.categories.RmCat,
+		sevcord.NewOption("category", "The category to add the elements to!", sevcord.OptionKindString, true).AutoComplete(p.categories.Autocomplete),
+		sevcord.NewOption("element", "The element to remove from the category!", sevcord.OptionKindInt, true).AutoComplete(p.elements.Autocomplete),
 	)))
 	p.s.AddButtonHandler("catlist", p.CatListHandler)
 	p.s.AddButtonHandler("cat", p.CatHandler)
 }
 
-func NewPages(base *base.Base, db *sqlx.DB, s *sevcord.Sevcord, categories *categories.Categories) *Pages {
+func NewPages(base *base.Base, db *sqlx.DB, s *sevcord.Sevcord, categories *categories.Categories, elements *elements.Elements) *Pages {
 	p := &Pages{
 		base:       base,
 		db:         db,
 		categories: categories,
+		elements:   elements,
 		s:          s,
 	}
 	p.Init()

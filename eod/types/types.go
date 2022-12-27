@@ -116,6 +116,8 @@ var SortSql = map[string]string{
 	"treesize":  "treesize DESC",
 }
 
+// Queries
+
 type QueryKind string
 
 const (
@@ -146,6 +148,22 @@ type Query struct {
 
 	Kind QueryKind `db:"kind"`
 	Data PgData    `db:"data"`
+}
+
+// Categories
+
+type Category struct {
+	Guild   string `db:"guild"`
+	Name    string `db:"name"`
+	Comment string `db:"comment"`
+	Image   string `db:"image"`
+	Color   int    `db:"color"`
+
+	Commenter string `db:"commenter"`
+	Imager    string `db:"imager"`
+	Colorer   string `db:"colorer"`
+
+	Elements pq.Int32Array `db:"elements"`
 }
 
 // Consts

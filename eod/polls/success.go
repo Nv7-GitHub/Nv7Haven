@@ -42,6 +42,18 @@ func (b *Polls) pollSuccess(p *types.Poll, dg *discordgo.Session) {
 		if err != nil {
 			log.Println("image error", err)
 		}
+
+	case types.PollKindCategorize:
+		err := b.categorizeSuccess(p, newsFunc)
+		if err != nil {
+			log.Println("categorize error", err)
+		}
+
+	case types.PollKindUncategorize:
+		err := b.unCategorizeSuccess(p, newsFunc)
+		if err != nil {
+			log.Println("uncategorize error", err)
+		}
 	}
 
 	b.deletePoll(p, dg)

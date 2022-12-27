@@ -12,7 +12,7 @@ func (b *Bot) Init() {
 	b.base = base.NewBase(b.s, b.db)
 	b.polls = polls.NewPolls(b.db, b.base, b.s)
 	b.elements = elements.NewElements(b.s, b.db, b.base, b.polls)
-	b.categories = categories.NewCategories(b.db, b.base, b.s)
-	b.pages = pages.NewPages(b.base, b.db, b.s, b.categories)
+	b.categories = categories.NewCategories(b.db, b.base, b.s, b.polls)
+	b.pages = pages.NewPages(b.base, b.db, b.s, b.categories, b.elements)
 	b.s.SetMessageHandler(b.messageHandler)
 }

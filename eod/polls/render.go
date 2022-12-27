@@ -128,7 +128,7 @@ func (b *Polls) makePollEmbed(p *types.Poll) (sevcord.EmbedBuilder, error) {
 		}
 		return sevcord.NewEmbed().
 			Title(title).
-			Description(makeMessage(fmt.Sprintf("**%s**\nElements:\n%s%s", p.Data["cat"].(string), strings.Join(names, "\n"), moreTxt), p)).
+			Description(makeMessage(fmt.Sprintf("**%s**\n\nElements:\n%s%s", p.Data["cat"].(string), strings.Join(names, "\n"), moreTxt), p)).
 			Footer(footer, ""), nil
 
 	case types.PollKindDelQuery:
