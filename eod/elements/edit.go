@@ -39,3 +39,30 @@ func (e *Elements) ImageCmd(c sevcord.Ctx, opts []any) {
 	// Respond
 	c.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested an image for **%s** 📷", elem)))
 }
+
+func (e *Elements) SignCmd(c sevcord.Ctx, opts []any) {
+	// Check element
+	var name string
+	var old string
+	err := e.db.QueryRow("SELECT name, comment FROM elements WHERE id=$1 AND guild=$2", opts[0].(int64), c.Guild()).Scan(&name, &old)
+	if err != nil {
+		e.base.Error(c, err)
+		return
+	}
+
+	// Get mark
+	c.(*sevcord.InteractionCtx).Modal(sevcord.NewModal("Sign Element", func(c sevcord.Ctx, s []string) {
+		// Make poll
+		e.polls.CreatePoll(c, &types.Poll{
+			Kind: types.PollKindComment,
+			Data: types.PgData{
+				"elem": float64(opts[0].(int64)),
+				"new":  s[0],
+				"old":  old,
+			},
+		})
+
+		// Respond
+		c.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested a note for **%s** 🖋️", name)))
+	}).Input(sevcord.NewModalInput("New Comment", "None", sevcord.ModalInputStyleParagraph, 2400)))
+}

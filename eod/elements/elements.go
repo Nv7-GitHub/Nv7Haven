@@ -51,6 +51,13 @@ func (e *Elements) Init() {
 			AutoComplete(e.Autocomplete),
 		sevcord.NewOption("image", "The image to change it to!", sevcord.OptionKindAttachment, true),
 	))
+	e.s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"sign",
+		"Change the comment of an element!",
+		e.SignCmd,
+		sevcord.NewOption("element", "The element to change the image of!", sevcord.OptionKindInt, true).
+			AutoComplete(e.Autocomplete),
+	))
 }
 
 func NewElements(s *sevcord.Sevcord, db *sqlx.DB, base *base.Base, polls *polls.Polls) *Elements {

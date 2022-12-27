@@ -54,6 +54,12 @@ func (b *Polls) pollSuccess(p *types.Poll, dg *discordgo.Session) {
 		if err != nil {
 			log.Println("uncategorize error", err)
 		}
+
+	case types.PollKindComment:
+		err := b.elemMarkSuccess(p, newsFunc)
+		if err != nil {
+			log.Println("comment error", err)
+		}
 	}
 
 	b.deletePoll(p, dg)

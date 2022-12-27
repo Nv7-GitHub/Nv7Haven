@@ -7,7 +7,7 @@ require (
 	github.com/Nv7-Github/average-joe v0.0.0-20220429002151-7a828e7b9d17
 	github.com/Nv7-Github/bsharp v0.0.0-20220313202721-6b77962b469f
 	github.com/Nv7-Github/firebase v0.0.0-20201012033747-47c56e1d869d
-	github.com/Nv7-Github/sevcord/v2 v2.3.2
+	github.com/Nv7-Github/sevcord/v2 v2.3.4
 	github.com/bwmarrin/discordgo v0.26.2-0.20221217201609-8a5201aae635
 	github.com/dustin/go-humanize v1.0.0
 	github.com/finnbear/moderation v0.11.4
