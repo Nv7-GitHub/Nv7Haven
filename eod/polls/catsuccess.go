@@ -23,7 +23,7 @@ func (p *Polls) categorizeSuccess(po *types.Poll, news func(string)) error {
 			return err
 		}
 	} else { // Create
-		_, err := p.db.Exec(`INSERT INTO categories (guild, name, elements, comment, image, color, commenter, imager, colorer) VALUES ($1, $2, $3, $4, $4, $5, $4, $4, $4)`, po.Guild, po.Data["cat"].(string), elems, "", 0)
+		_, err := p.db.Exec(`INSERT INTO categories (guild, name, elements, comment, image, color, commenter, imager, colorer) VALUES ($1, $2, $3, $4, $4, $5, $4, $4, $4)`, po.Guild, po.Data["cat"].(string), pq.Array(elems), "", 0)
 		if err != nil {
 			return err
 		}
@@ -53,6 +53,12 @@ func (p *Polls) unCategorizeSuccess(po *types.Poll, news func(string)) error {
 ) UPDATE categories SET elements=ARRAY(
   SELECT el FROM elems WHERE NOT(el=ANY($3))
 ) WHERE guild=$1 AND name=$2`, po.Guild, po.Data["cat"].(string), pq.Array(elems))
+	if err != nil {
+		return err
+	}
+
+	// Check if empty
+	_, err = p.db.Exec(`DELETE FROM categories WHERE guild=$1 AND name=$2 AND elements=$3`, po.Guild, po.Data["cat"].(string), pq.Array([]int32{}))
 	if err != nil {
 		return err
 	}

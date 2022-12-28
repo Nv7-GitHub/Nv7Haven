@@ -62,8 +62,13 @@ func (p *Pages) Init() {
 		"remove",
 		"Remove an element from a category!",
 		p.categories.RmCat,
-		sevcord.NewOption("category", "The category to add the elements to!", sevcord.OptionKindString, true).AutoComplete(p.categories.Autocomplete),
+		sevcord.NewOption("category", "The category to remove elements from!", sevcord.OptionKindString, true).AutoComplete(p.categories.Autocomplete),
 		sevcord.NewOption("element", "The element to remove from the category!", sevcord.OptionKindInt, true).AutoComplete(p.elements.Autocomplete),
+	), sevcord.NewSlashCommand(
+		"delete",
+		"Delete all the elements from a category!",
+		p.categories.DelCat,
+		sevcord.NewOption("category", "The category to delete!", sevcord.OptionKindString, true).AutoComplete(p.categories.Autocomplete),
 	)))
 	p.s.AddButtonHandler("catlist", p.CatListHandler)
 	p.s.AddButtonHandler("cat", p.CatHandler)
