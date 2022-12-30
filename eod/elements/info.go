@@ -31,6 +31,9 @@ func (e *Elements) Info(c sevcord.Ctx, params []any) {
 		description = "**You have this.**\n\n" + description
 	}
 
+	// Element ID
+	description = fmt.Sprintf("Element **#%d**\n", elem.ID) + description
+
 	// Embed
 	emb := sevcord.NewEmbed().
 		Title(elem.Name+" Info").
