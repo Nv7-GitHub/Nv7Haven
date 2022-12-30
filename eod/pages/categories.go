@@ -17,7 +17,7 @@ var catListSorts = []sevcord.Choice{
 	sevcord.NewChoice("Found", "found"),
 }
 
-var sortSql = map[string]string{
+var catListSortSql = map[string]string{
 	"name":  "name",
 	"count": "array_length(elements, 1) DESC",
 	"found": "common DESC",
@@ -47,7 +47,7 @@ func (p *Pages) CatListHandler(c sevcord.Ctx, params string) {
 		Length       int    `db:"length"`
 		InvIntersect int    `db:"common"` // # of elements both in inv and cat
 	}
-	err = p.db.Select(&cats, `SELECT name, array_length(elements, 1) length, COALESCE(array_length(elements & (SELECT inv FROM inventories WHERE guild=$1 AND "user"=$4), 1), 0) common FROM categories WHERE guild=$1 ORDER BY `+sortSql[parts[2]]+` LIMIT $2 OFFSET $3`, c.Guild(), length, length*page, parts[1])
+	err = p.db.Select(&cats, `SELECT name, array_length(elements, 1) length, COALESCE(array_length(elements & (SELECT inv FROM inventories WHERE guild=$1 AND "user"=$4), 1), 0) common FROM categories WHERE guild=$1 ORDER BY `+catListSortSql[parts[2]]+` LIMIT $2 OFFSET $3`, c.Guild(), length, length*page, parts[1])
 	if err != nil {
 		p.base.Error(c, err)
 		return

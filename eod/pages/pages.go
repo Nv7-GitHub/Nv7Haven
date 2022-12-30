@@ -82,6 +82,15 @@ func (p *Pages) Init() {
 		p.CommandLb,
 	))
 	p.s.AddButtonHandler("cmdlb", p.CommandLbHandler)
+
+	// Queries
+	p.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup("query", "View queries!", sevcord.NewSlashCommand(
+		"list",
+		"View a list of every query!",
+		p.QueryList,
+		sevcord.NewOption("sort", "How to order the queries!", sevcord.OptionKindString, false).AddChoices(queryListSorts...),
+	)))
+	p.s.AddButtonHandler("querylist", p.QueryListHandler)
 }
 
 func NewPages(base *base.Base, db *sqlx.DB, s *sevcord.Sevcord, categories *categories.Categories, elements *elements.Elements, queries *queries.Queries) *Pages {
