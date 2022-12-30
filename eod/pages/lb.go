@@ -126,8 +126,6 @@ func (p *Pages) LbHandler(c sevcord.Ctx, params string) {
 func (p *Pages) Lb(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
 
-	p.base.IncrementCommandStat(c, "lb")
-
 	// Params
 	sort := "found"
 	if opts[0] != nil {

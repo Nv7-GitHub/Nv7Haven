@@ -58,6 +58,14 @@ func (e *Elements) Init() {
 		sevcord.NewOption("element", "The element to change the image of!", sevcord.OptionKindInt, true).
 			AutoComplete(e.Autocomplete),
 	))
+	e.s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"color",
+		"Change the color of an element!",
+		e.ColorCmd,
+		sevcord.NewOption("element", "The element to change the image of!", sevcord.OptionKindInt, true).
+			AutoComplete(e.Autocomplete),
+		sevcord.NewOption("color", "The hex code of the color to change it to!", sevcord.OptionKindString, true),
+	))
 }
 
 func NewElements(s *sevcord.Sevcord, db *sqlx.DB, base *base.Base, polls *polls.Polls) *Elements {

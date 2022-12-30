@@ -75,8 +75,6 @@ func (p *Pages) CatListHandler(c sevcord.Ctx, params string) {
 func (p *Pages) CatList(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
 
-	p.base.IncrementCommandStat(c, "catlist")
-
 	// Params
 	sort := "name"
 	if opts[0] != nil {
@@ -142,7 +140,6 @@ func (p *Pages) CatHandler(c sevcord.Ctx, params string) {
 
 func (p *Pages) Cat(c sevcord.Ctx, args []any) {
 	c.Acknowledge()
-	p.base.IncrementCommandStat(c, "cat")
 
 	// Get params
 	sort := "id"

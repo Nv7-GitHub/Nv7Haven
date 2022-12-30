@@ -68,7 +68,6 @@ func (p *Pages) InvHandler(c sevcord.Ctx, params string) {
 
 func (p *Pages) Inv(c sevcord.Ctx, args []any) {
 	c.Acknowledge()
-	p.base.IncrementCommandStat(c, "inv")
 
 	// Get params
 	user := c.Author().User.ID

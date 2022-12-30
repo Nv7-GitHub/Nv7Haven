@@ -10,6 +10,8 @@ import (
 )
 
 func (b *Base) CheckCtx(ctx sevcord.Ctx, cmd string) bool {
+	b.IncrementCommandStat(ctx, cmd)
+
 	var cnt int
 	err := b.db.QueryRow("SELECT COUNT(*) FROM config WHERE guild=$1 AND config IS NOT NULL", ctx.Guild()).Scan(&cnt)
 	if err != nil {

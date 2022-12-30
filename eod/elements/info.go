@@ -10,7 +10,6 @@ import (
 
 func (e *Elements) Info(c sevcord.Ctx, params []any) {
 	c.Acknowledge()
-	e.base.IncrementCommandStat(c, "info")
 
 	// Get element
 	var elem types.Element

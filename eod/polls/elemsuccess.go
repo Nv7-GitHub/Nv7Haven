@@ -47,3 +47,22 @@ func (p *Polls) elemMarkSuccess(po *types.Poll, newsFunc func(string)) error {
 
 	return nil
 }
+
+func (p *Polls) elemColorSuccess(po *types.Poll, newsFunc func(string)) error {
+	// Update image
+	_, err := p.db.Exec(`UPDATE elements SET color=$1, colorer=$2 WHERE id=$3 AND guild=$4`, po.Data["new"], po.Creator, int(po.Data["elem"].(float64)), po.Guild)
+	if err != nil {
+		return err
+	}
+
+	// Get name
+	name, err := p.base.GetName(po.Guild, int(po.Data["elem"].(float64)))
+	if err != nil {
+		return err
+	}
+
+	// News
+	newsFunc(fmt.Sprintf("🎨 Colored - **%s** %s", name, p.pollContextMsg(po)))
+
+	return nil
+}

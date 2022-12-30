@@ -60,6 +60,12 @@ func (b *Polls) pollSuccess(p *types.Poll, dg *discordgo.Session) {
 		if err != nil {
 			log.Println("comment error", err)
 		}
+
+	case types.PollKindColor:
+		err := b.elemColorSuccess(p, newsFunc)
+		if err != nil {
+			log.Println("color error", err)
+		}
 	}
 
 	b.deletePoll(p, dg)

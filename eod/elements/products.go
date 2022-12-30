@@ -18,7 +18,6 @@ type productsItem struct {
 
 func (e *Elements) Products(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
-	e.base.IncrementCommandStat(c, "products")
 
 	// Get items
 	var items []productsItem
