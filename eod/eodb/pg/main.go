@@ -3,9 +3,12 @@ package main
 import (
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"path/filepath"
 	"reflect"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -74,7 +77,6 @@ type Config struct {
 	VoteCount     int         `db:"votecnt"`
 	PollCount     int         `db:"pollcnt"`
 	PlayChannels  interface{} `db:"play"` // pq array
-	Language      string      `db:"language"`
 }
 
 type CommandStat struct {
@@ -153,7 +155,7 @@ func main() {
 	BulkInsert("INSERT INTO elements (id, guild, name, image, color, comment, creator, createdon, commenter, colorer, imager, parents, treesize) VALUES (:id, :guild, :name, :image, :color, :comment, :creator, :createdon, :commenter, :colorer, :imager, :parents, :treesize)", els, db)
 
 	// Add combos
-	/*start = time.Now()
+	start = time.Now()
 	combs := make([]Combo, 0)
 	for _, db := range eodb.DB {
 	skip:
@@ -177,10 +179,10 @@ func main() {
 	}
 	fmt.Println("Got combos in", time.Since(start))
 
-	BulkInsert("INSERT INTO combos (guild, result, els, createdon) VALUES (:guild, :result, :els, :createdon)", combs, db)*/
+	BulkInsert("INSERT INTO combos (guild, result, els, createdon) VALUES (:guild, :result, :els, :createdon)", combs, db)
 
 	// Add invs
-	/*start = time.Now()
+	start = time.Now()
 	invs := make([]Inventory, 0)
 	for _, db := range eodb.DB {
 		for user, inv := range db.Invs() {
@@ -198,10 +200,10 @@ func main() {
 	}
 	fmt.Println("Got invs in", time.Since(start))
 
-	BulkInsert("INSERT INTO inventories (guild, \"user\", inv, votecnt) VALUES (:guild, :user, :inv, :votecnt)", invs, db)*/
+	BulkInsert("INSERT INTO inventories (guild, \"user\", inv, votecnt) VALUES (:guild, :user, :inv, :votecnt)", invs, db)
 
 	// Add categories
-	/*start = time.Now()
+	start = time.Now()
 	cats := make([]Category, 0)
 	for _, db := range eodb.DB {
 		for _, cat := range db.Cats() {
@@ -224,10 +226,10 @@ func main() {
 	}
 	fmt.Println("Got cats in", time.Since(start))
 
-	BulkInsert("INSERT INTO categories (guild, name, image, color, comment, imager, colorer, commenter, elements) VALUES (:guild, :name, :image, :color, :comment, :imager, :colorer, :commenter, :elements)", cats, db)*/
+	BulkInsert("INSERT INTO categories (guild, name, image, color, comment, imager, colorer, commenter, elements) VALUES (:guild, :name, :image, :color, :comment, :imager, :colorer, :commenter, :elements)", cats, db)
 
 	// Add config
-	/*start = time.Now()
+	start = time.Now()
 	configs := make([]Config, 0)
 	commands := make([]CommandStat, 0)
 	for _, db := range eodb.DB {
@@ -248,7 +250,6 @@ func main() {
 			VoteCount:     db.Config.VoteCount,
 			PollCount:     db.Config.PollCount,
 			PlayChannels:  pq.Array(chans),
-			Language:      db.Config.LanguageFile,
 		})
 		for k, com := range db.Config.CommandStats {
 			if k == "invhint" {
@@ -263,8 +264,8 @@ func main() {
 	}
 	fmt.Println("Got config in", time.Since(start))
 
-	BulkInsert("INSERT INTO config (guild, voting, news, votecnt, pollcnt, play, language) VALUES (:guild, :voting, :news, :votecnt, :pollcnt, :play, :language)", configs, db)
-	BulkInsert("INSERT INTO command_stats (guild, command, count) VALUES (:guild, :command, :count)", commands, db)*/
+	BulkInsert("INSERT INTO config (guild, voting, news, votecnt, pollcnt, play) VALUES (:guild, :voting, :news, :votecnt, :pollcnt, :play)", configs, db)
+	BulkInsert("INSERT INTO command_stats (guild, command, count) VALUES (:guild, :command, :count)", commands, db)
 }
 
 func BulkInsert[T any](insertQuery string, myStructs []T, db *sqlx.DB) {
