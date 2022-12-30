@@ -66,6 +66,24 @@ func (b *Polls) pollSuccess(p *types.Poll, dg *discordgo.Session) {
 		if err != nil {
 			log.Println("color error", err)
 		}
+
+	case types.PollKindCatImage:
+		err := b.catImageSuccess(p, newsFunc)
+		if err != nil {
+			log.Println("cat image error", err)
+		}
+
+	case types.PollKindCatComment:
+		err := b.catMarkSuccess(p, newsFunc)
+		if err != nil {
+			log.Println("cat comment error", err)
+		}
+
+	case types.PollKindCatColor:
+		err := b.catColorSuccess(p, newsFunc)
+		if err != nil {
+			log.Println("cat color error", err)
+		}
 	}
 
 	b.deletePoll(p, dg)

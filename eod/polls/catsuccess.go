@@ -23,7 +23,7 @@ func (p *Polls) categorizeSuccess(po *types.Poll, news func(string)) error {
 			return err
 		}
 	} else { // Create
-		_, err := p.db.Exec(`INSERT INTO categories (guild, name, elements, comment, image, color, commenter, imager, colorer) VALUES ($1, $2, $3, $4, $4, $5, $4, $4, $4)`, po.Guild, po.Data["cat"].(string), pq.Array(elems), "", 0)
+		_, err := p.db.Exec(`INSERT INTO categories (guild, name, elements, comment, image, color, commenter, imager, colorer) VALUES ($1, $2, $3, $6, $4, $5, $4, $4, $4)`, po.Guild, po.Data["cat"].(string), pq.Array(elems), "", 0, "None")
 		if err != nil {
 			return err
 		}
@@ -75,5 +75,48 @@ func (p *Polls) unCategorizeSuccess(po *types.Poll, news func(string)) error {
 	}
 
 	news(fmt.Sprintf("🗃️ Removed **%s** from **%s** %s", name, po.Data["cat"].(string), p.pollContextMsg(po)))
+	return nil
+}
+
+func (p *Polls) catImageSuccess(po *types.Poll, newsFunc func(string)) error {
+	// Update image
+	_, err := p.db.Exec(`UPDATE categories SET image=$1, imager=$2 WHERE name=$3 AND guild=$4`, po.Data["new"], po.Creator, po.Data["cat"], po.Guild)
+	if err != nil {
+		return err
+	}
+
+	// News
+	word := "Changed"
+	if po.Data["old"] == "" {
+		word = "Added"
+	}
+	newsFunc(fmt.Sprintf("📸 %s Category Image - **%s** %s", word, po.Data["cat"].(string), p.pollContextMsg(po)))
+
+	return nil
+}
+
+func (p *Polls) catMarkSuccess(po *types.Poll, newsFunc func(string)) error {
+	// Update image
+	_, err := p.db.Exec(`UPDATE categories SET comment=$1, commenter=$2 WHERE name=$3 AND guild=$4`, po.Data["new"], po.Creator, po.Data["cat"], po.Guild)
+	if err != nil {
+		return err
+	}
+
+	// News
+	newsFunc(fmt.Sprintf("📝 Signed Category - **%s** %s", po.Data["cat"].(string), p.pollContextMsg(po)))
+
+	return nil
+}
+
+func (p *Polls) catColorSuccess(po *types.Poll, newsFunc func(string)) error {
+	// Update image
+	_, err := p.db.Exec(`UPDATE categories SET color=$1, colorer=$2 WHERE name=$3 AND guild=$4`, po.Data["new"], po.Creator, po.Data["cat"], po.Guild)
+	if err != nil {
+		return err
+	}
+
+	// News
+	newsFunc(fmt.Sprintf("🎨 Colored Category - **%s** %s", po.Data["cat"].(string), p.pollContextMsg(po)))
+
 	return nil
 }

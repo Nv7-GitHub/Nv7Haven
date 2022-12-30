@@ -16,13 +16,6 @@ type Elements struct {
 
 func (e *Elements) Init() {
 	e.s.RegisterSlashCommand(sevcord.NewSlashCommand(
-		"info",
-		"Get element info!",
-		e.Info,
-		sevcord.NewOption("element", "The ID of the element to view the info of!", sevcord.OptionKindInt, true).
-			AutoComplete(e.Autocomplete),
-	))
-	e.s.RegisterSlashCommand(sevcord.NewSlashCommand(
 		"hint",
 		"Learn how to make an element!",
 		e.Hint,
@@ -42,29 +35,6 @@ func (e *Elements) Init() {
 		e.Products,
 		sevcord.NewOption("element", "The element to view the products of!", sevcord.OptionKindInt, true).
 			AutoComplete(e.Autocomplete),
-	))
-	e.s.RegisterSlashCommand(sevcord.NewSlashCommand(
-		"image",
-		"Change the image of an element!",
-		e.ImageCmd,
-		sevcord.NewOption("element", "The element to change the image of!", sevcord.OptionKindInt, true).
-			AutoComplete(e.Autocomplete),
-		sevcord.NewOption("image", "The image to change it to!", sevcord.OptionKindAttachment, true),
-	))
-	e.s.RegisterSlashCommand(sevcord.NewSlashCommand(
-		"sign",
-		"Change the comment of an element!",
-		e.SignCmd,
-		sevcord.NewOption("element", "The element to change the image of!", sevcord.OptionKindInt, true).
-			AutoComplete(e.Autocomplete),
-	))
-	e.s.RegisterSlashCommand(sevcord.NewSlashCommand(
-		"color",
-		"Change the color of an element!",
-		e.ColorCmd,
-		sevcord.NewOption("element", "The element to change the image of!", sevcord.OptionKindInt, true).
-			AutoComplete(e.Autocomplete),
-		sevcord.NewOption("color", "The hex code of the color to change it to!", sevcord.OptionKindString, true),
 	))
 }
 
