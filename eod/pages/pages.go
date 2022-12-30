@@ -53,7 +53,7 @@ func (p *Pages) Init() {
 		"View a category's elements",
 		p.Cat,
 		sevcord.NewOption("category", "The category to view!", sevcord.OptionKindString, true).AutoComplete(p.categories.Autocomplete),
-		sevcord.NewOption("sort", "How to order the categories!", sevcord.OptionKindString, false).AddChoices(catListSorts...),
+		sevcord.NewOption("sort", "How to order the elements!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
 	), sevcord.NewSlashCommand(
 		"add",
 		"Add an element to a category!",
@@ -89,8 +89,15 @@ func (p *Pages) Init() {
 		"View a list of every query!",
 		p.QueryList,
 		sevcord.NewOption("sort", "How to order the queries!", sevcord.OptionKindString, false).AddChoices(queryListSorts...),
+	), sevcord.NewSlashCommand(
+		"view",
+		"View the elements in a query!",
+		p.Query,
+		sevcord.NewOption("query", "The query to view!", sevcord.OptionKindString, true).AutoComplete(p.queries.Autocomplete),
+		sevcord.NewOption("sort", "How to order the categories!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
 	)))
 	p.s.AddButtonHandler("querylist", p.QueryListHandler)
+	p.s.AddButtonHandler("query", p.QueryHandler)
 }
 
 func NewPages(base *base.Base, db *sqlx.DB, s *sevcord.Sevcord, categories *categories.Categories, elements *elements.Elements, queries *queries.Queries) *Pages {

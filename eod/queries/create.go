@@ -3,6 +3,7 @@ package queries
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -14,13 +15,13 @@ func (q *Queries) createCmd(c sevcord.Ctx, name string, kind types.QueryKind, da
 
 	// Check if name exists
 	var edit bool
-	err := q.db.Get(&edit, "SELECT EXISTS(SELECT 1 FROM queries WHERE LOWER(name)=$1 AND guild=$2)", name, c.Guild())
+	err := q.db.Get(&edit, "SELECT EXISTS(SELECT 1 FROM queries WHERE LOWER(name)=$1 AND guild=$2)", strings.ToLower(name), c.Guild())
 	if err != nil {
 		q.base.Error(c, err)
 		return
 	}
 	if edit {
-		err = q.db.QueryRow(`SELECT name FROM queries WHERE LOWER(name)=$1 AND guild=$2`, name, c.Guild()).Scan(&name)
+		err = q.db.QueryRow(`SELECT name FROM queries WHERE LOWER(name)=$1 AND guild=$2`, strings.ToLower(name), c.Guild()).Scan(&name)
 		if err != nil {
 			q.base.Error(c, err)
 			return

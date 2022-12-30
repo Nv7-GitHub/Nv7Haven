@@ -1,6 +1,8 @@
 package queries
 
 import (
+	"strings"
+
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/lib/pq"
@@ -8,8 +10,8 @@ import (
 
 func (q *Queries) CalcQuery(ctx sevcord.Ctx, name string) (*types.Query, error) {
 	// Get
-	var query *types.Query
-	err := q.db.Get(query, "SELECT * FROM queries WHERE LOWER(name)=$1 AND guild=$2", name, ctx.Guild())
+	var query = &types.Query{}
+	err := q.db.Get(query, "SELECT * FROM queries WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(name), ctx.Guild())
 	if err != nil {
 		return nil, err
 	}

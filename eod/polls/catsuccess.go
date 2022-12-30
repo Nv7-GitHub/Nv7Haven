@@ -3,6 +3,7 @@ package polls
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -26,7 +27,7 @@ func (p *Polls) categorizeSuccess(po *types.Poll, news func(string)) error {
 		}
 	} else { // Create
 		// Check if exists
-		err := p.db.QueryRow(`SELECT EXISTS(SELECT 1 FROM categories WHERE guild=$1 AND LOWER(name)=$2)`, po.Guild, po.Data["cat"].(string)).Scan(&exists)
+		err := p.db.QueryRow(`SELECT EXISTS(SELECT 1 FROM categories WHERE guild=$1 AND LOWER(name)=$2)`, po.Guild, strings.ToLower(po.Data["cat"].(string))).Scan(&exists)
 		if err != nil {
 			return err
 		}
