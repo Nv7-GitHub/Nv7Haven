@@ -36,6 +36,13 @@ func (e *Elements) Init() {
 		sevcord.NewOption("element", "The element to view the products of!", sevcord.OptionKindInt, true).
 			AutoComplete(e.Autocomplete),
 	))
+	e.s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"path",
+		"Learn how to make an element!",
+		e.PathCmd,
+		sevcord.NewOption("element", "The element to view the path of!", sevcord.OptionKindInt, true).
+			AutoComplete(e.Autocomplete),
+	))
 }
 
 func NewElements(s *sevcord.Sevcord, db *sqlx.DB, base *base.Base, polls *polls.Polls) *Elements {
