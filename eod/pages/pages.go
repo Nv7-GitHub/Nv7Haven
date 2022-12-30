@@ -72,6 +72,14 @@ func (p *Pages) Init() {
 	)))
 	p.s.AddButtonHandler("catlist", p.CatListHandler)
 	p.s.AddButtonHandler("cat", p.CatHandler)
+
+	// Command lb
+	p.s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"commandlb",
+		"See which commands are used the most!",
+		p.CommandLb,
+	))
+	p.s.AddButtonHandler("cmdlb", p.CommandLbHandler)
 }
 
 func NewPages(base *base.Base, db *sqlx.DB, s *sevcord.Sevcord, categories *categories.Categories, elements *elements.Elements) *Pages {

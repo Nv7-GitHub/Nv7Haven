@@ -42,8 +42,6 @@ var lbSortCode = map[string]string{
 	"querycolor":  `(SELECT COUNT(*) FROM queries WHERE guild=$1 AND colorer="user")`,
 }
 
-// TODO: Support queries
-
 // Format: prevnext|user|sort|page
 func (p *Pages) LbHandler(c sevcord.Ctx, params string) {
 	parts := strings.Split(params, "|")
