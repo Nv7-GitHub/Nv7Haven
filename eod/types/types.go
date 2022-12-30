@@ -144,10 +144,13 @@ type Query struct {
 	Colorer   string `db:"colorer"`
 	Commenter string `db:"commenter"`
 
-	CreatedOn time.Time
+	CreatedOn time.Time `db:"createdon"`
 
 	Kind QueryKind `db:"kind"`
 	Data PgData    `db:"data"`
+
+	// After calc
+	Elements []int
 }
 
 // Categories

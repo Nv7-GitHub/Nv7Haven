@@ -1,8 +1,10 @@
 package polls
 
 import (
+	"errors"
 	"fmt"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/lib/pq"
@@ -23,7 +25,22 @@ func (p *Polls) categorizeSuccess(po *types.Poll, news func(string)) error {
 			return err
 		}
 	} else { // Create
-		_, err := p.db.Exec(`INSERT INTO categories (guild, name, elements, comment, image, color, commenter, imager, colorer) VALUES ($1, $2, $3, $6, $4, $5, $4, $4, $4)`, po.Guild, po.Data["cat"].(string), pq.Array(elems), "", 0, "None")
+		// Check if exists
+		err := p.db.QueryRow(`SELECT EXISTS(SELECT 1 FROM categories WHERE guild=$1 AND LOWER(name)=$2)`, po.Guild, po.Data["cat"].(string)).Scan(&exists)
+		if err != nil {
+			return err
+		}
+		if exists {
+			return errors.New("cat: category already exists")
+		}
+		// Check if valid name
+		name, ok := base.CheckName(po.Data["cat"].(string))
+		if !ok.Ok {
+			return errors.New(ok.Message)
+		}
+		po.Data["cat"] = name
+		// Make
+		_, err = p.db.Exec(`INSERT INTO categories (guild, name, elements, comment, image, color, commenter, imager, colorer) VALUES ($1, $2, $3, $6, $4, $5, $4, $4, $4)`, po.Guild, name, pq.Array(elems), "", 0, "None")
 		if err != nil {
 			return err
 		}
