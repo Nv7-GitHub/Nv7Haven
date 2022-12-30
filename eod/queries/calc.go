@@ -2,7 +2,7 @@ package queries
 
 import (
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
-	"github.com/Nv7-Github/sevcord"
+	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/lib/pq"
 )
 

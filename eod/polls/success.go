@@ -84,6 +84,12 @@ func (b *Polls) pollSuccess(p *types.Poll, dg *discordgo.Session) {
 		if err != nil {
 			log.Println("cat color error", err)
 		}
+
+	case types.PollKindQuery:
+		err := b.queryCreateSuccess(p, newsFunc)
+		if err != nil {
+			log.Println("query create error", err)
+		}
 	}
 
 	b.deletePoll(p, dg)

@@ -6,6 +6,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/elements"
 	"github.com/Nv7-Github/Nv7Haven/eod/pages"
 	"github.com/Nv7-Github/Nv7Haven/eod/polls"
+	"github.com/Nv7-Github/Nv7Haven/eod/queries"
 	"github.com/Nv7-Github/sevcord/v2"
 )
 
@@ -14,7 +15,8 @@ func (b *Bot) Init() {
 	b.polls = polls.NewPolls(b.db, b.base, b.s)
 	b.elements = elements.NewElements(b.s, b.db, b.base, b.polls)
 	b.categories = categories.NewCategories(b.db, b.base, b.s, b.polls)
-	b.pages = pages.NewPages(b.base, b.db, b.s, b.categories, b.elements)
+	b.queries = queries.NewQueries(b.s, b.db, b.base, b.polls)
+	b.pages = pages.NewPages(b.base, b.db, b.s, b.categories, b.elements, b.queries)
 	b.s.SetMessageHandler(b.messageHandler)
 
 	// Commands

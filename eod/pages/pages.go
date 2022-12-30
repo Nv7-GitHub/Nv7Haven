@@ -4,6 +4,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/categories"
 	"github.com/Nv7-Github/Nv7Haven/eod/elements"
+	"github.com/Nv7-Github/Nv7Haven/eod/queries"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/jmoiron/sqlx"
@@ -14,6 +15,7 @@ type Pages struct {
 	db         *sqlx.DB
 	categories *categories.Categories
 	elements   *elements.Elements
+	queries    *queries.Queries
 	s          *sevcord.Sevcord
 }
 
@@ -82,12 +84,13 @@ func (p *Pages) Init() {
 	p.s.AddButtonHandler("cmdlb", p.CommandLbHandler)
 }
 
-func NewPages(base *base.Base, db *sqlx.DB, s *sevcord.Sevcord, categories *categories.Categories, elements *elements.Elements) *Pages {
+func NewPages(base *base.Base, db *sqlx.DB, s *sevcord.Sevcord, categories *categories.Categories, elements *elements.Elements, queries *queries.Queries) *Pages {
 	p := &Pages{
 		base:       base,
 		db:         db,
 		categories: categories,
 		elements:   elements,
+		queries:    queries,
 		s:          s,
 	}
 	p.Init()

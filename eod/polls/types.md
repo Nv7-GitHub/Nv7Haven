@@ -110,7 +110,7 @@ struct {
   query string
   edit bool
   kind string // see below
-  data any // jsonb
+  data any // map[string]any
 }
 ```
 
