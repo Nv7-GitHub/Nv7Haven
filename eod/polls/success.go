@@ -96,6 +96,24 @@ func (b *Polls) pollSuccess(p *types.Poll, dg *discordgo.Session) {
 		if err != nil {
 			log.Println("query delete error", err)
 		}
+
+	case types.PollKindQueryComment:
+		err := b.queryMarkSuccess(p, newsFunc)
+		if err != nil {
+			log.Println("query comment error", err)
+		}
+
+	case types.PollKindQueryColor:
+		err := b.queryColorSuccess(p, newsFunc)
+		if err != nil {
+			log.Println("query color error", err)
+		}
+
+	case types.PollKindQueryImage:
+		err := b.queryImageSuccess(p, newsFunc)
+		if err != nil {
+			log.Println("query image error", err)
+		}
 	}
 
 	b.deletePoll(p, dg)

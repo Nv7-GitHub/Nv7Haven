@@ -37,3 +37,46 @@ func (p *Polls) queryDeleteSuccess(po *types.Poll, news func(string)) error {
 	news(fmt.Sprintf("🗑️ Deleted Query - **%s** %s", po.Data["query"], p.pollContextMsg(po)))
 	return nil
 }
+
+func (p *Polls) queryImageSuccess(po *types.Poll, newsFunc func(string)) error {
+	// Update image
+	_, err := p.db.Exec(`UPDATE queries SET image=$1, imager=$2 WHERE name=$3 AND guild=$4`, po.Data["new"], po.Creator, po.Data["query"], po.Guild)
+	if err != nil {
+		return err
+	}
+
+	// News
+	word := "Changed"
+	if po.Data["old"] == "" {
+		word = "Added"
+	}
+	newsFunc(fmt.Sprintf("📸 %s Query Image - **%s** %s", word, po.Data["query"].(string), p.pollContextMsg(po)))
+
+	return nil
+}
+
+func (p *Polls) queryMarkSuccess(po *types.Poll, newsFunc func(string)) error {
+	// Update image
+	_, err := p.db.Exec(`UPDATE queries SET comment=$1, commenter=$2 WHERE name=$3 AND guild=$4`, po.Data["new"], po.Creator, po.Data["query"], po.Guild)
+	if err != nil {
+		return err
+	}
+
+	// News
+	newsFunc(fmt.Sprintf("📝 Signed Query - **%s** %s", po.Data["query"].(string), p.pollContextMsg(po)))
+
+	return nil
+}
+
+func (p *Polls) queryColorSuccess(po *types.Poll, newsFunc func(string)) error {
+	// Update image
+	_, err := p.db.Exec(`UPDATE queries SET color=$1, colorer=$2 WHERE name=$3 AND guild=$4`, po.Data["new"], po.Creator, po.Data["query"], po.Guild)
+	if err != nil {
+		return err
+	}
+
+	// News
+	newsFunc(fmt.Sprintf("🎨 Colored Category - **%s** %s", po.Data["query"].(string), p.pollContextMsg(po)))
+
+	return nil
+}

@@ -37,11 +37,11 @@ func (b *Polls) makePollEmbed(p *types.Poll) (sevcord.EmbedBuilder, error) {
 			nil
 
 	case types.PollKindCatImage:
-		title := "Add Image"
+		title := "Add Category Image"
 		oldImage := ""
 		if p.Data["old"] != "" {
 			oldImage = "[Old Image](" + p.Data["old"].(string) + ")\n"
-			title = "Change Image"
+			title = "Change Category Image"
 		}
 		return sevcord.NewEmbed().
 				Title(title).
@@ -51,11 +51,11 @@ func (b *Polls) makePollEmbed(p *types.Poll) (sevcord.EmbedBuilder, error) {
 			nil
 
 	case types.PollKindQueryImage:
-		title := "Add Image"
+		title := "Add Query Image"
 		oldImage := ""
 		if p.Data["old"] != "" {
 			oldImage = "[Old Image](" + p.Data["old"].(string) + ")\n"
-			title = "Change Image"
+			title = "Change Query Image"
 		}
 		return sevcord.NewEmbed().
 				Title(title).

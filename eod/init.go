@@ -37,6 +37,14 @@ func (b *Bot) Init() {
 				AutoComplete(b.categories.Autocomplete),
 			sevcord.NewOption("image", "The image to change it to!", sevcord.OptionKindAttachment, true),
 		),
+		sevcord.NewSlashCommand(
+			"query",
+			"Change the image of a query!",
+			b.queries.ImageCmd,
+			sevcord.NewOption("query", "The query to change the image of!", sevcord.OptionKindString, true).
+				AutoComplete(b.queries.Autocomplete),
+			sevcord.NewOption("image", "The image to change it to!", sevcord.OptionKindAttachment, true),
+		),
 	))
 	b.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup("sign", "Change a comment!",
 		sevcord.NewSlashCommand(
@@ -52,6 +60,13 @@ func (b *Bot) Init() {
 			b.categories.SignCmd,
 			sevcord.NewOption("category", "The category to change the comment of!", sevcord.OptionKindString, true).
 				AutoComplete(b.categories.Autocomplete),
+		),
+		sevcord.NewSlashCommand(
+			"query",
+			"Change the comment of a query!",
+			b.queries.SignCmd,
+			sevcord.NewOption("query", "The query to change the comment of!", sevcord.OptionKindString, true).
+				AutoComplete(b.queries.Autocomplete),
 		),
 	))
 	b.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup("color", "Change a color!",
@@ -69,6 +84,14 @@ func (b *Bot) Init() {
 			b.categories.ColorCmd,
 			sevcord.NewOption("category", "The category to change the image of!", sevcord.OptionKindString, true).
 				AutoComplete(b.categories.Autocomplete),
+			sevcord.NewOption("color", "The hex code of the color to change it to!", sevcord.OptionKindString, true),
+		),
+		sevcord.NewSlashCommand(
+			"query",
+			"Change the color of a query!",
+			b.queries.ColorCmd,
+			sevcord.NewOption("query", "The query to change the image of!", sevcord.OptionKindString, true).
+				AutoComplete(b.queries.Autocomplete),
 			sevcord.NewOption("color", "The hex code of the color to change it to!", sevcord.OptionKindString, true),
 		),
 	))
