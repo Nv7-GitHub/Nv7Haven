@@ -20,3 +20,28 @@ func (q *Queries) Autocomplete(ctx sevcord.Ctx, val any) []sevcord.Choice {
 	}
 	return choices
 }
+
+func (q *Queries) queryParents(c sevcord.Ctx, name string, res map[string]struct{}) error {
+	_, exists := res[name]
+	if exists {
+		return nil
+	}
+	qu, err := q.CalcQuery(c, name)
+	if err != nil {
+		return err
+	}
+	res[qu.Name] = struct{}{}
+	switch qu.Kind {
+	case types.QueryKindProducts, types.QueryKindParents, types.QueryKindInventory, types.QueryKindRegex, types.QueryKindComparison:
+		return q.queryParents(c, qu.Data["query"].(string), res)
+
+	case types.QueryKindOperation:
+		err = q.queryParents(c, qu.Data["left"].(string), res)
+		if err != nil {
+			return err
+		}
+		return q.queryParents(c, qu.Data["right"].(string), res)
+	}
+
+	return nil
+}

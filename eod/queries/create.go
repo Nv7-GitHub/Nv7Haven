@@ -179,9 +179,27 @@ func (q *Queries) CreateComparisonCmd(c sevcord.Ctx, opts []any) {
 
 func (q *Queries) CreateOperationCmd(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
+
+	// Recursively check
+	parents := make(map[string]struct{})
+	err := q.queryParents(c, opts[1].(string), parents)
+	if err != nil {
+		q.base.Error(c, err)
+		return
+	}
+	err = q.queryParents(c, opts[2].(string), parents)
+	if err != nil {
+		q.base.Error(c, err)
+		return
+	}
+	if _, ok := parents[opts[0].(string)]; ok {
+		c.Respond(sevcord.NewMessage("Cannot create a recursive query! " + types.RedCircle))
+		return
+	}
+
 	// Get names
 	var nameLeft string
-	err := q.db.Get(&nameLeft, "SELECT name FROM queries WHERE LOWER(name)=$1", strings.ToLower(opts[1].(string)))
+	err = q.db.Get(&nameLeft, "SELECT name FROM queries WHERE LOWER(name)=$1", strings.ToLower(opts[1].(string)))
 	if err != nil {
 		q.base.Error(c, err)
 		return
