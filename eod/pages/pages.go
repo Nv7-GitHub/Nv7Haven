@@ -95,7 +95,13 @@ func (p *Pages) Init() {
 		p.Query,
 		sevcord.NewOption("query", "The query to view!", sevcord.OptionKindString, true).AutoComplete(p.queries.Autocomplete),
 		sevcord.NewOption("sort", "How to order the categories!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
-	)))
+	), sevcord.NewSlashCommand(
+		"delete",
+		"Delete a query!",
+		p.queries.DeleteQuery,
+		sevcord.NewOption("query", "The query to delete!", sevcord.OptionKindString, true).AutoComplete(p.queries.Autocomplete),
+	),
+	))
 	p.s.AddButtonHandler("querylist", p.QueryListHandler)
 	p.s.AddButtonHandler("query", p.QueryHandler)
 }

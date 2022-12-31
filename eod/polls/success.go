@@ -90,6 +90,12 @@ func (b *Polls) pollSuccess(p *types.Poll, dg *discordgo.Session) {
 		if err != nil {
 			log.Println("query create error", err)
 		}
+
+	case types.PollKindDelQuery:
+		err := b.queryDeleteSuccess(p, newsFunc)
+		if err != nil {
+			log.Println("query delete error", err)
+		}
 	}
 
 	b.deletePoll(p, dg)

@@ -25,3 +25,15 @@ func (p *Polls) queryCreateSuccess(po *types.Poll, news func(string)) error {
 	news(fmt.Sprintf("🧮 Created Query - **%s** %s", po.Data["query"], p.pollContextMsg(po)))
 	return nil
 }
+
+func (p *Polls) queryDeleteSuccess(po *types.Poll, news func(string)) error {
+	// Delete
+	_, err := p.db.Exec(`DELETE FROM queries WHERE name=$1 AND guild=$2`, po.Data["query"], po.Guild)
+	if err != nil {
+		return err
+	}
+
+	// News
+	news(fmt.Sprintf("🗑️ Deleted Query - **%s** %s", po.Data["query"], p.pollContextMsg(po)))
+	return nil
+}
