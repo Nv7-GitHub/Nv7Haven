@@ -189,7 +189,7 @@ func (b *Polls) makeComboEmbed(p *types.Poll) (sevcord.EmbedBuilder, error) {
 		Footer(footer, ""), nil
 }
 
-func (b *Polls) makeQueryText(typ string, guild string, data map[string]any) (string, string, error) {
+func (b *Polls) makeQueryText(name string, typ string, guild string, data map[string]any) (string, string, error) {
 	var kind string
 	var description string
 	switch typ {
@@ -201,7 +201,7 @@ func (b *Polls) makeQueryText(typ string, guild string, data map[string]any) (st
 		}
 		description = "*Element*: **" + name + "**"
 
-	case "category":
+	case "cat":
 		kind = "Category"
 		description = "*Category*: **" + data["cat"].(string) + "**"
 
@@ -211,30 +211,46 @@ func (b *Polls) makeQueryText(typ string, guild string, data map[string]any) (st
 
 	case "parents":
 		kind = "Parents"
-		description = "*Query*: **" + data["elem"].(string) + "**"
+		description = "*Query*: **" + data["query"].(string) + "**"
 
-	case "inventory":
+	case "inv":
 		kind = "Inventory"
 		description = "*User*: <@" + data["user"].(string) + ">"
 
 	case "elements":
 		kind = "Elements"
 		description = "*All Elements*"
+
+	case "regex":
+		kind = "Regex"
+		description = "*Regex*: `" + data["regex"].(string) + "`"
+
+	case "compare":
+		kind = "Comparison"
+		description = "*Query*: **" + data["query"].(string) + "**\n*Field*: `" + data["field"].(string) + "`\n*Operator*: `" + data["typ"].(string) + "`\n*Value*: `" + fmt.Sprintf("%v", data["value"]) + "`"
+
+	case "op":
+		kind = "Operation"
+		description = "*Left*: **" + data["left"].(string) + "**\n*Operator*: `" + data["op"].(string) + "`\n*Right*: **" + data["right"].(string) + "**"
 	}
 
-	return kind, description, nil
+	return kind, "**" + name + "**\n" + description, nil
 }
 
 func (b *Polls) makeQueryEmbed(p *types.Poll) (sevcord.EmbedBuilder, error) {
 	title := "New %s Query"
-	kind, desc, err := b.makeQueryText(p.Data["kind"].(string), p.Guild, p.Data["data"].(map[string]any))
+	kind, desc, err := b.makeQueryText(p.Data["query"].(string), p.Data["kind"].(string), p.Guild, p.Data["data"].(map[string]any))
 	if err != nil {
 		return sevcord.NewEmbed(), err
 	}
 	if p.Data["edit"].(bool) {
 		title = "Edit %s Query"
-		var oldquery types.Query // TODO: Fetch this from DB
-		oldkind, olddesc, err := b.makeQueryText(string(oldquery.Kind), p.Guild, map[string]any(oldquery.Data))
+		var oldquery types.Query
+		err := b.db.Get(&oldquery, "SELECT * FROM queries WHERE name=$1", p.Data["query"].(string))
+		if err != nil {
+			return sevcord.NewEmbed(), err
+		}
+		oldkind, olddesc, err := b.makeQueryText(p.Data["query"].(string), string(oldquery.Kind), p.Guild, map[string]any(oldquery.Data))
 		if err != nil {
 			return sevcord.NewEmbed(), err
 		}

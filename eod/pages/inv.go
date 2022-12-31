@@ -9,6 +9,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/bwmarrin/discordgo"
+	"github.com/dustin/go-humanize"
 )
 
 // Params: prevnext|user|sort|page
@@ -55,7 +56,7 @@ func (p *Pages) InvHandler(c sevcord.Ctx, params string) {
 
 	// Create
 	embed := sevcord.NewEmbed().
-		Title(fmt.Sprintf("%s's Inventory", name)).
+		Title(fmt.Sprintf("%s's Inventory (%s)", name, humanize.Comma(int64(cnt)))).
 		Description(strings.Join([]string(inv), "\n")).
 		Footer(fmt.Sprintf("Page %d/%d", page+1, pagecnt), "").
 		Color(15105570) // Orange

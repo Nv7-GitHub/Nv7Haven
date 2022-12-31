@@ -15,7 +15,7 @@ func (b *Bot) Init() {
 	b.polls = polls.NewPolls(b.db, b.base, b.s)
 	b.elements = elements.NewElements(b.s, b.db, b.base, b.polls)
 	b.categories = categories.NewCategories(b.db, b.base, b.s, b.polls)
-	b.queries = queries.NewQueries(b.s, b.db, b.base, b.polls)
+	b.queries = queries.NewQueries(b.s, b.db, b.base, b.polls, b.elements, b.categories)
 	b.pages = pages.NewPages(b.base, b.db, b.s, b.categories, b.elements, b.queries)
 	b.s.SetMessageHandler(b.messageHandler)
 

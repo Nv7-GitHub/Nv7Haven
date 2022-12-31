@@ -129,6 +129,7 @@ const (
 	QueryKindElements   QueryKind = "elements"
 	QueryKindRegex      QueryKind = "regex"
 	QueryKindComparison QueryKind = "compare"
+	QueryKindOperation  QueryKind = "op"
 )
 
 type Query struct {

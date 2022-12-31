@@ -153,6 +153,7 @@ struct {}
 ```go
 struct {
   query string
+  regex string
 }
 ```
 **Comparison**
@@ -162,6 +163,14 @@ struct {
   field string // Valid fields: name, image, color, comment, creator, commenter, colorer, imager, treesize
   typ string `enum:"notequal,equal,greater,less"`
   value any // float64 or string
+}
+```
+**Operation**
+```go
+struct {
+  left string // Query
+  right string // Query
+  op string `enum:"intersect,union,difference"`
 }
 ```
 

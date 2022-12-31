@@ -148,6 +148,15 @@ func (p *Pages) Query(c sevcord.Ctx, args []any) {
 	if args[1] != nil {
 		sort = args[1].(string)
 	}
+
+	// Get name
+	var name string
+	err := p.db.QueryRow(`SELECT name FROM queries WHERE guild=$1 AND LOWER(name)=$2`, c.Guild(), strings.ToLower(args[0].(string))).Scan(&name)
+	if err != nil {
+		p.base.Error(c, err)
+		return
+	}
+
 	// Create embed
-	p.QueryHandler(c, fmt.Sprintf("next|%s|%s|-1|%s", c.Author().User.ID, sort, args[0].(string)))
+	p.QueryHandler(c, fmt.Sprintf("next|%s|%s|-1|%s", c.Author().User.ID, sort, name))
 }
