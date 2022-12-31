@@ -76,7 +76,7 @@ func (b *Bot) Init() {
 		sevcord.NewSlashCommand(
 			"element",
 			"Get element info!",
-			b.elements.Info,
+			b.elements.InfoSlashCmd,
 			sevcord.NewOption("element", "The element to view the info of!", sevcord.OptionKindInt, true).
 				AutoComplete(b.elements.Autocomplete),
 		),

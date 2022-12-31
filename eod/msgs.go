@@ -14,6 +14,10 @@ var seps = []string{
 }
 
 func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
+	if strings.HasPrefix(content, "?") {
+		b.elements.InfoMsgCmd(c, content[1:])
+		return
+	}
 	for _, sep := range seps {
 		if strings.Contains(content, sep) {
 			// Check ctx

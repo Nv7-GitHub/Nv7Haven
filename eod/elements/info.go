@@ -2,18 +2,35 @@ package elements
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/dustin/go-humanize"
 )
 
-func (e *Elements) Info(c sevcord.Ctx, params []any) {
+func (e *Elements) InfoSlashCmd(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
+	e.Info(c, int(opts[0].(int64)))
+}
 
+func (e *Elements) InfoMsgCmd(c sevcord.Ctx, val string) {
+	e.base.IncrementCommandStat(c, "info")
+
+	c.Acknowledge()
+	var id int
+	err := e.db.QueryRow("SELECT id FROM elements WHERE guild=$1 AND LOWER(name)=$2", c.Guild(), strings.ToLower(val)).Scan(&id)
+	if err != nil {
+		e.base.Error(c, err)
+		return
+	}
+	e.Info(c, id)
+}
+
+func (e *Elements) Info(c sevcord.Ctx, el int) {
 	// Get element
 	var elem types.Element
-	err := e.db.Get(&elem, "SELECT * FROM elements WHERE id=$1 AND guild=$2", params[0].(int64), c.Guild())
+	err := e.db.Get(&elem, "SELECT * FROM elements WHERE id=$1 AND guild=$2", el, c.Guild())
 	if err != nil {
 		e.base.Error(c, err)
 		return
