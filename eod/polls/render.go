@@ -132,9 +132,18 @@ func (b *Polls) makePollEmbed(p *types.Poll) (sevcord.EmbedBuilder, error) {
 			Footer(footer, ""), nil
 
 	case types.PollKindDelQuery:
+		var query types.Query
+		err := b.db.Get(&query, "SELECT * FROM queries WHERE name=$1", p.Data["query"].(string))
+		if err != nil {
+			return sevcord.NewEmbed(), err
+		}
+		_, desc, err := b.makeQueryText(query.Name, string(query.Kind), query.Guild, query.Data)
+		if err != nil {
+			return sevcord.NewEmbed(), err
+		}
 		return sevcord.NewEmbed().
 			Title("Delete Query").
-			Description(makeMessage(fmt.Sprintf("**%s**", p.Data["query"].(string)), p)).
+			Description(makeMessage(desc, p)).
 			Footer(footer, ""), nil
 
 	case types.PollKindQuery:
