@@ -82,7 +82,9 @@ func (q *Queries) Init() {
 			sevcord.NewOption("query", "The query to contain the products of!", sevcord.OptionKindString, true).
 				AutoComplete(q.Autocomplete),
 			sevcord.NewOption("field", "The field to compare by!", sevcord.OptionKindString, true).
-				AddChoices(sevcord.NewChoice("Name", "name"),
+				AddChoices(
+					sevcord.NewChoice("ID", "id"),
+					sevcord.NewChoice("Name", "name"),
 					sevcord.NewChoice("Image", "image"),
 					sevcord.NewChoice("Color", "color"),
 					sevcord.NewChoice("Description", "comment"),

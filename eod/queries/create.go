@@ -192,7 +192,7 @@ func (q *Queries) CreateComparisonCmd(c sevcord.Ctx, opts []any) {
 	// Parse if needed
 	val := any(opts[4].(string))
 	switch opts[2].(string) {
-	case "treesize", "color":
+	case "treesize", "color", "id":
 		intV, err := strconv.Atoi(opts[4].(string))
 		if err != nil {
 			q.base.Error(c, err)

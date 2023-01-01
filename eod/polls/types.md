@@ -160,7 +160,7 @@ struct {
 ```go
 struct {
   query string
-  field string // Valid fields: name, image, color, comment, creator, commenter, colorer, imager, treesize
+  field string // Valid fields: name, image, color, comment, creator, commenter, colorer, imager, treesize, id
   typ string `enum:"notequal,equal,greater,less"`
   value any // float64 or string
 }
