@@ -14,6 +14,7 @@ func (b *Base) Error(ctx sevcord.Ctx, err error) {
 		ctx.Respond(sevcord.NewMessage("").AddEmbed(
 			sevcord.NewEmbed().
 				Title("Error").
+				Color(15548997). // Red
 				Description("```" + err.Error() + "```"),
 		))
 	}
