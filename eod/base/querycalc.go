@@ -71,9 +71,14 @@ func (b *Base) CalcQuery(ctx sevcord.Ctx, name string) (*types.Query, error) {
 		query.Elements = pgArrToIntArr(els)
 
 	case types.QueryKindElements:
-		err = b.db.Select(&query.Elements, `SELECT id FROM elements WHERE guild=$1`, ctx.Guild())
+		var max int
+		err = b.db.QueryRow(`SELECT MAX(id) FROM elements WHERE guild=$1`, ctx.Guild()).Scan(&max)
 		if err != nil {
 			return nil, err
+		}
+		query.Elements = make([]int, max-1)
+		for i := range query.Elements {
+			query.Elements[i] = i + 1
 		}
 
 	case types.QueryKindRegex:
