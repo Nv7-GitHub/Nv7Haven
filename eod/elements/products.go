@@ -63,5 +63,8 @@ func (e *Elements) Products(c sevcord.Ctx, opts []any) {
 		Description(desc.String()).
 		Footer(fmt.Sprintf("%s Products", humanize.Comma(int64(len(items)))), "").
 		Color(15548997) // Fuschia
-	c.Respond(sevcord.NewMessage("").AddEmbed(emb))
+	err = c.Respond(sevcord.NewMessage("").AddEmbed(emb))
+	if err != nil {
+		fmt.Println("products respond err", err)
+	}
 }
