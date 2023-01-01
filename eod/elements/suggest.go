@@ -8,6 +8,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/Nv7-Github/sevcord/v2"
+	"github.com/lib/pq"
 )
 
 func (e *Elements) Suggest(c sevcord.Ctx, opts []any) {
@@ -39,6 +40,18 @@ func (e *Elements) Suggest(c sevcord.Ctx, opts []any) {
 	v, res := e.base.GetCombCache(c)
 	if !res.Ok {
 		c.Respond(sevcord.NewMessage(res.Message))
+		return
+	}
+
+	// Check if combo has result
+	var exists bool
+	err = e.db.QueryRow(`SELECT EXISTS(SELECT 1 FROM combos WHERE guild=$1 AND els=$2)`, c.Guild(), pq.Array(v)).Scan(&exists)
+	if err != nil {
+		e.base.Error(c, err)
+		return
+	}
+	if exists {
+		c.Respond(sevcord.NewMessage("This combo already has a result! " + types.RedCircle))
 		return
 	}
 

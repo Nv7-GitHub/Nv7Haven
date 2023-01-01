@@ -29,6 +29,7 @@ func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 
 	if len(elemVals) > maxLength {
 		c.Respond(sevcord.NewMessage(fmt.Sprintf("You can only combine up to %d elements!", maxLength)))
+		return
 	}
 
 	// Cleanup
