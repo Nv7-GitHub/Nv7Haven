@@ -6,9 +6,11 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/dustin/go-humanize"
+	"github.com/lib/pq"
 )
 
 var lbSorts = []sevcord.Choice{
@@ -41,17 +43,44 @@ var lbSortCode = map[string]string{
 	"queryimg":    `(SELECT COUNT(*) FROM queries WHERE guild=$1 AND imager="user")`,
 	"querycolor":  `(SELECT COUNT(*) FROM queries WHERE guild=$1 AND colorer="user")`,
 }
+var lbQuerySortCode = map[string]string{
+	"found":  "array_length(inv & $2, 1)",
+	"made":   `(SELECT COUNT(*) FROM elements WHERE guild=$1 AND creator="user" AND id=ANY($2))`,
+	"signed": `(SELECT COUNT(*) FROM elements WHERE guild=$1 AND commenter="user" AND id=ANY($2))`,
+	"img":    `(SELECT COUNT(*) FROM elements WHERE guild=$1 AND imager="user" AND id=ANY($2))`,
+	"color":  `(SELECT COUNT(*) FROM elements WHERE guild=$1 AND colorer="user" AND id=ANY($2))`,
+}
 
-// Format: prevnext|user|sort|page
+// Format: prevnext|user|sort|page|query
 func (p *Pages) LbHandler(c sevcord.Ctx, params string) {
 	parts := strings.Split(params, "|")
+
+	// Query
+	var qu *types.Query
+	var err error
+	if parts[4] != "" {
+		qu, err = p.queries.CalcQuery(c, parts[4])
+		if err != nil {
+			p.base.Error(c, err)
+			return
+		}
+	}
 
 	// Get values
 	var vals []struct {
 		User string `db:"user"`
 		Cnt  int    `db:"cnt"`
 	}
-	err := p.db.Select(&vals, `SELECT "user", `+lbSortCode[parts[2]]+` cnt FROM inventories WHERE guild=$1 ORDER BY cnt DESC`, c.Guild())
+	if qu == nil {
+		err = p.db.Select(&vals, `SELECT "user", `+lbSortCode[parts[2]]+` cnt FROM inventories WHERE guild=$1 ORDER BY cnt DESC`, c.Guild())
+	} else {
+		sort, ok := lbQuerySortCode[parts[2]]
+		if !ok {
+			c.Respond(sevcord.NewMessage("This sort doesn't support queries! " + types.RedCircle))
+			return
+		}
+		err = p.db.Select(&vals, `SELECT "user", `+sort+` cnt FROM inventories WHERE guild=$1 ORDER BY cnt DESC`, c.Guild(), pq.Array(qu.Elements))
+	}
 	if err != nil {
 		p.base.Error(c, err)
 		return
@@ -118,7 +147,7 @@ func (p *Pages) LbHandler(c sevcord.Ctx, params string) {
 		Footer(fmt.Sprintf("Page %d/%d", page+1, pagecnt), "")
 	c.Respond(sevcord.NewMessage("").
 		AddEmbed(emb).
-		AddComponentRow(PageSwitchBtns("lb", fmt.Sprintf("%s|%s|%d", parts[1], parts[2], page))...))
+		AddComponentRow(PageSwitchBtns("lb", fmt.Sprintf("%s|%s|%d|%s", parts[1], parts[2], page, parts[4]))...))
 }
 
 func (p *Pages) Lb(c sevcord.Ctx, opts []any) {
@@ -133,7 +162,11 @@ func (p *Pages) Lb(c sevcord.Ctx, opts []any) {
 	if opts[1] != nil {
 		user = opts[1].(string)
 	}
+	query := ""
+	if opts[2] != nil {
+		query = opts[2].(string)
+	}
 
 	// Handler
-	p.LbHandler(c, "next|"+user+"|"+sort+"|-1")
+	p.LbHandler(c, "next|"+user+"|"+sort+"|-1|"+query)
 }

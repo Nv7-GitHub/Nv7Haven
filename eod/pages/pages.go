@@ -39,6 +39,8 @@ func (p *Pages) Init() {
 		sevcord.NewOption("sort", "The sort order of the leaderboard!", sevcord.OptionKindString, false).
 			AddChoices(lbSorts...),
 		sevcord.NewOption("user", "The user to view the leaderboard from the point of view of!", sevcord.OptionKindUser, false),
+		sevcord.NewOption("query", "View the stats within a query!", sevcord.OptionKindString, false).
+			AutoComplete(p.queries.Autocomplete),
 	))
 	p.s.AddButtonHandler("lb", p.LbHandler)
 
