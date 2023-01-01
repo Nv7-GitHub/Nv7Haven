@@ -59,14 +59,23 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 
 func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 	if strings.HasPrefix(content, "!") {
+		if len(content) < 2 {
+			return
+		}
 		parts := strings.SplitN(content[1:], " ", 2)
 		b.textCommandHandler(c, parts[0], parts[1])
 	}
 	if strings.HasPrefix(content, "?") {
+		if len(content) < 2 {
+			return
+		}
 		b.elements.InfoMsgCmd(c, content[1:])
 		return
 	}
 	if strings.HasPrefix(content, "*") {
+		if len(content) < 2 {
+			return
+		}
 		if !b.base.CheckCtx(c, "message") {
 			return
 		}
