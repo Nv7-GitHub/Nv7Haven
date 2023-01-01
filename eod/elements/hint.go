@@ -44,13 +44,32 @@ func (e *Elements) Hint(c sevcord.Ctx, opts []any) {
 	if opts[0] != nil {
 		el = int(opts[0].(int64))
 	} else {
-		// Get random element that the user can make
-		err := e.db.QueryRow(`SELECT result FROM combos WHERE 
+		// Pick random element
+		var err error
+		if opts[1] == nil { // Not from a query
+			err = e.db.QueryRow(`SELECT result FROM combos WHERE 
 		guild=$1 AND 
 		RANDOM() < 0.01 AND 
 		els <@ (SELECT inv FROM inventories WHERE guild=$1 AND "user"=$2) AND 
 		NOT (result=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2))
 		LIMIT 1`, c.Guild(), c.Author().User.ID).Scan(&el)
+		} else { // From a query
+			var qu *types.Query
+			qu, err = e.base.CalcQuery(c, opts[1].(string))
+			if err != nil {
+				e.base.Error(c, err)
+				return
+			}
+			err = e.db.QueryRow(`SELECT result FROM combos WHERE 
+		guild=$1 AND 
+		RANDOM() < 0.01 AND 
+		els <@ (SELECT inv FROM inventories WHERE guild=$1 AND "user"=$2) AND 
+		NOT (result=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2)) AND
+		result=ANY($3)
+		LIMIT 1`, c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
+		}
+
+		// Get random element that the user can make
 		if err != nil {
 			if err == sql.ErrNoRows {
 				c.Respond(sevcord.NewMessage("No hints found! Try again later. " + types.RedCircle))

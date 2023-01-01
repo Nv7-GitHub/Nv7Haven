@@ -12,7 +12,7 @@ func (q *Queries) Info(ctx sevcord.Ctx, opts []any) {
 	ctx.Acknowledge()
 
 	// Get query
-	qu, err := q.CalcQuery(ctx, opts[0].(string))
+	qu, err := q.base.CalcQuery(ctx, opts[0].(string))
 	if err != nil {
 		q.base.Error(ctx, err)
 		return

@@ -12,7 +12,7 @@ func (q *Queries) Download(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
 
 	// Get query
-	qu, err := q.CalcQuery(c, opts[0].(string))
+	qu, err := q.base.CalcQuery(c, opts[0].(string))
 	if err != nil {
 		q.base.Error(c, err)
 		return

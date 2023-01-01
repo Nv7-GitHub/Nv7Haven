@@ -1,4 +1,4 @@
-package queries
+package base
 
 import (
 	"strings"
@@ -13,10 +13,10 @@ func pgArrToIntArr(arr pq.Int32Array) []int {
 	return util.Map([]int32(arr), func(v int32) int { return int(v) })
 }
 
-func (q *Queries) CalcQuery(ctx sevcord.Ctx, name string) (*types.Query, error) {
+func (b *Base) CalcQuery(ctx sevcord.Ctx, name string) (*types.Query, error) {
 	// Get
 	var query = &types.Query{}
-	err := q.db.Get(query, "SELECT * FROM queries WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(name), ctx.Guild())
+	err := b.db.Get(query, "SELECT * FROM queries WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(name), ctx.Guild())
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +28,7 @@ func (q *Queries) CalcQuery(ctx sevcord.Ctx, name string) (*types.Query, error) 
 
 	case types.QueryKindCategory:
 		var els pq.Int32Array
-		err = q.db.QueryRow(`SELECT elements FROM categories WHERE name=$1 AND guild=$2`, query.Data["cat"].(string), ctx.Guild()).Scan(&els)
+		err = b.db.QueryRow(`SELECT elements FROM categories WHERE name=$1 AND guild=$2`, query.Data["cat"].(string), ctx.Guild()).Scan(&els)
 		if err != nil {
 			return nil, err
 		}
@@ -36,24 +36,24 @@ func (q *Queries) CalcQuery(ctx sevcord.Ctx, name string) (*types.Query, error) 
 
 	case types.QueryKindProducts:
 		// Get query elems
-		parent, err := q.CalcQuery(ctx, query.Data["query"].(string))
+		parent, err := b.CalcQuery(ctx, query.Data["query"].(string))
 		if err != nil {
 			return nil, err
 		}
 		// Calc
-		err = q.db.Select(&query.Elements, `SELECT DISTINCT(result) FROM combos WHERE guild=$1 AND array_length($2 & els, 1)>=1`, ctx.Guild(), pq.Array(parent.Elements))
+		err = b.db.Select(&query.Elements, `SELECT DISTINCT(result) FROM combos WHERE guild=$1 AND array_length($2 & els, 1)>=1`, ctx.Guild(), pq.Array(parent.Elements))
 		if err != nil {
 			return nil, err
 		}
 
 	case types.QueryKindParents:
 		// Get query elems
-		parent, err := q.CalcQuery(ctx, query.Data["query"].(string))
+		parent, err := b.CalcQuery(ctx, query.Data["query"].(string))
 		if err != nil {
 			return nil, err
 		}
 		// Calc
-		err = q.db.Select(&query.Elements, `WITH RECURSIVE parents AS (
+		err = b.db.Select(&query.Elements, `WITH RECURSIVE parents AS (
 			(select parents, id from elements where id=ANY($2) and guild=$1)
 		UNION
 			(SELECT b.parents, b.id FROM elements b INNER JOIN parents p ON b.id=ANY(p.parents) where guild=$1)
@@ -64,27 +64,27 @@ func (q *Queries) CalcQuery(ctx sevcord.Ctx, name string) (*types.Query, error) 
 
 	case types.QueryKindInventory:
 		var els pq.Int32Array
-		err = q.db.QueryRow(`SELECT inv FROM inventories WHERE "user"=$1 AND guild=$2`, query.Data["user"].(string), ctx.Guild()).Scan(&els)
+		err = b.db.QueryRow(`SELECT inv FROM inventories WHERE "user"=$1 AND guild=$2`, query.Data["user"].(string), ctx.Guild()).Scan(&els)
 		if err != nil {
 			return nil, err
 		}
 		query.Elements = pgArrToIntArr(els)
 
 	case types.QueryKindElements:
-		err = q.db.Select(&query.Elements, `SELECT id FROM elements WHERE guild=$1`, ctx.Guild())
+		err = b.db.Select(&query.Elements, `SELECT id FROM elements WHERE guild=$1`, ctx.Guild())
 		if err != nil {
 			return nil, err
 		}
 
 	case types.QueryKindRegex:
-		err = q.db.Select(&query.Elements, `SELECT id FROM elements WHERE guild=$1 AND name ~ $2`, ctx.Guild(), query.Data["regex"].(string))
+		err = b.db.Select(&query.Elements, `SELECT id FROM elements WHERE guild=$1 AND name ~ $2`, ctx.Guild(), query.Data["regex"].(string))
 		if err != nil {
 			return nil, err
 		}
 
 	case types.QueryKindComparison:
 		// Get query elems
-		parent, err := q.CalcQuery(ctx, query.Data["query"].(string))
+		parent, err := b.CalcQuery(ctx, query.Data["query"].(string))
 		if err != nil {
 			return nil, err
 		}
@@ -100,18 +100,18 @@ func (q *Queries) CalcQuery(ctx sevcord.Ctx, name string) (*types.Query, error) 
 		case "less":
 			op = "<"
 		}
-		err = q.db.Select(&query.Elements, `SELECT id FROM elements WHERE guild=$1 AND id=ANY($2) AND `+query.Data["field"].(string)+op+`$3`, ctx.Guild(), pq.Array(parent.Elements), query.Data["value"])
+		err = b.db.Select(&query.Elements, `SELECT id FROM elements WHERE guild=$1 AND id=ANY($2) AND `+query.Data["field"].(string)+op+`$3`, ctx.Guild(), pq.Array(parent.Elements), query.Data["value"])
 		if err != nil {
 			return nil, err
 		}
 
 	case types.QueryKindOperation:
 		// Get elems
-		left, err := q.CalcQuery(ctx, query.Data["left"].(string))
+		left, err := b.CalcQuery(ctx, query.Data["left"].(string))
 		if err != nil {
 			return nil, err
 		}
-		right, err := q.CalcQuery(ctx, query.Data["right"].(string))
+		right, err := b.CalcQuery(ctx, query.Data["right"].(string))
 		if err != nil {
 			return nil, err
 		}

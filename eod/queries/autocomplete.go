@@ -26,7 +26,7 @@ func (q *Queries) queryParents(c sevcord.Ctx, name string, res map[string]struct
 	if exists {
 		return nil
 	}
-	qu, err := q.CalcQuery(c, name)
+	qu, err := q.base.CalcQuery(c, name)
 	if err != nil {
 		return err
 	}

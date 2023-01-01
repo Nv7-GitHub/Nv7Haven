@@ -118,4 +118,13 @@ func (b *Bot) Init() {
 				AutoComplete(b.queries.Autocomplete),
 		),
 	))
+	b.s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"hint",
+		"Learn how to make an element!",
+		b.elements.Hint,
+		sevcord.NewOption("element", "An element to get the hint of!", sevcord.OptionKindInt, false).
+			AutoComplete(b.elements.Autocomplete),
+		sevcord.NewOption("query", "A query to select the random element to be made from!", sevcord.OptionKindString, false).
+			AutoComplete(b.queries.Autocomplete),
+	))
 }

@@ -85,7 +85,7 @@ func (p *Pages) QueryHandler(c sevcord.Ctx, params string) {
 	parts := strings.SplitN(params, "|", 5)
 
 	// Get query
-	query, err := p.queries.CalcQuery(c, parts[4])
+	query, err := p.base.CalcQuery(c, parts[4])
 	if err != nil {
 		p.base.Error(c, err)
 		return

@@ -59,7 +59,7 @@ func (p *Pages) LbHandler(c sevcord.Ctx, params string) {
 	var qu *types.Query
 	var err error
 	if parts[4] != "" {
-		qu, err = p.queries.CalcQuery(c, parts[4])
+		qu, err = p.base.CalcQuery(c, parts[4])
 		if err != nil {
 			p.base.Error(c, err)
 			return

@@ -17,13 +17,6 @@ type Elements struct {
 
 func (e *Elements) Init() {
 	e.s.RegisterSlashCommand(sevcord.NewSlashCommand(
-		"hint",
-		"Learn how to make an element!",
-		e.Hint,
-		sevcord.NewOption("element", "An element to get the hint of!", sevcord.OptionKindInt, false).
-			AutoComplete(e.Autocomplete),
-	))
-	e.s.RegisterSlashCommand(sevcord.NewSlashCommand(
 		"suggest",
 		"Create a suggestion!",
 		e.Suggest,
