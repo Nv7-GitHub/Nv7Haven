@@ -12,7 +12,7 @@ import (
 	"github.com/lib/pq"
 )
 
-var createlock *sync.Mutex
+var createlock = &sync.Mutex{}
 
 func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 	createlock.Lock()
