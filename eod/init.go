@@ -1,109 +1,130 @@
 package eod
 
 import (
-	"fmt"
-	"time"
-
-	"github.com/Nv7-Github/Nv7Haven/eod/api"
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
-	"github.com/Nv7-Github/Nv7Haven/eod/basecmds"
 	"github.com/Nv7-Github/Nv7Haven/eod/categories"
 	"github.com/Nv7-Github/Nv7Haven/eod/elements"
-	"github.com/Nv7-Github/Nv7Haven/eod/logs"
+	"github.com/Nv7-Github/Nv7Haven/eod/pages"
 	"github.com/Nv7-Github/Nv7Haven/eod/polls"
-	"github.com/Nv7-Github/Nv7Haven/eod/treecmds"
-	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/queries"
+	"github.com/Nv7-Github/sevcord/v2"
 )
 
-func (b *EoD) init() {
-	// Initialize subsystems
-	logs.InitEoDLogs()
-	b.base = base.NewBase(b.Data, b.dg)
-	b.basecmds = basecmds.NewBaseCmds(b.base, b.db, b.dg, b.Data)
-	b.treecmds = treecmds.NewTreeCmds(b.Data, b.dg, b.base)
-	b.polls = polls.NewPolls(b.Data, b.dg, b.base)
-	b.categories = categories.NewCategories(b.Data, b.base, b.dg, b.polls)
-	b.elements = elements.NewElements(b.Data, b.polls, b.db, b.base, b.dg)
-	b.api = api.NewAPI(b.Data, b.base)
+func (b *Bot) Init() {
+	b.base = base.NewBase(b.s, b.db)
+	b.polls = polls.NewPolls(b.db, b.base, b.s)
+	b.elements = elements.NewElements(b.s, b.db, b.base, b.polls)
+	b.categories = categories.NewCategories(b.db, b.base, b.s, b.polls)
+	b.queries = queries.NewQueries(b.s, b.db, b.base, b.polls, b.elements, b.categories)
+	b.pages = pages.NewPages(b.base, b.db, b.s, b.categories, b.elements, b.queries)
+	b.s.SetMessageHandler(b.messageHandler)
 
-	// Run API
-	b.api.Run()
-
-	// Calc VCats
-	start := time.Now()
-	fmt.Println("Calculating VCats...")
-	b.categories.CacheVCats()
-	fmt.Println("Calculated in", time.Since(start))
-
-	// Check polls
-	start = time.Now()
-	fmt.Println("Checking polls...")
-	for _, db := range b.Data.DB {
-		for _, poll := range db.Polls {
-			msg, err := b.dg.ChannelMessage(poll.Channel, poll.Message)
-			if err != nil || msg == nil {
-				db.DeletePoll(poll)
-				continue
-			}
-			for _, r := range msg.Reactions {
-				if r.Emoji.Name == types.UpArrow {
-					poll.Upvotes = r.Count - 1
-				} else if r.Emoji.Name == types.DownArrow {
-					poll.Downvotes = r.Count - 1
-				}
-			}
-
-			// Check if being deleted by author
-			reactor := ""
-			downvote := false
-			if poll.Downvotes > 0 {
-				r, err := b.dg.MessageReactions(poll.Channel, poll.Message, types.DownArrow, 100, "", "")
-				if err == nil {
-					for _, u := range r {
-						if u.ID == poll.Suggestor {
-							downvote = true
-							reactor = u.Username
-							break
-						}
-					}
-				}
-			}
-
-			// Handle poll votes
-			b.polls.CheckReactions(db, poll, reactor, downvote)
-		}
-	}
-	fmt.Println("Checked in", time.Since(start))
-
-	b.initHandlers()
-
-	// Start stats saving
-	go func() {
-		b.basecmds.SaveStats()
-		for {
-			time.Sleep(time.Minute * 30)
-			b.basecmds.SaveStats()
-		}
-	}()
-
-	// Remove #0
-	for _, db := range b.DB {
-		for _, cat := range db.Cats() {
-			_, exists := cat.Elements[0]
-			if exists {
-				delete(cat.Elements, 0)
-				db.SaveCat(cat)
-			}
-		}
-	}
-
-	// Change elements created by devi
-	/*dbv, _ := b.GetDB("705084182673621033")
-	for _, el := range dbv.Elements {
-		if el.Creator == "278931380191100929" {
-			el.Creator = "812106732045205566"
-			dbv.SaveElement(el)
-			fmt.Println(el.Name)
-		}
-	}*/
+	// Commands
+	b.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup("image", "Change an image!",
+		sevcord.NewSlashCommand(
+			"element",
+			"Change the image of an element!",
+			b.elements.ImageCmd,
+			sevcord.NewOption("element", "The element to change the image of!", sevcord.OptionKindInt, true).
+				AutoComplete(b.elements.Autocomplete),
+			sevcord.NewOption("image", "The image to change it to!", sevcord.OptionKindAttachment, true),
+		),
+		sevcord.NewSlashCommand(
+			"category",
+			"Change the image of a category!",
+			b.categories.ImageCmd,
+			sevcord.NewOption("category", "The category to change the image of!", sevcord.OptionKindString, true).
+				AutoComplete(b.categories.Autocomplete),
+			sevcord.NewOption("image", "The image to change it to!", sevcord.OptionKindAttachment, true),
+		),
+		sevcord.NewSlashCommand(
+			"query",
+			"Change the image of a query!",
+			b.queries.ImageCmd,
+			sevcord.NewOption("query", "The query to change the image of!", sevcord.OptionKindString, true).
+				AutoComplete(b.queries.Autocomplete),
+			sevcord.NewOption("image", "The image to change it to!", sevcord.OptionKindAttachment, true),
+		),
+	))
+	b.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup("sign", "Change a comment!",
+		sevcord.NewSlashCommand(
+			"element",
+			"Change the comment of an element!",
+			b.elements.SignCmd,
+			sevcord.NewOption("element", "The element to change the comment of!", sevcord.OptionKindInt, true).
+				AutoComplete(b.elements.Autocomplete),
+		),
+		sevcord.NewSlashCommand(
+			"category",
+			"Change the comment of a category!",
+			b.categories.SignCmd,
+			sevcord.NewOption("category", "The category to change the comment of!", sevcord.OptionKindString, true).
+				AutoComplete(b.categories.Autocomplete),
+		),
+		sevcord.NewSlashCommand(
+			"query",
+			"Change the comment of a query!",
+			b.queries.SignCmd,
+			sevcord.NewOption("query", "The query to change the comment of!", sevcord.OptionKindString, true).
+				AutoComplete(b.queries.Autocomplete),
+		),
+	))
+	b.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup("color", "Change a color!",
+		sevcord.NewSlashCommand(
+			"element",
+			"Change the color of an element!",
+			b.elements.ColorCmd,
+			sevcord.NewOption("element", "The element to change the color of!", sevcord.OptionKindInt, true).
+				AutoComplete(b.elements.Autocomplete),
+			sevcord.NewOption("color", "The hex code of the color to change it to!", sevcord.OptionKindString, true),
+		),
+		sevcord.NewSlashCommand(
+			"category",
+			"Change the color of a category!",
+			b.categories.ColorCmd,
+			sevcord.NewOption("category", "The category to change the image of!", sevcord.OptionKindString, true).
+				AutoComplete(b.categories.Autocomplete),
+			sevcord.NewOption("color", "The hex code of the color to change it to!", sevcord.OptionKindString, true),
+		),
+		sevcord.NewSlashCommand(
+			"query",
+			"Change the color of a query!",
+			b.queries.ColorCmd,
+			sevcord.NewOption("query", "The query to change the image of!", sevcord.OptionKindString, true).
+				AutoComplete(b.queries.Autocomplete),
+			sevcord.NewOption("color", "The hex code of the color to change it to!", sevcord.OptionKindString, true),
+		),
+	))
+	b.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup("info", "Get element, category, or query info!",
+		sevcord.NewSlashCommand(
+			"element",
+			"Get element info!",
+			b.elements.InfoSlashCmd,
+			sevcord.NewOption("element", "The element to view the info of!", sevcord.OptionKindInt, true).
+				AutoComplete(b.elements.Autocomplete),
+		),
+		sevcord.NewSlashCommand(
+			"category",
+			"Get category info!",
+			b.categories.Info,
+			sevcord.NewOption("category", "The category to view the info of!", sevcord.OptionKindString, true).
+				AutoComplete(b.categories.Autocomplete),
+		),
+		sevcord.NewSlashCommand(
+			"query",
+			"Get query info!",
+			b.queries.Info,
+			sevcord.NewOption("query", "The query to view the info of!", sevcord.OptionKindString, true).
+				AutoComplete(b.queries.Autocomplete),
+		),
+	))
+	b.s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"hint",
+		"Learn how to make an element!",
+		b.elements.Hint,
+		sevcord.NewOption("element", "An element to get the hint of!", sevcord.OptionKindInt, false).
+			AutoComplete(b.elements.Autocomplete),
+		sevcord.NewOption("query", "A query to select the random element to be made from!", sevcord.OptionKindString, false).
+			AutoComplete(b.queries.Autocomplete),
+	))
 }

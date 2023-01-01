@@ -1,151 +1,98 @@
 package elements
 
 import (
+	"database/sql"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
+	"github.com/Nv7-Github/sevcord/v2"
 )
 
-var invalidNames = []string{
-	"@everyone",
-	"@here",
-	"<@",
-	"İ",
-	"\n",
-	"<t:",
-	"</",
-}
+func (e *Elements) Suggest(c sevcord.Ctx, opts []any) {
+	c.Acknowledge()
 
-var charReplace = map[rune]rune{
-	'’': '\'',
-	'‘': '\'',
-	'`': '\'',
-	'”': '"',
-	'“': '"',
-}
-
-const maxSuggestionLength = 240
-
-var remove = []string{"\uFE0E", "\uFE0F", "\u200B", "\u200E", "\u200F", "\u2060", "\u2061", "\u2062", "\u2063", "\u2064", "\u2065", "\u2066", "\u2067", "\u2068", "\u2069", "\u206A", "\u206B", "\u206C", "\u206D", "\u206E", "\u206F", "\u3000", "\uFE00", "\uFE01", "\uFE02", "\uFE03", "\uFE04", "\uFE05", "\uFE06", "\uFE07", "\uFE08", "\uFE09", "\uFE0A", "\uFE0B", "\uFE0C", "\uFE0D"}
-
-func (b *Elements) SuggestCmd(suggestion string, autocapitalize bool, m types.Msg, rsp types.Rsp) {
-	rsp.Acknowledge()
-
-	db, res := b.GetDB(m.GuildID)
-	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
+	// Autocapitalization
+	autocap := true
+	if opts[1] != nil {
+		autocap = opts[1].(bool)
 	}
-	data, _ := b.GetData(m.GuildID)
-
-	if autocapitalize && strings.ToLower(suggestion) == suggestion {
-		suggestion = util.ToTitle(suggestion)
+	if autocap {
+		opts[0] = util.Capitalize(opts[0].(string))
 	}
 
-	if strings.HasPrefix(suggestion, "?") {
-		rsp.ErrorMessage(db.Config.LangProperty("ElemNameCannotStartWithQuestionMark", nil))
-		return
-	}
-	if len(suggestion) >= maxSuggestionLength {
-		rsp.ErrorMessage(db.Config.LangProperty("ElemNameMaxLength", maxSuggestionLength))
-		return
-	}
-
-	// Clean up suggestions with weird quotes
-	cleaned := []rune(suggestion)
-	for i, char := range cleaned {
-		newVal, exists := charReplace[char]
-		if exists {
-			cleaned[i] = newVal
-		}
-	}
-	suggestion = string(cleaned)
-	for _, val := range remove {
-		suggestion = strings.ReplaceAll(suggestion, val, "")
-	}
-
-	for _, name := range invalidNames {
-		if strings.Contains(suggestion, name) {
-			rsp.ErrorMessage(db.Config.LangProperty("ElemNameForbiddenChar", name))
+	// Check if result exists already
+	var id int
+	var name string
+	err := e.db.QueryRow(`SELECT id, name FROM elements WHERE guild=$1 AND LOWER(name)=$2`, c.Guild(), strings.ToLower(opts[0].(string))).Scan(&id, &name)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			id = -1
+		} else {
+			e.base.Error(c, err)
 			return
 		}
 	}
 
-	suggestion = strings.TrimSpace(suggestion)
-	if len(suggestion) > 1 && suggestion[0] == '#' {
-		suggestion = suggestion[1:]
-	}
-	if len(suggestion) == 0 {
-		rsp.Resp(db.Config.LangProperty("NoSuggestElemName", nil))
+	// Get els
+	v, res := e.base.GetCombCache(c)
+	if !res.Ok {
+		c.Respond(sevcord.NewMessage(res.Message))
 		return
 	}
 
-	// Check if play channel
-	db.Config.RLock()
-	_, exists := db.Config.PlayChannels[m.ChannelID]
-	db.Config.RUnlock()
-	if !exists {
-		rsp.ErrorMessage(db.Config.LangProperty("MustSuggestInPlayChannel", nil))
-		return
+	// Get res
+	var idV any
+	if id == -1 {
+		idV = opts[0].(string)
+
+		// Check if valid
+		var ok types.Resp
+		idV, ok = base.CheckName(idV.(string))
+		if !ok.Ok {
+			c.Respond(sevcord.NewMessage(ok.Message + " " + types.RedCircle))
+			return
+		}
+	} else {
+		idV = float64(id)
 	}
 
-	// Check if exists
-	comb, res := data.GetComb(m.Author.ID)
-	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
-	}
-	_, res = db.GetCombo(comb.Elems)
-	if res.Exists {
-		rsp.ErrorMessage(db.Config.LangProperty("ComboHasResult", nil))
-		return
-	}
-
-	// Check if result exists
-	el, res := db.GetElementByName(suggestion)
-	if res.Exists {
-		suggestion = el.Name
-	}
-
-	err := b.polls.CreatePoll(types.Poll{
-		Channel:   db.Config.VotingChannel,
-		Guild:     m.GuildID,
-		Kind:      types.PollCombo,
-		Suggestor: m.Author.ID,
-
-		PollComboData: &types.PollComboData{
-			Elems:  comb.Elems,
-			Result: suggestion,
-			Exists: res.Exists,
+	// Create suggestion
+	err = e.polls.CreatePoll(c, &types.Poll{
+		Kind: types.PollKindCombo,
+		Data: types.PgData{
+			"els":    util.Map(v, func(a int) any { return float64(a) }),
+			"result": idV,
 		},
 	})
-	if rsp.Error(err) {
+	if err != nil {
+		e.base.Error(c, err)
 		return
 	}
 
-	txt := "**"
-	for _, val := range comb.Elems {
-		el, _ := db.GetElement(val)
-		txt += el.Name + " + "
+	// Make text
+	names, err := e.base.GetNames(v, c.Guild())
+	if err != nil {
+		e.base.Error(c, err)
+		return
 	}
-	txt = txt[:len(txt)-3]
-	if len(comb.Elems) == 1 {
-		el, _ := db.GetElement(comb.Elems[0])
-		txt += " + " + el.Name
-	}
-	txt += " = " + suggestion + "**"
-
-	txt = db.Config.LangProperty("SuggestedElem", txt)
-
-	if !res.Exists {
-		txt += " ✨"
+	text := &strings.Builder{}
+	text.WriteString("Suggested **")
+	text.WriteString(strings.Join(names, " + "))
+	text.WriteString(" = ")
+	if id != -1 {
+		text.WriteString(name)
 	} else {
-		txt += " 🌟"
+		text.WriteString(opts[0].(string))
+	}
+	text.WriteString("** ")
+	if id != -1 {
+		text.WriteString("🌟")
+	} else {
+		text.WriteString("✨")
 	}
 
-	id := rsp.Message(txt)
-	if res.Exists {
-		data.SetMsgElem(id, el.ID)
-	}
+	// Message
+	c.Respond(sevcord.NewMessage(text.String()))
 }

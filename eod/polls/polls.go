@@ -1,61 +1,30 @@
 package polls
 
 import (
-	"errors"
-	"time"
-
-	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/base"
+	"github.com/Nv7-Github/sevcord/v2"
+	"github.com/bwmarrin/discordgo"
+	"github.com/jmoiron/sqlx"
 )
 
-func (b *Polls) CreatePoll(p types.Poll) error {
-	db, res := b.GetDB(p.Guild)
-	if !res.Exists {
-		return nil
-	}
-	if db.Config.VoteCount == 0 {
-		b.handlePollSuccess(p)
-		return nil
-	}
-	msg := ""
-	// check poll limit
-	if db.Config.PollCount > 0 {
-		uPolls := 0
-		db.RLock()
-		for _, val := range db.Polls {
-			if val.Suggestor == p.Suggestor {
-				uPolls++
-			}
-		}
-		db.RUnlock()
-		msg = "Too many active polls!"
-		if uPolls >= db.Config.PollCount {
-			return errors.New(msg)
-		}
-	}
-	// Get embed
-	emb, err := b.GetPollEmbed(db, p)
-	if err != nil {
-		return err
-	}
-	m, err := b.dg.ChannelMessageSendEmbed(db.Config.VotingChannel, emb)
-	if err != nil {
-		return err
-	}
-	p.Message = m.ID
+type Polls struct {
+	db   *sqlx.DB
+	base *base.Base
+	s    *sevcord.Sevcord
+}
 
-	// Add reactions
-	err = b.dg.MessageReactionAdd(p.Channel, p.Message, types.UpArrow)
-	if err != nil {
-		return err
+func (p *Polls) Init() {
+	p.s.Dg().AddHandler(p.reactionHandler)
+	p.s.Dg().AddHandler(p.unReactionHandler)
+	p.s.Dg().Identify.Intents |= discordgo.IntentsGuildMessageReactions
+}
+
+func NewPolls(d *sqlx.DB, b *base.Base, s *sevcord.Sevcord) *Polls {
+	p := &Polls{
+		db:   d,
+		base: b,
+		s:    s,
 	}
-	err = b.dg.MessageReactionAdd(p.Channel, p.Message, types.DownArrow)
-	if err != nil {
-		return err
-	}
-	p.CreatedOn = types.NewTimeStamp(time.Now())
-	err = db.NewPoll(p)
-	if err != nil {
-		return err
-	}
-	return err
+	p.Init()
+	return p
 }

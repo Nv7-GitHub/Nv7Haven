@@ -2,147 +2,110 @@ package elements
 
 import (
 	"fmt"
-	"time"
+	"strconv"
+	"strings"
 
-	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
-	"github.com/bwmarrin/discordgo"
+	"github.com/Nv7-Github/sevcord/v2"
 )
 
-// TODO: Translate
+func (e *Elements) ImageCmd(c sevcord.Ctx, opts []any) {
+	c.Acknowledge()
 
-func (b *Elements) EditElementNameCmd(elem string, name string, m types.Msg, rsp types.Rsp) {
-	db, res := b.GetDB(m.GuildID)
-	if !res.Exists {
-		return
-	}
-	rsp.Acknowledge()
-
-	el, res := db.GetElementByName(elem)
-	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
-	}
-	el.Name = name
-	err := db.SaveElement(el)
-	if rsp.Error(err) {
+	// Check element
+	var elem string
+	var old string
+	err := e.db.QueryRow("SELECT name, image FROM elements WHERE id=$1 AND guild=$2", opts[0].(int64), c.Guild()).Scan(&elem, &old)
+	if err != nil {
+		e.base.Error(c, err)
 		return
 	}
 
-	rsp.Message(fmt.Sprintf("Successfully updated element **#%d**!", el.ID))
-}
-
-func (b *Elements) EditElementImageCmd(elem string, image string, m types.Msg, rsp types.Rsp) {
-	db, res := b.GetDB(m.GuildID)
-	if !res.Exists {
-		return
-	}
-	rsp.Acknowledge()
-
-	el, res := db.GetElementByName(elem)
-	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
-	}
-	el.Image = image
-	err := db.SaveElement(el)
-	if rsp.Error(err) {
+	// Check image
+	if !strings.HasPrefix(opts[1].(*sevcord.SlashCommandAttachment).ContentType, "image") {
+		c.Respond(sevcord.NewMessage("The attachment must be an image! " + types.RedCircle))
 		return
 	}
 
-	rsp.Message(fmt.Sprintf("Successfully updated element **#%d**!", el.ID))
-}
-
-func (b *Elements) EditElementCreatorCmd(elem string, creator string, m types.Msg, rsp types.Rsp) {
-	db, res := b.GetDB(m.GuildID)
-	if !res.Exists {
-		return
-	}
-	rsp.Acknowledge()
-
-	el, res := db.GetElementByName(elem)
-	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
-	}
-	el.Creator = creator
-	err := db.SaveElement(el)
-	if rsp.Error(err) {
-		return
-	}
-
-	rsp.Message(fmt.Sprintf("Successfully updated element **#%d**!", el.ID))
-}
-
-func (b *Elements) EditElementCreatedOnCmd(elem string, createdon int64, m types.Msg, rsp types.Rsp) {
-	db, res := b.GetDB(m.GuildID)
-	if !res.Exists {
-		return
-	}
-	rsp.Acknowledge()
-
-	el, res := db.GetElementByName(elem)
-	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
-	}
-	el.CreatedOn = types.NewTimeStamp(time.Unix(createdon, 0))
-	err := db.SaveElement(el)
-	if rsp.Error(err) {
-		return
-	}
-
-	rsp.Message(fmt.Sprintf("Successfully updated element **#%d**!", el.ID))
-}
-
-type editMarkModal struct {
-	m    types.Msg
-	db   *eodb.DB
-	elem int
-}
-
-func (m *editMarkModal) Handler(s *discordgo.Session, i *discordgo.InteractionCreate, rsp types.Rsp) {
-	el, _ := m.db.GetElement(m.elem)
-	el.Comment = i.ModalSubmitData().Components[0].(*discordgo.ActionsRow).Components[0].(*discordgo.TextInput).Value
-	err := m.db.SaveElement(el)
-	if rsp.Error(err) {
-		return
-	}
-	rsp.Message(fmt.Sprintf("Successfully updated element **#%d**!", el.ID))
-}
-
-func (b *Elements) EditElementMarkCmd(elem string, m types.Msg, rsp types.Rsp) {
-	db, res := b.GetDB(m.GuildID)
-	if !res.Exists {
-		return
-	}
-
-	el, res := db.GetElementByName(elem)
-	if !res.Exists {
-		rsp.ErrorMessage(res.Message)
-		return
-	}
-
-	rsp.Modal(&discordgo.InteractionResponseData{
-		Title: "Mark Element",
-		Components: []discordgo.MessageComponent{
-			discordgo.ActionsRow{
-				Components: []discordgo.MessageComponent{
-					discordgo.TextInput{
-						CustomID:    "mark",
-						Label:       "New Element Mark",
-						Style:       discordgo.TextInputParagraph,
-						Placeholder: "None",
-						Required:    true,
-						MinLength:   1,
-						MaxLength:   2400,
-					},
-				},
-			},
+	// Make poll
+	e.polls.CreatePoll(c, &types.Poll{
+		Kind: types.PollKindImage,
+		Data: types.PgData{
+			"elem": float64(opts[0].(int64)),
+			"new":  opts[1].(*sevcord.SlashCommandAttachment).URL,
+			"old":  old,
 		},
-	}, &editMarkModal{
-		m:    m,
-		db:   db,
-		elem: el.ID,
 	})
+
+	// Respond
+	c.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested an image for **%s** 📷", elem)))
+}
+
+func (e *Elements) SignCmd(c sevcord.Ctx, opts []any) {
+	// Check element
+	var name string
+	var old string
+	err := e.db.QueryRow("SELECT name, comment FROM elements WHERE id=$1 AND guild=$2", opts[0].(int64), c.Guild()).Scan(&name, &old)
+	if err != nil {
+		e.base.Error(c, err)
+		return
+	}
+
+	// Get mark
+	c.(*sevcord.InteractionCtx).Modal(sevcord.NewModal("Sign Element", func(c sevcord.Ctx, s []string) {
+		// Make poll
+		e.polls.CreatePoll(c, &types.Poll{
+			Kind: types.PollKindComment,
+			Data: types.PgData{
+				"elem": float64(opts[0].(int64)),
+				"new":  s[0],
+				"old":  old,
+			},
+		})
+
+		// Respond
+		c.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested a note for **%s** 🖋️", name)))
+	}).Input(sevcord.NewModalInput("New Comment", "None", sevcord.ModalInputStyleParagraph, 2400)))
+}
+
+func (e *Elements) ColorCmd(c sevcord.Ctx, opts []any) {
+	c.Acknowledge()
+
+	// Check hex code
+	code := opts[1].(string)
+	if !strings.HasPrefix(code, "#") {
+		c.Respond(sevcord.NewMessage("Invalid hex code! " + types.RedCircle))
+		return
+	}
+	val, err := strconv.ParseInt(strings.TrimPrefix(code, "#"), 16, 64)
+	if err != nil {
+		e.base.Error(c, err)
+		return
+	}
+	if val < 0 || val > 16777215 {
+		c.Respond(sevcord.NewMessage("Invalid hex code! " + types.RedCircle))
+		return
+	}
+
+	// Check element
+	var name string
+	var old int
+	err = e.db.QueryRow("SELECT name, color FROM elements WHERE id=$1 AND guild=$2", opts[0].(int64), c.Guild()).Scan(&name, &old)
+	if err != nil {
+		e.base.Error(c, err)
+		return
+	}
+
+	// Make poll
+	e.polls.CreatePoll(c, &types.Poll{
+		Kind: types.PollKindColor,
+		Data: types.PgData{
+			"elem": float64(opts[0].(int64)),
+			"new":  float64(val),
+			"old":  float64(old),
+		},
+	})
+
+	// Respond
+	c.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested a color for **%s** 🎨", name)))
 }

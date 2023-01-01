@@ -4,7 +4,7 @@ import (
 	"context"
 	_ "embed"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"math/rand"
 	"net/http"
 	"os"
@@ -42,7 +42,7 @@ func getServ(r *http.Request) (serv *Service) {
 }
 
 func checkUID(r *http.Request) bool {
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		return false
 	}
@@ -122,7 +122,7 @@ func main() {
 		enableCors(&w)
 
 		// Get body
-		body, err := ioutil.ReadAll(r.Body)
+		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

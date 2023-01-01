@@ -2,25 +2,22 @@ package categories
 
 import (
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
-	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
 	"github.com/Nv7-Github/Nv7Haven/eod/polls"
-	"github.com/bwmarrin/discordgo"
+	"github.com/Nv7-Github/sevcord/v2"
+	"github.com/jmoiron/sqlx"
 )
 
 type Categories struct {
-	*eodb.Data
-
+	db    *sqlx.DB
 	base  *base.Base
-	dg    *discordgo.Session
 	polls *polls.Polls
 }
 
-func NewCategories(data *eodb.Data, base *base.Base, dg *discordgo.Session, polls *polls.Polls) *Categories {
-	return &Categories{
-		Data: data,
-
+func NewCategories(db *sqlx.DB, base *base.Base, s *sevcord.Sevcord, polls *polls.Polls) *Categories {
+	c := &Categories{
+		db:    db,
 		base:  base,
-		dg:    dg,
 		polls: polls,
 	}
+	return c
 }

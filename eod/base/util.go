@@ -1,118 +1,79 @@
 package base
 
 import (
-	"errors"
 	"fmt"
-	"sort"
+	"log"
 
-	"github.com/Nv7-Github/Nv7Haven/eod/eodb"
-	"github.com/bwmarrin/discordgo"
+	"github.com/Nv7-Github/sevcord/v2"
+	"github.com/lib/pq"
 )
 
-func (b *Base) GetColor(guild, id string) (int, error) {
-	db, res := b.GetDB(guild)
-	if res.Exists {
-		db.Config.RLock()
-		col, exists := db.Config.UserColors[id]
-		db.Config.RUnlock()
-		if exists {
-			return col, nil
-		}
-	}
-
-	mem, err := b.dg.State.Member(guild, id)
+func (b *Base) Error(ctx sevcord.Ctx, err error) {
 	if err != nil {
-		mem, err = b.dg.GuildMember(guild, id)
-		if err != nil {
-			fmt.Println(err)
-			return 0, err
-		}
+		ctx.Acknowledge()
+		ctx.Respond(sevcord.NewMessage("").AddEmbed(
+			sevcord.NewEmbed().
+				Title("Error").
+				Description("```" + err.Error() + "```"),
+		))
 	}
-	roles := make([]*discordgo.Role, len(mem.Roles))
-	for i, roleID := range mem.Roles {
-		role, err := b.GetRole(roleID, guild)
-		if err != nil {
-			return 0, err
-		}
-		roles[i] = role
-	}
-
-	sorted := discordgo.Roles(roles)
-	sort.Sort(sorted)
-	for _, role := range sorted {
-		if role.Color != 0 {
-			return role.Color, nil
-		}
-	}
-
-	return 0, errors.New("eod: color not found")
 }
 
-func (b *Base) GetRole(id string, guild string) (*discordgo.Role, error) {
-	role, err := b.dg.State.Role(guild, id)
-	if err == nil {
-		return role, nil
+func (b *Base) IsPlayChannel(c sevcord.Ctx) bool {
+	// Check if play channel
+	var cnt bool
+	err := b.db.QueryRow(`SELECT $1=ANY(play) FROM config WHERE guild=$2`, c.Channel(), c.Guild()).Scan(&cnt)
+	if err != nil {
+		fmt.Println("Play channel error", err)
+		return false
 	}
+	return cnt
+}
 
-	roles, err := b.dg.GuildRoles(guild)
+func (b *Base) PageLength(ctx sevcord.Ctx) int {
+	if b.IsPlayChannel(ctx) {
+		return 30
+	}
+	return 10
+}
+
+func (b *Base) NameMap(items []int, guild string) (map[int]string, error) {
+	var names []struct {
+		ID   int    `db:"id"`
+		Name string `db:"name"`
+	}
+	err := b.db.Select(&names, "SELECT id, name FROM elements WHERE id = ANY($1) AND guild=$2", pq.Array(items), guild)
 	if err != nil {
 		return nil, err
 	}
-
-	for _, role := range roles {
-		if role.ID == id {
-			return role, nil
-		}
+	nameMap := make(map[int]string)
+	for _, v := range names {
+		nameMap[v.ID] = v.Name
 	}
-
-	return nil, errors.New("eod: role not found")
+	return nameMap, nil
 }
 
-type catSortInfo struct {
-	Name string
-	Cnt  int
+func (b *Base) GetNames(items []int, guild string) ([]string, error) {
+	m, err := b.NameMap(items, guild)
+	if err != nil {
+		return nil, err
+	}
+	names := make([]string, len(items))
+	for i, v := range items {
+		names[i] = m[v]
+	}
+	return names, nil
 }
 
-func (b *Base) ElemCategories(elem int, db *eodb.DB, vcats bool) []string {
-	// Get Categories
-	cats := make([]catSortInfo, 0)
-	db.RLock()
-	for _, cat := range db.Cats() {
-		_, exists := cat.Elements[elem]
-		if exists {
-			cats = append(cats, catSortInfo{
-				Name: cat.Name,
-				Cnt:  len(cat.Elements),
-			})
-		}
-	}
-	if vcats {
-		for _, vcat := range db.VCats() {
-			db.RUnlock()
-			els, res := b.CalcVCat(vcat, db, true)
-			db.RLock()
-			if res.Exists {
-				_, exists := els[elem]
-				if exists {
-					cats = append(cats, catSortInfo{
-						Name: vcat.Name,
-						Cnt:  len(els),
-					})
-				}
-			}
-		}
-	}
-	db.RUnlock()
+func (b *Base) GetName(guild string, elem int) (string, error) {
+	var name string
+	err := b.db.QueryRow("SELECT name FROM elements WHERE id=$1 AND guild=$2", elem, guild).Scan(&name)
+	return name, err
+}
 
-	// Sort categories by count
-	sort.Slice(cats, func(i, j int) bool {
-		return cats[i].Cnt > cats[j].Cnt
-	})
-
-	// Convert to array
-	out := make([]string, len(cats))
-	for i, cat := range cats {
-		out[i] = cat.Name
+func (b *Base) IncrementCommandStat(c sevcord.Ctx, name string) {
+	_, err := b.db.Exec("INSERT INTO command_stats (guild, command, count) VALUES ($1, $2, 1) ON CONFLICT (guild, command) DO UPDATE SET count = command_stats.count + 1", c.Guild(), name)
+	if err != nil {
+		log.Println("command stats error", err)
 	}
-	return out
 }
