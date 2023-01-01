@@ -46,7 +46,7 @@ func (e *Elements) Products(c sevcord.Ctx, opts []any) {
 	desc := &strings.Builder{}
 	length := 0
 	for i, item := range items {
-		if length+len(names[i])+2 >= 4096 {
+		if length+len(names[i])+len(types.Check)+len(types.NoCheck) >= 4096 {
 			break
 		}
 
@@ -55,8 +55,10 @@ func (e *Elements) Products(c sevcord.Ctx, opts []any) {
 		}
 		if item.Cont {
 			desc.WriteString(types.Check)
+			length += len(types.Check)
 		} else {
 			desc.WriteString(types.NoCheck)
+			length += len(types.NoCheck)
 		}
 		desc.WriteString(" ")
 		desc.WriteString(names[i])
