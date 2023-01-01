@@ -14,14 +14,10 @@ import (
 
 var queryListSorts = []sevcord.Choice{
 	sevcord.NewChoice("Name", "name"),
-	sevcord.NewChoice("Element Count", "count"),
-	sevcord.NewChoice("Found", "found"),
 }
 
 var queryListSortSql = map[string]string{
-	"name":  "name",
-	"count": "array_length(elements, 1) DESC",
-	"found": "common DESC",
+	"name": "name",
 }
 
 // Format: prevnext|sort|page
