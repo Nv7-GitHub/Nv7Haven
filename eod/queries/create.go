@@ -16,6 +16,22 @@ import (
 func (q *Queries) createCmd(c sevcord.Ctx, name string, kind types.QueryKind, data map[string]any) {
 	c.Acknowledge()
 
+	// Check if recursive
+	parent, exists := data["query"]
+	if exists {
+		parents := make(map[string]struct{})
+		err := q.queryParents(c, parent.(string), parents)
+		if err != nil {
+			q.base.Error(c, err)
+			return
+		}
+		_, exists = parents[name]
+		if exists {
+			c.Respond(sevcord.NewMessage("Recursive queries are not allowed! " + types.RedCircle))
+			return
+		}
+	}
+
 	// Check if name exists
 	var edit bool
 	err := q.db.Get(&edit, "SELECT EXISTS(SELECT 1 FROM queries WHERE LOWER(name)=$1 AND guild=$2)", strings.ToLower(name), c.Guild())
