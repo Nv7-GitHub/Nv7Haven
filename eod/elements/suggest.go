@@ -45,7 +45,7 @@ func (e *Elements) Suggest(c sevcord.Ctx, opts []any) {
 
 	// Check if combo has result
 	var exists bool
-	err = e.db.QueryRow(`SELECT EXISTS(SELECT 1 FROM combos WHERE guild=$1 AND els=$2)`, c.Guild(), pq.Array(v)).Scan(&exists)
+	err = e.db.QueryRow(`SELECT EXISTS(SELECT 1 FROM combos WHERE guild=$1 AND els=$2)`, c.Guild(), pq.Array(v.Elements)).Scan(&exists)
 	if err != nil {
 		e.base.Error(c, err)
 		return
