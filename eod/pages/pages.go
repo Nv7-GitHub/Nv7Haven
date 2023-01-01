@@ -102,8 +102,13 @@ func (p *Pages) Init() {
 		"Delete a query!",
 		p.queries.DeleteQuery,
 		sevcord.NewOption("query", "The query to delete!", sevcord.OptionKindString, true).AutoComplete(p.queries.Autocomplete),
-	),
-	))
+	), sevcord.NewSlashCommand(
+		"downloadquery",
+		"Download a query's contents!",
+		p.queries.Download,
+		sevcord.NewOption("query", "The query to download", sevcord.OptionKindString, true).
+			AutoComplete(p.queries.Autocomplete),
+	)))
 	p.s.AddButtonHandler("querylist", p.QueryListHandler)
 	p.s.AddButtonHandler("query", p.QueryHandler)
 }
