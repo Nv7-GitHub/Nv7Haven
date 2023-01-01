@@ -43,7 +43,7 @@ func (e *Elements) Hint(c sevcord.Ctx, opts []any) {
 	var el int
 	if opts[0] != nil {
 		el = int(opts[0].(int64))
-	} else { // TODO: Support queries instead of just selecting from all elements
+	} else {
 		// Get random element that the user can make
 		err := e.db.QueryRow(`SELECT result FROM combos WHERE 
 		guild=$1 AND 

@@ -9,7 +9,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-const configCmdId = "1057068907476811898" // TODO: Put in real value
+const configCmdId = "1057375692431568994"
 
 type Base struct {
 	s  *sevcord.Sevcord
