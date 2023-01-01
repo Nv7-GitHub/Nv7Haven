@@ -28,7 +28,11 @@ func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 	e.base.IncrementCommandStat(c, "combine")
 
 	if len(elemVals) > maxLength {
-		c.Respond(sevcord.NewMessage(fmt.Sprintf("You can only combine up to %d elements!", maxLength)))
+		c.Respond(sevcord.NewMessage(fmt.Sprintf("You can only combine up to %d elements! "+types.RedCircle, maxLength)))
+		return
+	}
+	if len(elemVals) < 2 {
+		c.Respond(sevcord.NewMessage("You need to combine at least 2 elements! " + types.RedCircle))
 		return
 	}
 
