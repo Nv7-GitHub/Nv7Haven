@@ -44,7 +44,12 @@ func (e *Elements) Products(c sevcord.Ctx, opts []any) {
 
 	// Description
 	desc := &strings.Builder{}
+	length := 0
 	for i, item := range items {
+		if length+len(names[i])+1 > 4096 {
+			break
+		}
+
 		if i > 0 {
 			desc.WriteString("\n")
 		}
@@ -55,6 +60,8 @@ func (e *Elements) Products(c sevcord.Ctx, opts []any) {
 		}
 		desc.WriteString(" ")
 		desc.WriteString(names[i])
+
+		length += len(names[i]) + 1
 	}
 
 	// Respond
