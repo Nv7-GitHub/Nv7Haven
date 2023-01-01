@@ -1,8 +1,10 @@
 package eod
 
 import (
+	"strconv"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 )
 
@@ -63,6 +65,44 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 	if strings.HasPrefix(content, "?") {
 		b.elements.InfoMsgCmd(c, content[1:])
 		return
+	}
+	if strings.HasPrefix(content, "*") {
+		parts := strings.SplitN(content[1:], " ", 2)
+		if len(parts) == 2 {
+			cnt, err := strconv.Atoi(parts[0])
+			if err != nil {
+				b.base.Error(c, err)
+				return
+			}
+			inps := make([]string, 0, cnt)
+			for i := 0; i < cnt; i++ {
+				inps = append(inps, strings.TrimSpace(parts[1]))
+			}
+			b.elements.Combine(c, inps)
+			return
+		} else {
+			// Get prev
+			comb, ok := b.base.GetCombCache(c)
+			if !ok.Ok {
+				c.Respond(sevcord.NewMessage(ok.Message + " " + types.RedCircle))
+				return
+			}
+			names, err := b.base.GetNames(comb, c.Guild())
+			if err != nil {
+				b.base.Error(c, err)
+			}
+			cnt, err := strconv.Atoi(parts[0])
+			if err != nil {
+				b.base.Error(c, err)
+				return
+			}
+			new := make([]string, 0, len(comb)*cnt)
+			for i := 0; i < cnt; i++ {
+				new = append(new, names...)
+			}
+			b.elements.Combine(c, new)
+			return
+		}
 	}
 	for _, sep := range seps {
 		if strings.Contains(content, sep) {
