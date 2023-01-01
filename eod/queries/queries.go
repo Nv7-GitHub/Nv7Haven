@@ -116,6 +116,13 @@ func (q *Queries) Init() {
 				),
 		),
 	))
+	q.s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"downloadquery",
+		"Download a query's contents!",
+		q.Download,
+		sevcord.NewOption("query", "The query to download", sevcord.OptionKindString, true).
+			AutoComplete(q.Autocomplete),
+	))
 }
 
 func NewQueries(s *sevcord.Sevcord, db *sqlx.DB, base *base.Base, polls *polls.Polls, elements *elements.Elements, categories *categories.Categories) *Queries {
