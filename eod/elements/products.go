@@ -61,7 +61,7 @@ func (e *Elements) Products(c sevcord.Ctx, opts []any) {
 		desc.WriteString(" ")
 		desc.WriteString(names[i])
 
-		length += len(names[i]) + 1
+		length += len(names[i]) + 2
 	}
 
 	// Respond
