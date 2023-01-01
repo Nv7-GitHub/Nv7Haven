@@ -84,12 +84,15 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 		}
 
 		parts := strings.SplitN(content[1:], " ", 2)
+		cnt, err := strconv.Atoi(parts[0])
+		if err != nil {
+			b.base.Error(c, err)
+			return
+		}
+		if cnt < 1 {
+			return
+		}
 		if len(parts) == 2 {
-			cnt, err := strconv.Atoi(parts[0])
-			if err != nil {
-				b.base.Error(c, err)
-				return
-			}
 			inps := make([]string, 0, cnt)
 			for i := 0; i < cnt; i++ {
 				inps = append(inps, strings.TrimSpace(parts[1]))
@@ -106,11 +109,6 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 			names, err := b.base.GetNames(comb, c.Guild())
 			if err != nil {
 				b.base.Error(c, err)
-			}
-			cnt, err := strconv.Atoi(parts[0])
-			if err != nil {
-				b.base.Error(c, err)
-				return
 			}
 			new := make([]string, 0, cnt)
 			for i := 0; i < cnt; i++ {
