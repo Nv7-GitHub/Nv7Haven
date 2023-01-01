@@ -46,6 +46,8 @@ func (e *Elements) Info(c sevcord.Ctx, el int) {
 	}
 	if have {
 		description = "**You have this.**\n\n" + description
+	} else {
+		description = "**You don't have this.**\n\n" + description
 	}
 
 	// Element ID
