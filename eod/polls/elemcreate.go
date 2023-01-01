@@ -3,6 +3,7 @@ package polls
 import (
 	"errors"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -11,7 +12,12 @@ import (
 	"github.com/lib/pq"
 )
 
+var createlock *sync.Mutex
+
 func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
+	createlock.Lock()
+	defer createlock.Unlock()
+
 	els := util.Map(p.Data["els"].([]any), func(a any) int { return int(a.(float64)) })
 	_, exists := p.Data["result"].(float64)
 
