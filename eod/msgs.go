@@ -63,6 +63,9 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 			return
 		}
 		parts := strings.SplitN(content[1:], " ", 2)
+		if len(parts) < 2 {
+			return
+		}
 		b.textCommandHandler(c, parts[0], parts[1])
 	}
 	if strings.HasPrefix(content, "?") {
