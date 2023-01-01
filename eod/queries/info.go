@@ -51,6 +51,10 @@ func (q *Queries) Info(ctx sevcord.Ctx, opts []any) {
 		emb = emb.AddField("Imager", fmt.Sprintf("<@%s>", qu.Imager), true)
 	}
 
+	// Add query data
+	emb = emb.AddField("Kind", "`"+string(qu.Kind)+"`", true)
+	emb = emb.AddField("Data", fmt.Sprintf("```%+v```", qu.Data), false)
+
 	// Respond
 	ctx.Respond(sevcord.NewMessage("").AddEmbed(emb))
 }
