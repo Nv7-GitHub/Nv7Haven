@@ -67,6 +67,13 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 		return
 	}
 	if strings.HasPrefix(content, "*") {
+		if !b.base.CheckCtx(c, "message") {
+			return
+		}
+		if !b.base.IsPlayChannel(c) {
+			return
+		}
+
 		parts := strings.SplitN(content[1:], " ", 2)
 		if len(parts) == 2 {
 			cnt, err := strconv.Atoi(parts[0])
@@ -96,9 +103,9 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 				b.base.Error(c, err)
 				return
 			}
-			new := make([]string, 0, len(comb)*cnt)
+			new := make([]string, 0, cnt)
 			for i := 0; i < cnt; i++ {
-				new = append(new, names...)
+				new = append(new, names[0])
 			}
 			b.elements.Combine(c, new)
 			return
