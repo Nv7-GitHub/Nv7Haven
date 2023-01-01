@@ -3,7 +3,7 @@
 
 How to use this server (based on folder):
 - `discord`: Nv7 Bot - [Server Link](https://discord.gg/X9vJGSxj2z) - [Bot Link](https://discord.com/oauth2/authorize?client_id=788185365533556736&scope=bot%20applications.commands&permissions=2617388096&redirect_uri=https%3A%2F%2Fnv7haven.com)
-- `elemental`: Nv7's Elemental Game - [Nv7's Elemental](https://elem7.tk)
+- `elemental`: Nv7's Elemental Game - [Nv7's Elemental](https://elem7.nv7haven.com)
 - `eod`: EoD Everywhere - [Server Link](https://discord.gg/KPmbJmNtxQ) - [Bot Link](https://discord.com/api/oauth2/authorize?client_id=819076922867712031&permissions=2148543552&redirect_uri=https%3A%2F%2Fnv7haven.com&scope=bot%20applications.commands)
 - `gdo`: Remote Garage Door Opener - [Web Client](https://gdoweb.tk) - [GitHub Repository](https://github.com/Nv7-Github/gdo_client)
 - `nv7haven`: Nv7's Website - [Nv7 Haven](https://nv7haven.com) 
