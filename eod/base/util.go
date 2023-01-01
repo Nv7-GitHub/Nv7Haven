@@ -1,7 +1,6 @@
 package base
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/Nv7-Github/sevcord/v2"
@@ -25,7 +24,7 @@ func (b *Base) IsPlayChannel(c sevcord.Ctx) bool {
 	var cnt bool
 	err := b.db.QueryRow(`SELECT $1=ANY(play) FROM config WHERE guild=$2`, c.Channel(), c.Guild()).Scan(&cnt)
 	if err != nil {
-		fmt.Println("Play channel error", err)
+		log.Println("Play channel error", err)
 		return false
 	}
 	return cnt
