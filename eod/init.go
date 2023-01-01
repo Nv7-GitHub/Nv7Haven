@@ -110,5 +110,12 @@ func (b *Bot) Init() {
 			sevcord.NewOption("category", "The category to view the info of!", sevcord.OptionKindString, true).
 				AutoComplete(b.categories.Autocomplete),
 		),
+		sevcord.NewSlashCommand(
+			"query",
+			"Get query info!",
+			b.queries.Info,
+			sevcord.NewOption("query", "The query to view the info of!", sevcord.OptionKindString, true).
+				AutoComplete(b.queries.Autocomplete),
+		),
 	))
 }
