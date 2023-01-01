@@ -20,10 +20,8 @@ require (
 	github.com/jdkato/prose/v2 v2.0.0
 	github.com/jmcvetta/randutil v0.0.0-20150817122601-2bb1b664bcff
 	github.com/jmoiron/sqlx v1.3.5
-	github.com/json-iterator/go v1.1.12
 	github.com/labstack/echo/v5 v5.0.0-20220201181537-ed2888cfa198
 	github.com/lib/pq v1.10.6
-	github.com/lucasb-eyer/go-colorful v1.2.0
 	github.com/mitchellh/mapstructure v1.4.3
 	github.com/pocketbase/dbx v1.6.0
 	github.com/pocketbase/pocketbase v0.7.9
@@ -71,7 +69,6 @@ require (
 	github.com/googleapis/gax-go/v2 v2.5.1 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
-	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/klauspost/compress v1.15.1 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
@@ -113,6 +110,7 @@ require (
 	github.com/andybalholm/brotli v1.0.2 // indirect
 	github.com/deckarep/golang-set v1.7.1 // indirect
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
+	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/mingrammer/commonregex v1.0.1 // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/r3labs/sse v0.0.0-20201007160420-c638e5516aa7 // indirect

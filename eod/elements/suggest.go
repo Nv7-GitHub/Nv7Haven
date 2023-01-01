@@ -75,7 +75,7 @@ func (e *Elements) Suggest(c sevcord.Ctx, opts []any) {
 	err = e.polls.CreatePoll(c, &types.Poll{
 		Kind: types.PollKindCombo,
 		Data: types.PgData{
-			"els":    util.Map(v, func(a int) any { return float64(a) }),
+			"els":    util.Map(v.Elements, func(a int) any { return float64(a) }),
 			"result": idV,
 		},
 	})
@@ -85,7 +85,7 @@ func (e *Elements) Suggest(c sevcord.Ctx, opts []any) {
 	}
 
 	// Make text
-	names, err := e.base.GetNames(v, c.Guild())
+	names, err := e.base.GetNames(v.Elements, c.Guild())
 	if err != nil {
 		e.base.Error(c, err)
 		return

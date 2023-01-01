@@ -102,7 +102,7 @@ func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 	sort.Ints(items)
 
 	// Save combcache
-	e.base.SaveCombCache(c, items)
+	e.base.SaveCombCache(c, types.CombCache{Elements: items, Result: -1})
 
 	// Query
 	var result int
@@ -116,6 +116,7 @@ func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 		e.base.Error(c, err)
 		return
 	}
+	e.base.SaveCombCache(c, types.CombCache{Elements: items, Result: result})
 
 	// Check if in inv & get element
 	var cont bool

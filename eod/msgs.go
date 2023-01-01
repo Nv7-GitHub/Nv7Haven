@@ -106,13 +106,17 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 				c.Respond(sevcord.NewMessage(ok.Message + " " + types.RedCircle))
 				return
 			}
-			names, err := b.base.GetNames(comb, c.Guild())
+			if comb.Result == -1 {
+				c.Respond(sevcord.NewMessage("You haven't combined anything! " + types.RedCircle))
+				return
+			}
+			name, err := b.base.GetName(c.Guild(), comb.Result)
 			if err != nil {
 				b.base.Error(c, err)
 			}
 			new := make([]string, 0, cnt)
 			for i := 0; i < cnt; i++ {
-				new = append(new, names[0])
+				new = append(new, name)
 			}
 			b.elements.Combine(c, new)
 			return

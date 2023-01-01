@@ -50,7 +50,7 @@ type Config struct {
 
 type ServerMem struct {
 	sync.RWMutex
-	CombCache map[string][]int // map[userid][]id
+	CombCache map[string]CombCache // map[userid]CombCache
 }
 
 // Polls
@@ -168,6 +168,13 @@ type Category struct {
 	Colorer   string `db:"colorer"`
 
 	Elements pq.Int32Array `db:"elements"`
+}
+
+// Util
+
+type CombCache struct {
+	Elements []int
+	Result   int
 }
 
 // Consts

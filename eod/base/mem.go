@@ -14,7 +14,7 @@ func (b *Base) getMem(c sevcord.Ctx) *types.ServerMem {
 	}
 
 	v = &types.ServerMem{
-		CombCache: make(map[string][]int),
+		CombCache: make(map[string]types.CombCache),
 	}
 
 	b.lock.Lock()
@@ -24,14 +24,14 @@ func (b *Base) getMem(c sevcord.Ctx) *types.ServerMem {
 	return v
 }
 
-func (b *Base) SaveCombCache(c sevcord.Ctx, comb []int) {
+func (b *Base) SaveCombCache(c sevcord.Ctx, comb types.CombCache) {
 	mem := b.getMem(c)
 	mem.Lock()
 	mem.CombCache[c.Author().User.ID] = comb
 	mem.Unlock()
 }
 
-func (b *Base) GetCombCache(c sevcord.Ctx) ([]int, types.Resp) {
+func (b *Base) GetCombCache(c sevcord.Ctx) (types.CombCache, types.Resp) {
 	mem := b.getMem(c)
 	mem.RLock()
 	v, exists := mem.CombCache[c.Author().User.ID]
@@ -39,5 +39,5 @@ func (b *Base) GetCombCache(c sevcord.Ctx) ([]int, types.Resp) {
 	if exists {
 		return v, types.Ok()
 	}
-	return nil, types.Fail("You haven't combined anything!")
+	return types.CombCache{}, types.Fail("You haven't combined anything!")
 }
