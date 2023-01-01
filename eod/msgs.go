@@ -31,6 +31,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 			// Combine
 			elems := strings.Split(content, sep)
 			b.elements.Combine(c, elems)
+			return
 		}
 	}
 }
