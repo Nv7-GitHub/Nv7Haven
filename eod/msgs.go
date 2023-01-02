@@ -68,6 +68,39 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 		b.pages.Query(c, []any{any(content), nil})
+
+	case "ac", "rc":
+		if !b.base.CheckCtx(c, "cat") {
+			return
+		}
+		parts := strings.SplitN(content, "|", 2)
+		if len(parts) != 2 {
+			c.Respond(sevcord.NewMessage("Invalid format!"))
+			return
+		}
+		els := make([]int, 0)
+		for sep := range seps {
+			if strings.Contains(parts[1], seps[sep]) {
+				vals := strings.Split(parts[1], seps[sep])
+				for _, val := range vals {
+					id, ok := b.getElementId(c, val)
+					if !ok {
+						return
+					}
+					els = append(els, int(id))
+				}
+				break
+			}
+		}
+		if len(els) == 0 {
+			c.Respond(sevcord.NewMessage("Invalid format!"))
+			return
+		}
+		if name == "ac" {
+			b.categories.CatEditCmd(c, parts[0], els, types.PollKindCategorize, "Suggested to add **%s** to **%s** 🗃️", false)
+		} else {
+			b.categories.CatEditCmd(c, parts[0], els, types.PollKindUncategorize, "Suggested to remove **%s** from **%s** 🗃️", true)
+		}
 	}
 }
 
@@ -111,7 +144,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 		}
 		parts := strings.SplitN(content[1:], " ", 2)
 		if len(parts) < 2 {
-			return
+			parts = append(parts, "")
 		}
 		b.textCommandHandler(c, parts[0], parts[1])
 	}
