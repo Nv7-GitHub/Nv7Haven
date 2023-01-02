@@ -62,6 +62,30 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 }
 
 func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
+	if strings.HasPrefix(content, "+") {
+		if len(content) < 2 {
+			return
+		}
+		if !b.base.CheckCtx(c, "message") {
+			return
+		}
+		if !b.base.IsPlayChannel(c) {
+			return
+		}
+
+		comb, ok := b.base.GetCombCache(c)
+		if !ok.Ok {
+			c.Respond(sevcord.NewMessage(ok.Message + " " + types.RedCircle))
+			return
+		}
+		name, err := b.base.GetName(c.Guild(), comb.Result)
+		if err != nil {
+			b.base.Error(c, err)
+			return
+		}
+		b.elements.Combine(c, []string{name, strings.TrimSpace(content[1:])})
+		return
+	}
 	if strings.HasPrefix(content, "!") {
 		if len(content) < 2 {
 			return
