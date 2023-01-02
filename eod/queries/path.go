@@ -1,7 +1,10 @@
 package queries
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -9,7 +12,12 @@ import (
 	"github.com/lib/pq"
 )
 
-func (q *Queries) PathCmd(c sevcord.Ctx, opts []any) {
+type parseableElement struct {
+	Name    string  `json:"name"`
+	Parents []int32 `json:"parents"`
+}
+
+func (q *Queries) PathCmd(c sevcord.Ctx, opts []any, parseable bool) {
 	c.Acknowledge()
 
 	// Get query
@@ -56,9 +64,33 @@ func (q *Queries) PathCmd(c sevcord.Ctx, opts []any) {
 
 	// Calculate
 	cnt := 1
-	out := &strings.Builder{}
+	var out any
+	if parseable {
+		out = &strings.Builder{}
+	} else {
+		out = make(map[int32]parseableElement)
+	}
 	for _, v := range qu.Elements {
-		addTree(out, int32(v), pars, names, &cnt)
+		addTree(out, int32(v), pars, names, &cnt, parseable)
+	}
+
+	// Make reader
+	var outreader io.Reader
+	var name string
+	var typ string
+	if parseable {
+		outreader = strings.NewReader(out.(*strings.Builder).String())
+		name = "path.txt"
+		typ = "text/plain"
+	} else {
+		dat, err := json.Marshal(out)
+		if err != nil {
+			q.base.Error(c, err)
+			return
+		}
+		outreader = bytes.NewReader(dat)
+		name = "path.json"
+		typ = "application/json"
 	}
 
 	// Send DM
@@ -68,7 +100,7 @@ func (q *Queries) PathCmd(c sevcord.Ctx, opts []any) {
 		return
 	}
 	msg := sevcord.NewMessage(fmt.Sprintf("📄 Path for **%s**:", qu.Name)).
-		AddFile("path.txt", "text/plain", strings.NewReader(out.String()))
+		AddFile(name, typ, outreader)
 	_, err = c.Dg().ChannelMessageSendComplex(dm.ID, msg.Dg())
 	if err != nil {
 		q.base.Error(c, err)
@@ -79,7 +111,7 @@ func (q *Queries) PathCmd(c sevcord.Ctx, opts []any) {
 	c.Respond(sevcord.NewMessage("Sent path in DMs! 📄"))
 }
 
-func addTree(val *strings.Builder, id int32, parsMap map[int32][]int32, names map[int32]string, cnt *int) {
+func addTree(val any, id int32, parsMap map[int32][]int32, names map[int32]string, cnt *int, parseable bool) {
 	pars, exists := parsMap[id]
 	if !exists {
 		return
@@ -88,19 +120,26 @@ func addTree(val *strings.Builder, id int32, parsMap map[int32][]int32, names ma
 		return
 	}
 	for _, par := range pars {
-		addTree(val, par, parsMap, names, cnt)
+		addTree(val, par, parsMap, names, cnt, parseable)
 	}
 
 	// Add elem
-	combo := ""
-	for i, v := range pars {
-		if i > 0 {
-			combo += " + "
+	if parseable {
+		combo := ""
+		for i, v := range pars {
+			if i > 0 {
+				combo += " + "
+			}
+			combo += names[v]
 		}
-		combo += names[v]
+		fmt.Fprintf(val.(*strings.Builder), "%d. %s = %s\n", *cnt, combo, names[id])
+		*cnt++
+	} else {
+		val.(map[int32]parseableElement)[id] = parseableElement{
+			Name:    names[id],
+			Parents: pars,
+		}
 	}
-	fmt.Fprintf(val, "%d. %s = %s\n", *cnt, combo, names[id])
-	*cnt++
 
 	// Remove from map
 	delete(parsMap, id)

@@ -6,6 +6,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/elements"
 	"github.com/Nv7-Github/Nv7Haven/eod/polls"
 	"github.com/Nv7-Github/sevcord/v2"
+	"github.com/bwmarrin/discordgo"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -119,10 +120,21 @@ func (q *Queries) Init() {
 	q.s.RegisterSlashCommand(sevcord.NewSlashCommand(
 		"path",
 		"Learn how to make the elements in a query!",
-		q.PathCmd,
+		func(c sevcord.Ctx, opts []any) {
+			q.PathCmd(c, opts, false)
+		},
 		sevcord.NewOption("query", "The query to view the path of!", sevcord.OptionKindString, true).
 			AutoComplete(q.Autocomplete),
 	))
+	q.s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"pathjson",
+		"Learn how to make the elements in a query!",
+		func(c sevcord.Ctx, opts []any) {
+			q.PathCmd(c, opts, true)
+		},
+		sevcord.NewOption("query", "The query to view the path of!", sevcord.OptionKindString, true).
+			AutoComplete(q.Autocomplete),
+	).RequirePermissions(discordgo.PermissionManageServer))
 }
 
 func NewQueries(s *sevcord.Sevcord, db *sqlx.DB, base *base.Base, polls *polls.Polls, elements *elements.Elements, categories *categories.Categories) *Queries {
