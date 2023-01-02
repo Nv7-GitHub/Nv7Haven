@@ -44,7 +44,7 @@ var lbSortCode = map[string]string{
 	"querycolor":  `(SELECT COUNT(*) FROM queries WHERE guild=$1 AND colorer="user")`,
 }
 var lbQuerySortCode = map[string]string{
-	"found":  "array_length(inv & $2, 1)",
+	"found":  "COALESCE(array_length(inv & $2, 1), 0)",
 	"made":   `(SELECT COUNT(*) FROM elements WHERE guild=$1 AND creator="user" AND id=ANY($2))`,
 	"signed": `(SELECT COUNT(*) FROM elements WHERE guild=$1 AND commenter="user" AND id=ANY($2))`,
 	"img":    `(SELECT COUNT(*) FROM elements WHERE guild=$1 AND imager="user" AND id=ANY($2))`,
