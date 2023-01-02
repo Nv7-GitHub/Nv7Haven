@@ -15,6 +15,9 @@ func (b *Polls) reactionHandler(s *discordgo.Session, r *discordgo.MessageReacti
 	if r.UserID == s.State.User.ID {
 		return
 	}
+	if r.Emoji.Name != UpArrow && r.Emoji.Name != DownArrow {
+		return
+	}
 
 	// Get poll & vote cnt
 	var p types.Poll
@@ -58,6 +61,9 @@ func (b *Polls) reactionHandler(s *discordgo.Session, r *discordgo.MessageReacti
 
 func (b *Polls) unReactionHandler(s *discordgo.Session, r *discordgo.MessageReactionRemove) {
 	if r.UserID == s.State.User.ID {
+		return
+	}
+	if r.Emoji.Name != UpArrow && r.Emoji.Name != DownArrow {
 		return
 	}
 
