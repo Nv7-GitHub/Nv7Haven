@@ -50,6 +50,26 @@ func (e *Elements) Info(c sevcord.Ctx, el int) {
 		description = "**You don't have this.**\n\n" + description
 	}
 
+	// Get stats
+	var madewith int
+	err = e.db.QueryRow("SELECT COUNT(*) FROM combos WHERE result=$1 AND guild=$2", elem.ID, c.Guild()).Scan(&madewith)
+	if err != nil {
+		e.base.Error(c, err)
+		return
+	}
+	var usedin int
+	err = e.db.QueryRow("SELECT COUNT(*) FROM combos WHERE $1=ANY(els) AND guild=$2", elem.ID, c.Guild()).Scan(&usedin)
+	if err != nil {
+		e.base.Error(c, err)
+		return
+	}
+	var foundby int
+	err = e.db.QueryRow("SELECT COUNT(*) FROM inventories WHERE $1=ANY(inv) AND guild=$2", elem.ID, c.Guild()).Scan(&foundby)
+	if err != nil {
+		e.base.Error(c, err)
+		return
+	}
+
 	// Element ID
 	description = fmt.Sprintf("Element **#%d**\n", elem.ID) + description
 
@@ -60,7 +80,10 @@ func (e *Elements) Info(c sevcord.Ctx, el int) {
 		Color(elem.Color).
 		AddField("Creator", fmt.Sprintf("<@%s>", elem.Creator), true).
 		AddField("Created On", fmt.Sprintf("<t:%d>", elem.CreatedOn.Unix()), true).
-		AddField("Tree Size", humanize.Comma(int64(elem.TreeSize)), true)
+		AddField("Tree Size", humanize.Comma(int64(elem.TreeSize)), true).
+		AddField("Made With", humanize.Comma(int64(madewith)), true).
+		AddField("Used In", humanize.Comma(int64(usedin)), true).
+		AddField("Found By", humanize.Comma(int64(foundby)), true)
 
 	// Optional things
 	if elem.Image != "" {
