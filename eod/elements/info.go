@@ -17,7 +17,6 @@ func (e *Elements) InfoSlashCmd(c sevcord.Ctx, opts []any) {
 
 func (e *Elements) InfoMsgCmd(c sevcord.Ctx, val string) {
 	c.Acknowledge()
-	e.base.IncrementCommandStat(c, "info")
 
 	var id int
 	if strings.HasPrefix(val, "#") {

@@ -28,11 +28,15 @@ func (b *Bot) getElementId(c sevcord.Ctx, val string) (int64, bool) {
 func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 	switch name {
 	case "s", "suggest":
-		b.base.IncrementCommandStat(c, "suggest")
+		if !b.base.CheckCtx(c, "suggest") {
+			return
+		}
 		b.elements.Suggest(c, []any{any(content), nil})
 
 	case "h", "hint":
-		b.base.IncrementCommandStat(c, "hint")
+		if !b.base.CheckCtx(c, "hint") {
+			return
+		}
 		val := any(nil)
 		if content != "" {
 			v, ok := b.getElementId(c, content)
@@ -44,11 +48,15 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		b.elements.Hint(c, []any{val, nil})
 
 	case "cat":
-		b.base.IncrementCommandStat(c, "cat")
+		if !b.base.CheckCtx(c, "cat") {
+			return
+		}
 		b.pages.Cat(c, []any{any(content), nil})
 
 	case "p", "products":
-		b.base.IncrementCommandStat(c, "products")
+		if !b.base.CheckCtx(c, "products") {
+			return
+		}
 		id, ok := b.getElementId(c, content)
 		if !ok {
 			return
@@ -56,7 +64,9 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		b.elements.Products(c, []any{any(id), nil})
 
 	case "q", "query":
-		b.base.IncrementCommandStat(c, "query")
+		if !b.base.CheckCtx(c, "query") {
+			return
+		}
 		b.pages.Query(c, []any{any(content), nil})
 	}
 }
@@ -66,10 +76,9 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 		if len(content) < 2 {
 			return
 		}
-		if !b.base.CheckCtx(c, "message") {
+		if !b.base.CheckCtx(c, "suggest") {
 			return
 		}
-		b.base.IncrementCommandStat(c, "suggest")
 		b.elements.Suggest(c, []any{any(content[1:]), nil})
 	}
 	if strings.HasPrefix(content, "+") {
@@ -104,13 +113,13 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 		if len(parts) < 2 {
 			return
 		}
-		if !b.base.CheckCtx(c, "message") {
-			return
-		}
 		b.textCommandHandler(c, parts[0], parts[1])
 	}
 	if strings.HasPrefix(content, "?") {
 		if len(content) < 2 {
+			return
+		}
+		if !b.base.CheckCtx(c, "info") {
 			return
 		}
 		b.elements.InfoMsgCmd(c, content[1:])
