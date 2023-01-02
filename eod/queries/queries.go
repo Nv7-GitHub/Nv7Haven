@@ -116,6 +116,13 @@ func (q *Queries) Init() {
 				),
 		),
 	))
+	q.s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"path",
+		"Learn how to make the elements in a query!",
+		q.PathCmd,
+		sevcord.NewOption("query", "The query to view the path of!", sevcord.OptionKindInt, true).
+			AutoComplete(q.Autocomplete),
+	))
 }
 
 func NewQueries(s *sevcord.Sevcord, db *sqlx.DB, base *base.Base, polls *polls.Polls, elements *elements.Elements, categories *categories.Categories) *Queries {

@@ -1,21 +1,33 @@
-package elements
+package queries
 
 import (
 	"fmt"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/lib/pq"
 )
 
-func (e *Elements) PathCmd(c sevcord.Ctx, opts []any) {
+func (q *Queries) PathCmd(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
 
-	// Get element
-	var name string
-	err := e.db.QueryRow("SELECT name FROM elements WHERE id=$1 AND guild=$2", opts[0].(int64), c.Guild()).Scan(&name)
+	// Get query
+	qu, err := q.base.CalcQuery(c, opts[0].(string))
 	if err != nil {
-		e.base.Error(c, err)
+		q.base.Error(c, err)
+		return
+	}
+
+	// Check if every element intersects with the author's inv
+	var has bool
+	err = q.db.QueryRow(`SELECT COALESCE(array_length($3 & inv, 1), 0) = array_length(inv, 1) FROM inventories WHERE guild=$1 AND "user"=$2`, c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&has)
+	if err != nil {
+		q.base.Error(c, err)
+		return
+	}
+	if !has {
+		c.Respond(sevcord.NewMessage("You don't have all the elements in this query! " + types.RedCircle))
 		return
 	}
 
@@ -25,13 +37,13 @@ func (e *Elements) PathCmd(c sevcord.Ctx, opts []any) {
 		Name    string        `db:"name"`
 		Parents pq.Int32Array `db:"parents"`
 	}
-	err = e.db.Select(&els, `WITH RECURSIVE parents AS (
-		(select parents, id from elements where id=$2 and guild=$1)
+	err = q.db.Select(&els, `WITH RECURSIVE parents AS (
+		(select parents, id from elements where id=ANY($2) and guild=$1)
 	UNION
 		(SELECT b.parents, b.id FROM elements b INNER JOIN parents p ON b.id=ANY(p.parents) where guild=$1)
-	) select id, name, parents FROM elements WHERE id=ANY(SELECT id FROM parents) AND guild=$1`, c.Guild(), opts[0].(int64))
+	) select id, name, parents FROM elements WHERE id=ANY(SELECT id FROM parents) AND guild=$1`, c.Guild(), pq.Array(qu.Elements))
 	if err != nil {
-		e.base.Error(c, err)
+		q.base.Error(c, err)
 		return
 	}
 
@@ -46,19 +58,21 @@ func (e *Elements) PathCmd(c sevcord.Ctx, opts []any) {
 	// Calculate
 	cnt := 1
 	out := &strings.Builder{}
-	addTree(out, int32(opts[0].(int64)), pars, names, &cnt)
+	for v := range qu.Elements {
+		addTree(out, int32(v), pars, names, &cnt)
+	}
 
 	// Send DM
 	dm, err := c.Dg().UserChannelCreate(c.Author().User.ID)
 	if err != nil {
-		e.base.Error(c, err)
+		q.base.Error(c, err)
 		return
 	}
-	msg := sevcord.NewMessage(fmt.Sprintf("📄 Path for **%s**:", name)).
+	msg := sevcord.NewMessage(fmt.Sprintf("📄 Path for **%s**:", qu.Name)).
 		AddFile("path.txt", "text/plain", strings.NewReader(out.String()))
 	_, err = c.Dg().ChannelMessageSendComplex(dm.ID, msg.Dg())
 	if err != nil {
-		e.base.Error(c, err)
+		q.base.Error(c, err)
 		return
 	}
 

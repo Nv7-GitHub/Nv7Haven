@@ -30,13 +30,6 @@ func (e *Elements) Init() {
 		sevcord.NewOption("element", "The element to view the products of!", sevcord.OptionKindInt, true).
 			AutoComplete(e.Autocomplete),
 	))
-	e.s.RegisterSlashCommand(sevcord.NewSlashCommand(
-		"path",
-		"Learn how to make an element!",
-		e.PathCmd,
-		sevcord.NewOption("element", "The element to view the path of!", sevcord.OptionKindInt, true).
-			AutoComplete(e.Autocomplete),
-	))
 	e.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup("edit", "Edit element properties!",
 		sevcord.NewSlashCommand("name",
 			"Edit the name of an element!",
