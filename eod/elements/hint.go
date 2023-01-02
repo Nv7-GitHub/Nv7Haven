@@ -9,6 +9,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/Nv7-Github/sevcord/v2"
+	"github.com/dustin/go-humanize"
 	"github.com/lib/pq"
 )
 
@@ -80,12 +81,20 @@ func (e *Elements) Hint(c sevcord.Ctx, opts []any) {
 		}
 	}
 
+	// Check if you have
+	var has bool
+	err := e.db.QueryRow(`SELECT $3=ANY(SELECT inv FROM inventories WHERE guild=$1 AND "user"=$2)`, c.Guild(), c.Author().User.ID, el).Scan(&has)
+	if err != nil {
+		e.base.Error(c, err)
+		return
+	}
+
 	// Get hint
 	var items []struct {
 		Els  pq.Int32Array `db:"els"`
 		Cont bool          `db:"cont"` // Whether user can make it
 	}
-	err := e.db.Select(&items, `SELECT els, els <@ (SELECT inv FROM inventories WHERE guild=$1 AND "user"=$2 LIMIT 1) cont FROM combos WHERE guild=$1 AND result=$3`, c.Guild(), c.Author().User.ID, el)
+	err = e.db.Select(&items, `SELECT els, els <@ (SELECT inv FROM inventories WHERE guild=$1 AND "user"=$2 LIMIT 1) cont FROM combos WHERE guild=$1 AND result=$3`, c.Guild(), c.Author().User.ID, el)
 	if err != nil {
 		e.base.Error(c, err)
 		return
@@ -98,6 +107,7 @@ func (e *Elements) Hint(c sevcord.Ctx, opts []any) {
 		}
 		return false
 	})
+	itemCnt := len(items)
 	if len(items) > maxHintEls {
 		items = items[:maxHintEls]
 	}
@@ -140,10 +150,14 @@ func (e *Elements) Hint(c sevcord.Ctx, opts []any) {
 	}
 
 	// Embed
+	dontHave := ""
+	if !has {
+		dontHave = " don't"
+	}
 	emb := sevcord.NewEmbed().
 		Title("Hints for "+nameMap[int(el)]).
 		Description(description.String()).
 		Color(3447003). // Blue
-		Footer(fmt.Sprintf("%d Hints", len(items)), "")
+		Footer(fmt.Sprintf("%s Hints • You%s have this", humanize.Comma(int64(itemCnt)), dontHave), "")
 	c.Respond(sevcord.NewMessage("").AddEmbed(emb))
 }
