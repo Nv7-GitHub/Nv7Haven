@@ -37,7 +37,7 @@ func (q *Queries) PathCmd(c sevcord.Ctx, opts []any) {
 		Parents pq.Int32Array `db:"parents"`
 	}
 	err = q.db.Select(&els, `WITH RECURSIVE parents AS (
-		(select parents, id from elements where id=ANY($2) and guild=$1)
+		(select parents, id from elements WHERE id=ANY($2) and guild=$1)
 	UNION
 		(SELECT b.parents, b.id FROM elements b INNER JOIN parents p ON b.id=ANY(p.parents) where guild=$1)
 	) select id, name, parents FROM elements WHERE id=ANY(SELECT id FROM parents) AND guild=$1`, c.Guild(), pq.Array(qu.Elements))
@@ -57,7 +57,7 @@ func (q *Queries) PathCmd(c sevcord.Ctx, opts []any) {
 	// Calculate
 	cnt := 1
 	out := &strings.Builder{}
-	for v := range qu.Elements {
+	for _, v := range qu.Elements {
 		addTree(out, int32(v), pars, names, &cnt)
 	}
 
