@@ -62,6 +62,16 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 }
 
 func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
+	if strings.HasPrefix(content, "=") {
+		if len(content) < 2 {
+			return
+		}
+		if !b.base.CheckCtx(c, "message") {
+			return
+		}
+		b.base.IncrementCommandStat(c, "suggest")
+		b.elements.Suggest(c, []any{any(content[1:]), nil})
+	}
 	if strings.HasPrefix(content, "+") {
 		if len(content) < 2 {
 			return
@@ -92,6 +102,9 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 		}
 		parts := strings.SplitN(content[1:], " ", 2)
 		if len(parts) < 2 {
+			return
+		}
+		if !b.base.CheckCtx(c, "message") {
 			return
 		}
 		b.textCommandHandler(c, parts[0], parts[1])
