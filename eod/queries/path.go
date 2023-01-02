@@ -21,7 +21,7 @@ func (q *Queries) PathCmd(c sevcord.Ctx, opts []any) {
 
 	// Check if every element intersects with the author's inv
 	var has bool
-	err = q.db.QueryRow(`SELECT COALESCE(array_length($3 & inv, 1), 0) = array_length($3, 1) FROM inventories WHERE guild=$1 AND "user"=$2`, c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&has)
+	err = q.db.QueryRow(`SELECT $3 <@ inv FROM inventories WHERE guild=$1 AND "user"=$2`, c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&has)
 	if err != nil {
 		q.base.Error(c, err)
 		return
