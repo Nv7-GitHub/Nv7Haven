@@ -121,7 +121,7 @@ func (q *Queries) Init() {
 		"path",
 		"Learn how to make the elements in a query!",
 		func(c sevcord.Ctx, opts []any) {
-			q.PathCmd(c, opts, false)
+			q.PathCmd(c, opts, true)
 		},
 		sevcord.NewOption("query", "The query to view the path of!", sevcord.OptionKindString, true).
 			AutoComplete(q.Autocomplete),
@@ -130,7 +130,7 @@ func (q *Queries) Init() {
 		"pathjson",
 		"Learn how to make the elements in a query!",
 		func(c sevcord.Ctx, opts []any) {
-			q.PathCmd(c, opts, true)
+			q.PathCmd(c, opts, false)
 		},
 		sevcord.NewOption("query", "The query to view the path of!", sevcord.OptionKindString, true).
 			AutoComplete(q.Autocomplete),

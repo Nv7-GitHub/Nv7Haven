@@ -17,7 +17,7 @@ type parseableElement struct {
 	Parents []int32 `json:"parents"`
 }
 
-func (q *Queries) PathCmd(c sevcord.Ctx, opts []any, parseable bool) {
+func (q *Queries) PathCmd(c sevcord.Ctx, opts []any, text bool) {
 	c.Acknowledge()
 
 	// Get query
@@ -65,20 +65,20 @@ func (q *Queries) PathCmd(c sevcord.Ctx, opts []any, parseable bool) {
 	// Calculate
 	cnt := 1
 	var out any
-	if parseable {
+	if text {
 		out = &strings.Builder{}
 	} else {
 		out = make(map[int32]parseableElement)
 	}
 	for _, v := range qu.Elements {
-		addTree(out, int32(v), pars, names, &cnt, parseable)
+		addTree(out, int32(v), pars, names, &cnt, text)
 	}
 
 	// Make reader
 	var outreader io.Reader
 	var name string
 	var typ string
-	if parseable {
+	if text {
 		outreader = strings.NewReader(out.(*strings.Builder).String())
 		name = "path.txt"
 		typ = "text/plain"
