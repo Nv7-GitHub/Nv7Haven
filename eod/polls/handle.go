@@ -1,6 +1,7 @@
 package polls
 
 import (
+	"database/sql"
 	"log"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -19,13 +20,15 @@ func (b *Polls) reactionHandler(s *discordgo.Session, r *discordgo.MessageReacti
 	var p types.Poll
 	err := b.db.Get(&p, "SELECT * FROM polls WHERE guild=$1 AND message=$2", r.GuildID, r.MessageID)
 	if err != nil {
-		log.Println("poll err", err)
+		if err != sql.ErrNoRows {
+			log.Println("poll fetch err", err)
+		}
 		return
 	}
 	var votecnt int
 	err = b.db.QueryRow("SELECT votecnt FROM config WHERE guild=$1", r.GuildID).Scan(&votecnt)
 	if err != nil {
-		log.Println("poll err", err)
+		log.Println("poll votecnt err", err)
 		return
 	}
 
@@ -45,7 +48,7 @@ func (b *Polls) reactionHandler(s *discordgo.Session, r *discordgo.MessageReacti
 	// Update
 	_, err = b.db.NamedExec("UPDATE polls SET upvotes=:upvotes, downvotes=:downvotes WHERE guild=:guild AND message=:message", p)
 	if err != nil {
-		log.Println("poll err", err)
+		log.Println("poll update err", err)
 		return
 	}
 
