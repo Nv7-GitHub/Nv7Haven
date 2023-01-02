@@ -103,6 +103,7 @@ var charReplace = map[rune]rune{
 
 // CheckName checks the validity of a name & returns a cleaned up version + error
 func CheckName(name string) (string, types.Resp) {
+	name = strings.TrimSpace(name)
 	for _, v := range notAllowed {
 		if strings.Contains(name, v) {
 			return "", types.Fail("A name may not contain '" + v + "'!")
@@ -112,6 +113,9 @@ func CheckName(name string) (string, types.Resp) {
 		if strings.ContainsRune(name, k) {
 			name = strings.ReplaceAll(name, string(k), string(v))
 		}
+	}
+	if len(name) == 0 {
+		return "", types.Fail("Name cannot be empty!")
 	}
 	return name, types.Ok()
 }
