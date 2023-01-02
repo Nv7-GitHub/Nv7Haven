@@ -72,7 +72,7 @@ func (b *Base) CheckCtx(ctx sevcord.Ctx, cmd string) bool {
 	}
 	if !exists {
 		// Make account
-		_, err = b.db.Exec(`INSERT INTO inventories (guild, "user", inv) VALUES ($1, $2, $3)`, ctx.Guild(), ctx.Author().User.ID, pq.Array([]int{1, 2, 3, 4}))
+		_, err = b.db.Exec(`INSERT INTO inventories (guild, "user", inv, votecnt) VALUES ($1, $2, $3, $4)`, ctx.Guild(), ctx.Author().User.ID, pq.Array([]int{1, 2, 3, 4}), 0)
 		if err != nil {
 			b.Error(ctx, err)
 			return false
