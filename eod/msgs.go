@@ -79,6 +79,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 		els := make([]int, 0)
+		added := false
 		for sep := range seps {
 			if strings.Contains(parts[1], seps[sep]) {
 				vals := strings.Split(parts[1], seps[sep])
@@ -89,8 +90,16 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 					}
 					els = append(els, int(id))
 				}
+				added = true
 				break
 			}
+		}
+		if !added {
+			id, ok := b.getElementId(c, parts[1])
+			if !ok {
+				return
+			}
+			els = append(els, int(id))
 		}
 		if len(els) == 0 {
 			c.Respond(sevcord.NewMessage("Invalid format!"))
