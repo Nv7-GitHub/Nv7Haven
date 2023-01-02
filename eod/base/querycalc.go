@@ -13,12 +13,13 @@ func pgArrToIntArr(arr pq.Int32Array) []int {
 	return util.Map([]int32(arr), func(v int32) int { return int(v) })
 }
 
-func (b *Base) CalcQuery(ctx sevcord.Ctx, name string) (*types.Query, error) {
+func (b *Base) CalcQuery(ctx sevcord.Ctx, name string) (*types.Query, bool) {
 	// Get
 	var query = &types.Query{}
 	err := b.db.Get(query, "SELECT * FROM queries WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(name), ctx.Guild())
 	if err != nil {
-		return nil, err
+		b.Error(ctx, err, "Query **"+name+"** doesn't exist!")
+		return nil, false
 	}
 
 	// Calc based on type
@@ -30,27 +31,29 @@ func (b *Base) CalcQuery(ctx sevcord.Ctx, name string) (*types.Query, error) {
 		var els pq.Int32Array
 		err = b.db.QueryRow(`SELECT elements FROM categories WHERE name=$1 AND guild=$2`, query.Data["cat"].(string), ctx.Guild()).Scan(&els)
 		if err != nil {
-			return nil, err
+			b.Error(ctx, err, "Category **"+query.Data["cat"].(string)+"** doesn't exist!")
+			return nil, false
 		}
 		query.Elements = pgArrToIntArr(els)
 
 	case types.QueryKindProducts:
 		// Get query elems
-		parent, err := b.CalcQuery(ctx, query.Data["query"].(string))
-		if err != nil {
-			return nil, err
+		parent, ok := b.CalcQuery(ctx, query.Data["query"].(string))
+		if !ok {
+			return nil, false
 		}
 		// Calc
 		err = b.db.Select(&query.Elements, `SELECT DISTINCT(result) FROM combos WHERE guild=$1 AND array_length($2 & els, 1)>=1`, ctx.Guild(), pq.Array(parent.Elements))
 		if err != nil {
-			return nil, err
+			b.Error(ctx, err)
+			return nil, false
 		}
 
 	case types.QueryKindParents:
 		// Get query elems
-		parent, err := b.CalcQuery(ctx, query.Data["query"].(string))
-		if err != nil {
-			return nil, err
+		parent, ok := b.CalcQuery(ctx, query.Data["query"].(string))
+		if !ok {
+			return nil, false
 		}
 		// Calc
 		err = b.db.Select(&query.Elements, `WITH RECURSIVE parents AS (
@@ -59,14 +62,16 @@ func (b *Base) CalcQuery(ctx sevcord.Ctx, name string) (*types.Query, error) {
 			(SELECT b.parents, b.id FROM elements b INNER JOIN parents p ON b.id=ANY(p.parents) where guild=$1)
 		) select id FROM parents`, ctx.Guild(), pq.Array(parent.Elements))
 		if err != nil {
-			return nil, err
+			b.Error(ctx, err)
+			return nil, false
 		}
 
 	case types.QueryKindInventory:
 		var els pq.Int32Array
 		err = b.db.QueryRow(`SELECT inv FROM inventories WHERE "user"=$1 AND guild=$2`, query.Data["user"].(string), ctx.Guild()).Scan(&els)
 		if err != nil {
-			return nil, err
+			b.Error(ctx, err)
+			return nil, false
 		}
 		query.Elements = pgArrToIntArr(els)
 
@@ -74,7 +79,8 @@ func (b *Base) CalcQuery(ctx sevcord.Ctx, name string) (*types.Query, error) {
 		var max int
 		err = b.db.QueryRow(`SELECT MAX(id) FROM elements WHERE guild=$1`, ctx.Guild()).Scan(&max)
 		if err != nil {
-			return nil, err
+			b.Error(ctx, err)
+			return nil, false
 		}
 		query.Elements = make([]int, max-1)
 		for i := range query.Elements {
@@ -84,7 +90,8 @@ func (b *Base) CalcQuery(ctx sevcord.Ctx, name string) (*types.Query, error) {
 	case types.QueryKindRegex:
 		err = b.db.Select(&query.Elements, `SELECT id FROM elements WHERE guild=$1 AND name ~ $2`, ctx.Guild(), query.Data["regex"].(string))
 		if err != nil {
-			return nil, err
+			b.Error(ctx, err)
+			return nil, false
 		}
 
 	case types.QueryKindComparison:
@@ -102,18 +109,19 @@ func (b *Base) CalcQuery(ctx sevcord.Ctx, name string) (*types.Query, error) {
 		}
 		err = b.db.Select(&query.Elements, `SELECT id FROM elements WHERE guild=$1 AND `+query.Data["field"].(string)+op+`$2`, ctx.Guild(), query.Data["value"])
 		if err != nil {
-			return nil, err
+			b.Error(ctx, err)
+			return nil, false
 		}
 
 	case types.QueryKindOperation:
 		// Get elems
-		left, err := b.CalcQuery(ctx, query.Data["left"].(string))
-		if err != nil {
-			return nil, err
+		left, ok := b.CalcQuery(ctx, query.Data["left"].(string))
+		if !ok {
+			return nil, false
 		}
-		right, err := b.CalcQuery(ctx, query.Data["right"].(string))
-		if err != nil {
-			return nil, err
+		right, ok := b.CalcQuery(ctx, query.Data["right"].(string))
+		if !ok {
+			return nil, false
 		}
 
 		// Operate
@@ -166,5 +174,5 @@ func (b *Base) CalcQuery(ctx sevcord.Ctx, name string) (*types.Query, error) {
 	}
 
 	// Return
-	return query, nil
+	return query, true
 }

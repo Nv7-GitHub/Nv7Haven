@@ -12,15 +12,14 @@ func (q *Queries) Info(ctx sevcord.Ctx, opts []any) {
 	ctx.Acknowledge()
 
 	// Get query
-	qu, err := q.base.CalcQuery(ctx, opts[0].(string))
-	if err != nil {
-		q.base.Error(ctx, err)
+	qu, ok := q.base.CalcQuery(ctx, opts[0].(string))
+	if !ok {
 		return
 	}
 
 	// Get progress
 	var common int
-	err = q.db.QueryRow(`SELECT COALESCE(array_length($2 & (SELECT inv FROM inventories WHERE guild=$1 AND "user"=$3), 1), 0)`, ctx.Guild(), pq.Array(qu.Elements), ctx.Author().User.ID).Scan(&common)
+	err := q.db.QueryRow(`SELECT COALESCE(array_length($2 & (SELECT inv FROM inventories WHERE guild=$1 AND "user"=$3), 1), 0)`, ctx.Guild(), pq.Array(qu.Elements), ctx.Author().User.ID).Scan(&common)
 	if err != nil {
 		q.base.Error(ctx, err)
 		return

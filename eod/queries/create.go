@@ -21,9 +21,8 @@ func (q *Queries) createCmd(c sevcord.Ctx, name string, kind types.QueryKind, da
 	parent, exists := data["query"]
 	if exists {
 		parents := make(map[string]struct{})
-		err := q.queryParents(c, parent.(string), parents)
-		if err != nil {
-			q.base.Error(c, err)
+		ok := q.queryParents(c, parent.(string), parents)
+		if !ok {
 			return
 		}
 		_, exists = parents[name]
@@ -201,14 +200,12 @@ func (q *Queries) CreateOperationCmd(c sevcord.Ctx, opts []any) {
 
 	// Recursively check
 	parents := make(map[string]struct{})
-	err := q.queryParents(c, opts[1].(string), parents)
-	if err != nil {
-		q.base.Error(c, err)
+	ok := q.queryParents(c, opts[1].(string), parents)
+	if !ok {
 		return
 	}
-	err = q.queryParents(c, opts[2].(string), parents)
-	if err != nil {
-		q.base.Error(c, err)
+	ok = q.queryParents(c, opts[2].(string), parents)
+	if !ok {
 		return
 	}
 	if _, ok := parents[opts[0].(string)]; ok {
@@ -218,7 +215,7 @@ func (q *Queries) CreateOperationCmd(c sevcord.Ctx, opts []any) {
 
 	// Get names
 	var nameLeft string
-	err = q.db.Get(&nameLeft, "SELECT name FROM queries WHERE LOWER(name)=$1", strings.ToLower(opts[1].(string)))
+	err := q.db.Get(&nameLeft, "SELECT name FROM queries WHERE LOWER(name)=$1", strings.ToLower(opts[1].(string)))
 	if err != nil {
 		q.base.Error(c, err, "Query **"+opts[1].(string)+"** doesn't exist!")
 		return

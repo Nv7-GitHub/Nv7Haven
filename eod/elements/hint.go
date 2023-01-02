@@ -56,9 +56,9 @@ func (e *Elements) Hint(c sevcord.Ctx, opts []any) {
 		LIMIT 1`, c.Guild(), c.Author().User.ID).Scan(&el)
 		} else { // From a query
 			var qu *types.Query
-			qu, err = e.base.CalcQuery(c, opts[1].(string))
-			if err != nil {
-				e.base.Error(c, err)
+			var ok bool
+			qu, ok = e.base.CalcQuery(c, opts[1].(string))
+			if !ok {
 				return
 			}
 			err = e.db.QueryRow(`SELECT result FROM combos WHERE 

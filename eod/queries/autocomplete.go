@@ -21,14 +21,14 @@ func (q *Queries) Autocomplete(ctx sevcord.Ctx, val any) []sevcord.Choice {
 	return choices
 }
 
-func (q *Queries) queryParents(c sevcord.Ctx, name string, res map[string]struct{}) error {
+func (q *Queries) queryParents(c sevcord.Ctx, name string, res map[string]struct{}) bool {
 	_, exists := res[name]
 	if exists {
-		return nil
+		return true
 	}
-	qu, err := q.base.CalcQuery(c, name)
-	if err != nil {
-		return err
+	qu, ok := q.base.CalcQuery(c, name)
+	if !ok {
+		return false
 	}
 	res[qu.Name] = struct{}{}
 	switch qu.Kind {
@@ -36,12 +36,12 @@ func (q *Queries) queryParents(c sevcord.Ctx, name string, res map[string]struct
 		return q.queryParents(c, qu.Data["query"].(string), res)
 
 	case types.QueryKindOperation:
-		err = q.queryParents(c, qu.Data["left"].(string), res)
-		if err != nil {
-			return err
+		ok := q.queryParents(c, qu.Data["left"].(string), res)
+		if !ok {
+			return false
 		}
 		return q.queryParents(c, qu.Data["right"].(string), res)
 	}
 
-	return nil
+	return true
 }

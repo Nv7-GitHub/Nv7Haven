@@ -12,15 +12,14 @@ func (q *Queries) Download(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
 
 	// Get query
-	qu, err := q.base.CalcQuery(c, opts[0].(string))
-	if err != nil {
-		q.base.Error(c, err)
+	qu, ok := q.base.CalcQuery(c, opts[0].(string))
+	if !ok {
 		return
 	}
 
 	// Get names
 	var names []string
-	err = q.db.Select(&names, `SELECT name FROM elements WHERE guild=$1 AND id=ANY($2)`, c.Guild(), pq.Array(qu.Elements))
+	err := q.db.Select(&names, `SELECT name FROM elements WHERE guild=$1 AND id=ANY($2)`, c.Guild(), pq.Array(qu.Elements))
 	if err != nil {
 		q.base.Error(c, err)
 		return

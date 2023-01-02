@@ -81,16 +81,15 @@ func (p *Pages) QueryHandler(c sevcord.Ctx, params string) {
 	parts := strings.SplitN(params, "|", 5)
 
 	// Get query
-	query, err := p.base.CalcQuery(c, parts[4])
-	if err != nil {
-		p.base.Error(c, err)
+	query, ok := p.base.CalcQuery(c, parts[4])
+	if !ok {
 		return
 	}
 
 	// Get count
 	cnt := len(query.Elements)
 	var common int
-	err = p.db.QueryRow(`SELECT COALESCE(array_length($2 & (SELECT inv FROM inventories WHERE guild=$1 AND "user"=$3), 1), 0)`, c.Guild(), pq.Array(query.Elements), parts[1]).Scan(&common)
+	err := p.db.QueryRow(`SELECT COALESCE(array_length($2 & (SELECT inv FROM inventories WHERE guild=$1 AND "user"=$3), 1), 0)`, c.Guild(), pq.Array(query.Elements), parts[1]).Scan(&common)
 	if err != nil {
 		p.base.Error(c, err)
 		return

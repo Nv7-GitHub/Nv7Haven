@@ -57,16 +57,16 @@ func (p *Pages) LbHandler(c sevcord.Ctx, params string) {
 
 	// Query
 	var qu *types.Query
-	var err error
+	var ok bool
 	if parts[4] != "" {
-		qu, err = p.base.CalcQuery(c, parts[4])
-		if err != nil {
-			p.base.Error(c, err)
+		qu, ok = p.base.CalcQuery(c, parts[4])
+		if !ok {
 			return
 		}
 	}
 
 	// Get values
+	var err error
 	var vals []struct {
 		User string `db:"user"`
 		Cnt  int    `db:"cnt"`
