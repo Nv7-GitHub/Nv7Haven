@@ -83,7 +83,7 @@ func (e *Elements) Hint(c sevcord.Ctx, opts []any) {
 
 	// Check if you have
 	var has bool
-	err := e.db.QueryRow(`SELECT $3=ANY(SELECT inv FROM inventories WHERE guild=$1 AND "user"=$2)`, c.Guild(), c.Author().User.ID, el).Scan(&has)
+	err := e.db.QueryRow(`SELECT $3=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2)`, c.Guild(), c.Author().User.ID, el).Scan(&has)
 	if err != nil {
 		e.base.Error(c, err)
 		return
