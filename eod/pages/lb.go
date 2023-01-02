@@ -9,6 +9,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/Nv7-Github/sevcord/v2"
+	"github.com/bwmarrin/discordgo"
 	"github.com/dustin/go-humanize"
 	"github.com/lib/pq"
 )
@@ -160,7 +161,7 @@ func (p *Pages) Lb(c sevcord.Ctx, opts []any) {
 	}
 	user := c.Author().User.ID
 	if opts[1] != nil {
-		user = opts[1].(string)
+		user = opts[1].(*discordgo.User).ID
 	}
 	query := ""
 	if opts[2] != nil {
