@@ -236,7 +236,7 @@ func (b *Polls) makeQueryText(name string, typ string, guild string, data map[st
 
 	case "compare":
 		kind = "Comparison"
-		description = "*Query*: **" + data["query"].(string) + "**\n*Field*: `" + data["field"].(string) + "`\n*Operator*: `" + data["typ"].(string) + "`\n*Value*: `" + fmt.Sprintf("%v", data["value"]) + "`"
+		description = "*Field*: `" + data["field"].(string) + "`\n*Operator*: `" + data["typ"].(string) + "`\n*Value*: `" + fmt.Sprintf("%v", data["value"]) + "`"
 
 	case "op":
 		kind = "Operation"

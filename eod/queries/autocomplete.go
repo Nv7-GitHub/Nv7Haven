@@ -32,7 +32,7 @@ func (q *Queries) queryParents(c sevcord.Ctx, name string, res map[string]struct
 	}
 	res[qu.Name] = struct{}{}
 	switch qu.Kind {
-	case types.QueryKindProducts, types.QueryKindParents, types.QueryKindRegex, types.QueryKindComparison:
+	case types.QueryKindProducts, types.QueryKindParents, types.QueryKindRegex:
 		return q.queryParents(c, qu.Data["query"].(string), res)
 
 	case types.QueryKindOperation:

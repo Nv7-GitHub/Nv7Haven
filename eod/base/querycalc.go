@@ -88,11 +88,6 @@ func (b *Base) CalcQuery(ctx sevcord.Ctx, name string) (*types.Query, error) {
 		}
 
 	case types.QueryKindComparison:
-		// Get query elems
-		parent, err := b.CalcQuery(ctx, query.Data["query"].(string))
-		if err != nil {
-			return nil, err
-		}
 		// Calc
 		var op string
 		switch query.Data["typ"].(string) {
@@ -105,7 +100,7 @@ func (b *Base) CalcQuery(ctx sevcord.Ctx, name string) (*types.Query, error) {
 		case "less":
 			op = "<"
 		}
-		err = b.db.Select(&query.Elements, `SELECT id FROM elements WHERE guild=$1 AND id=ANY($2) AND `+query.Data["field"].(string)+op+`$3`, ctx.Guild(), pq.Array(parent.Elements), query.Data["value"])
+		err = b.db.Select(&query.Elements, `SELECT id FROM elements WHERE guild=$1 AND `+query.Data["field"].(string)+op+`$2`, ctx.Guild(), query.Data["value"])
 		if err != nil {
 			return nil, err
 		}

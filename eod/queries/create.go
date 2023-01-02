@@ -182,25 +182,18 @@ func (q *Queries) CreateRegexCmd(c sevcord.Ctx, opts []any) {
 
 func (q *Queries) CreateComparisonCmd(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
-	// Get name
-	var name string
-	err := q.db.Get(&name, "SELECT name FROM queries WHERE LOWER(name)=$1", strings.ToLower(opts[1].(string)))
-	if err != nil {
-		q.base.Error(c, err)
-		return
-	}
 	// Parse if needed
-	val := any(opts[4].(string))
-	switch opts[2].(string) {
+	val := any(opts[3].(string))
+	switch opts[1].(string) {
 	case "treesize", "color", "id":
-		intV, err := strconv.Atoi(opts[4].(string))
+		intV, err := strconv.Atoi(opts[3].(string))
 		if err != nil {
 			q.base.Error(c, err)
 			return
 		}
 		val = any(float64(intV))
 	}
-	q.createCmd(c, opts[0].(string), types.QueryKindComparison, map[string]any{"query": name, "field": opts[2].(string), "typ": opts[3].(string), "value": val})
+	q.createCmd(c, opts[0].(string), types.QueryKindComparison, map[string]any{"field": opts[1].(string), "typ": opts[2].(string), "value": val})
 }
 
 func (q *Queries) CreateOperationCmd(c sevcord.Ctx, opts []any) {

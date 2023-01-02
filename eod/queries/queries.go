@@ -79,8 +79,6 @@ func (q *Queries) Init() {
 			"Create a query that compares the elements in a query!",
 			q.CreateComparisonCmd,
 			sevcord.NewOption("name", "The name of the query!", sevcord.OptionKindString, true),
-			sevcord.NewOption("query", "The query to contain the products of!", sevcord.OptionKindString, true).
-				AutoComplete(q.Autocomplete),
 			sevcord.NewOption("field", "The field to compare by!", sevcord.OptionKindString, true).
 				AddChoices(
 					sevcord.NewChoice("ID", "id"),
