@@ -54,6 +54,10 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 		b.elements.Products(c, []any{any(id), nil})
+
+	case "q", "query":
+		b.base.IncrementCommandStat(c, "query")
+		b.pages.Query(c, []any{any(content), nil})
 	}
 }
 
