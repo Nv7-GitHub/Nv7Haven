@@ -16,7 +16,7 @@ func (c *Categories) Info(ctx sevcord.Ctx, opts []any) {
 	var cat types.Category
 	err := c.db.Get(&cat, "SELECT * FROM categories WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(opts[0].(string)), ctx.Guild())
 	if err != nil {
-		c.base.Error(ctx, err)
+		c.base.Error(ctx, err, "Category **"+opts[0].(string)+"** doesn't exist!")
 		return
 	}
 

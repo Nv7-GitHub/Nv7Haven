@@ -15,7 +15,7 @@ func (q *Queries) DeleteQuery(c sevcord.Ctx, opts []any) {
 	var name string
 	err := q.db.QueryRow("SELECT name FROM queries WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(opts[0].(string)), c.Guild()).Scan(&name)
 	if err != nil {
-		q.base.Error(c, err)
+		q.base.Error(c, err, "Query **"+opts[0].(string)+"** doesn't exist!")
 		return
 	}
 

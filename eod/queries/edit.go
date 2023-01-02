@@ -17,7 +17,7 @@ func (q *Queries) ImageCmd(ctx sevcord.Ctx, opts []any) {
 	var old string
 	err := q.db.QueryRow("SELECT name, image FROM queries WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(opts[0].(string)), ctx.Guild()).Scan(&name, &old)
 	if err != nil {
-		q.base.Error(ctx, err)
+		q.base.Error(ctx, err, "Query **"+opts[0].(string)+"** doesn't exist!")
 		return
 	}
 
@@ -47,7 +47,7 @@ func (q *Queries) SignCmd(ctx sevcord.Ctx, opts []any) {
 	var old string
 	err := q.db.QueryRow("SELECT name, comment FROM queries WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(opts[0].(string)), ctx.Guild()).Scan(&name, &old)
 	if err != nil {
-		q.base.Error(ctx, err)
+		q.base.Error(ctx, err, "Query **"+opts[0].(string)+"** doesn't exist!")
 		return
 	}
 
@@ -79,7 +79,7 @@ func (q *Queries) ColorCmd(ctx sevcord.Ctx, opts []any) {
 	}
 	val, err := strconv.ParseInt(strings.TrimPrefix(code, "#"), 16, 64)
 	if err != nil {
-		q.base.Error(ctx, err)
+		ctx.Respond(sevcord.NewMessage("Invalid hex code! " + types.RedCircle))
 		return
 	}
 	if val < 0 || val > 16777215 {
@@ -92,7 +92,7 @@ func (q *Queries) ColorCmd(ctx sevcord.Ctx, opts []any) {
 	var old int
 	err = q.db.QueryRow("SELECT name, color FROM queries WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(opts[0].(string)), ctx.Guild()).Scan(&name, &old)
 	if err != nil {
-		q.base.Error(ctx, err)
+		q.base.Error(ctx, err, "Query **"+opts[0].(string)+"** doesn't exist!")
 		return
 	}
 

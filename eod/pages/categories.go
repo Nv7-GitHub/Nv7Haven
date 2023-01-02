@@ -151,7 +151,7 @@ func (p *Pages) Cat(c sevcord.Ctx, args []any) {
 	var name string
 	err := p.db.QueryRow(`SELECT name FROM categories WHERE guild=$1 AND LOWER(name)=$2`, c.Guild(), strings.ToLower(args[0].(string))).Scan(&name)
 	if err != nil {
-		p.base.Error(c, err)
+		p.base.Error(c, err, "Category **"+args[0].(string)+"** doesn't exist!")
 		return
 	}
 

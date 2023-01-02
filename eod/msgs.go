@@ -19,7 +19,7 @@ func (b *Bot) getElementId(c sevcord.Ctx, val string) (int64, bool) {
 	var id int64
 	err := b.db.QueryRow("SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(strings.TrimSpace(val)), c.Guild()).Scan(&id)
 	if err != nil {
-		b.base.Error(c, err)
+		b.base.Error(c, err, "Element **"+val+"** doesn't exist!")
 		return 0, false
 	}
 	return id, true
@@ -89,7 +89,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 		parts := strings.SplitN(content[1:], " ", 2)
 		cnt, err := strconv.Atoi(parts[0])
 		if err != nil {
-			b.base.Error(c, err)
+			c.Respond(sevcord.NewMessage("Invalid number of repeats! " + types.RedCircle))
 			return
 		}
 		if cnt < 1 {
@@ -116,6 +116,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 			name, err := b.base.GetName(c.Guild(), comb.Result)
 			if err != nil {
 				b.base.Error(c, err)
+				return
 			}
 			new := make([]string, 0, cnt)
 			for i := 0; i < cnt; i++ {

@@ -22,7 +22,7 @@ func (c *Categories) catEditCmd(ctx sevcord.Ctx, cat string, elem int, kind type
 		if err == sql.ErrNoRows && !contains {
 			name = cat
 		} else {
-			c.base.Error(ctx, err)
+			c.base.Error(ctx, err, "Category **"+cat+"** doesn't exist!")
 			return
 		}
 	}
@@ -81,7 +81,7 @@ func (c *Categories) DelCat(ctx sevcord.Ctx, opts []any) {
 	var els pq.Int32Array
 	err := c.db.QueryRow(`SELECT name, elements FROM categories WHERE guild=$1 AND LOWER(name)=$2`, ctx.Guild(), strings.ToLower(opts[0].(string))).Scan(&name, &els)
 	if err != nil {
-		c.base.Error(ctx, err)
+		c.base.Error(ctx, err, "Category **"+opts[0].(string)+"** doesn't exist!")
 		return
 	}
 

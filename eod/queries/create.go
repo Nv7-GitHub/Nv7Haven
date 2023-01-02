@@ -127,7 +127,7 @@ func (q *Queries) CreateCategoryCmd(c sevcord.Ctx, opts []any) {
 	var name string
 	err := q.db.Get(&name, "SELECT name FROM categories WHERE LOWER(name)=$1", strings.ToLower(opts[1].(string)))
 	if err != nil {
-		q.base.Error(c, err)
+		q.base.Error(c, err, "Category **"+opts[1].(string)+"** doesn't exist!")
 		return
 	}
 	q.createCmd(c, opts[0].(string), types.QueryKindCategory, map[string]any{"cat": name})
@@ -139,7 +139,7 @@ func (q *Queries) CreateProductsCmd(c sevcord.Ctx, opts []any) {
 	var name string
 	err := q.db.Get(&name, "SELECT name FROM queries WHERE LOWER(name)=$1", strings.ToLower(opts[1].(string)))
 	if err != nil {
-		q.base.Error(c, err)
+		q.base.Error(c, err, "Query **"+opts[1].(string)+"** doesn't exist!")
 		return
 	}
 	q.createCmd(c, opts[0].(string), types.QueryKindProducts, map[string]any{"query": name})
@@ -151,7 +151,7 @@ func (q *Queries) CreateParentsCmd(c sevcord.Ctx, opts []any) {
 	var name string
 	err := q.db.Get(&name, "SELECT name FROM queries WHERE LOWER(name)=$1", strings.ToLower(opts[1].(string)))
 	if err != nil {
-		q.base.Error(c, err)
+		q.base.Error(c, err, "Query **"+opts[1].(string)+"** doesn't exist!")
 		return
 	}
 	q.createCmd(c, opts[0].(string), types.QueryKindParents, map[string]any{"query": name})
@@ -168,7 +168,7 @@ func (q *Queries) CreateRegexCmd(c sevcord.Ctx, opts []any) {
 	var name string
 	err := q.db.Get(&name, "SELECT name FROM queries WHERE LOWER(name)=$1", strings.ToLower(opts[1].(string)))
 	if err != nil {
-		q.base.Error(c, err)
+		q.base.Error(c, err, "Query **"+opts[1].(string)+"** doesn't exist!")
 		return
 	}
 	// Check regex
@@ -220,13 +220,13 @@ func (q *Queries) CreateOperationCmd(c sevcord.Ctx, opts []any) {
 	var nameLeft string
 	err = q.db.Get(&nameLeft, "SELECT name FROM queries WHERE LOWER(name)=$1", strings.ToLower(opts[1].(string)))
 	if err != nil {
-		q.base.Error(c, err)
+		q.base.Error(c, err, "Query **"+opts[1].(string)+"** doesn't exist!")
 		return
 	}
 	var nameRight string
 	err = q.db.Get(&nameRight, "SELECT name FROM queries WHERE LOWER(name)=$1", strings.ToLower(opts[2].(string)))
 	if err != nil {
-		q.base.Error(c, err)
+		q.base.Error(c, err, "Query **"+opts[2].(string)+"** doesn't exist!")
 		return
 	}
 	q.createCmd(c, opts[0].(string), types.QueryKindOperation, map[string]any{"left": nameLeft, "right": nameRight, "op": opts[3].(string)})

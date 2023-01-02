@@ -1,15 +1,23 @@
 package base
 
 import (
+	"database/sql"
 	"log"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/lib/pq"
 )
 
-func (b *Base) Error(ctx sevcord.Ctx, err error) {
+func (b *Base) Error(ctx sevcord.Ctx, err error, config ...string) {
 	if err != nil {
 		ctx.Acknowledge()
+
+		if err == sql.ErrNoRows && len(config) >= 1 {
+			ctx.Respond(sevcord.NewMessage(config[0] + " " + types.RedCircle))
+			return
+		}
+
 		ctx.Respond(sevcord.NewMessage("").AddEmbed(
 			sevcord.NewEmbed().
 				Title("Error").

@@ -21,7 +21,7 @@ func (e *Elements) InfoMsgCmd(c sevcord.Ctx, val string) {
 	var id int
 	err := e.db.QueryRow("SELECT id FROM elements WHERE guild=$1 AND LOWER(name)=$2", c.Guild(), strings.ToLower(val)).Scan(&id)
 	if err != nil {
-		e.base.Error(c, err)
+		e.base.Error(c, err, "Element **"+val+"** doesn't exist!")
 		return
 	}
 	e.Info(c, id)
