@@ -15,9 +15,9 @@ func (e *Elements) Suggest(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
 
 	// Autocapitalization
-	autocap := true
-	if strings.ToLower(opts[0].(string)) == opts[0].(string) { // Don't autocapitalize if all lowercase
-		autocap = false
+	autocap := false
+	if strings.ToLower(opts[0].(string)) == opts[0].(string) { // Autocapitalize if all lowercase
+		autocap = true
 	}
 	if opts[1] != nil {
 		autocap = opts[1].(bool)
