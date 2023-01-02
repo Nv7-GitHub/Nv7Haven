@@ -120,7 +120,7 @@ func (q *Queries) Init() {
 		"path",
 		"Learn how to make the elements in a query!",
 		q.PathCmd,
-		sevcord.NewOption("query", "The query to view the path of!", sevcord.OptionKindInt, true).
+		sevcord.NewOption("query", "The query to view the path of!", sevcord.OptionKindString, true).
 			AutoComplete(q.Autocomplete),
 	))
 }
