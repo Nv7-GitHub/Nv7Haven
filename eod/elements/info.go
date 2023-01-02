@@ -2,6 +2,7 @@ package elements
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -15,14 +16,23 @@ func (e *Elements) InfoSlashCmd(c sevcord.Ctx, opts []any) {
 }
 
 func (e *Elements) InfoMsgCmd(c sevcord.Ctx, val string) {
+	c.Acknowledge()
 	e.base.IncrementCommandStat(c, "info")
 
-	c.Acknowledge()
 	var id int
-	err := e.db.QueryRow("SELECT id FROM elements WHERE guild=$1 AND LOWER(name)=$2", c.Guild(), strings.ToLower(val)).Scan(&id)
-	if err != nil {
-		e.base.Error(c, err, "Element **"+val+"** doesn't exist!")
-		return
+	if strings.HasPrefix(val, "#") {
+		var err error
+		id, err = strconv.Atoi(val[1:])
+		if err != nil {
+			c.Respond(sevcord.NewMessage("Invalid element ID! " + types.RedCircle))
+			return
+		}
+	} else {
+		err := e.db.QueryRow("SELECT id FROM elements WHERE guild=$1 AND LOWER(name)=$2", c.Guild(), strings.ToLower(val)).Scan(&id)
+		if err != nil {
+			e.base.Error(c, err, "Element **"+val+"** doesn't exist!")
+			return
+		}
 	}
 	e.Info(c, id)
 }
