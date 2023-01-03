@@ -90,7 +90,7 @@ func (q *Queries) Info(ctx sevcord.Ctx, opts []any) {
 		emb = emb.AddField("Kind", "Comparison", true)
 		emb = emb.AddField("Field", "`"+qu.Data["field"].(string)+"`", true)
 		emb = emb.AddField("Operator", qu.Data["typ"].(string), true)
-		emb = emb.AddField("Value", fmt.Sprintf("%v", qu.Data["val"]), true)
+		emb = emb.AddField("Value", fmt.Sprintf("%v", qu.Data["value"]), true)
 	}
 
 	// Respond
