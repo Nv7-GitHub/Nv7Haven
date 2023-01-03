@@ -53,7 +53,7 @@ var services = map[string]*Service{
 	"single":            NewService("single", "Nv7's Singleplayer"),
 	"vdrive":            NewService("vdrive", "VDrive"),
 	"elemcraft":         NewService("elemcraft", "Elemcraft", "serve"),
-	"altruity":          NewService("altruity", "Altruity", "serve", `--http="127.0.0.1:`+os.Getenv("ALTRUITY_PORT")+`"`),
+	"altruity":          NewService("altruity", "Altruity", "serve", `--http=127.0.0.1:`+os.Getenv("ALTRUITY_PORT")),
 }
 
 func NewService(id, name string, flags ...string) *Service {
