@@ -50,8 +50,8 @@ func (e *Elements) Hint(c sevcord.Ctx, opts []any) {
 		if opts[1] == nil { // Not from a query
 			err = e.db.QueryRow(`SELECT result FROM combos WHERE 
 		guild=$1 AND 
-		RANDOM() < 0.01 AND 
 		NOT (result=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2))
+		ORDER BY RANDOM()
 		LIMIT 1`, c.Guild(), c.Author().User.ID).Scan(&el)
 		} else { // From a query
 			var qu *types.Query
@@ -62,9 +62,9 @@ func (e *Elements) Hint(c sevcord.Ctx, opts []any) {
 			}
 			err = e.db.QueryRow(`SELECT result FROM combos WHERE 
 		guild=$1 AND 
-		RANDOM() < 0.01 AND 
 		NOT (result=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2)) AND
 		result=ANY($3)
+		ORDER BY RANDOM()
 		LIMIT 1`, c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
 		}
 
