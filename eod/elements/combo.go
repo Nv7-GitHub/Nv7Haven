@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -53,6 +54,29 @@ func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 	if err != nil {
 		e.base.Error(c, err)
 		return
+	}
+	for i, val := range res {
+		if !val.Cont {
+			// Check if number element
+			if strings.HasPrefix(lowered[i], "#") && len(lowered[i]) > 1 {
+				id, err := strconv.Atoi(lowered[i][1:])
+				if err != nil {
+					continue
+				}
+				// Check if ok
+				var ok bool
+				err = e.db.QueryRow(`SELECT id FROM elements WHERE guild=$1 AND id=$2`, c.Guild(), id).Scan(&ok)
+				if err != nil {
+					if err == sql.ErrNoRows {
+						continue
+					}
+					e.base.Error(c, err)
+					return
+				}
+				// Update
+				res[i].ID = id
+			}
+		}
 	}
 
 	// See what elements don't exist
