@@ -64,8 +64,8 @@ func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 					continue
 				}
 				// Check if ok
-				var ok bool
-				err = e.db.QueryRow(`SELECT id FROM elements WHERE guild=$1 AND id=$2`, c.Guild(), id).Scan(&ok)
+				var name string
+				err = e.db.QueryRow(`SELECT id FROM elements WHERE guild=$1 AND id=$2`, c.Guild(), id).Scan(&name)
 				if err != nil {
 					if err == sql.ErrNoRows {
 						continue
@@ -75,6 +75,8 @@ func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 				}
 				// Update
 				res[i].ID = id
+				res[i].Cont = true
+				res[i].Name = name
 			}
 		}
 	}
