@@ -170,10 +170,11 @@ func (e *Elements) hintHandler(c sevcord.Ctx, params string) {
 		Description(description.String()).
 		Color(3447003). // Blue
 		Footer(fmt.Sprintf("%s Hints • You%s have this", humanize.Comma(int64(itemCnt)), dontHave), "")
-	c.Respond(sevcord.NewMessage("").
+	err = c.Respond(sevcord.NewMessage("").
 		AddEmbed(emb).
 		AddComponentRow(sevcord.NewButton("New Hint", sevcord.ButtonStylePrimary, "hint", params).
-			WithEmoji(sevcord.ComponentEmojiCustom("hint", "1060355969516834927", false))))
+			WithEmoji(sevcord.ComponentEmojiCustom("hint", "932833472396025908", false))))
+	fmt.Println(err)
 }
 
 func (e *Elements) Hint(c sevcord.Ctx, opts []any) {
