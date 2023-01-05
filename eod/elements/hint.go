@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -37,35 +38,52 @@ func Obscure(val string) string {
 	return string(out)
 }
 
-func (e *Elements) Hint(c sevcord.Ctx, opts []any) {
-	c.Acknowledge()
+// Format: user|elementid|query
+
+const hintQuery = `SELECT id FROM elements WHERE 
+guild=$1 AND 
+NOT (id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2))
+%s
+%s
+LIMIT 1`
+
+func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
+	parts := strings.Split(params, "|")
+	if c.Author().User.ID != parts[0] {
+		c.Acknowledge()
+		c.Respond(sevcord.NewMessage("You are not authorized! " + types.RedCircle))
+		return
+	}
+	elVal, err := strconv.Atoi(parts[1])
+	if err != nil {
+		e.base.Error(c, err)
+		return
+	}
+	query := parts[2]
 
 	// Get element
 	var el int
-	if opts[0] != nil {
-		el = int(opts[0].(int64))
+	if elVal != -1 {
+		el = elVal
 	} else {
 		// Pick random element
 		var err error
-		if opts[1] == nil { // Not from a query
-			err = e.db.QueryRow(`SELECT result FROM combos WHERE 
-		guild=$1 AND 
-		NOT (result=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2))
-		ORDER BY RANDOM()
-		LIMIT 1`, c.Guild(), c.Author().User.ID).Scan(&el)
+		if query == "" { // Not from a query
+			err = e.db.QueryRow(fmt.Sprintf(hintQuery, "", "AND RANDOM() < 0.01"), c.Guild(), c.Author().User.ID).Scan(&el)
+			if err == sql.ErrNoRows {
+				err = e.db.QueryRow(fmt.Sprintf(hintQuery, "", "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID).Scan(&el)
+			}
 		} else { // From a query
 			var qu *types.Query
 			var ok bool
-			qu, ok = e.base.CalcQuery(c, opts[1].(string))
+			qu, ok = e.base.CalcQuery(c, query)
 			if !ok {
 				return
 			}
-			err = e.db.QueryRow(`SELECT result FROM combos WHERE 
-		guild=$1 AND 
-		NOT (result=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2)) AND
-		result=ANY($3)
-		ORDER BY RANDOM()
-		LIMIT 1`, c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
+			err = e.db.QueryRow(fmt.Sprintf(hintQuery, "AND id=ANY($3)", "AND RANDOM() < 0.01"), c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
+			if err == sql.ErrNoRows {
+				err = e.db.QueryRow(fmt.Sprintf(hintQuery, "AND id=ANY($3)", "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
+			}
 		}
 
 		// Get random element that the user can make
@@ -81,7 +99,7 @@ func (e *Elements) Hint(c sevcord.Ctx, opts []any) {
 
 	// Check if you have
 	var has bool
-	err := e.db.QueryRow(`SELECT $3=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2)`, c.Guild(), c.Author().User.ID, el).Scan(&has)
+	err = e.db.QueryRow(`SELECT $3=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2)`, c.Guild(), c.Author().User.ID, el).Scan(&has)
 	if err != nil {
 		e.base.Error(c, err)
 		return
@@ -157,5 +175,21 @@ func (e *Elements) Hint(c sevcord.Ctx, opts []any) {
 		Description(description.String()).
 		Color(3447003). // Blue
 		Footer(fmt.Sprintf("%s Hints • You%s have this", humanize.Comma(int64(itemCnt)), dontHave), "")
-	c.Respond(sevcord.NewMessage("").AddEmbed(emb))
+	c.Respond(sevcord.NewMessage("").
+		AddEmbed(emb).
+		AddComponentRow(sevcord.NewButton("New Hint", sevcord.ButtonStylePrimary, "hint", params).
+			WithEmoji(sevcord.ComponentEmojiCustom("hint", "932833472396025908", false))))
+}
+
+func (e *Elements) Hint(c sevcord.Ctx, opts []any) {
+	c.Acknowledge()
+	el := -1
+	if opts[0] != nil {
+		el = int(opts[0].(int64))
+	}
+	query := ""
+	if opts[1] != nil {
+		query = opts[1].(string)
+	}
+	e.HintHandler(c, fmt.Sprintf("%s|%d|%s", c.Author().User.ID, el, query))
 }

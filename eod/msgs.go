@@ -156,6 +156,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 			parts = append(parts, "")
 		}
 		b.textCommandHandler(c, strings.ToLower(parts[0]), parts[1])
+		return
 	}
 	if strings.HasPrefix(content, "?") {
 		if len(content) < 2 {

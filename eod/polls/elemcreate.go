@@ -34,14 +34,16 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 	}
 
 	// Check if name already exists
-	var nameid int
-	err = e.db.QueryRow(`SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2`, strings.ToLower(p.Data["result"].(string)), p.Guild).Scan(&nameid)
-	if err != nil && err != sql.ErrNoRows {
-		return err
-	}
-	if err == nil {
-		exists = true
-		p.Data["result"] = float64(nameid)
+	if !exists {
+		var nameid int
+		err = e.db.QueryRow(`SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2`, strings.ToLower(p.Data["result"].(string)), p.Guild).Scan(&nameid)
+		if err != nil && err != sql.ErrNoRows {
+			return err
+		}
+		if err == nil {
+			exists = true
+			p.Data["result"] = float64(nameid)
+		}
 	}
 
 	// Make tx
@@ -51,7 +53,7 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 		return
 	}
 	defer func() {
-		if err != nil {
+		if err != nil && tx != nil {
 			err = tx.Rollback()
 			return
 		}
@@ -152,18 +154,19 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 
 	// Commit
 	err = tx.Commit()
+	tx = nil
 	if err != nil {
 		return err
 	}
 
 	// Add to creator's inv if not already in it
 	var cont bool
-	err = tx.QueryRow(`SELECT $3=ANY(inv) FROM inventories WHERE guild=$1 AND "user"=$2`, p.Guild, p.Creator, id).Scan(&cont)
+	err = e.db.QueryRow(`SELECT $3=ANY(inv) FROM inventories WHERE guild=$1 AND "user"=$2`, p.Guild, p.Creator, id).Scan(&cont)
 	if err != nil {
 		return
 	}
 	if !cont {
-		_, err = tx.Exec(`UPDATE inventories SET inv=array_append(inv, $3) WHERE guild=$1 AND "user"=$2`, p.Guild, p.Creator, id)
+		_, err = e.db.Exec(`UPDATE inventories SET inv=array_append(inv, $3) WHERE guild=$1 AND "user"=$2`, p.Guild, p.Creator, id)
 		if err != nil {
 			return
 		}
