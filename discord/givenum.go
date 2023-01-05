@@ -9,7 +9,7 @@ import (
 
 func (b *Bot) giveNumCmd(num int, m msg, rsp rsp) {
 	num = b.abs(num)
-	res, err := b.db.Query("SELECT COUNT(1) FROM givenum WHERE guild=? AND member=? LIMIT 1", m.GuildID, m.Author.ID)
+	res, err := b.db.Query("SELECT COUNT(*) FROM givenum WHERE guild=? AND member=? LIMIT 1", m.GuildID, m.Author.ID)
 	if rsp.Error(err) {
 		return
 	}
@@ -123,7 +123,7 @@ func (b *Bot) giveNum(s *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func (b *Bot) getNum(m msg, rsp rsp, user string) (bool, int) {
-	res, err := b.db.Query("SELECT COUNT(1) FROM givenum WHERE guild=? AND member=? LIMIT 1", m.GuildID, user)
+	res, err := b.db.Query("SELECT COUNT(*) FROM givenum WHERE guild=? AND member=? LIMIT 1", m.GuildID, user)
 	if rsp.Error(err) {
 		return false, 0
 	}

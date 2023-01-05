@@ -18,7 +18,7 @@ func (n *Nv7Haven) newNote(c *fiber.Ctx) error {
 	ip := c.IP()
 
 	// Does it exist?
-	res, err := n.sql.Query("SELECT COUNT(1) FROM notes WHERE ip=? AND name=?", ip, name)
+	res, err := n.sql.Query("SELECT COUNT(*) FROM notes WHERE ip=? AND name=?", ip, name)
 	if err != nil {
 		return err
 	}

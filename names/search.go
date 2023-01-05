@@ -52,7 +52,7 @@ func (n *Names) searchCmd(i *discordgo.InteractionCreate) {
 
 	// Check if exists
 	var cnt int
-	err := n.db.QueryRow("SELECT COUNT(1) FROM names_discord WHERE guild=? AND name=?", i.GuildID, name).Scan(&cnt)
+	err := n.db.QueryRow("SELECT COUNT(*) FROM names_discord WHERE guild=? AND name=?", i.GuildID, name).Scan(&cnt)
 	if err != nil {
 		n.Err(err.Error(), i.Interaction)
 		return

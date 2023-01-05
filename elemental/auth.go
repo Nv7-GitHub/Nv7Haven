@@ -35,7 +35,7 @@ func (e *Elemental) CreateUser(name string, password string) AuthResponse {
 		}
 
 		// Check if name taken
-		res, err := e.db.Query("SELECT COUNT(1) FROM users WHERE uid=? LIMIT 1", name)
+		res, err := e.db.Query("SELECT COUNT(*) FROM users WHERE uid=? LIMIT 1", name)
 		if err != nil {
 			return AuthResponse{
 				Success: false,
@@ -54,7 +54,7 @@ func (e *Elemental) CreateUser(name string, password string) AuthResponse {
 	}
 
 	// Check if name taken
-	res, err := e.db.Query("SELECT COUNT(1) FROM users WHERE name=? LIMIT 1", name)
+	res, err := e.db.Query("SELECT COUNT(*) FROM users WHERE name=? LIMIT 1", name)
 	if err != nil {
 		return AuthResponse{
 			Success: false,
@@ -93,7 +93,7 @@ func (e *Elemental) CreateUser(name string, password string) AuthResponse {
 
 func (e *Elemental) LoginUser(name string, password string) AuthResponse {
 	// Check if user exists
-	res, err := e.db.Query("SELECT COUNT(1) FROM users WHERE name=?", name)
+	res, err := e.db.Query("SELECT COUNT(*) FROM users WHERE name=?", name)
 	if err != nil {
 		return AuthResponse{
 			Success: false,
@@ -164,7 +164,7 @@ func (e *Elemental) NewAnonymousUser() AuthResponse {
 		}
 
 		// Check if name taken
-		res, err := e.db.Query("SELECT COUNT(1) FROM users WHERE name=? LIMIT 1", name)
+		res, err := e.db.Query("SELECT COUNT(*) FROM users WHERE name=? LIMIT 1", name)
 		if err != nil {
 			return AuthResponse{
 				Success: false,

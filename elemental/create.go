@@ -64,7 +64,7 @@ func (e *Elemental) CreateSuggestion(mark string, pioneer string, elem1 string, 
 		return false, err.Error()
 	}
 
-	res, err := e.db.Query("SELECT COUNT(1) FROM elements WHERE name=?", existing.Name)
+	res, err := e.db.Query("SELECT COUNT(*) FROM elements WHERE name=?", existing.Name)
 	if err != nil {
 		return false, err.Error()
 	}

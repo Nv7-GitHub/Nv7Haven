@@ -23,7 +23,7 @@ func (s *Single) upload(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	res := s.db.QueryRow("SELECT COUNT(1) FROM single WHERE uid=? AND id=? LIMIT 1", dat.UID, dat.ID)
+	res := s.db.QueryRow("SELECT COUNT(*) FROM single WHERE uid=? AND id=? LIMIT 1", dat.UID, dat.ID)
 	var num int
 	err = res.Scan(&num)
 	if err != nil {

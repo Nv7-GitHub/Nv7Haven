@@ -1,8 +1,10 @@
 package polls
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -31,6 +33,17 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 		return errors.New("already has result")
 	}
 
+	// Check if name already exists
+	var nameid int
+	err = e.db.QueryRow(`SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2`, strings.ToLower(p.Data["result"].(string)), p.Guild).Scan(&nameid)
+	if err != nil && err != sql.ErrNoRows {
+		return err
+	}
+	if err == nil {
+		exists = true
+		p.Data["result"] = float64(nameid)
+	}
+
 	// Make tx
 	var tx *sqlx.Tx
 	tx, err = e.db.Beginx()
@@ -39,10 +52,9 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 	}
 	defer func() {
 		if err != nil {
-			tx.Rollback()
+			err = tx.Rollback()
 			return
 		}
-		err = tx.Commit()
 	}()
 
 	// Create elem if not exists
@@ -51,7 +63,7 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 	var name string
 	if !exists {
 		// Get id
-		err = tx.QueryRow(`SELECT COUNT(*) FROM elements WHERE guild=$1`, p.Guild).Scan(&id)
+		err = tx.QueryRow(`SELECT MAX(id) FROM elements WHERE guild=$1`, p.Guild).Scan(&id)
 		if err != nil {
 			return
 		}
@@ -102,15 +114,15 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 	} else {
 		id = int(p.Data["result"].(float64))
 
-		// Get name
-		var currtreesize int
-		err = tx.QueryRow(`SELECT name, treesize FROM elements WHERE id=$1 AND guild=$2`, id, p.Guild).Scan(&name, &currtreesize)
+		// Combo ID
+		err = tx.QueryRow(`SELECT COUNT(*) FROM combos WHERE guild=$1`, p.Guild).Scan(&combid)
 		if err != nil {
 			return
 		}
 
-		// Combo ID
-		err = tx.QueryRow(`SELECT COUNT(*) FROM combos WHERE guild=$1`, p.Guild).Scan(&combid)
+		// Get name
+		var currtreesize int
+		err = tx.QueryRow(`SELECT name, treesize FROM elements WHERE id=$1 AND guild=$2`, id, p.Guild).Scan(&name, &currtreesize)
 		if err != nil {
 			return
 		}
@@ -136,6 +148,12 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 	_, err = tx.Exec(`INSERT INTO combos (guild, els, result, createdon) VALUES ($1, $2, $3, $4)`, p.Guild, pq.Array(els), id, time.Now())
 	if err != nil {
 		return
+	}
+
+	// Commit
+	err = tx.Commit()
+	if err != nil {
+		return err
 	}
 
 	// Add to creator's inv if not already in it

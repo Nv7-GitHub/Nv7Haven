@@ -39,7 +39,7 @@ func (n *Names) setNameCmd(i *discordgo.InteractionCreate) {
 func (n *Names) getNameCmd(user string, i *discordgo.InteractionCreate) {
 	// Get count
 	var cnt int
-	err := n.db.QueryRow("SELECT COUNT(1) FROM names_discord WHERE guild=? AND user=?", i.GuildID, user).Scan(&cnt)
+	err := n.db.QueryRow("SELECT COUNT(*) FROM names_discord WHERE guild=? AND user=?", i.GuildID, user).Scan(&cnt)
 	if err != nil {
 		n.Err(err.Error(), i.Interaction)
 		return

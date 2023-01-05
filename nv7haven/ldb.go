@@ -11,7 +11,7 @@ const pageLength = 50
 
 var ldbQueryMap = map[string]string{
 	"player": "SELECT name, JSON_LENGTH(found) AS found FROM `users` ORDER BY JSON_LENGTH(found) %s LIMIT ? OFFSET ?",
-	"color":  `SELECT a.col AS col, (SELECT COUNT(1) AS cnt FROM elements WHERE SUBSTRING_INDEX(color, "_", 1)=a.col) FROM (SELECT DISTINCT SUBSTRING_INDEX(elements.color, "_", 1) AS col FROM elements) a ORDER BY (SELECT COUNT(1) FROM elements WHERE SUBSTRING_INDEX(color, "_", 1)=a.col) %s LIMIT ? OFFSET ? `,
+	"color":  `SELECT a.col AS col, (SELECT COUNT(*) AS cnt FROM elements WHERE SUBSTRING_INDEX(color, "_", 1)=a.col) FROM (SELECT DISTINCT SUBSTRING_INDEX(elements.color, "_", 1) AS col FROM elements) a ORDER BY (SELECT COUNT(*) FROM elements WHERE SUBSTRING_INDEX(color, "_", 1)=a.col) %s LIMIT ? OFFSET ? `,
 }
 
 type ldbReturn struct {

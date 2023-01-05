@@ -195,7 +195,7 @@ func (b *Bot) currencyBasics(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if b.startsWith(m, "ldb") {
-		count := b.db.QueryRow("SELECT COUNT(1) FROM currency WHERE guilds LIKE ?", "%"+m.GuildID+"%")
+		count := b.db.QueryRow("SELECT COUNT(*) FROM currency WHERE guilds LIKE ?", "%"+m.GuildID+"%")
 		var num int
 		err := count.Scan(&num)
 		if b.handle(err, m) {

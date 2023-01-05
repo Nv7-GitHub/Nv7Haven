@@ -22,7 +22,7 @@ type Anarchy struct {
 
 func (a *Anarchy) init() {
 	var cnt int
-	err := a.db.QueryRow(`SELECT COUNT(1) FROM anarchy_elements`).Scan(&cnt)
+	err := a.db.QueryRow(`SELECT COUNT(*) FROM anarchy_elements`).Scan(&cnt)
 	if err != nil {
 		panic(err)
 	}

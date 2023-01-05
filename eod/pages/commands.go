@@ -16,7 +16,7 @@ func (p *Pages) CommandLbHandler(c sevcord.Ctx, params string) {
 
 	// Get count
 	var cnt int
-	err := p.db.QueryRow(`SELECT COUNT(1) FROM command_stats WHERE guild=$1`, c.Guild()).Scan(&cnt)
+	err := p.db.QueryRow(`SELECT COUNT(*) FROM command_stats WHERE guild=$1`, c.Guild()).Scan(&cnt)
 	if err != nil {
 		p.base.Error(c, err)
 		return

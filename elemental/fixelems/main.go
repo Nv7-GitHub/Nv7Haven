@@ -68,11 +68,11 @@ func main() {
 
 		wg.Add(1)
 		go func(elem Element) {
-			uses := db.QueryRow("SELECT COUNT(1) FROM elem_combos WHERE elem1=? OR elem2=?", elem.Name, elem.Name)
+			uses := db.QueryRow("SELECT COUNT(*) FROM elem_combos WHERE elem1=? OR elem2=?", elem.Name, elem.Name)
 			err = uses.Scan(&elem.Uses)
 			handle(err)
 
-			foundby := db.QueryRow("SELECT COUNT(1) FROM users WHERE found LIKE ?", `%`+elem.Name+`%`)
+			foundby := db.QueryRow("SELECT COUNT(*) FROM users WHERE found LIKE ?", `%`+elem.Name+`%`)
 			err = foundby.Scan(&elem.FoundBy)
 			handle(err)
 

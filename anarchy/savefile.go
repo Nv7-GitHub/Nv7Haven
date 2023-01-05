@@ -29,7 +29,7 @@ func (a *Anarchy) GetInv(_ context.Context, uid *wrapperspb.StringValue) (*pb.An
 func (a *Anarchy) AddFound(ctx context.Context, req *pb.AnarchyUserRequest) (*emptypb.Empty, error) {
 	var cnt int
 	var found *pb.AnarchyInventory
-	err := a.db.QueryRow("SELECT COUNT(1) FROM anarchy_inv WHERE uid=?", req.Uid).Scan(&cnt)
+	err := a.db.QueryRow("SELECT COUNT(*) FROM anarchy_inv WHERE uid=?", req.Uid).Scan(&cnt)
 	if err != nil {
 		return &emptypb.Empty{}, err
 	}

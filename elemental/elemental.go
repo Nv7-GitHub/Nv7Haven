@@ -25,7 +25,7 @@ type Elemental struct {
 
 func (e *Elemental) init() {
 	var cnt int
-	err := e.db.QueryRow(`SELECT COUNT(1) FROM elements`).Scan(&cnt)
+	err := e.db.QueryRow(`SELECT COUNT(*) FROM elements`).Scan(&cnt)
 	if err != nil {
 		panic(err)
 	}

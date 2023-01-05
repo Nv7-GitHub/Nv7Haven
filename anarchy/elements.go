@@ -24,7 +24,7 @@ func (a *Anarchy) GetElem(_ context.Context, name *wrapperspb.StringValue) (*pb.
 
 func (a *Anarchy) GetCombination(_ context.Context, combo *pb.AnarchyCombination) (*pb.AnarchyCombinationResult, error) {
 	var cnt int
-	err := a.db.QueryRow("SELECT COUNT(1) FROM anarchy_combos WHERE (elem1=? AND elem2=?) OR (elem1=? AND elem2=?)", combo.Elem1, combo.Elem2, combo.Elem2, combo.Elem1).Scan(&cnt)
+	err := a.db.QueryRow("SELECT COUNT(*) FROM anarchy_combos WHERE (elem1=? AND elem2=?) OR (elem1=? AND elem2=?)", combo.Elem1, combo.Elem2, combo.Elem2, combo.Elem1).Scan(&cnt)
 	if err != nil {
 		return &pb.AnarchyCombinationResult{}, err
 	}

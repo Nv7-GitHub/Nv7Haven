@@ -14,7 +14,7 @@ import (
 var lock = sync.RWMutex{}
 
 func (b *Bot) exists(m *discordgo.MessageCreate, table string, where string, args ...any) (bool, bool) {
-	res, err := b.db.Query("SELECT COUNT(1) FROM "+table+" WHERE "+where+" LIMIT 1", args...)
+	res, err := b.db.Query("SELECT COUNT(*) FROM "+table+" WHERE "+where+" LIMIT 1", args...)
 	if b.handle(err, m) {
 		return false, false
 	}
@@ -30,7 +30,7 @@ func (b *Bot) exists(m *discordgo.MessageCreate, table string, where string, arg
 }
 
 func (b *Bot) exts(rsp rsp, table string, where string, args ...any) (bool, bool) {
-	res, err := b.db.Query("SELECT COUNT(1) FROM "+table+" WHERE "+where+" LIMIT 1", args...)
+	res, err := b.db.Query("SELECT COUNT(*) FROM "+table+" WHERE "+where+" LIMIT 1", args...)
 	if rsp.Error(err) {
 		return false, false
 	}
