@@ -50,6 +50,7 @@ LIMIT 1`
 func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 	parts := strings.Split(params, "|")
 	if c.Author().User.ID != parts[0] {
+		c.Acknowledge()
 		c.Respond(sevcord.NewMessage("You are not authorized! " + types.RedCircle))
 		return
 	}
