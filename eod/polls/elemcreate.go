@@ -34,14 +34,16 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 	}
 
 	// Check if name already exists
-	var nameid int
-	err = e.db.QueryRow(`SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2`, strings.ToLower(p.Data["result"].(string)), p.Guild).Scan(&nameid)
-	if err != nil && err != sql.ErrNoRows {
-		return err
-	}
-	if err == nil {
-		exists = true
-		p.Data["result"] = float64(nameid)
+	if !exists {
+		var nameid int
+		err = e.db.QueryRow(`SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2`, strings.ToLower(p.Data["result"].(string)), p.Guild).Scan(&nameid)
+		if err != nil && err != sql.ErrNoRows {
+			return err
+		}
+		if err == nil {
+			exists = true
+			p.Data["result"] = float64(nameid)
+		}
 	}
 
 	// Make tx
