@@ -61,9 +61,9 @@ func (e *Elements) hintHandler(c sevcord.Ctx, params string) {
 		// Pick random element
 		var err error
 		if query == "" { // Not from a query
-			err = e.db.QueryRow(`SELECT result FROM combos WHERE 
+			err = e.db.QueryRow(`SELECT id FROM elements WHERE 
 		guild=$1 AND 
-		NOT (result=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2))
+		NOT (id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2))
 		ORDER BY RANDOM()
 		LIMIT 1`, c.Guild(), c.Author().User.ID).Scan(&el)
 		} else { // From a query
@@ -73,9 +73,9 @@ func (e *Elements) hintHandler(c sevcord.Ctx, params string) {
 			if !ok {
 				return
 			}
-			err = e.db.QueryRow(`SELECT result FROM combos WHERE 
+			err = e.db.QueryRow(`SELECT id FROM elements WHERE 
 		guild=$1 AND 
-		NOT (result=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2)) AND
+		NOT (id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2)) AND
 		result=ANY($3)
 		ORDER BY RANDOM()
 		LIMIT 1`, c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
@@ -170,11 +170,10 @@ func (e *Elements) hintHandler(c sevcord.Ctx, params string) {
 		Description(description.String()).
 		Color(3447003). // Blue
 		Footer(fmt.Sprintf("%s Hints • You%s have this", humanize.Comma(int64(itemCnt)), dontHave), "")
-	err = c.Respond(sevcord.NewMessage("").
+	c.Respond(sevcord.NewMessage("").
 		AddEmbed(emb).
 		AddComponentRow(sevcord.NewButton("New Hint", sevcord.ButtonStylePrimary, "hint", params).
 			WithEmoji(sevcord.ComponentEmojiCustom("hint", "932833472396025908", false))))
-	fmt.Println(err)
 }
 
 func (e *Elements) Hint(c sevcord.Ctx, opts []any) {
