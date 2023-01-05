@@ -40,6 +40,13 @@ func Obscure(val string) string {
 
 // Format: user|elementid|query
 
+const hintQuery = `SELECT id FROM elements WHERE 
+guild=$1 AND 
+NOT (id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2))
+%s
+%s
+LIMIT 1`
+
 func (e *Elements) hintHandler(c sevcord.Ctx, params string) {
 	parts := strings.Split(params, "|")
 	if c.Author().User.ID != parts[0] {
@@ -61,11 +68,10 @@ func (e *Elements) hintHandler(c sevcord.Ctx, params string) {
 		// Pick random element
 		var err error
 		if query == "" { // Not from a query
-			err = e.db.QueryRow(`SELECT id FROM elements WHERE 
-		guild=$1 AND 
-		NOT (id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2))
-		ORDER BY RANDOM()
-		LIMIT 1`, c.Guild(), c.Author().User.ID).Scan(&el)
+			err = e.db.QueryRow(fmt.Sprintf(hintQuery, "", "AND RANDOM() < 0.01"), c.Guild(), c.Author().User.ID).Scan(&el)
+			if err == sql.ErrNoRows {
+				err = e.db.QueryRow(fmt.Sprintf(hintQuery, "", "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID).Scan(&el)
+			}
 		} else { // From a query
 			var qu *types.Query
 			var ok bool
@@ -73,12 +79,10 @@ func (e *Elements) hintHandler(c sevcord.Ctx, params string) {
 			if !ok {
 				return
 			}
-			err = e.db.QueryRow(`SELECT id FROM elements WHERE 
-		guild=$1 AND 
-		NOT (id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2)) AND
-		result=ANY($3)
-		ORDER BY RANDOM()
-		LIMIT 1`, c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
+			err = e.db.QueryRow(fmt.Sprintf(hintQuery, "AND id=ANY($3)", "AND RANDOM() < 0.01"), c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
+			if err == sql.ErrNoRows {
+				err = e.db.QueryRow(fmt.Sprintf(hintQuery, "AND id=ANY($3)", "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
+			}
 		}
 
 		// Get random element that the user can make
