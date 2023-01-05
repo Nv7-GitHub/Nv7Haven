@@ -47,7 +47,7 @@ NOT (id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2))
 %s
 LIMIT 1`
 
-func (e *Elements) hintHandler(c sevcord.Ctx, params string) {
+func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 	parts := strings.Split(params, "|")
 	if c.Author().User.ID != parts[0] {
 		c.Respond(sevcord.NewMessage("You are not authorized! " + types.RedCircle))
@@ -190,5 +190,5 @@ func (e *Elements) Hint(c sevcord.Ctx, opts []any) {
 	if opts[1] != nil {
 		query = opts[1].(string)
 	}
-	e.hintHandler(c, fmt.Sprintf("%s|%d|%s", c.Author().User.ID, el, query))
+	e.HintHandler(c, fmt.Sprintf("%s|%d|%s", c.Author().User.ID, el, query))
 }

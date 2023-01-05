@@ -127,4 +127,5 @@ func (b *Bot) Init() {
 		sevcord.NewOption("query", "A query to select the random element to be made from!", sevcord.OptionKindString, false).
 			AutoComplete(b.queries.Autocomplete),
 	))
+	b.s.AddButtonHandler("hint", b.elements.HintHandler)
 }
