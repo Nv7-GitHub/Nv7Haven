@@ -28,7 +28,7 @@ func (t *Translations) Init() {
 		"Set the personal language of the bot!",
 		t.SetTranslate,
 		sevcord.NewOption("language", "The language to translate to!", sevcord.OptionKindString, true).
-			AutoComplete(t.AutoComplete),
+			Choices(t.AutoComplete),
 	))
 }
 
