@@ -2,6 +2,7 @@ package types
 
 import (
 	"text/template"
+        "sync"
 )
 
 type translations struct {
@@ -24,7 +25,7 @@ type Variables struct {
 	var3 interface{}
 }
 
-var LanguageTable = map[string]Language{
+var LanguageTable = sync.RWMutex{map[string]Language{
 	{
 		name: "English",
 		translations: translations{
@@ -36,4 +37,4 @@ var LanguageTable = map[string]Language{
 			successUpdateChannel: "Successfully updated play channels!",
 		},
 	},
-}
+},}
