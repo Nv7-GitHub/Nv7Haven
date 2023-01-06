@@ -3,6 +3,8 @@ package translations
 import (
 	"github.com/Nv7-Github/sevcord/v2"
         "github.com/Nv7-Github/Nv7Haven/eod/types"
+        "bytes"
+	"fmt"
 )
 
 func (t *Translations) SetTranslate(c sevcord.Ctx, opts []any) {
