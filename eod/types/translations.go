@@ -26,7 +26,7 @@ type Variables struct {
 }
 
 var LanguageTable = map[string]any{
-        sync.RWMutex
+        sync.RWMutex,
 	Language{
 		name: "English",
 		translations: translations{
