@@ -75,14 +75,14 @@ func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 	removed := make(map[int]struct{}, 0) // Removed indices
 	for i, v := range dontExist {
 		// Check if number element
-		if strings.HasPrefix(v, "#") && len(v) > 1 {
-			id, err := strconv.Atoi(v[1:])
+		if strings.HasPrefix(v, "**#") && len(v) > 5 {
+			id, err := strconv.Atoi(strings.TrimSuffix(v[3:], "**"))
 			if err != nil {
 				continue
 			}
 			// Check if ok
 			var name string
-			err = e.db.QueryRow(`SELECT id FROM elements WHERE guild=$1 AND id=$2`, c.Guild(), id).Scan(&name)
+			err = e.db.QueryRow(`SELECT name FROM elements WHERE guild=$1 AND id=$2`, c.Guild(), id).Scan(&name)
 			if err != nil {
 				if err == sql.ErrNoRows {
 					continue
@@ -94,17 +94,21 @@ func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 			var cont bool
 			err = e.db.QueryRow(`SELECT id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) FROM elements WHERE guild=$1 AND id=$3`, c.Guild(), c.Author().User.ID, id).Scan(&cont)
 			if err != nil {
-				e.base.Error(c, err)
-				return
+				continue
 			}
+
 			// Update
 			res = append(res, comboRes{
 				ID:   id,
 				Name: name,
 				Cont: cont,
 			})
-			// Delete
 			removed[i] = struct{}{}
+			for j, val := range lowered {
+				if "**"+val+"**" == v {
+					lowered[j] = strings.ToLower(name)
+				}
+			}
 		}
 	}
 	if len(removed) > 0 {
