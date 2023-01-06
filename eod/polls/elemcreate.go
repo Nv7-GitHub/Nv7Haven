@@ -24,12 +24,12 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 	_, exists := p.Data["result"].(float64)
 
 	// Check if combo has result
-	var cnt int
-	err = e.db.QueryRow(`SELECT COUNT(*) FROM combos WHERE els=$1 AND guild=$2`, pq.Array(els), p.Guild).Scan(&cnt)
+	var cmbexists bool
+	err = e.db.QueryRow(`SELECT EXISTS(SELECT 1 FROM combos WHERE els=$1 AND guild=$2)`, pq.Array(els), p.Guild).Scan(&cmbexists)
 	if err != nil {
 		return err
 	}
-	if cnt == 1 {
+	if cmbexists {
 		return errors.New("already has result")
 	}
 
@@ -156,7 +156,7 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 	err = tx.Commit()
 	tx = nil
 	if err != nil {
-		return err
+		return
 	}
 
 	// Add to creator's inv if not already in it
