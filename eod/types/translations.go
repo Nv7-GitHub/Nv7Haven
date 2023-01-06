@@ -24,7 +24,7 @@ type Variables struct {
 	var3 interface{}
 }
 
-var LanguageTable = []Language{
+var LanguageTable = map[string]Language{
 	{
 		name: "English",
 		translations: translations{
