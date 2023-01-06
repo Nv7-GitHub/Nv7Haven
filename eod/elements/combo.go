@@ -24,6 +24,12 @@ func makeListResp(start, join, end string, vals []string) string {
 	return ""
 }
 
+type comboRes struct {
+	ID   int    `db:"id"`
+	Name string `db:"name"`
+	Cont bool   `db:"cont"`
+}
+
 func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 	c.Acknowledge()
 	e.base.IncrementCommandStat(c, "combine")
@@ -45,40 +51,11 @@ func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 	}
 
 	// Get status of everything (exists, whether you have it, etc.)
-	var res []struct {
-		ID   int    `db:"id"`
-		Name string `db:"name"`
-		Cont bool   `db:"cont"`
-	}
+	var res []comboRes
 	err := e.db.Select(&res, `SELECT id, name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) cont FROM elements WHERE guild=$1 AND LOWER(name)=ANY($3)`, c.Guild(), c.Author().User.ID, pq.Array(lowered))
 	if err != nil {
 		e.base.Error(c, err)
 		return
-	}
-	for i, val := range res {
-		if !val.Cont {
-			// Check if number element
-			if strings.HasPrefix(lowered[i], "#") && len(lowered[i]) > 1 {
-				id, err := strconv.Atoi(lowered[i][1:])
-				if err != nil {
-					continue
-				}
-				// Check if ok
-				var name string
-				err = e.db.QueryRow(`SELECT id FROM elements WHERE guild=$1 AND id=$2`, c.Guild(), id).Scan(&name)
-				if err != nil {
-					if err == sql.ErrNoRows {
-						continue
-					}
-					e.base.Error(c, err)
-					return
-				}
-				// Update
-				res[i].ID = id
-				res[i].Cont = true
-				res[i].Name = name
-			}
-		}
 	}
 
 	// See what elements don't exist
@@ -93,6 +70,53 @@ func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 			dontExist = append(dontExist, "**"+v+"**")
 		}
 	}
+
+	// Combine with IDs
+	removed := make(map[int]struct{}, 0) // Removed indices
+	for i, v := range dontExist {
+		// Check if number element
+		if strings.HasPrefix(v, "#") && len(v) > 1 {
+			id, err := strconv.Atoi(v[1:])
+			if err != nil {
+				continue
+			}
+			// Check if ok
+			var name string
+			err = e.db.QueryRow(`SELECT id FROM elements WHERE guild=$1 AND id=$2`, c.Guild(), id).Scan(&name)
+			if err != nil {
+				if err == sql.ErrNoRows {
+					continue
+				}
+				e.base.Error(c, err)
+				return
+			}
+			// Check if have
+			var cont bool
+			err = e.db.QueryRow(`SELECT id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) FROM elements WHERE guild=$1 AND id=$3`, c.Guild(), c.Author().User.ID, id).Scan(&cont)
+			if err != nil {
+				e.base.Error(c, err)
+				return
+			}
+			// Update
+			res = append(res, comboRes{
+				ID:   id,
+				Name: name,
+				Cont: cont,
+			})
+			// Delete
+			removed[i] = struct{}{}
+		}
+	}
+	if len(removed) > 0 {
+		oldDontExist := dontExist
+		dontExist = make([]string, 0, len(oldDontExist)-len(removed))
+		for i, v := range oldDontExist {
+			if _, exists := removed[i]; !exists {
+				dontExist = append(dontExist, v)
+			}
+		}
+	}
+
 	if len(dontExist) == 1 {
 		c.Respond(sevcord.NewMessage(fmt.Sprintf("Element %s doesn't exist! %s", dontExist[0], types.RedCircle)))
 		return

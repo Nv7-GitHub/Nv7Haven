@@ -26,6 +26,7 @@ require (
 	github.com/pocketbase/dbx v1.6.0
 	github.com/pocketbase/pocketbase v0.7.9
 	golang.org/x/crypto v0.4.0
+	golang.org/x/exp v0.0.0-20230105202349-8879d0199aa3
 	google.golang.org/grpc v1.49.0
 	google.golang.org/protobuf v1.28.1
 )
@@ -85,11 +86,11 @@ require (
 	go.opencensus.io v0.23.0 // indirect
 	gocloud.dev v0.27.0 // indirect
 	golang.org/x/image v0.0.0-20220902085622-e7cb96979f69 // indirect
-	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
+	golang.org/x/mod v0.6.0 // indirect
 	golang.org/x/net v0.3.0 // indirect
 	golang.org/x/text v0.5.0 // indirect
 	golang.org/x/time v0.0.0-20220922220347-f3bd1da661af // indirect
-	golang.org/x/tools v0.1.12 // indirect
+	golang.org/x/tools v0.2.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/api v0.98.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
@@ -117,7 +118,6 @@ require (
 	github.com/rs/cors v1.8.2 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
-	golang.org/x/exp v0.0.0-20210220032938-85be41e4509f // indirect
 	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1 // indirect
 	golang.org/x/sys v0.3.0 // indirect
 	golang.org/x/term v0.3.0 // indirect
