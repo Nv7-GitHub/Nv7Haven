@@ -28,12 +28,12 @@ var LanguageTable = []Language{
 	{
 		name: "English",
 		translations: translations{
-			`A name may not contain '{{.var1}}'!`,
-			"Name cannot be empty!",
-			`Successfully updated {{.var1}}!`,
-			"**PLAY CHANNELS HAVE BEEN RESET**\nUpdate them below!",
-			"You are not authorized to use this!",
-			"Successfully updated play channels!",
+			nameMayNotContain:    `A name may not contain '{{.var1}}'!`,
+			nameCannotBeEmpty:    "Name cannot be empty!",
+			successfullyUpdated:  `Successfully updated {{.var1}}!`,
+			playChannelReset:     "**PLAY CHANNELS HAVE BEEN RESET**\nUpdate them below!",
+			youAreNotAuthorized:  "You are not authorized to use this!",
+			successUpdateChannel: "Successfully updated play channels!",
 		},
 	},
 }
