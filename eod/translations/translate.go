@@ -4,7 +4,7 @@ import (
 	"github.com/Nv7-Github/sevcord/v2"
         "github.com/Nv7-Github/Nv7Haven/eod/types"
         "bytes"
-	"fmt"
+	"log"
 )
 
 func (t *Translations) SetTranslate(c sevcord.Ctx, opts []any) {
@@ -27,7 +27,7 @@ func Translate(phrase string, var1 interface{}, var2 interface{}, var3 interface
 	t := template.Must(template.New("phrase").Parse(index))
 	var tpl bytes.Buffer
 	if err := t.Execute(&tpl, Variables{var1, var2, var3}); err != nil {
-		fmt.Println(err)
+		log.Println("Translation Error:", err)
 	}
 
 	return tpl.String()
