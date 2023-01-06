@@ -40,34 +40,3 @@ var LanguageTable = []Language{
 		},
 	},
 }
-
-func Translate(phrase string, var1 interface{}, var2 interface{}, var3 interface{}) string {
-	lang := `SELECT FROM config WHERE "user"=$2`
-	for i := range LanguageTable {
-		if LanguageTable[i].name == lang {
-			phrase = getAttr(&LanguageTable[i].translations, phrase).String()
-			break
-		}
-	}
-
-	t := template.Must(template.New("phrase").Parse(phrase))
-	var tpl bytes.Buffer
-	if err := t.Execute(&tpl, Variables{var1, var2, var3}); err != nil {
-		fmt.Println(err)
-	}
-
-	return tpl.String()
-}
-
-func getAttr(obj interface{}, fieldName string) reflect.Value {
-	pointToStruct := reflect.ValueOf(obj) // addressable
-	curStruct := pointToStruct.Elem()
-	if curStruct.Kind() != reflect.Struct {
-		panic("not struct")
-	}
-	curField := curStruct.FieldByName(fieldName) // type: reflect.Value
-	if !curField.IsValid() {
-		panic("not found:" + fieldName)
-	}
-	return curField
-}
