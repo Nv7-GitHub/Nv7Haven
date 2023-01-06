@@ -25,8 +25,9 @@ type Variables struct {
 	var3 interface{}
 }
 
-var LanguageTable = sync.RWMutex{map[string]Language{
-	{
+var LanguageTable = map[string]any{
+        sync.RWMutex
+	Language{
 		name: "English",
 		translations: translations{
 			nameMayNotContain:    `A name may not contain '{{.var1}}'!`,
