@@ -22,7 +22,7 @@ func (t *Translations) SetTranslate(c sevcord.Ctx, opts []any) {
 
 func Translate(phrase string, var1 interface{}, var2 interface{}, var3 interface{}) string {
 	lang := `SELECT FROM config WHERE "user"=$2`
-        LanguageTable.RLock()
+        LanguageTable.EnglishLock.RLock()
 	index := LanguageTable[lang][phrase]
 
 	t := template.Must(template.New("phrase").Parse(index))
@@ -30,7 +30,7 @@ func Translate(phrase string, var1 interface{}, var2 interface{}, var3 interface
 	if err := t.Execute(&tpl, Variables{var1, var2, var3}); err != nil {
 		log.Println("Translation Error:", err)
 	}
-        LanguageTable.RUnlock()
+        LanguageTable.EnglishLock.RUnlock()
 
 	return tpl.String()
 }
