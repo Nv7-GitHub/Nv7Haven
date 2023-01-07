@@ -35,4 +35,5 @@ func InitEod(db *sqlx.DB, token string) {
 	}
 	b.Init()
 	b.s.Listen()
+	b.base.SaveCommandStats("", nil)
 }
