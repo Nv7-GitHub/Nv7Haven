@@ -51,6 +51,9 @@ type Config struct {
 type ServerMem struct {
 	sync.RWMutex
 	CombCache map[string]CombCache // map[userid]CombCache
+
+	CommandStatsTODO    map[string]int
+	CommandStatsTODOCnt int
 }
 
 // Polls

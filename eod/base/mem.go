@@ -1,6 +1,8 @@
 package base
 
 import (
+	"log"
+
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 )
@@ -40,4 +42,31 @@ func (b *Base) GetCombCache(c sevcord.Ctx) (types.CombCache, types.Resp) {
 		return v, types.Ok()
 	}
 	return types.CombCache{}, types.Fail("You haven't combined anything!")
+}
+
+const commandStatUpdateTrigger = 1000
+
+func (b *Base) IncrementCommandStat(c sevcord.Ctx, name string) {
+	// Update command stats TODO
+	mem := b.getMem(c)
+	mem.Lock()
+	mem.CommandStatsTODO[name]++
+	mem.CommandStatsTODOCnt++
+	mem.Unlock()
+
+	if mem.CommandStatsTODOCnt >= commandStatUpdateTrigger {
+		mem.Lock()
+		mem.CommandStatsTODOCnt = 0
+		mem.CommandStatsTODO = make(map[string]int)
+		mem.Unlock()
+
+		mem.RLock()
+		for k, v := range mem.CommandStatsTODO {
+			_, err := b.db.Exec("INSERT INTO command_stats (guild, command, count) VALUES ($1, $2, $3) ON CONFLICT (guild, command) DO UPDATE SET count = command_stats.count + $3", c.Guild(), k, v)
+			if err != nil {
+				log.Println("command stats update error", err)
+			}
+		}
+		mem.RUnlock()
+	}
 }
