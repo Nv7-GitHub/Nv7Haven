@@ -1,6 +1,10 @@
 package eod
 
 import (
+	"fmt"
+	"os"
+	"os/signal"
+
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/categories"
 	"github.com/Nv7-Github/Nv7Haven/eod/elements"
@@ -34,6 +38,13 @@ func InitEod(db *sqlx.DB, token string) {
 		db: db,
 	}
 	b.Init()
+
+	go func() {
+		stop := make(chan os.Signal, 1)
+		signal.Notify(stop, os.Interrupt)
+		<-stop
+		fmt.Println("Saving command stats...")
+		b.base.SaveCommandStats("", nil)
+	}()
 	b.s.Listen()
-	b.base.SaveCommandStats("", nil)
 }

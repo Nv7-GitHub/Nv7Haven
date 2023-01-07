@@ -16,7 +16,8 @@ func (b *Base) getMem(c sevcord.Ctx) *types.ServerMem {
 	}
 
 	v = &types.ServerMem{
-		CombCache: make(map[string]types.CombCache),
+		CombCache:        make(map[string]types.CombCache),
+		CommandStatsTODO: make(map[string]int),
 	}
 
 	b.lock.Lock()
@@ -54,13 +55,18 @@ func (b *Base) SaveCommandStats(guild string, mem *types.ServerMem) {
 		return
 	}
 
+	todo := mem.CommandStatsTODO
+
 	mem.Lock()
 	mem.CommandStatsTODOCnt = 0
 	mem.CommandStatsTODO = make(map[string]int)
 	mem.Unlock()
 
 	mem.RLock()
-	for k, v := range mem.CommandStatsTODO {
+	for k, v := range todo {
+		if v == 0 {
+			continue
+		}
 		_, err := b.db.Exec("INSERT INTO command_stats (guild, command, count) VALUES ($1, $2, $3) ON CONFLICT (guild, command) DO UPDATE SET count = command_stats.count + $3", guild, k, v)
 		if err != nil {
 			log.Println("command stats write error", err)
