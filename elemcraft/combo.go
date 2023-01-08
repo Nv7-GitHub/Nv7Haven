@@ -122,9 +122,9 @@ func (e *ElemCraft) Combo(c echo.Context) error {
 	comb = StripRecipe(comb)
 
 	// Check if in inv
-	u := c.Get(apis.ContextUserKey).(*models.User)
+	u := c.Get(apis.ContextAuthRecordKey).(*models.Record)
 	var inv []int
-	err = json.Unmarshal([]byte(u.Profile.GetDataValue("inv").(types.JsonRaw)), &inv)
+	err = json.Unmarshal([]byte(u.Get("inv").(types.JsonRaw)), &inv)
 	if err != nil {
 		return err
 	}
@@ -144,21 +144,17 @@ func (e *ElemCraft) Combo(c echo.Context) error {
 	}
 
 	// Check
-	r, err := e.app.Dao().FindCollectionByNameOrId("recipes")
-	if err != nil {
-		return err
-	}
-	res, err := e.app.Dao().FindFirstRecordByData(r, "recipe", RecipeToString(comb))
+	res, err := e.app.Dao().FindFirstRecordByData("recipes", "recipe", RecipeToString(comb))
 	if err != nil {
 		return c.JSON(200, nil) // Not found
 	}
 
 	// Get result
 	e.app.Dao().ExpandRecord(res, []string{"result"}, func(c *models.Collection, ids []string) ([]*models.Record, error) {
-		return e.app.Dao().FindRecordsByIds(c, ids, nil)
+		return e.app.Dao().FindRecordsByIds(c.Id, ids, nil)
 	})
-	el := res.GetExpand()["result"].(*models.Record)
-	id := el.GetIntDataValue("index") - 1
+	el := res.Expand()["result"].(*models.Record)
+	id := el.GetInt("index") - 1
 
 	// Check if in inv
 	if _, ok := invMap[id]; !ok { // Not in inv, add
@@ -167,8 +163,8 @@ func (e *ElemCraft) Combo(c echo.Context) error {
 		if err != nil {
 			return err
 		}
-		u.Profile.SetDataValue("inv", types.JsonRaw(invRaw))
-		err = e.app.Dao().SaveRecord(u.Profile)
+		u.Set("inv", types.JsonRaw(invRaw))
+		err = e.app.Dao().SaveRecord(u)
 		if err != nil {
 			return err
 		}

@@ -21,7 +21,7 @@ func (e *ElemCraft) Handlers() {
 			Path:    "/api/combine",
 			Handler: e.Combo,
 			Middlewares: []echo.MiddlewareFunc{
-				apis.RequireUserAuth(),
+				apis.RequireRecordAuth("users"),
 			},
 		})
 
@@ -36,7 +36,7 @@ func (e *ElemCraft) Handlers() {
 			Path:    "/api/suggest",
 			Handler: e.Suggest,
 			Middlewares: []echo.MiddlewareFunc{
-				apis.RequireUserAuth(),
+				apis.RequireRecordAuth("users"),
 			},
 		})
 
@@ -62,7 +62,7 @@ func StartElemCraft() {
 	if err != nil {
 		panic(err)
 	}
-	p := pocketbase.NewWithConfig(pocketbase.Config{
+	p := pocketbase.NewWithConfig(&pocketbase.Config{
 		DefaultDataDir: "data/elemcraft",
 	})
 	e := &ElemCraft{app: p}
