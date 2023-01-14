@@ -55,6 +55,7 @@ run/eod/token.txt
 nv7haven/serviceAccount.json
 elemental/serviceAccount.json
 backups/*
+logs/*
 nvmail/*.json
 token.json
 eod/fools.txt

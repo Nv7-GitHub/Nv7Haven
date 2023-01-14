@@ -21,10 +21,12 @@ services:
     environment:
       POSTGRES_PASSWORD: ${PASSWORD}
       POSTGRES_DB: nv7haven
+    command: ["postgres", "-c", "logging_collector=on", "-c", "log_directory=/logs", "-c", "log_filename=postgresql.log", "-c", "log_statement=all"]
     ports:
       - "5432:5432"
     volumes: 
       - pg-data:/var/lib/postgresql/data
+      - ./logs/postgres:/var/log/postgresql
 
   adminer:
     image: adminer
