@@ -37,8 +37,9 @@ services:
       - pg
     depends_on:
       - pg
+    user: postgres:postgres
     environment:
-      - POSTGRES_HOST: pg
+      - POSTGRES_HOST = pg
       - POSTGRES_DB: eod
       - POSTGRES_USER: postgres
       - POSTGRES_PASSWORD: ${PASSWORD}
