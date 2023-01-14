@@ -28,6 +28,21 @@ services:
       - pg-data:/var/lib/postgresql/data
       - ./logs/postgres:/var/log/postgresql
 
+  pgbackup:
+    image: prodrigestivill/postgres-backup-local
+    restart: always
+    volumes:
+      - ./backup:/backups
+    links:
+      - pg
+    depends_on:
+      - pg
+    environment:
+      - POSTGRES_HOST: pg
+      - POSTGRES_DB: eod
+      - POSTGRES_USER: postgres
+      - POSTGRES_PASSWORD: ${PASSWORD}
+
   adminer:
     image: adminer
     restart: unless-stopped
