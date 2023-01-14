@@ -40,9 +40,9 @@ services:
     user: postgres:postgres
     environment:
       - POSTGRES_HOST = pg
-      - POSTGRES_DB: eod
-      - POSTGRES_USER: postgres
-      - POSTGRES_PASSWORD: ${PASSWORD}
+      - POSTGRES_DB = eod
+      - POSTGRES_USER = postgres
+      - POSTGRES_PASSWORD = ${PASSWORD}
 
   adminer:
     image: adminer
