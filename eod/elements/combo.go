@@ -24,6 +24,17 @@ func makeListResp(start, join, end string, vals []string) string {
 	return ""
 }
 
+type comboInvThread struct {
+	Guild   string
+	User    string
+	Waiting chan int
+	Done    chan error
+}
+type comboThreadEntry struct {
+	Guild string
+	User  string
+}
+
 type comboRes struct {
 	ID   int    `db:"id"`
 	Name string `db:"name"`
@@ -191,11 +202,37 @@ func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 		c.Respond(sevcord.NewMessage(fmt.Sprintf("You made **%s**, but already have it. 🔵", name)))
 	} else {
 		// Add to inv
-		_, err = e.db.Exec(`UPDATE inventories SET inv=array_append(inv, $3) WHERE guild=$1 AND "user"=$2`, c.Guild(), c.Author().User.ID, result)
+		e.comboThreadsLock.RLock()
+		thrd, ok := e.comboThreads[comboThreadEntry{Guild: c.Guild(), User: c.Author().User.ID}]
+		e.comboThreadsLock.RUnlock()
+		if !ok {
+			thrd = &comboInvThread{
+				Guild:   c.Guild(),
+				User:    c.Author().User.ID,
+				Waiting: make(chan int),
+				Done:    make(chan error),
+			}
+			e.comboThreadsLock.Lock()
+			e.comboThreads[comboThreadEntry{
+				Guild: c.Guild(),
+				User:  c.Author().User.ID,
+			}] = thrd
+			e.comboThreadsLock.Unlock()
+			go e.invEditThread(thrd)
+		}
+		thrd.Waiting <- result
+		err = <-thrd.Done
 		if err != nil {
 			e.base.Error(c, err)
 			return
 		}
 		c.Respond(sevcord.NewMessage(fmt.Sprintf("You made **%s** 🆕", name)))
+	}
+}
+
+func (e *Elements) invEditThread(thr *comboInvThread) {
+	for v := range thr.Waiting {
+		_, err := e.db.Exec(`UPDATE inventories SET inv=array_append(inv, $3) WHERE guild=$1 AND "user"=$2`, thr.Guild, thr.User, v)
+		thr.Done <- err
 	}
 }

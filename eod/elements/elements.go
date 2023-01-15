@@ -1,6 +1,8 @@
 package elements
 
 import (
+	"sync"
+
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/polls"
 	"github.com/Nv7-Github/sevcord/v2"
@@ -13,6 +15,9 @@ type Elements struct {
 	base  *base.Base
 	polls *polls.Polls
 	s     *sevcord.Sevcord
+
+	comboThreads     map[comboThreadEntry]*comboInvThread
+	comboThreadsLock *sync.RWMutex
 }
 
 func (e *Elements) Init() {
@@ -79,10 +84,12 @@ func (e *Elements) Init() {
 
 func NewElements(s *sevcord.Sevcord, db *sqlx.DB, base *base.Base, polls *polls.Polls) *Elements {
 	e := &Elements{
-		db:    db,
-		base:  base,
-		polls: polls,
-		s:     s,
+		db:               db,
+		base:             base,
+		polls:            polls,
+		s:                s,
+		comboThreadsLock: &sync.RWMutex{},
+		comboThreads:     make(map[comboThreadEntry]*comboInvThread),
 	}
 	e.Init()
 	return e
