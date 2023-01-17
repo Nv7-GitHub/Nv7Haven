@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
@@ -232,7 +233,13 @@ func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 
 func (e *Elements) invEditThread(thr *comboInvThread) {
 	for v := range thr.Waiting {
-		_, err := e.db.Exec(`UPDATE inventories SET inv=array_append(inv, $3) WHERE guild=$1 AND "user"=$2`, thr.Guild, thr.User, v)
+		start := time.Now()
+		var explain []string
+		err := e.db.Select(&explain, `EXPLAIN ANALYZE UPDATE inventories SET inv=array_append(inv, $3) WHERE guild=$1 AND "user"=$2`, thr.Guild, thr.User, v)
+		if time.Since(start) > time.Second*2 {
+			fmt.Println("TIME TAKEN:", time.Since(start))
+			fmt.Println(strings.Join(explain, "\n"))
+		}
 		thr.Done <- err
 	}
 }
