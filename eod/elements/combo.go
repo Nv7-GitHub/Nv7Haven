@@ -6,7 +6,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
@@ -23,17 +22,6 @@ func makeListResp(start, join, end string, vals []string) string {
 		return fmt.Sprintf("%s %s, %s %s%s %s", start, strings.Join(vals[:len(vals)-1], ", "), join, vals[len(vals)-1], end, types.RedCircle)
 	}
 	return ""
-}
-
-type comboInvThread struct {
-	Guild   string
-	User    string
-	Waiting chan int
-	Done    chan error
-}
-type comboThreadEntry struct {
-	Guild string
-	User  string
 }
 
 type comboRes struct {
@@ -203,43 +191,11 @@ func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 		c.Respond(sevcord.NewMessage(fmt.Sprintf("You made **%s**, but already have it. 🔵", name)))
 	} else {
 		// Add to inv
-		e.comboThreadsLock.RLock()
-		thrd, ok := e.comboThreads[comboThreadEntry{Guild: c.Guild(), User: c.Author().User.ID}]
-		e.comboThreadsLock.RUnlock()
-		if !ok {
-			thrd = &comboInvThread{
-				Guild:   c.Guild(),
-				User:    c.Author().User.ID,
-				Waiting: make(chan int),
-				Done:    make(chan error),
-			}
-			e.comboThreadsLock.Lock()
-			e.comboThreads[comboThreadEntry{
-				Guild: c.Guild(),
-				User:  c.Author().User.ID,
-			}] = thrd
-			e.comboThreadsLock.Unlock()
-			go e.invEditThread(thrd)
-		}
-		thrd.Waiting <- result
-		err = <-thrd.Done
+		_, err := e.db.Exec(`UPDATE inventories SET inv=array_append(inv, $3) WHERE guild=$1 AND "user"=$2`, c.Guild(), c.Author().User.ID, result)
 		if err != nil {
 			e.base.Error(c, err)
 			return
 		}
 		c.Respond(sevcord.NewMessage(fmt.Sprintf("You made **%s** 🆕", name)))
-	}
-}
-
-func (e *Elements) invEditThread(thr *comboInvThread) {
-	for v := range thr.Waiting {
-		start := time.Now()
-		var explain []string
-		err := e.db.Select(&explain, `EXPLAIN (ANALYZE, BUFFERS, SETTINGS, VERBOSE) UPDATE inventories SET inv=array_append(inv, $3) WHERE guild=$1 AND "user"=$2`, thr.Guild, thr.User, v)
-		if time.Since(start) > time.Second*2 {
-			fmt.Println("TIME TAKEN:", time.Since(start))
-			fmt.Println(strings.Join(explain, "\n"))
-		}
-		thr.Done <- err
 	}
 }
