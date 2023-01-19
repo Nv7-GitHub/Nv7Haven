@@ -53,6 +53,23 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 		b.pages.Cat(c, []any{any(content), nil})
 
+	case "inv":
+		if !b.base.CheckCtx(c, "inv") {
+			return
+		}
+
+		if strings.HasPrefix(content, "<@") && strings.HasSuffix(content, ">") {
+			b.pages.Inv(c, []any{any(content[2:len(content)-1]), nil})
+		} else {
+			b.pages.Inv(c, []any{any(content), nil})
+		}
+
+	case "lb":
+		if !b.base.CheckCtx(c, "lb") {
+			return
+		}
+		b.pages.Lb(c, []any{nil, nil, nil})
+
 	case "p", "products":
 		if !b.base.CheckCtx(c, "products") {
 			return

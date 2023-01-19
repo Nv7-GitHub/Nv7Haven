@@ -73,7 +73,11 @@ func (p *Pages) Inv(c sevcord.Ctx, args []any) {
 	// Get params
 	user := c.Author().User.ID
 	if args[0] != nil {
-		user = args[0].(*discordgo.User).ID
+		if dguser, ok := args[0].(*discordgo.User); ok {
+			user = dguser.ID
+		} else {
+			user, _ = args[0].(string)
+		}
 	}
 	sort := "id"
 	if args[1] != nil {
