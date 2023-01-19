@@ -9,7 +9,7 @@ require (
 	github.com/Nv7-Github/firebase v0.0.0-20201012033747-47c56e1d869d
 	github.com/Nv7-Github/sevcord/v2 v2.3.4
 	github.com/bwmarrin/discordgo v0.26.2-0.20221217201609-8a5201aae635
-	github.com/dustin/go-humanize v1.0.0
+	github.com/dustin/go-humanize v1.0.1
 	github.com/finnbear/moderation v0.11.4
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/gofiber/fiber/v2 v2.13.0
@@ -21,12 +21,12 @@ require (
 	github.com/jmcvetta/randutil v0.0.0-20150817122601-2bb1b664bcff
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/labstack/echo/v5 v5.0.0-20220201181537-ed2888cfa198
-	github.com/lib/pq v1.10.6
-	github.com/mitchellh/mapstructure v1.4.3
+	github.com/lib/pq v1.10.7
+	github.com/mitchellh/mapstructure v1.5.0
 	github.com/pocketbase/dbx v1.8.0
-	github.com/pocketbase/pocketbase v0.10.4
+	github.com/pocketbase/pocketbase v0.11.2
 	golang.org/x/crypto v0.5.0
-	google.golang.org/grpc v1.51.0
+	google.golang.org/grpc v1.52.0
 	google.golang.org/protobuf v1.28.1
 )
 
@@ -35,7 +35,7 @@ require (
 	github.com/AlecAivazis/survey/v2 v2.3.6 // indirect
 	github.com/Nv7-Github/sevcord v0.0.0-20220730050849-c1404889e919 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
-	github.com/aws/aws-sdk-go v1.44.175 // indirect
+	github.com/aws/aws-sdk-go v1.44.181 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.17.3 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.10 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.18.8 // indirect
@@ -83,7 +83,7 @@ require (
 	github.com/valyala/fasthttp v1.27.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	go.opencensus.io v0.24.0 // indirect
-	gocloud.dev v0.27.0 // indirect
+	gocloud.dev v0.28.0 // indirect
 	golang.org/x/image v0.3.0 // indirect
 	golang.org/x/mod v0.7.0 // indirect
 	golang.org/x/net v0.5.0 // indirect
@@ -91,9 +91,9 @@ require (
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.5.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
-	google.golang.org/api v0.106.0 // indirect
+	google.golang.org/api v0.107.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/genproto v0.0.0-20230106154932-a12b697841d9 // indirect
+	google.golang.org/genproto v0.0.0-20230117162540-28d6b9783ac4 // indirect
 	lukechampine.com/uint128 v1.2.0 // indirect
 	modernc.org/cc/v3 v3.40.0 // indirect
 	modernc.org/ccgo/v3 v3.16.13 // indirect
