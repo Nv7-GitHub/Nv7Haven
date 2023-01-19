@@ -235,7 +235,7 @@ func (e *Elements) invEditThread(thr *comboInvThread) {
 	for v := range thr.Waiting {
 		start := time.Now()
 		var explain []string
-		err := e.db.Select(&explain, `EXPLAIN ANALYZE BUFFERS SETTINGS VERBOSE UPDATE inventories SET inv=array_append(inv, $3) WHERE guild=$1 AND "user"=$2`, thr.Guild, thr.User, v)
+		err := e.db.Select(&explain, `EXPLAIN (ANALYZE, BUFFERS, SETTINGS, VERBOSE) UPDATE inventories SET inv=array_append(inv, $3) WHERE guild=$1 AND "user"=$2`, thr.Guild, thr.User, v)
 		if time.Since(start) > time.Second*2 {
 			fmt.Println("TIME TAKEN:", time.Since(start))
 			fmt.Println(strings.Join(explain, "\n"))
