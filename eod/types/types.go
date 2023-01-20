@@ -109,6 +109,7 @@ var Sorts = []sevcord.Choice{
 	sevcord.NewChoice("Creator", "creator"),
 	sevcord.NewChoice("Created On", "createdon"),
 	sevcord.NewChoice("Tree Size", "treesize"),
+	sevcord.NewChoice("Length", "length"),
 }
 
 var SortSql = map[string]string{
@@ -117,6 +118,7 @@ var SortSql = map[string]string{
 	"creator":   "creator",
 	"createdon": "createdon",
 	"treesize":  "treesize DESC",
+	"length":    "LENGTH(name) DESC",
 }
 
 // Queries

@@ -92,6 +92,7 @@ func (q *Queries) Init() {
 					sevcord.NewChoice("Colorer", "colorer"),
 					sevcord.NewChoice("Imager", "imager"),
 					sevcord.NewChoice("Tree Size", "treesize"),
+					sevcord.NewChoice("Length", "LENGTH(name)"),
 				),
 			sevcord.NewOption("operator", "The operator to compare by!", sevcord.OptionKindString, true).
 				AddChoices(sevcord.NewChoice("=", "equal"),
