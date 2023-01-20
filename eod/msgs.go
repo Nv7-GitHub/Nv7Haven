@@ -58,11 +58,27 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 
+		var id string
 		if strings.HasPrefix(content, "<@") && strings.HasSuffix(content, ">") {
-			b.pages.Inv(c, []any{any(content[2:len(content)-1]), nil})
+			id = content[2:len(content)-1]
 		} else {
-			b.pages.Inv(c, []any{any(content), nil})
+			id = content
+			if content == "" {
+				b.pages.Inv(c, []any{nil, nil})
+				return
+			}
 		}
+		_, err := strconv.Atoi(id)
+		if err != nil {
+			c.Respond(sevcord.NewMessage("Invalid user!"))
+			return
+		}
+		user, err := c.Dg().User(id)
+		if err != nil {
+			b.base.Error(c, err)
+			return
+		}
+		b.pages.Inv(c, []any{any(user), nil})
 
 	case "lb":
 		if !b.base.CheckCtx(c, "lb") {
