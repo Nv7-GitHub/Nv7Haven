@@ -13,6 +13,19 @@ func pgArrToIntArr(arr pq.Int32Array) []int {
 	return util.Map([]int32(arr), func(v int32) int { return int(v) })
 }
 
+var comparisonFieldMap = map[string]string{
+	"id":        "id",
+	"image":     "image",
+	"color":     "color",
+	"comment":   "comment",
+	"creator":   "creator",
+	"commenter": "commenter",
+	"colorer":   "colorer",
+	"imager":    "imager",
+	"treesize":  "treesize",
+	"length":    "LENGTH(name)",
+}
+
 func (b *Base) CalcQuery(ctx sevcord.Ctx, name string) (*types.Query, bool) {
 	// Get
 	var query = &types.Query{}
@@ -107,7 +120,7 @@ func (b *Base) CalcQuery(ctx sevcord.Ctx, name string) (*types.Query, bool) {
 		case "less":
 			op = "<"
 		}
-		err = b.db.Select(&query.Elements, `SELECT id FROM elements WHERE guild=$1 AND `+query.Data["field"].(string)+op+`$2`, ctx.Guild(), query.Data["value"])
+		err = b.db.Select(&query.Elements, `SELECT id FROM elements WHERE guild=$1 AND `+comparisonFieldMap[query.Data["field"].(string)]+op+`$2`, ctx.Guild(), query.Data["value"])
 		if err != nil {
 			b.Error(ctx, err)
 			return nil, false
