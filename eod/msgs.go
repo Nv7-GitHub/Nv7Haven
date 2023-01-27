@@ -111,7 +111,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			b.categories.CatEditCmd(c, parts[0], els, types.PollKindUncategorize, "Suggested to remove **%s** from **%s** 🗃️", true)
 		}
 
-	case "img":
+	case "img", "image":
 		if !b.base.CheckCtx(c, "image") {
 			return
 		}
