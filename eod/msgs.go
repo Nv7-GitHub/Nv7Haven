@@ -110,6 +110,49 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		} else {
 			b.categories.CatEditCmd(c, parts[0], els, types.PollKindUncategorize, "Suggested to remove **%s** from **%s** 🗃️", true)
 		}
+
+	case "img":
+		if !b.base.CheckCtx(c, "image") {
+			return
+		}
+
+		// Get image
+		var image string
+		m := c.(*sevcord.MessageCtx).Message()
+		if len(m.Attachments) < 1 {
+			c.Respond(sevcord.NewMessage("No image attached! " + types.RedCircle))
+			return
+		}
+		if len(m.Attachments) > 1 {
+			c.Respond(sevcord.NewMessage("Too many images attached! " + types.RedCircle))
+			return
+		}
+		if !strings.HasPrefix(m.Attachments[0].ContentType, "image/") {
+			c.Respond(sevcord.NewMessage("Invalid image format! " + types.RedCircle))
+			return
+		}
+		image = m.Attachments[0].URL
+
+		// Run command
+		switch content {
+		case "", "element":
+			// Get ID
+			var id int
+			err := b.db.QueryRow("SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(content)).Scan(&id)
+			if err != nil {
+				b.base.Error(c, err, "Element **"+content+"** doesn't exist! "+types.RedCircle)
+				return
+			}
+
+			// Command
+			b.elements.ImageCmd(c, id, image)
+
+		case "cat", "category":
+			b.categories.ImageCmd(c, content, image)
+
+		case "query":
+			b.queries.ImageCmd(c, content, image)
+		}
 	}
 }
 

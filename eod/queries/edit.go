@@ -9,21 +9,15 @@ import (
 	"github.com/Nv7-Github/sevcord/v2"
 )
 
-func (q *Queries) ImageCmd(ctx sevcord.Ctx, opts []any) {
+func (q *Queries) ImageCmd(ctx sevcord.Ctx, query string, image string) {
 	ctx.Acknowledge()
 
 	// Check element
 	var name string
 	var old string
-	err := q.db.QueryRow("SELECT name, image FROM queries WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(opts[0].(string)), ctx.Guild()).Scan(&name, &old)
+	err := q.db.QueryRow("SELECT name, image FROM queries WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(query), ctx.Guild()).Scan(&name, &old)
 	if err != nil {
-		q.base.Error(ctx, err, "Query **"+opts[0].(string)+"** doesn't exist!")
-		return
-	}
-
-	// Check image
-	if !strings.HasPrefix(opts[1].(*sevcord.SlashCommandAttachment).ContentType, "image") {
-		ctx.Respond(sevcord.NewMessage("The attachment must be an image! " + types.RedCircle))
+		q.base.Error(ctx, err, "Query **"+query+"** doesn't exist!")
 		return
 	}
 
@@ -32,7 +26,7 @@ func (q *Queries) ImageCmd(ctx sevcord.Ctx, opts []any) {
 		Kind: types.PollKindQueryImage,
 		Data: types.PgData{
 			"query": name,
-			"new":   opts[1].(*sevcord.SlashCommandAttachment).URL,
+			"new":   image,
 			"old":   old,
 		},
 	})

@@ -9,21 +9,15 @@ import (
 	"github.com/Nv7-Github/sevcord/v2"
 )
 
-func (c *Categories) ImageCmd(ctx sevcord.Ctx, opts []any) {
+func (c *Categories) ImageCmd(ctx sevcord.Ctx, cat string, image string) {
 	ctx.Acknowledge()
 
 	// Check element
 	var name string
 	var old string
-	err := c.db.QueryRow("SELECT name, image FROM categories WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(opts[0].(string)), ctx.Guild()).Scan(&name, &old)
+	err := c.db.QueryRow("SELECT name, image FROM categories WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(cat), ctx.Guild()).Scan(&name, &old)
 	if err != nil {
-		c.base.Error(ctx, err, "Category **"+opts[0].(string)+"** doesn't exist!")
-		return
-	}
-
-	// Check image
-	if !strings.HasPrefix(opts[1].(*sevcord.SlashCommandAttachment).ContentType, "image") {
-		ctx.Respond(sevcord.NewMessage("The attachment must be an image! " + types.RedCircle))
+		c.base.Error(ctx, err, "Category **"+cat+"** doesn't exist!")
 		return
 	}
 
@@ -32,7 +26,7 @@ func (c *Categories) ImageCmd(ctx sevcord.Ctx, opts []any) {
 		Kind: types.PollKindCatImage,
 		Data: types.PgData{
 			"cat": name,
-			"new": opts[1].(*sevcord.SlashCommandAttachment).URL,
+			"new": image,
 			"old": old,
 		},
 	})
