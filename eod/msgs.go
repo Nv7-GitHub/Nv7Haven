@@ -141,7 +141,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 
 		// Run command
-		switch content {
+		switch parts[0] {
 		case "e", "element":
 			// Get ID
 			var id int
@@ -159,6 +159,9 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 
 		case "q", "query":
 			b.queries.ImageCmd(c, parts[1], image)
+
+		default:
+			c.Respond(sevcord.NewMessage("Use `!image [element/category/query] <element/category/query name>`! " + types.RedCircle))
 		}
 	}
 }
