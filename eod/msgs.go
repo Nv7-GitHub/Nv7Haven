@@ -133,12 +133,19 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 		image = m.Attachments[0].URL
 
+		// Parse
+		parts := strings.SplitN(content, " ", 2)
+		if len(parts) != 2 {
+			c.Respond(sevcord.NewMessage("Use `!image [element/category/query] <element/category/query name>`! " + types.RedCircle))
+			return
+		}
+
 		// Run command
 		switch content {
-		case "", "element":
+		case "e", "element":
 			// Get ID
 			var id int
-			err := b.db.QueryRow("SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(content)).Scan(&id)
+			err := b.db.QueryRow("SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(parts[1])).Scan(&id)
 			if err != nil {
 				b.base.Error(c, err, "Element **"+content+"** doesn't exist! "+types.RedCircle)
 				return
@@ -147,11 +154,11 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			// Command
 			b.elements.ImageCmd(c, id, image)
 
-		case "cat", "category":
-			b.categories.ImageCmd(c, content, image)
+		case "c", "cat", "category":
+			b.categories.ImageCmd(c, parts[1], image)
 
-		case "query":
-			b.queries.ImageCmd(c, content, image)
+		case "q", "query":
+			b.queries.ImageCmd(c, parts[1], image)
 		}
 	}
 }
