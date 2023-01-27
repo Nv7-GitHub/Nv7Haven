@@ -145,7 +145,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		case "e", "element":
 			// Get ID
 			var id int
-			err := b.db.QueryRow("SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(parts[1])).Scan(&id)
+			err := b.db.QueryRow("SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(parts[1]), c.Guild()).Scan(&id)
 			if err != nil {
 				b.base.Error(c, err, "Element **"+content+"** doesn't exist! "+types.RedCircle)
 				return
