@@ -42,6 +42,7 @@ services:
       - POSTGRES_DB=eod
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=${PASSWORD}
+      - SCHEDULE=@daily
 
   adminer:
     image: adminer
