@@ -197,7 +197,17 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 			b.base.Error(c, err)
 			return
 		}
-		b.elements.Combine(c, []string{name, strings.TrimSpace(content[1:])})
+
+		// Get parts
+		parts := []string{content[1:]}
+		for _, sep := range seps {
+			if strings.Contains(content[1:], sep) {
+				parts = strings.Split(content[1:], sep)
+				break
+			}
+		}
+
+		b.elements.Combine(c, append([]string{name}, parts...))
 		return
 	}
 	if strings.HasPrefix(content, "!") {
