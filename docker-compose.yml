@@ -54,6 +54,9 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=${PASSWORD}
       - SCHEDULE=@daily
+      - HEALTHCHECK_PORT=3005
+    ports:
+      - "3005:3005"
 
   adminer:
     image: adminer
