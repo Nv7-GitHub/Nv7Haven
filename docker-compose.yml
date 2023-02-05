@@ -49,11 +49,11 @@ services:
       - pg
     user: postgres:postgres
     environment:
-      - POSTGRES_HOST: pg
-      - POSTGRES_DB: eod
-      - POSTGRES_USER: postgres
-      - POSTGRES_PASS: ${PASSWORD}
-      - DBLIST: "eod"
+      - POSTGRES_HOST=pg
+      - POSTGRES_DB=eod
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASS=${PASSWORD}
+      - DBLIST=eod
 
   adminer:
     image: adminer
