@@ -39,7 +39,7 @@ services:
       - pg-data:/var/lib/postgresql/data
 
   pgbackup:
-    image: kartoza/pg-backup:14-3.1
+    image: prodrigestivill/postgres-backup-local
     restart: always
     volumes:
       - ./backup:/backups
@@ -52,8 +52,8 @@ services:
       - POSTGRES_HOST=pg
       - POSTGRES_DB=eod
       - POSTGRES_USER=postgres
-      - POSTGRES_PASS=${PASSWORD}
-      - DBLIST=eod
+      - POSTGRES_PASSWORD=${PASSWORD}
+      - SCHEDULE=@daily
 
   adminer:
     image: adminer
