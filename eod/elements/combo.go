@@ -194,9 +194,7 @@ func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 		// Add to inv
 		start := time.Now()
 		_, err := e.db.Exec(`UPDATE inventories SET inv=array_append(inv, $3) WHERE guild=$1 AND "user"=$2`, c.Guild(), c.Author().User.ID, result)
-		if c.Guild() == "705084182673621033" && c.Author().User.ID == "477136591018786816" {
-			fmt.Println(time.Since(start))
-		}
+		fmt.Println("Inv write time:", time.Since(start))
 		if err != nil {
 			e.base.Error(c, err)
 			return
