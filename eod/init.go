@@ -20,32 +20,6 @@ func (b *Bot) Init() {
 	b.s.SetMessageHandler(b.messageHandler)
 
 	// Commands
-	b.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup("image", "Change an image!",
-		sevcord.NewSlashCommand(
-			"element",
-			"Change the image of an element!",
-			b.elements.ImageCmd,
-			sevcord.NewOption("element", "The element to change the image of!", sevcord.OptionKindInt, true).
-				AutoComplete(b.elements.Autocomplete),
-			sevcord.NewOption("image", "The image to change it to!", sevcord.OptionKindAttachment, true),
-		),
-		sevcord.NewSlashCommand(
-			"category",
-			"Change the image of a category!",
-			b.categories.ImageCmd,
-			sevcord.NewOption("category", "The category to change the image of!", sevcord.OptionKindString, true).
-				AutoComplete(b.categories.Autocomplete),
-			sevcord.NewOption("image", "The image to change it to!", sevcord.OptionKindAttachment, true),
-		),
-		sevcord.NewSlashCommand(
-			"query",
-			"Change the image of a query!",
-			b.queries.ImageCmd,
-			sevcord.NewOption("query", "The query to change the image of!", sevcord.OptionKindString, true).
-				AutoComplete(b.queries.Autocomplete),
-			sevcord.NewOption("image", "The image to change it to!", sevcord.OptionKindAttachment, true),
-		),
-	))
 	b.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup("sign", "Change a comment!",
 		sevcord.NewSlashCommand(
 			"element",

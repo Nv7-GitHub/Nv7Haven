@@ -9,21 +9,15 @@ import (
 	"github.com/Nv7-Github/sevcord/v2"
 )
 
-func (e *Elements) ImageCmd(c sevcord.Ctx, opts []any) {
+func (e *Elements) ImageCmd(c sevcord.Ctx, id int, image string) {
 	c.Acknowledge()
 
 	// Check element
 	var elem string
 	var old string
-	err := e.db.QueryRow("SELECT name, image FROM elements WHERE id=$1 AND guild=$2", opts[0].(int64), c.Guild()).Scan(&elem, &old)
+	err := e.db.QueryRow("SELECT name, image FROM elements WHERE id=$1 AND guild=$2", id, c.Guild()).Scan(&elem, &old)
 	if err != nil {
 		e.base.Error(c, err)
-		return
-	}
-
-	// Check image
-	if !strings.HasPrefix(opts[1].(*sevcord.SlashCommandAttachment).ContentType, "image") {
-		c.Respond(sevcord.NewMessage("The attachment must be an image! " + types.RedCircle))
 		return
 	}
 
@@ -31,8 +25,8 @@ func (e *Elements) ImageCmd(c sevcord.Ctx, opts []any) {
 	e.polls.CreatePoll(c, &types.Poll{
 		Kind: types.PollKindImage,
 		Data: types.PgData{
-			"elem": float64(opts[0].(int64)),
-			"new":  opts[1].(*sevcord.SlashCommandAttachment).URL,
+			"elem": float64(id),
+			"new":  image,
 			"old":  old,
 		},
 	})

@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
@@ -191,7 +192,9 @@ func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 		c.Respond(sevcord.NewMessage(fmt.Sprintf("You made **%s**, but already have it. 🔵", name)))
 	} else {
 		// Add to inv
+		start := time.Now()
 		_, err := e.db.Exec(`UPDATE inventories SET inv=array_append(inv, $3) WHERE guild=$1 AND "user"=$2`, c.Guild(), c.Author().User.ID, result)
+		fmt.Println("Inv write time:", time.Since(start))
 		if err != nil {
 			e.base.Error(c, err)
 			return

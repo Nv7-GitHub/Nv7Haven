@@ -143,6 +143,59 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		} else {
 			b.categories.CatEditCmd(c, parts[0], els, types.PollKindUncategorize, "Suggested to remove **%s** from **%s** 🗃️", true)
 		}
+
+	case "img", "image":
+		if !b.base.CheckCtx(c, "image") {
+			return
+		}
+
+		// Get image
+		var image string
+		m := c.(*sevcord.MessageCtx).Message()
+		if len(m.Attachments) < 1 {
+			c.Respond(sevcord.NewMessage("No image attached! " + types.RedCircle))
+			return
+		}
+		if len(m.Attachments) > 1 {
+			c.Respond(sevcord.NewMessage("Too many images attached! " + types.RedCircle))
+			return
+		}
+		if !strings.HasPrefix(m.Attachments[0].ContentType, "image/") {
+			c.Respond(sevcord.NewMessage("Invalid image format! " + types.RedCircle))
+			return
+		}
+		image = m.Attachments[0].URL
+
+		// Parse
+		parts := strings.SplitN(content, " ", 2)
+		if len(parts) != 2 {
+			c.Respond(sevcord.NewMessage("Use `!image [element/category/query] <element/category/query name>`! " + types.RedCircle))
+			return
+		}
+
+		// Run command
+		switch parts[0] {
+		case "e", "element":
+			// Get ID
+			var id int
+			err := b.db.QueryRow("SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(parts[1]), c.Guild()).Scan(&id)
+			if err != nil {
+				b.base.Error(c, err, "Element **"+content+"** doesn't exist! "+types.RedCircle)
+				return
+			}
+
+			// Command
+			b.elements.ImageCmd(c, id, image)
+
+		case "c", "cat", "category":
+			b.categories.ImageCmd(c, parts[1], image)
+
+		case "q", "query":
+			b.queries.ImageCmd(c, parts[1], image)
+
+		default:
+			c.Respond(sevcord.NewMessage("Use `!image [element/category/query] <element/category/query name>`! " + types.RedCircle))
+		}
 	}
 }
 
@@ -177,7 +230,17 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 			b.base.Error(c, err)
 			return
 		}
-		b.elements.Combine(c, []string{name, strings.TrimSpace(content[1:])})
+
+		// Get parts
+		parts := []string{content[1:]}
+		for _, sep := range seps {
+			if strings.Contains(content[1:], sep) {
+				parts = strings.Split(content[1:], sep)
+				break
+			}
+		}
+
+		b.elements.Combine(c, append([]string{name}, parts...))
 		return
 	}
 	if strings.HasPrefix(content, "!") {

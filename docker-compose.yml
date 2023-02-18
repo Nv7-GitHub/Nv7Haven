@@ -14,24 +14,35 @@ services:
     volumes:
       - db-data:/var/lib/mysql
     restart: unless-stopped
-  
+
   pg:
     image: postgres:14.1-alpine
     restart: unless-stopped
     environment:
       POSTGRES_PASSWORD: ${PASSWORD}
       POSTGRES_DB: nv7haven
-    command: ["postgres", "-c", "shared_preload_libraries=pg_stat_statements", "-c", "pg_stat_statements.track=all", "-c", "pg_stat_statements.max=10000", "-c", "track_io_timing=on"]
+    command:
+      [
+        "postgres",
+        "-c",
+        "shared_preload_libraries=pg_stat_statements",
+        "-c",
+        "pg_stat_statements.track=all",
+        "-c",
+        "pg_stat_statements.max=10000",
+        "-c",
+        "track_io_timing=on"
+      ]
     ports:
       - "5432:5432"
-    volumes: 
+    volumes:
       - pg-data:/var/lib/postgresql/data
 
   pgbackup:
     image: prodrigestivill/postgres-backup-local
     restart: always
     volumes:
-      - ./backup:/backups
+      - ./backups:/backups
     links:
       - pg
     depends_on:
@@ -42,6 +53,10 @@ services:
       - POSTGRES_DB=eod
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=${PASSWORD}
+      - SCHEDULE=@daily
+      - HEALTHCHECK_PORT=3005
+    ports:
+      - "3005:3005"
 
   adminer:
     image: adminer
@@ -53,7 +68,7 @@ services:
       - pg
     ports:
       - "${PHP_PORT}:8080"
-  
+
   backup:
     image: fradelg/mysql-cron-backup
     depends_on:
