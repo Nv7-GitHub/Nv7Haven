@@ -106,9 +106,9 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 		if name == "ac" {
-			b.categories.CatEditCmd(c, parts[0], els, types.PollKindCategorize, "Suggested to add **%s** to **%s** 🗃️", false)
+			b.categories.CatEditCmd(c, strings.TrimSpace(parts[0]), els, types.PollKindCategorize, "Suggested to add **%s** to **%s** 🗃️", false)
 		} else {
-			b.categories.CatEditCmd(c, parts[0], els, types.PollKindUncategorize, "Suggested to remove **%s** from **%s** 🗃️", true)
+			b.categories.CatEditCmd(c, strings.TrimSpace(parts[0]), els, types.PollKindUncategorize, "Suggested to remove **%s** from **%s** 🗃️", true)
 		}
 
 	case "img", "image":
