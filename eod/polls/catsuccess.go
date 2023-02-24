@@ -57,7 +57,7 @@ func (p *Polls) categorizeSuccess(po *types.Poll, news func(string)) error {
 	} else {
 		name = fmt.Sprintf("%d elements", len(elems))
 	}
-	news(fmt.Sprintf("🗃️ Added **%s** to **%s** %s", name, po.Data["cat"].(string), p.pollContextMsg(po)))
+	news(fmt.Sprintf("@silent 🗃️ Added **%s** to **%s** %s", name, po.Data["cat"].(string), p.pollContextMsg(po)))
 
 	return nil
 }
@@ -92,7 +92,7 @@ func (p *Polls) unCategorizeSuccess(po *types.Poll, news func(string)) error {
 		name = fmt.Sprintf("%d elements", len(elems))
 	}
 
-	news(fmt.Sprintf("🗃️ Removed **%s** from **%s** %s", name, po.Data["cat"].(string), p.pollContextMsg(po)))
+	news(fmt.Sprintf("@silent 🗃️ Removed **%s** from **%s** %s", name, po.Data["cat"].(string), p.pollContextMsg(po)))
 	return nil
 }
 
@@ -108,7 +108,7 @@ func (p *Polls) catImageSuccess(po *types.Poll, newsFunc func(string)) error {
 	if po.Data["old"] == "" {
 		word = "Added"
 	}
-	newsFunc(fmt.Sprintf("📸 %s Category Image - **%s** %s", word, po.Data["cat"].(string), p.pollContextMsg(po)))
+	newsFunc(fmt.Sprintf("@silent 📸 %s Category Image - **%s** %s", word, po.Data["cat"].(string), p.pollContextMsg(po)))
 
 	return nil
 }
@@ -121,7 +121,7 @@ func (p *Polls) catMarkSuccess(po *types.Poll, newsFunc func(string)) error {
 	}
 
 	// News
-	newsFunc(fmt.Sprintf("📝 Signed Category - **%s** %s", po.Data["cat"].(string), p.pollContextMsg(po)))
+	newsFunc(fmt.Sprintf("@silent 📝 Signed Category - **%s** %s", po.Data["cat"].(string), p.pollContextMsg(po)))
 
 	return nil
 }
@@ -134,7 +134,7 @@ func (p *Polls) catColorSuccess(po *types.Poll, newsFunc func(string)) error {
 	}
 
 	// News
-	newsFunc(fmt.Sprintf("🎨 Colored Category - **%s** %s", po.Data["cat"].(string), p.pollContextMsg(po)))
+	newsFunc(fmt.Sprintf("@silent 🎨 Colored Category - **%s** %s", po.Data["cat"].(string), p.pollContextMsg(po)))
 
 	return nil
 }
