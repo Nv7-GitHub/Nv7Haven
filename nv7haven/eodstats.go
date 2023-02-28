@@ -34,7 +34,7 @@ type CommandCount struct {
 }
 
 func (n *Nv7Haven) refreshStats() {
-	res, err := n.pgdb.Query("SELECT * FROM stats WHERE time > ? ORDER BY time ", n.eodStats.refreshTime.Unix())
+	res, err := n.pgdb.Query("SELECT * FROM stats WHERE time > $1 ORDER BY time", n.eodStats.refreshTime)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -63,7 +63,7 @@ func (n *Nv7Haven) refreshStats() {
 	}
 	res.Close()
 
-	res, err = n.pgdb.Query("SELECT * FROM stats_commands WHERE time > ? ORDER BY time ", n.eodStats.refreshTime.Unix())
+	res, err = n.pgdb.Query("SELECT * FROM stats_commands WHERE time > $1 ORDER BY time", n.eodStats.refreshTime)
 	if err != nil {
 		fmt.Println(err)
 	}
