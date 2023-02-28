@@ -8,6 +8,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/nv7haven"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/jmoiron/sqlx"
 
 	_ "github.com/go-sql-driver/mysql" // mysql
 )
@@ -15,6 +16,10 @@ import (
 const (
 	dbUser = "root"
 	dbName = "nv7haven"
+
+	pgDbUser = "postgres"
+	pgDbName = "eod"
+	pgDbPort = "5432"
 )
 
 func main() {
@@ -28,8 +33,12 @@ func main() {
 		panic(err)
 	}
 	db := db.NewDB(mysqldb)
+	pgdb, err := sqlx.Connect("postgres", "user="+pgDbUser+" dbname="+pgDbName+" sslmode=disable port="+pgDbPort+" host="+os.Getenv("MYSQL_HOST")+" password="+os.Getenv("PASSWORD"))
+	if err != nil {
+		panic(err)
+	}
 
-	err = nv7haven.InitNv7Haven(app, db)
+	err = nv7haven.InitNv7Haven(app, db, pgdb)
 	if err != nil {
 		panic(err)
 	}
