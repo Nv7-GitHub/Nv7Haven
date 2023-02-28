@@ -97,7 +97,7 @@ func (b *Base) SaveStats() {
 		(SELECT COUNT(*) FROM elements),
 		(SELECT COUNT(*) FROM combos),
 		(SELECT COUNT(*) FROM inventories),
-		(SELECT COUNT(UNIQUE(guild)) FROM config),
+		(SELECT COUNT(DISTINCT(guild)) FROM config)
 		`).Scan(&categorized, &found, &elemCnt, &comboCnt, &userCnt, &serverCnt)
 		if err != nil {
 			fmt.Println(err)
@@ -114,14 +114,14 @@ func (b *Base) SaveStats() {
 		}
 
 		// Insert
-		_, err = b.db.Exec("INSERT INTO stats VALUES (?, ?, ?, ?, ?, ?, ?)", time.Now().Unix(), elemCnt, comboCnt, userCnt, found, categorized, serverCnt)
+		_, err = b.db.Exec("INSERT INTO stats VALUES ($1, $2, $3, $4, $5, $6, $7)", time.Now(), elemCnt, comboCnt, userCnt, found, categorized, serverCnt)
 		if err != nil {
 			fmt.Println(err)
 		}
 
 		// Save command stats
 		for k, v := range commandStats {
-			_, err = b.db.Exec("INSERT INTO command_stats VALUES (?, ?, ?)", time.Now().Unix(), k, v)
+			_, err = b.db.Exec("INSERT INTO command_stats VALUES ($1, $2, $3)", time.Now(), k, v)
 			if err != nil {
 				fmt.Println(err)
 			}
