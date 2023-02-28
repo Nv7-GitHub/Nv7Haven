@@ -1,6 +1,9 @@
 package base
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/dustin/go-humanize"
 )
@@ -66,4 +69,62 @@ func (b *Base) Stats(c sevcord.Ctx, opts []any) {
 		AddComponentRow(
 			sevcord.NewButton("View More Stats", sevcord.ButtonStyleLink, "", "").SetURL("https://nv7haven.com/eod"),
 		))
+}
+
+func (b *Base) SaveStats() {
+	var lastTime time.Time
+	err := b.db.QueryRow("SELECT time FROM stats ORDER BY time DESC LIMIT 1").Scan(&lastTime)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	if time.Since(lastTime).Hours() > 24 {
+		var categorized int
+		var found int
+		var elemCnt int
+		var comboCnt int
+		var userCnt int
+		var serverCnt int
+		var commandStatsRaw []struct {
+			Command string `db:"command"`
+			Count   int    `db:"count"`
+		}
+
+		// Select
+		err := b.db.QueryRow(`SELECT
+		(SELECT SUM(array_length(elements, 1)) FROM categories),
+		(SELECT SUM(array_length(inv, 1)) FROM inventories),
+		(SELECT COUNT(*) FROM elements),
+		(SELECT COUNT(*) FROM combos),
+		(SELECT COUNT(*) FROM inventories),
+		(SELECT COUNT(UNIQUE(guild)) FROM config),
+		`).Scan(&categorized, &found, &elemCnt, &comboCnt, &userCnt, &serverCnt)
+		if err != nil {
+			fmt.Println(err)
+		}
+		err = b.db.Select(&commandStatsRaw, "SELECT command, count FROM command_stats")
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		// Create command stats
+		commandStats := make(map[string]int)
+		for _, v := range commandStatsRaw {
+			commandStats[v.Command] += v.Count
+		}
+
+		// Insert
+		_, err = b.db.Exec("INSERT INTO stats VALUES (?, ?, ?, ?, ?, ?, ?)", time.Now().Unix(), elemCnt, comboCnt, userCnt, found, categorized, serverCnt)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		// Save command stats
+		for k, v := range commandStats {
+			_, err = b.db.Exec("INSERT INTO command_stats VALUES (?, ?, ?)", time.Now().Unix(), k, v)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+	}
 }
