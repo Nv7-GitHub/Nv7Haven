@@ -9,6 +9,7 @@ import (
 	"github.com/Nv7-Github/firebase"
 	database "github.com/Nv7-Github/firebase/db"
 	"github.com/gofiber/fiber/v2"
+	"github.com/jmoiron/sqlx"
 )
 
 //go:embed serviceAccount.json
@@ -16,8 +17,9 @@ var serviceAccount string
 
 // Nv7Haven is the backend for https://nv7haven.com
 type Nv7Haven struct {
-	db  *database.Db
-	sql *db.DB
+	db   *database.Db
+	sql  *db.DB
+	pgdb *sqlx.DB
 
 	eodStats eodStats
 }
@@ -59,7 +61,7 @@ func (c *Nv7Haven) routing(app *fiber.App) {
 }
 
 // InitNv7Haven initializes the handlers for Nv7Haven
-func InitNv7Haven(app *fiber.App, sql *db.DB) error {
+func InitNv7Haven(app *fiber.App, sql *db.DB, pgdb *sqlx.DB) error {
 	// Firebase DB
 	fireapp, err := firebase.CreateAppWithServiceAccount("https://nv7haven.firebaseio.com", "AIzaSyA8ySJ5bATo7OADU75TMfbtnvKmx_g5rSs", []byte(serviceAccount))
 	if err != nil {
@@ -68,8 +70,9 @@ func InitNv7Haven(app *fiber.App, sql *db.DB) error {
 	db := database.CreateDatabase(fireapp)
 
 	nv7haven := Nv7Haven{
-		db:  db,
-		sql: sql,
+		db:   db,
+		sql:  sql,
+		pgdb: pgdb,
 
 		eodStats: eodStats{
 			Elemcnt:       make([]int, 0),

@@ -1,6 +1,8 @@
 package eod
 
 import (
+	"time"
+
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/categories"
 	"github.com/Nv7-Github/Nv7Haven/eod/elements"
@@ -18,6 +20,15 @@ func (b *Bot) Init() {
 	b.queries = queries.NewQueries(b.s, b.db, b.base, b.polls, b.elements, b.categories)
 	b.pages = pages.NewPages(b.base, b.db, b.s, b.categories, b.elements, b.queries)
 	b.s.SetMessageHandler(b.messageHandler)
+
+	// Start saving stats
+	go func() {
+		b.base.SaveStats()
+		for {
+			time.Sleep(time.Minute * 30)
+			b.base.SaveStats()
+		}
+	}()
 
 	// Commands
 	b.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup("sign", "Change a comment!",

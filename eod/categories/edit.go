@@ -49,12 +49,12 @@ func (c *Categories) CatEditCmd(ctx sevcord.Ctx, cat string, elems []int, kind t
 				return
 			}
 			if !cont {
-				name, err := c.base.GetName(ctx.Guild(), elem)
+				elemName, err := c.base.GetName(ctx.Guild(), elem)
 				if err != nil {
 					c.base.Error(ctx, err)
 					return
 				}
-				ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Element **%s** is not in category **%s**! "+types.RedCircle, name, name)))
+				ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Element **%s** is not in category **%s**! "+types.RedCircle, elemName, name)))
 				return
 			}
 		}

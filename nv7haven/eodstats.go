@@ -34,14 +34,14 @@ type CommandCount struct {
 }
 
 func (n *Nv7Haven) refreshStats() {
-	res, err := n.sql.Query("SELECT * FROM eod_stats WHERE time > ? ORDER BY time ", n.eodStats.refreshTime.Unix())
+	res, err := n.pgdb.Query("SELECT * FROM stats WHERE time > $1 ORDER BY time", n.eodStats.refreshTime)
 	if err != nil {
 		fmt.Println(err)
 	}
 
 	changed := false
 
-	var tm int64
+	var tm time.Time
 	var elemcnt, combcnt, usercnt, found, categorized, servercnt int
 	for res.Next() {
 		err = res.Scan(&tm, &elemcnt, &combcnt, &usercnt, &found, &categorized, &servercnt)
@@ -49,7 +49,7 @@ func (n *Nv7Haven) refreshStats() {
 			fmt.Println(err)
 		}
 
-		n.eodStats.Labels = append(n.eodStats.Labels, time.Unix(tm, 0).Format("2006-01-02"))
+		n.eodStats.Labels = append(n.eodStats.Labels, tm.Format("2006-01-02"))
 		n.eodStats.Elemcnt = append(n.eodStats.Elemcnt, elemcnt)
 		n.eodStats.Combcnt = append(n.eodStats.Combcnt, combcnt)
 		n.eodStats.Usercnt = append(n.eodStats.Usercnt, usercnt)
@@ -63,7 +63,7 @@ func (n *Nv7Haven) refreshStats() {
 	}
 	res.Close()
 
-	res, err = n.sql.Query("SELECT * FROM eod_command_stats WHERE time > ? ORDER BY time ", n.eodStats.refreshTime.Unix())
+	res, err = n.pgdb.Query("SELECT * FROM stats_commands WHERE time > $1 ORDER BY time", n.eodStats.refreshTime)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -79,7 +79,7 @@ func (n *Nv7Haven) refreshStats() {
 		// Find tm
 		found := false
 		for i, t := range n.eodStats.CommandCounts {
-			if t.Time == tm {
+			if t.Time == tm.Unix() {
 				t.Counts[name] = cnt
 				n.eodStats.CommandCounts[i] = t
 				found = true
@@ -89,8 +89,8 @@ func (n *Nv7Haven) refreshStats() {
 		if !found {
 			n.eodStats.CommandCounts = append(n.eodStats.CommandCounts, CommandCount{
 				Counts:     map[string]int{name: cnt},
-				Time:       tm,
-				TimeString: time.Unix(tm, 0).Format("2006-01-02"),
+				Time:       tm.Unix(),
+				TimeString: tm.Format("2006-01-02"),
 			})
 		}
 
