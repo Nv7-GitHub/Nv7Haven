@@ -102,7 +102,15 @@ func (b *Bot) Init() {
 			sevcord.NewOption("query", "The query to view the info of!", sevcord.OptionKindString, true).
 				AutoComplete(b.queries.Autocomplete),
 		),
+		sevcord.NewSlashCommand(
+			"categories",
+			"See the categories an element is in!",
+			b.pages.ElemCats,
+			sevcord.NewOption("element", "The element to view the categories of!", sevcord.OptionKindInt, true).
+				AutoComplete(b.elements.Autocomplete),
+		),
 	))
+	b.s.AddButtonHandler("elemcats", b.pages.ElemCatHandler)
 	b.s.RegisterSlashCommand(sevcord.NewSlashCommand(
 		"hint",
 		"Learn how to make an element!",
