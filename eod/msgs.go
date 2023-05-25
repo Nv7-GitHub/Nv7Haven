@@ -1,6 +1,7 @@
 package eod
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -60,7 +61,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 
 		var id string
 		if strings.HasPrefix(content, "<@") && strings.HasSuffix(content, ">") {
-			id = content[2:len(content)-1]
+			id = content[2 : len(content)-1]
 		} else {
 			id = content
 			if content == "" {
@@ -208,6 +209,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 			return
 		}
 		b.elements.Suggest(c, []any{any(content[1:]), nil})
+		return
 	}
 	if strings.HasPrefix(content, "+") {
 		if len(content) < 2 {
@@ -281,7 +283,12 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 			c.Respond(sevcord.NewMessage("Invalid number of repeats! " + types.RedCircle))
 			return
 		}
-		if cnt < 1 {
+		if cnt > types.MaxComboLength {
+			c.Respond(sevcord.NewMessage(fmt.Sprintf("You can only combine up to %d elements! "+types.RedCircle, types.MaxComboLength)))
+			return
+		}
+		if cnt < 2 {
+			c.Respond(sevcord.NewMessage("You need to combine at least 2 elements! " + types.RedCircle))
 			return
 		}
 		if len(parts) == 2 {

@@ -47,7 +47,7 @@ func (p *Pages) Init() {
 	// Categories
 	p.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup("cat", "View categories!", sevcord.NewSlashCommand(
 		"list",
-		"View a list of every categories!",
+		"View a list of all categories!",
 		p.CatList,
 		sevcord.NewOption("sort", "How to order the categories!", sevcord.OptionKindString, false).AddChoices(catListSorts...),
 	), sevcord.NewSlashCommand(

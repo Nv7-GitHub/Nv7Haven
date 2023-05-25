@@ -186,3 +186,4 @@ type CombCache struct {
 const RedCircle = "🔴"
 const Check = "<:eodCheck:765333533362225222>"
 const NoCheck = "❌"
+const MaxComboLength = 21

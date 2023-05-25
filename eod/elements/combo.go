@@ -12,7 +12,6 @@ import (
 	"github.com/lib/pq"
 )
 
-const maxLength = 21
 const suggestCmdId = "1041173178912878662"
 
 func makeListResp(start, join, end string, vals []string) string {
@@ -34,8 +33,8 @@ func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 	c.Acknowledge()
 	e.base.IncrementCommandStat(c, "combine")
 
-	if len(elemVals) > maxLength {
-		c.Respond(sevcord.NewMessage(fmt.Sprintf("You can only combine up to %d elements! "+types.RedCircle, maxLength)))
+	if len(elemVals) > types.MaxComboLength {
+		c.Respond(sevcord.NewMessage(fmt.Sprintf("You can only combine up to %d elements! "+types.RedCircle, types.MaxComboLength)))
 		return
 	}
 	if len(elemVals) < 2 {
