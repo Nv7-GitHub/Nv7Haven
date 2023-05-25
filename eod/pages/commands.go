@@ -42,7 +42,7 @@ func (p *Pages) CommandLbHandler(c sevcord.Ctx, params string) {
 	// Description
 	desc := &strings.Builder{}
 	for i, val := range vals {
-		fmt.Fprintf(desc, "%d. **%s** - %s\n", i+1+length*page, val.Command, humanize.Comma(int64(val.Count)))
+		fmt.Fprintf(desc, "%d\\. **%s** - %s\n", i+1+length*page, val.Command, humanize.Comma(int64(val.Count)))
 	}
 
 	// Create
