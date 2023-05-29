@@ -136,6 +136,13 @@ func (q *Queries) Init() {
 		sevcord.NewOption("query", "The query to view the path of!", sevcord.OptionKindString, true).
 			AutoComplete(q.Autocomplete),
 	).RequirePermissions(discordgo.PermissionManageServer))
+	q.s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"give",
+		"Give the elements in a query to a user!",
+		q.base.Give,
+		sevcord.NewOption("user", "The user to give the elements to!", sevcord.OptionKindUser, true),
+		sevcord.NewOption("query", "The query to give the elements of!", sevcord.OptionKindString, true).AutoComplete(q.Autocomplete),
+	).RequirePermissions(discordgo.PermissionManageChannels))
 }
 
 func NewQueries(s *sevcord.Sevcord, db *sqlx.DB, base *base.Base, polls *polls.Polls, elements *elements.Elements, categories *categories.Categories) *Queries {
