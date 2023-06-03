@@ -35,17 +35,17 @@ func (b *Polls) reactionHandler(s *discordgo.Session, r *discordgo.MessageReacti
 		return
 	}
 
-	// User trying to delete?
-	if r.UserID == p.Creator && r.Emoji.Name == DownArrow {
-		b.deletePoll(&p, s)
-		return
-	}
-
 	// Handle
 	if r.Emoji.Name == UpArrow {
 		p.Upvotes++
 	} else {
 		p.Downvotes++
+	}
+	
+	// User trying to delete?
+	if r.UserID == p.Creator && r.Emoji.Name == DownArrow {
+		b.deletePoll(&p, s)
+		return
 	}
 
 	// Update
