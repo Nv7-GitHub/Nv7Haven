@@ -24,6 +24,11 @@ func (e *Elements) Init() {
 		sevcord.NewOption("autocapitalize", "Whether or not to autocapitalize!", sevcord.OptionKindBool, false),
 	))
 	e.s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"next",
+		"Find the next element to make!",
+		e.Next,
+	))
+	e.s.RegisterSlashCommand(sevcord.NewSlashCommand(
 		"products",
 		"View the elements that can be created using this element!",
 		e.Products,
