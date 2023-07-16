@@ -67,6 +67,7 @@ func (e *Elements) Next(c sevcord.Ctx, opts []any) {
 			}
 			desc.WriteString(name)
 		}
+		desc.WriteRune('\n')
 	}
 
 	emb := sevcord.NewEmbed().
