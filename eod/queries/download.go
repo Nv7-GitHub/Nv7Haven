@@ -4,12 +4,17 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/lib/pq"
 )
 
 func (q *Queries) Download(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
+	sort := "id"
+	if opts[1] != nil {
+		sort = opts[1].(string)
+	}
 
 	// Get query
 	qu, ok := q.base.CalcQuery(c, opts[0].(string))
@@ -19,7 +24,7 @@ func (q *Queries) Download(c sevcord.Ctx, opts []any) {
 
 	// Get names
 	var names []string
-	err := q.db.Select(&names, `SELECT name FROM elements WHERE guild=$1 AND id=ANY($2)`, c.Guild(), pq.Array(qu.Elements))
+	err := q.db.Select(&names, `SELECT name FROM elements WHERE guild=$1 AND id=ANY($2) ORDER BY `+types.SortSql[sort], c.Guild(), pq.Array(qu.Elements))
 	if err != nil {
 		q.base.Error(c, err)
 		return

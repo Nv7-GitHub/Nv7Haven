@@ -108,6 +108,8 @@ func (p *Pages) Init() {
 		p.queries.Download,
 		sevcord.NewOption("query", "The query to download", sevcord.OptionKindString, true).
 			AutoComplete(p.queries.Autocomplete),
+		sevcord.NewOption("sort", "How to sort the elements!", sevcord.OptionKindString, false).
+			AddChoices(types.Sorts...),
 	)))
 	p.s.AddButtonHandler("querylist", p.QueryListHandler)
 	p.s.AddButtonHandler("query", p.QueryHandler)
