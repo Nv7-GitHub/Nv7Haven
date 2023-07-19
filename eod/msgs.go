@@ -224,7 +224,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 
 		comb, ok := b.base.GetCombCache(c)
 		if !ok.Ok {
-			c.Respond(sevcord.NewMessage(ok.Message + " " + types.RedCircle))
+			c.Respond(ok.Response())
 			return
 		}
 		name, err := b.base.GetName(c.Guild(), comb.Result)
@@ -302,7 +302,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 			// Get prev
 			comb, ok := b.base.GetCombCache(c)
 			if !ok.Ok {
-				c.Respond(sevcord.NewMessage(ok.Message + " " + types.RedCircle))
+				c.Respond(ok.Response())
 				return
 			}
 			if comb.Result == -1 {

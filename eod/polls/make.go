@@ -1,7 +1,6 @@
 package polls
 
 import (
-	"errors"
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -9,7 +8,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-func (b *Polls) CreatePoll(c sevcord.Ctx, p *types.Poll) error {
+func (b *Polls) CreatePoll(c sevcord.Ctx, p *types.Poll) types.Resp {
 	dg := c.Dg()
 	p.Guild = c.Guild()
 	p.Creator = c.Author().User.ID
@@ -19,52 +18,55 @@ func (b *Polls) CreatePoll(c sevcord.Ctx, p *types.Poll) error {
 	var pollcnt int
 	err := b.db.QueryRow("SELECT pollcnt FROM config WHERE guild=$1", c.Guild()).Scan(&pollcnt)
 	if err != nil {
-		return err
+		return types.Error(err)
 	}
 	if pollcnt > 0 {
 		var cnt int
 		err = b.db.QueryRow("SELECT COUNT(*) FROM polls WHERE guild=$1 AND creator=$2", c.Guild(), p.Creator).Scan(&cnt)
 		if err != nil {
-			return err
+			return types.Error(err)
 		}
 		if cnt >= pollcnt {
-			return errors.New("polls: limit reached")
+			return types.Fail("Poll limit reached!")
 		}
 	}
 
 	// Get embed
 	emb, err := b.makePollEmbed(p)
 	if err != nil {
-		return err
+		return types.Error(err)
 	}
 	v := emb.Dg()
 
 	// Get voting channel
 	err = b.db.QueryRow("SELECT voting FROM config WHERE guild=$1", c.Guild()).Scan(&p.Channel)
 	if err != nil {
-		return err
+		return types.Error(err)
 	}
 
 	// Send
 	msg, err := dg.ChannelMessageSendEmbed(p.Channel, v)
 	if err != nil {
-		return err
+		return types.Error(err)
 	}
 	p.Message = msg.ID
 
 	// Add reactions
 	err = dg.MessageReactionAdd(p.Channel, msg.ID, UpArrow)
 	if err != nil {
-		return err
+		return types.Error(err)
 	}
 	err = dg.MessageReactionAdd(p.Channel, msg.ID, DownArrow)
 	if err != nil {
-		return err
+		return types.Error(err)
 	}
 
 	// Add to database
 	_, err = b.db.NamedExec("INSERT INTO polls (guild, channel, message, kind, creator, createdon, data, upvotes, downvotes) VALUES (:guild, :channel, :message, :kind, :creator, :createdon, :data, :upvotes, :downvotes)", p)
-	return err
+	if err != nil {
+		return types.Error(err)
+	}
+	return types.Ok()
 }
 
 func (b *Polls) checkPoll(p *types.Poll, votecnt int, dg *discordgo.Session) {

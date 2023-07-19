@@ -3,6 +3,7 @@ package types
 import (
 	"database/sql/driver"
 	"encoding/json"
+	"errors"
 	"strconv"
 	"sync"
 	"time"
@@ -15,11 +16,36 @@ import (
 // Resp
 type Resp struct {
 	Ok      bool
-	Message string
+	message string
+	error   error
 }
 
 func Ok() Resp                 { return Resp{Ok: true} }
-func Fail(message string) Resp { return Resp{Ok: false, Message: message} }
+func Fail(message string) Resp { return Resp{Ok: false, message: message} }
+func Error(err error) Resp     { return Resp{Ok: false, error: err} }
+func (r *Resp) Response() sevcord.MessageSend {
+	if r.Ok {
+		return sevcord.NewMessage("Success!")
+	}
+	if r.error != nil {
+		return sevcord.NewMessage("").AddEmbed(
+			sevcord.NewEmbed().
+				Title("Error").
+				Color(15548997). // Red
+				Description("```" + r.error.Error() + "```"),
+		)
+	}
+	return sevcord.NewMessage(r.message + " " + RedCircle)
+}
+func (r *Resp) Error() error {
+	if r.Ok {
+		return nil
+	}
+	if r.error != nil {
+		return r.error
+	}
+	return errors.New(r.message)
+}
 
 // Element
 type Element struct {

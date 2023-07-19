@@ -42,7 +42,7 @@ func (e *Elements) Suggest(c sevcord.Ctx, opts []any) {
 	// Get els
 	v, res := e.base.GetCombCache(c)
 	if !res.Ok {
-		c.Respond(sevcord.NewMessage(res.Message))
+		c.Respond(res.Response())
 		return
 	}
 
@@ -67,7 +67,7 @@ func (e *Elements) Suggest(c sevcord.Ctx, opts []any) {
 		var ok types.Resp
 		idV, ok = base.CheckName(idV.(string))
 		if !ok.Ok {
-			c.Respond(sevcord.NewMessage(ok.Message + " " + types.RedCircle))
+			c.Respond(ok.Response())
 			return
 		}
 	} else {
@@ -75,15 +75,15 @@ func (e *Elements) Suggest(c sevcord.Ctx, opts []any) {
 	}
 
 	// Create suggestion
-	err = e.polls.CreatePoll(c, &types.Poll{
+	res = e.polls.CreatePoll(c, &types.Poll{
 		Kind: types.PollKindCombo,
 		Data: types.PgData{
 			"els":    util.Map(v.Elements, func(a int) any { return float64(a) }),
 			"result": idV,
 		},
 	})
-	if err != nil {
-		e.base.Error(c, err)
+	if !res.Ok {
+		c.Respond(res.Response())
 		return
 	}
 

@@ -50,7 +50,7 @@ func (q *Queries) createCmd(c sevcord.Ctx, name string, kind types.QueryKind, da
 		var ok types.Resp
 		name, ok = base.CheckName(name)
 		if !ok.Ok {
-			c.Respond(sevcord.NewMessage(ok.Message + " " + types.RedCircle))
+			c.Respond(ok.Response())
 			return
 		}
 	}
@@ -77,7 +77,7 @@ func (q *Queries) createCmd(c sevcord.Ctx, name string, kind types.QueryKind, da
 		c.Respond(sevcord.NewMessage("Created query! 🧮"))
 		return
 	}
-	err = q.polls.CreatePoll(c, &types.Poll{
+	res := q.polls.CreatePoll(c, &types.Poll{
 		Kind: types.PollKindQuery,
 		Data: types.PgData{
 			"query": name,
@@ -86,8 +86,8 @@ func (q *Queries) createCmd(c sevcord.Ctx, name string, kind types.QueryKind, da
 			"data":  any(data),
 		},
 	})
-	if err != nil {
-		q.base.Error(c, err)
+	if !res.Ok {
+		c.Respond(res.Response())
 		return
 	}
 

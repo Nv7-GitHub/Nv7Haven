@@ -32,14 +32,14 @@ func (q *Queries) DeleteQuery(c sevcord.Ctx, opts []any) {
 	}
 
 	// Delete
-	err = q.polls.CreatePoll(c, &types.Poll{
+	res := q.polls.CreatePoll(c, &types.Poll{
 		Kind: types.PollKindDelQuery,
 		Data: types.PgData{
 			"query": name,
 		},
 	})
-	if err != nil {
-		q.base.Error(c, err)
+	if !res.Ok {
+		c.Respond(res.Response())
 		return
 	}
 

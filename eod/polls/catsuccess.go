@@ -37,7 +37,7 @@ func (p *Polls) categorizeSuccess(po *types.Poll, news func(string)) error {
 		// Check if valid name
 		name, ok := base.CheckName(po.Data["cat"].(string))
 		if !ok.Ok {
-			return errors.New(ok.Message)
+			return ok.Error()
 		}
 		po.Data["cat"] = name
 		// Make

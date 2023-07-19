@@ -61,15 +61,15 @@ func (c *Categories) CatEditCmd(ctx sevcord.Ctx, cat string, elems []int, kind t
 	}
 
 	// Make poll
-	err = c.polls.CreatePoll(ctx, &types.Poll{
+	res := c.polls.CreatePoll(ctx, &types.Poll{
 		Kind: kind,
 		Data: types.PgData{
 			"cat":   name,
 			"elems": util.Map(elems, func(v int) any { return any(float64(v)) }),
 		},
 	})
-	if err != nil {
-		c.base.Error(ctx, err)
+	if !res.Ok {
+		ctx.Respond(res.Response())
 		return
 	}
 
@@ -98,15 +98,15 @@ func (c *Categories) DelCat(ctx sevcord.Ctx, opts []any) {
 	}
 
 	// Make poll
-	err = c.polls.CreatePoll(ctx, &types.Poll{
+	res := c.polls.CreatePoll(ctx, &types.Poll{
 		Kind: types.PollKindUncategorize,
 		Data: types.PgData{
 			"cat":   name,
 			"elems": util.Map([]int32(els), func(v int32) any { return any(float64(v)) }),
 		},
 	})
-	if err != nil {
-		c.base.Error(ctx, err)
+	if !res.Ok {
+		ctx.Respond(res.Response())
 		return
 	}
 
