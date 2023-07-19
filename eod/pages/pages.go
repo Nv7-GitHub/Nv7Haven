@@ -110,6 +110,8 @@ func (p *Pages) Init() {
 			AutoComplete(p.queries.Autocomplete),
 		sevcord.NewOption("sort", "How to sort the elements!", sevcord.OptionKindString, false).
 			AddChoices(types.Sorts...),
+		sevcord.NewOption("postfix", "Retrieve data from the element!", sevcord.OptionKindString, false).
+			AddChoices(types.Postfixes...),
 	)))
 	p.s.AddButtonHandler("querylist", p.QueryListHandler)
 	p.s.AddButtonHandler("query", p.QueryHandler)

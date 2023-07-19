@@ -3,9 +3,11 @@ package types
 import (
 	"database/sql/driver"
 	"encoding/json"
+	"strconv"
 	"sync"
 	"time"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/lib/pq"
 )
@@ -119,6 +121,40 @@ var SortSql = map[string]string{
 	"createdon": "createdon",
 	"treesize":  "treesize DESC",
 	"length":    "LENGTH(name) DESC",
+}
+
+var Postfixes = []sevcord.Choice{
+	sevcord.NewChoice("ID", "id"),
+	sevcord.NewChoice("Name", "name"),
+	sevcord.NewChoice("Image", "image"),
+	sevcord.NewChoice("Color", "color"),
+	sevcord.NewChoice("Creator", "creator"),
+	sevcord.NewChoice("Created On", "createdon"),
+	sevcord.NewChoice("Commenter", "commenter"),
+	sevcord.NewChoice("Colorer", "colorer"),
+	sevcord.NewChoice("Imager", "imager"),
+	sevcord.NewChoice("Tree Size", "treesize"),
+}
+
+var PostfixSql = map[string]string{
+	"id":        "id::text",
+	"name":      "name",
+	"image":     "image",
+	"color":     "color::text",
+	"creator":   "creator",
+	"createdon": "createdon",
+	"commenter": "commenter",
+	"colorer":   "colorer",
+	"imager":    "imager",
+	"treesize":  "treesize::text",
+}
+
+func GetPostfixVal(val, postfix string) string {
+	if postfix == "color" {
+		num, _ := strconv.Atoi(val)
+		return util.FormatHex(num)
+	}
+	return val
 }
 
 // Queries

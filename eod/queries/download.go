@@ -21,13 +21,31 @@ func (q *Queries) Download(c sevcord.Ctx, opts []any) {
 	if !ok {
 		return
 	}
+	sql := `SELECT name FROM elements WHERE guild=$1 AND id=ANY($2) ORDER BY ` + types.SortSql[sort]
+	if opts[2] != nil {
+		sql = `SELECT name, ` + types.PostfixSql[opts[2].(string)] + ` postfix FROM elements WHERE guild=$1 AND id=ANY($2) ORDER BY ` + types.SortSql[sort]
+	}
 
 	// Get names
-	var names []string
-	err := q.db.Select(&names, `SELECT name FROM elements WHERE guild=$1 AND id=ANY($2) ORDER BY `+types.SortSql[sort], c.Guild(), pq.Array(qu.Elements))
+	var names []struct {
+		Name    string `db:"name"`
+		Postfix string `db:"postfix"`
+	}
+	err := q.db.Select(&names, sql, c.Guild(), pq.Array(qu.Elements))
 	if err != nil {
 		q.base.Error(c, err)
 		return
+	}
+
+	// Make text
+	out := &strings.Builder{}
+	for _, name := range names {
+		out.WriteString(name.Name)
+		if opts[2] != nil {
+			out.WriteString(" - ")
+			out.WriteString(types.GetPostfixVal(name.Postfix, opts[2].(string)))
+		}
+		out.WriteRune('\n')
 	}
 
 	// Send
@@ -37,7 +55,7 @@ func (q *Queries) Download(c sevcord.Ctx, opts []any) {
 		return
 	}
 	msg := sevcord.NewMessage(fmt.Sprintf("📄 Query **%s**:", qu.Name)).
-		AddFile("query.txt", "text/plain", strings.NewReader(strings.Join(names, "\n")))
+		AddFile("query.txt", "text/plain", strings.NewReader(out.String()))
 	_, err = c.Dg().ChannelMessageSendComplex(dm.ID, msg.Dg())
 	if err != nil {
 		q.base.Error(c, err)
