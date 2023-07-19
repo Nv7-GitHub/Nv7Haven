@@ -151,7 +151,6 @@ var SortSql = map[string]string{
 
 var Postfixes = []sevcord.Choice{
 	sevcord.NewChoice("ID", "id"),
-	sevcord.NewChoice("Name", "name"),
 	sevcord.NewChoice("Image", "image"),
 	sevcord.NewChoice("Color", "color"),
 	sevcord.NewChoice("Creator", "creator"),
@@ -164,7 +163,6 @@ var Postfixes = []sevcord.Choice{
 
 var PostfixSql = map[string]string{
 	"id":        "id::text",
-	"name":      "name",
 	"image":     "image",
 	"color":     "color::text",
 	"creator":   "creator",
