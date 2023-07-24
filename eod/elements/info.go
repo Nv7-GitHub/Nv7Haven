@@ -36,6 +36,8 @@ func (e *Elements) InfoMsgCmd(c sevcord.Ctx, val string) {
 	e.Info(c, id)
 }
 
+const catInfoCount = 3
+
 func (e *Elements) Info(c sevcord.Ctx, el int) {
 	// Get element
 	var elem types.Element
@@ -79,6 +81,19 @@ func (e *Elements) Info(c sevcord.Ctx, el int) {
 		return
 	}
 
+	// Do categories
+	var categories []string
+	err = e.db.Select(&categories, "SELECT name FROM categories WHERE $1=ANY(elements) AND guild=$2", elem.ID, c.Guild())
+	if err != nil {
+		e.base.Error(c, err)
+		return
+	}
+	cnt := len(categories)
+	if cnt > catInfoCount {
+		categories = categories[:catInfoCount]
+		categories = append(categories, fmt.Sprintf("and %d more...", cnt-catInfoCount))
+	}
+
 	// Element ID
 	description = fmt.Sprintf("Element **#%d**\n", elem.ID) + description
 
@@ -106,6 +121,9 @@ func (e *Elements) Info(c sevcord.Ctx, el int) {
 	}
 	if elem.Imager != "" {
 		emb = emb.AddField("Imager", fmt.Sprintf("<@%s>", elem.Imager), true)
+	}
+	if len(categories) > 0 {
+		emb = emb.AddField("Categories", strings.Join(categories, ", "), true)
 	}
 
 	// Respond
