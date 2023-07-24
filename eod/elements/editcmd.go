@@ -1,10 +1,25 @@
 package elements
 
 import (
+	"fmt"
+	"log"
 	"time"
 
 	"github.com/Nv7-Github/sevcord/v2"
 )
+
+func (e *Elements) editNewsMessage(c sevcord.Ctx, message string) {
+	var news string
+	err := e.db.QueryRow(`SELECT news FROM config WHERE guild=$1`, c.Guild()).Scan(&news)
+	if err != nil {
+		log.Println("news err", err)
+		return
+	}
+	_, err = c.Dg().ChannelMessageSend(news, fmt.Sprintf("🔨 "+message))
+	if err != nil {
+		log.Println("news err", err)
+	}
+}
 
 func (e *Elements) editCmd(c sevcord.Ctx, opts []any, field string, name ...string) {
 	c.Acknowledge()
@@ -17,7 +32,14 @@ func (e *Elements) editCmd(c sevcord.Ctx, opts []any, field string, name ...stri
 	if len(name) > 0 {
 		nameV = name[0]
 	}
+	// Get element name
+	nameE, err := e.base.GetName(c.Guild(), int(opts[0].(int64)))
+	if err != nil {
+		e.base.Error(c, err)
+		return
+	}
 	c.Respond(sevcord.NewMessage("Successfully edited element " + nameV + "! ✅"))
+	e.editNewsMessage(c, fmt.Sprintf("Edited Element %s - **%s**", nameV, nameE))
 }
 
 func (e *Elements) EditElementNameCmd(c sevcord.Ctx, opts []any) {
