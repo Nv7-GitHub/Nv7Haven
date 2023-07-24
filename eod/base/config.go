@@ -17,7 +17,7 @@ func (b *Base) configNewsMessage(c sevcord.Ctx, message string) {
 		log.Println("news err", err)
 		return
 	}
-	_, err = c.Dg().ChannelMessageSend(news, fmt.Sprintf("⚙ "+message))
+	_, err = c.Dg().ChannelMessageSend(news, fmt.Sprintf("⚙️ "+message))
 	if err != nil {
 		log.Println("news err", err)
 	}
