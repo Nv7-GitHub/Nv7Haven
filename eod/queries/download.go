@@ -55,7 +55,7 @@ func (q *Queries) Download(c sevcord.Ctx, opts []any) {
 		return
 	}
 	msg := sevcord.NewMessage(fmt.Sprintf("📄 Query **%s**:", qu.Name)).
-		AddFile("query.txt", "text/plain", strings.NewReader(out.String()))
+		AddFile("query.txt", "text/plain", strings.NewReader(out.String()), out.Len())
 	_, err = c.Dg().ChannelMessageSendComplex(dm.ID, msg.Dg())
 	if err != nil {
 		q.base.Error(c, err)

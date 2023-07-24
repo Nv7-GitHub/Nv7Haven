@@ -76,6 +76,7 @@ func (q *Queries) PathCmd(c sevcord.Ctx, opts []any, text bool) {
 
 	// Make reader
 	var outreader io.Reader
+	var outlen int
 	var name string
 	var typ string
 	if text {
@@ -88,6 +89,7 @@ func (q *Queries) PathCmd(c sevcord.Ctx, opts []any, text bool) {
 			q.base.Error(c, err)
 			return
 		}
+		outlen = len(dat)
 		outreader = bytes.NewReader(dat)
 		name = "path.json"
 		typ = "application/json"
@@ -100,7 +102,7 @@ func (q *Queries) PathCmd(c sevcord.Ctx, opts []any, text bool) {
 		return
 	}
 	msg := sevcord.NewMessage(fmt.Sprintf("📄 Path for **%s**:", qu.Name)).
-		AddFile(name, typ, outreader)
+		AddFile(name, typ, outreader, outlen)
 	_, err = c.Dg().ChannelMessageSendComplex(dm.ID, msg.Dg())
 	if err != nil {
 		q.base.Error(c, err)
