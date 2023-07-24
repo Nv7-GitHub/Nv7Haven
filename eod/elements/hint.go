@@ -38,8 +38,6 @@ func Obscure(val string) string {
 	return string(out)
 }
 
-// Format: user|elementid|query
-
 const hintQuery = `SELECT id FROM elements WHERE 
 guild=$1 AND 
 NOT (id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2))
@@ -47,6 +45,7 @@ NOT (id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2))
 %s
 LIMIT 1`
 
+// Format: user|elementid|query
 func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 	parts := strings.Split(params, "|")
 	if c.Author().User.ID != parts[0] {

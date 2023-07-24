@@ -3,6 +3,7 @@ package elements
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -12,13 +13,31 @@ import (
 	"github.com/lib/pq"
 )
 
-func (e *Elements) Next(c sevcord.Ctx, opts []any) {
-	c.Acknowledge()
+// Format: user|query|offset
+func (e *Elements) NextHandler(c sevcord.Ctx, params string) {
+	parts := strings.Split(params, "|")
+	if c.Author().User.ID != parts[0] {
+		c.Acknowledge()
+		c.Respond(sevcord.NewMessage("You are not authorized! " + types.RedCircle))
+		return
+	}
+	offset, _ := strconv.Atoi(parts[2])
 
 	// Get element to make
+	qu := parts[1]
+	var err error
 	var res int
-	err := e.db.QueryRow(`WITH inv as (SELECT inv FROM inventories WHERE "user"=$2 AND guild=$1)
-	SELECT result FROM combos WHERE els <@ (SELECT inv FROM inv) AND NOT (result=ANY(SELECT UNNEST(inv) FROM inv)) AND guild=$1 LIMIT 1`, c.Guild(), c.Author().User.ID).Scan(&res)
+	if qu == "" { // No query
+		err = e.db.QueryRow(`WITH inv as (SELECT inv FROM inventories WHERE "user"=$2 AND guild=$1)
+	SELECT result FROM combos WHERE els <@ (SELECT inv FROM inv) AND NOT (result=ANY(SELECT UNNEST(inv) FROM inv)) AND guild=$1 LIMIT 1 OFFSET $3`, c.Guild(), c.Author().User.ID, offset).Scan(&res)
+	} else { // With query
+		query, ok := e.base.CalcQuery(c, qu)
+		if !ok {
+			return
+		}
+		err = e.db.QueryRow(`WITH inv as (SELECT inv FROM inventories WHERE "user"=$2 AND guild=$1)
+	SELECT result FROM combos WHERE els <@ (SELECT inv FROM inv) AND NOT (result=ANY(SELECT UNNEST(inv) FROM inv)) AND guild=$1 AND id=ANY($4) LIMIT 1 OFFSET $3`, c.Guild(), c.Author().User.ID, offset, pq.Array(query.Elements)).Scan(&res)
+	}
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.Respond(sevcord.NewMessage("Nothing to do next found! Try again later. " + types.RedCircle))
@@ -70,11 +89,23 @@ func (e *Elements) Next(c sevcord.Ctx, opts []any) {
 		desc.WriteRune('\n')
 	}
 
+	params = fmt.Sprintf("%s|%s|%d", parts[0], parts[1], offset+1)
 	emb := sevcord.NewEmbed().
 		Title("Your next element is "+nameMap[int(res)]).
 		Description(desc.String()).
 		Color(15158332). // Red
 		Footer(fmt.Sprintf("%s Combos", humanize.Comma(int64(itemCnt))), "")
 	c.Respond(sevcord.NewMessage("").
-		AddEmbed(emb))
+		AddEmbed(emb).
+		AddComponentRow(sevcord.NewButton("Next Element", sevcord.ButtonStylePrimary, "next", params).
+			WithEmoji(sevcord.ComponentEmojiCustom("next", "1133079167043375204", false))))
+}
+
+func (e *Elements) Next(c sevcord.Ctx, opts []any) {
+	c.Acknowledge()
+	query := ""
+	if opts[0] != nil {
+		query = opts[0].(string)
+	}
+	e.NextHandler(c, fmt.Sprintf("%s|%s|0", c.Author().User.ID, query))
 }

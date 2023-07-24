@@ -121,4 +121,12 @@ func (b *Bot) Init() {
 			AutoComplete(b.queries.Autocomplete),
 	))
 	b.s.AddButtonHandler("hint", b.elements.HintHandler)
+	b.s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"next",
+		"Find the next element to make!",
+		b.elements.Next,
+		sevcord.NewOption("query", "A query to select the random element to be made from!", sevcord.OptionKindString, false).
+			AutoComplete(b.queries.Autocomplete),
+	))
+	b.s.AddButtonHandler("next", b.elements.NextHandler)
 }
