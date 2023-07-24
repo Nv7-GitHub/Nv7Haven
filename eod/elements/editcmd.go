@@ -3,6 +3,7 @@ package elements
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/Nv7-Github/sevcord/v2"
@@ -39,7 +40,7 @@ func (e *Elements) editCmd(c sevcord.Ctx, opts []any, field string, name ...stri
 		return
 	}
 	c.Respond(sevcord.NewMessage("Successfully edited element " + nameV + "! ✅"))
-	e.editNewsMessage(c, fmt.Sprintf("Edited Element %s - **%s**", nameV, nameE))
+	e.editNewsMessage(c, fmt.Sprintf("Edited Element %s - **%s**", strings.Title(nameV), nameE))
 }
 
 func (e *Elements) EditElementNameCmd(c sevcord.Ctx, opts []any) {
