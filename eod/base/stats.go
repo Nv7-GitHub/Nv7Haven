@@ -52,6 +52,7 @@ func (b *Base) Stats(c sevcord.Ctx, opts []any) {
 		b.Error(c, err)
 		return
 	}
+	cmds += int64(b.getMem(c).CommandStatsTODOCnt) // Include count not pushed to DB
 
 	// Embed
 	emb := sevcord.NewEmbed().Title("Stats").
