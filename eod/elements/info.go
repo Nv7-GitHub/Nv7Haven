@@ -123,7 +123,7 @@ func (e *Elements) Info(c sevcord.Ctx, el int) {
 		emb = emb.AddField("Imager", fmt.Sprintf("<@%s>", elem.Imager), true)
 	}
 	if len(categories) > 0 {
-		emb = emb.AddField("Categories", strings.Join(categories, ", "), true)
+		emb = emb.AddField("Categories", strings.Join(categories, ", "), false)
 	}
 
 	// Respond
