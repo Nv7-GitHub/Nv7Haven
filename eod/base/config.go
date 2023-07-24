@@ -33,7 +33,7 @@ func (b *Base) configChannel(c sevcord.Ctx, field string, value any, message str
 	}
 
 	c.Respond(sevcord.NewMessage(fmt.Sprintf("Successfully updated %s!", message)))
-	b.configNewsMessage(c, fmt.Sprintf("Changed Config - %s", strings.ToTitle(message)))
+	b.configNewsMessage(c, fmt.Sprintf("Changed Config - **%s**", strings.Title(message)))
 }
 
 func (b *Base) ConfigVoting(c sevcord.Ctx, opts []any) {
@@ -67,7 +67,7 @@ func (b *Base) ConfigPlayChannels(c sevcord.Ctx, opts []any) {
 			ChannelMenuFilter(discordgo.ChannelTypeGuildText).
 			SetRange(0, 25),
 	))
-	b.configNewsMessage(c, "Changed Config - Play Channels")
+	b.configNewsMessage(c, "Changed Config - **Play Channels**")
 }
 
 func (b *Base) ConfigPlayChannelsHandler(c sevcord.Ctx, params string, opts []string) {
