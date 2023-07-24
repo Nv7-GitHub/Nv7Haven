@@ -118,6 +118,7 @@ func (b *Bot) Init() {
 		),
 	))
 	b.s.AddButtonHandler("elemcats", b.pages.ElemCatHandler)
+	b.s.AddButtonHandler("elemfound", b.pages.ElemFoundHandler)
 	b.s.RegisterSlashCommand(sevcord.NewSlashCommand(
 		"hint",
 		"Learn how to make an element!",
