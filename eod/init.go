@@ -109,6 +109,13 @@ func (b *Bot) Init() {
 			sevcord.NewOption("element", "The element to view the categories of!", sevcord.OptionKindInt, true).
 				AutoComplete(b.elements.Autocomplete),
 		),
+		sevcord.NewSlashCommand(
+			"found",
+			"See who has found an element!",
+			b.pages.ElemFound,
+			sevcord.NewOption("element", "The element to view the people who have found!", sevcord.OptionKindInt, true).
+				AutoComplete(b.elements.Autocomplete),
+		),
 	))
 	b.s.AddButtonHandler("elemcats", b.pages.ElemCatHandler)
 	b.s.RegisterSlashCommand(sevcord.NewSlashCommand(
