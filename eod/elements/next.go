@@ -36,7 +36,7 @@ func (e *Elements) NextHandler(c sevcord.Ctx, params string) {
 			return
 		}
 		err = e.db.QueryRow(`WITH inv as (SELECT inv FROM inventories WHERE "user"=$2 AND guild=$1)
-	SELECT result FROM combos WHERE els <@ (SELECT inv FROM inv) AND NOT (result=ANY(SELECT UNNEST(inv) FROM inv)) AND guild=$1 AND id=ANY($4) LIMIT 1 OFFSET $3`, c.Guild(), c.Author().User.ID, offset, pq.Array(query.Elements)).Scan(&res)
+	SELECT result FROM combos WHERE els <@ (SELECT inv FROM inv) AND NOT (result=ANY(SELECT UNNEST(inv) FROM inv)) AND guild=$1 AND result=ANY($4) LIMIT 1 OFFSET $3`, c.Guild(), c.Author().User.ID, offset, pq.Array(query.Elements)).Scan(&res)
 	}
 	if err != nil {
 		if err == sql.ErrNoRows {
