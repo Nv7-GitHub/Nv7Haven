@@ -31,7 +31,7 @@ func (p *Pages) ElemFoundHandler(c sevcord.Ctx, params string) {
 
 	// Get values
 	var found []string
-	err = p.db.Select(&found, `SELECT "user" FROM inventories WHERE $2=ANY(inv) AND guild=$1 ORDER BY array_length(inv, 1) DESC LIMIT $3 OFFSET $4'`, c.Guild(), elem, length, length*page)
+	err = p.db.Select(&found, `SELECT "user" FROM inventories WHERE $2=ANY(inv) AND guild=$1 ORDER BY array_length(inv, 1) DESC LIMIT $3 OFFSET $4`, c.Guild(), elem, length, length*page)
 	if err != nil {
 		p.base.Error(c, err)
 		return
