@@ -22,7 +22,7 @@ func (e *Elements) ImageCmd(c sevcord.Ctx, id int, image string) {
 	}
 
 	// Make poll
-	e.polls.CreatePoll(c, &types.Poll{
+	res := e.polls.CreatePoll(c, &types.Poll{
 		Kind: types.PollKindImage,
 		Data: types.PgData{
 			"elem": float64(id),
@@ -30,6 +30,10 @@ func (e *Elements) ImageCmd(c sevcord.Ctx, id int, image string) {
 			"old":  old,
 		},
 	})
+	if !res.Ok {
+		c.Respond(res.Response())
+		return
+	}
 
 	// Respond
 	c.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested an image for **%s** 📷", elem)))
@@ -48,7 +52,7 @@ func (e *Elements) SignCmd(c sevcord.Ctx, opts []any) {
 	// Get mark
 	c.(*sevcord.InteractionCtx).Modal(sevcord.NewModal("Sign Element", func(c sevcord.Ctx, s []string) {
 		// Make poll
-		e.polls.CreatePoll(c, &types.Poll{
+		res := e.polls.CreatePoll(c, &types.Poll{
 			Kind: types.PollKindComment,
 			Data: types.PgData{
 				"elem": float64(opts[0].(int64)),
@@ -56,6 +60,10 @@ func (e *Elements) SignCmd(c sevcord.Ctx, opts []any) {
 				"old":  old,
 			},
 		})
+		if !res.Ok {
+			c.Respond(res.Response())
+			return
+		}
 
 		// Respond
 		c.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested a note for **%s** 🖋️", name)))
@@ -91,7 +99,7 @@ func (e *Elements) ColorCmd(c sevcord.Ctx, opts []any) {
 	}
 
 	// Make poll
-	e.polls.CreatePoll(c, &types.Poll{
+	res := e.polls.CreatePoll(c, &types.Poll{
 		Kind: types.PollKindColor,
 		Data: types.PgData{
 			"elem": float64(opts[0].(int64)),
@@ -99,6 +107,10 @@ func (e *Elements) ColorCmd(c sevcord.Ctx, opts []any) {
 			"old":  float64(old),
 		},
 	})
+	if !res.Ok {
+		c.Respond(res.Response())
+		return
+	}
 
 	// Respond
 	c.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested a color for **%s** 🎨", name)))

@@ -22,7 +22,7 @@ func (q *Queries) ImageCmd(ctx sevcord.Ctx, query string, image string) {
 	}
 
 	// Make poll
-	q.polls.CreatePoll(ctx, &types.Poll{
+	res := q.polls.CreatePoll(ctx, &types.Poll{
 		Kind: types.PollKindQueryImage,
 		Data: types.PgData{
 			"query": name,
@@ -30,6 +30,10 @@ func (q *Queries) ImageCmd(ctx sevcord.Ctx, query string, image string) {
 			"old":   old,
 		},
 	})
+	if !res.Ok {
+		ctx.Respond(res.Response())
+		return
+	}
 
 	// Respond
 	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested an image for query **%s** 📷", name)))
@@ -48,7 +52,7 @@ func (q *Queries) SignCmd(ctx sevcord.Ctx, opts []any) {
 	// Get mark
 	ctx.(*sevcord.InteractionCtx).Modal(sevcord.NewModal("Sign Query", func(ctx sevcord.Ctx, s []string) {
 		// Make poll
-		q.polls.CreatePoll(ctx, &types.Poll{
+		res := q.polls.CreatePoll(ctx, &types.Poll{
 			Kind: types.PollKindQueryComment,
 			Data: types.PgData{
 				"query": name,
@@ -56,6 +60,10 @@ func (q *Queries) SignCmd(ctx sevcord.Ctx, opts []any) {
 				"old":   old,
 			},
 		})
+		if !res.Ok {
+			ctx.Respond(res.Response())
+			return
+		}
 
 		// Respond
 		ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested a note for query **%s** 🖋️", name)))
@@ -91,7 +99,7 @@ func (q *Queries) ColorCmd(ctx sevcord.Ctx, opts []any) {
 	}
 
 	// Make poll
-	q.polls.CreatePoll(ctx, &types.Poll{
+	res := q.polls.CreatePoll(ctx, &types.Poll{
 		Kind: types.PollKindQueryColor,
 		Data: types.PgData{
 			"query": name,
@@ -99,6 +107,10 @@ func (q *Queries) ColorCmd(ctx sevcord.Ctx, opts []any) {
 			"old":   float64(old),
 		},
 	})
+	if !res.Ok {
+		ctx.Respond(res.Response())
+		return
+	}
 
 	// Respond
 	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested a color for query **%s** 🎨", name)))

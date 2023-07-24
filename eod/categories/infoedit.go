@@ -22,7 +22,7 @@ func (c *Categories) ImageCmd(ctx sevcord.Ctx, cat string, image string) {
 	}
 
 	// Make poll
-	c.polls.CreatePoll(ctx, &types.Poll{
+	res := c.polls.CreatePoll(ctx, &types.Poll{
 		Kind: types.PollKindCatImage,
 		Data: types.PgData{
 			"cat": name,
@@ -30,6 +30,10 @@ func (c *Categories) ImageCmd(ctx sevcord.Ctx, cat string, image string) {
 			"old": old,
 		},
 	})
+	if !res.Ok {
+		ctx.Respond(res.Response())
+		return
+	}
 
 	// Respond
 	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested an image for category **%s** 📷", name)))
@@ -48,7 +52,7 @@ func (c *Categories) SignCmd(ctx sevcord.Ctx, opts []any) {
 	// Get mark
 	ctx.(*sevcord.InteractionCtx).Modal(sevcord.NewModal("Sign Category", func(ctx sevcord.Ctx, s []string) {
 		// Make poll
-		c.polls.CreatePoll(ctx, &types.Poll{
+		res := c.polls.CreatePoll(ctx, &types.Poll{
 			Kind: types.PollKindCatComment,
 			Data: types.PgData{
 				"cat": name,
@@ -56,6 +60,10 @@ func (c *Categories) SignCmd(ctx sevcord.Ctx, opts []any) {
 				"old": old,
 			},
 		})
+		if !res.Ok {
+			ctx.Respond(res.Response())
+			return
+		}
 
 		// Respond
 		ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested a note for category **%s** 🖋️", name)))
@@ -91,7 +99,7 @@ func (c *Categories) ColorCmd(ctx sevcord.Ctx, opts []any) {
 	}
 
 	// Make poll
-	c.polls.CreatePoll(ctx, &types.Poll{
+	res := c.polls.CreatePoll(ctx, &types.Poll{
 		Kind: types.PollKindCatColor,
 		Data: types.PgData{
 			"cat": name,
@@ -99,6 +107,10 @@ func (c *Categories) ColorCmd(ctx sevcord.Ctx, opts []any) {
 			"old": float64(old),
 		},
 	})
+	if !res.Ok {
+		ctx.Respond(res.Response())
+		return
+	}
 
 	// Respond
 	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested a color for category **%s** 🎨", name)))
