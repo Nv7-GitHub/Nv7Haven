@@ -1,6 +1,8 @@
 package polls
 
 import (
+	"fmt"
+	"log"
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -76,6 +78,16 @@ func (b *Polls) checkPoll(p *types.Poll, votecnt int, dg *discordgo.Session) {
 	}
 
 	if p.Downvotes-p.Upvotes >= votecnt {
+		var news string
+		err := b.db.QueryRow(`SELECT news FROM config WHERE guild=$1`, p.Guild).Scan(&news)
+		if err != nil {
+			log.Println("news err", err)
+			return
+		}
+		_, err = dg.ChannelMessageSend(news, fmt.Sprintf("❌ **Poll Rejected** %s", b.pollContextMsg(p)))
+		if err != nil {
+			log.Println("news err", err)
+		}
 		b.deletePoll(p, dg)
 		return
 	}
