@@ -145,6 +145,17 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			b.categories.CatEditCmd(c, strings.TrimSpace(parts[0]), els, types.PollKindUncategorize, "Suggested to remove **%s** from **%s** 🗃️", true)
 		}
 
+	case "sign", "mark":
+		if !b.base.CheckCtx(c, "sign") {
+			return
+		}
+		parts := strings.SplitN(content, "|", 2)
+		if len(parts) != 2 {
+			c.Respond(sevcord.NewMessage("Invalid format!"))
+			return
+		}
+		b.elements.MsgSignCmd(c, parts[0], parts[1])
+
 	case "img", "image":
 		if !b.base.CheckCtx(c, "image") {
 			return

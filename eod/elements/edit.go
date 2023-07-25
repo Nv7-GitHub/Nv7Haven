@@ -1,6 +1,7 @@
 package elements
 
 import (
+	"database/sql"
 	"fmt"
 	"strconv"
 	"strings"
@@ -68,6 +69,39 @@ func (e *Elements) SignCmd(c sevcord.Ctx, opts []any) {
 		// Respond
 		c.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested a note for **%s** 🖋️", name)))
 	}).Input(sevcord.NewModalInput("New Comment", "None", sevcord.ModalInputStyleParagraph, 2400)))
+}
+
+func (e *Elements) MsgSignCmd(c sevcord.Ctx, elem string, mark string) {
+	var name string
+	var old string
+	var id int
+	err := e.db.QueryRow("SELECT id, name, comment FROM elements WHERE LOWER(name)=$1 AND guild=$2", elem, c.Guild()).Scan(&id, &name, &old)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.Respond(sevcord.NewMessage("Element **" + elem + "** doesn't exist! " + types.RedCircle))
+			return
+		} else {
+			e.base.Error(c, err)
+			return
+		}
+	}
+
+	// Make poll
+	res := e.polls.CreatePoll(c, &types.Poll{
+		Kind: types.PollKindComment,
+		Data: types.PgData{
+			"elem": float64(id),
+			"new":  mark,
+			"old":  old,
+		},
+	})
+	if !res.Ok {
+		c.Respond(res.Response())
+		return
+	}
+
+	// Respond
+	c.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested a note for **%s** 🖋️", name)))
 }
 
 func (e *Elements) ColorCmd(c sevcord.Ctx, opts []any) {
