@@ -205,6 +205,9 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		case "q", "query":
 			b.queries.ImageCmd(c, parts[1], image)
 
+		case "n", "next":
+			b.elements.Next(c, []any{nil})
+
 		default:
 			c.Respond(sevcord.NewMessage("Use `!image [element/category/query] <element/category/query name>`! " + types.RedCircle))
 		}
