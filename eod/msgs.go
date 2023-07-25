@@ -225,7 +225,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 		if !b.base.CheckCtx(c, "suggest") {
 			return
 		}
-		b.elements.Suggest(c, []any{any(content[1:]), nil})
+		b.elements.Suggest(c, []any{any(strings.TrimSpace(content[1:])), nil})
 		return
 	}
 	if strings.HasPrefix(content, "+") {
