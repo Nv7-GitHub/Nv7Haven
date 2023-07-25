@@ -156,6 +156,12 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 		b.elements.MsgSignCmd(c, strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1]))
 
+	case "n", "next":
+		if !b.base.CheckCtx(c, "next") {
+			return
+		}
+		b.elements.Next(c, []any{nil})
+
 	case "img", "image":
 		if !b.base.CheckCtx(c, "image") {
 			return
@@ -204,9 +210,6 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 
 		case "q", "query":
 			b.queries.ImageCmd(c, parts[1], image)
-
-		case "n", "next":
-			b.elements.Next(c, []any{nil})
 
 		default:
 			c.Respond(sevcord.NewMessage("Use `!image [element/category/query] <element/category/query name>`! " + types.RedCircle))
