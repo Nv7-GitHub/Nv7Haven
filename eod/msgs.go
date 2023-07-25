@@ -154,7 +154,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			c.Respond(sevcord.NewMessage("Invalid format!"))
 			return
 		}
-		b.elements.MsgSignCmd(c, parts[0], parts[1])
+		b.elements.MsgSignCmd(c, strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1]))
 
 	case "img", "image":
 		if !b.base.CheckCtx(c, "image") {
