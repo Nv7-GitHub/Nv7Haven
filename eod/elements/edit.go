@@ -72,6 +72,8 @@ func (e *Elements) SignCmd(c sevcord.Ctx, opts []any) {
 }
 
 func (e *Elements) MsgSignCmd(c sevcord.Ctx, elem string, mark string) {
+	c.Acknowledge()
+
 	var name string
 	var old string
 	var id int
