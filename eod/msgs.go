@@ -280,7 +280,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 		if !b.base.CheckCtx(c, "info") {
 			return
 		}
-		b.elements.InfoMsgCmd(c, content[1:])
+		b.elements.InfoMsgCmd(c, strings.TrimSpace(content[1:]))
 		return
 	}
 	if strings.HasPrefix(content, "*") {
