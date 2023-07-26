@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -178,8 +179,74 @@ func (q *Queries) CreateRegexCmd(c sevcord.Ctx, opts []any) {
 	q.createCmd(c, opts[0].(string), types.QueryKindRegex, map[string]any{"query": name, "regex": opts[2].(string)})
 }
 
+var ComparisonQueryOpChoices = []sevcord.Choice{
+	sevcord.NewChoice("=", "equal"),
+	sevcord.NewChoice("!=", "notequal"),
+	sevcord.NewChoice(">", "greater"),
+	sevcord.NewChoice("<", "less"),
+}
+
 func (q *Queries) CreateComparisonIDCmd(c sevcord.Ctx, opts []any) {
-	q.createComparison(c, opts[0].(string), "name", opts[1].(string), float64(opts[2].(int64)))
+	q.createComparison(c, opts[0].(string), "id", opts[1].(string), float64(opts[2].(int64)))
+}
+
+func (q *Queries) CreateComparisonNameCmd(c sevcord.Ctx, opts []any) {
+	q.createComparison(c, opts[0].(string), "name", opts[1].(string), opts[2].(string))
+}
+
+func (q *Queries) CreateComparisonImageCmd(c sevcord.Ctx, opts []any) {
+	q.createComparison(c, opts[0].(string), "image", opts[1].(string), opts[2].(string))
+}
+
+func (q *Queries) CreateComparisonColorCmd(c sevcord.Ctx, opts []any) {
+	// Check hex code
+	code := opts[1].(string)
+	if !strings.HasPrefix(code, "#") {
+		c.Respond(sevcord.NewMessage("Invalid hex code! " + types.RedCircle))
+		return
+	}
+	val, err := strconv.ParseInt(strings.TrimPrefix(code, "#"), 16, 64)
+	if err != nil {
+		q.base.Error(c, err)
+		return
+	}
+	if val < 0 || val > 16777215 {
+		c.Respond(sevcord.NewMessage("Invalid hex code! " + types.RedCircle))
+		return
+	}
+	q.createComparison(c, opts[0].(string), "color", opts[1].(string), float64(val))
+}
+
+func (q *Queries) CreateComparisonDescriptionCmd(c sevcord.Ctx, opts []any) {
+	q.createComparison(c, opts[0].(string), "comment", opts[1].(string), opts[2].(string))
+}
+
+func (q *Queries) CreateComparisonCreatorCmd(c sevcord.Ctx, opts []any) {
+	q.createComparison(c, opts[0].(string), "creator", opts[1].(string), opts[2].(*discordgo.User).ID)
+}
+
+func (q *Queries) CreateComparisonCommenterCmd(c sevcord.Ctx, opts []any) {
+	q.createComparison(c, opts[0].(string), "commenter", opts[1].(string), opts[2].(*discordgo.User).ID)
+}
+
+func (q *Queries) CreateComparisonColorerCmd(c sevcord.Ctx, opts []any) {
+	q.createComparison(c, opts[0].(string), "colorer", opts[1].(string), opts[2].(*discordgo.User).ID)
+}
+
+func (q *Queries) CreateColorerImageCmd(c sevcord.Ctx, opts []any) {
+	q.createComparison(c, opts[0].(string), "colorer", opts[1].(string), opts[2].(string))
+}
+
+func (q *Queries) CreateComparisonImagerCmd(c sevcord.Ctx, opts []any) {
+	q.createComparison(c, opts[0].(string), "imager", opts[1].(string), opts[2].(*discordgo.User).ID)
+}
+
+func (q *Queries) CreateComparisonTreesizeCmd(c sevcord.Ctx, opts []any) {
+	q.createComparison(c, opts[0].(string), "treesize", opts[1].(string), float64(opts[2].(int64)))
+}
+
+func (q *Queries) CreateComparisonLengthCmd(c sevcord.Ctx, opts []any) {
+	q.createComparison(c, opts[0].(string), "length", opts[1].(string), float64(opts[2].(int64)))
 }
 
 func (q *Queries) createComparison(c sevcord.Ctx, name string, field string, operator string, value any) {

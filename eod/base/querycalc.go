@@ -15,6 +15,7 @@ func pgArrToIntArr(arr pq.Int32Array) []int {
 
 var comparisonFieldMap = map[string]string{
 	"id":        "id",
+	"name":      "name",
 	"image":     "image",
 	"color":     "color",
 	"comment":   "comment",
