@@ -91,6 +91,12 @@ func (q *Queries) Info(ctx sevcord.Ctx, opts []any) {
 		emb = emb.AddField("Field", "`"+qu.Data["field"].(string)+"`", true)
 		emb = emb.AddField("Operator", qu.Data["typ"].(string), true)
 		emb = emb.AddField("Value", fmt.Sprintf("%v", qu.Data["value"]), true)
+
+	case types.QueryKindOperation:
+		emb = emb.AddField("Kind", "Operation", true)
+		emb = emb.AddField("Operation", qu.Data["op"].(string), true)
+		emb = emb.AddField("Left", qu.Data["left"].(string), true)
+		emb = emb.AddField("Right", qu.Data["right"].(string), true)
 	}
 
 	// Respond
