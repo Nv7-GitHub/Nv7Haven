@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
@@ -179,20 +178,13 @@ func (q *Queries) CreateRegexCmd(c sevcord.Ctx, opts []any) {
 	q.createCmd(c, opts[0].(string), types.QueryKindRegex, map[string]any{"query": name, "regex": opts[2].(string)})
 }
 
-func (q *Queries) CreateComparisonCmd(c sevcord.Ctx, opts []any) {
+func (q *Queries) CreateComparisonIDCmd(c sevcord.Ctx, opts []any) {
+	q.createComparison(c, opts[0].(string), "name", opts[1].(string), float64(opts[2].(int64)))
+}
+
+func (q *Queries) createComparison(c sevcord.Ctx, name string, field string, operator string, value any) {
 	c.Acknowledge()
-	// Parse if needed
-	val := any(opts[3].(string))
-	switch opts[1].(string) {
-	case "treesize", "color", "id":
-		intV, err := strconv.Atoi(opts[3].(string))
-		if err != nil {
-			q.base.Error(c, err)
-			return
-		}
-		val = any(float64(intV))
-	}
-	q.createCmd(c, opts[0].(string), types.QueryKindComparison, map[string]any{"field": opts[1].(string), "typ": opts[2].(string), "value": val})
+	q.createCmd(c, name, types.QueryKindComparison, map[string]any{"field": field, "typ": operator, "value": value})
 }
 
 func (q *Queries) CreateOperationCmd(c sevcord.Ctx, opts []any) {

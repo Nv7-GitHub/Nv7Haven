@@ -75,10 +75,16 @@ func (q *Queries) Init() {
 			q.CreateElementsCmd,
 			sevcord.NewOption("name", "The name of the query!", sevcord.OptionKindString, true),
 		),
-		sevcord.NewSlashCommand(
+		sevcord.NewSlashCommandGroup(
 			"comparison",
 			"Create a query that compares the elements in a query!",
-			q.CreateComparisonCmd,
+			sevcord.NewSlashCommand(
+				"id",
+				"Compare the IDs of the elements in a query!",
+				q.CreateComparisonIDCmd,
+				sevcord.NewOption("name", "The name of the query!", sevcord.OptionKindString, true),
+			),
+			/*q.CreateComparisonCmd,
 			sevcord.NewOption("name", "The name of the query!", sevcord.OptionKindString, true),
 			sevcord.NewOption("field", "The field to compare by!", sevcord.OptionKindString, true).
 				AddChoices(
@@ -100,7 +106,7 @@ func (q *Queries) Init() {
 					sevcord.NewChoice(">", "greater"),
 					sevcord.NewChoice("<", "less"),
 				),
-			sevcord.NewOption("value", "The value to compare by!", sevcord.OptionKindString, true),
+			sevcord.NewOption("value", "The value to compare by!", sevcord.OptionKindString, true),*/
 		),
 		sevcord.NewSlashCommand(
 			"operation",
