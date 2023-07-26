@@ -168,12 +168,12 @@ func (b *Base) CalcQuery(ctx sevcord.Ctx, name string) (*types.Query, bool) {
 				leftV[elem] = struct{}{}
 			}
 			out = make(map[int]struct{}, len(left.Elements))
-			for elem := range left.Elements {
+			for _, elem := range left.Elements {
 				if _, ok := rightV[elem]; ok {
 					out[elem] = struct{}{}
 				}
 			}
-			for elem := range right.Elements {
+			for _, elem := range right.Elements {
 				if _, ok := leftV[elem]; ok {
 					out[elem] = struct{}{}
 				}
