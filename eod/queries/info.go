@@ -2,6 +2,7 @@ package queries
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
@@ -89,12 +90,12 @@ func (q *Queries) Info(ctx sevcord.Ctx, opts []any) {
 	case types.QueryKindComparison:
 		emb = emb.AddField("Kind", "Comparison", true)
 		emb = emb.AddField("Field", "`"+qu.Data["field"].(string)+"`", true)
-		emb = emb.AddField("Operator", qu.Data["typ"].(string), true)
+		emb = emb.AddField("Operator", strings.Title(qu.Data["typ"].(string)), true)
 		emb = emb.AddField("Value", fmt.Sprintf("%v", qu.Data["value"]), true)
 
 	case types.QueryKindOperation:
 		emb = emb.AddField("Kind", "Operation", true)
-		emb = emb.AddField("Operation", qu.Data["op"].(string), true)
+		emb = emb.AddField("Operation", strings.Title(qu.Data["op"].(string)), true)
 		emb = emb.AddField("Left", qu.Data["left"].(string), true)
 		emb = emb.AddField("Right", qu.Data["right"].(string), true)
 	}
