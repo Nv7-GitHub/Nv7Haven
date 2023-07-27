@@ -9,6 +9,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/pages"
 	"github.com/Nv7-Github/Nv7Haven/eod/polls"
 	"github.com/Nv7-Github/Nv7Haven/eod/queries"
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 )
 
@@ -144,7 +145,7 @@ func (b *Bot) Init() {
 		sevcord.NewOption("query", "A query to select the elements in the idea to be made from!", sevcord.OptionKindString, false).
 			AutoComplete(b.queries.Autocomplete),
 		sevcord.NewOption("count", "The number of elements to include in the idea!", sevcord.OptionKindInt, false).
-			MinMax(2, 20),
+			MinMax(2, types.MaxComboLength),
 	))
 	b.s.AddButtonHandler("idea", b.elements.IdeaHandler)
 }
