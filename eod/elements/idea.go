@@ -62,6 +62,7 @@ func (e *Elements) IdeaHandler(c sevcord.Ctx, params string) {
 	}
 	if !foundEl {
 		c.Respond(sevcord.NewMessage("No ideas found! Try again later. " + types.RedCircle))
+		return
 	}
 
 	// Format response
