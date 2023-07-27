@@ -161,7 +161,7 @@ func (q *Queries) Init() {
 			sevcord.NewSlashCommand(
 				"length",
 				"Compare the length of the names of the elements!",
-				q.CreateComparisonColorerCmd,
+				q.CreateComparisonLengthCmd,
 				sevcord.NewOption("name", "The name of the query!", sevcord.OptionKindString, true),
 				sevcord.NewOption("operator", "The operator to compare by!", sevcord.OptionKindString, true).AddChoices(ComparisonQueryOpChoices...),
 				sevcord.NewOption("value", "The length to compare by!", sevcord.OptionKindInt, true),
