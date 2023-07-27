@@ -137,4 +137,14 @@ func (b *Bot) Init() {
 			AutoComplete(b.queries.Autocomplete),
 	))
 	b.s.AddButtonHandler("next", b.elements.NextHandler)
+	b.s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"idea",
+		"Get an element idea!",
+		b.elements.Idea,
+		sevcord.NewOption("query", "A query to select the elements in the idea to be made from!", sevcord.OptionKindString, false).
+			AutoComplete(b.queries.Autocomplete),
+		sevcord.NewOption("count", "The number of elements to include in the idea!", sevcord.OptionKindInt, false).
+			MinMax(2, 20),
+	))
+	b.s.AddButtonHandler("idea", b.elements.IdeaHandler)
 }
