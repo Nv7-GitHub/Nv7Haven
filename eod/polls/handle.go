@@ -41,6 +41,12 @@ func (b *Polls) reactionHandler(s *discordgo.Session, r *discordgo.MessageReacti
 		return
 	}
 
+	// Update vote count
+	_, err = b.db.Exec(`UPDATE inventories SET votecnt=votecnt+1 WHERE guild=$1 AND "user"=$2`, p.Guild, r.UserID)
+	if err != nil {
+		log.Println("user votecnt update err", err)
+	}
+
 	// Handle
 	if r.Emoji.Name == UpArrow {
 		p.Upvotes++
