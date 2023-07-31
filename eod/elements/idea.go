@@ -31,7 +31,7 @@ func (e *Elements) IdeaHandler(c sevcord.Ctx, params string) {
 		// Get elements
 		var err error
 		if parts[1] == "" {
-			err = e.db.Select(&els, `SELECT id FROM elements WHERE guild=$1 ORDER BY RANDOM() AND id=ANY(SELECT inv FROM inventories WHERE guild=$1 AND "user"=$3) LIMIT $2`, c.Guild(), cnt, c.Author().User.ID)
+			err = e.db.Select(&els, `SELECT id FROM elements WHERE guild=$1 AND id=ANY(SELECT inv FROM inventories WHERE guild=$1 AND "user"=$3) ORDER BY RANDOM() LIMIT $2`, c.Guild(), cnt, c.Author().User.ID)
 		} else {
 			query, ok := e.base.CalcQuery(c, parts[1]) // TODO: Move this out of the loop
 			if !ok {
@@ -41,6 +41,7 @@ func (e *Elements) IdeaHandler(c sevcord.Ctx, params string) {
 		}
 		if err != nil {
 			e.base.Error(c, err)
+			return
 		}
 		if len(els) < cnt {
 			continue
