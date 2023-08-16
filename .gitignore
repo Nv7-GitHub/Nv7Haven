@@ -42,11 +42,8 @@ createlogs.txt
 discordlogs.txt
 mysqlogs.txt
 *.pprof
-eod/eodb/cloud/cloud.png
-eod/eodb/cloud/cloud.json
-eod/eodb/jsonexport/export.json
 build/*
-eod/eodb/restoreinvs/inv.txt
+eod/tools/recalc/output.txt
 
 # Secret!
 password.txt
