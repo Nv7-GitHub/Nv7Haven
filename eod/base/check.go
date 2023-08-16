@@ -117,5 +117,8 @@ func CheckName(name string) (string, types.Resp) {
 	if len(name) == 0 {
 		return "", types.Fail("Name cannot be empty!")
 	}
+    if len(name) > 125 {
+		return "", types.Fail("Name cannot be too long!")
+	}
 	return name, types.Ok()
 }
