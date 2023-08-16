@@ -141,6 +141,9 @@ func (p *Pages) LbHandler(c sevcord.Ctx, params string) {
 			break
 		}
 	}
+	if qu != nil {
+		title += " (" + qu.Name + ")"
+	}
 	emb := sevcord.NewEmbed().
 		Title("Top Most "+title).
 		Description(description.String()).

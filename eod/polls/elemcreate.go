@@ -121,6 +121,7 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 		if err != nil {
 			return
 		}
+		combid++
 
 		// Get name
 		var currtreesize int

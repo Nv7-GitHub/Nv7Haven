@@ -41,6 +41,7 @@ func (e *Elements) NextHandler(c sevcord.Ctx, params string) {
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.Respond(sevcord.NewMessage("Nothing to do next found! Try again later. " + types.RedCircle))
+			return
 		} else {
 			e.base.Error(c, err)
 			return
