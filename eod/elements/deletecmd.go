@@ -71,5 +71,5 @@ func (e *Elements) deleteComboCmd(c sevcord.Ctx, opts []any) {
 		return
 	}
 	c.Respond(sevcord.NewMessage("Successfully deleted all extra combos! ✅"))
-	e.editNewsMessage(c, fmt.Sprintf("Deleted Combos - **%s**", nameE))
+	e.deleteNewsMessage(c, fmt.Sprintf("Deleted Combos - **%s**", nameE))
 }
