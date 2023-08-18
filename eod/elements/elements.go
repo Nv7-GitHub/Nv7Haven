@@ -75,6 +75,15 @@ func (e *Elements) Init() {
 		),
 	).
 		RequirePermissions(discordgo.PermissionManageServer))
+	e.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup("delete", "Delete element properties!",
+		sevcord.NewSlashCommand("combos",
+			"Delete all combos apart from the first combo!",
+			e.deleteComboCmd,
+			sevcord.NewOption("name", "The element to edit!", sevcord.OptionKindInt, true).
+				AutoComplete(e.Autocomplete),
+		),
+	).
+		RequirePermissions(discordgo.PermissionManageServer))
 }
 
 func NewElements(s *sevcord.Sevcord, db *sqlx.DB, base *base.Base, polls *polls.Polls) *Elements {
