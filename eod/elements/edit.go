@@ -77,7 +77,7 @@ func (e *Elements) MsgSignCmd(c sevcord.Ctx, elem string, mark string) {
 	var name string
 	var old string
 	var id int
-	err := e.db.QueryRow("SELECT id, name, comment FROM elements WHERE LOWER(name)=$1 AND guild=$2", elem, c.Guild()).Scan(&id, &name, &old)
+	err := e.db.QueryRow("SELECT id, name, comment FROM elements WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(elem), c.Guild()).Scan(&id, &name, &old)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.Respond(sevcord.NewMessage("Element **" + elem + "** doesn't exist! " + types.RedCircle))
