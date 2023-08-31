@@ -21,7 +21,7 @@ func (e *Elements) deleteNewsMessage(c sevcord.Ctx, message string) {
 	}
 }
 
-func (e *Elements) deleteComboCmd(c sevcord.Ctx, opts []any) {
+func (e *Elements) DeleteComboCmd(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
 	_, err := e.db.Exec("DELETE FROM combos WHERE guild=$2 AND result=$1 AND els NOT IN (SELECT els FROM combos WHERE guild=$2 AND result=$1 ORDER BY createdon ASC LIMIT 1);", opts[0].(int64), c.Guild())
 	if err != nil {

@@ -78,7 +78,7 @@ func (e *Elements) Init() {
 	e.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup("delete", "Delete element properties!",
 		sevcord.NewSlashCommand("combos",
 			"Delete all combos apart from the first combo!",
-			e.deleteComboCmd,
+			e.DeleteComboCmd,
 			sevcord.NewOption("name", "The element to edit!", sevcord.OptionKindInt, true).
 				AutoComplete(e.Autocomplete),
 		),
