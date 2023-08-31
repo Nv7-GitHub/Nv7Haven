@@ -57,12 +57,12 @@ func (b *Base) Stats(c sevcord.Ctx, opts []any) {
 	// Embed
 	emb := sevcord.NewEmbed().Title("Stats").
 		Color(7506394). // Blurple
-		AddField("Element Count", humanize.Comma(elemcnt), true).
-		AddField("Combination Count", humanize.Comma(combcnt), true).
-		AddField("User Count", humanize.Comma(invcnt), true).
-		AddField("Elements Found", humanize.Comma(foundcnt), true).
-		AddField("Elements Categorized", humanize.Comma(categorized), true).
-		AddField("Commands Used", humanize.Comma(cmds), true)
+		AddField("🔢 Element Count", humanize.Comma(elemcnt), true).
+		AddField("🔄 Combination Count", humanize.Comma(combcnt), true).
+		AddField("🧑‍🤝‍🧑 User Count", humanize.Comma(invcnt), true).
+		AddField("🔍 Elements Found", humanize.Comma(foundcnt), true).
+		AddField("📁 Elements Categorized", humanize.Comma(categorized), true).
+		AddField("👨‍💻 Commands Used", humanize.Comma(cmds), true)
 
 	// Respond
 	c.Respond(sevcord.NewMessage("").

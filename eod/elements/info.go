@@ -56,9 +56,9 @@ func (e *Elements) Info(c sevcord.Ctx, el int) {
 		return
 	}
 	if have {
-		description = "**You have this.**\n\n" + description
+		description = "📫 **You have this.**\n\n" + description
 	} else {
-		description = "**You don't have this.**\n\n" + description
+		description = "📪 **You don't have this.**\n\n" + description
 	}
 
 	// Get stats
@@ -102,28 +102,28 @@ func (e *Elements) Info(c sevcord.Ctx, el int) {
 		Title(elem.Name+" Info").
 		Description(description).
 		Color(elem.Color).
-		AddField("Creator", fmt.Sprintf("<@%s>", elem.Creator), true).
-		AddField("Created On", fmt.Sprintf("<t:%d>", elem.CreatedOn.Unix()), true).
-		AddField("Tree Size", humanize.Comma(int64(elem.TreeSize)), true).
-		AddField("Made With", humanize.Comma(int64(madewith)), true).
-		AddField("Used In", humanize.Comma(int64(usedin)), true).
-		AddField("Found By", humanize.Comma(int64(foundby)), true)
+		AddField("🧑 Creator", fmt.Sprintf("<@%s>", elem.Creator), true).
+		AddField("📅 Created On", fmt.Sprintf("<t:%d>", elem.CreatedOn.Unix()), true).
+		AddField("🌲 Tree Size", humanize.Comma(int64(elem.TreeSize)), true).
+		AddField("🔨 Made With", humanize.Comma(int64(madewith)), true).
+		AddField("🧰 Used In", humanize.Comma(int64(usedin)), true).
+		AddField("🔍 Found By", humanize.Comma(int64(foundby)), true)
 
 	// Optional things
 	if elem.Image != "" {
 		emb = emb.Thumbnail(elem.Image)
 	}
 	if elem.Commenter != "" {
-		emb = emb.AddField("Commenter", fmt.Sprintf("<@%s>", elem.Commenter), true)
+		emb = emb.AddField("💬 Commenter", fmt.Sprintf("<@%s>", elem.Commenter), true)
 	}
 	if elem.Colorer != "" {
-		emb = emb.AddField("Colorer", fmt.Sprintf("<@%s>", elem.Colorer), true)
+		emb = emb.AddField("🎨 Colorer", fmt.Sprintf("<@%s>", elem.Colorer), true)
 	}
 	if elem.Imager != "" {
-		emb = emb.AddField("Imager", fmt.Sprintf("<@%s>", elem.Imager), true)
+		emb = emb.AddField("🖼️ Imager", fmt.Sprintf("<@%s>", elem.Imager), true)
 	}
 	if len(categories) > 0 {
-		emb = emb.AddField("Categories", strings.Join(categories, ", "), false)
+		emb = emb.AddField("📁 Categories", strings.Join(categories, ", "), false)
 	}
 
 	// Respond

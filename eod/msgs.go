@@ -109,7 +109,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 		parts := strings.SplitN(content, "|", 2)
 		if len(parts) != 2 {
-			c.Respond(sevcord.NewMessage("Invalid format!"))
+			c.Respond(sevcord.NewMessage("Invalid format! " + types.RedCircle))
 			return
 		}
 		els := make([]int, 0)
@@ -136,7 +136,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			els = append(els, int(id))
 		}
 		if len(els) == 0 {
-			c.Respond(sevcord.NewMessage("Invalid format!"))
+			c.Respond(sevcord.NewMessage("Invalid format! " + types.RedCircle))
 			return
 		}
 		if name == "ac" {
@@ -151,7 +151,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 		parts := strings.SplitN(content, "|", 2)
 		if len(parts) != 2 {
-			c.Respond(sevcord.NewMessage("Invalid format!"))
+			c.Respond(sevcord.NewMessage("Invalid format! " + types.RedCircle))
 			return
 		}
 		b.elements.MsgSignCmd(c, strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1]))
