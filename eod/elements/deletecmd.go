@@ -43,7 +43,11 @@ func (e *Elements) DeleteComboCmd(c sevcord.Ctx, opts []any) {
 		VALUES($2::integer[], 0)
 	UNION
 		(SELECT b.parents els, b.id id FROM elements b INNER JOIN parents p ON b.id=ANY(p.els) where guild=$1)
-	) SELECT COUNT(*)  FROM parents WHERE id>0`, c.Guild(), pq.Array(els), opts[0].(int64)).Scan(&treesize, &loop)
+	) SELECT COUNT(*)  FROM parents WHERE id>0`, c.Guild(), pq.Array(els), opts[0].(int64)).Scan(&treesize)
+	if err != nil {
+		e.base.Error(c, err)
+		return
+	}
 
 	// Update parents
 	_, err = e.db.Exec(`UPDATE elements SET parents=$1, treesize=$2 WHERE id=$3 AND guild=$4`, pq.Array(els), treesize, opts[0].(int64), c.Guild())
