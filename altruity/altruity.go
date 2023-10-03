@@ -18,7 +18,7 @@ func Run() {
 	if err != nil {
 		panic(err)
 	}
-	app := pocketbase.NewWithConfig(&pocketbase.Config{
+	app := pocketbase.NewWithConfig(pocketbase.Config{
 		DefaultDataDir: "data/altruity",
 	})
 

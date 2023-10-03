@@ -1,4 +1,4 @@
-package when3meet
+package commuter
 
 import (
 	"log"
@@ -7,22 +7,22 @@ import (
 	"github.com/pocketbase/pocketbase"
 )
 
-type When3meet struct {
+type Commuter struct {
 	app *pocketbase.PocketBase
 }
 
-func (a *When3meet) Init() {}
+func (a *Commuter) Init() {}
 
 func Run() {
-	err := os.MkdirAll("data/when3meet", os.ModePerm)
+	err := os.MkdirAll("data/commuter", os.ModePerm)
 	if err != nil {
 		panic(err)
 	}
 	app := pocketbase.NewWithConfig(pocketbase.Config{
-		DefaultDataDir: "data/when3meet",
+		DefaultDataDir: "data/commuter",
 	})
 
-	a := &When3meet{app: app}
+	a := &Commuter{app: app}
 	a.Init()
 
 	if err := app.Start(); err != nil {
