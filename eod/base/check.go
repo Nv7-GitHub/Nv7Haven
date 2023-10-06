@@ -119,7 +119,7 @@ func CheckName(name string) (string, types.Resp) {
 	if len(name) == 0 {
 		return "", types.Fail("Name cannot be empty!")
 	}
-	if len(name) > MaxNameLength {
+	if len([]rune(name)) > MaxNameLength {
 		return "", types.Fail("Name cannot be longer than " + fmt.Sprint(MaxNameLength) + " characters!")
 	}
 	return name, types.Ok()
