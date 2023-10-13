@@ -22,7 +22,7 @@ func (p *Polls) queryCreateSuccess(po *types.Poll, news func(string)) error {
 	}
 
 	// News
-	news(fmt.Sprintf("🧮 Created Query - **%s** %s", po.Data["query"], p.pollContextMsg(po)))
+	news(fmt.Sprintf("@silent 🧮 Created Query - **%s** %s", po.Data["query"], p.pollContextMsg(po)))
 	return nil
 }
 
@@ -34,7 +34,7 @@ func (p *Polls) queryDeleteSuccess(po *types.Poll, news func(string)) error {
 	}
 
 	// News
-	news(fmt.Sprintf("🗑️ Deleted Query - **%s** %s", po.Data["query"], p.pollContextMsg(po)))
+	news(fmt.Sprintf("@silent 🗑️ Deleted Query - **%s** %s", po.Data["query"], p.pollContextMsg(po)))
 	return nil
 }
 
@@ -50,7 +50,7 @@ func (p *Polls) queryImageSuccess(po *types.Poll, newsFunc func(string)) error {
 	if po.Data["old"] == "" {
 		word = "Added"
 	}
-	newsFunc(fmt.Sprintf("📸 %s Query Image - **%s** %s", word, po.Data["query"].(string), p.pollContextMsg(po)))
+	newsFunc(fmt.Sprintf("@silent 📸 %s Query Image - **%s** %s", word, po.Data["query"].(string), p.pollContextMsg(po)))
 
 	return nil
 }
@@ -63,7 +63,7 @@ func (p *Polls) queryMarkSuccess(po *types.Poll, newsFunc func(string)) error {
 	}
 
 	// News
-	newsFunc(fmt.Sprintf("📝 Signed Query - **%s** %s", po.Data["query"].(string), p.pollContextMsg(po)))
+	newsFunc(fmt.Sprintf("@silent 📝 Signed Query - **%s** %s", po.Data["query"].(string), p.pollContextMsg(po)))
 
 	return nil
 }
@@ -76,7 +76,7 @@ func (p *Polls) queryColorSuccess(po *types.Poll, newsFunc func(string)) error {
 	}
 
 	// News
-	newsFunc(fmt.Sprintf("🎨 Colored Category - **%s** %s", po.Data["query"].(string), p.pollContextMsg(po)))
+	newsFunc(fmt.Sprintf("@silent 🎨 Colored Category - **%s** %s", po.Data["query"].(string), p.pollContextMsg(po)))
 
 	return nil
 }

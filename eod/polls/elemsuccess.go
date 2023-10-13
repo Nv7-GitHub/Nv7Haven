@@ -24,7 +24,7 @@ func (p *Polls) elemImageSuccess(po *types.Poll, newsFunc func(string)) error {
 	if po.Data["old"] == "" {
 		word = "Added"
 	}
-	newsFunc(fmt.Sprintf("📸 %s Image - **%s** %s", word, name, p.pollContextMsg(po)))
+	newsFunc(fmt.Sprintf("@silent 📸 %s Image - **%s** %s", word, name, p.pollContextMsg(po)))
 
 	return nil
 }
@@ -43,7 +43,7 @@ func (p *Polls) elemMarkSuccess(po *types.Poll, newsFunc func(string)) error {
 	}
 
 	// News
-	newsFunc(fmt.Sprintf("📝 Signed - **%s** %s", name, p.pollContextMsg(po)))
+	newsFunc(fmt.Sprintf("@silent 📝 Signed - **%s** %s", name, p.pollContextMsg(po)))
 
 	return nil
 }
@@ -62,7 +62,7 @@ func (p *Polls) elemColorSuccess(po *types.Poll, newsFunc func(string)) error {
 	}
 
 	// News
-	newsFunc(fmt.Sprintf("🎨 Colored - **%s** %s", name, p.pollContextMsg(po)))
+	newsFunc(fmt.Sprintf("@silent 🎨 Colored - **%s** %s", name, p.pollContextMsg(po)))
 
 	return nil
 }

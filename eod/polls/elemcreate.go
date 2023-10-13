@@ -175,9 +175,9 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 
 	// Message
 	if exists {
-		news(fmt.Sprintf("🆕 Combination - **%s** %s - Combination **#%d**", name, e.pollContextMsg(p), combid))
+		news(fmt.Sprintf("@silent 🆕 Combination - **%s** %s - Combination **#%d**", name, e.pollContextMsg(p), combid))
 	} else {
-		news(fmt.Sprintf("🆕 Element - **%s** %s - Element **#%d**", name, e.pollContextMsg(p), id))
+		news(fmt.Sprintf("@silent 🆕 Element - **%s** %s - Element **#%d**", name, e.pollContextMsg(p), id))
 	}
 	return
 }
