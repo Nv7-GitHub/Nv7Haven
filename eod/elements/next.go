@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/timing"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/Nv7-Github/sevcord/v2"
@@ -15,6 +16,8 @@ import (
 
 // Format: user|query|offset
 func (e *Elements) NextHandler(c sevcord.Ctx, params string) {
+	timer := timing.GetTimer("next")
+
 	parts := strings.Split(params, "|")
 	if c.Author().User.ID != parts[0] {
 		c.Acknowledge()
@@ -89,6 +92,8 @@ func (e *Elements) NextHandler(c sevcord.Ctx, params string) {
 		}
 		desc.WriteRune('\n')
 	}
+
+	timer.Stop()
 
 	params = fmt.Sprintf("%s|%s|%d", parts[0], parts[1], offset+1)
 	emb := sevcord.NewEmbed().

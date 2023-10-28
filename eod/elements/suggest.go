@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
+	"github.com/Nv7-Github/Nv7Haven/eod/timing"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/Nv7-Github/sevcord/v2"
@@ -13,6 +14,7 @@ import (
 
 func (e *Elements) Suggest(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
+	timer := timing.GetTimer("suggest")
 
 	// Autocapitalization
 	autocap := false
@@ -108,6 +110,8 @@ func (e *Elements) Suggest(c sevcord.Ctx, opts []any) {
 	} else {
 		text.WriteString("✨")
 	}
+
+	timer.Stop()
 
 	// Message
 	c.Respond(sevcord.NewMessage(text.String()))

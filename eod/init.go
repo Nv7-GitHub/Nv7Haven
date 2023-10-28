@@ -9,11 +9,14 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/pages"
 	"github.com/Nv7-Github/Nv7Haven/eod/polls"
 	"github.com/Nv7-Github/Nv7Haven/eod/queries"
+	"github.com/Nv7-Github/Nv7Haven/eod/timing"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 )
 
 func (b *Bot) Init() {
+	timing.Init()
+
 	b.base = base.NewBase(b.s, b.db)
 	b.polls = polls.NewPolls(b.db, b.base, b.s)
 	b.elements = elements.NewElements(b.s, b.db, b.base, b.polls)

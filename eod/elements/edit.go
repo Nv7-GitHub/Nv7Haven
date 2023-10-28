@@ -6,12 +6,15 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/timing"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 )
 
 func (e *Elements) ImageCmd(c sevcord.Ctx, id int, image string) {
 	c.Acknowledge()
+
+	timer := timing.GetTimer("image")
 
 	// Check element
 	var elem string
@@ -35,6 +38,8 @@ func (e *Elements) ImageCmd(c sevcord.Ctx, id int, image string) {
 		c.Respond(res.Response())
 		return
 	}
+
+	timer.Stop()
 
 	// Respond
 	c.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested an image for **%s** 📷", elem)))

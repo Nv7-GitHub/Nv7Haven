@@ -5,6 +5,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/timing"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/Nv7-Github/sevcord/v2"
@@ -18,6 +19,8 @@ type productsItem struct {
 
 func (e *Elements) Products(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
+
+	timer := timing.GetTimer("info")
 
 	// Get items
 	var items []productsItem
@@ -65,6 +68,8 @@ func (e *Elements) Products(c sevcord.Ctx, opts []any) {
 
 		length += len(names[i]) + 2
 	}
+
+	timer.Stop()
 
 	// Respond
 	emb := sevcord.NewEmbed().

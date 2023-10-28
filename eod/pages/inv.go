@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/timing"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/bwmarrin/discordgo"
@@ -14,6 +15,8 @@ import (
 
 // Params: prevnext|user|sort|page
 func (p *Pages) InvHandler(c sevcord.Ctx, params string) {
+	timer := timing.GetTimer("inv")
+
 	parts := strings.Split(params, "|")
 
 	// Get count
@@ -53,6 +56,8 @@ func (p *Pages) InvHandler(c sevcord.Ctx, params string) {
 	if m.Nick != "" {
 		name = m.Nick
 	}
+
+	timer.Stop()
 
 	// Create
 	embed := sevcord.NewEmbed().

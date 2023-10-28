@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/timing"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/dustin/go-humanize"
@@ -78,6 +79,8 @@ func (p *Pages) QueryList(c sevcord.Ctx, opts []any) {
 
 // Params: prevnext|user|sort|page|query
 func (p *Pages) QueryHandler(c sevcord.Ctx, params string) {
+	timer := timing.GetTimer("query")
+
 	parts := strings.SplitN(params, "|", 5)
 
 	// Get query
@@ -121,6 +124,8 @@ func (p *Pages) QueryHandler(c sevcord.Ctx, params string) {
 			fmt.Fprintf(desc, "%s %s\n", v.Name, types.NoCheck)
 		}
 	}
+
+	timer.Stop()
 
 	// Create
 	embed := sevcord.NewEmbed().

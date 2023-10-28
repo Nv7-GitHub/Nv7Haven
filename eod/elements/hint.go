@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/timing"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/Nv7-Github/sevcord/v2"
@@ -47,6 +48,8 @@ LIMIT 1`
 
 // Format: user|elementid|query
 func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
+	timer := timing.GetTimer("hint")
+
 	parts := strings.Split(params, "|")
 	if c.Author().User.ID != parts[0] {
 		c.Acknowledge()
@@ -163,6 +166,7 @@ func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 
 		description.WriteRune('\n')
 	}
+	timer.Stop()
 
 	// Embed
 	dontHave := ""
