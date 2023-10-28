@@ -34,7 +34,7 @@ func GetTimer(commandName string) *Timer {
 }
 
 func (t *Timer) Stop() {
-	_, err := t.file.WriteString(strconv.Itoa(int(time.Since(t.start).Microseconds())))
+	_, err := t.file.WriteString(strconv.Itoa(int(time.Since(t.start).Microseconds())) + "\n")
 	if err != nil {
 		panic(err)
 	}
