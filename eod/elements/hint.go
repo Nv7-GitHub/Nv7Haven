@@ -87,9 +87,9 @@ func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 			vals := strings.Join(util.Map(qu.Elements, func(a int) string {
 				return "(" + strconv.Itoa(a) + ")"
 			}), ",")
-			err = e.db.QueryRow(fmt.Sprintf(hintQuery, "INNER JOIN (VALUES("+vals+")) q(qel) ON (id=qel)", "AND RANDOM() < 0.01"), c.Guild(), c.Author().User.ID).Scan(&el)
+			err = e.db.QueryRow(fmt.Sprintf(hintQuery, "INNER JOIN (VALUES "+vals+") q(qel) ON (id=qel)", "AND RANDOM() < 0.01"), c.Guild(), c.Author().User.ID).Scan(&el)
 			if err == sql.ErrNoRows {
-				err = e.db.QueryRow(fmt.Sprintf(hintQuery, "INNER JOIN (VALUES("+vals+")) q(qel) ON (id=qel)", "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID).Scan(&el)
+				err = e.db.QueryRow(fmt.Sprintf(hintQuery, "INNER JOIN (VALUES "+vals+") q(qel) ON (id=qel)", "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID).Scan(&el)
 			}
 		}
 
