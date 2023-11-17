@@ -39,12 +39,18 @@ func Obscure(val string) string {
 	return string(out)
 }
 
-const hintQuery = `SELECT id FROM elements 
+const hintQueryRand = `SELECT id FROM elements 
 LEFT JOIN (SELECT UNNEST(inv) el FROM inventories WHERE guild=$1 AND "user"=$2) s ON id=el
-%s
 WHERE 
 guild=$1 AND
 el IS NULL
+%s
+LIMIT 1`
+
+const hintQuery = `SELECT id FROM elements WHERE 
+guild=$1 AND 
+NOT (id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2))
+%s
 %s
 LIMIT 1`
 
@@ -73,9 +79,9 @@ func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 		// Pick random element
 		var err error
 		if query == "" { // Not from a query
-			err = e.db.QueryRow(fmt.Sprintf(hintQuery, "", "AND RANDOM() < 0.01"), c.Guild(), c.Author().User.ID).Scan(&el)
+			err = e.db.QueryRow(fmt.Sprintf(hintQueryRand, "AND RANDOM() < 0.01"), c.Guild(), c.Author().User.ID).Scan(&el)
 			if err == sql.ErrNoRows {
-				err = e.db.QueryRow(fmt.Sprintf(hintQuery, "", "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID).Scan(&el)
+				err = e.db.QueryRow(fmt.Sprintf(hintQueryRand, "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID).Scan(&el)
 			}
 		} else { // From a query
 			var qu *types.Query
@@ -84,12 +90,9 @@ func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 			if !ok {
 				return
 			}
-			vals := strings.Join(util.Map(qu.Elements, func(a int) string {
-				return "(" + strconv.Itoa(a) + ")"
-			}), ",")
-			err = e.db.QueryRow(fmt.Sprintf(hintQuery, "INNER JOIN (VALUES "+vals+") q(qel) ON (id=qel)", "AND RANDOM() < 0.01"), c.Guild(), c.Author().User.ID).Scan(&el)
+			err = e.db.QueryRow(fmt.Sprintf(hintQuery, "AND id=ANY($3)", "AND RANDOM() < 0.01"), c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
 			if err == sql.ErrNoRows {
-				err = e.db.QueryRow(fmt.Sprintf(hintQuery, "INNER JOIN (VALUES "+vals+") q(qel) ON (id=qel)", "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID).Scan(&el)
+				err = e.db.QueryRow(fmt.Sprintf(hintQuery, "AND id=ANY($3)", "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
 			}
 		}
 
