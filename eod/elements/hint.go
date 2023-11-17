@@ -41,7 +41,7 @@ func Obscure(val string) string {
 
 const hintQuery = `SELECT id FROM elements 
 LEFT JOIN (SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) s
-ON id=s
+ON id=el
 WHERE 
 guild=$1 AND
 el IS NULL AND
