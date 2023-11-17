@@ -85,9 +85,9 @@ func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 			if !ok {
 				return
 			}
-			err = e.db.QueryRow(fmt.Sprintf(hintQuery, "LEFT JOIN (VALUES($3)) q(qel) ON (id=qel)", "AND qel IS NULL", "AND RANDOM() < 0.01"), c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
+			err = e.db.QueryRow(fmt.Sprintf(hintQuery, "LEFT JOIN UNNEST($3::int[]) q(qel) ON (id=qel)", "AND qel IS NOT NULL", "AND RANDOM() < 0.01"), c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
 			if err == sql.ErrNoRows {
-				err = e.db.QueryRow(fmt.Sprintf(hintQuery, "LEFT JOIN (VALUES($3)) q(qel) ON (id=qel)", "AND qel IS NULL", "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
+				err = e.db.QueryRow(fmt.Sprintf(hintQuery, "LEFT JOIN UNNEST($3::int[]) q(qel) ON (id=qel)", "AND qel IS NOT NULL", "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
 			}
 		}
 
