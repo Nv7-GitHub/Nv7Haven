@@ -84,9 +84,12 @@ func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 			if !ok {
 				return
 			}
-			err = e.db.QueryRow(fmt.Sprintf(hintQuery, "INNER JOIN UNNEST($3::int[]) q(qel) ON (id=qel)", "AND RANDOM() < 0.01"), c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
+			vals := strings.Join(util.Map(qu.Elements, func(a int) string {
+				return "(" + strconv.Itoa(a) + ")"
+			}), ",")
+			err = e.db.QueryRow(fmt.Sprintf(hintQuery, "INNER JOIN (VALUES($3)) q(qel) ON (id=qel)", "AND RANDOM() < 0.01"), c.Guild(), c.Author().User.ID, vals).Scan(&el)
 			if err == sql.ErrNoRows {
-				err = e.db.QueryRow(fmt.Sprintf(hintQuery, "LEFT JOIN UNNEST($3::int[]) q(qel) ON (id=qel)", "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
+				err = e.db.QueryRow(fmt.Sprintf(hintQuery, "INNER JION (VALUES($3)) q(qel) ON (id=qel)", "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID, vals).Scan(&el)
 			}
 		}
 
