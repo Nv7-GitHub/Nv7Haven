@@ -40,8 +40,8 @@ func Obscure(val string) string {
 }
 
 const hintQuery = `SELECT id FROM elements 
-LEFT JOIN (SELECT UNNEST(inv) el FROM inventories WHERE guild=$1 AND "user"=$2) s
-ON id=el
+LEFT JOIN (SELECT UNNEST(inv) el FROM inventories WHERE guild=$1 AND "user"=$2) s ON id=el
+%s
 WHERE 
 guild=$1 AND
 el IS NULL
@@ -74,9 +74,9 @@ func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 		// Pick random element
 		var err error
 		if query == "" { // Not from a query
-			err = e.db.QueryRow(fmt.Sprintf(hintQuery, "", "AND RANDOM() < 0.01"), c.Guild(), c.Author().User.ID).Scan(&el)
+			err = e.db.QueryRow(fmt.Sprintf(hintQuery, "", "", "AND RANDOM() < 0.01"), c.Guild(), c.Author().User.ID).Scan(&el)
 			if err == sql.ErrNoRows {
-				err = e.db.QueryRow(fmt.Sprintf(hintQuery, "", "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID).Scan(&el)
+				err = e.db.QueryRow(fmt.Sprintf(hintQuery, "", "", "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID).Scan(&el)
 			}
 		} else { // From a query
 			var qu *types.Query
@@ -85,9 +85,9 @@ func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 			if !ok {
 				return
 			}
-			err = e.db.QueryRow(fmt.Sprintf(hintQuery, "AND id=ANY($3)", "AND RANDOM() < 0.01"), c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
+			err = e.db.QueryRow(fmt.Sprintf(hintQuery, "LEFT JOIN VALUES($3) ON q(qel) ON (id=qel)", "AND qel IS NULL", "AND RANDOM() < 0.01"), c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
 			if err == sql.ErrNoRows {
-				err = e.db.QueryRow(fmt.Sprintf(hintQuery, "AND id=ANY($3)", "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
+				err = e.db.QueryRow(fmt.Sprintf(hintQuery, "LEFT JOIN VALUES($3) ON q(qel) ON (id=qel)", "AND qel IS NULL", "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
 			}
 		}
 
