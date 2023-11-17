@@ -39,9 +39,12 @@ func Obscure(val string) string {
 	return string(out)
 }
 
-const hintQuery = `SELECT id FROM elements WHERE 
-guild=$1 AND 
-NOT (id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2))
+const hintQuery = `SELECT id FROM elements 
+LEFT JOIN (SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) s
+ON id=s
+WHERE 
+guild=$1 AND
+el IS NULL AND
 %s
 %s
 LIMIT 1`
