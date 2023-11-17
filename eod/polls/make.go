@@ -53,21 +53,14 @@ func (b *Polls) CreatePoll(c sevcord.Ctx, p *types.Poll) types.Resp {
 	}
 	p.Message = msg.ID
 
-	// Add reactions at the same time
-	errs := make(chan error)
-	go func() {
-		errs <- dg.MessageReactionAdd(p.Channel, msg.ID, UpArrow)
-	}()
-	go func() {
-		errs <- dg.MessageReactionAdd(p.Channel, msg.ID, DownArrow)
-	}()
-	err = <-errs
+	// Add reactions
+	err = dg.MessageReactionAdd(p.Channel, msg.ID, UpArrow)
 	if err != nil {
-		return types.Error(err) // Up arrow error
+		return types.Error(err)
 	}
-	err = <-errs
+	err = dg.MessageReactionAdd(p.Channel, msg.ID, DownArrow)
 	if err != nil {
-		return types.Error(err) // Down arrow error
+		return types.Error(err)
 	}
 
 	// Add to database
