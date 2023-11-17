@@ -46,7 +46,6 @@ WHERE
 guild=$1 AND
 el IS NULL
 %s
-%s
 LIMIT 1`
 
 // Format: user|elementid|query
@@ -74,9 +73,9 @@ func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 		// Pick random element
 		var err error
 		if query == "" { // Not from a query
-			err = e.db.QueryRow(fmt.Sprintf(hintQuery, "", "", "AND RANDOM() < 0.01"), c.Guild(), c.Author().User.ID).Scan(&el)
+			err = e.db.QueryRow(fmt.Sprintf(hintQuery, "", "AND RANDOM() < 0.01"), c.Guild(), c.Author().User.ID).Scan(&el)
 			if err == sql.ErrNoRows {
-				err = e.db.QueryRow(fmt.Sprintf(hintQuery, "", "", "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID).Scan(&el)
+				err = e.db.QueryRow(fmt.Sprintf(hintQuery, "", "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID).Scan(&el)
 			}
 		} else { // From a query
 			var qu *types.Query
@@ -85,9 +84,9 @@ func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 			if !ok {
 				return
 			}
-			err = e.db.QueryRow(fmt.Sprintf(hintQuery, "LEFT JOIN UNNEST($3::int[]) q(qel) ON (id=qel)", "AND qel IS NOT NULL", "AND RANDOM() < 0.01"), c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
+			err = e.db.QueryRow(fmt.Sprintf(hintQuery, "INNER JOIN UNNEST($3::int[]) q(qel) ON (id=qel)", "AND RANDOM() < 0.01"), c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
 			if err == sql.ErrNoRows {
-				err = e.db.QueryRow(fmt.Sprintf(hintQuery, "LEFT JOIN UNNEST($3::int[]) q(qel) ON (id=qel)", "AND qel IS NOT NULL", "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
+				err = e.db.QueryRow(fmt.Sprintf(hintQuery, "LEFT JOIN UNNEST($3::int[]) q(qel) ON (id=qel)", "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
 			}
 		}
 
