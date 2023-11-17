@@ -44,7 +44,7 @@ LEFT JOIN (SELECT UNNEST(inv) el FROM inventories WHERE guild=$1 AND "user"=$2) 
 ON id=el
 WHERE 
 guild=$1 AND
-el IS NULL AND
+el IS NULL
 %s
 %s
 LIMIT 1`
