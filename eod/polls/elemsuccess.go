@@ -24,7 +24,7 @@ func (p *Polls) elemImageSuccess(po *types.Poll, newsFunc func(string)) error {
 	if po.Data["old"] == "" {
 		word = "Added"
 	}
-	newsFunc(fmt.Sprintf("📸 %s Image - **%s** %s", word, name, p.pollContextMsg(po)))
+	newsFunc(fmt.Sprintf("📸 %s Image - **%s** %s (%s)", word, name, p.pollContextMsg(po), po.Data["new"]))
 
 	return nil
 }

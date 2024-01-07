@@ -108,7 +108,7 @@ func (p *Polls) catImageSuccess(po *types.Poll, newsFunc func(string)) error {
 	if po.Data["old"] == "" {
 		word = "Added"
 	}
-	newsFunc(fmt.Sprintf("📸 %s Category Image - **%s** %s", word, po.Data["cat"].(string), p.pollContextMsg(po)))
+	newsFunc(fmt.Sprintf("📸 %s Category Image - **%s** %s (%s)", word, po.Data["cat"].(string), p.pollContextMsg(po), po.Data["new"]))
 
 	return nil
 }

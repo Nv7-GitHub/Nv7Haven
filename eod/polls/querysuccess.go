@@ -50,7 +50,7 @@ func (p *Polls) queryImageSuccess(po *types.Poll, newsFunc func(string)) error {
 	if po.Data["old"] == "" {
 		word = "Added"
 	}
-	newsFunc(fmt.Sprintf("📸 %s Query Image - **%s** %s", word, po.Data["query"].(string), p.pollContextMsg(po)))
+	newsFunc(fmt.Sprintf("📸 %s Query Image - **%s** %s (%s)", word, po.Data["query"].(string), p.pollContextMsg(po), po.Data["new"]))
 
 	return nil
 }
