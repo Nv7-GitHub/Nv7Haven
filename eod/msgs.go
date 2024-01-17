@@ -95,7 +95,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		if !ok {
 			return
 		}
-		b.elements.Products(c, []any{any(id), nil})
+		b.pages.Products(c, []any{any(id), nil})
 
 	case "q", "query":
 		if !b.base.CheckCtx(c, "query") {

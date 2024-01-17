@@ -115,6 +115,17 @@ func (p *Pages) Init() {
 	)))
 	p.s.AddButtonHandler("querylist", p.QueryListHandler)
 	p.s.AddButtonHandler("query", p.QueryHandler)
+
+	// Products
+	p.s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"products",
+		"View the elements that can be created using this element!",
+		p.Products,
+		sevcord.NewOption("element", "The element to view the products of!", sevcord.OptionKindInt, true).
+			AutoComplete(p.elements.Autocomplete),
+		sevcord.NewOption("sort", "How to order the categories!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
+	))
+	p.s.AddButtonHandler("products", p.ProductsHandler)
 }
 
 func NewPages(base *base.Base, db *sqlx.DB, s *sevcord.Sevcord, categories *categories.Categories, elements *elements.Elements, queries *queries.Queries) *Pages {

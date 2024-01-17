@@ -23,13 +23,6 @@ func (e *Elements) Init() {
 		sevcord.NewOption("result", "The result of the combination!", sevcord.OptionKindString, true),
 		sevcord.NewOption("autocapitalize", "Whether or not to autocapitalize!", sevcord.OptionKindBool, false),
 	))
-	e.s.RegisterSlashCommand(sevcord.NewSlashCommand(
-		"products",
-		"View the elements that can be created using this element!",
-		e.Products,
-		sevcord.NewOption("element", "The element to view the products of!", sevcord.OptionKindInt, true).
-			AutoComplete(e.Autocomplete),
-	))
 	e.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup("edit", "Edit element properties!",
 		sevcord.NewSlashCommand("name",
 			"Edit the name of an element!",
