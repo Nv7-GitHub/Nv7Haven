@@ -91,6 +91,7 @@ var notAllowed = []string{
 	"@here",
 	"<t:",
 	"</",
+	"#",
 }
 
 var charReplace = map[rune]rune{
