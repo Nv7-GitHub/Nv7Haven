@@ -68,7 +68,7 @@ func (b *Base) Stats(c sevcord.Ctx, opts []any) {
 	c.Respond(sevcord.NewMessage("").
 		AddEmbed(emb).
 		AddComponentRow(
-			sevcord.NewButton("View More Stats", sevcord.ButtonStyleLink, "", "").WithEmoji(sevcord.ComponentEmojiCustom("stats", "1197216720897712209", false)).SetURL("https://nv7haven.com/eod"),
+			sevcord.NewButton("View More Stats", sevcord.ButtonStyleLink, "", "").WithEmoji(sevcord.ComponentEmojiDefault('📈')).SetURL("https://nv7haven.com/eod"),
 		))
 }
 
