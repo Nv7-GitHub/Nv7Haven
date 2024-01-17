@@ -52,9 +52,7 @@ func (b *Base) Stats(c sevcord.Ctx, opts []any) {
 		b.Error(c, err)
 		return
 	}
-	fmt.Println("D")
 	cmds += int64(b.getMem(c).CommandStatsTODOCnt) // Include count not pushed to DB
-	fmt.Println("E")
 
 	// Embed
 	emb := sevcord.NewEmbed().Title("Stats").
@@ -66,15 +64,12 @@ func (b *Base) Stats(c sevcord.Ctx, opts []any) {
 		AddField("📁 Elements Categorized", humanize.Comma(categorized), true).
 		AddField("👨‍💻 Commands Used", humanize.Comma(cmds), true)
 
-	fmt.Println("F")
-
 	// Respond
-	fmt.Println(c.Respond(sevcord.NewMessage("").
+	c.Respond(sevcord.NewMessage("").
 		AddEmbed(emb).
 		AddComponentRow(
 			sevcord.NewButton("View More Stats", sevcord.ButtonStyleLink, "", "").WithEmoji(sevcord.ComponentEmojiCustom("stats", "1197216720897712209", false)).SetURL("https://nv7haven.com/eod"),
-		)))
-	fmt.Println("G")
+		))
 }
 
 func (b *Base) SaveStats() {
