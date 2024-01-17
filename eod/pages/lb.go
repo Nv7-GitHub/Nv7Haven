@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Nv7-Github/Nv7Haven/eod/timing"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/Nv7-Github/sevcord/v2"
@@ -55,8 +54,6 @@ var lbQuerySortCode = map[string]string{
 
 // Format: prevnext|user|sort|page|query
 func (p *Pages) LbHandler(c sevcord.Ctx, params string) {
-	timer := timing.GetTimer("lb")
-
 	parts := strings.Split(params, "|")
 
 	// Query
@@ -134,8 +131,6 @@ func (p *Pages) LbHandler(c sevcord.Ctx, params string) {
 	if !contains {
 		fmt.Fprintf(description, "\n%d\\. <@%s> *You* - %s", pos+1, parts[1], humanize.Comma(int64(usercnt)))
 	}
-
-	timer.Stop()
 
 	// Respond
 	// Get title name

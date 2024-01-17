@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Nv7-Github/Nv7Haven/eod/timing"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/lib/pq"
@@ -33,7 +32,6 @@ type comboRes struct {
 func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 	c.Acknowledge()
 	e.base.IncrementCommandStat(c, "combine")
-	timer := timing.GetTimer("combine")
 
 	if len(elemVals) > types.MaxComboLength {
 		c.Respond(sevcord.NewMessage(fmt.Sprintf("You can only combine up to %d elements! "+types.RedCircle, types.MaxComboLength)))
@@ -186,8 +184,6 @@ func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 		e.base.Error(c, err)
 		return
 	}
-
-	timer.Stop()
 
 	// Show result
 	if cont {

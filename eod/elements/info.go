@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Nv7-Github/Nv7Haven/eod/timing"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/dustin/go-humanize"
@@ -40,8 +39,6 @@ func (e *Elements) InfoMsgCmd(c sevcord.Ctx, val string) {
 const catInfoCount = 3
 
 func (e *Elements) Info(c sevcord.Ctx, el int) {
-	timer := timing.GetTimer("info")
-
 	// Get element
 	var elem types.Element
 	err := e.db.Get(&elem, "SELECT * FROM elements WHERE id=$1 AND guild=$2", el, c.Guild())
@@ -128,8 +125,6 @@ func (e *Elements) Info(c sevcord.Ctx, el int) {
 	if len(categories) > 0 {
 		emb = emb.AddField("📁 Categories", strings.Join(categories, ", "), false)
 	}
-
-	timer.Stop()
 
 	// Respond
 	msg := sevcord.NewMessage("").AddEmbed(emb)
