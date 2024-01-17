@@ -138,6 +138,7 @@ var Sorts = []sevcord.Choice{
 	sevcord.NewChoice("Created On", "createdon"),
 	sevcord.NewChoice("Tree Size", "treesize"),
 	sevcord.NewChoice("Length", "length"),
+	sevcord.NewChoice("Found", "found"),
 }
 
 var SortSql = map[string]string{
@@ -147,6 +148,7 @@ var SortSql = map[string]string{
 	"createdon": "createdon",
 	"treesize":  "treesize DESC",
 	"length":    "LENGTH(name) DESC",
+	"found":     "cont DESC, id",
 }
 
 var Postfixes = []sevcord.Choice{

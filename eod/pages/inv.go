@@ -34,8 +34,11 @@ func (p *Pages) InvHandler(c sevcord.Ctx, params string) {
 	page = ApplyPage(parts[0], page, pagecnt)
 
 	// Get values
-	var inv []string
-	err = p.db.Select(&inv, `SELECT name FROM elements WHERE id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) AND guild=$1 ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), parts[1], length, length*page)
+	var inv []struct {
+		Name string `db:"name"`
+		Cont bool   `db:"cont"`
+	}
+	err = p.db.Select(&inv, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont FROM elements WHERE id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) AND guild=$1 ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), parts[1], length, length*page, c.Author().User.ID)
 	if err != nil {
 		p.base.Error(c, err)
 		return
@@ -57,12 +60,26 @@ func (p *Pages) InvHandler(c sevcord.Ctx, params string) {
 		name = m.Nick
 	}
 
+	// Make description
+	desc := &strings.Builder{}
+	for _, v := range inv {
+		if c.Author().User.ID != parts[1] {
+			if v.Cont {
+				fmt.Fprintf(desc, "%s %s\n", v.Name, types.Check)
+			} else {
+				fmt.Fprintf(desc, "%s %s\n", v.Name, types.NoCheck)
+			}
+		} else {
+			fmt.Fprintf(desc, "%s\n", v.Name)
+		}
+	}
+
 	timer.Stop()
 
 	// Create
 	embed := sevcord.NewEmbed().
 		Title(fmt.Sprintf("%s's Inventory (%s)", name, humanize.Comma(int64(cnt)))).
-		Description(strings.Join([]string(inv), "\n")).
+		Description(desc.String()).
 		Footer(fmt.Sprintf("Page %d/%d", page+1, pagecnt), "").
 		Color(15105570) // Orange
 

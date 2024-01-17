@@ -15,6 +15,11 @@ func (q *Queries) Download(c sevcord.Ctx, opts []any) {
 	if opts[1] != nil {
 		sort = opts[1].(string)
 	}
+	if sort == "found" {
+		e := types.Fail("Cannot sort by found!")
+		c.Respond(e.Response())
+		return
+	}
 
 	// Get query
 	qu, ok := q.base.CalcQuery(c, opts[0].(string))
