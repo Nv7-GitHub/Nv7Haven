@@ -5,6 +5,7 @@ import (
 	"math"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
@@ -17,12 +18,14 @@ func (p *Pages) ProductsHandler(c sevcord.Ctx, params string) {
 	elem, _ := strconv.Atoi(parts[1])
 
 	// Get count
+	start := time.Now()
 	var cnt int
-	err := p.db.QueryRow(`SELECT COUNT(*) FROM combos WHERE guild=$1 AND $2=ANY(els)`, c.Guild(), parts[1]).Scan(&cnt)
+	err := p.db.QueryRow(`SELECT COUNT(DISTINCT(result)) FROM combos WHERE guild=$1 AND $2=ANY(els)`, c.Guild(), parts[1]).Scan(&cnt)
 	if err != nil {
 		p.base.Error(c, err)
 		return
 	}
+	fmt.Println(time.Since(start))
 	length := p.base.PageLength(c)
 	pagecnt := int(math.Ceil(float64(cnt) / float64(length)))
 
@@ -31,15 +34,17 @@ func (p *Pages) ProductsHandler(c sevcord.Ctx, params string) {
 	page = ApplyPage(parts[0], page, pagecnt)
 
 	// Get values
+	start = time.Now()
 	var items []struct {
 		Name string `db:"name"`
 		Cont bool   `db:"cont"`
 	}
-	err = p.db.Select(&items, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont FROM elements WHERE guild=$1 AND id IN (SELECT result FROM combos WHERE guild=$1 AND $2=ANY(els)) ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), elem, length, length*page, c.Author().User.ID)
+	err = p.db.Select(&items, `WITH els AS MATERIALIZED(SELECT *, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont FROM elements WHERE guild=$1 AND id IN (SELECT result FROM combos WHERE guild=$1 AND $2=ANY(els))) SELECT name, cont FROM els ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), elem, length, length*page, c.Author().User.ID)
 	if err != nil {
 		p.base.Error(c, err)
 		return
 	}
+	fmt.Println(time.Since(start))
 
 	// Make description
 	desc := &strings.Builder{}
