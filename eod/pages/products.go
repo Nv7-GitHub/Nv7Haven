@@ -5,7 +5,6 @@ import (
 	"math"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
@@ -18,14 +17,12 @@ func (p *Pages) ProductsHandler(c sevcord.Ctx, params string) {
 	elem, _ := strconv.Atoi(parts[1])
 
 	// Get count
-	start := time.Now()
 	var cnt int
 	err := p.db.QueryRow(`SELECT COUNT(DISTINCT(result)) FROM combos WHERE guild=$1 AND $2=ANY(els)`, c.Guild(), parts[1]).Scan(&cnt)
 	if err != nil {
 		p.base.Error(c, err)
 		return
 	}
-	fmt.Println(time.Since(start))
 	length := p.base.PageLength(c)
 	pagecnt := int(math.Ceil(float64(cnt) / float64(length)))
 
@@ -34,7 +31,6 @@ func (p *Pages) ProductsHandler(c sevcord.Ctx, params string) {
 	page = ApplyPage(parts[0], page, pagecnt)
 
 	// Get values
-	start = time.Now()
 	var items []struct {
 		Name string `db:"name"`
 		Cont bool   `db:"cont"`
@@ -44,7 +40,6 @@ func (p *Pages) ProductsHandler(c sevcord.Ctx, params string) {
 		p.base.Error(c, err)
 		return
 	}
-	fmt.Println(time.Since(start))
 
 	// Make description
 	desc := &strings.Builder{}
