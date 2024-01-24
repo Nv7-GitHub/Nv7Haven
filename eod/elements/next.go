@@ -36,7 +36,7 @@ func (e *Elements) NextHandler(c sevcord.Ctx, params string) {
 			return
 		}
 		err = e.db.QueryRow(`SELECT c.result FROM combos c JOIN inventories i ON c.els <@ i.inv 
-				    WHERE i.user=$2 AND i.guild=$1 AND c.guild=$1 AND NOT (c.result = ANY(i.inv)) AND result=ANY($4) LIMIT 1 OFFSET $3`, c.Guild(), c.Author().User.ID, offset, pq.Array(query.Elements)).Scan(&res)
+				    WHERE i.user=$2 AND i.guild=$1 AND c.guild=$1 AND NOT (c.result = ANY(i.inv)) AND c.result=ANY($4) LIMIT 1 OFFSET $3`, c.Guild(), c.Author().User.ID, offset, pq.Array(query.Elements)).Scan(&res)
 	}
 	if err != nil {
 		if err == sql.ErrNoRows {
