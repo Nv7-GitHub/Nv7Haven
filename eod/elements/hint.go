@@ -79,9 +79,6 @@ func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 		var err error
 		if query == "" { // Not from a query
 			err = e.db.QueryRow(fmt.Sprintf(hintQueryRand, "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID).Scan(&el)
-			if err == sql.ErrNoRows {
-				err = e.db.QueryRow(fmt.Sprintf(hintQueryRand, "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID).Scan(&el)
-			}
 		} else { // From a query
 			var qu *types.Query
 			var ok bool
