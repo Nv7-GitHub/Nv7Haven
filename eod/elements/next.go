@@ -28,15 +28,15 @@ func (e *Elements) NextHandler(c sevcord.Ctx, params string) {
 	var err error
 	var res int
 	if qu == "" { // No query
-		err = e.db.QueryRow(`WITH inv as (SELECT inv FROM inventories WHERE "user"=$2 AND guild=$1)
-	SELECT result FROM combos WHERE els <@ (SELECT inv FROM inv) AND NOT (result=ANY(SELECT UNNEST(inv) FROM inv)) AND guild=$1 LIMIT 1 OFFSET $3`, c.Guild(), c.Author().User.ID, offset).Scan(&res)
+		err = e.db.QueryRow(`SELECT c.result FROM combos c JOIN inventories i ON c.els <@ i.inv 
+				    WHERE i."user"=$2 AND i.guild=$1 AND c.guild=$1 AND NOT (c.result = ANY(i.inv)) LIMIT 1 OFFSET $3`, c.Guild(), c.Author().User.ID, offset).Scan(&res)
 	} else { // With query
 		query, ok := e.base.CalcQuery(c, qu)
 		if !ok {
 			return
 		}
-		err = e.db.QueryRow(`WITH inv as (SELECT inv FROM inventories WHERE "user"=$2 AND guild=$1)
-	SELECT result FROM combos WHERE els <@ (SELECT inv FROM inv) AND NOT (result=ANY(SELECT UNNEST(inv) FROM inv)) AND guild=$1 AND result=ANY($4) LIMIT 1 OFFSET $3`, c.Guild(), c.Author().User.ID, offset, pq.Array(query.Elements)).Scan(&res)
+		err = e.db.QueryRow(`SELECT c.result FROM combos c JOIN inventories i ON c.els <@ i.inv 
+				    WHERE i."user"=$2 AND i.guild=$1 AND c.guild=$1 AND NOT (c.result = ANY(i.inv)) AND c.result=ANY($4) LIMIT 1 OFFSET $3`, c.Guild(), c.Author().User.ID, offset, pq.Array(query.Elements)).Scan(&res)
 	}
 	if err != nil {
 		if err == sql.ErrNoRows {
