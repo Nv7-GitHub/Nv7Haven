@@ -91,7 +91,6 @@ var notAllowed = []string{
 	"@here",
 	"<t:",
 	"</",
-	"#",
 }
 
 var charReplace = map[rune]rune{
@@ -107,6 +106,9 @@ const MaxNameLength = 240
 // CheckName checks the validity of a name & returns a cleaned up version + error
 func CheckName(name string) (string, types.Resp) {
 	name = strings.TrimSpace(name)
+	if strings.HasPrefix(name, "#") {
+		return "", types.Fail("A name may not start with '#'!")
+	}
 	for _, v := range notAllowed {
 		if strings.Contains(name, v) {
 			return "", types.Fail("A name may not contain '" + v + "'!")
