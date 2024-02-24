@@ -31,7 +31,9 @@ services:
         "-c",
         "pg_stat_statements.max=10000",
         "-c",
-        "track_io_timing=on"
+        "track_io_timing=on",
+        "-c",
+        "statement_timeout=3600000" # 1 hour
       ]
     ports:
       - "5432:5432"
@@ -58,6 +60,32 @@ services:
     ports:
       - "3005:3005"
 
+  wordpress-db:
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: ${PASSWORD}
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: ${PASSWORD}
+    ports:
+      - "3308:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+    restart: unless-stopped
+
+  wordpress:
+    image: wordpress:latest
+    ports:
+      - 3006:80
+    volumes:
+      - wp_data:/var/www/html
+    restart: unless-stopped
+    environment:
+      - WORDPRESS_DB_HOST=wordpress-db
+      - WORDPRESS_DB_USER=wordpress
+      - WORDPRESS_DB_PASSWORD=${PASSWORD}
+      - WORDPRESS_DB_NAME=wordpress
+
   adminer:
     image: adminer
     restart: unless-stopped
@@ -66,6 +94,7 @@ services:
     depends_on:
       - db
       - pg
+      - wordpress-db
     ports:
       - "${PHP_PORT}:8080"
 
@@ -97,3 +126,4 @@ services:
 volumes:
   db-data:
   pg-data:
+  wp-data:
