@@ -67,8 +67,6 @@ services:
       MYSQL_DATABASE: wordpress
       MYSQL_USER: wordpress
       MYSQL_PASSWORD: ${PASSWORD}
-    ports:
-      - "3308:3306"
     volumes:
       - wordpress-db-data:/var/lib/mysql
     restart: unless-stopped
