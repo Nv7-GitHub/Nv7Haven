@@ -70,7 +70,7 @@ services:
     ports:
       - "3308:3306"
     volumes:
-      - db-data:/var/lib/mysql
+      - wordpress-db-data:/var/lib/mysql
     restart: unless-stopped
 
   wordpress:
@@ -125,5 +125,6 @@ services:
 
 volumes:
   db-data:
+  wordpress-db-data:
   pg-data:
   wp-data:
