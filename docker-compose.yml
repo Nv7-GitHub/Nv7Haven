@@ -78,7 +78,7 @@ services:
     ports:
       - 3006:80
     volumes:
-      - wp_data:/var/www/html
+      - wp-data:/var/www/html
     restart: unless-stopped
     environment:
       - WORDPRESS_DB_HOST=wordpress-db
