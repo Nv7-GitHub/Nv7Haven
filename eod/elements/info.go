@@ -94,6 +94,18 @@ func (e *Elements) Info(c sevcord.Ctx, el int) {
 		categories = append(categories, fmt.Sprintf("and %d more...", cnt-catInfoCount))
 	}
 
+	// Progress
+	var treesize, found int
+	err = e.db.QueryRow(`WITH RECURSIVE parents AS (
+		(select parents, id from elements WHERE id=$2 and guild=$1)
+	UNION
+		(SELECT b.parents, b.id FROM elements b INNER JOIN parents p ON b.id=ANY(p.parents) where guild=$1)
+	) SELECT COUNT(id), (SELECT COUNT(el) FROM (SELECT UNNEST(inv) el FROM inventories WHERE guild=$1 AND "user"=$3) sub INNER JOIN parents ON parents.id=sub.el) FROM parents`, c.Guild(), el, c.Author().User.ID).Scan(&treesize, &found)
+	if err != nil {
+		e.base.Error(c, err)
+		return
+	}
+
 	// Element ID
 	description = fmt.Sprintf("Element **#%d**\n", elem.ID) + description
 
@@ -104,7 +116,8 @@ func (e *Elements) Info(c sevcord.Ctx, el int) {
 		Color(elem.Color).
 		AddField("🧑 Creator", fmt.Sprintf("<@%s>", elem.Creator), true).
 		AddField("📅 Created On", fmt.Sprintf("<t:%d>", elem.CreatedOn.Unix()), true).
-		AddField("🌲 Tree Size", humanize.Comma(int64(elem.TreeSize)), true).
+		AddField("🌲 Tree Size", humanize.Comma(int64(treesize)), true).
+		AddField("📊 Progress", humanize.FormatFloat("##.#", float64(found)/float64(treesize))+"%", true).
 		AddField("🔨 Made With", humanize.Comma(int64(madewith)), true).
 		AddField("🧰 Used In", humanize.Comma(int64(usedin)), true).
 		AddField("🔍 Found By", humanize.Comma(int64(foundby)), true)
