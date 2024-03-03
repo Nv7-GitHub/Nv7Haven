@@ -117,7 +117,7 @@ func (e *Elements) Info(c sevcord.Ctx, el int) {
 		AddField("🧑 Creator", fmt.Sprintf("<@%s>", elem.Creator), true).
 		AddField("📅 Created On", fmt.Sprintf("<t:%d>", elem.CreatedOn.Unix()), true).
 		AddField("🌲 Tree Size", humanize.Comma(int64(treesize)), true).
-		AddField("📊 Progress", humanize.FormatFloat("##.#", float64(found)/float64(treesize))+"%", true).
+		AddField("📊 Progress", humanize.FormatFloat("##.#", float64(found)/float64(treesize)*100)+"%", true).
 		AddField("🔨 Made With", humanize.Comma(int64(madewith)), true).
 		AddField("🧰 Used In", humanize.Comma(int64(usedin)), true).
 		AddField("🔍 Found By", humanize.Comma(int64(foundby)), true)
