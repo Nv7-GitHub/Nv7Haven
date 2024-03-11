@@ -74,7 +74,7 @@ services:
   wordpress:
     image: wordpress:latest
     ports:
-      - 3008:443
+      - 3008:80
     volumes:
       - wp-data:/var/www/html
     restart: unless-stopped
