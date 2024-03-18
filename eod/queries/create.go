@@ -200,7 +200,7 @@ func (q *Queries) CreateComparisonImageCmd(c sevcord.Ctx, opts []any) {
 
 func (q *Queries) CreateComparisonColorCmd(c sevcord.Ctx, opts []any) {
 	// Check hex code
-	code := opts[1].(string)
+	code := opts[2].(string)
 	if !strings.HasPrefix(code, "#") {
 		c.Respond(sevcord.NewMessage("Invalid hex code! " + types.RedCircle))
 		return
