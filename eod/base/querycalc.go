@@ -96,7 +96,7 @@ func (b *Base) CalcQuery(ctx sevcord.Ctx, name string) (*types.Query, bool) {
 			b.Error(ctx, err)
 			return nil, false
 		}
-		query.Elements = make([]int, max-1)
+		query.Elements = make([]int, max)
 		for i := range query.Elements {
 			query.Elements[i] = i + 1
 		}
