@@ -5,6 +5,7 @@ import (
 	"math"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
@@ -76,14 +77,36 @@ func (p *Pages) QueryList(c sevcord.Ctx, opts []any) {
 	p.QueryListHandler(c, "next|"+sort+"|-1")
 }
 
+var queryPageCache = make(map[string]map[string]*types.Query)
+var queryPageCacheLock = &sync.RWMutex{}
+
 // Params: prevnext|user|sort|page|query
 func (p *Pages) QueryHandler(c sevcord.Ctx, params string) {
 	parts := strings.SplitN(params, "|", 5)
 
 	// Get query
-	query, ok := p.base.CalcQuery(c, parts[4])
-	if !ok {
-		return
+	var query *types.Query
+	queryPageCacheLock.RLock()
+	g, exists := queryPageCache[c.Guild()]
+	if exists {
+		query, exists = g[parts[4]]
+	}
+	queryPageCacheLock.RUnlock()
+
+	if !exists {
+		var ok bool
+		query, ok = p.base.CalcQuery(c, parts[4])
+		if !ok {
+			return
+		}
+		queryPageCacheLock.Lock()
+		v, exists := queryPageCache[c.Guild()]
+		if !exists {
+			v = make(map[string]*types.Query)
+			queryPageCache[c.Guild()] = v
+		}
+		v[parts[4]] = query
+		queryPageCacheLock.Unlock()
 	}
 
 	// Get count
@@ -151,6 +174,14 @@ func (p *Pages) Query(c sevcord.Ctx, args []any) {
 		p.base.Error(c, err, "Query **"+args[0].(string)+"** doesn't exist!")
 		return
 	}
+
+	// Reset if its there
+	queryPageCacheLock.Lock()
+	g, exists := queryPageCache[c.Guild()]
+	if exists {
+		delete(g, name)
+	}
+	queryPageCacheLock.Unlock()
 
 	// Create embed
 	p.QueryHandler(c, fmt.Sprintf("next|%s|%s|-1|%s", c.Author().User.ID, sort, name))
