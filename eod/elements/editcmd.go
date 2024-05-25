@@ -7,6 +7,7 @@ import (
 
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/Nv7-Github/sevcord/v2"
+	"github.com/bwmarrin/discordgo"
 )
 
 func (e *Elements) editNewsMessage(c sevcord.Ctx, message string) {
@@ -60,6 +61,7 @@ func (e *Elements) EditElementCommentCmd(c sevcord.Ctx, opts []any) {
 }
 
 func (e *Elements) EditElementCreatorCmd(c sevcord.Ctx, opts []any) {
+	opts[1] = opts[1].(*discordgo.User).ID
 	e.editCmd(c, opts, "creator")
 }
 

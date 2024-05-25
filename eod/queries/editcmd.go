@@ -7,6 +7,7 @@ import (
 
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/Nv7-Github/sevcord/v2"
+	"github.com/bwmarrin/discordgo"
 	"github.com/lib/pq"
 )
 
@@ -56,6 +57,7 @@ func (q *Queries) EditElementCommentCmd(c sevcord.Ctx, opts []any) {
 }
 
 func (q *Queries) EditElementCreatorCmd(c sevcord.Ctx, opts []any) {
+	opts[1] = opts[1].(*discordgo.User).ID
 	q.editCmd(c, opts, "creator")
 }
 
