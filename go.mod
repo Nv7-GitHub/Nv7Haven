@@ -2,8 +2,6 @@ module github.com/Nv7-Github/Nv7Haven
 
 go 1.21
 
-toolchain go1.22.2
-
 require (
 	github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible
 	github.com/Nv7-Github/average-joe v0.0.0-20220429002151-7a828e7b9d17
