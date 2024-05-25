@@ -11,6 +11,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/queries"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
+	"github.com/bwmarrin/discordgo"
 )
 
 func (b *Bot) Init() {
@@ -150,6 +151,90 @@ func (b *Bot) Init() {
 				AutoComplete(b.elements.Autocomplete),
 		),
 	))
+	b.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup("edit", "Edit element properties!",
+		sevcord.NewSlashCommandGroup("element", "Edit element properties!",
+			sevcord.NewSlashCommand("name",
+				"Edit the name of an element!",
+				b.elements.EditElementNameCmd,
+				sevcord.NewOption("element", "The element to edit!", sevcord.OptionKindInt, true).
+					AutoComplete(b.elements.Autocomplete),
+				sevcord.NewOption("name", "The new name of the element!", sevcord.OptionKindString, true),
+			),
+			sevcord.NewSlashCommand("image",
+				"Edit the image of an element!",
+				b.elements.EditElementImageCmd,
+				sevcord.NewOption("element", "The element to edit!", sevcord.OptionKindInt, true).
+					AutoComplete(b.elements.Autocomplete),
+				sevcord.NewOption("image", "The new image URL of the element!", sevcord.OptionKindString, true),
+			),
+			sevcord.NewSlashCommand("description",
+				"Edit the description of an element!",
+				b.elements.EditElementCommentCmd,
+				sevcord.NewOption("element", "The element to edit!", sevcord.OptionKindInt, true).
+					AutoComplete(b.elements.Autocomplete),
+				sevcord.NewOption("description", "The new description of the element!", sevcord.OptionKindString, true),
+			),
+			sevcord.NewSlashCommand("color",
+				"Edit the color of an element!",
+				b.elements.EditElementColorCmd,
+				sevcord.NewOption("element", "The element to edit!", sevcord.OptionKindInt, true).
+					AutoComplete(b.elements.Autocomplete),
+				sevcord.NewOption("color", "The new color of the element! (decimal version of hex code)", sevcord.OptionKindInt, true),
+			),
+			sevcord.NewSlashCommand("creator",
+				"Edit the creator of an element!",
+				b.elements.EditElementCreatorCmd,
+				sevcord.NewOption("element", "The element to edit!", sevcord.OptionKindInt, true).
+					AutoComplete(b.elements.Autocomplete),
+				sevcord.NewOption("creator", "The new creator of the element!", sevcord.OptionKindUser, true),
+			),
+			sevcord.NewSlashCommand("createdon",
+				"Edit the creation date of an element!",
+				b.elements.EditElementCreatedonCmd,
+				sevcord.NewOption("element", "The element to edit!", sevcord.OptionKindInt, true).
+					AutoComplete(b.elements.Autocomplete),
+				sevcord.NewOption("createdon", "The new creation date of the element! (unix timestamp)", sevcord.OptionKindInt, true),
+			),
+		),
+		sevcord.NewSlashCommandGroup("query", "Edit the properties of elements in a query!",
+			sevcord.NewSlashCommand("image",
+				"Edit the images of elements in a query!",
+				b.queries.EditElementImageCmd,
+				sevcord.NewOption("query", "The query to edit!", sevcord.OptionKindString, true).
+					AutoComplete(b.queries.Autocomplete),
+				sevcord.NewOption("image", "The new image URL of the element!", sevcord.OptionKindString, true),
+			),
+			sevcord.NewSlashCommand("description",
+				"Edit the description of elements in a query!",
+				b.queries.EditElementCommentCmd,
+				sevcord.NewOption("query", "The query to edit!", sevcord.OptionKindString, true).
+					AutoComplete(b.queries.Autocomplete),
+				sevcord.NewOption("description", "The new description of the element!", sevcord.OptionKindString, true),
+			),
+			sevcord.NewSlashCommand("color",
+				"Edit the color of elements in a query!",
+				b.queries.EditElementColorCmd,
+				sevcord.NewOption("query", "The query to edit!", sevcord.OptionKindString, true).
+					AutoComplete(b.queries.Autocomplete),
+				sevcord.NewOption("color", "The new color of the element! (decimal version of hex code)", sevcord.OptionKindInt, true),
+			),
+			sevcord.NewSlashCommand("creator",
+				"Edit the creator of an elements in a query!",
+				b.queries.EditElementCreatorCmd,
+				sevcord.NewOption("query", "The query to edit!", sevcord.OptionKindString, true).
+					AutoComplete(b.queries.Autocomplete),
+				sevcord.NewOption("creator", "The new creator of the element!", sevcord.OptionKindUser, true),
+			),
+			sevcord.NewSlashCommand("createdon",
+				"Edit the creation date of elements in a query!",
+				b.queries.EditElementCreatedonCmd,
+				sevcord.NewOption("query", "The query to edit!", sevcord.OptionKindString, true).
+					AutoComplete(b.queries.Autocomplete),
+				sevcord.NewOption("createdon", "The new creation date of the element! (unix timestamp)", sevcord.OptionKindInt, true),
+			),
+		),
+	).
+		RequirePermissions(discordgo.PermissionManageServer))
 	b.s.AddButtonHandler("elemcats", b.pages.ElemCatHandler)
 	b.s.AddButtonHandler("elemfound", b.pages.ElemFoundHandler)
 	b.s.RegisterSlashCommand(sevcord.NewSlashCommand(
