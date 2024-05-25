@@ -22,7 +22,11 @@ func (p *Polls) queryCreateSuccess(po *types.Poll, news func(string)) error {
 	}
 
 	// News
-	news(fmt.Sprintf("🧮 Created Query - **%s** %s", po.Data["query"], p.pollContextMsg(po)))
+	word := "Created"
+	if po.Data["edit"].(bool) {
+		word = "Edited"
+	}
+	news(fmt.Sprintf("🧮 %s Query - **%s** %s", word, po.Data["query"], p.pollContextMsg(po)))
 	return nil
 }
 
