@@ -15,6 +15,11 @@ import (
 var token string
 
 func main() {
+	fmt.Println("Joe is temporarily disabled due to database corruption.")
+	for true {
+		time.Sleep(24 * time.Hour)
+	}
+
 	fmt.Println("Loading...")
 	start := time.Now()
 	j, err := joe.NewJoe(token)
