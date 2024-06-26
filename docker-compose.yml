@@ -150,3 +150,5 @@ volumes:
   wordpress-db-data:
   pg-data:
   wp-data:
+  tektite-db-data:
+  tektite-data:
