@@ -84,6 +84,30 @@ services:
       - WORDPRESS_DB_PASSWORD=${PASSWORD}
       - WORDPRESS_DB_NAME=wordpress
 
+  tektite-db:
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: ${PASSWORD}
+      MYSQL_DATABASE: tektite
+      MYSQL_USER: tektite
+      MYSQL_PASSWORD: ${PASSWORD}
+    volumes:
+      - tektite-db-data:/var/lib/mysql
+    restart: unless-stopped
+
+  tektite:
+    image: wordpress:latest
+    ports:
+      - 3010:80
+    volumes:
+      - tektite-data:/var/www/html
+    restart: unless-stopped
+    environment:
+      - WORDPRESS_DB_HOST=tektite-db
+      - WORDPRESS_DB_USER=tektite
+      - WORDPRESS_DB_PASSWORD=${PASSWORD}
+      - WORDPRESS_DB_NAME=tektite
+
   adminer:
     image: adminer
     restart: unless-stopped
