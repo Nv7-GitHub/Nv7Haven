@@ -19,7 +19,7 @@ const (
 	dbName = "nv7haven"
 
 	pgDbUser = "postgres"
-	pgDbName = "eod"
+	pgDbName = "nv7haven"
 	pgDbPort = "5432"
 )
 

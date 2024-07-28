@@ -15,7 +15,7 @@ import (
 
 const (
 	dbUser = "postgres"
-	dbName = "eod"
+	dbName = "nv7haven"
 	dbPort = "5432"
 )
 
