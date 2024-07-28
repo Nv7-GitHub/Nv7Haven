@@ -52,7 +52,7 @@ var services = map[string]*Service{
 	"nv7haven": NewService("nv7haven", "The nv7haven.com Backend"),
 	"single":   NewService("single", "Nv7's Singleplayer"),
 	//"vdrive":            NewService("vdrive", "VDrive"),
-	"elemcraft": NewService("elemcraft", "Elemcraft", "serve"),
+	//"elemcraft": NewService("elemcraft", "Elemcraft", "serve"),
 	//"altruity":          NewService("altruity", "Altruity", "serve", `--http=127.0.0.1:`+os.Getenv("ALTRUITY_PORT")),
 	"when3meet": NewService("when3meet", "When3meet", "serve", `--http=127.0.0.1:`+os.Getenv("WHEN3MEET_PORT")),
 	"commuter":  NewService("commuter", "Commuter", "serve", `--http=127.0.0.1:`+os.Getenv("COMMUTER_PORT")),
