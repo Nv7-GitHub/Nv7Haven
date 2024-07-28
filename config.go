@@ -43,8 +43,8 @@ func (s *Output) Write(p []byte) (n int, err error) {
 var lock = &sync.Mutex{}
 var servicesCond = sync.NewCond(&sync.Mutex{})
 var services = map[string]*Service{
-	"anarchy":           NewService("anarchy", "Nv7's Anarchy"),
-	"bsharp":            NewService("bsharp", "B Sharpener"),
+	"anarchy": NewService("anarchy", "Nv7's Anarchy"),
+	//"bsharp":            NewService("bsharp", "B Sharpener"),
 	"elemental_discord": NewService("elemental_discord", "Nv7's Elemental + Nv7 Bot"),
 	"eod":               NewService("eod", "EoD Everywhere"),
 	//"joe":               NewService("joe", "Average Joe"),
