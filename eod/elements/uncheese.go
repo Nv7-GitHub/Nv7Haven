@@ -9,10 +9,11 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/dustin/go-humanize"
+	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 )
 
-// Format: user|query index|query
+// Format: user|query index|query|(s for skip or d for delete)
 func (e *Elements) UncheeseHandler(c sevcord.Ctx, params string) {
 	parts := strings.Split(params, "|")
 	if c.Author().User.ID != parts[0] {
@@ -34,15 +35,24 @@ func (e *Elements) UncheeseHandler(c sevcord.Ctx, params string) {
 	}
 
 	// Delete combo for previous element
-	if ind > 0 {
-		var prevParents pq.Int32Array
-		err = e.db.QueryRow("SELECT parents FROM elements WHERE guild=$1 AND id=$2", c.Guild(), qu.Elements[ind-1]).Scan(&prevParents)
+	if parts[3] == "d" {
+		var tx *sqlx.Tx
+		tx, err = e.db.Beginx()
 		if err != nil {
 			e.base.Error(c, err)
 			return
 		}
-		_, err = e.db.Exec("DELETE FROM combos WHERE result=$1 AND guild=$2 AND els=$3", qu.Elements[ind-1], c.Guild(), prevParents)
+
+		var prevParents pq.Int32Array
+		err = tx.QueryRow("SELECT parents FROM elements WHERE guild=$1 AND id=$2", c.Guild(), qu.Elements[ind-1]).Scan(&prevParents)
 		if err != nil {
+			tx.Rollback()
+			e.base.Error(c, err)
+			return
+		}
+		_, err = tx.Exec("DELETE FROM combos WHERE result=$1 AND guild=$2 AND els=$3", qu.Elements[ind-1], c.Guild(), prevParents)
+		if err != nil {
+			tx.Rollback()
 			e.base.Error(c, err)
 			return
 		}
@@ -51,34 +61,43 @@ func (e *Elements) UncheeseHandler(c sevcord.Ctx, params string) {
 		var combos []struct {
 			Elements pq.Int32Array `db:"els"`
 		}
-		err = e.db.Select(&combos, "SELECT els FROM combos WHERE result=$1 AND guild=$2", qu.Elements[ind-1], c.Guild())
+		err = tx.Select(&combos, "SELECT els FROM combos WHERE result=$1 AND guild=$2", qu.Elements[ind-1], c.Guild())
 		if err != nil {
+			tx.Rollback()
 			e.base.Error(c, err)
 			return
 		}
 
 		// Find minimum tree size and combo
-		var min int
+		min := -1
 		var minind int
 		for i, combo := range combos {
-			var treesize int
-			err = e.db.QueryRow(`WITH RECURSIVE parents(els, id) AS (
-			VALUES($2::integer[], 0)
-	 	UNION
-			(SELECT b.parents els, b.id id FROM elements b INNER JOIN parents p ON b.id=ANY(p.els) where guild=$1)
-	 	) SELECT COUNT(*) FROM parents WHERE id>0`, c.Guild(), combo.Elements).Scan(&treesize)
+			treesize, loop, err := e.base.TreeSize(tx, qu.Elements[ind-1], util.Map(combo.Elements, func(a int32) int { return int(a) }), c.Guild())
 			if err != nil {
+				tx.Rollback()
 				e.base.Error(c, err)
 				return
 			}
-			if i == 0 || treesize < min {
+			if (min == -1 || treesize < min) && !loop {
 				min = treesize
 				minind = i
 			}
 		}
+		if min == -1 {
+			tx.Rollback()
+			c.Respond(sevcord.NewMessage("Cannot uncheese! " + types.RedCircle))
+			return
+		}
 
 		// Update combo
-		_, err = e.db.Exec("UPDATE elements SET parents=$1, treesize=$2 WHERE id=$3 AND guild=$4", combos[minind].Elements, min, qu.Elements[ind-1], c.Guild())
+		_, err = tx.Exec("UPDATE elements SET parents=$1, treesize=$2 WHERE id=$3 AND guild=$4", combos[minind].Elements, min, qu.Elements[ind-1], c.Guild())
+		if err != nil {
+			e.base.Error(c, err)
+			return
+		}
+
+		// Commit
+		err = tx.Commit()
 		if err != nil {
 			e.base.Error(c, err)
 			return
@@ -115,7 +134,10 @@ func (e *Elements) UncheeseHandler(c sevcord.Ctx, params string) {
 		Footer(fmt.Sprintf("%s deleted out of %s", humanize.Comma(int64(ind)), humanize.Comma(int64(len(qu.Elements)))), "")
 	c.Respond(sevcord.NewMessage("").
 		AddEmbed(emb).
-		AddComponentRow(sevcord.NewButton("Delete Combo", sevcord.ButtonStyleDanger, "uncheese", params).WithEmoji(sevcord.ComponentEmojiDefault([]rune("🗑️")[0]))))
+		AddComponentRow(
+			sevcord.NewButton("Delete Combo", sevcord.ButtonStyleDanger, "uncheese", params+"|d").WithEmoji(sevcord.ComponentEmojiDefault([]rune("🗑️")[0])),
+			sevcord.NewButton("Skip", sevcord.ButtonStylePrimary, "uncheese", params+"|s").WithEmoji(sevcord.ComponentEmojiDefault('⏭')),
+		))
 }
 
 func (e *Elements) Uncheese(c sevcord.Ctx, opts []any) {
@@ -143,5 +165,5 @@ func (e *Elements) Uncheese(c sevcord.Ctx, opts []any) {
 	}
 
 	// Respond
-	e.UncheeseHandler(c, fmt.Sprintf("%s|0|%s", c.Author().User.ID, opts[0].(string)))
+	e.UncheeseHandler(c, fmt.Sprintf("%s|0|%s|s", c.Author().User.ID, opts[0].(string)))
 }
