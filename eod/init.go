@@ -265,4 +265,8 @@ func (b *Bot) Init() {
 			MinMax(2, types.MaxComboLength),
 	))
 	b.s.AddButtonHandler("idea", b.elements.IdeaHandler)
+	b.s.RegisterSlashCommand(sevcord.NewSlashCommand("uncheese", "Delete the lowest tree size combo for elements!", b.elements.Uncheese, sevcord.NewOption("query", "A query to select the elements from!", sevcord.OptionKindString, false).
+		AutoComplete(b.queries.Autocomplete)).
+		RequirePermissions(discordgo.PermissionManageServer))
+	b.s.AddButtonHandler("uncheese", b.elements.UncheeseHandler)
 }
