@@ -111,7 +111,7 @@ func (e *Elements) UncheeseHandler(c sevcord.Ctx, params string) {
 	emb := sevcord.NewEmbed().
 		Title("Uncheese elements in "+qu.Name).
 		Description(combo).
-		Color(3447003). // Blue
+		Color(15548997). // Red
 		Footer(fmt.Sprintf("%s deleted out of %s", humanize.Comma(int64(ind)), humanize.Comma(int64(len(qu.Elements)))), "")
 	c.Respond(sevcord.NewMessage("").
 		AddEmbed(emb).
