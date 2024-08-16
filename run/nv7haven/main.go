@@ -39,7 +39,12 @@ func main() {
 		panic(err)
 	}
 
-	err = nv7haven.InitNv7Haven(app, db, pgdb)
+	bsdsql, err := sqlx.Connect("sqlite3", "data/bsd.db")
+	if err != nil {
+		panic(err)
+	}
+
+	err = nv7haven.InitNv7Haven(app, db, pgdb, bsdsql)
 	if err != nil {
 		panic(err)
 	}
