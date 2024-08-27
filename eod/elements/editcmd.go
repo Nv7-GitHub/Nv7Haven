@@ -41,7 +41,7 @@ func (e *Elements) editCmd(c sevcord.Ctx, opts []any, field string, name ...stri
 		return
 	}
 	c.Respond(sevcord.NewMessage("Successfully edited element " + nameV + "! ✅"))
-	e.editNewsMessage(c, fmt.Sprintf("Edited Element %s - **%s**", util.Capitalize(nameV), nameE))
+	e.editNewsMessage(c, fmt.Sprintf("Edited Element %s - **%s** (By <@%s>)", util.Capitalize(nameV), nameE, c.Author().User.ID))
 }
 
 func (e *Elements) EditElementNameCmd(c sevcord.Ctx, opts []any) {
