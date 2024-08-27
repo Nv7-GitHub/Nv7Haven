@@ -41,7 +41,7 @@ func (q *Queries) editCmd(c sevcord.Ctx, opts []any, field string, name ...strin
 		nameV = name[0]
 	}
 	c.Respond(sevcord.NewMessage("Successfully edited elements in query " + nameV + "! ✅"))
-	q.editNewsMessage(c, fmt.Sprintf("Edited Query Elements %s - **%s**", util.Capitalize(nameV), qu.Name))
+	q.editNewsMessage(c, fmt.Sprintf("Edited Query Elements %s - **%s** (By <@%s>)", util.Capitalize(nameV), qu.Name, c.Author().User.ID))
 }
 
 func (q *Queries) EditElementImageCmd(c sevcord.Ctx, opts []any) {
