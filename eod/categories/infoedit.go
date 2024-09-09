@@ -75,11 +75,11 @@ func (c *Categories) ColorCmd(ctx sevcord.Ctx, opts []any) {
 
 	// Check hex code
 	code := opts[1].(string)
-	if !strings.HasPrefix(code, "#") {
-		ctx.Respond(sevcord.NewMessage("Invalid hex code! " + types.RedCircle))
-		return
+	if strings.HasPrefix(code, "#") {
+		val, err := strconv.ParseInt(strings.TrimPrefix(code, "#"), 16, 64)
+	} else {
+		val, err := strconv.ParseInt(code, 16, 64)
 	}
-	val, err := strconv.ParseInt(strings.TrimPrefix(code, "#"), 16, 64)
 	if err != nil {
 		ctx.Respond(sevcord.NewMessage("Invalid hex code! " + types.RedCircle))
 		return
