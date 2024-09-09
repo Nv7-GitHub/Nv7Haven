@@ -111,13 +111,13 @@ func (e *Elements) ColorCmd(c sevcord.Ctx, opts []any) {
 
 	// Check hex code
 	code := opts[1].(string)
-	if !strings.HasPrefix(code, "#") {
-		c.Respond(sevcord.NewMessage("Invalid hex code! " + types.RedCircle))
-		return
+	if strings.HasPrefix(code, "#") {
+		val, err := strconv.ParseInt(strings.TrimPrefix(code, "#"), 16, 64)
+	} else {
+		val, err := strconv.ParseInt(code, 16, 64)
 	}
-	val, err := strconv.ParseInt(strings.TrimPrefix(code, "#"), 16, 64)
 	if err != nil {
-		e.base.Error(c, err)
+		c.Respond(sevcord.NewMessage("Invalid hex code! " + types.RedCircle))
 		return
 	}
 	if val < 0 || val > 16777215 {
