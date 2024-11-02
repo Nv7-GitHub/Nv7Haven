@@ -23,6 +23,10 @@ var noObscure = map[rune]struct{}{
 	'_': {},
 	'(': {},
 	')': {},
+	'[': {},
+	']': {},
+	'{': {},
+	'}': {},
 }
 
 func Obscure(val string) string {
