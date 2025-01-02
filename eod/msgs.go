@@ -164,7 +164,11 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			c.Respond(sevcord.NewMessage("Invalid format! " + types.RedCircle))
 			return
 		}
-		b.elements.ColorCmd(c, strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1]))
+		id, ok := b.getElementId(c, parts[0])
+		if !ok {
+			return
+		}
+		b.elements.ColorCmd(c, []any{id, strings.TrimSpace(parts[1])})
 	case "n", "next":
 		if !b.base.CheckCtx(c, "next") {
 			return
