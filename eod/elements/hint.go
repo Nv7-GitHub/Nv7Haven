@@ -76,6 +76,7 @@ func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 
 	// Get element
 	var el int
+	var elem types.Element
 	if elVal != -1 {
 		el = elVal
 	} else {
@@ -90,12 +91,12 @@ func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 			if !ok {
 				return
 			}
+
 			err = e.db.QueryRow(fmt.Sprintf(hintQuery, "AND id=ANY($3)", "AND RANDOM() < 0.01"), c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
 			if err == sql.ErrNoRows {
 				err = e.db.QueryRow(fmt.Sprintf(hintQuery, "AND id=ANY($3)", "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
 			}
 		}
-
 		// Get random element that the user can make
 		if err != nil {
 			if err == sql.ErrNoRows {
@@ -106,7 +107,12 @@ func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 			return
 		}
 	}
-
+	//Get element for thumbnail
+	err = e.db.Get(&elem, "SELECT * FROM elements WHERE id=$1 AND guild=$2", el, c.Guild())
+	if err != nil {
+		e.base.Error(c, err)
+		return
+	}
 	// Check if you have
 	var has bool
 	err = e.db.QueryRow(`SELECT $3=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2)`, c.Guild(), c.Author().User.ID, el).Scan(&has)
@@ -150,6 +156,7 @@ func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 	}
 
 	// Create message
+
 	description := &strings.Builder{}
 	for _, item := range items {
 		// Emoji
@@ -185,6 +192,10 @@ func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 		Description(description.String()).
 		Color(3447003). // Blue
 		Footer(fmt.Sprintf("%s Hints • You%s have this", humanize.Comma(int64(itemCnt)), dontHave), "")
+
+	if elem.Image != "" {
+		emb = emb.Thumbnail(elem.Image)
+	}
 	c.Respond(sevcord.NewMessage("").
 		AddEmbed(emb).
 		AddComponentRow(sevcord.NewButton("New Hint", sevcord.ButtonStylePrimary, "hint", params).
