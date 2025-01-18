@@ -161,7 +161,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 		parts := strings.SplitN(content, "|", 2)
 		if len(parts) != 2 {
-			c.Respond(sevcord.NewMessage("Invalid format! " + types.RedCircle))
+			c.Respond(sevcord.NewMessage("Use `!color [element]|<hex code>`! " + types.RedCircle))
 			return
 		}
 		id, ok := b.getElementId(c, parts[0])
