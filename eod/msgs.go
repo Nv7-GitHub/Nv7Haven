@@ -48,7 +48,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 		b.elements.Hint(c, []any{val, nil})
 
-	case "cat":
+	case "cat", "c":
 		if !b.base.CheckCtx(c, "cat") {
 			return
 		}
@@ -155,7 +155,20 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 		b.elements.MsgSignCmd(c, strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1]))
-
+	case "col", "color", "colour":
+		if !b.base.CheckCtx(c, "color") {
+			return
+		}
+		parts := strings.SplitN(content, "|", 2)
+		if len(parts) != 2 {
+			c.Respond(sevcord.NewMessage("Use `!color [element]|<hex code>`! " + types.RedCircle))
+			return
+		}
+		id, ok := b.getElementId(c, parts[0])
+		if !ok {
+			return
+		}
+		b.elements.ColorCmd(c, []any{id, strings.TrimSpace(parts[1])})
 	case "n", "next":
 		if !b.base.CheckCtx(c, "next") {
 			return
