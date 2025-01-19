@@ -160,7 +160,12 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		if !b.base.CheckCtx(c, "next") {
 			return
 		}
-		b.elements.Next(c, []any{nil})
+		val := any(nil)
+		part := strings.TrimSpace(content)
+		if part != "" {
+			val = any(part)
+		}
+		b.elements.Next(c, []any{val})
 
 	case "img", "image":
 		if !b.base.CheckCtx(c, "image") {
