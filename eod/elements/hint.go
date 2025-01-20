@@ -190,7 +190,7 @@ func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 	emb := sevcord.NewEmbed().
 		Title("Hints for "+nameMap[int(el)]).
 		Description(description.String()).
-		Color(3447003). // Blue
+		Color(elem.Color).
 		Footer(fmt.Sprintf("%s Hints • You%s have this", humanize.Comma(int64(itemCnt)), dontHave), "")
 
 	if elem.Image != "" {

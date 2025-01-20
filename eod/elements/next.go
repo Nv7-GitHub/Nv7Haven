@@ -27,6 +27,7 @@ func (e *Elements) NextHandler(c sevcord.Ctx, params string) {
 	qu := parts[1]
 	var err error
 	var res int
+	var elem types.Element
 	if qu == "" { // No query
 		err = e.db.QueryRow(`SELECT c.result FROM combos c JOIN inventories i ON c.els <@ i.inv 
 				    WHERE i."user"=$2 AND i.guild=$1 AND c.guild=$1 AND NOT (c.result = ANY(i.inv)) LIMIT 1 OFFSET $3`, c.Guild(), c.Author().User.ID, offset).Scan(&res)
@@ -46,6 +47,13 @@ func (e *Elements) NextHandler(c sevcord.Ctx, params string) {
 			e.base.Error(c, err)
 			return
 		}
+	}
+
+	//Get element for thumbnail
+	err = e.db.Get(&elem, "SELECT * FROM elements WHERE id=$1 AND guild=$2", res, c.Guild())
+	if err != nil {
+		e.base.Error(c, err)
+		return
 	}
 
 	// Get combos
@@ -94,8 +102,11 @@ func (e *Elements) NextHandler(c sevcord.Ctx, params string) {
 	emb := sevcord.NewEmbed().
 		Title("Your next element is "+nameMap[int(res)]).
 		Description(desc.String()).
-		Color(15158332). // Red
+		Color(elem.Color).
 		Footer(fmt.Sprintf("%s Combos", humanize.Comma(int64(itemCnt))), "")
+	if elem.Image != "" {
+		emb = emb.Thumbnail(elem.Image)
+	}
 	c.Respond(sevcord.NewMessage("").
 		AddEmbed(emb).
 		AddComponentRow(sevcord.NewButton("Next Element", sevcord.ButtonStylePrimary, "next", params).
