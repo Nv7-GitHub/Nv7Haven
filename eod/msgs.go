@@ -150,7 +150,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 		parts := strings.SplitN(content, "|", 3)
-		if len(parts) != 2 {
+		if len(parts) != 3 {
 			c.Respond(sevcord.NewMessage("Use `!sign [e/c/q]|[element/category/query name]|<text>`! " + types.RedCircle))
 			return
 		}
