@@ -160,10 +160,10 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			b.elements.MsgSignCmd(c, strings.TrimSpace(parts[1]), strings.TrimSpace(parts[2]))
 
 		case "c", "cat", "category":
-			b.categories.SignCmd(c, []any{parts[1], strings.TrimSpace(parts[2])})
+			b.categories.SignCmd(c, []any{strings.TrimSpace(parts[1]), strings.TrimSpace(parts[2])})
 
 		case "q", "query":
-			b.queries.SignCmd(c, []any{parts[1], strings.TrimSpace(parts[2])})
+			b.queries.SignCmd(c, []any{strings.TrimSpace(parts[1]), strings.TrimSpace(parts[2])})
 
 		default:
 			c.Respond(sevcord.NewMessage("Use `!sign [e/c/q]|[element/category/query name]|<text>`! " + types.RedCircle))
@@ -188,10 +188,10 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			b.elements.ColorCmd(c, []any{id, strings.TrimSpace(parts[2])})
 
 		case "c", "cat", "category":
-			b.categories.ColorCmd(c, []any{parts[1], strings.TrimSpace(parts[2])})
+			b.categories.ColorCmd(c, []any{strings.TrimSpace(parts[1]), strings.TrimSpace(parts[2])})
 
 		case "q", "query":
-			b.queries.ColorCmd(c, []any{parts[1], strings.TrimSpace(parts[2])})
+			b.queries.ColorCmd(c, []any{strings.TrimSpace(parts[1]), strings.TrimSpace(parts[2])})
 
 		default:
 			c.Respond(sevcord.NewMessage("Use `!color [e/c/q]|[element/category/query name]|<hex code>`! " + types.RedCircle))
