@@ -48,7 +48,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 		b.elements.Hint(c, []any{val, nil})
 
-	case "cat":
+	case "cat", "c":
 		if !b.base.CheckCtx(c, "cat") {
 			return
 		}
@@ -149,18 +149,63 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		if !b.base.CheckCtx(c, "sign") {
 			return
 		}
-		parts := strings.SplitN(content, "|", 2)
-		if len(parts) != 2 {
-			c.Respond(sevcord.NewMessage("Invalid format! " + types.RedCircle))
+		parts := strings.SplitN(content, "|", 3)
+		if len(parts) != 3 {
+			c.Respond(sevcord.NewMessage("Use `!sign [e/c/q]|[element/category/query name]|<text>`! " + types.RedCircle))
 			return
 		}
-		b.elements.MsgSignCmd(c, strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1]))
+		// check for signing element/category/query
+		switch parts[0] {
+		case "e", "element":
+			b.elements.MsgSignCmd(c, strings.TrimSpace(parts[1]), strings.TrimSpace(parts[2]))
 
+		case "c", "cat", "category":
+			b.categories.SignCmd(c, []any{strings.TrimSpace(parts[1]), strings.TrimSpace(parts[2])})
+
+		case "q", "query":
+			b.queries.SignCmd(c, []any{strings.TrimSpace(parts[1]), strings.TrimSpace(parts[2])})
+
+		default:
+			c.Respond(sevcord.NewMessage("Use `!sign [e/c/q]|[element/category/query name]|<text>`! " + types.RedCircle))
+		}
+	case "col", "color", "colour":
+		if !b.base.CheckCtx(c, "color") {
+			return
+		}
+		// check part amount
+		parts := strings.SplitN(content, "|", 3)
+		if len(parts) != 3 {
+			c.Respond(sevcord.NewMessage("Use `!color [e/c/q]|[element/category/query name]|<hex code>`! " + types.RedCircle))
+			return
+		}
+		// check for coloring element/category/query
+		switch parts[0] {
+		case "e", "element":
+			id, ok := b.getElementId(c, parts[1])
+			if !ok {
+				return
+			}
+			b.elements.ColorCmd(c, []any{id, strings.TrimSpace(parts[2])})
+
+		case "c", "cat", "category":
+			b.categories.ColorCmd(c, []any{strings.TrimSpace(parts[1]), strings.TrimSpace(parts[2])})
+
+		case "q", "query":
+			b.queries.ColorCmd(c, []any{strings.TrimSpace(parts[1]), strings.TrimSpace(parts[2])})
+
+		default:
+			c.Respond(sevcord.NewMessage("Use `!color [e/c/q]|[element/category/query name]|<hex code>`! " + types.RedCircle))
+		}
 	case "n", "next":
 		if !b.base.CheckCtx(c, "next") {
 			return
 		}
-		b.elements.Next(c, []any{nil})
+		val := any(nil)
+		part := strings.TrimSpace(content)
+		if part != "" {
+			val = any(part)
+		}
+		b.elements.Next(c, []any{val})
 
 	case "img", "image":
 		if !b.base.CheckCtx(c, "image") {
