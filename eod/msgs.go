@@ -160,10 +160,10 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			b.elements.MsgSignCmd(c, strings.TrimSpace(parts[1]), strings.TrimSpace(parts[2]))
 
 		case "c", "cat", "category":
-			b.categories.SignCmd(c, []any{strings.TrimSpace(parts[1]), strings.TrimSpace(parts[2])})
+			b.categories.MsgSignCmd(c, strings.TrimSpace(parts[1]), strings.TrimSpace(parts[2]))
 
 		case "q", "query":
-			b.queries.SignCmd(c, []any{strings.TrimSpace(parts[1]), strings.TrimSpace(parts[2])})
+			b.queries.MsgSignCmd(c, strings.TrimSpace(parts[1]), strings.TrimSpace(parts[2]))
 
 		default:
 			c.Respond(sevcord.NewMessage("Use `!sign [e/c/q]|[element/category/query name]|<text>`! " + types.RedCircle))
