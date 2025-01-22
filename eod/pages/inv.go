@@ -10,6 +10,7 @@ import (
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/bwmarrin/discordgo"
 	"github.com/dustin/go-humanize"
+	"github.com/lib/pq"
 )
 
 // Params: prevnext|user|sort|page
@@ -58,13 +59,19 @@ func (p *Pages) InvHandler(c sevcord.Ctx, params string) {
 	}
 
 	// Make description
+	var progress pq.StringArray
+	err = p.db.QueryRow("SELECT progicons FROM config WHERE guild=$1", c.Guild()).Scan(&progress)
+	if err != nil {
+		p.base.Error(c, err)
+		return
+	}
 	desc := &strings.Builder{}
 	for _, v := range inv {
 		if c.Author().User.ID != parts[1] {
 			if v.Cont {
-				fmt.Fprintf(desc, "%s %s\n", v.Name, types.Check)
+				fmt.Fprintf(desc, "%s %s\n", v.Name, progress[0])
 			} else {
-				fmt.Fprintf(desc, "%s %s\n", v.Name, types.NoCheck)
+				fmt.Fprintf(desc, "%s %s\n", v.Name, progress[1])
 			}
 		} else {
 			fmt.Fprintf(desc, "%s\n", v.Name)

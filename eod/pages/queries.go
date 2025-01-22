@@ -136,12 +136,18 @@ func (p *Pages) QueryHandler(c sevcord.Ctx, params string) {
 	}
 
 	// Description
+	var progress pq.StringArray
+	err = p.db.QueryRow("SELECT progicons FROM config WHERE guild=$1", c.Guild()).Scan(&progress)
+	if err != nil {
+		p.base.Error(c, err)
+		return
+	}
 	desc := &strings.Builder{}
 	for _, v := range items {
 		if v.Cont {
-			fmt.Fprintf(desc, "%s %s\n", v.Name, types.Check)
+			fmt.Fprintf(desc, "%s %s\n", v.Name, progress[0])
 		} else {
-			fmt.Fprintf(desc, "%s %s\n", v.Name, types.NoCheck)
+			fmt.Fprintf(desc, "%s %s\n", v.Name, progress[1])
 		}
 	}
 

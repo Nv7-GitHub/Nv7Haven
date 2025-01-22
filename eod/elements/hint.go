@@ -155,15 +155,21 @@ func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 		return
 	}
 
+	var progress pq.StringArray
+	err = e.db.QueryRow("SELECT progicons FROM config WHERE guild=$1", c.Guild()).Scan(&progress)
+	if err != nil {
+		e.base.Error(c, err)
+		return
+	}
 	// Create message
 
 	description := &strings.Builder{}
 	for _, item := range items {
 		// Emoji
 		if item.Cont {
-			description.WriteString(types.Check)
+			description.WriteString(progress[0])
 		} else {
-			description.WriteString(types.NoCheck)
+			description.WriteString(progress[1])
 		}
 		description.WriteString(" ")
 

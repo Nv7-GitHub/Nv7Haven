@@ -74,6 +74,8 @@ type Config struct {
 	VoteCnt       int            `db:"votecnt"`
 	PollCnt       int            `db:"pollcnt"`
 	PlayChannels  pq.StringArray `db:"play"`
+	VoteIcons     pq.StringArray `db:"voteicons"`
+	ProgIcons     pq.StringArray `db:"progicons"`
 }
 
 type ServerMem struct {
@@ -246,6 +248,4 @@ type CombCache struct {
 
 // Consts
 const RedCircle = "🔴"
-const Check = "<:eodCheck:765333533362225222>"
-const NoCheck = "❌"
 const MaxComboLength = 21
