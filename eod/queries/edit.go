@@ -89,9 +89,9 @@ func (q *Queries) MsgSignCmd(ctx sevcord.Ctx, query string, mark string) {
 
 	// Make poll
 	res := q.polls.CreatePoll(ctx, &types.Poll{
-		Kind: types.PollKindComment,
+		Kind: types.PollKindQueryComment,
 		Data: types.PgData{
-			"elem": name,
+			"query": name,
 			"new":  mark,
 			"old":  old,
 		},

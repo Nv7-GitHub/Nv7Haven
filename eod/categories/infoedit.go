@@ -58,9 +58,9 @@ func (c *Categories) MsgSignCmd(ctx sevcord.Ctx, cat string, mark string) {
 
 	// Make poll
 	res := c.polls.CreatePoll(ctx, &types.Poll{
-		Kind: types.PollKindComment,
+		Kind: types.PollKindCatComment,
 		Data: types.PgData{
-			"elem": name,
+			"cat": name,
 			"new":  mark,
 			"old":  old,
 		},
