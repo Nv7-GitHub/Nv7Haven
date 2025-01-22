@@ -141,7 +141,8 @@ func (p *Pages) CatHandler(c sevcord.Ctx, params string) {
 	//get color and image
 	var color int
 	var img string
-	err = p.db.QueryRow("SELECT color,image FROM categories WHERE guild=$1", c.Guild()).Scan(&color, &img)
+	err = p.db.QueryRow("SELECT color, image FROM categories WHERE name=$1 AND guild=$2", parts[len(parts)-1], c.Guild()).Scan(&color, &img)
+
 	if err != nil || color == 0 {
 		color = 10181046 //Purple
 	}
