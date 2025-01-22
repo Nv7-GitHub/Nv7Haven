@@ -155,7 +155,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 		// check for signing element/category/query
-		switch parts[0] {
+		switch strings.TrimSpace(parts[0]) {
 		case "e", "element":
 			b.elements.MsgSignCmd(c, strings.TrimSpace(parts[1]), strings.TrimSpace(parts[2]))
 
@@ -179,7 +179,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 		// check for coloring element/category/query
-		switch parts[0] {
+		switch strings.TrimSpace(parts[0]) {
 		case "e", "element":
 			id, ok := b.getElementId(c, parts[1])
 			if !ok {
