@@ -18,11 +18,18 @@ var seps = []string{
 
 func (b *Bot) getElementId(c sevcord.Ctx, val string) (int64, bool) {
 	var id int64
-	err := b.db.QueryRow("SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(strings.TrimSpace(val)), c.Guild()).Scan(&id)
+	var err error
+	id, err = strconv.ParseInt(strings.Trim(strings.TrimSpace(val), "#"), 10, 64)
+	if err == nil {
+		err = b.db.QueryRow("SELECT id FROM elements WHERE id=$1 AND guild=$2", strings.ToLower(strings.TrimLeft(strings.TrimSpace(val), "#")), c.Guild()).Scan(&id)
+	} else {
+		err = b.db.QueryRow("SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(strings.TrimSpace(val)), c.Guild()).Scan(&id)
+	}
 	if err != nil {
 		b.base.Error(c, err, "Element **"+val+"** doesn't exist!")
 		return 0, false
 	}
+
 	return id, true
 }
 
