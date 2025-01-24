@@ -2,6 +2,7 @@ package eod
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -16,7 +17,15 @@ var seps = []string{
 	"plus",
 }
 
-func (b *Bot) getElementId(c sevcord.Ctx, val string) (int64, bool) {
+func makeListResp(start, join, end string, vals []string) string {
+	if len(vals) == 2 {
+		return fmt.Sprintf("%s %s %s %s%s %s", start, vals[0], join, vals[1], end, types.RedCircle)
+	} else if len(vals) > 2 {
+		return fmt.Sprintf("%s %s, %s %s%s %s", start, strings.Join(vals[:len(vals)-1], ", "), join, vals[len(vals)-1], end, types.RedCircle)
+	}
+	return ""
+}
+func (b *Bot) getElementId(c sevcord.Ctx, val string, showerr bool) (int64, bool) {
 	var id int64
 	var err error
 	id, err = strconv.ParseInt(strings.Trim(strings.TrimSpace(val), "#"), 10, 64)
@@ -25,8 +34,10 @@ func (b *Bot) getElementId(c sevcord.Ctx, val string) (int64, bool) {
 	} else {
 		err = b.db.QueryRow("SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(strings.TrimSpace(val)), c.Guild()).Scan(&id)
 	}
-	if err != nil {
-		b.base.Error(c, err, "Element **"+val+"** doesn't exist!")
+	if err != nil && showerr {
+		b.base.Error(c, err, "Element **"+val+"** doesn't exist! "+types.RedCircle)
+		return 0, false
+	} else if err != nil && !showerr {
 		return 0, false
 	}
 
@@ -47,7 +58,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 		val := any(nil)
 		if content != "" {
-			v, ok := b.getElementId(c, content)
+			v, ok := b.getElementId(c, content, true)
 			if !ok {
 				return
 			}
@@ -98,7 +109,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		if !b.base.CheckCtx(c, "products") {
 			return
 		}
-		id, ok := b.getElementId(c, content)
+		id, ok := b.getElementId(c, content, true)
 		if !ok {
 			return
 		}
@@ -119,24 +130,33 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			c.Respond(sevcord.NewMessage("Invalid format! " + types.RedCircle))
 			return
 		}
+		dontExist := make([]string, 0)
 		els := make([]int, 0)
 		added := false
 		for sep := range seps {
 			if strings.Contains(parts[1], seps[sep]) {
 				vals := strings.Split(parts[1], seps[sep])
 				for _, val := range vals {
-					id, ok := b.getElementId(c, val)
-					if !ok {
-						return
+					id, ok := b.getElementId(c, val, false)
+					if !ok && !slices.Contains(dontExist, "**"+val+"**") {
+						dontExist = append(dontExist, "**"+val+"**")
 					}
 					els = append(els, int(id))
 				}
-				added = true
 				break
 			}
 		}
+		if len(dontExist) == 0 {
+			added = true
+		} else if len(dontExist) == 1 {
+			c.Respond(sevcord.NewMessage("Element **" + dontExist[0] + "** doesn't exist!"))
+			return
+		} else {
+			c.Respond(sevcord.NewMessage(makeListResp("Elements", "and", " don't exist!", dontExist)))
+			return
+		}
 		if !added {
-			id, ok := b.getElementId(c, parts[1])
+			id, ok := b.getElementId(c, parts[1], true)
 			if !ok {
 				return
 			}
@@ -188,7 +208,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		// check for coloring element/category/query
 		switch parts[0] {
 		case "e", "element":
-			id, ok := b.getElementId(c, parts[1])
+			id, ok := b.getElementId(c, parts[1], true)
 			if !ok {
 				return
 			}
