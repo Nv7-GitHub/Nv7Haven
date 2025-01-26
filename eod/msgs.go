@@ -69,6 +69,10 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 		b.elements.Hint(c, []any{nil, content})
+	case "ic", "ci", "infocategory", "infocat", "catinfo", "categoryinfo":
+		b.categories.Info(c, []any{content})
+	case "iq", "qi", "infoquery", "queryinfo":
+		b.queries.Info(c, []any{content})
 	case "cat", "c":
 		if !b.base.CheckCtx(c, "cat") {
 			return
