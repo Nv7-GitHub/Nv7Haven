@@ -77,7 +77,11 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		if !b.base.CheckCtx(c, "cat") {
 			return
 		}
-		b.pages.Cat(c, []any{any(content), nil})
+		if content != "" {
+			b.pages.Cat(c, []any{any(content), nil})
+		} else {
+			b.pages.CatList(c, []any{"name"})
+		}
 
 	case "inv":
 		if !b.base.CheckCtx(c, "inv") {
@@ -156,7 +160,11 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		if !b.base.CheckCtx(c, "query") {
 			return
 		}
-		b.pages.Query(c, []any{any(content), nil})
+		if content != "" {
+			b.pages.Query(c, []any{any(content), nil})
+		} else {
+			b.pages.QueryList(c, []any{"name"})
+		}
 
 	case "ac", "rc":
 		if !b.base.CheckCtx(c, "cat") {
