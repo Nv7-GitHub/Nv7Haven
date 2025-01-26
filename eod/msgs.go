@@ -14,7 +14,6 @@ var seps = []string{
 	"\n",
 	"+",
 	",",
-	"plus",
 }
 
 func makeListResp(start, join, end string, vals []string) string {
@@ -65,7 +64,11 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			val = any(v)
 		}
 		b.elements.Hint(c, []any{val, nil})
-
+	case "hq", "hintquery":
+		if !b.base.CheckCtx(c, "hint") {
+			return
+		}
+		b.elements.Hint(c, []any{nil, content})
 	case "cat", "c":
 		if !b.base.CheckCtx(c, "cat") {
 			return
@@ -103,7 +106,37 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		if !b.base.CheckCtx(c, "lb") {
 			return
 		}
-		b.pages.Lb(c, []any{nil, nil, nil})
+		parts := strings.Split(content, " ")
+		Lbsort := ""
+		switch strings.ToLower(parts[0]) {
+		case "made":
+			Lbsort = "made"
+		case "imaged", "img":
+			Lbsort = "img"
+		case "votes":
+			Lbsort = "voted"
+		case "signed":
+			Lbsort = "signed"
+		case "colored", "colour", "coloured", "color":
+			Lbsort = "color"
+		case "catsigned":
+			Lbsort = "catsigned"
+		case "catimg", "catimage":
+			Lbsort = "catimg"
+		case "catcolor":
+			Lbsort = "catcolor"
+		case "querysigned":
+			Lbsort = "querysigned"
+		case "queryimage", "queryimg":
+			Lbsort = "queryimg"
+		case "querycolor":
+			Lbsort = "querycolor"
+		case "found", "":
+			Lbsort = "found"
+		default:
+			Lbsort = "found"
+		}
+		b.pages.Lb(c, []any{Lbsort, nil, nil})
 
 	case "p", "products":
 		if !b.base.CheckCtx(c, "products") {
@@ -147,7 +180,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			}
 		}
 		if len(dontExist) == 0 {
-			added = true
+
 		} else if len(dontExist) == 1 {
 			c.Respond(sevcord.NewMessage("Element **" + dontExist[0] + "** doesn't exist!"))
 			return
@@ -161,6 +194,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 				return
 			}
 			els = append(els, int(id))
+			added = true
 		}
 		if len(els) == 0 {
 			c.Respond(sevcord.NewMessage("Invalid format! " + types.RedCircle))
@@ -182,15 +216,15 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 		// check for signing element/category/query
-		switch parts[0] {
+		switch strings.ToLower(strings.TrimSpace(parts[0])) {
 		case "e", "element":
 			b.elements.MsgSignCmd(c, strings.TrimSpace(parts[1]), strings.TrimSpace(parts[2]))
 
 		case "c", "cat", "category":
-			b.categories.SignCmd(c, []any{strings.TrimSpace(parts[1]), strings.TrimSpace(parts[2])})
+			b.categories.MsgSignCmd(c, strings.TrimSpace(parts[1]), strings.TrimSpace(parts[2]))
 
 		case "q", "query":
-			b.queries.SignCmd(c, []any{strings.TrimSpace(parts[1]), strings.TrimSpace(parts[2])})
+			b.queries.MsgSignCmd(c, strings.TrimSpace(parts[1]), strings.TrimSpace(parts[2]))
 
 		default:
 			c.Respond(sevcord.NewMessage("Use `!sign [e/c/q]|[element/category/query name]|<text>`! " + types.RedCircle))
@@ -206,7 +240,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 		// check for coloring element/category/query
-		switch parts[0] {
+		switch strings.ToLower(strings.TrimSpace(parts[0])) {
 		case "e", "element":
 			id, ok := b.getElementId(c, parts[1], true)
 			if !ok {
@@ -264,7 +298,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 
 		// Run command
-		switch parts[0] {
+		switch strings.ToLower(parts[0]) {
 		case "e", "element":
 			// Get ID
 			var id int

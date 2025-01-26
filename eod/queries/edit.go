@@ -1,6 +1,7 @@
 package queries
 
 import (
+	"database/sql"
 	"fmt"
 	"strconv"
 	"strings"
@@ -68,6 +69,40 @@ func (q *Queries) SignCmd(ctx sevcord.Ctx, opts []any) {
 		// Respond
 		ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested a note for query **%s** 🖋️", name)))
 	}).Input(sevcord.NewModalInput("New Comment", "None", sevcord.ModalInputStyleParagraph, 2400)))
+}
+
+func (q *Queries) MsgSignCmd(ctx sevcord.Ctx, query string, mark string) {
+	ctx.Acknowledge()
+
+	var name string
+	var old string
+	err := q.db.QueryRow("SELECT name, comment FROM queries WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(query), ctx.Guild()).Scan(&name, &old)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.Respond(sevcord.NewMessage("Query **" + query + "** doesn't exist! " + types.RedCircle))
+			return
+		} else {
+			q.base.Error(ctx, err)
+			return
+		}
+	}
+
+	// Make poll
+	res := q.polls.CreatePoll(ctx, &types.Poll{
+		Kind: types.PollKindQueryComment,
+		Data: types.PgData{
+			"query": name,
+			"new":   mark,
+			"old":   old,
+		},
+	})
+	if !res.Ok {
+		ctx.Respond(res.Response())
+		return
+	}
+
+	// Respond
+	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested a note for **%s** 🖋️", name)))
 }
 
 func (q *Queries) ColorCmd(ctx sevcord.Ctx, opts []any) {

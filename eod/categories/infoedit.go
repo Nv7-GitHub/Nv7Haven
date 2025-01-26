@@ -1,6 +1,7 @@
 package categories
 
 import (
+	"database/sql"
 	"fmt"
 	"strconv"
 	"strings"
@@ -68,6 +69,40 @@ func (c *Categories) SignCmd(ctx sevcord.Ctx, opts []any) {
 		// Respond
 		ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested a note for category **%s** 🖋️", name)))
 	}).Input(sevcord.NewModalInput("New Comment", "None", sevcord.ModalInputStyleParagraph, 2400)))
+}
+
+func (c *Categories) MsgSignCmd(ctx sevcord.Ctx, cat string, mark string) {
+	ctx.Acknowledge()
+
+	var name string
+	var old string
+	err := c.db.QueryRow("SELECT name, comment FROM categories WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(cat), ctx.Guild()).Scan(&name, &old)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.Respond(sevcord.NewMessage("Element **" + cat + "** doesn't exist! " + types.RedCircle))
+			return
+		} else {
+			c.base.Error(ctx, err)
+			return
+		}
+	}
+
+	// Make poll
+	res := c.polls.CreatePoll(ctx, &types.Poll{
+		Kind: types.PollKindCatComment,
+		Data: types.PgData{
+			"cat": name,
+			"new": mark,
+			"old": old,
+		},
+	})
+	if !res.Ok {
+		ctx.Respond(res.Response())
+		return
+	}
+
+	// Respond
+	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested a note for **%s** 🖋️", name)))
 }
 
 func (c *Categories) ColorCmd(ctx sevcord.Ctx, opts []any) {
