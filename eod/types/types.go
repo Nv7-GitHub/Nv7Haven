@@ -248,4 +248,4 @@ type CombCache struct {
 
 // Consts
 const RedCircle = "🔴"
-const MaxComboLength = 21
+const DefaultMaxComboLength = 21

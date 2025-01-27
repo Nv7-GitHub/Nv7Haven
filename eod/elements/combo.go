@@ -3,7 +3,6 @@ package elements
 import (
 	"database/sql"
 	"fmt"
-	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -33,9 +32,13 @@ type comboRes struct {
 func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 	c.Acknowledge()
 	e.base.IncrementCommandStat(c, "combine")
-
-	if len(elemVals) > types.MaxComboLength {
-		c.Respond(sevcord.NewMessage(fmt.Sprintf("You can only combine up to %d elements! "+types.RedCircle, types.MaxComboLength)))
+	var comboLimit int
+	err := e.db.QueryRow("SELECT combolength FROM config WHERE guild=$1", c.Guild()).Scan(&comboLimit)
+	if err != nil {
+		comboLimit = types.DefaultMaxComboLength
+	}
+	if len(elemVals) > comboLimit {
+		c.Respond(sevcord.NewMessage(fmt.Sprintf("You can only combine up to %d elements! "+types.RedCircle, comboLimit)))
 		return
 	}
 	if len(elemVals) < 2 {
@@ -52,7 +55,7 @@ func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 
 	// Get status of everything (exists, whether you have it, etc.)
 	var res []comboRes
-	err := e.db.Select(&res, `SELECT id, name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) cont FROM elements WHERE guild=$1 AND LOWER(name)=ANY($3)`, c.Guild(), c.Author().User.ID, pq.Array(lowered))
+	err = e.db.Select(&res, `SELECT id, name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) cont FROM elements WHERE guild=$1 AND LOWER(name)=ANY($3)`, c.Guild(), c.Author().User.ID, pq.Array(lowered))
 	if err != nil {
 		e.base.Error(c, err)
 		return
@@ -66,7 +69,7 @@ func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 	dontExist := make([]string, 0)
 	for _, v := range elemVals {
 		_, exists := exist[strings.ToLower(v)]
-		if !exists && !slices.Contains(dontExist, "**"+v+"**") {
+		if !exists {
 			dontExist = append(dontExist, "**"+v+"**")
 		}
 	}

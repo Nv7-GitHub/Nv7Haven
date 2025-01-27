@@ -2,7 +2,6 @@ package eod
 
 import (
 	"fmt"
-	"slices"
 	"strconv"
 	"strings"
 
@@ -14,32 +13,16 @@ var seps = []string{
 	"\n",
 	"+",
 	",",
+	"plus",
 }
 
-func makeListResp(start, join, end string, vals []string) string {
-	if len(vals) == 2 {
-		return fmt.Sprintf("%s %s %s %s%s %s", start, vals[0], join, vals[1], end, types.RedCircle)
-	} else if len(vals) > 2 {
-		return fmt.Sprintf("%s %s, %s %s%s %s", start, strings.Join(vals[:len(vals)-1], ", "), join, vals[len(vals)-1], end, types.RedCircle)
-	}
-	return ""
-}
-func (b *Bot) getElementId(c sevcord.Ctx, val string, showerr bool) (int64, bool) {
+func (b *Bot) getElementId(c sevcord.Ctx, val string) (int64, bool) {
 	var id int64
-	var err error
-	id, err = strconv.ParseInt(strings.Trim(strings.TrimSpace(val), "#"), 10, 64)
-	if err == nil {
-		err = b.db.QueryRow("SELECT id FROM elements WHERE id=$1 AND guild=$2", strings.ToLower(strings.TrimLeft(strings.TrimSpace(val), "#")), c.Guild()).Scan(&id)
-	} else {
-		err = b.db.QueryRow("SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(strings.TrimSpace(val)), c.Guild()).Scan(&id)
-	}
-	if err != nil && showerr {
-		b.base.Error(c, err, "Element **"+val+"** doesn't exist! "+types.RedCircle)
-		return 0, false
-	} else if err != nil && !showerr {
+	err := b.db.QueryRow("SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(strings.TrimSpace(val)), c.Guild()).Scan(&id)
+	if err != nil {
+		b.base.Error(c, err, "Element **"+val+"** doesn't exist!")
 		return 0, false
 	}
-
 	return id, true
 }
 
@@ -57,32 +40,18 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 		val := any(nil)
 		if content != "" {
-			v, ok := b.getElementId(c, content, true)
+			v, ok := b.getElementId(c, content)
 			if !ok {
 				return
 			}
 			val = any(v)
 		}
 		b.elements.Hint(c, []any{val, nil})
-	case "hq", "hintquery":
-		if !b.base.CheckCtx(c, "hint") {
-			return
-		}
-		b.elements.Hint(c, []any{nil, content})
-	case "ic", "ci", "infocategory", "infocat", "catinfo", "categoryinfo":
-		b.categories.Info(c, []any{content})
-	case "iq", "qi", "infoquery", "queryinfo":
-		b.queries.Info(c, []any{content})
 	case "cat", "c":
 		if !b.base.CheckCtx(c, "cat") {
 			return
 		}
-		if content != "" {
-			b.pages.Cat(c, []any{any(content), nil})
-		} else {
-			b.pages.CatList(c, []any{"name"})
-		}
-
+		b.pages.Cat(c, []any{any(content), nil})
 	case "inv":
 		if !b.base.CheckCtx(c, "inv") {
 			return
@@ -114,43 +83,12 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		if !b.base.CheckCtx(c, "lb") {
 			return
 		}
-		parts := strings.Split(content, " ")
-		Lbsort := ""
-		switch strings.ToLower(parts[0]) {
-		case "made":
-			Lbsort = "made"
-		case "imaged", "img":
-			Lbsort = "img"
-		case "votes":
-			Lbsort = "voted"
-		case "signed":
-			Lbsort = "signed"
-		case "colored", "colour", "coloured", "color":
-			Lbsort = "color"
-		case "catsigned":
-			Lbsort = "catsigned"
-		case "catimg", "catimage":
-			Lbsort = "catimg"
-		case "catcolor":
-			Lbsort = "catcolor"
-		case "querysigned":
-			Lbsort = "querysigned"
-		case "queryimage", "queryimg":
-			Lbsort = "queryimg"
-		case "querycolor":
-			Lbsort = "querycolor"
-		case "found", "":
-			Lbsort = "found"
-		default:
-			Lbsort = "found"
-		}
-		b.pages.Lb(c, []any{Lbsort, nil, nil})
-
+		b.pages.Lb(c, []any{nil, nil, nil})
 	case "p", "products":
 		if !b.base.CheckCtx(c, "products") {
 			return
 		}
-		id, ok := b.getElementId(c, content, true)
+		id, ok := b.getElementId(c, content)
 		if !ok {
 			return
 		}
@@ -160,12 +98,6 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		if !b.base.CheckCtx(c, "query") {
 			return
 		}
-		if content != "" {
-			b.pages.Query(c, []any{any(content), nil})
-		} else {
-			b.pages.QueryList(c, []any{"name"})
-		}
-
 	case "ac", "rc":
 		if !b.base.CheckCtx(c, "cat") {
 			return
@@ -175,38 +107,28 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			c.Respond(sevcord.NewMessage("Invalid format! " + types.RedCircle))
 			return
 		}
-		dontExist := make([]string, 0)
 		els := make([]int, 0)
 		added := false
 		for sep := range seps {
 			if strings.Contains(parts[1], seps[sep]) {
 				vals := strings.Split(parts[1], seps[sep])
 				for _, val := range vals {
-					id, ok := b.getElementId(c, val, false)
-					if !ok && !slices.Contains(dontExist, "**"+val+"**") {
-						dontExist = append(dontExist, "**"+val+"**")
+					id, ok := b.getElementId(c, val)
+					if !ok {
+						return
 					}
 					els = append(els, int(id))
 				}
+				added = true
 				break
 			}
 		}
-		if len(dontExist) == 0 {
-
-		} else if len(dontExist) == 1 {
-			c.Respond(sevcord.NewMessage("Element **" + dontExist[0] + "** doesn't exist!"))
-			return
-		} else {
-			c.Respond(sevcord.NewMessage(makeListResp("Elements", "and", " don't exist!", dontExist)))
-			return
-		}
 		if !added {
-			id, ok := b.getElementId(c, parts[1], true)
+			id, ok := b.getElementId(c, parts[1])
 			if !ok {
 				return
 			}
 			els = append(els, int(id))
-			added = true
 		}
 		if len(els) == 0 {
 			c.Respond(sevcord.NewMessage("Invalid format! " + types.RedCircle))
@@ -228,7 +150,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 		// check for signing element/category/query
-		switch strings.ToLower(strings.TrimSpace(parts[0])) {
+		switch strings.TrimSpace(parts[0]) {
 		case "e", "element":
 			b.elements.MsgSignCmd(c, strings.TrimSpace(parts[1]), strings.TrimSpace(parts[2]))
 
@@ -252,9 +174,9 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 		// check for coloring element/category/query
-		switch strings.ToLower(strings.TrimSpace(parts[0])) {
+		switch strings.TrimSpace(parts[0]) {
 		case "e", "element":
-			id, ok := b.getElementId(c, parts[1], true)
+			id, ok := b.getElementId(c, parts[1])
 			if !ok {
 				return
 			}
@@ -310,7 +232,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 
 		// Run command
-		switch strings.ToLower(parts[0]) {
+		switch parts[0] {
 		case "e", "element":
 			// Get ID
 			var id int
@@ -418,8 +340,13 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 			c.Respond(sevcord.NewMessage("Invalid number of repeats! " + types.RedCircle))
 			return
 		}
-		if cnt > types.MaxComboLength {
-			c.Respond(sevcord.NewMessage(fmt.Sprintf("You can only combine up to %d elements! "+types.RedCircle, types.MaxComboLength)))
+		var comboLength int
+		err = b.db.QueryRow("SELECT combolength FROM config WHERE guild=$1", c.Guild()).Scan(&comboLength)
+		if err != nil {
+			comboLength = types.DefaultMaxComboLength
+		}
+		if cnt > comboLength {
+			c.Respond(sevcord.NewMessage(fmt.Sprintf("You can only combine up to %d elements! "+types.RedCircle, comboLength)))
 			return
 		}
 		if cnt < 2 {
@@ -431,6 +358,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 			for i := 0; i < cnt; i++ {
 				inps = append(inps, strings.TrimSpace(parts[1]))
 			}
+
 			b.elements.Combine(c, inps)
 			return
 		} else {

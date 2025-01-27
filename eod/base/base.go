@@ -34,6 +34,7 @@ func (b *Base) Init() {
 		sevcord.NewSlashCommand("playchannels", "Configure the channels in which users can combine elements!", b.ConfigPlayChannels),
 		sevcord.NewSlashCommand("voteicons", "Configure the emojis used for voting!", b.ConfigVoteIcons, sevcord.NewOption("upvote", "The new upvote emoji!", sevcord.OptionKindString, true), sevcord.NewOption("downvote", "The new downvote emoji!", sevcord.OptionKindString, true)),
 		sevcord.NewSlashCommand("progressicons", "Configure the emojis for progress!", b.ConfigProgIcons, sevcord.NewOption("positive", "The positive progress emoji!", sevcord.OptionKindString, true), sevcord.NewOption("negative", "The negative progress emoji!", sevcord.OptionKindString, true)),
+		sevcord.NewSlashCommand("combolength", "Configure the maximum number of elements in a combination!", b.ConfigComboLength, sevcord.NewOption("count", "The new maximum combination length!", sevcord.OptionKindInt, true)),
 	).RequirePermissions(discordgo.PermissionManageChannels))
 	b.s.AddSelectHandler("config_play", b.ConfigPlayChannelsHandler)
 }

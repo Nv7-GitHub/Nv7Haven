@@ -91,6 +91,16 @@ func (b *Base) ConfigProgIcons(c sevcord.Ctx, opts []any) {
 	b.configNewsMessage(c, "Change Config - **Progress Icons**")
 
 }
+func (b *Base) ConfigComboLength(c sevcord.Ctx, opts []any) {
+	c.Acknowledge()
+	_, err := b.db.Exec("Update config SET combolength=$1 WHERE guild=$2", opts[0], c.Guild())
+	if err != nil {
+		b.Error(c, err)
+		return
+	}
+	c.Respond(sevcord.NewMessage("Successfully updated maximum combination limit!"))
+	b.configNewsMessage(c, "Change Config - **Combination Limit**")
+}
 func (b *Base) ConfigPlayChannelsHandler(c sevcord.Ctx, params string, opts []string) {
 	c.Acknowledge()
 
