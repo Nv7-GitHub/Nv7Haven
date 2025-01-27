@@ -157,6 +157,7 @@ func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 	// Create message
 	description := &strings.Builder{}
 	for _, item := range items {
+		//Emoji
 		if item.Cont {
 			description.WriteString(types.Check)
 		} else {

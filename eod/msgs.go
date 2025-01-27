@@ -71,8 +71,14 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 		b.elements.Hint(c, []any{nil, content})
 	case "ic", "ci", "infocategory", "infocat", "catinfo", "categoryinfo":
+		if !b.base.CheckCtx(c, "info") {
+			return
+		}
 		b.categories.Info(c, []any{content})
 	case "iq", "qi", "infoquery", "queryinfo":
+		if !b.base.CheckCtx(c, "info") {
+			return
+		}
 		b.queries.Info(c, []any{content})
 	case "cat", "c":
 		if !b.base.CheckCtx(c, "cat") {
@@ -218,7 +224,16 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		} else {
 			b.categories.CatEditCmd(c, strings.TrimSpace(parts[0]), els, types.PollKindUncategorize, "Suggested to remove **%s** from **%s** 🗃️", true)
 		}
-
+	case "dc":
+		if !b.base.CheckCtx(c, "cat") {
+			return
+		}
+		parts := strings.SplitN(content, "|", 2)
+		if len(parts) != 1 {
+			c.Respond(sevcord.NewMessage("Invalid format! " + types.RedCircle))
+			return
+		}
+		b.categories.DelCat(c, []any{parts[0]})
 	case "sign", "mark":
 		if !b.base.CheckCtx(c, "sign") {
 			return
