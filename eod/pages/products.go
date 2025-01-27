@@ -9,7 +9,6 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/dustin/go-humanize"
-	"github.com/lib/pq"
 )
 
 // Params: prevnext|elem|sort|page
@@ -43,18 +42,12 @@ func (p *Pages) ProductsHandler(c sevcord.Ctx, params string) {
 	}
 
 	// Make description
-	var progress pq.StringArray
-	err = p.db.QueryRow("SELECT progicons FROM config WHERE guild=$1", c.Guild()).Scan(&progress)
-	if err != nil {
-		p.base.Error(c, err)
-		return
-	}
 	desc := &strings.Builder{}
 	for _, v := range items {
 		if v.Cont {
-			fmt.Fprintf(desc, "%s %s\n", v.Name, progress[0])
+			fmt.Fprintf(desc, "%s %s\n", v.Name, types.Check)
 		} else {
-			fmt.Fprintf(desc, "%s %s\n", v.Name, progress[1])
+			fmt.Fprintf(desc, "%s %s\n", v.Name, types.NoCheck)
 		}
 	}
 

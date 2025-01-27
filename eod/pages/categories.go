@@ -9,7 +9,6 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/dustin/go-humanize"
-	"github.com/lib/pq"
 )
 
 var catListSorts = []sevcord.Choice{
@@ -54,17 +53,11 @@ func (p *Pages) CatListHandler(c sevcord.Ctx, params string) {
 		return
 	}
 
-	var progress pq.StringArray
-	err = p.db.QueryRow("SELECT progicons FROM config WHERE guild=$1", c.Guild()).Scan(&progress)
-	if err != nil {
-		p.base.Error(c, err)
-		return
-	}
 	// Description
 	desc := &strings.Builder{}
 	for _, v := range cats {
 		if v.Length == v.InvIntersect {
-			fmt.Fprintf(desc, "%s %s\n", v.Name, progress[0])
+			fmt.Fprintf(desc, "%s %s\n", v.Name, types.Check)
 		} else {
 			fmt.Fprintf(desc, "%s (%s%%)\n", v.Name, humanize.FormatFloat("", float64(v.InvIntersect)/float64(v.Length)*100))
 		}
@@ -123,18 +116,12 @@ func (p *Pages) CatHandler(c sevcord.Ctx, params string) {
 	}
 
 	// Description
-	var progress pq.StringArray
-	err = p.db.QueryRow("SELECT progicons FROM config WHERE guild=$1", c.Guild()).Scan(&progress)
-	if err != nil {
-		p.base.Error(c, err)
-		return
-	}
 	desc := &strings.Builder{}
 	for _, v := range items {
 		if v.Cont {
-			fmt.Fprintf(desc, "%s %s\n", v.Name, progress[0])
+			fmt.Fprintf(desc, "%s %s\n", v.Name, types.Check)
 		} else {
-			fmt.Fprintf(desc, "%s %s\n", v.Name, progress[1])
+			fmt.Fprintf(desc, "%s %s\n", v.Name, types.NoCheck)
 		}
 	}
 

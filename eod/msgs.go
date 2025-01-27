@@ -14,6 +14,7 @@ var seps = []string{
 	"\n",
 	"+",
 	",",
+	"plus",
 }
 
 func makeListResp(start, join, end string, vals []string) string {

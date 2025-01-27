@@ -69,28 +69,6 @@ func (b *Base) ConfigPlayChannels(c sevcord.Ctx, opts []any) {
 	))
 	b.configNewsMessage(c, "Changed Config - **Play Channels**")
 }
-func (b *Base) ConfigVoteIcons(c sevcord.Ctx, opts []any) {
-	c.Acknowledge()
-
-	_, err := b.db.Exec("UPDATE config SET voteicons=$1 WHERE guild =$2", pq.Array(opts), c.Guild())
-	if err != nil {
-		b.Error(c, err)
-		return
-	}
-	c.Respond(sevcord.NewMessage("Successfully updated voting emojis!"))
-	b.configNewsMessage(c, "Change Config - **Vote Icons**")
-}
-func (b *Base) ConfigProgIcons(c sevcord.Ctx, opts []any) {
-	c.Acknowledge()
-	_, err := b.db.Exec("UPDATE config SET progicons=$1 WHERE guild =$2", pq.Array(opts), c.Guild())
-	if err != nil {
-		b.Error(c, err)
-		return
-	}
-	c.Respond(sevcord.NewMessage("Successfully updated progress emojis!"))
-	b.configNewsMessage(c, "Change Config - **Progress Icons**")
-
-}
 func (b *Base) ConfigPlayChannelsHandler(c sevcord.Ctx, params string, opts []string) {
 	c.Acknowledge()
 

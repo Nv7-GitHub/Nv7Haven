@@ -8,7 +8,6 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/bwmarrin/discordgo"
-	"github.com/lib/pq"
 )
 
 func (b *Polls) CreatePoll(c sevcord.Ctx, p *types.Poll) types.Resp {
@@ -55,18 +54,11 @@ func (b *Polls) CreatePoll(c sevcord.Ctx, p *types.Poll) types.Resp {
 	p.Message = msg.ID
 
 	// Add reactions
-	var votereactions pq.StringArray
-
-	err = b.db.QueryRow("SELECT voteicons FROM config WHERE guild=$1", c.Guild()).Scan(&votereactions)
-	if err != nil {
-		return types.Error(err)
-
-	}
-	err = dg.MessageReactionAdd(p.Channel, msg.ID, votereactions[0])
+	err = dg.MessageReactionAdd(p.Channel, msg.ID, UpArrow)
 	if err != nil {
 		return types.Error(err)
 	}
-	err = dg.MessageReactionAdd(p.Channel, msg.ID, votereactions[1])
+	err = dg.MessageReactionAdd(p.Channel, msg.ID, DownArrow)
 	if err != nil {
 		return types.Error(err)
 	}

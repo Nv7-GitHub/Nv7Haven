@@ -6,29 +6,23 @@ import (
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/bwmarrin/discordgo"
-	"github.com/lib/pq"
 )
+
+const UpArrow = "⬆️"
+const DownArrow = "⬇️"
 
 func (b *Polls) reactionHandler(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 
-	var votereactions pq.StringArray
-	//index 0 is upvote, index 1 is downvote
-
-	err := b.db.QueryRow("SELECT voteicons FROM config WHERE guild=$1", r.GuildID).Scan(&votereactions)
-	if err != nil {
-		return
-
-	}
 	if r.UserID == s.State.User.ID {
 		return
 	}
-	if r.Emoji.Name != votereactions[0] && r.Emoji.Name != votereactions[1] {
+	if r.Emoji.Name != UpArrow && r.Emoji.Name != DownArrow {
 		return
 	}
 
 	// Get poll & vote cnt
 	var p types.Poll
-	err = b.db.Get(&p, "SELECT * FROM polls WHERE guild=$1 AND message=$2", r.GuildID, r.MessageID)
+	err := b.db.Get(&p, "SELECT * FROM polls WHERE guild=$1 AND message=$2", r.GuildID, r.MessageID)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			log.Println("poll fetch err", err)
@@ -43,7 +37,7 @@ func (b *Polls) reactionHandler(s *discordgo.Session, r *discordgo.MessageReacti
 	}
 
 	// User trying to delete?
-	if r.UserID == p.Creator && r.Emoji.Name == votereactions[1] {
+	if r.UserID == p.Creator && r.Emoji.Name == DownArrow {
 		b.deletePoll(&p, s)
 		return
 	}
@@ -55,7 +49,7 @@ func (b *Polls) reactionHandler(s *discordgo.Session, r *discordgo.MessageReacti
 	}
 
 	// Handle
-	if r.Emoji.Name == votereactions[0] {
+	if r.Emoji.Name == UpArrow {
 		p.Upvotes++
 	} else {
 		p.Downvotes++
@@ -73,25 +67,16 @@ func (b *Polls) reactionHandler(s *discordgo.Session, r *discordgo.MessageReacti
 }
 
 func (b *Polls) unReactionHandler(s *discordgo.Session, r *discordgo.MessageReactionRemove) {
-	var votereactions pq.StringArray
-	//index 0 is upvote, index 1 is downvote
-
-	err := b.db.QueryRow("SELECT voteicons FROM config WHERE guild=$1", r.GuildID).Scan(&votereactions)
-	if err != nil {
-		return
-
-	}
-
 	if r.UserID == s.State.User.ID {
 		return
 	}
-	if r.Emoji.Name != votereactions[0] && r.Emoji.Name != votereactions[1] {
+	if r.Emoji.Name != UpArrow && r.Emoji.Name != DownArrow {
 		return
 	}
 
 	// Get poll & vote cnt
 	var p types.Poll
-	err = b.db.Get(&p, "SELECT * FROM polls WHERE guild=$1 AND message=$2", r.GuildID, r.MessageID)
+	err := b.db.Get(&p, "SELECT * FROM polls WHERE guild=$1 AND message=$2", r.GuildID, r.MessageID)
 	if err != nil {
 		return
 	}
@@ -108,7 +93,7 @@ func (b *Polls) unReactionHandler(s *discordgo.Session, r *discordgo.MessageReac
 	}
 
 	// Handle
-	if r.Emoji.Name == votereactions[0] {
+	if r.Emoji.Name == UpArrow {
 		p.Upvotes--
 	} else {
 		p.Downvotes--
