@@ -154,7 +154,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			c.Respond(sevcord.NewMessage("Use `!sign [element name]|<text>` or `!sign [e/c/q]|[element/category/query name]|<text>`! " + types.RedCircle))
 			return
 		}
-		if len(parts) = 2 {
+		if len(parts) == 2 {
 			// assume signing element
 			b.elements.MsgSignCmd(c, strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1]))
 			return
@@ -183,13 +183,13 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			c.Respond(sevcord.NewMessage("Use `!color [element name]|<hex code>` or `!color [e/c/q]|[element/category/query name]|<hex code>`! " + types.RedCircle))
 			return
 		}
-		if len(parts) = 2 {
+		if len(parts) == 2 {
 			// assume coloring element
 			id, ok := b.getElementId(c, parts[0])
 			if !ok {
 				return
 			}
-			b.elements.ColorCmd(c, []any{id, strings.TrimSpace(parts[0])})
+			b.elements.ColorCmd(c, []any{id, strings.TrimSpace(parts[1])})
 			return
 		}
 		// check for coloring element/category/query
@@ -245,11 +245,11 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 
 		// Parse
 		parts := strings.SplitN(content, " ", 2)
-		if len(parts) = 0 {
+		if len(parts) == 0 {
 			c.Respond(sevcord.NewMessage("Use `!image <element name>` or `!image [element/category/query] <element/category/query name>`! " + types.RedCircle))
 			return
 		}
-		if len(parts) = 1 {
+		if len(parts) == 1 {
 			// Assume imaging element
 			// Get ID
 			var id int
