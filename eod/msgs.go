@@ -150,8 +150,13 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 		parts := strings.SplitN(content, "|", 3)
-		if len(parts) != 3 {
-			c.Respond(sevcord.NewMessage("Use `!sign [e/c/q]|[element/category/query name]|<text>`! " + types.RedCircle))
+		if len(parts) < 2 {
+			c.Respond(sevcord.NewMessage("Use `!sign [element name]|<text>` or `!sign [e/c/q]|[element/category/query name]|<text>`! " + types.RedCircle))
+			return
+		}
+		if len(parts) = 2 {
+			// assume signing element
+			b.elements.MsgSignCmd(c, strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1]))
 			return
 		}
 		// check for signing element/category/query
@@ -166,7 +171,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			b.queries.MsgSignCmd(c, strings.TrimSpace(parts[1]), strings.TrimSpace(parts[2]))
 
 		default:
-			c.Respond(sevcord.NewMessage("Use `!sign [e/c/q]|[element/category/query name]|<text>`! " + types.RedCircle))
+			c.Respond(sevcord.NewMessage("Use `!sign [element name]|<text>` or `!sign [e/c/q]|[element/category/query name]|<text>`! " + types.RedCircle))
 		}
 	case "col", "color", "colour":
 		if !b.base.CheckCtx(c, "color") {
@@ -174,8 +179,17 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 		// check part amount
 		parts := strings.SplitN(content, "|", 3)
-		if len(parts) != 3 {
-			c.Respond(sevcord.NewMessage("Use `!color [e/c/q]|[element/category/query name]|<hex code>`! " + types.RedCircle))
+		if len(parts) < 2 {
+			c.Respond(sevcord.NewMessage("Use `!color [element name]|<hex code>` or `!color [e/c/q]|[element/category/query name]|<hex code>`! " + types.RedCircle))
+			return
+		}
+		if len(parts) = 2 {
+			// assume coloring element
+			id, ok := b.getElementId(c, parts[0])
+			if !ok {
+				return
+			}
+			b.elements.ColorCmd(c, []any{id, strings.TrimSpace(parts[0])})
 			return
 		}
 		// check for coloring element/category/query
@@ -194,7 +208,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			b.queries.ColorCmd(c, []any{strings.TrimSpace(parts[1]), strings.TrimSpace(parts[2])})
 
 		default:
-			c.Respond(sevcord.NewMessage("Use `!color [e/c/q]|[element/category/query name]|<hex code>`! " + types.RedCircle))
+			c.Respond(sevcord.NewMessage("Use `!color [element name]|<hex code>` or `!color [e/c/q]|[element/category/query name]|<hex code>`! " + types.RedCircle))
 		}
 	case "n", "next":
 		if !b.base.CheckCtx(c, "next") {
@@ -231,11 +245,24 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 
 		// Parse
 		parts := strings.SplitN(content, " ", 2)
-		if len(parts) != 2 {
-			c.Respond(sevcord.NewMessage("Use `!image [element/category/query] <element/category/query name>`! " + types.RedCircle))
+		if len(parts) = 0 {
+			c.Respond(sevcord.NewMessage("Use `!image <element name>` or `!image [element/category/query] <element/category/query name>`! " + types.RedCircle))
 			return
 		}
+		if len(parts) = 1 {
+			// Assume imaging element
+			// Get ID
+			var id int
+			err := b.db.QueryRow("SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(content), c.Guild()).Scan(&id)
+			if err != nil {
+				b.base.Error(c, err, "Element **"+content+"** doesn't exist!")
+				return
+			}
 
+			// Command
+			b.elements.ImageCmd(c, id, image)
+			return
+		}
 		// Run command
 		switch parts[0] {
 		case "e", "element":
@@ -257,7 +284,18 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			b.queries.ImageCmd(c, parts[1], image)
 
 		default:
-			c.Respond(sevcord.NewMessage("Use `!image [element/category/query] <element/category/query name>`! " + types.RedCircle))
+			// Assume imaging multi-word element
+			// Get ID
+			var id int
+			err := b.db.QueryRow("SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(content), c.Guild()).Scan(&id)
+			if err != nil {
+				b.base.Error(c, err, "Element **"+content+"** doesn't exist!")
+				return
+			}
+
+			// Command
+			b.elements.ImageCmd(c, id, image)
+			return
 		}
 	}
 }
