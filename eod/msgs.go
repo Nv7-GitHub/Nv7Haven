@@ -245,13 +245,13 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 
 		// Parse
 		parts := strings.SplitN(content, " ", 2)
-		if len(parts) == 0 {
-			c.Respond(sevcord.NewMessage("Use `!image <element name>` or `!image [element/category/query] <element/category/query name>`! " + types.RedCircle))
-			return
-		}
 		if len(parts) == 1 {
 			// Assume imaging element
 			// Get ID
+			if parts[0] == "" {
+				c.Respond(sevcord.NewMessage("Use `!image <element name>` or `!image [element/category/query] <element/category/query name>`! " + types.RedCircle))
+				return
+			}
 			var id int
 			err := b.db.QueryRow("SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(content), c.Guild()).Scan(&id)
 			if err != nil {
