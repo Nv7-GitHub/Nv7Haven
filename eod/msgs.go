@@ -25,6 +25,17 @@ func makeListResp(start, join, end string, vals []string) string {
 	}
 	return ""
 }
+func (b *Bot) PingCmd(c sevcord.Ctx, opts []any) {
+	c.Acknowledge()
+	ping := b.s.Dg().HeartbeatLatency().Microseconds()
+	milliseconds := float32(ping) / 1000
+	if milliseconds > 1000 {
+		seconds := milliseconds / 1000
+		c.Respond(sevcord.NewMessage(c.Author().Mention() + " 🏓 Pong! Latency:**" + fmt.Sprintf("%f", seconds) + "s**"))
+	} else {
+		c.Respond(sevcord.NewMessage(c.Author().Mention() + " 🏓 Pong! Latency:**" + fmt.Sprintf("%f", milliseconds) + "ms**"))
+	}
+}
 func (b *Bot) getElementId(c sevcord.Ctx, val string, showerr bool) (int64, bool) {
 	var id int64
 	var err error
@@ -89,7 +100,8 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		} else {
 			b.pages.CatList(c, []any{"name"})
 		}
-
+	case "ping":
+		b.PingCmd(c, []any{nil})
 	case "inv":
 		if !b.base.CheckCtx(c, "inv") {
 			return
