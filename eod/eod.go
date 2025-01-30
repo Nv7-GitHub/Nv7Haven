@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/achievements"
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/categories"
 	"github.com/Nv7-Github/Nv7Haven/eod/elements"
@@ -26,6 +27,7 @@ type Bot struct {
 	pages      *pages.Pages
 	categories *categories.Categories
 	queries    *queries.Queries
+	users      *achievements.Users
 }
 
 func InitEod(db *sqlx.DB, token string) {

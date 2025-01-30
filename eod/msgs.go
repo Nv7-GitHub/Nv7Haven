@@ -53,7 +53,8 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 		b.pages.Cat(c, []any{any(content), nil})
-
+	case "profile", "prof":
+		b.users.Profile(c, []any{nil})
 	case "inv":
 		if !b.base.CheckCtx(c, "inv") {
 			return

@@ -3,6 +3,7 @@ package eod
 import (
 	"time"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/achievements"
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/categories"
 	"github.com/Nv7-Github/Nv7Haven/eod/elements"
@@ -21,6 +22,7 @@ func (b *Bot) Init() {
 	b.categories = categories.NewCategories(b.db, b.base, b.s, b.polls)
 	b.queries = queries.NewQueries(b.s, b.db, b.base, b.polls, b.elements, b.categories)
 	b.pages = pages.NewPages(b.base, b.db, b.s, b.categories, b.elements, b.queries)
+	b.users = achievements.NewUsers(b.base, b.db, b.s, b.categories, b.elements, b.queries)
 	b.s.SetMessageHandler(b.messageHandler)
 
 	// Start saving stats
