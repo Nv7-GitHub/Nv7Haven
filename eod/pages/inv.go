@@ -12,7 +12,7 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-// Params: prevnext|user|sort|page
+// Params: prevnext|user|sort|postfix|page
 func (p *Pages) InvHandler(c sevcord.Ctx, params string) {
 	parts := strings.Split(params, "|")
 
@@ -27,18 +27,33 @@ func (p *Pages) InvHandler(c sevcord.Ctx, params string) {
 	pagecnt := int(math.Ceil(float64(cnt) / float64(length)))
 
 	// Apply page
-	page, _ := strconv.Atoi(parts[3])
+	page, _ := strconv.Atoi(parts[4])
 	page = ApplyPage(parts[0], page, pagecnt)
 
 	// Get values
 	var inv []struct {
-		Name string `db:"name"`
-		Cont bool   `db:"cont"`
+		Name    string `db:"name"`
+		Cont    bool   `db:"cont"`
+		Postfix string `db:"postfix"`
 	}
-	err = p.db.Select(&inv, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont FROM elements WHERE id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) AND guild=$1 ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), parts[1], length, length*page, c.Author().User.ID)
-	if err != nil {
-		p.base.Error(c, err)
-		return
+	postfix := false
+	if parts[3] == "1" {
+		postfix = true
+	} else {
+		postfix = false
+	}
+	if postfix {
+		err = p.db.Select(&inv, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont,`+parts[2]+` postfix FROM elements WHERE id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) AND guild=$1 ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), parts[1], length, length*page, c.Author().User.ID)
+		if err != nil {
+			p.base.Error(c, err)
+			return
+		}
+	} else {
+		err = p.db.Select(&inv, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont FROM elements WHERE id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) AND guild=$1 ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), parts[1], length, length*page, c.Author().User.ID)
+		if err != nil {
+			p.base.Error(c, err)
+			return
+		}
 	}
 
 	// Get user
@@ -67,7 +82,12 @@ func (p *Pages) InvHandler(c sevcord.Ctx, params string) {
 				fmt.Fprintf(desc, "%s %s\n", v.Name, types.NoCheck)
 			}
 		} else {
-			fmt.Fprintf(desc, "%s\n", v.Name)
+			if postfix {
+				fmt.Fprintf(desc, "%s\n", v.Name+" "+types.GetPostfixVal(v.Postfix, types.PostfixSql[parts[2]]))
+			} else {
+				fmt.Fprintf(desc, "%s\n", v.Name)
+			}
+
 		}
 	}
 
@@ -80,7 +100,7 @@ func (p *Pages) InvHandler(c sevcord.Ctx, params string) {
 
 	c.Respond(sevcord.NewMessage("").
 		AddEmbed(embed).
-		AddComponentRow(PageSwitchBtns("inv", fmt.Sprintf("%s|%s|%d", parts[1], parts[2], page))...),
+		AddComponentRow(PageSwitchBtns("inv", fmt.Sprintf("%s|%s|%s|%d", parts[1], parts[2], parts[3], page))...),
 	)
 }
 
@@ -96,7 +116,17 @@ func (p *Pages) Inv(c sevcord.Ctx, args []any) {
 	if args[1] != nil {
 		sort = args[1].(string)
 	}
+	postfix := false
+	postfixval := 0
+	if args[2] != nil {
+		postfix = args[2].(bool)
+	}
+	if postfix {
+		postfixval = 1
+	} else {
+		postfixval = 0
+	}
 
 	// Create embed
-	p.InvHandler(c, fmt.Sprintf("next|%s|%s|-1", user, sort))
+	p.InvHandler(c, fmt.Sprintf("next|%s|%s|%d|-1", user, sort, postfixval))
 }

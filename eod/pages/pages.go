@@ -28,6 +28,7 @@ func (p *Pages) Init() {
 		sevcord.NewOption("user", "The user to view the inventory of!", sevcord.OptionKindUser, false),
 		sevcord.NewOption("sort", "The sort order of the inventory!", sevcord.OptionKindString, false).
 			AddChoices(types.Sorts...),
+		sevcord.NewOption("postfix", "Whether to add postfix!", sevcord.OptionKindBool, false),
 	))
 	p.s.AddButtonHandler("inv", p.InvHandler)
 
