@@ -57,6 +57,7 @@ func (p *Pages) Init() {
 		p.Cat,
 		sevcord.NewOption("category", "The category to view!", sevcord.OptionKindString, true).AutoComplete(p.categories.Autocomplete),
 		sevcord.NewOption("sort", "How to order the elements!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
+		sevcord.NewOption("postfix", "Whether to add postfix!", sevcord.OptionKindBool, false),
 	), sevcord.NewSlashCommand(
 		"add",
 		"Add an element to a category!",

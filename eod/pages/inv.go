@@ -83,7 +83,7 @@ func (p *Pages) InvHandler(c sevcord.Ctx, params string) {
 			}
 		} else {
 			if postfix {
-				fmt.Fprintf(desc, "%s\n", v.Name+" "+types.GetPostfixVal(v.Postfix, types.PostfixSql[parts[2]]))
+				fmt.Fprintf(desc, "%s\n", v.Name+" - "+types.GetPostfixVal(v.Postfix, types.PostfixSql[parts[2]]))
 			} else {
 				fmt.Fprintf(desc, "%s\n", v.Name)
 			}
