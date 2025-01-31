@@ -42,18 +42,15 @@ func (p *Pages) InvHandler(c sevcord.Ctx, params string) {
 	} else {
 		postfix = false
 	}
-	if postfix {
+	postfixable := parts[2] != "length" && parts[2] != "found"
+	if postfix && postfixable {
 		err = p.db.Select(&inv, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont,`+parts[2]+` postfix FROM elements WHERE id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) AND guild=$1 ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), parts[1], length, length*page, c.Author().User.ID)
-		if err != nil {
-			p.base.Error(c, err)
-			return
-		}
 	} else {
 		err = p.db.Select(&inv, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont FROM elements WHERE id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) AND guild=$1 ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), parts[1], length, length*page, c.Author().User.ID)
-		if err != nil {
-			p.base.Error(c, err)
-			return
-		}
+	}
+	if err != nil {
+		p.base.Error(c, err)
+		return
 	}
 
 	// Get user
@@ -82,8 +79,13 @@ func (p *Pages) InvHandler(c sevcord.Ctx, params string) {
 				fmt.Fprintf(desc, "%s %s\n", v.Name, types.NoCheck)
 			}
 		} else {
-			if postfix {
-				fmt.Fprintf(desc, "%s\n", v.Name+" - "+types.GetPostfixVal(v.Postfix, types.PostfixSql[parts[2]]))
+			if postfix && parts[2] != "found" {
+				if parts[2] == "length" {
+					fmt.Fprintf(desc, "%s - %d\n ", v.Name, len(v.Name))
+				} else {
+					fmt.Fprintf(desc, "%s\n", v.Name+" - "+types.GetPostfixVal(v.Postfix, types.PostfixSql[parts[2]]))
+				}
+
 			} else {
 				fmt.Fprintf(desc, "%s\n", v.Name)
 			}

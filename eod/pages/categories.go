@@ -116,7 +116,7 @@ func (p *Pages) CatHandler(c sevcord.Ctx, params string) {
 	} else {
 		postfix = false
 	}
-	postfixable := parts[2] != "found"
+	postfixable := parts[2] != "found" && parts[2] != "length"
 	if postfix && postfixable {
 		err = p.db.Select(&items, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont, `+parts[2]+` postfix FROM elements WHERE id=ANY(SELECT UNNEST(elements) FROM categories WHERE guild=$1 AND name=$2) AND guild=$1 ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), parts[5], length, length*page, parts[1])
 		if err != nil {
@@ -134,21 +134,23 @@ func (p *Pages) CatHandler(c sevcord.Ctx, params string) {
 	// Description
 	desc := &strings.Builder{}
 	for _, v := range items {
-		if !postfix {
-			if v.Cont {
-				fmt.Fprintf(desc, "%s %s\n", v.Name, types.Check)
-			} else {
-				fmt.Fprintf(desc, "%s %s\n", v.Name, types.NoCheck)
 
-			}
+		if v.Cont {
+			fmt.Fprintf(desc, "%s %s", v.Name, types.Check)
 		} else {
-			postfixitem := types.GetPostfixVal(v.Postfix, types.PostfixSql[parts[2]])
-			if v.Cont {
-				fmt.Fprintf(desc, "%s %s - %s\n", v.Name, types.Check, postfixitem)
-			} else {
-				fmt.Fprintf(desc, "%s %s - %s\n", v.Name, types.NoCheck, postfixitem)
-			}
+			fmt.Fprintf(desc, "%s %s", v.Name, types.NoCheck)
+
 		}
+		if postfix && parts[2] != "found" {
+			postfixitem := types.GetPostfixVal(v.Postfix, types.PostfixSql[parts[2]])
+			if parts[2] == "length" {
+				fmt.Fprintf(desc, " - %d", len(v.Name))
+			} else {
+				fmt.Fprintf(desc, "- %s", postfixitem)
+			}
+
+		}
+		desc.WriteString("\n")
 
 	}
 
