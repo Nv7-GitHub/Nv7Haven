@@ -74,23 +74,17 @@ func (p *Pages) InvHandler(c sevcord.Ctx, params string) {
 	for _, v := range inv {
 		if c.Author().User.ID != parts[1] {
 			if v.Cont {
-				fmt.Fprintf(desc, "%s %s\n", v.Name, types.Check)
+				fmt.Fprintf(desc, "%s %s", v.Name, types.Check)
 			} else {
-				fmt.Fprintf(desc, "%s %s\n", v.Name, types.NoCheck)
+				fmt.Fprintf(desc, "%s %s", v.Name, types.NoCheck)
 			}
 		} else {
-			if postfix && parts[2] != "found" {
-				if parts[2] == "length" {
-					fmt.Fprintf(desc, "%s - %d\n ", v.Name, len(v.Name))
-				} else {
-					fmt.Fprintf(desc, "%s\n", v.Name+" - "+types.GetPostfixVal(v.Postfix, types.PostfixSql[parts[2]]))
-				}
-
-			} else {
-				fmt.Fprintf(desc, "%s\n", v.Name)
-			}
-
+			fmt.Fprintf(desc, "%s", v.Name)
 		}
+		if postfix && parts[2] != "found" {
+			desc.WriteString(p.PrintPostfix(parts[2], v.Name, v.Postfix))
+		}
+		desc.WriteString("\n")
 	}
 
 	// Create

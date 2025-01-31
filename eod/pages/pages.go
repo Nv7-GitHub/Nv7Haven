@@ -1,6 +1,9 @@
 package pages
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/categories"
 	"github.com/Nv7-Github/Nv7Haven/eod/elements"
@@ -19,6 +22,20 @@ type Pages struct {
 	s          *sevcord.Sevcord
 }
 
+func (p *Pages) PrintPostfix(postfixType string, elemName string, postfix string) (val string) {
+	switch postfixType {
+	case "length":
+		return fmt.Sprintf(" - %d", len(elemName))
+	case "creator":
+		return fmt.Sprintf(" - <@%s>", postfix)
+	case "createdon":
+		t, _ := time.Parse(time.RFC3339, postfix)
+		return fmt.Sprintf("- <t:%d>", t.Unix())
+	default:
+		return fmt.Sprintf("- %s", postfix)
+	}
+
+}
 func (p *Pages) Init() {
 	// Inv
 	p.s.RegisterSlashCommand(sevcord.NewSlashCommand(

@@ -161,11 +161,7 @@ func (p *Pages) QueryHandler(c sevcord.Ctx, params string) {
 			fmt.Fprintf(desc, "%s %s", v.Name, types.NoCheck)
 		}
 		if postfix && parts[2] != "found" {
-			if parts[2] == "length" {
-				fmt.Fprintf(desc, " - %d", len(v.Name))
-			} else {
-				fmt.Fprintf(desc, " - %s", v.Postfix)
-			}
+			desc.WriteString(p.PrintPostfix(parts[2], v.Name, v.Postfix))
 
 		}
 		desc.WriteString("\n")

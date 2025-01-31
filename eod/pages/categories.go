@@ -142,13 +142,7 @@ func (p *Pages) CatHandler(c sevcord.Ctx, params string) {
 
 		}
 		if postfix && parts[2] != "found" {
-			postfixitem := types.GetPostfixVal(v.Postfix, types.PostfixSql[parts[2]])
-			if parts[2] == "length" {
-				fmt.Fprintf(desc, " - %d", len(v.Name))
-			} else {
-				fmt.Fprintf(desc, "- %s", postfixitem)
-			}
-
+			desc.WriteString(p.PrintPostfix(parts[2], v.Name, v.Postfix))
 		}
 		desc.WriteString("\n")
 
