@@ -46,7 +46,7 @@ func (b *Bot) getElementId(c sevcord.Ctx, val string, showerr bool) (int64, bool
 		err = b.db.QueryRow("SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(strings.TrimSpace(val)), c.Guild()).Scan(&id)
 	}
 	if err != nil && showerr {
-		b.base.Error(c, err, "Element **"+val+"** doesn't exist! "+types.RedCircle)
+		b.base.Error(c, err, "Element **"+val+"** doesn't exist!")
 		return 0, false
 	} else if err != nil && !showerr {
 		return 0, false
@@ -102,7 +102,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 	case "ping":
 		b.PingCmd(c, []any{nil})
-	case "inv":
+	case "inv", "inventory":
 		if !b.base.CheckCtx(c, "inv") {
 			return
 		}
@@ -129,7 +129,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 		b.pages.Inv(c, []any{any(user), nil})
 
-	case "lb":
+	case "lb", "leaderboard":
 		if !b.base.CheckCtx(c, "lb") {
 			return
 		}
@@ -307,6 +307,11 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			val = any(part)
 		}
 		b.elements.Next(c, []any{val})
+	case "elemcats":
+		id, ok := b.getElementId(c, content, true)
+		if ok {
+			b.pages.ElemCats(c, []any{any(id)})
+		}
 
 	case "img", "image":
 		if !b.base.CheckCtx(c, "image") {
