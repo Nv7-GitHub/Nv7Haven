@@ -86,7 +86,7 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 		// Calc treesize
 		var treeSize int
 		err = tx.QueryRow(`WITH RECURSIVE parents(els, id) AS (
-			VALUES($2::integer[], 0)
+			VALUES($2::integer[], 1)
 	 	UNION
 			(SELECT b.parents els, b.id id FROM elements b INNER JOIN parents p ON b.id=ANY(p.els) where guild=$1)
 	 	) SELECT COUNT(*) FROM parents WHERE id>0`, p.Guild, pq.Array(els)).Scan(&treeSize)

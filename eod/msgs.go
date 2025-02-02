@@ -65,7 +65,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		} else {
 			id = content
 			if content == "" {
-				b.pages.Inv(c, []any{nil, nil})
+				b.pages.Inv(c, []any{nil, nil, nil})
 				return
 			}
 		}
@@ -79,7 +79,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			b.base.Error(c, err)
 			return
 		}
-		b.pages.Inv(c, []any{any(user), nil})
+		b.pages.Inv(c, []any{any(user), nil, nil})
 
 	case "lb":
 		if !b.base.CheckCtx(c, "lb") {
@@ -101,7 +101,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		if !b.base.CheckCtx(c, "query") {
 			return
 		}
-		b.pages.Query(c, []any{any(content), nil})
+		b.pages.Query(c, []any{any(content), nil, nil})
 
 	case "ac", "rc":
 		if !b.base.CheckCtx(c, "cat") {
