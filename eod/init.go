@@ -293,5 +293,12 @@ func (b *Bot) Init() {
 			sevcord.NewOption("category", "The category used for this achievement!", sevcord.OptionKindString, true).
 				AutoComplete(b.categories.Autocomplete),
 			sevcord.NewOption("number", "The number of elements needed for the achievement!", sevcord.OptionKindInt, true)),
+		sevcord.NewSlashCommand("catpercent",
+			"Add a category-based achievement with a percent-based requirement!",
+			b.achievements.CreateCatPercentCmd,
+			sevcord.NewOption("name", "The name of the achievement", sevcord.OptionKindString, true),
+			sevcord.NewOption("category", "The category used for this achievement!", sevcord.OptionKindString, true).
+				AutoComplete(b.categories.Autocomplete),
+			sevcord.NewOption("percent", "The percentage of elements needed for the achievement!", sevcord.OptionKindInt, true)),
 	).RequirePermissions(discordgo.PermissionManageServer))
 }

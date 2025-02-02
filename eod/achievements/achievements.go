@@ -1,6 +1,8 @@
 package achievements
 
 import (
+	"strings"
+
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
@@ -25,10 +27,10 @@ func (a *Achievements) CheckRequirements(ctx sevcord.Ctx, achievementkind types.
 	}
 	if len(userachievements) > 0 {
 
-		err = a.db.Get(&achievements, `SELECT * FROM achievements WHERE guild=$1 AND kind=$2 AND NOT id = ANY($3)`, ctx.Guild(), string(achievementkind), userachievements)
+		err = a.db.Select(&achievements, `SELECT * FROM achievements WHERE guild=$1 AND kind=$2 AND NOT id = ANY($3)`, ctx.Guild(), string(achievementkind), userachievements)
 	} else {
 
-		err = a.db.Get(&achievements, `SELECT * FROM achievements WHERE guild=$1 AND kind=$2`, ctx.Guild(), string(achievementkind))
+		err = a.db.Select(&achievements, `SELECT * FROM achievements WHERE guild=$1 AND kind=$2`, ctx.Guild(), string(achievementkind))
 	}
 	//only 1 achievement in achievements
 	if err != nil {
@@ -69,7 +71,7 @@ func (a *Achievements) CheckRequirements(ctx sevcord.Ctx, achievementkind types.
 			}
 		case types.AchievementKindCatNum:
 			var common float64
-			err = a.db.QueryRow(`SELECT COALESCE(array_length(elements & (SELECT inv FROM inventories WHERE guild=$1 AND "user"=$3), 1), 0) FROM categories WHERE guild=$1 AND name=$2`, ctx.Guild(), achievements[i].Data["cat"], ctx.Author().User.ID).Scan(&common)
+			err = a.db.QueryRow(`SELECT COALESCE(array_length(elements & (SELECT inv FROM inventories WHERE guild=$1 AND "user"=$3), 1), 0) FROM categories WHERE guild=$1 AND LOWER(name)=$2`, ctx.Guild(), strings.ToLower(achievements[i].Data["cat"].(string)), ctx.Author().User.ID).Scan(&common)
 
 			if err != nil {
 				continue
@@ -77,7 +79,18 @@ func (a *Achievements) CheckRequirements(ctx sevcord.Ctx, achievementkind types.
 			if common >= achievements[i].Data["num"].(float64) {
 				a.EarnAchievement(ctx, achievements[i])
 			}
-
+		case types.AchievementKindCatPercent:
+			var cnt int
+			var common int
+			err := a.db.QueryRow(`SELECT array_length(elements, 1), COALESCE(array_length(elements & (SELECT inv FROM inventories WHERE guild=$1 AND "user"=$3), 1), 0) FROM categories WHERE guild=$1 AND LOWER(name)=$2`, ctx.Guild(), strings.ToLower(achievements[i].Data["cat"].(string)), ctx.Author().User.ID).Scan(&cnt, &common)
+			if err != nil {
+				a.base.Error(ctx, err)
+				return
+			}
+			percent := float64(common) / float64(cnt) * 100
+			if percent >= achievements[i].Data["percent"].(float64) {
+				a.EarnAchievement(ctx, achievements[i])
+			}
 		}
 
 	}

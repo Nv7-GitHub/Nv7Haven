@@ -45,6 +45,10 @@ func (a *Achievements) Info(ctx sevcord.Ctx, opts []any) {
 		emb = emb.AddField("Kind", "Category Number", true)
 		emb = emb.AddField("Category", ac.Data["cat"].(string), true)
 		emb = emb.AddField("Number", fmt.Sprintf("%f", ac.Data["num"]), true)
+	case types.AchievementKindCatPercent:
+		emb = emb.AddField("Kind", "Category Percent", true)
+		emb = emb.AddField("Category", ac.Data["cat"].(string), true)
+		emb = emb.AddField("Percent", fmt.Sprintf("%f", ac.Data["percent"]), true)
 	}
 	ctx.Respond(sevcord.NewMessage("").AddEmbed(emb))
 }
