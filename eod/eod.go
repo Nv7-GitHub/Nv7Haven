@@ -21,13 +21,14 @@ type Bot struct {
 	db *sqlx.DB
 
 	// Modules
-	base       *base.Base
-	elements   *elements.Elements
-	polls      *polls.Polls
-	pages      *pages.Pages
-	categories *categories.Categories
-	queries    *queries.Queries
-	users      *achievements.Users
+	base         *base.Base
+	elements     *elements.Elements
+	polls        *polls.Polls
+	pages        *pages.Pages
+	categories   *categories.Categories
+	queries      *queries.Queries
+	users        *achievements.Users
+	achievements *achievements.Achievements
 }
 
 func InitEod(db *sqlx.DB, token string) {

@@ -23,6 +23,7 @@ func (b *Bot) Init() {
 	b.queries = queries.NewQueries(b.s, b.db, b.base, b.polls, b.elements, b.categories)
 	b.pages = pages.NewPages(b.base, b.db, b.s, b.categories, b.elements, b.queries)
 	b.users = achievements.NewUsers(b.base, b.db, b.s, b.categories, b.elements, b.queries)
+	b.achievements = achievements.NewAchievements(b.db, b.base, b.s)
 	b.s.SetMessageHandler(b.messageHandler)
 
 	// Start saving stats
@@ -137,6 +138,12 @@ func (b *Bot) Init() {
 			b.queries.Info,
 			sevcord.NewOption("query", "The query to view the info of!", sevcord.OptionKindString, true).
 				AutoComplete(b.queries.Autocomplete),
+		),
+		sevcord.NewSlashCommand(
+			"achievement",
+			"Get achievement info",
+			b.achievements.Info,
+			sevcord.NewOption("achievement", "The achievement to view the info of", sevcord.OptionKindString, true),
 		),
 		sevcord.NewSlashCommand(
 			"categories",
@@ -271,4 +278,20 @@ func (b *Bot) Init() {
 		AutoComplete(b.queries.Autocomplete)).
 		RequirePermissions(discordgo.PermissionManageServer))
 	b.s.AddButtonHandler("uncheese", b.elements.UncheeseHandler)
+
+	b.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup("newachievement", "Add a new achievement!",
+		sevcord.NewSlashCommand("element",
+			"Add an element-based achievement!",
+			b.achievements.CreateElementCmd,
+			sevcord.NewOption("name", "The name of the achievement!", sevcord.OptionKindString, true),
+			sevcord.NewOption("element", "The element required for this achievement!", sevcord.OptionKindInt, true).
+				AutoComplete(b.elements.Autocomplete),
+		), sevcord.NewSlashCommand("catnum",
+			"Add a category-based achievement with a fixed number requirement!",
+			b.achievements.CreateCatNumCmd,
+			sevcord.NewOption("name", "The name of the achievement", sevcord.OptionKindString, true),
+			sevcord.NewOption("category", "The category used for this achievement!", sevcord.OptionKindString, true).
+				AutoComplete(b.categories.Autocomplete),
+			sevcord.NewOption("number", "The number of elements needed for the achievement!", sevcord.OptionKindInt, true)),
+	).RequirePermissions(discordgo.PermissionManageServer))
 }
