@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "embed"
+	"os"
 
 	"github.com/Nv7-Github/Nv7Haven/eod"
 	"github.com/jmoiron/sqlx"
@@ -14,12 +15,12 @@ var token string
 
 const (
 	dbUser = "postgres"
-	dbName = "postgres"
+	dbName = "nv7haven"
 	dbPort = "5432"
 )
 
 func main() {
-	db, err := sqlx.Connect("postgres", "user="+dbUser+" dbname="+dbName+" sslmode=disable port="+dbPort+" host=localhost"+" password=")
+	db, err := sqlx.Connect("postgres", "user="+dbUser+" dbname="+dbName+" sslmode=disable port="+dbPort+" host="+os.Getenv("MYSQL_HOST")+" password="+os.Getenv("PASSWORD"))
 	if err != nil {
 		panic(err)
 	}
