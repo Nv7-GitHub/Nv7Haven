@@ -21,9 +21,10 @@ func (b *Bot) Init() {
 	b.elements = elements.NewElements(b.s, b.db, b.base, b.polls)
 	b.categories = categories.NewCategories(b.db, b.base, b.s, b.polls)
 	b.queries = queries.NewQueries(b.s, b.db, b.base, b.polls, b.elements, b.categories)
-	b.pages = pages.NewPages(b.base, b.db, b.s, b.categories, b.elements, b.queries)
-	b.users = achievements.NewUsers(b.base, b.db, b.s, b.categories, b.elements, b.queries)
 	b.achievements = achievements.NewAchievements(b.db, b.base, b.s)
+	b.pages = pages.NewPages(b.base, b.db, b.s, b.categories, b.elements, b.queries, b.achievements)
+	b.users = achievements.NewUsers(b.base, b.db, b.s, b.categories, b.elements, b.queries)
+
 	b.s.SetMessageHandler(b.messageHandler)
 
 	// Start saving stats
@@ -143,7 +144,8 @@ func (b *Bot) Init() {
 			"achievement",
 			"Get achievement info",
 			b.achievements.Info,
-			sevcord.NewOption("achievement", "The achievement to view the info of", sevcord.OptionKindString, true),
+			sevcord.NewOption("achievement", "The achievement to view the info of", sevcord.OptionKindString, true).
+				AutoComplete(b.achievements.AutocompleteName),
 		),
 		sevcord.NewSlashCommand(
 			"categories",
@@ -299,6 +301,11 @@ func (b *Bot) Init() {
 			sevcord.NewOption("name", "The name of the achievement", sevcord.OptionKindString, true),
 			sevcord.NewOption("category", "The category used for this achievement!", sevcord.OptionKindString, true).
 				AutoComplete(b.categories.Autocomplete),
-			sevcord.NewOption("percent", "The percentage of elements needed for the achievement!", sevcord.OptionKindInt, true)),
+			sevcord.NewOption("percent", "The percentage of elements needed for the achievement!", sevcord.OptionKindFloat, true)),
+		sevcord.NewSlashCommand("invnum",
+			"Create an with a fixed number requirement!",
+			b.achievements.CreateInvNumCmd,
+			sevcord.NewOption("name", "The name of the achievement", sevcord.OptionKindString, true),
+			sevcord.NewOption("number", "The number of elements needed for the achievement!", sevcord.OptionKindInt, true)),
 	).RequirePermissions(discordgo.PermissionManageServer))
 }

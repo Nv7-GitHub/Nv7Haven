@@ -5,6 +5,7 @@ import (
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
+	"github.com/dustin/go-humanize"
 )
 
 func (a *Achievements) Info(ctx sevcord.Ctx, opts []any) {
@@ -34,21 +35,35 @@ func (a *Achievements) Info(ctx sevcord.Ctx, opts []any) {
 
 	switch ac.Kind {
 	case types.AchievementKindElement:
-		emb = emb.AddField("Kind", "Element", true)
 		name, err := a.base.GetName(ctx.Guild(), int(ac.Data["elem"].(float64)))
 		if err != nil {
 			a.base.Error(ctx, err)
 			return
 		}
+		emb = emb.AddField("Requirement", "Make **"+name+"**", false)
+		emb = emb.AddField("Kind", "Element", true)
+
 		emb = emb.AddField("Element", name, true)
 	case types.AchievementKindCatNum:
+		emb = emb.AddField("Requirement", "Make"+humanize.FormatFloat("#", ac.Data["num"].(float64))+"elements in the category **"+ac.Data["cat"].(string)+"**", false)
 		emb = emb.AddField("Kind", "Category Number", true)
 		emb = emb.AddField("Category", ac.Data["cat"].(string), true)
-		emb = emb.AddField("Number", fmt.Sprintf("%f", ac.Data["num"]), true)
+		emb = emb.AddField("Number", humanize.FormatFloat("#", ac.Data["num"].(float64)), true)
 	case types.AchievementKindCatPercent:
+		emb = emb.AddField("Requirement", "Make "+fmt.Sprintf("%f", ac.Data["percent"])+"%"+" of elements in the category **"+ac.Data["cat"].(string)+"**", false)
 		emb = emb.AddField("Kind", "Category Percent", true)
 		emb = emb.AddField("Category", ac.Data["cat"].(string), true)
 		emb = emb.AddField("Percent", fmt.Sprintf("%f", ac.Data["percent"]), true)
+	case types.AchievementKindInvCnt:
+		emb = emb.AddField("Requirement", "Have at least "+humanize.FormatFloat("#", ac.Data["num"].(float64))+" elements in your inventory", false)
+		emb = emb.AddField("Kind", "Inventory Number", true)
+		emb = emb.AddField("Number", humanize.FormatFloat("#", ac.Data["num"].(float64)), true)
 	}
+	var cnt int
+	err = a.db.Get(&cnt, `SELECT COUNT( (SELECT id FROM UNNEST(achievements) as id WHERE id=$1)) FROM achievers WHERE guild=$2`, ac.ID, ctx.Guild())
+	if err != nil {
+		return
+	}
+	emb = emb.AddField("🏆 Achieved By", fmt.Sprintf("%d", cnt), false)
 	ctx.Respond(sevcord.NewMessage("").AddEmbed(emb))
 }

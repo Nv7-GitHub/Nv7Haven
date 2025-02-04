@@ -246,6 +246,7 @@ const (
 	AchievementKindQueryNum     AchievementKind = "querynum"
 	AchievementKindQueryPercent AchievementKind = "querypercent"
 	AchievementKindInvCnt       AchievementKind = "invcnt"
+	AchievementKindMadeCnt      AchievementKind = "madecnt"
 )
 
 type Achievement struct {

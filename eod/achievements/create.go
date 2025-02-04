@@ -96,7 +96,67 @@ func (a *Achievements) CreateCatPercentCmd(c sevcord.Ctx, opts []any) {
 
 	a.createCmd(c, opts[0].(string), types.AchievementKindCatPercent, types.PgData{
 		"cat":     opts[1].(string),
-		"percent": opts[2].(float32),
+		"percent": opts[2].(float64),
 	})
 
+}
+func (a *Achievements) CreateQueryNumCmd(c sevcord.Ctx, opts []any) {
+	c.Acknowledge()
+	//Check if cat exists
+	var exists bool
+
+	err := a.db.Get(&exists, "SELECT EXISTS(SELECT 1 FROM queries WHERE name=$1 AND guild=$2 )", opts[1].(string), c.Guild())
+	if err != nil {
+		a.base.Error(c, err)
+		return
+	}
+	if !exists {
+		c.Respond(sevcord.NewMessage("Query does not exist! " + types.RedCircle))
+		return
+	}
+	var elements pq.Int32Array
+	a.base.CalcQuery(c, opts[1].(string))
+	err = a.db.QueryRow("SELECT elements FROM categories WHERE name=$1 AND guild=$2", opts[1].(string), c.Guild()).Scan(&elements)
+	if err != nil {
+		return
+	}
+	if opts[2].(int) <= 0 /*|| opts[2].(int64) > len(elements) */ {
+		c.Respond(sevcord.NewMessage("Invalid number! " + types.RedCircle))
+		return
+	}
+
+	a.createCmd(c, opts[0].(string), types.AchievementKindCatNum, types.PgData{
+		"query": opts[1].(string),
+		"num":   opts[2].(int64),
+	})
+
+}
+func (a *Achievements) CreateQueryPercentCmd(c sevcord.Ctx, opts []any) {
+	c.Acknowledge()
+	var exists bool
+
+	err := a.db.Get(&exists, "SELECT EXISTS(SELECT 1 FROM queries WHERE name=$1)", opts[1].(string))
+	if err != nil {
+		a.base.Error(c, err)
+		return
+	}
+	if !exists {
+		c.Respond(sevcord.NewMessage("Query does not exist! " + types.RedCircle))
+		return
+	}
+
+	a.createCmd(c, opts[0].(string), types.AchievementKindCatPercent, types.PgData{
+		"query":   opts[1].(string),
+		"percent": opts[2].(float64),
+	})
+
+}
+func (a *Achievements) CreateInvNumCmd(c sevcord.Ctx, opts []any) {
+	c.Acknowledge()
+
+	a.createCmd(c, opts[0].(string), types.AchievementKindInvCnt, map[string]any{"num": float64(opts[1].(int64))})
+}
+func (a *Achievements) CreateMadeNumCmd(c sevcord.Ctx, opts []any) {
+	c.Acknowledge()
+	a.createCmd(c, opts[0].(string), types.AchievementKindMadeCnt, map[string]any{"num": float64(opts[1].(int64))})
 }

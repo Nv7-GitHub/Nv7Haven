@@ -403,8 +403,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 			// Combine
 			elems := strings.Split(content, sep)
 			b.elements.Combine(c, elems)
-			b.achievements.CheckRequirements(c, types.AchievementKindElement)
-			b.achievements.CheckRequirements(c, types.AchievementKindCatNum)
+			b.achievements.CheckRequirements(c)
 			return
 		}
 	}

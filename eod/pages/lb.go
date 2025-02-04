@@ -27,22 +27,24 @@ var lbSorts = []sevcord.Choice{
 	sevcord.NewChoice("Queries Signed", "querysigned"),
 	sevcord.NewChoice("Queries Imaged", "queryimg"),
 	sevcord.NewChoice("Queries Colored", "querycolor"),
+	sevcord.NewChoice("Achievements Found", "achievementfound"),
 }
 
 // Params: [guild]
 var lbSortCode = map[string]string{
-	"found":       "array_length(inv, 1)",
-	"made":        `(SELECT COUNT(*) FROM elements WHERE guild=$1 AND creator="user")`,
-	"votes":       "votecnt",
-	"signed":      `(SELECT COUNT(*) FROM elements WHERE guild=$1 AND commenter="user")`,
-	"img":         `(SELECT COUNT(*) FROM elements WHERE guild=$1 AND imager="user")`,
-	"color":       `(SELECT COUNT(*) FROM elements WHERE guild=$1 AND colorer="user")`,
-	"catsigned":   `(SELECT COUNT(*) FROM categories WHERE guild=$1 AND commenter="user")`,
-	"catimg":      `(SELECT COUNT(*) FROM categories WHERE guild=$1 AND imager="user")`,
-	"catcolor":    `(SELECT COUNT(*) FROM categories WHERE guild=$1 AND colorer="user")`,
-	"querysigned": `(SELECT COUNT(*) FROM queries WHERE guild=$1 AND commenter="user")`,
-	"queryimg":    `(SELECT COUNT(*) FROM queries WHERE guild=$1 AND imager="user")`,
-	"querycolor":  `(SELECT COUNT(*) FROM queries WHERE guild=$1 AND colorer="user")`,
+	"found":            "array_length(inv, 1)",
+	"made":             `(SELECT COUNT(*) FROM elements WHERE guild=$1 AND creator="user")`,
+	"votes":            "votecnt",
+	"signed":           `(SELECT COUNT(*) FROM elements WHERE guild=$1 AND commenter="user")`,
+	"img":              `(SELECT COUNT(*) FROM elements WHERE guild=$1 AND imager="user")`,
+	"color":            `(SELECT COUNT(*) FROM elements WHERE guild=$1 AND colorer="user")`,
+	"catsigned":        `(SELECT COUNT(*) FROM categories WHERE guild=$1 AND commenter="user")`,
+	"catimg":           `(SELECT COUNT(*) FROM categories WHERE guild=$1 AND imager="user")`,
+	"catcolor":         `(SELECT COUNT(*) FROM categories WHERE guild=$1 AND colorer="user")`,
+	"querysigned":      `(SELECT COUNT(*) FROM queries WHERE guild=$1 AND commenter="user")`,
+	"queryimg":         `(SELECT COUNT(*) FROM queries WHERE guild=$1 AND imager="user")`,
+	"querycolor":       `(SELECT COUNT(*) FROM queries WHERE guild=$1 AND colorer="user")`,
+	"achievementfound": `cardinality(achievements)`,
 }
 var lbQuerySortCode = map[string]string{
 	"found":  "COALESCE(array_length(inv & $2, 1), 0)",
@@ -72,15 +74,21 @@ func (p *Pages) LbHandler(c sevcord.Ctx, params string) {
 		User string `db:"user"`
 		Cnt  int    `db:"cnt"`
 	}
+
+	table := "inventories"
+	if parts[2] == "achievementfound" {
+		table = "achievers"
+	}
 	if qu == nil {
-		err = p.db.Select(&vals, `SELECT "user", `+lbSortCode[parts[2]]+` cnt FROM inventories WHERE guild=$1 ORDER BY cnt DESC`, c.Guild())
+
+		err = p.db.Select(&vals, `SELECT "user", `+lbSortCode[parts[2]]+` cnt FROM `+table+` WHERE guild=$1 ORDER BY cnt DESC`, c.Guild())
 	} else {
 		sort, ok := lbQuerySortCode[parts[2]]
 		if !ok {
 			c.Respond(sevcord.NewMessage("This sort doesn't support queries! " + types.RedCircle))
 			return
 		}
-		err = p.db.Select(&vals, `SELECT "user", `+sort+` cnt FROM inventories WHERE guild=$1 ORDER BY cnt DESC`, c.Guild(), pq.Array(qu.Elements))
+		err = p.db.Select(&vals, `SELECT "user", `+sort+` cnt FROM `+table+` WHERE guild=$1 ORDER BY cnt DESC`, c.Guild(), pq.Array(qu.Elements))
 	}
 	if err != nil {
 		p.base.Error(c, err)

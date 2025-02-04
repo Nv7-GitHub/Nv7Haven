@@ -16,10 +16,9 @@ type Achievements struct {
 	s    *sevcord.Sevcord
 }
 
-func (a *Achievements) CheckRequirements(ctx sevcord.Ctx, achievementkind types.AchievementKind) {
+func (a *Achievements) CheckRequirements(ctx sevcord.Ctx) {
 
 	var achievements []types.Achievement
-	var achievement types.Achievement
 	var userachievements pq.Int32Array
 	err := a.db.QueryRow(`SELECT achievements FROM achievers WHERE guild=$1 AND "user"=$2`, ctx.Guild(), ctx.Author().User.ID).Scan(&userachievements)
 	if err != nil {
@@ -27,27 +26,15 @@ func (a *Achievements) CheckRequirements(ctx sevcord.Ctx, achievementkind types.
 	}
 	if len(userachievements) > 0 {
 
-		err = a.db.Select(&achievements, `SELECT * FROM achievements WHERE guild=$1 AND kind=$2 AND NOT id = ANY($3)`, ctx.Guild(), string(achievementkind), userachievements)
+		err = a.db.Select(&achievements, `SELECT * FROM achievements WHERE guild=$1 AND NOT id = ANY($2)`, ctx.Guild(), userachievements)
 	} else {
 
-		err = a.db.Select(&achievements, `SELECT * FROM achievements WHERE guild=$1 AND kind=$2`, ctx.Guild(), string(achievementkind))
-	}
-	//only 1 achievement in achievements
-	if err != nil {
-		if len(userachievements) > 0 {
-
-			err = a.db.Get(&achievement, `SELECT * FROM achievements WHERE guild=$1 AND kind=$2 AND NOT id = ANY($3)`, ctx.Guild(), string(achievementkind), userachievements)
-		} else {
-
-			err = a.db.Get(&achievement, `SELECT * FROM achievements WHERE guild=$1 AND kind=$2`, ctx.Guild(), string(achievementkind))
-		}
+		err = a.db.Select(&achievements, `SELECT * FROM achievements WHERE guild=$1 `, ctx.Guild())
 	}
 	if err != nil {
 		return
 	}
-	if len(achievements) == 0 {
-		achievements = append(achievements, achievement)
-	}
+
 	var inv pq.Int32Array
 	err = a.db.QueryRow(`SELECT inv FROM inventories WHERE guild=$1 AND "user"=$2`, ctx.Guild(), ctx.Author().User.ID).Scan(&inv)
 	if err != nil {
@@ -62,8 +49,9 @@ func (a *Achievements) CheckRequirements(ctx sevcord.Ctx, achievementkind types.
 				if inv[j] == int32(achievements[i].Data["elem"].(float64)) {
 					found = true
 					break
+				} else {
+					found = false
 				}
-				found = false
 
 			}
 			if found {
@@ -91,16 +79,25 @@ func (a *Achievements) CheckRequirements(ctx sevcord.Ctx, achievementkind types.
 			if percent >= achievements[i].Data["percent"].(float64) {
 				a.EarnAchievement(ctx, achievements[i])
 			}
+		case types.AchievementKindInvCnt:
+			if float64(len(inv)) >= achievements[i].Data["num"].(float64) {
+				a.EarnAchievement(ctx, achievements[i])
+			}
 		}
-
 	}
-
 }
 func (a *Achievements) EarnAchievement(ctx sevcord.Ctx, ac types.Achievement) {
 
 	a.db.Exec(`UPDATE achievers SET achievements =array_append(achievements,$3) WHERE guild=$1 AND "user"=$2`, ctx.Guild(), ctx.Author().User.ID, ac.ID)
 	ctx.Respond(sevcord.NewMessage(ctx.Author().Mention() + " New achievement earned: **" + ac.Name + "** " + ac.Icon))
+	var news string
+	err := a.db.QueryRow("SELECT news FROM config WHERE guild=$1", ctx.Guild()).Scan(&news)
+	if err != nil {
+		return
+	}
+	a.s.Dg().ChannelMessageSend(news, "🏆 Earned Achievement - **"+ac.Name+" "+ac.Icon+"** (By "+ctx.Author().Mention()+")")
 }
+
 func (a *Achievements) Init() {
 
 }

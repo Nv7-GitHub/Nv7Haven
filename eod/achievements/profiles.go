@@ -5,14 +5,15 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/sevcord/v2"
+	"github.com/bwmarrin/discordgo"
 )
 
 func (u *Users) Profile(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
 
 	var userID string
-	if opts[0] != nil {
-
+	if opts[0] != nil && opts[0] != "" {
+		userID = opts[0].(*discordgo.User).ID
 	} else {
 		userID = c.Author().User.ID
 	}
@@ -45,14 +46,24 @@ func (u *Users) ProfileHandler(c sevcord.Ctx, params string) {
 		u.base.Error(c, err)
 		return
 	}
+	var achievementcnt int
+
+	err = u.db.QueryRow(`SELECT cardinality(achievements) FROM achievers WHERE guild=$1 AND "user"=$2`, c.Guild(), parts[0]).Scan(&achievementcnt)
+	if err != nil {
+		u.base.Error(c, err)
+		return
+	}
+
 	//get user avatar
 	img := user.User.AvatarURL("128")
 	emb := sevcord.NewEmbed().
 		Title(user.User.Username + "'s Profile")
 	emb = emb.AddField("User", user.Mention(), false)
-	emb = emb.AddField("Elements Found", fmt.Sprintf("%d", invsize), true)
-	emb = emb.AddField("Elements Made", fmt.Sprintf("%d", madesize), true)
-	emb = emb.AddField("Votes Cast", fmt.Sprintf("%d", votecnt), true)
+	emb = emb.AddField("🔍 Elements Found", fmt.Sprintf("%d", invsize), true)
+	emb = emb.AddField("💡 Elements Made", fmt.Sprintf("%d", madesize), true)
+	emb = emb.AddField("🗳️ Votes Cast", fmt.Sprintf("%d", votecnt), true)
+	emb = emb.AddField("🏆 Achievements Found", fmt.Sprintf("%d", achievementcnt), false)
+
 	emb = emb.Thumbnail(img)
 	c.Respond(sevcord.NewMessage("").AddEmbed(emb))
 }
