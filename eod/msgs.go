@@ -28,6 +28,11 @@ func (b *Bot) getElementId(c sevcord.Ctx, val string) (int64, bool) {
 
 func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 	switch name {
+	case "infoachievement":
+		if !b.base.CheckCtx(c, "info") {
+			return
+		}
+		b.achievements.Info(c, []any{any(content)})
 	case "s", "suggest":
 		if !b.base.CheckCtx(c, "suggest") {
 			return
@@ -53,7 +58,8 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 		b.pages.Cat(c, []any{any(content), nil})
-
+	case "profile", "prof":
+		b.users.Profile(c, []any{nil})
 	case "inv":
 		if !b.base.CheckCtx(c, "inv") {
 			return
@@ -397,6 +403,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 			// Combine
 			elems := strings.Split(content, sep)
 			b.elements.Combine(c, elems)
+			b.achievements.CheckRequirements(c)
 			return
 		}
 	}
