@@ -73,7 +73,14 @@ func (p *Pages) Init() {
 		"Delete all the elements from a category!",
 		p.categories.DelCat,
 		sevcord.NewOption("category", "The category to delete!", sevcord.OptionKindString, true).AutoComplete(p.categories.Autocomplete),
-	)))
+	), sevcord.NewSlashCommand(
+		"addquery",
+		"Add elements in a query to a category!",
+		p.categories.AddCatQuery,
+		sevcord.NewOption("category", "The category to add the elements to!", sevcord.OptionKindString, true).AutoComplete(p.categories.Autocomplete),
+		sevcord.NewOption("query", "The query to add to the category!", sevcord.OptionKindString, true).AutoComplete(p.queries.Autocomplete),
+	),
+	))
 	p.s.AddButtonHandler("catlist", p.CatListHandler)
 	p.s.AddButtonHandler("cat", p.CatHandler)
 
