@@ -76,6 +76,15 @@ func (c *Categories) CatEditCmd(ctx sevcord.Ctx, cat string, elems []int, kind t
 	// Respond
 	ctx.Respond(sevcord.NewMessage(fmt.Sprintf(format, text, name)))
 }
+func (c *Categories) AddCatQuery(ctx sevcord.Ctx, opts []any) {
+
+	q, success := c.base.CalcQuery(ctx, opts[1].(string))
+	if !success {
+		return
+	}
+	c.CatEditCmd(ctx, opts[0].(string), q.Elements, types.PollKindCategorize, "Suggested to add **%s** to **%s** 🗃️", false)
+
+}
 
 func (c *Categories) AddCat(ctx sevcord.Ctx, opts []any) {
 	c.CatEditCmd(ctx, opts[0].(string), []int{int(opts[1].(int64))}, types.PollKindCategorize, "Suggested to add **%s** to **%s** 🗃️", false)
