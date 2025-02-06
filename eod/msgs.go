@@ -54,6 +54,27 @@ func (b *Bot) getElementId(c sevcord.Ctx, val string, showerr bool) (int64, bool
 
 	return id, true
 }
+func getSort(input string) string {
+
+	switch strings.TrimSpace(strings.ToLower(input)) {
+	case "creator":
+		return "creator"
+	case "name":
+		return "name"
+	case "id":
+		return "id"
+	case "created on", "createdon":
+		return "createdon"
+	case "treesize", "tree size":
+		return "treesize"
+	case "length":
+		return "length"
+	case "found":
+		return "found"
+	default:
+		return "id"
+	}
+}
 
 func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 	switch name {
@@ -96,7 +117,14 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 		if content != "" {
-			b.pages.Cat(c, []any{any(content), nil})
+			parts := strings.SplitN(content, "|", 2)
+			if len(parts) == 2 {
+				sort := getSort(strings.ToLower(strings.TrimSpace(parts[1])))
+				b.pages.Cat(c, []any{any(strings.TrimSpace(parts[0])), sort})
+			} else {
+				b.pages.Cat(c, []any{any(content), nil})
+			}
+
 		} else {
 			b.pages.CatList(c, []any{"name"})
 		}
@@ -176,11 +204,20 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		b.pages.Products(c, []any{any(id), nil})
 
 	case "q", "query":
+		parts := strings.SplitN(content, "|", 2)
+
 		if !b.base.CheckCtx(c, "query") {
 			return
 		}
 		if content != "" {
-			b.pages.Query(c, []any{any(content), nil})
+			if len(parts) == 2 {
+
+				sort := getSort(strings.ToLower(strings.TrimSpace(parts[2])))
+				b.pages.Query(c, []any{any(strings.TrimSpace(parts[0])), sort})
+			} else {
+				b.pages.Query(c, []any{any(parts[0]), nil})
+			}
+
 		} else {
 			b.pages.QueryList(c, []any{"name"})
 		}
