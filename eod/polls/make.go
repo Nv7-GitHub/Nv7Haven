@@ -84,11 +84,35 @@ func (b *Polls) checkPoll(p *types.Poll, votecnt int, dg *discordgo.Session) {
 			log.Println("news err", err)
 			return
 		}
+
 		_, err = dg.ChannelMessageSend(news, fmt.Sprintf("❌ **Poll Rejected** %s", b.pollContextMsg(p)))
 		if err != nil {
 			log.Println("news err", err)
 		}
 		b.deletePoll(p, dg)
+		//DM user
+		emb, _ := b.makePollEmbed(p)
+		dm, err := dg.UserChannelCreate(p.Creator)
+		if err != nil {
+
+			return
+		}
+		guild, _ := dg.Guild(p.Guild)
+
+		upvotetext := "upvotes"
+		if p.Upvotes == 0 {
+			upvotetext = "upvote"
+		}
+		downvotetext := "downvotes"
+		if p.Downvotes == 0 {
+			downvotetext = "downvote"
+		}
+		msg := sevcord.NewMessage(fmt.Sprintf("Your poll in **%s** was rejected with **%d %s** and **%d %s**.\n\n**Your Poll**", guild.Name, p.Upvotes+1, upvotetext, p.Downvotes+1, downvotetext)).AddEmbed(emb)
+		_, err = dg.ChannelMessageSendComplex(dm.ID, msg.Dg())
+		if err != nil {
+			return
+		}
+
 		return
 	}
 }
