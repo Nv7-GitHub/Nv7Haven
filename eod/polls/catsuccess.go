@@ -41,7 +41,7 @@ func (p *Polls) categorizeSuccess(po *types.Poll, news func(string)) error {
 		}
 		po.Data["cat"] = name
 		// Make
-		_, err = p.db.Exec(`INSERT INTO categories (guild, name, elements, comment, image, color, commenter, imager, colorer) VALUES ($1, $2, $3, $6, $4, $5, $4, $4, $4)`, po.Guild, name, pq.Array(elems), "", 0, "None")
+		_, err = p.db.Exec(`INSERT INTO categories (guild, name, elements, comment, image, color, commenter, imager, colorer) VALUES ($1, $2, $3, $6, $4, $5, $4, $4, $4)`, po.Guild, name, pq.Array(elems), "", 0, types.DefaultMark)
 		if err != nil {
 			return err
 		}

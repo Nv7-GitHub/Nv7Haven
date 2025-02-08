@@ -107,7 +107,7 @@ func (b *Polls) checkPoll(p *types.Poll, votecnt int, dg *discordgo.Session) {
 		if p.Downvotes == 0 {
 			downvotetext = "downvote"
 		}
-		msg := sevcord.NewMessage(fmt.Sprintf("Your poll in **%s** was rejected with **%d %s** and **%d %s**.\n\n**Your Poll**", guild.Name, p.Upvotes+1, upvotetext, p.Downvotes+1, downvotetext)).AddEmbed(emb)
+		msg := sevcord.NewMessage(fmt.Sprintf("Your poll in **%s** was rejected with **%d %s** and **%d %s**. 🔴\n\n**Your Poll**", guild.Name, p.Upvotes+1, upvotetext, p.Downvotes+1, downvotetext)).AddEmbed(emb)
 		_, err = dg.ChannelMessageSendComplex(dm.ID, msg.Dg())
 		if err != nil {
 			return

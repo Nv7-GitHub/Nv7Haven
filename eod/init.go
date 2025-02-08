@@ -278,8 +278,20 @@ func (b *Bot) Init() {
 			AutoComplete(b.queries.Autocomplete),
 		sevcord.NewOption("count", "The number of elements to include in the idea!", sevcord.OptionKindInt, false).
 			MinMax(2, types.MaxComboLength),
+		sevcord.NewOption("distinct", "Whether the elements in the idea should be distinct!", sevcord.OptionKindBool, false),
 	))
 	b.s.AddButtonHandler("idea", b.elements.IdeaHandler)
+	b.s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"random_combination",
+		"Get an random combination!",
+		b.elements.RandomCombo,
+		sevcord.NewOption("query", "A query to select the elements in the random combination to be made from!", sevcord.OptionKindString, false).
+			AutoComplete(b.queries.Autocomplete),
+		sevcord.NewOption("count", "The number of elements to include in the random combination!", sevcord.OptionKindInt, false).
+			MinMax(2, types.MaxComboLength),
+		sevcord.NewOption("distinct", "Whether the elements in the idea should be distinct!", sevcord.OptionKindBool, false),
+	))
+	b.s.AddButtonHandler("randcombo", b.elements.RandomComboHandler)
 	b.s.RegisterSlashCommand(sevcord.NewSlashCommand("uncheese", "Delete the lowest tree size combo for elements!", b.elements.Uncheese, sevcord.NewOption("query", "A query to select the elements from!", sevcord.OptionKindString, true).
 		AutoComplete(b.queries.Autocomplete)).
 		RequirePermissions(discordgo.PermissionManageServer))

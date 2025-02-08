@@ -35,9 +35,15 @@ func (e *Elements) ImageCmd(c sevcord.Ctx, id int, image string) {
 		c.Respond(res.Response())
 		return
 	}
-
+	// Distinguish between adding new image and changing existing image
+	var addtext string
+	if old != "" {
+		addtext = "to change the"
+	} else {
+		addtext = "a new"
+	}
 	// Respond
-	c.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested an image for **%s** 📷", elem)))
+	c.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s image for **%s** 📷", addtext, elem)))
 }
 
 func (e *Elements) SignCmd(c sevcord.Ctx, opts []any) {
@@ -65,10 +71,16 @@ func (e *Elements) SignCmd(c sevcord.Ctx, opts []any) {
 			c.Respond(res.Response())
 			return
 		}
-
+		//distinguish between new and changing
+		var addtext string
+		if old != types.DefaultMark {
+			addtext = "to change the"
+		} else {
+			addtext = "a new"
+		}
 		// Respond
-		c.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested a note for **%s** 🖋️", name)))
-	}).Input(sevcord.NewModalInput("New Comment", "None", sevcord.ModalInputStyleParagraph, 2400)))
+		c.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s note for **%s** 🖋️", addtext, name)))
+	}).Input(sevcord.NewModalInput("New Comment", types.DefaultMark, sevcord.ModalInputStyleParagraph, 2400)))
 }
 
 func (e *Elements) MsgSignCmd(c sevcord.Ctx, elem string, mark string) {
@@ -101,9 +113,15 @@ func (e *Elements) MsgSignCmd(c sevcord.Ctx, elem string, mark string) {
 		c.Respond(res.Response())
 		return
 	}
-
+	// distinguish between new and changing
+	var addtext string
+	if old != types.DefaultMark {
+		addtext = "to change the"
+	} else {
+		addtext = "a new"
+	}
 	// Respond
-	c.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested a note for **%s** 🖋️", name)))
+	c.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s note for **%s** 🖋️", addtext, name)))
 }
 
 func (e *Elements) ColorCmd(c sevcord.Ctx, opts []any) {
@@ -124,7 +142,8 @@ func (e *Elements) ColorCmd(c sevcord.Ctx, opts []any) {
 	// Check element
 	var name string
 	var old int
-	err = e.db.QueryRow("SELECT name, color FROM elements WHERE id=$1 AND guild=$2", opts[0].(int64), c.Guild()).Scan(&name, &old)
+	var colorer string
+	err = e.db.QueryRow("SELECT name, color,colorer FROM elements WHERE id=$1 AND guild=$2", opts[0].(int64), c.Guild()).Scan(&name, &old, &colorer)
 	if err != nil {
 		e.base.Error(c, err)
 		return
@@ -143,7 +162,13 @@ func (e *Elements) ColorCmd(c sevcord.Ctx, opts []any) {
 		c.Respond(res.Response())
 		return
 	}
-
+	// distinguish between new and changing
+	var addtext string
+	if colorer != "" {
+		addtext = "to change the"
+	} else {
+		addtext = "a new"
+	}
 	// Respond
-	c.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested a color for **%s** 🎨", name)))
+	c.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s color for **%s** 🎨", addtext, name)))
 }
