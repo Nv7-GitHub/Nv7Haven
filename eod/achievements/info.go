@@ -2,6 +2,7 @@ package achievements
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
@@ -13,7 +14,7 @@ func (a *Achievements) Info(ctx sevcord.Ctx, opts []any) {
 	ctx.Acknowledge()
 	var ac types.Achievement
 
-	err := a.db.Get(&ac, "SELECT * FROM achievements WHERE name=$1 AND guild=$2", opts[0].(string), ctx.Guild())
+	err := a.db.Get(&ac, "SELECT * FROM achievements WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(opts[0].(string)), ctx.Guild())
 	if err != nil {
 		ctx.Respond(sevcord.NewMessage("Achivement **" + opts[0].(string) + "** doesn't exist" + types.RedCircle))
 		return
@@ -30,7 +31,7 @@ func (a *Achievements) Info(ctx sevcord.Ctx, opts []any) {
 		description = "📪 **You don't have this.**\n\n" + description
 	}
 	emb := sevcord.NewEmbed().
-		Title(opts[0].(string) + " Info").
+		Title(ac.Name + " Info").
 		Description(description)
 
 	switch ac.Kind {
@@ -54,9 +55,23 @@ func (a *Achievements) Info(ctx sevcord.Ctx, opts []any) {
 		emb = emb.AddField("Kind", "Category Percent", true)
 		emb = emb.AddField("Category", ac.Data["cat"].(string), true)
 		emb = emb.AddField("Percent", fmt.Sprintf("%f", ac.Data["percent"]), true)
+	case types.AchievementKindQueryNum:
+		emb = emb.AddField("Requirement", "Make"+humanize.FormatFloat("#", ac.Data["num"].(float64))+"elements in the query **"+ac.Data["query"].(string)+"**", false)
+		emb = emb.AddField("Kind", "Query Number", true)
+		emb = emb.AddField("Query", ac.Data["query"].(string), true)
+		emb = emb.AddField("Number", humanize.FormatFloat("#", ac.Data["num"].(float64)), true)
+	case types.AchievementKindQueryPercent:
+		emb = emb.AddField("Requirement", "Make "+fmt.Sprintf("%f", ac.Data["percent"])+"%"+" of elements in the query **"+ac.Data["query"].(string)+"**", false)
+		emb = emb.AddField("Kind", "Query Percent", true)
+		emb = emb.AddField("Query", ac.Data["query"].(string), true)
+		emb = emb.AddField("Percent", fmt.Sprintf("%f", ac.Data["percent"]), true)
 	case types.AchievementKindInvCnt:
 		emb = emb.AddField("Requirement", "Have at least "+humanize.FormatFloat("#", ac.Data["num"].(float64))+" elements in your inventory", false)
 		emb = emb.AddField("Kind", "Inventory Number", true)
+		emb = emb.AddField("Number", humanize.FormatFloat("#", ac.Data["num"].(float64)), true)
+	case types.AchievementKindMadeCnt:
+		emb = emb.AddField("Requirement", "Have made at least "+humanize.FormatFloat("#", ac.Data["num"].(float64))+" elements", false)
+		emb = emb.AddField("Kind", "Made Number", true)
 		emb = emb.AddField("Number", humanize.FormatFloat("#", ac.Data["num"].(float64)), true)
 	}
 	var cnt int

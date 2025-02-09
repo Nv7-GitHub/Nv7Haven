@@ -365,6 +365,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 				inps = append(inps, strings.TrimSpace(parts[1]))
 			}
 			b.elements.Combine(c, inps)
+			b.achievements.CheckRequirements(c)
 			return
 		} else {
 			// Get prev
@@ -387,6 +388,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 				new = append(new, name)
 			}
 			b.elements.Combine(c, new)
+			b.achievements.CheckRequirements(c)
 			return
 		}
 	}

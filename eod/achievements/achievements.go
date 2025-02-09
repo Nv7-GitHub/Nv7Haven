@@ -79,6 +79,36 @@ func (a *Achievements) CheckRequirements(ctx sevcord.Ctx) {
 			if percent >= achievements[i].Data["percent"].(float64) {
 				a.EarnAchievement(ctx, achievements[i])
 			}
+		case types.AchievementKindQueryNum:
+			var common int
+			query, ok := a.base.CalcQuery(ctx, achievements[i].Data["query"].(string))
+			if !ok {
+				return
+			}
+			err := a.db.QueryRow(`SELECT COALESCE(array_length($2 & (SELECT inv FROM inventories WHERE guild=$1 AND "user"=$3), 1), 0)`, ctx.Guild(), pq.Array(query.Elements), ctx.Author()).Scan(&common)
+			if err != nil {
+				a.base.Error(ctx, err)
+				return
+			}
+			if float64(common) >= achievements[i].Data["num"].(float64) {
+				a.EarnAchievement(ctx, achievements[i])
+			}
+		case types.AchievementKindQueryPercent:
+			var common int
+			var cnt int
+			query, ok := a.base.CalcQuery(ctx, achievements[i].Data["query"].(string))
+			if !ok {
+				return
+			}
+			err := a.db.QueryRow(`SELECT array_length($2,1), COALESCE(array_length($2 & (SELECT inv FROM inventories WHERE guild=$1 AND "user"=$3), 1), 0)`, ctx.Guild(), pq.Array(query.Elements), ctx.Author()).Scan(&cnt, &common)
+			if err != nil {
+				return
+			}
+			percent := float64(common) / float64(cnt) * 100
+			if percent >= achievements[i].Data["percent"].(float64) {
+				a.EarnAchievement(ctx, achievements[i])
+			}
+
 		case types.AchievementKindInvCnt:
 			if float64(len(inv)) >= achievements[i].Data["num"].(float64) {
 				a.EarnAchievement(ctx, achievements[i])
