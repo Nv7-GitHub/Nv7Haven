@@ -12,7 +12,6 @@ const UpArrow = "⬆️"
 const DownArrow = "⬇️"
 
 func (b *Polls) reactionHandler(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
-
 	if r.UserID == s.State.User.ID {
 		return
 	}
