@@ -39,8 +39,8 @@ func (b *Bot) PingCmd(c sevcord.Ctx, opts []any) {
 func (b *Bot) getElementId(c sevcord.Ctx, val string, showerr bool) (int64, bool) {
 	var id int64
 	var err error
-	id, err = strconv.ParseInt(strings.Trim(strings.TrimSpace(val), "#"), 10, 64)
-	if err == nil {
+	id, err = strconv.ParseInt(strings.TrimPrefix(strings.TrimSpace(val), "#"), 10, 64)
+	if err == nil && strings.HasPrefix(val, "#") {
 		err = b.db.QueryRow("SELECT id FROM elements WHERE id=$1 AND guild=$2", strings.ToLower(strings.TrimLeft(strings.TrimSpace(val), "#")), c.Guild()).Scan(&id)
 	} else {
 		err = b.db.QueryRow("SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(strings.TrimSpace(val)), c.Guild()).Scan(&id)
@@ -468,7 +468,11 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 		if !b.base.CheckCtx(c, "info") {
 			return
 		}
-		b.elements.InfoMsgCmd(c, strings.TrimSpace(content[1:]))
+		id, ok := b.getElementId(c, strings.TrimSpace(content[1:]), true)
+		if ok {
+			b.elements.Info(c, int(id))
+		}
+
 		return
 	}
 	if strings.HasPrefix(content, "*") {
