@@ -323,7 +323,7 @@ func (b *Bot) Init() {
 			sevcord.NewOption("number", "The number of elements needed for the achievement!", sevcord.OptionKindInt, true)),
 		sevcord.NewSlashCommand("madenum",
 			"Create a elements made achievement with a fixed number requirement!",
-			b.achievements.CreateInvNumCmd,
+			b.achievements.CreateMadeNumCmd,
 			sevcord.NewOption("name", "The name of the achievement", sevcord.OptionKindString, true),
 			sevcord.NewOption("number", "The number of elements needed for the achievement!", sevcord.OptionKindInt, true)),
 	).RequirePermissions(discordgo.PermissionManageServer))
