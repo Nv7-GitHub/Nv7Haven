@@ -2,12 +2,14 @@ package eod
 
 import (
 	"fmt"
+	"math"
 	"slices"
 	"strconv"
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
+	"github.com/dustin/go-humanize"
 )
 
 var seps = []string{
@@ -20,12 +22,12 @@ var seps = []string{
 func (b *Bot) PingCmd(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
 	ping := b.s.Dg().HeartbeatLatency().Microseconds()
-	milliseconds := float32(ping) / 1000
+	milliseconds := float64(ping) / 1000
 	if milliseconds > 1000 {
 		seconds := milliseconds / 1000
-		c.Respond(sevcord.NewMessage(c.Author().Mention() + " 🏓 Pong! Latency:**" + fmt.Sprintf("%f", seconds) + "s**"))
+		c.Respond(sevcord.NewMessage(c.Author().Mention() + " 🏓 Pong! Latency:**" + humanize.Ftoa(math.Floor(seconds*100)/100) + "s**"))
 	} else {
-		c.Respond(sevcord.NewMessage(c.Author().Mention() + " 🏓 Pong! Latency:**" + fmt.Sprintf("%f", milliseconds) + "ms**"))
+		c.Respond(sevcord.NewMessage(c.Author().Mention() + " 🏓 Pong! Latency:**" + humanize.Ftoa(math.Floor(milliseconds*100)/100) + "ms**"))
 	}
 }
 
@@ -172,12 +174,10 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 				break
 			}
 		}
-		if len(dontExist) == 0 {
-
-		} else if len(dontExist) == 1 {
+		if len(dontExist) == 1 {
 			c.Respond(sevcord.NewMessage("Element **" + dontExist[0] + "** doesn't exist!"))
 			return
-		} else {
+		} else if len(dontExist) > 1 {
 			c.Respond(sevcord.NewMessage(makeListResp("Elements", "and", " don't exist!", dontExist)))
 			return
 		}
