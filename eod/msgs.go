@@ -25,9 +25,9 @@ func (b *Bot) PingCmd(c sevcord.Ctx, opts []any) {
 	milliseconds := float64(ping) / 1000
 	if milliseconds > 1000 {
 		seconds := milliseconds / 1000
-		c.Respond(sevcord.NewMessage(c.Author().Mention() + " 🏓 Pong! Latency:**" + humanize.Ftoa(math.Floor(seconds*100)/100) + "s**"))
+		c.Respond(sevcord.NewMessage(c.Author().Mention() + " 🏓 Pong! Latency: **" + humanize.Ftoa(math.Floor(seconds*100)/100) + "s**"))
 	} else {
-		c.Respond(sevcord.NewMessage(c.Author().Mention() + " 🏓 Pong! Latency:**" + humanize.Ftoa(math.Floor(milliseconds*100)/100) + "ms**"))
+		c.Respond(sevcord.NewMessage(c.Author().Mention() + " 🏓 Pong! Latency: **" + humanize.Ftoa(math.Floor(milliseconds*100)/100) + "ms**"))
 	}
 }
 
