@@ -61,8 +61,8 @@ func (c *Categories) MsgSignCmd(ctx sevcord.Ctx, cat string, mark string) {
 		Kind: types.PollKindCatComment,
 		Data: types.PgData{
 			"cat": name,
-			"new":  mark,
-			"old":  old,
+			"new": mark,
+			"old": old,
 		},
 	})
 	if !res.Ok {

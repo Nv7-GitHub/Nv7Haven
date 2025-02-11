@@ -3,6 +3,7 @@ package elements
 import (
 	"database/sql"
 	"fmt"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -65,7 +66,7 @@ func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 	dontExist := make([]string, 0)
 	for _, v := range elemVals {
 		_, exists := exist[strings.ToLower(v)]
-		if !exists {
+		if !exists && !slices.Contains(dontExist, "**"+v+"**") {
 			dontExist = append(dontExist, "**"+v+"**")
 		}
 	}
