@@ -6,6 +6,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
@@ -20,14 +21,17 @@ var seps = []string{
 }
 
 func (b *Bot) PingCmd(c sevcord.Ctx, opts []any) {
+	t1 := time.Now()
 	c.Acknowledge()
-	ping := b.s.Dg().HeartbeatLatency().Microseconds()
-	milliseconds := float64(ping) / 1000
+	t2 := time.Now()
+	ping := t2.Sub(t1)
+	//ping := b.s.Dg().HeartbeatLatency().Microseconds()
+	milliseconds := float64(ping) / 1000000
 	if milliseconds > 1000 {
 		seconds := milliseconds / 1000
-		c.Respond(sevcord.NewMessage(c.Author().Mention() + " 🏓 Pong! Latency: **" + humanize.Ftoa(math.Floor(seconds*100)/100) + "s**"))
+		c.Respond(sevcord.NewMessage("🏓 Pong! Latency: **" + humanize.Ftoa(math.Floor(seconds*100)/100) + "s**"))
 	} else {
-		c.Respond(sevcord.NewMessage(c.Author().Mention() + " 🏓 Pong! Latency: **" + humanize.Ftoa(math.Floor(milliseconds*100)/100) + "ms**"))
+		c.Respond(sevcord.NewMessage("🏓 Pong! Latency: **" + humanize.Ftoa(math.Floor(milliseconds*100)/100) + "ms**"))
 	}
 }
 
@@ -131,7 +135,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		Lbsort := getLbSort(strings.ToLower(parts[0]))
 		b.pages.Lb(c, []any{Lbsort, nil, nil})
 
-	case "p", "products", "ih", "inversehint":
+	case "p", "products", "ih", "inversehint", "invhint":
 		if !b.base.CheckCtx(c, "products") {
 			return
 		}
