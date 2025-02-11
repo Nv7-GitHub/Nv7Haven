@@ -25,7 +25,6 @@ func (b *Bot) PingCmd(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
 	t2 := time.Now()
 	ping := t2.Sub(t1)
-	//ping := b.s.Dg().HeartbeatLatency().Microseconds()
 	milliseconds := float64(ping) / 1000000
 	if milliseconds > 1000 {
 		seconds := milliseconds / 1000
@@ -379,7 +378,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 			}
 		}
 
-		b.elements.Combine(c, append([]string{name}, parts...))
+		b.combineElements(c, append([]string{name}, parts...))
 		return
 	}
 	if strings.HasPrefix(content, "!") {
@@ -437,7 +436,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 			for i := 0; i < cnt; i++ {
 				inps = append(inps, strings.TrimSpace(parts[1]))
 			}
-			b.elements.Combine(c, inps)
+			b.combineElements(c, inps)
 			return
 		} else {
 			// Get prev
@@ -459,7 +458,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 			for i := 0; i < cnt; i++ {
 				new = append(new, name)
 			}
-			b.elements.Combine(c, new)
+			b.combineElements(c, new)
 			return
 		}
 	}
@@ -475,7 +474,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 
 			// Combine
 			elems := strings.Split(content, sep)
-			b.elements.Combine(c, elems)
+			b.combineElements(c, elems)
 			return
 		}
 	}

@@ -12,20 +12,22 @@ import (
 	"github.com/lib/pq"
 )
 
-func (b *Bot) getElementId(c sevcord.Ctx, val string) (int64, bool) {
-	var id int64
-	var err error
-	id, ok := IsNumericID(val)
+func (b *Bot) combineElements(c sevcord.Ctx, elements []string) {
+
+	ids, ok := b.getElementIds(c, elements)
 	if ok {
-		err = b.db.QueryRow("SELECT id FROM elements WHERE id=$1 AND guild=$2", strings.ToLower(strings.TrimLeft(strings.TrimSpace(val), "#")), c.Guild()).Scan(&id)
+		b.elements.Combine(c, ids)
+	}
+
+}
+func (b *Bot) getElementId(c sevcord.Ctx, val string) (int64, bool) {
+	ids, ok := b.getElementIds(c, []string{val})
+	if len(ids) == 1 {
+		return ids[0], ok
 	} else {
-		err = b.db.QueryRow("SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(strings.TrimSpace(val)), c.Guild()).Scan(&id)
+		return 0, ok
 	}
-	if err != nil {
-		b.base.Error(c, err, "Element **"+val+"** doesn't exist!")
-		return 0, false
-	}
-	return id, true
+
 }
 func (b *Bot) getElementIds(c sevcord.Ctx, vals []string) ([]int64, bool) {
 
