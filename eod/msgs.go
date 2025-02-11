@@ -40,7 +40,8 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		if !b.base.CheckCtx(c, "suggest") {
 			return
 		}
-		b.elements.Suggest(c, []any{any(content), nil})
+		val := content
+		b.MsgSugElement(c, val)
 
 	case "h", "hint":
 		if !b.base.CheckCtx(c, "hint") {
@@ -344,7 +345,8 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 		if !b.base.CheckCtx(c, "suggest") {
 			return
 		}
-		b.elements.Suggest(c, []any{any(strings.TrimSpace(content[1:])), nil})
+		val := strings.TrimSpace(content[1:])
+		b.MsgSugElement(c, val)
 		return
 	}
 	if strings.HasPrefix(content, "+") {

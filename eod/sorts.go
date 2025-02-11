@@ -11,11 +11,36 @@ import (
 	"github.com/lib/pq"
 )
 
+func (b *Bot) MsgSugElement(c sevcord.Ctx, val string) {
+	ok, name := b.checkElementExists(c, val)
+	if ok {
+		val = name
+	}
+	b.elements.Suggest(c, []any{any(val), nil})
+}
 func (b *Bot) combineElements(c sevcord.Ctx, elements []string) {
 
 	ids, ok := b.getElementIds(c, elements)
 	if ok {
 		b.elements.Combine(c, ids)
+	}
+
+}
+func (b *Bot) checkElementExists(c sevcord.Ctx, val string) (bool, string) {
+
+	val = convertVariableID(c, b, val)
+	var err error
+	_, ok := IsNumericID(val)
+	var name string
+	if ok {
+		err = b.db.QueryRow("SELECT name FROM elements WHERE id=$1 AND guild=$2", strings.ToLower(strings.TrimLeft(strings.TrimSpace(val), "#")), c.Guild()).Scan(&name)
+	} else {
+		err = b.db.QueryRow("SELECT name FROM elements WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(strings.TrimLeft(strings.TrimSpace(val), "#")), c.Guild()).Scan(&name)
+	}
+	if err != nil {
+		return false, ""
+	} else {
+		return true, name
 	}
 
 }
@@ -72,6 +97,7 @@ func (b *Bot) getElementIds(c sevcord.Ctx, vals []string) ([]int64, bool) {
 
 			names = append(names, strings.TrimSpace(strings.ToLower(vals[i])))
 		}
+		convert[strings.ToLower(vals[i])] = vals[i]
 	}
 	type nameres struct {
 		ID   int64
@@ -135,7 +161,7 @@ func (b *Bot) getElementIds(c sevcord.Ctx, vals []string) ([]int64, bool) {
 		return nil, false
 	}
 	if len(invalid) == 1 {
-		c.Respond(sevcord.NewMessage("Element **" + invalid[0] + "** doesn't exist! " + types.RedCircle))
+		c.Respond(sevcord.NewMessage("Element **" + convert[strings.TrimPrefix(strings.TrimSuffix(invalid[0], "**"), "**")] + "** doesn't exist! " + types.RedCircle))
 		return nil, false
 	} else {
 		var orderedinvalid []string
@@ -144,7 +170,6 @@ func (b *Bot) getElementIds(c sevcord.Ctx, vals []string) ([]int64, bool) {
 				orderedinvalid = append(orderedinvalid, fmt.Sprintf("**%s**", vals[i]))
 			}
 		}
-
 		output := makeListResp("Elements", "and", " don't exist!", orderedinvalid)
 		c.Respond(sevcord.NewMessage(output))
 		return nil, false
