@@ -125,13 +125,23 @@ func (p *Pages) CatHandler(c sevcord.Ctx, params string) {
 		}
 	}
 
+	//get color and image
+	var color int
+	var img string
+	err = p.db.QueryRow("SELECT color, image FROM categories WHERE name=$1 AND guild=$2", parts[len(parts)-1], c.Guild()).Scan(&color, &img)
+
+	if err != nil || color == 0 {
+		color = 10181046 //Purple
+	}
 	// Create
 	embed := sevcord.NewEmbed().
 		Title(fmt.Sprintf("%s (%s, %s%%)", parts[4], humanize.Comma(int64(cnt)), humanize.FormatFloat("", float64(common)/float64(cnt)*100))).
 		Description(desc.String()).
 		Footer(fmt.Sprintf("Page %d/%d", page+1, pagecnt), "").
-		Color(10181046) // Purple
-
+		Color(color)
+	if err == nil {
+		embed = embed.Thumbnail(img)
+	}
 	c.Respond(sevcord.NewMessage("").
 		AddEmbed(embed).
 		AddComponentRow(PageSwitchBtns("cat", fmt.Sprintf("%s|%s|%d|%s", parts[1], parts[2], page, parts[4]))...),
