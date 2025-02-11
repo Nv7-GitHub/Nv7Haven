@@ -68,6 +68,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 		b.queries.Info(c, []any{content})
 	case "cat", "c", "category":
+
 		if !b.base.CheckCtx(c, "cat") {
 			return
 		}
