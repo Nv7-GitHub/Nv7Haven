@@ -57,13 +57,22 @@ func (p *Pages) ProductsHandler(c sevcord.Ctx, params string) {
 		p.base.Error(c, err)
 		return
 	}
-
+	var color int
+	var img string
+	err = p.db.QueryRow("SELECT color,image FROM elements WHERE id=$1 AND guild=$2", elem, c.Guild()).Scan(&color, &img)
+	if err != nil {
+		p.base.Error(c, err)
+		return
+	}
 	// Create
 	embed := sevcord.NewEmbed().
 		Title(fmt.Sprintf("Products of %s (%s)", name, humanize.Comma(int64(cnt)))).
 		Description(desc.String()).
 		Footer(fmt.Sprintf("Page %d/%d", page+1, pagecnt), "").
-		Color(15548997) // Fuschia
+		Color(color)
+	if img != "" {
+		embed = embed.Thumbnail(img)
+	}
 
 	c.Respond(sevcord.NewMessage("").
 		AddEmbed(embed).

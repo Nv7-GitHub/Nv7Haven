@@ -92,8 +92,8 @@ func (q *Queries) MsgSignCmd(ctx sevcord.Ctx, query string, mark string) {
 		Kind: types.PollKindQueryComment,
 		Data: types.PgData{
 			"query": name,
-			"new":  mark,
-			"old":  old,
+			"new":   mark,
+			"old":   old,
 		},
 	})
 	if !res.Ok {

@@ -269,4 +269,9 @@ func (b *Bot) Init() {
 		AutoComplete(b.queries.Autocomplete)).
 		RequirePermissions(discordgo.PermissionManageServer))
 	b.s.AddButtonHandler("uncheese", b.elements.UncheeseHandler)
+	b.s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"ping",
+		"Check the server ping!",
+		b.PingCmd,
+	))
 }
