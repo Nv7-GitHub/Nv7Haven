@@ -38,7 +38,7 @@ func (b *Bot) getElementIds(c sevcord.Ctx, vals []string) ([]int64, bool) {
 	namemap := make(map[string]int64)
 	convert := make(map[string]string)
 	for i := 0; i < len(vals); i++ {
-		id, ok := IsNumericID(vals[i])
+		id, ok := IsNumericID(strings.TrimSpace(vals[i]))
 		if ok {
 			numericIDs = append(numericIDs, id)
 		} else {
@@ -95,7 +95,7 @@ func (b *Bot) getElementIds(c sevcord.Ctx, vals []string) ([]int64, bool) {
 
 	if len(invalid) == 0 {
 		for i := 0; i < len(vals); i++ {
-			id, ok := namemap[convert[strings.ToLower(vals[i])]]
+			id, ok := namemap[convert[strings.ToLower(strings.TrimSpace(vals[i]))]]
 			if ok {
 				ids = append(ids, id)
 			}
