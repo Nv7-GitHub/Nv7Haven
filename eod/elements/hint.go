@@ -11,6 +11,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/dustin/go-humanize"
+	"github.com/dustin/go-humanize/english"
 	"github.com/lib/pq"
 )
 
@@ -189,7 +190,7 @@ func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 		Title("Hints for "+nameMap[int(el)]).
 		Description(description.String()).
 		Color(elem.Color).
-		Footer(fmt.Sprintf("%s Hints • You%s have this", humanize.Comma(int64(itemCnt)), dontHave), "")
+		Footer(fmt.Sprintf("%s %s • You%s have this", humanize.Comma(int64(itemCnt)), english.PluralWord(itemCnt, "Hint", "Hints"), dontHave), "")
 
 	if elem.Image != "" {
 		emb = emb.Thumbnail(elem.Image)

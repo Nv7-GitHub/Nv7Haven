@@ -10,6 +10,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/dustin/go-humanize"
+	"github.com/dustin/go-humanize/english"
 	"github.com/lib/pq"
 )
 
@@ -103,7 +104,7 @@ func (e *Elements) NextHandler(c sevcord.Ctx, params string) {
 		Title("Your next element is "+nameMap[int(res)]).
 		Description(desc.String()).
 		Color(elem.Color).
-		Footer(fmt.Sprintf("%s Combos", humanize.Comma(int64(itemCnt))), "")
+		Footer(fmt.Sprintf("%s %s", humanize.Comma(int64(itemCnt)), english.PluralWord(itemCnt, "Combo", "Combos")), "")
 	if elem.Image != "" {
 		emb = emb.Thumbnail(elem.Image)
 	}
