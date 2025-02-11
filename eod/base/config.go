@@ -69,7 +69,6 @@ func (b *Base) ConfigPlayChannels(c sevcord.Ctx, opts []any) {
 	))
 	b.configNewsMessage(c, "Changed Config - **Play Channels**")
 }
-
 func (b *Base) ConfigPlayChannelsHandler(c sevcord.Ctx, params string, opts []string) {
 	c.Acknowledge()
 
