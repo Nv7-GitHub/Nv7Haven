@@ -8,7 +8,6 @@ import (
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
-
 	"github.com/lib/pq"
 )
 
@@ -29,6 +28,31 @@ func (b *Bot) getElementId(c sevcord.Ctx, val string) (int64, bool) {
 	}
 
 }
+func convertVariableID(c sevcord.Ctx, b *Bot, val string) string {
+
+	teststr := strings.ToLower(strings.TrimSpace(strings.TrimPrefix(val, "#")))
+	switch teststr {
+	case "last":
+		cache, _ := b.base.GetCombCache(c)
+		if cache.Result != -1 {
+			return "#" + fmt.Sprintf("%d", cache.Result)
+		}
+	case "rand":
+		var id int
+		err := b.db.QueryRow(`SELECT id FROM elements WHERE guild=$1 ORDER BY RANDOM()`, c.Guild()).Scan(&id)
+		if err == nil {
+			return "#" + fmt.Sprintf("%d", id)
+		}
+	case "randinv", "randininv":
+		var id int
+		err := b.db.QueryRow(`SELECT id FROM elements WHERE guild=$1 AND id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) ORDER BY RANDOM()`, c.Guild(), c.Author().User.ID).Scan(&id)
+		if err == nil {
+			return "#" + fmt.Sprintf("%d", id)
+		}
+	}
+	return val
+
+}
 func (b *Bot) getElementIds(c sevcord.Ctx, vals []string) ([]int64, bool) {
 
 	var ids []int64
@@ -40,10 +64,12 @@ func (b *Bot) getElementIds(c sevcord.Ctx, vals []string) ([]int64, bool) {
 	namemap := make(map[string]int64)
 	convert := make(map[string]string)
 	for i := 0; i < len(vals); i++ {
+		vals[i] = convertVariableID(c, b, vals[i])
 		id, ok := IsNumericID(strings.TrimSpace(vals[i]))
 		if ok {
 			numericIDs = append(numericIDs, id)
 		} else {
+
 			names = append(names, strings.TrimSpace(strings.ToLower(vals[i])))
 		}
 	}
