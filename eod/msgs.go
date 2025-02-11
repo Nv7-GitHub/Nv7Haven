@@ -45,14 +45,14 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 		val := any(nil)
 		if content != "" {
-			v, ok := b.getElementId(c, content, true)
+			v, ok := b.getElementId(c, content)
 			if !ok {
 				return
 			}
 			val = any(v)
 		}
 		b.elements.Hint(c, []any{val, nil})
-	case "hq", "hintquery":
+	case "hq", "qh", "hintquery":
 		if !b.base.CheckCtx(c, "hint") {
 			return
 		}
@@ -67,7 +67,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 		b.queries.Info(c, []any{content})
-	case "cat", "c":
+	case "cat", "c", "category":
 		if !b.base.CheckCtx(c, "cat") {
 			return
 		}
@@ -85,6 +85,16 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 	case "ping":
 		b.PingCmd(c, []any{nil})
+	case "stats":
+		if !b.base.CheckCtx(c, "stats") {
+			return
+		}
+		b.base.Stats(c, []any{nil})
+	case "commandlb", "clb":
+		if !b.base.CheckCtx(c, "commandlb") {
+			return
+		}
+		b.pages.CommandLb(c, []any{nil})
 	case "inv", "inventory":
 		if !b.base.CheckCtx(c, "inv") {
 			return
@@ -120,11 +130,11 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		Lbsort := getLbSort(strings.ToLower(parts[0]))
 		b.pages.Lb(c, []any{Lbsort, nil, nil})
 
-	case "p", "products":
+	case "p", "products", "ih", "inversehint":
 		if !b.base.CheckCtx(c, "products") {
 			return
 		}
-		id, ok := b.getElementId(c, content, true)
+		id, ok := b.getElementId(c, content)
 		if !ok {
 			return
 		}
@@ -139,8 +149,9 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		if content != "" {
 			if len(parts) == 2 {
 
-				sort := getSort(strings.ToLower(strings.TrimSpace(parts[2])))
+				sort := getSort(strings.ToLower(strings.TrimSpace(parts[1])))
 				b.pages.Query(c, []any{any(strings.TrimSpace(parts[0])), sort})
+
 			} else {
 				b.pages.Query(c, []any{any(parts[0]), nil})
 			}
@@ -158,41 +169,32 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			c.Respond(sevcord.NewMessage("Invalid format! " + types.RedCircle))
 			return
 		}
-		dontExist := make([]string, 0)
+		var inputs []string
+
 		els := make([]int, 0)
-		added := false
+
 		for sep := range seps {
 			if strings.Contains(parts[1], seps[sep]) {
 				vals := strings.Split(parts[1], seps[sep])
-				for _, val := range vals {
-					id, ok := b.getElementId(c, val, false)
-					if !ok && !slices.Contains(dontExist, "**"+val+"**") {
-						dontExist = append(dontExist, "**"+val+"**")
-					}
-					els = append(els, int(id))
-				}
+				inputs = append(inputs, vals...)
 				break
 			}
 		}
-		if len(dontExist) == 1 {
-			c.Respond(sevcord.NewMessage("Element **" + dontExist[0] + "** doesn't exist!"))
-			return
-		} else if len(dontExist) > 1 {
-			c.Respond(sevcord.NewMessage(makeListResp("Elements", "and", " don't exist!", dontExist)))
-			return
+		if len(inputs) == 0 {
+			inputs = append(inputs, parts[1])
 		}
-		if !added {
-			id, ok := b.getElementId(c, parts[1], true)
-			if !ok {
-				return
+
+		ids, ok := b.getElementIds(c, inputs)
+		for i := 0; i < len(ids); i++ {
+			if !slices.Contains(els, int(ids[i])) {
+				els = append(els, int(ids[i]))
 			}
-			els = append(els, int(id))
-			added = true
+
 		}
-		if len(els) == 0 {
-			c.Respond(sevcord.NewMessage("Invalid format! " + types.RedCircle))
+		if !ok {
 			return
 		}
+
 		if name == "ac" {
 			b.categories.CatEditCmd(c, strings.TrimSpace(parts[0]), els, types.PollKindCategorize, "Suggested to add **%s** to **%s** 🗃️", false)
 		} else {
@@ -244,7 +246,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		// check for coloring element/category/query
 		switch strings.ToLower(strings.TrimSpace(parts[0])) {
 		case "e", "element":
-			id, ok := b.getElementId(c, parts[1], true)
+			id, ok := b.getElementId(c, parts[1])
 			if !ok {
 				return
 			}
@@ -270,7 +272,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 		b.elements.Next(c, []any{val})
 	case "elemcats":
-		id, ok := b.getElementId(c, content, true)
+		id, ok := b.getElementId(c, content)
 		if ok {
 			b.pages.ElemCats(c, []any{any(id)})
 		}
@@ -393,7 +395,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 		if !b.base.CheckCtx(c, "info") {
 			return
 		}
-		id, ok := b.getElementId(c, strings.TrimSpace(content[1:]), true)
+		id, ok := b.getElementId(c, strings.TrimSpace(content[1:]))
 		if ok {
 			b.elements.Info(c, int(id))
 		}
