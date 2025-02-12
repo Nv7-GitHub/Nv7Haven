@@ -16,7 +16,6 @@ import (
 func (p *Pages) InvHandler(c sevcord.Ctx, params string) {
 	parts := strings.Split(params, "|")
 	if len(parts) != 5 {
-		c.Respond(sevcord.NewMessage("Invalid format! " + types.RedCircle))
 		return
 	}
 	// Get count

@@ -90,7 +90,6 @@ func (p *Pages) CatHandler(c sevcord.Ctx, params string) {
 	parts := strings.SplitN(params, "|", 6)
 
 	if len(parts) != 6 {
-		c.Respond(sevcord.NewMessage("Invalid format! " + types.RedCircle))
 		return
 	}
 	// Get count

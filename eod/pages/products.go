@@ -17,7 +17,6 @@ func (p *Pages) ProductsHandler(c sevcord.Ctx, params string) {
 	elem, _ := strconv.Atoi(parts[1])
 
 	if len(parts) != 5 {
-		c.Respond(sevcord.NewMessage("Invalid format! " + types.RedCircle))
 		return
 	}
 	// Get count
