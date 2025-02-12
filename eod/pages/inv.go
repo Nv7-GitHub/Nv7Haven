@@ -15,7 +15,10 @@ import (
 // Params: prevnext|user|sort|postfix|page
 func (p *Pages) InvHandler(c sevcord.Ctx, params string) {
 	parts := strings.Split(params, "|")
-
+	if len(parts) != 5 {
+		c.Respond(sevcord.NewMessage("Invalid format! " + types.RedCircle))
+		return
+	}
 	// Get count
 	var cnt int
 	err := p.db.QueryRow(`SELECT array_length(inv, 1) FROM inventories WHERE guild=$1 AND "user"=$2`, c.Guild(), parts[1]).Scan(&cnt)
@@ -122,7 +125,6 @@ func (p *Pages) Inv(c sevcord.Ctx, args []any) {
 	} else {
 		postfixval = 0
 	}
-
 	// Create embed
 	p.InvHandler(c, fmt.Sprintf("next|%s|%s|%d|-1", user, sort, postfixval))
 }

@@ -143,7 +143,8 @@ func (p *Pages) Init() {
 		p.Products,
 		sevcord.NewOption("element", "The element to view the products of!", sevcord.OptionKindInt, true).
 			AutoComplete(p.elements.Autocomplete),
-		sevcord.NewOption("sort", "How to order the categories!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
+		sevcord.NewOption("sort", "How to order the elements!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
+		sevcord.NewOption("postfix", "Whether to add postfix!", sevcord.OptionKindBool, false),
 	))
 	p.s.AddButtonHandler("products", p.ProductsHandler)
 }

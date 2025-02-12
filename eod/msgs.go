@@ -143,7 +143,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		if !ok {
 			return
 		}
-		b.pages.Products(c, []any{any(id), nil})
+		b.pages.Products(c, []any{any(id), nil, nil})
 
 	case "q", "query":
 		parts := strings.SplitN(content, "|", 2)
@@ -155,16 +155,15 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			if len(parts) == 2 {
 
 				sort := getSort(strings.ToLower(strings.TrimSpace(parts[1])))
-				b.pages.Query(c, []any{any(strings.TrimSpace(parts[0])), sort,nil})
+				b.pages.Query(c, []any{any(strings.TrimSpace(parts[0])), sort, nil})
 
 			} else {
-				b.pages.Query(c, []any{any(parts[0]), nil,nil})
+				b.pages.Query(c, []any{any(parts[0]), nil, nil})
 			}
 
 		} else {
 			b.pages.QueryList(c, []any{"name"})
 		}
-
 
 	case "ac", "rc":
 		if !b.base.CheckCtx(c, "cat") {

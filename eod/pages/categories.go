@@ -89,6 +89,10 @@ func (p *Pages) CatList(c sevcord.Ctx, opts []any) {
 func (p *Pages) CatHandler(c sevcord.Ctx, params string) {
 	parts := strings.SplitN(params, "|", 6)
 
+	if len(parts) != 6 {
+		c.Respond(sevcord.NewMessage("Invalid format! " + types.RedCircle))
+		return
+	}
 	// Get count
 	var cnt int
 	var common int
@@ -119,18 +123,13 @@ func (p *Pages) CatHandler(c sevcord.Ctx, params string) {
 	postfixable := parts[2] != "found" && parts[2] != "length"
 	if postfix && postfixable {
 		err = p.db.Select(&items, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont, `+parts[2]+` postfix FROM elements WHERE id=ANY(SELECT UNNEST(elements) FROM categories WHERE guild=$1 AND name=$2) AND guild=$1 ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), parts[5], length, length*page, parts[1])
-		if err != nil {
-			p.base.Error(c, err)
-			return
-		}
 	} else {
 		err = p.db.Select(&items, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont FROM elements WHERE id=ANY(SELECT UNNEST(elements) FROM categories WHERE guild=$1 AND name=$2) AND guild=$1 ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), parts[5], length, length*page, parts[1])
-		if err != nil {
-			p.base.Error(c, err)
-			return
-		}
 	}
-
+	if err != nil {
+		p.base.Error(c, err)
+		return
+	}
 	// Description
 	desc := &strings.Builder{}
 	for _, v := range items {

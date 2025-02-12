@@ -33,7 +33,6 @@ func handle(err error) {
 }
 
 func main() {
-
 	fmt.Println("===PATH RECALC===")
 	db, err := sqlx.Connect("postgres", "user="+dbUser+" dbname="+dbName+" sslmode=disable port="+dbPort+" host="+os.Getenv("MYSQL_HOST")+" password="+os.Getenv("PASSWORD"))
 	if err != nil {
