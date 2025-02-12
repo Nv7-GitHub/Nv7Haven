@@ -38,12 +38,13 @@ func (b *Bot) getElementIds(c sevcord.Ctx, vals []string) ([]int64, bool) {
 	namemap := make(map[string]int64)
 	convert := make(map[string]string)
 	for i := 0; i < len(vals); i++ {
-		id, ok := IsNumericID(vals[i])
+		id, ok := IsNumericID(strings.TrimSpace(vals[i]))
 		if ok {
 			numericIDs = append(numericIDs, id)
 		} else {
 			names = append(names, strings.TrimSpace(strings.ToLower(vals[i])))
 		}
+		convert[strings.ToLower(vals[i])] = vals[i]
 	}
 	type nameres struct {
 		ID   int64
@@ -95,7 +96,7 @@ func (b *Bot) getElementIds(c sevcord.Ctx, vals []string) ([]int64, bool) {
 
 	if len(invalid) == 0 {
 		for i := 0; i < len(vals); i++ {
-			id, ok := namemap[convert[strings.ToLower(vals[i])]]
+			id, ok := namemap[convert[strings.ToLower(strings.TrimSpace(vals[i]))]]
 			if ok {
 				ids = append(ids, id)
 			}
@@ -107,7 +108,7 @@ func (b *Bot) getElementIds(c sevcord.Ctx, vals []string) ([]int64, bool) {
 		return nil, false
 	}
 	if len(invalid) == 1 {
-		c.Respond(sevcord.NewMessage("Element **" + invalid[0] + "** doesn't exist! " + types.RedCircle))
+		c.Respond(sevcord.NewMessage("Element **" + convert[strings.TrimPrefix(strings.TrimSuffix(invalid[0], "**"), "**")] + "** doesn't exist! " + types.RedCircle))
 		return nil, false
 	} else {
 		var orderedinvalid []string
