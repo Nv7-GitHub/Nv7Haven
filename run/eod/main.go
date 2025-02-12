@@ -2,7 +2,6 @@ package main
 
 import (
 	_ "embed"
-	"os"
 
 	"github.com/Nv7-Github/Nv7Haven/eod"
 	"github.com/jmoiron/sqlx"
@@ -20,7 +19,7 @@ const (
 )
 
 func main() {
-	db, err := sqlx.Connect("postgres", "user="+dbUser+" dbname="+dbName+" sslmode=disable port="+dbPort+" host="+os.Getenv("MYSQL_HOST")+" password="+os.Getenv("PASSWORD"))
+	db, err := db, err := sqlx.Connect("postgres", "user="+dbUser+" dbname="+dbName+" sslmode=disable port="+dbPort+" host="+os.Getenv("MYSQL_HOST")+" password="+os.Getenv("PASSWORD"))
 	if err != nil {
 		panic(err)
 	}

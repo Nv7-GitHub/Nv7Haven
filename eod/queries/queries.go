@@ -208,6 +208,21 @@ func (q *Queries) Init() {
 		sevcord.NewOption("user", "The user to give the elements to!", sevcord.OptionKindUser, true),
 		sevcord.NewOption("query", "The query to give the elements of!", sevcord.OptionKindString, true).AutoComplete(q.Autocomplete),
 	).RequirePermissions(discordgo.PermissionManageChannels))
+	q.s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"set",
+		"Set a user's elements to a query",
+		q.base.Set,
+		sevcord.NewOption("user", "The user to set the elements of!", sevcord.OptionKindUser, true),
+		sevcord.NewOption("query", "The query to set the elements to!", sevcord.OptionKindString, true).AutoComplete(q.Autocomplete),
+	).RequirePermissions(discordgo.PermissionManageChannels))
+	q.s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"take",
+		"Remove the elements in a query from a user!",
+		q.base.Take,
+		sevcord.NewOption("user", "The user to set the elements of!", sevcord.OptionKindUser, true),
+		sevcord.NewOption("query", "The query to remove the elements from!", sevcord.OptionKindString, true).AutoComplete(q.Autocomplete),
+	).RequirePermissions(discordgo.PermissionManageChannels))
+
 }
 
 func NewQueries(s *sevcord.Sevcord, db *sqlx.DB, base *base.Base, polls *polls.Polls, elements *elements.Elements, categories *categories.Categories) *Queries {

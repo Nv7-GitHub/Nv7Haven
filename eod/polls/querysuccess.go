@@ -15,7 +15,7 @@ func (p *Polls) queryCreateSuccess(po *types.Poll, news func(string)) error {
 			return err
 		}
 	} else {
-		_, err := p.db.Exec(`INSERT INTO queries (guild, name, creator, createdon, kind, data, image, comment, imager, colorer, commenter, color) VALUES ($1, $2, $3, $4, $5, $6, $7, $9, $7, $7, $7, $8)`, po.Guild, po.Data["query"], po.Creator, time.Now(), po.Data["kind"], types.PgData(po.Data["data"].(map[string]any)), "", 0, "None")
+		_, err := p.db.Exec(`INSERT INTO queries (guild, name, creator, createdon, kind, data, image, comment, imager, colorer, commenter, color) VALUES ($1, $2, $3, $4, $5, $6, $7, $9, $7, $7, $7, $8)`, po.Guild, po.Data["query"], po.Creator, time.Now(), po.Data["kind"], types.PgData(po.Data["data"].(map[string]any)), "", 0, types.DefaultMark)
 		if err != nil {
 			return err
 		}
