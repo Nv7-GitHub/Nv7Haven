@@ -1,7 +1,6 @@
 package eod
 
 import (
-	"fmt"
 	"math"
 	"slices"
 	"strconv"
@@ -42,7 +41,6 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 		val := content
 		b.MsgSugElement(c, val)
-
 	case "h", "hint":
 		if !b.base.CheckCtx(c, "hint") {
 			return
@@ -376,6 +374,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 		for _, sep := range seps {
 			if strings.Contains(content[1:], sep) {
 				parts = strings.Split(content[1:], sep)
+
 				break
 			}
 		}
@@ -408,62 +407,62 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 
 		return
 	}
-	if strings.HasPrefix(content, "*") {
-		if len(content) < 2 {
-			return
-		}
-		if !b.base.CheckCtx(c, "message") {
-			return
-		}
-		if !b.base.IsPlayChannel(c) {
-			return
-		}
+	// if strings.HasPrefix(content, "*") {
+	// 	if len(content) < 2 {
+	// 		return
+	// 	}
+	// 	if !b.base.CheckCtx(c, "message") {
+	// 		return
+	// 	}
+	// 	if !b.base.IsPlayChannel(c) {
+	// 		return
+	// 	}
 
-		parts := strings.SplitN(content[1:], " ", 2)
-		cnt, err := strconv.Atoi(parts[0])
-		if err != nil {
-			c.Respond(sevcord.NewMessage("Invalid number of repeats! " + types.RedCircle))
-			return
-		}
-		if cnt > types.MaxComboLength {
-			c.Respond(sevcord.NewMessage(fmt.Sprintf("You can only combine up to %d elements! "+types.RedCircle, types.MaxComboLength)))
-			return
-		}
-		if cnt < 2 {
-			c.Respond(sevcord.NewMessage("You need to combine at least 2 elements! " + types.RedCircle))
-			return
-		}
-		if len(parts) == 2 {
-			inps := make([]string, 0, cnt)
-			for i := 0; i < cnt; i++ {
-				inps = append(inps, strings.TrimSpace(parts[1]))
-			}
-			b.combineElements(c, inps)
-			return
-		} else {
-			// Get prev
-			comb, ok := b.base.GetCombCache(c)
-			if !ok.Ok {
-				c.Respond(ok.Response())
-				return
-			}
-			if comb.Result == -1 {
-				c.Respond(sevcord.NewMessage("You haven't combined anything! " + types.RedCircle))
-				return
-			}
-			name, err := b.base.GetName(c.Guild(), comb.Result)
-			if err != nil {
-				b.base.Error(c, err)
-				return
-			}
-			new := make([]string, 0, cnt)
-			for i := 0; i < cnt; i++ {
-				new = append(new, name)
-			}
-			b.combineElements(c, new)
-			return
-		}
-	}
+	// 	parts := strings.SplitN(content[1:], " ", 2)
+	// 	cnt, err := strconv.Atoi(parts[0])
+	// 	if err != nil {
+	// 		c.Respond(sevcord.NewMessage("Invalid number of repeats! " + types.RedCircle))
+	// 		return
+	// 	}
+	// 	if cnt > types.MaxComboLength {
+	// 		c.Respond(sevcord.NewMessage(fmt.Sprintf("You can only combine up to %d elements! "+types.RedCircle, types.MaxComboLength)))
+	// 		return
+	// 	}
+	// 	if cnt < 2 {
+	// 		c.Respond(sevcord.NewMessage("You need to combine at least 2 elements! " + types.RedCircle))
+	// 		return
+	// 	}
+	// 	if len(parts) == 2 {
+	// 		inps := make([]string, 0, cnt)
+	// 		for i := 0; i < cnt; i++ {
+	// 			inps = append(inps, strings.TrimSpace(parts[1]))
+	// 		}
+	// 		b.combineElements(c, inps)
+	// 		return
+	// 	} else {
+	// 		// Get prev
+	// 		comb, ok := b.base.GetCombCache(c)
+	// 		if !ok.Ok {
+	// 			c.Respond(ok.Response())
+	// 			return
+	// 		}
+	// 		if comb.Result == -1 {
+	// 			c.Respond(sevcord.NewMessage("You haven't combined anything! " + types.RedCircle))
+	// 			return
+	// 		}
+	// 		name, err := b.base.GetName(c.Guild(), comb.Result)
+	// 		if err != nil {
+	// 			b.base.Error(c, err)
+	// 			return
+	// 		}
+	// 		new := make([]string, 0, cnt)
+	// 		for i := 0; i < cnt; i++ {
+	// 			new = append(new, name)
+	// 		}
+	// 		b.combineElements(c, new)
+	// 		return
+	// 	}
+	// }
 	for _, sep := range seps {
 		if strings.Contains(content, sep) {
 			// Check ctx
@@ -473,11 +472,24 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 			if !b.base.IsPlayChannel(c) {
 				return
 			}
-
 			// Combine
 			elems := strings.Split(content, sep)
+			for i := 0; i < len(elems); i++ {
+				ok, multels := b.ApplyMultiplier(c, elems[i])
+				if ok {
+					elems[i] = multels[0]
+					elems = append(elems, multels[1:]...)
+
+				}
+			}
+
 			b.combineElements(c, elems)
 			return
 		}
 	}
+	ok, elems := b.ApplyMultiplier(c, content)
+	if ok {
+		b.combineElements(c, elems)
+	}
+
 }

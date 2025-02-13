@@ -26,6 +26,52 @@ func (b *Bot) combineElements(c sevcord.Ctx, elements []string) {
 	}
 
 }
+func (b *Bot) ApplyMultiplier(c sevcord.Ctx, val string) (ok bool, multelements []string) {
+	if strings.HasPrefix(val, "*") {
+		parts := strings.SplitN(val[1:], " ", 2)
+		cnt, err := strconv.Atoi(parts[0])
+		if err != nil {
+			c.Respond(sevcord.NewMessage("Invalid number of repeats! " + types.RedCircle))
+			return false, []string{}
+		}
+		if cnt > types.MaxComboLength {
+			c.Respond(sevcord.NewMessage(fmt.Sprintf("You can only combine up to %d elements! "+types.RedCircle, types.MaxComboLength)))
+			return false, []string{}
+		}
+		if cnt < 2 {
+			c.Respond(sevcord.NewMessage("You need to combine at least 2 elements! " + types.RedCircle))
+			return false, []string{}
+		}
+		if len(parts) == 2 {
+			inps := make([]string, 0, cnt)
+			for i := 0; i < cnt; i++ {
+				inps = append(inps, strings.TrimSpace(parts[1]))
+			}
+			return true, inps
+		} else {
+			comb, ok := b.base.GetCombCache(c)
+			if !ok.Ok {
+				c.Respond(ok.Response())
+				return false, []string{}
+			}
+			if comb.Result == -1 {
+				c.Respond(sevcord.NewMessage("You haven't combined anything! " + types.RedCircle))
+				return false, []string{}
+			}
+			name, err := b.base.GetName(c.Guild(), comb.Result)
+			if err != nil {
+				b.base.Error(c, err)
+				return false, []string{}
+			}
+			new := make([]string, 0, cnt)
+			for i := 0; i < cnt; i++ {
+				new = append(new, name)
+			}
+			return true, new
+		}
+	}
+	return false, []string{}
+}
 func (b *Bot) checkElementExists(c sevcord.Ctx, val string) (bool, string) {
 
 	val = convertVariableID(c, b, val)
