@@ -105,11 +105,14 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 			CreatedOn: time.Now(),
 			Parents:   pq.Int32Array(util.Map(els, func(a int) int32 { return int32(a) })),
 			TreeSize:  treeSize,
+			MadeWith:  1,
+			UsedIn:    0,
+			FoundBy:   1,
 		}
 		name = el.Name
 
 		// Insert element
-		_, err = tx.NamedExec(`INSERT INTO elements (id, guild, name, image, color, comment, creator, createdon, commenter, colorer, imager, parents, treesize) VALUES (:id, :guild, :name, :image, :color, :comment, :creator, :createdon, :commenter, :colorer, :imager, :parents, :treesize)`, el)
+		_, err = tx.NamedExec(`INSERT INTO elements (id, guild, name, image, color, comment, creator, createdon, commenter, colorer, imager, parents, treesize,madewith,usedin,foundby) VALUES (:id, :guild, :name, :image, :color, :comment, :creator, :createdon, :commenter, :colorer, :imager, :parents, :treesize,:madewith, :usedin,:foundby)`, el)
 		if err != nil {
 			return
 		}
@@ -125,11 +128,16 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 
 		// Get name
 		var currtreesize int
-		err = tx.QueryRow(`SELECT name, treesize FROM elements WHERE id=$1 AND guild=$2`, id, p.Guild).Scan(&name, &currtreesize)
+		var madewith int
+		err = tx.QueryRow(`SELECT name, treesize,madewith FROM elements WHERE id=$1 AND guild=$2`, id, p.Guild).Scan(&name, &currtreesize)
 		if err != nil {
 			return
 		}
-
+		madewith++
+		_, err = tx.Exec(`UPDATE elements SET madewith=$1 WHERE id=$2 AND guild=$3`, madewith, id, p.Guild)
+		if err != nil {
+			return
+		}
 		// Check if need to update parents
 		var treesize int
 		var loop bool
@@ -143,6 +151,24 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 			if err != nil {
 				return
 			}
+		}
+
+	}
+	//update used in
+
+	var parIDorder []int
+	var parusedin []int
+
+	err = tx.Select(&parIDorder, `SELECT id FROM elements WHERE id=ANY($1) AND guild=$2`, pq.Array(els), p.Guild)
+	err = tx.Select(&parusedin, `SELECT usedin FROM elements WHERE id=ANY($1) AND guild=$2`, pq.Array(els), p.Guild)
+	if err != nil {
+
+	}
+	for i, _ := range parIDorder {
+		parusedin[i]++
+		_, err = tx.Exec(`UPDATE elements SET usedin = $3 WHERE id=$1 AND guild=$2 `, parIDorder[i], p.Guild, parusedin[i])
+		if err != nil {
+			return
 		}
 	}
 
