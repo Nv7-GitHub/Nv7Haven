@@ -117,6 +117,7 @@ func (p *Pages) Init() {
 		sevcord.NewOption("query", "The query to view!", sevcord.OptionKindString, true).AutoComplete(p.queries.Autocomplete),
 		sevcord.NewOption("sort", "How to sort the elements!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
 		sevcord.NewOption("postfix", "Whether to add postfix!", sevcord.OptionKindBool, false),
+		sevcord.NewOption("direction", "Which way to order the result!", sevcord.OptionKindString, false).AddChoices(types.SortDirs...),
 	), sevcord.NewSlashCommand(
 		"delete",
 		"Delete a query!",

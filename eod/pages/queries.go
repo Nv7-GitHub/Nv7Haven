@@ -80,11 +80,11 @@ func (p *Pages) QueryList(c sevcord.Ctx, opts []any) {
 var queryPageCache = make(map[string]map[string]*types.Query)
 var queryPageCacheLock = &sync.RWMutex{}
 
-// Params: prevnext|user|sort|postfix|page|query
+// Params: prevnext|user|sort|postfix|page|query|dir
 func (p *Pages) QueryHandler(c sevcord.Ctx, params string) {
-	parts := strings.SplitN(params, "|", 6)
+	parts := strings.Split(params, "|")
 
-	if len(parts) != 6 {
+	if len(parts) != 7 {
 		return
 	}
 	// Get query
@@ -140,13 +140,26 @@ func (p *Pages) QueryHandler(c sevcord.Ctx, params string) {
 	} else {
 		postfix = false
 	}
+	dir := `ASC`
+	if parts[6] == "descending" {
+		dir = `DESC`
+	}
 	//false if not valid in DB
 	postfixable := parts[2] != "length" && parts[2] != "found"
 	if postfix && postfixable {
-		err = p.db.Select(&items, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont, `+parts[2]+` postfix FROM elements WHERE id=ANY($2) AND guild=$1 ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), pq.Array(query.Elements), length, length*page, parts[1])
+		if parts[6] == "descending" {
+			err = p.db.Select(&items, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont, `+parts[2]+` postfix FROM elements WHERE id=ANY($2) AND guild=$1 ORDER BY `+` `+types.SortSql[parts[2]]+` DESC LIMIT $3 OFFSET $4`, c.Guild(), pq.Array(query.Elements), length, length*page, parts[1], dir)
+		} else {
+			err = p.db.Select(&items, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont, `+parts[2]+` postfix FROM elements WHERE id=ANY($2) AND guild=$1 ORDER BY `+` `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), pq.Array(query.Elements), length, length*page, parts[1], dir)
+
+		}
 
 	} else {
-		err = p.db.Select(&items, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont FROM elements WHERE id=ANY($2) AND guild=$1 ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), pq.Array(query.Elements), length, length*page, parts[1])
+		if parts[6] == "descending" {
+			err = p.db.Select(&items, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont FROM elements WHERE id=ANY($2) AND guild=$1 ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), pq.Array(query.Elements), length, length*page, parts[1])
+		} else {
+			err = p.db.Select(&items, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont FROM elements WHERE id=ANY($2) AND guild=$1 ORDER BY `+types.SortSql[parts[2]]+` DESC LIMIT $3 OFFSET $4`, c.Guild(), pq.Array(query.Elements), length, length*page, parts[1])
+		}
 
 	}
 
@@ -227,6 +240,11 @@ func (p *Pages) Query(c sevcord.Ctx, args []any) {
 	} else {
 		postfixval = 0
 	}
+	dir := "ascending"
+	if args[3] != nil {
+		dir = args[3].(string)
+	}
+
 	// Create embed
-	p.QueryHandler(c, fmt.Sprintf("next|%s|%s|%d|-1|%s", c.Author().User.ID, sort, postfixval, name))
+	p.QueryHandler(c, fmt.Sprintf("next|%s|%s|%d|-1|%s|%s", c.Author().User.ID, sort, postfixval, name, dir))
 }
