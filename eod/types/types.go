@@ -149,8 +149,8 @@ var SortSql = map[string]string{
 	"name":      "name",
 	"creator":   "creator",
 	"createdon": "createdon",
-	"treesize":  "treesize DESC",
-	"length":    "LENGTH(name) DESC",
+	"treesize":  "treesize",
+	"length":    "LENGTH(name)",
 	"found":     "cont DESC, id",
 }
 

@@ -137,7 +137,11 @@ func (p *Pages) Products(c sevcord.Ctx, args []any) {
 		postfixval = 0
 	}
 	dir := "ascending"
-	if len(args) > 3 && args[3] != nil {
+	//these default to descending order
+	if sort == "treesize" || sort == "length" {
+		dir = "descending"
+	}
+	if len(args) > 3 && args[3] != nil && sort != "found" {
 		dir = args[3].(string)
 	}
 
