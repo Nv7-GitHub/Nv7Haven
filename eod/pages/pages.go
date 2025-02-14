@@ -46,6 +46,7 @@ func (p *Pages) Init() {
 		sevcord.NewOption("sort", "The sort order of the inventory!", sevcord.OptionKindString, false).
 			AddChoices(types.Sorts...),
 		sevcord.NewOption("postfix", "Whether to add postfix!", sevcord.OptionKindBool, false),
+		sevcord.NewOption("direction", "Which way to order the result!", sevcord.OptionKindString, false).AddChoices(types.SortDirs...),
 	))
 	p.s.AddButtonHandler("inv", p.InvHandler)
 
@@ -75,6 +76,7 @@ func (p *Pages) Init() {
 		sevcord.NewOption("category", "The category to view!", sevcord.OptionKindString, true).AutoComplete(p.categories.Autocomplete),
 		sevcord.NewOption("sort", "How to order the elements!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
 		sevcord.NewOption("postfix", "Whether to add postfix!", sevcord.OptionKindBool, false),
+		sevcord.NewOption("direction", "Which way to order the result!", sevcord.OptionKindString, false).AddChoices(types.SortDirs...),
 	), sevcord.NewSlashCommand(
 		"add",
 		"Add an element to a category!",
@@ -146,6 +148,7 @@ func (p *Pages) Init() {
 			AutoComplete(p.elements.Autocomplete),
 		sevcord.NewOption("sort", "How to order the elements!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
 		sevcord.NewOption("postfix", "Whether to add postfix!", sevcord.OptionKindBool, false),
+		sevcord.NewOption("direction", "Which way to order the result!", sevcord.OptionKindString, false).AddChoices(types.SortDirs...),
 	))
 	p.s.AddButtonHandler("products", p.ProductsHandler)
 }

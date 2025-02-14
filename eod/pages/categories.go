@@ -85,11 +85,11 @@ func (p *Pages) CatList(c sevcord.Ctx, opts []any) {
 	p.CatListHandler(c, "next|"+c.Author().User.ID+"|"+sort+"|-1")
 }
 
-// Params: prevnext|user|sort|postfix|page|cat
+// Params: prevnext|user|sort|postfix|page|cat|direction
 func (p *Pages) CatHandler(c sevcord.Ctx, params string) {
-	parts := strings.SplitN(params, "|", 6)
+	parts := strings.Split(params, "|")
 
-	if len(parts) != 6 {
+	if len(parts) != 7 {
 		return
 	}
 	// Get count
@@ -121,9 +121,21 @@ func (p *Pages) CatHandler(c sevcord.Ctx, params string) {
 	}
 	postfixable := parts[2] != "found" && parts[2] != "length"
 	if postfix && postfixable {
-		err = p.db.Select(&items, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont, `+parts[2]+` postfix FROM elements WHERE id=ANY(SELECT UNNEST(elements) FROM categories WHERE guild=$1 AND name=$2) AND guild=$1 ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), parts[5], length, length*page, parts[1])
+		querypart := `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont, ` + parts[2] + ` postfix FROM elements WHERE id=ANY(SELECT UNNEST(elements) FROM categories WHERE guild=$1 AND name=$2) AND guild=$1 ORDER BY ` + types.SortSql[parts[2]]
+		if parts[6] == "descending" {
+			err = p.db.Select(&items, querypart+`DESC LIMIT $3 OFFSET $4`, c.Guild(), parts[5], length, length*page, parts[1])
+		} else {
+			err = p.db.Select(&items, querypart+` LIMIT $3 OFFSET $4`, c.Guild(), parts[5], length, length*page, parts[1])
+		}
+
 	} else {
-		err = p.db.Select(&items, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont FROM elements WHERE id=ANY(SELECT UNNEST(elements) FROM categories WHERE guild=$1 AND name=$2) AND guild=$1 ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), parts[5], length, length*page, parts[1])
+		querypart := `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont FROM elements WHERE id=ANY(SELECT UNNEST(elements) FROM categories WHERE guild=$1 AND name=$2) AND guild=$1 ORDER BY ` + types.SortSql[parts[2]]
+		if parts[6] == "descending" {
+			err = p.db.Select(&items, querypart+`DESC LIMIT $3 OFFSET $4`, c.Guild(), parts[5], length, length*page, parts[1])
+		} else {
+			err = p.db.Select(&items, querypart+` LIMIT $3 OFFSET $4`, c.Guild(), parts[5], length, length*page, parts[1])
+		}
+
 	}
 	if err != nil {
 		p.base.Error(c, err)
@@ -165,7 +177,7 @@ func (p *Pages) CatHandler(c sevcord.Ctx, params string) {
 	}
 	c.Respond(sevcord.NewMessage("").
 		AddEmbed(embed).
-		AddComponentRow(PageSwitchBtns("cat", fmt.Sprintf("%s|%s|%s|%d|%s", parts[1], parts[2], parts[3], page, parts[5]))...),
+		AddComponentRow(PageSwitchBtns("cat", fmt.Sprintf("%s|%s|%s|%d|%s|%s", parts[1], parts[2], parts[3], page, parts[5], parts[6]))...),
 	)
 }
 
@@ -197,7 +209,11 @@ func (p *Pages) Cat(c sevcord.Ctx, args []any) {
 	} else {
 		postfixval = 0
 	}
+	dir := "ascending"
+	if len(args) > 3 && args[3] != nil {
+		dir = args[3].(string)
+	}
 
 	// Create embed
-	p.CatHandler(c, fmt.Sprintf("next|%s|%s|%d|-1|%s", c.Author().User.ID, sort, postfixval, name))
+	p.CatHandler(c, fmt.Sprintf("next|%s|%s|%d|-1|%s|%s", c.Author().User.ID, sort, postfixval, name, dir))
 }

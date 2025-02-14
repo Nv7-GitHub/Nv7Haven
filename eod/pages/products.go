@@ -11,12 +11,12 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-// Params: prevnext|elem|sort|postfix|page
+// Params: prevnext|elem|sort|postfix|page|direction
 func (p *Pages) ProductsHandler(c sevcord.Ctx, params string) {
 	parts := strings.Split(params, "|")
 	elem, _ := strconv.Atoi(parts[1])
 
-	if len(parts) != 5 {
+	if len(parts) != 6 {
 		return
 	}
 	// Get count
@@ -47,9 +47,21 @@ func (p *Pages) ProductsHandler(c sevcord.Ctx, params string) {
 	}
 	postfixable := parts[2] != "found" && parts[2] != "length"
 	if postfixable && postfix {
-		err = p.db.Select(&items, `WITH els AS MATERIALIZED(SELECT *, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont FROM elements WHERE guild=$1 AND id IN (SELECT result FROM combos WHERE guild=$1 AND $2=ANY(els))) SELECT name, cont, `+parts[2]+` postfix FROM els ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), elem, length, length*page, c.Author().User.ID)
+		querypart := `WITH els AS MATERIALIZED(SELECT *, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont FROM elements WHERE guild=$1 AND id IN (SELECT result FROM combos WHERE guild=$1 AND $2=ANY(els))) SELECT name, cont, ` + parts[2] + ` postfix FROM els ORDER BY ` + types.SortSql[parts[2]]
+		if parts[5] == "descending" {
+			err = p.db.Select(&items, querypart+` DESC LIMIT $3 OFFSET $4`, c.Guild(), elem, length, length*page, c.Author().User.ID)
+		} else {
+			err = p.db.Select(&items, querypart+` LIMIT $3 OFFSET $4`, c.Guild(), elem, length, length*page, c.Author().User.ID)
+		}
+
 	} else {
-		err = p.db.Select(&items, `WITH els AS MATERIALIZED(SELECT *, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont FROM elements WHERE guild=$1 AND id IN (SELECT result FROM combos WHERE guild=$1 AND $2=ANY(els))) SELECT name, cont FROM els ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), elem, length, length*page, c.Author().User.ID)
+		querypart := `WITH els AS MATERIALIZED(SELECT *, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont FROM elements WHERE guild=$1 AND id IN (SELECT result FROM combos WHERE guild=$1 AND $2=ANY(els))) SELECT name, cont FROM els ORDER BY ` + types.SortSql[parts[2]]
+		if parts[5] == "descending" {
+			err = p.db.Select(&items, querypart+` DESC LIMIT $3 OFFSET $4`, c.Guild(), elem, length, length*page, c.Author().User.ID)
+		} else {
+			err = p.db.Select(&items, querypart+` LIMIT $3 OFFSET $4`, c.Guild(), elem, length, length*page, c.Author().User.ID)
+		}
+
 	}
 
 	if err != nil {
@@ -99,7 +111,7 @@ func (p *Pages) ProductsHandler(c sevcord.Ctx, params string) {
 
 	c.Respond(sevcord.NewMessage("").
 		AddEmbed(embed).
-		AddComponentRow(PageSwitchBtns("products", fmt.Sprintf("%s|%s|%s|%d", parts[1], parts[2], parts[3], page))...),
+		AddComponentRow(PageSwitchBtns("products", fmt.Sprintf("%s|%s|%s|%d|%s", parts[1], parts[2], parts[3], page, parts[5]))...),
 	)
 }
 
@@ -124,7 +136,11 @@ func (p *Pages) Products(c sevcord.Ctx, args []any) {
 	} else {
 		postfixval = 0
 	}
+	dir := "ascending"
+	if len(args) > 3 && args[3] != nil {
+		dir = args[3].(string)
+	}
 
 	// Create embed
-	p.ProductsHandler(c, fmt.Sprintf("next|%d|%s|%d|-1", id, sort, postfixval))
+	p.ProductsHandler(c, fmt.Sprintf("next|%d|%s|%d|-1|%s", id, sort, postfixval, dir))
 }

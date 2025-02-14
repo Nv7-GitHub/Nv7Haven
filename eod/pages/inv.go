@@ -12,10 +12,10 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-// Params: prevnext|user|sort|postfix|page
+// Params: prevnext|user|sort|postfix|page|direction
 func (p *Pages) InvHandler(c sevcord.Ctx, params string) {
 	parts := strings.Split(params, "|")
-	if len(parts) != 5 {
+	if len(parts) != 6 {
 		return
 	}
 	// Get count
@@ -46,9 +46,21 @@ func (p *Pages) InvHandler(c sevcord.Ctx, params string) {
 	}
 	postfixable := parts[2] != "length" && parts[2] != "found"
 	if postfix && postfixable {
-		err = p.db.Select(&inv, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont,`+parts[2]+` postfix FROM elements WHERE id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) AND guild=$1 ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), parts[1], length, length*page, c.Author().User.ID)
+		querypart := `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont,` + parts[2] + ` postfix FROM elements WHERE id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) AND guild=$1 ORDER BY ` + types.SortSql[parts[2]]
+		if parts[5] == "descending" {
+			err = p.db.Select(&inv, querypart+` DESC LIMIT $3 OFFSET $4`, c.Guild(), parts[1], length, length*page, c.Author().User.ID)
+		} else {
+			err = p.db.Select(&inv, querypart+` LIMIT $3 OFFSET $4`, c.Guild(), parts[1], length, length*page, c.Author().User.ID)
+		}
+
 	} else {
-		err = p.db.Select(&inv, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont FROM elements WHERE id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) AND guild=$1 ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), parts[1], length, length*page, c.Author().User.ID)
+		querypart := `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont FROM elements WHERE id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) AND guild=$1 ORDER BY ` + types.SortSql[parts[2]]
+		if parts[5] == "descending" {
+			err = p.db.Select(&inv, querypart+` DESC LIMIT $3 OFFSET $4`, c.Guild(), parts[1], length, length*page, c.Author().User.ID)
+		} else {
+			err = p.db.Select(&inv, querypart+` LIMIT $3 OFFSET $4`, c.Guild(), parts[1], length, length*page, c.Author().User.ID)
+		}
+
 	}
 	if err != nil {
 		p.base.Error(c, err)
@@ -98,7 +110,7 @@ func (p *Pages) InvHandler(c sevcord.Ctx, params string) {
 
 	c.Respond(sevcord.NewMessage("").
 		AddEmbed(embed).
-		AddComponentRow(PageSwitchBtns("inv", fmt.Sprintf("%s|%s|%s|%d", parts[1], parts[2], parts[3], page))...),
+		AddComponentRow(PageSwitchBtns("inv", fmt.Sprintf("%s|%s|%s|%d|%s", parts[1], parts[2], parts[3], page, parts[5]))...),
 	)
 }
 
@@ -124,6 +136,10 @@ func (p *Pages) Inv(c sevcord.Ctx, args []any) {
 	} else {
 		postfixval = 0
 	}
+	dir := "ascending"
+	if len(args) > 3 && args[3] != nil {
+		dir = args[3].(string)
+	}
 	// Create embed
-	p.InvHandler(c, fmt.Sprintf("next|%s|%s|%d|-1", user, sort, postfixval))
+	p.InvHandler(c, fmt.Sprintf("next|%s|%s|%d|-1|%s", user, sort, postfixval, dir))
 }

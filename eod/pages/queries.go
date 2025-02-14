@@ -140,25 +140,21 @@ func (p *Pages) QueryHandler(c sevcord.Ctx, params string) {
 	} else {
 		postfix = false
 	}
-	dir := `ASC`
-	if parts[6] == "descending" {
-		dir = `DESC`
-	}
 	//false if not valid in DB
 	postfixable := parts[2] != "length" && parts[2] != "found"
 	if postfix && postfixable {
+		querypart := `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont, ` + parts[2] + ` postfix FROM elements WHERE id=ANY($2) AND guild=$1 ORDER BY ` + ` ` + types.SortSql[parts[2]]
 		if parts[6] == "descending" {
-			err = p.db.Select(&items, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont, `+parts[2]+` postfix FROM elements WHERE id=ANY($2) AND guild=$1 ORDER BY `+` `+types.SortSql[parts[2]]+` DESC LIMIT $3 OFFSET $4`, c.Guild(), pq.Array(query.Elements), length, length*page, parts[1], dir)
+			err = p.db.Select(&items, querypart+` DESC LIMIT $3 OFFSET $4`, c.Guild(), pq.Array(query.Elements), length, length*page, parts[1])
 		} else {
-			err = p.db.Select(&items, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont, `+parts[2]+` postfix FROM elements WHERE id=ANY($2) AND guild=$1 ORDER BY `+` `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), pq.Array(query.Elements), length, length*page, parts[1], dir)
-
+			err = p.db.Select(&items, querypart+` LIMIT $3 OFFSET $4`, c.Guild(), pq.Array(query.Elements), length, length*page, parts[1])
 		}
-
 	} else {
+		querypart := `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont FROM elements WHERE id=ANY($2) AND guild=$1 ORDER BY ` + types.SortSql[parts[2]]
 		if parts[6] == "descending" {
-			err = p.db.Select(&items, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont FROM elements WHERE id=ANY($2) AND guild=$1 ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), pq.Array(query.Elements), length, length*page, parts[1])
+			err = p.db.Select(&items, querypart+`DESC LIMIT $3 OFFSET $4`, c.Guild(), pq.Array(query.Elements), length, length*page, parts[1])
 		} else {
-			err = p.db.Select(&items, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont FROM elements WHERE id=ANY($2) AND guild=$1 ORDER BY `+types.SortSql[parts[2]]+` DESC LIMIT $3 OFFSET $4`, c.Guild(), pq.Array(query.Elements), length, length*page, parts[1])
+			err = p.db.Select(&items, querypart+` LIMIT $3 OFFSET $4`, c.Guild(), pq.Array(query.Elements), length, length*page, parts[1])
 		}
 
 	}
