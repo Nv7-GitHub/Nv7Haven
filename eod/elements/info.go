@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/dustin/go-humanize"
 )
@@ -99,7 +100,8 @@ func (e *Elements) Info(c sevcord.Ctx, el int) {
 		AddField("📊 Progress", humanize.FormatFloat("##.#", float64(found)/float64(treesize)*100)+"%", true).
 		AddField("🔨 Made With", humanize.Comma(int64(elem.MadeWith)), true).
 		AddField("🧰 Used In", humanize.Comma(int64(elem.UsedIn)), true).
-		AddField("🔍 Found By", humanize.Comma(int64(foundby)), true)
+		AddField("🔍 Found By", humanize.Comma(int64(foundby)), true).
+		AddField("🎨 Color", util.FormatHex(elem.Color), true)
 
 	// Optional things
 	if elem.Image != "" {
