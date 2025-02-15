@@ -280,7 +280,6 @@ func (b *Bot) Init() {
 		AutoComplete(b.queries.Autocomplete)).
 		RequirePermissions(discordgo.PermissionManageServer))
 	b.s.AddButtonHandler("uncheese", b.elements.UncheeseHandler)
-
 	b.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup("newachievement", "Add a new achievement!",
 		sevcord.NewSlashCommand("element",
 			"Add an element-based achievement!",
@@ -327,4 +326,10 @@ func (b *Bot) Init() {
 			sevcord.NewOption("name", "The name of the achievement", sevcord.OptionKindString, true),
 			sevcord.NewOption("number", "The number of elements needed for the achievement!", sevcord.OptionKindInt, true)),
 	).RequirePermissions(discordgo.PermissionManageServer))
+
+	b.s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"ping",
+		"Check the server ping!",
+		b.PingCmd,
+	))
 }

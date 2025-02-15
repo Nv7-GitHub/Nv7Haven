@@ -2,11 +2,15 @@ package eod
 
 import (
 	"fmt"
+	"math"
+	"slices"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
+	"github.com/dustin/go-humanize"
 )
 
 var seps = []string{
@@ -16,14 +20,19 @@ var seps = []string{
 	"plus",
 }
 
-func (b *Bot) getElementId(c sevcord.Ctx, val string) (int64, bool) {
-	var id int64
-	err := b.db.QueryRow("SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(strings.TrimSpace(val)), c.Guild()).Scan(&id)
-	if err != nil {
-		b.base.Error(c, err, "Element **"+val+"** doesn't exist!")
-		return 0, false
+func (b *Bot) PingCmd(c sevcord.Ctx, opts []any) {
+	t1 := time.Now()
+	c.Acknowledge()
+	t2 := time.Now()
+	ping := t2.Sub(t1)
+	//ping := b.s.Dg().HeartbeatLatency().Microseconds()
+	milliseconds := float64(ping) / 1000000
+	if milliseconds > 1000 {
+		seconds := milliseconds / 1000
+		c.Respond(sevcord.NewMessage("🏓 Pong! Latency: **" + humanize.Ftoa(math.Floor(seconds*100)/100) + "s**"))
+	} else {
+		c.Respond(sevcord.NewMessage("🏓 Pong! Latency: **" + humanize.Ftoa(math.Floor(milliseconds*100)/100) + "ms**"))
 	}
-	return id, true
 }
 
 func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
@@ -52,15 +61,54 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			val = any(v)
 		}
 		b.elements.Hint(c, []any{val, nil})
-
-	case "cat", "c":
-		if !b.base.CheckCtx(c, "cat") {
+	case "hq", "qh", "hintquery":
+		if !b.base.CheckCtx(c, "hint") {
 			return
 		}
-		b.pages.Cat(c, []any{any(content), nil})
-	case "profile", "prof":
+		b.elements.Hint(c, []any{nil, content})
+	case "ic", "ci", "infocategory", "infocat", "catinfo", "categoryinfo":
+		if !b.base.CheckCtx(c, "info") {
+			return
+		}
+		b.categories.Info(c, []any{content})
+	case "iq", "qi", "infoquery", "queryinfo":
+		if !b.base.CheckCtx(c, "info") {
+			return
+		}
+		b.queries.Info(c, []any{content})
+    case "profile", "prof":
 		b.users.Profile(c, []any{nil})
-	case "inv":
+	case "cat", "c", "category":
+
+		if !b.base.CheckCtx(c, "cat") {
+			return
+		}	
+		if content != "" {
+			parts := strings.SplitN(content, "|", 2)
+			if len(parts) == 2 {
+				sort := getSort(strings.ToLower(strings.TrimSpace(parts[1])))
+				b.pages.Cat(c, []any{any(strings.TrimSpace(parts[0])), sort})
+			} else {
+				b.pages.Cat(c, []any{any(content), nil})
+			}
+
+		} else {
+			b.pages.CatList(c, []any{"name"})
+		}
+	case "ping":
+		b.PingCmd(c, []any{nil})
+	case "stats":
+		if !b.base.CheckCtx(c, "stats") {
+			return
+		}
+		b.base.Stats(c, []any{nil})
+	case "commandlb", "clb":
+		if !b.base.CheckCtx(c, "commandlb") {
+			return
+		}
+		b.pages.CommandLb(c, []any{nil})
+	case "inv", "inventory":
+
 		if !b.base.CheckCtx(c, "inv") {
 			return
 		}
@@ -87,13 +135,15 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 		b.pages.Inv(c, []any{any(user), nil})
 
-	case "lb":
+	case "lb", "leaderboard":
 		if !b.base.CheckCtx(c, "lb") {
 			return
 		}
-		b.pages.Lb(c, []any{nil, nil, nil})
+		parts := strings.Split(content, " ")
+		Lbsort := getLbSort(strings.ToLower(parts[0]))
+		b.pages.Lb(c, []any{Lbsort, nil, nil})
 
-	case "p", "products":
+	case "p", "products", "ih", "inversehint", "invhint":
 		if !b.base.CheckCtx(c, "products") {
 			return
 		}
@@ -104,10 +154,24 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		b.pages.Products(c, []any{any(id), nil})
 
 	case "q", "query":
+		parts := strings.SplitN(content, "|", 2)
+
 		if !b.base.CheckCtx(c, "query") {
 			return
 		}
-		b.pages.Query(c, []any{any(content), nil})
+		if content != "" {
+			if len(parts) == 2 {
+
+				sort := getSort(strings.ToLower(strings.TrimSpace(parts[1])))
+				b.pages.Query(c, []any{any(strings.TrimSpace(parts[0])), sort})
+
+			} else {
+				b.pages.Query(c, []any{any(parts[0]), nil})
+			}
+
+		} else {
+			b.pages.QueryList(c, []any{"name"})
+		}
 
 	case "ac", "rc":
 		if !b.base.CheckCtx(c, "cat") {
@@ -118,39 +182,47 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			c.Respond(sevcord.NewMessage("Invalid format! " + types.RedCircle))
 			return
 		}
+		var inputs []string
+
 		els := make([]int, 0)
-		added := false
+
 		for sep := range seps {
 			if strings.Contains(parts[1], seps[sep]) {
 				vals := strings.Split(parts[1], seps[sep])
-				for _, val := range vals {
-					id, ok := b.getElementId(c, val)
-					if !ok {
-						return
-					}
-					els = append(els, int(id))
-				}
-				added = true
+				inputs = append(inputs, vals...)
 				break
 			}
 		}
-		if !added {
-			id, ok := b.getElementId(c, parts[1])
-			if !ok {
-				return
-			}
-			els = append(els, int(id))
+		if len(inputs) == 0 {
+			inputs = append(inputs, parts[1])
 		}
-		if len(els) == 0 {
-			c.Respond(sevcord.NewMessage("Invalid format! " + types.RedCircle))
+
+		ids, ok := b.getElementIds(c, inputs)
+		for i := 0; i < len(ids); i++ {
+			if !slices.Contains(els, int(ids[i])) {
+				els = append(els, int(ids[i]))
+			}
+
+		}
+		if !ok {
 			return
 		}
+
 		if name == "ac" {
 			b.categories.CatEditCmd(c, strings.TrimSpace(parts[0]), els, types.PollKindCategorize, "Suggested to add **%s** to **%s** 🗃️", false)
 		} else {
 			b.categories.CatEditCmd(c, strings.TrimSpace(parts[0]), els, types.PollKindUncategorize, "Suggested to remove **%s** from **%s** 🗃️", true)
 		}
-
+	case "dc":
+		if !b.base.CheckCtx(c, "cat") {
+			return
+		}
+		parts := strings.SplitN(content, "|", 2)
+		if len(parts) != 1 {
+			c.Respond(sevcord.NewMessage("Invalid format! " + types.RedCircle))
+			return
+		}
+		b.categories.DelCat(c, []any{parts[0]})
 	case "sign", "mark":
 		if !b.base.CheckCtx(c, "sign") {
 			return
@@ -161,7 +233,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 		// check for signing element/category/query
-		switch strings.TrimSpace(parts[0]) {
+		switch strings.ToLower(strings.TrimSpace(parts[0])) {
 		case "e", "element":
 			b.elements.MsgSignCmd(c, strings.TrimSpace(parts[1]), strings.TrimSpace(parts[2]))
 
@@ -185,7 +257,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 		// check for coloring element/category/query
-		switch strings.TrimSpace(parts[0]) {
+		switch strings.ToLower(strings.TrimSpace(parts[0])) {
 		case "e", "element":
 			id, ok := b.getElementId(c, parts[1])
 			if !ok {
@@ -212,6 +284,11 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			val = any(part)
 		}
 		b.elements.Next(c, []any{val})
+	case "elemcats":
+		id, ok := b.getElementId(c, content)
+		if ok {
+			b.pages.ElemCats(c, []any{any(id)})
+		}
 
 	case "img", "image":
 		if !b.base.CheckCtx(c, "image") {
@@ -243,7 +320,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 
 		// Run command
-		switch parts[0] {
+		switch strings.ToLower(parts[0]) {
 		case "e", "element":
 			// Get ID
 			var id int
@@ -331,7 +408,11 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 		if !b.base.CheckCtx(c, "info") {
 			return
 		}
-		b.elements.InfoMsgCmd(c, strings.TrimSpace(content[1:]))
+		id, ok := b.getElementId(c, strings.TrimSpace(content[1:]))
+		if ok {
+			b.elements.Info(c, int(id))
+		}
+
 		return
 	}
 	if strings.HasPrefix(content, "*") {
