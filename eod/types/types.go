@@ -140,14 +140,17 @@ var Sorts = []sevcord.Choice{
 	sevcord.NewChoice("Length", "length"),
 	sevcord.NewChoice("Found", "found"),
 }
-
+var SortDirs = []sevcord.Choice{
+	sevcord.NewChoice("Ascending", "ascending"),
+	sevcord.NewChoice("Descending", "descending"),
+}
 var SortSql = map[string]string{
 	"id":        "id",
 	"name":      "name",
 	"creator":   "creator",
 	"createdon": "createdon",
-	"treesize":  "treesize DESC",
-	"length":    "LENGTH(name) DESC",
+	"treesize":  "treesize",
+	"length":    "LENGTH(name)",
 	"found":     "cont DESC, id",
 }
 

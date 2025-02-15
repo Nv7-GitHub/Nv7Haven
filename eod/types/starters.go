@@ -23,7 +23,7 @@ func Starters(guild string) []Element {
 			Commenter: "819076922867712031",
 			Colorer:   "819076922867712031",
 			Imager:    "819076922867712031",
-			TreeSize:  0,
+			TreeSize:  1,
 		},
 		{
 			Guild: guild,
@@ -40,7 +40,7 @@ func Starters(guild string) []Element {
 			Commenter: "819076922867712031",
 			Colorer:   "819076922867712031",
 			Imager:    "819076922867712031",
-			TreeSize:  0,
+			TreeSize:  1,
 		},
 		{
 			Guild: guild,
@@ -57,7 +57,7 @@ func Starters(guild string) []Element {
 			Commenter: "819076922867712031",
 			Colorer:   "819076922867712031",
 			Imager:    "819076922867712031",
-			TreeSize:  0,
+			TreeSize:  1,
 		},
 		{
 			Guild: guild,
@@ -74,7 +74,7 @@ func Starters(guild string) []Element {
 			Commenter: "819076922867712031",
 			Colorer:   "819076922867712031",
 			Imager:    "819076922867712031",
-			TreeSize:  0,
+			TreeSize:  1,
 		},
 	}
 }

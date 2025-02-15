@@ -18,6 +18,7 @@ const catInfoCount = 3
 
 func (e *Elements) Info(c sevcord.Ctx, el int) {
 	// Get element
+	c.Acknowledge()
 	var elem types.Element
 	err := e.db.Get(&elem, "SELECT * FROM elements WHERE id=$1 AND guild=$2", el, c.Guild())
 	if err != nil {
