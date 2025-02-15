@@ -78,7 +78,19 @@ func (b *Base) CheckCtx(ctx sevcord.Ctx, cmd string) bool {
 			return false
 		}
 	}
-
+	var achieveexists bool
+	err = b.db.QueryRow(`SELECT EXISTS(SELECT 1 FROM achievers WHERE "user"=$2 AND guild=$1)`, ctx.Guild(), ctx.Author().User.ID).Scan(&achieveexists)
+	if err != nil {
+		b.Error(ctx, err)
+		return false
+	}
+	if !achieveexists {
+		_, err = b.db.Exec(`INSERT INTO achievers (guild,"user",achievements) VALUES ($1,$2,$3)`, ctx.Guild(), ctx.Author().User.ID, pq.Array([]int{}))
+		if err != nil {
+			b.Error(ctx, err)
+			return false
+		}
+	}
 	return true
 }
 
