@@ -77,6 +77,7 @@ func (b *Bot) checkElementExists(c sevcord.Ctx, val string) (bool, string) {
 	val = convertVariableID(c, b, val)
 	var err error
 	_, ok := IsNumericID(val)
+	val = convertName(val)
 	var name string
 	if ok {
 		err = b.db.QueryRow("SELECT name FROM elements WHERE id=$1 AND guild=$2", strings.ToLower(strings.TrimLeft(strings.TrimSpace(val), "#")), c.Guild()).Scan(&name)
@@ -124,6 +125,26 @@ func convertVariableID(c sevcord.Ctx, b *Bot, val string) string {
 	return val
 
 }
+func convertName(val string) string {
+	parts := strings.SplitN(val, "}", 2)
+	if strings.HasPrefix(val, "{") && len(parts) > 1 {
+		prefix := strings.TrimPrefix(strings.TrimSpace(parts[0]), "{")
+		switch strings.ToLower(prefix) {
+		case "raw", "text":
+			return strings.TrimLeft(parts[1], " ")
+		}
+	}
+
+	return val
+}
+func IsNumericID(val string) (int64, bool) {
+	id, err := strconv.ParseInt(strings.TrimPrefix(strings.TrimSpace(val), "#"), 10, 64)
+	if err == nil && strings.HasPrefix(val, "#") {
+		return id, true
+	} else {
+		return -1, false
+	}
+}
 func (b *Bot) getElementIds(c sevcord.Ctx, vals []string) ([]int64, bool) {
 
 	var ids []int64
@@ -141,6 +162,7 @@ func (b *Bot) getElementIds(c sevcord.Ctx, vals []string) ([]int64, bool) {
 			numericIDs = append(numericIDs, id)
 		} else {
 
+			vals[i] = convertName(vals[i])
 			names = append(names, strings.TrimSpace(strings.ToLower(vals[i])))
 		}
 		convert[strings.ToLower(vals[i])] = vals[i]
@@ -223,14 +245,6 @@ func (b *Bot) getElementIds(c sevcord.Ctx, vals []string) ([]int64, bool) {
 
 }
 
-func IsNumericID(val string) (int64, bool) {
-	id, err := strconv.ParseInt(strings.TrimPrefix(strings.TrimSpace(val), "#"), 10, 64)
-	if err == nil && strings.HasPrefix(val, "#") {
-		return id, true
-	} else {
-		return -1, false
-	}
-}
 func makeListResp(start, join, end string, vals []string) string {
 
 	if len(vals) > 1 {
