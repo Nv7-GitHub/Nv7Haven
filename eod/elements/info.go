@@ -84,6 +84,11 @@ func (e *Elements) Info(c sevcord.Ctx, el int) {
 		e.base.Error(c, err)
 		return
 	}
+	var dbtreesize int
+	e.db.QueryRow(`SELECT treesize FROM elements WHERE id=$1 AND guild=$2`, elem.ID, c.Guild()).Scan(&dbtreesize)
+	if dbtreesize != treesize {
+		e.db.Exec(`UPDATE elements SET treesize=$3 WHERE id=$1 AND guild=$2`, elem.ID, c.Guild(), treesize)
+	}
 
 	// Element ID
 	description = fmt.Sprintf("Element **#%d**\n", elem.ID) + description
