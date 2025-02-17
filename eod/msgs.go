@@ -347,41 +347,6 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 		b.MsgSugElement(c, val)
 		return
 	}
-	if strings.HasPrefix(content, "+") {
-		if len(content) < 2 {
-			return
-		}
-		if !b.base.CheckCtx(c, "message") {
-			return
-		}
-		if !b.base.IsPlayChannel(c) {
-			return
-		}
-
-		comb, ok := b.base.GetCombCache(c)
-		if !ok.Ok {
-			c.Respond(ok.Response())
-			return
-		}
-		name, err := b.base.GetName(c.Guild(), comb.Result)
-		if err != nil {
-			b.base.Error(c, err)
-			return
-		}
-
-		// Get parts
-		parts := []string{content[1:]}
-		for _, sep := range seps {
-			if strings.Contains(content[1:], sep) {
-				parts = strings.Split(content[1:], sep)
-
-				break
-			}
-		}
-
-		b.combineElements(c, append([]string{name}, parts...))
-		return
-	}
 	if strings.HasPrefix(content, "!") {
 		if len(content) < 2 {
 			return
@@ -404,36 +369,69 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 		if ok {
 			b.elements.Info(c, int(id))
 		}
-
 		return
+	}
+	if !b.base.IsPlayChannel(c) {
+		return
+	}
+	if !b.base.CheckCtx(c, "message") {
+		return
+	}
+	if len(content) < 2 {
+		return
+	}
+	elems := make([]string, 0)
+	if strings.TrimSpace(content)[0] == '+' || strings.TrimSpace(content)[0] == ',' {
+
+		content = strings.TrimSpace(content)[1:]
+		comb, ok := b.base.GetCombCache(c)
+		if !ok.Ok {
+			c.Respond(ok.Response())
+			return
+		}
+		name, err := b.base.GetName(c.Guild(), comb.Result)
+		if err != nil {
+			b.base.Error(c, err)
+			return
+		}
+		elems = append(elems, name)
+
 	}
 	for _, sep := range seps {
 		if strings.Contains(content, sep) {
 			// Check ctx
-			if !b.base.CheckCtx(c, "message") {
-				return
-			}
-			if !b.base.IsPlayChannel(c) {
-				return
+
+			if sep != "\n" && strings.Contains(strings.ToLower(content), "{raw}") {
+				rawsplit := strings.SplitN(content, "{", 2)
+				rawsplit[1] = "{" + rawsplit[1]
+				strs := strings.Split(rawsplit[0], sep)
+
+				elems = append(elems, strs[:len(strs)-1]...)
+				if strs[len(strs)-1] != " " {
+					rawsplit[1] = strs[len(strs)-1] + rawsplit[1]
+				}
+
+				elems = append(elems, rawsplit[1])
+
+			} else {
+				elems = append(elems, strings.Split(content, sep)...)
 			}
 			// Combine
-			elems := strings.Split(content, sep)
+
 			for i := 0; i < len(elems); i++ {
 				ok, multels := b.ApplyMultiplier(c, elems[i])
 				if ok {
 					elems[i] = multels[0]
 					elems = append(elems, multels[1:]...)
-
 				}
 			}
-
 			b.combineElements(c, elems)
 			return
 		}
 	}
-	ok, elems := b.ApplyMultiplier(c, content)
+	ok, multelements := b.ApplyMultiplier(c, content)
+	elems = append(elems, multelements...)
 	if ok {
 		b.combineElements(c, elems)
 	}
-
 }

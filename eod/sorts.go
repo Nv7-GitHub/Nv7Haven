@@ -11,6 +11,11 @@ import (
 	"github.com/lib/pq"
 )
 
+var IDPrefixes = []string{
+	"#",
+	"{id}",
+}
+
 func (b *Bot) MsgSugElement(c sevcord.Ctx, val string) {
 	ok, name := b.checkElementExists(c, val)
 	if ok {
@@ -102,24 +107,33 @@ func (b *Bot) getElementId(c sevcord.Ctx, val string) (int64, bool) {
 }
 func convertVariableID(c sevcord.Ctx, b *Bot, val string) string {
 
-	teststr := strings.ToLower(strings.TrimSpace(strings.TrimPrefix(val, "#")))
+	prefix := ""
+	teststr := ""
+	for _, pre := range IDPrefixes {
+		teststr = strings.ToLower(strings.TrimSpace(strings.TrimPrefix(val, pre)))
+		if teststr != strings.ToLower(strings.TrimSpace(val)) {
+			prefix = pre
+			break
+		}
+	}
+
 	switch teststr {
 	case "last":
 		cache, _ := b.base.GetCombCache(c)
 		if cache.Result != -1 {
-			return "#" + fmt.Sprintf("%d", cache.Result)
+			return prefix + fmt.Sprintf("%d", cache.Result)
 		}
 	case "rand":
 		var id int
 		err := b.db.QueryRow(`SELECT id FROM elements WHERE guild=$1 ORDER BY RANDOM()`, c.Guild()).Scan(&id)
 		if err == nil {
-			return "#" + fmt.Sprintf("%d", id)
+			return prefix + fmt.Sprintf("%d", id)
 		}
 	case "randinv", "randininv":
 		var id int
 		err := b.db.QueryRow(`SELECT id FROM elements WHERE guild=$1 AND id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) ORDER BY RANDOM()`, c.Guild(), c.Author().User.ID).Scan(&id)
 		if err == nil {
-			return "#" + fmt.Sprintf("%d", id)
+			return prefix + fmt.Sprintf("%d", id)
 		}
 	}
 	return val
@@ -130,7 +144,7 @@ func convertName(val string) string {
 	if strings.HasPrefix(val, "{") && len(parts) > 1 {
 		prefix := strings.TrimPrefix(strings.TrimSpace(parts[0]), "{")
 		switch strings.ToLower(prefix) {
-		case "raw", "text":
+		case "raw", "text", "name":
 			return strings.TrimLeft(parts[1], " ")
 		}
 	}
@@ -138,13 +152,16 @@ func convertName(val string) string {
 	return val
 }
 func IsNumericID(val string) (int64, bool) {
-	id, err := strconv.ParseInt(strings.TrimPrefix(strings.TrimSpace(val), "#"), 10, 64)
-	if err == nil && strings.HasPrefix(val, "#") {
-		return id, true
-	} else {
-		return -1, false
+
+	for _, prefix := range IDPrefixes {
+		id, err := strconv.ParseInt(strings.TrimPrefix(strings.TrimSpace(val), prefix), 10, 64)
+		if err == nil {
+			return id, true
+		}
 	}
+	return -1, false
 }
+
 func (b *Bot) getElementIds(c sevcord.Ctx, vals []string) ([]int64, bool) {
 
 	var ids []int64
@@ -159,6 +176,8 @@ func (b *Bot) getElementIds(c sevcord.Ctx, vals []string) ([]int64, bool) {
 		vals[i] = convertVariableID(c, b, vals[i])
 		id, ok := IsNumericID(strings.TrimSpace(vals[i]))
 		if ok {
+			//convert all ids to "#" format
+			vals[i] = "#" + fmt.Sprintf("%d", id)
 			numericIDs = append(numericIDs, id)
 		} else {
 
@@ -204,6 +223,7 @@ func (b *Bot) getElementIds(c sevcord.Ctx, vals []string) ([]int64, bool) {
 		for i := 0; i < len(datares); i++ {
 			idmap[datares[i].ID] = datares[i].Name
 			namemap[datares[i].Name] = datares[i].ID
+
 			convert[fmt.Sprintf("#%d", datares[i].ID)] = datares[i].Name
 		}
 		for i := 0; i < len(numericIDs); i++ {
