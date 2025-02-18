@@ -5,6 +5,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/bwmarrin/discordgo"
 	"github.com/lib/pq"
@@ -31,6 +32,10 @@ func (b *Base) configChannel(c sevcord.Ctx, field string, value any, message str
 		b.Error(c, err)
 		return
 	}
+
+	var config types.Config
+	b.db.Get(&config, "SELECT * FROM config WHERE guild=$1", c.Guild())
+	b.SaveConfigCache(c, config)
 
 	c.Respond(sevcord.NewMessage(fmt.Sprintf("Successfully updated %s!", message)))
 	b.configNewsMessage(c, fmt.Sprintf("Changed Config - **%s**", strings.Title(message)))
@@ -67,6 +72,9 @@ func (b *Base) ConfigPlayChannels(c sevcord.Ctx, opts []any) {
 			ChannelMenuFilter(discordgo.ChannelTypeGuildText).
 			SetRange(0, 25),
 	))
+	var config types.Config
+	b.db.Get(&config, "SELECT * FROM config WHERE guild=$1", c.Guild())
+	b.SaveConfigCache(c, config)
 	b.configNewsMessage(c, "Changed Config - **Play Channels**")
 }
 func (b *Base) ConfigVoteIcons(c sevcord.Ctx, opts []any) {
@@ -77,6 +85,9 @@ func (b *Base) ConfigVoteIcons(c sevcord.Ctx, opts []any) {
 		b.Error(c, err)
 		return
 	}
+	var config types.Config
+	b.db.Get(&config, "SELECT * FROM config WHERE guild=$1", c.Guild())
+	b.SaveConfigCache(c, config)
 	c.Respond(sevcord.NewMessage("Successfully updated voting emojis!"))
 	b.configNewsMessage(c, "Change Config - **Vote Icons**")
 }
@@ -87,6 +98,9 @@ func (b *Base) ConfigProgIcons(c sevcord.Ctx, opts []any) {
 		b.Error(c, err)
 		return
 	}
+	var config types.Config
+	b.db.Get(&config, "SELECT * FROM config WHERE guild=$1", c.Guild())
+	b.SaveConfigCache(c, config)
 	c.Respond(sevcord.NewMessage("Successfully updated progress emojis!"))
 	b.configNewsMessage(c, "Change Config - **Progress Icons**")
 
@@ -98,6 +112,9 @@ func (b *Base) ConfigComboLength(c sevcord.Ctx, opts []any) {
 		b.Error(c, err)
 		return
 	}
+	var config types.Config
+	b.db.Get(&config, "SELECT * FROM config WHERE guild=$1", c.Guild())
+	b.SaveConfigCache(c, config)
 	c.Respond(sevcord.NewMessage("Successfully updated maximum combination limit!"))
 	b.configNewsMessage(c, "Change Config - **Combination Limit**")
 }

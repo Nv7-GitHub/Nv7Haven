@@ -341,9 +341,14 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 			return
 		}
 		var comboLength int
-		err = b.db.QueryRow("SELECT combolength FROM config WHERE guild=$1", c.Guild()).Scan(&comboLength)
+		config, rsp := b.base.GetConfigCache(c)
+		if !rsp.Ok {
+			err = b.db.Select(&config, "SELECT * FROM config WHERE guild=$1", c.Guild())
+		}
 		if err != nil {
 			comboLength = types.DefaultMaxComboLength
+		} else {
+			comboLength = config.ComboLength
 		}
 		if cnt > comboLength {
 			c.Respond(sevcord.NewMessage(fmt.Sprintf("You can only combine up to %d elements! "+types.RedCircle, comboLength)))

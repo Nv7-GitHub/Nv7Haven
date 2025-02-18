@@ -7,6 +7,26 @@ import (
 	"github.com/Nv7-Github/sevcord/v2"
 )
 
+func (b *Base) getMemGuild(guild string) *types.ServerMem {
+	b.lock.RLock()
+	v, exists := b.mem[guild]
+	b.lock.RUnlock()
+	if exists {
+		return v
+	}
+
+	v = &types.ServerMem{
+		CombCache:        make(map[string]types.CombCache),
+		CommandStatsTODO: make(map[string]int),
+		ConfigCache:      make(map[string]types.Config),
+	}
+
+	b.lock.Lock()
+	b.mem[guild] = v
+	b.lock.Unlock()
+
+	return v
+}
 func (b *Base) getMem(c sevcord.Ctx) *types.ServerMem {
 	b.lock.RLock()
 	v, exists := b.mem[c.Guild()]
@@ -18,6 +38,7 @@ func (b *Base) getMem(c sevcord.Ctx) *types.ServerMem {
 	v = &types.ServerMem{
 		CombCache:        make(map[string]types.CombCache),
 		CommandStatsTODO: make(map[string]int),
+		ConfigCache:      make(map[string]types.Config),
 	}
 
 	b.lock.Lock()
@@ -25,6 +46,32 @@ func (b *Base) getMem(c sevcord.Ctx) *types.ServerMem {
 	b.lock.Unlock()
 
 	return v
+}
+func (b *Base) SaveConfigCacheGuild(guild string, config types.Config) {
+
+	mem := b.getMemGuild(guild)
+	mem.Lock()
+	mem.ConfigCache[guild] = config
+	mem.Unlock()
+}
+func (b *Base) SaveConfigCache(c sevcord.Ctx, config types.Config) {
+
+	mem := b.getMem(c)
+	mem.Lock()
+	mem.ConfigCache[c.Guild()] = config
+	mem.Unlock()
+}
+
+func (b *Base) GetConfigCache(c sevcord.Ctx) (types.Config, types.Resp) {
+
+	mem := b.getMem(c)
+	mem.RLock()
+	v, exists := mem.ConfigCache[c.Guild()]
+	mem.RUnlock()
+	if exists {
+		return v, types.Ok()
+	}
+	return types.Config{}, types.Fail("Invalid config")
 }
 
 func (b *Base) SaveCombCache(c sevcord.Ctx, comb types.CombCache) {

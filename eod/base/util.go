@@ -3,6 +3,7 @@ package base
 import (
 	"database/sql"
 	"log"
+	"slices"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
@@ -29,13 +30,27 @@ func (b *Base) Error(ctx sevcord.Ctx, err error, config ...string) {
 
 func (b *Base) IsPlayChannel(c sevcord.Ctx) bool {
 	// Check if play channel
-	var cnt bool
-	err := b.db.QueryRow(`SELECT $1=ANY(play) FROM config WHERE guild=$2`, c.Channel(), c.Guild()).Scan(&cnt)
-	if err != nil {
-		log.Println("Play channel error", err)
+	config, resp := b.GetConfigCache(c)
+
+	if !resp.Ok {
+		err := b.db.Get(&config, `SELECT * FROM config WHERE guild=$1`, c.Guild())
+		if err != nil {
+			log.Println("Config error", err)
+			return false
+		}
+
+	}
+	var playchannels []string
+	playchannels = append(playchannels, config.PlayChannels...)
+	if len(playchannels) == 0 {
+		log.Println("Play channel error")
 		return false
 	}
-	return cnt
+	if slices.Contains(playchannels, c.Channel()) {
+		return true
+	}
+	return false
+
 }
 
 func (b *Base) PageLength(ctx sevcord.Ctx) int {

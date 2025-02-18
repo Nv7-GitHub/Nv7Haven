@@ -32,11 +32,19 @@ type comboRes struct {
 func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 	c.Acknowledge()
 	e.base.IncrementCommandStat(c, "combine")
+
 	var comboLimit int
-	err := e.db.QueryRow("SELECT combolength FROM config WHERE guild=$1", c.Guild()).Scan(&comboLimit)
+	var err error
+	config, rsp := e.base.GetConfigCache(c)
+	if !rsp.Ok {
+		err = e.db.Select(&config, "SELECT * FROM config WHERE guild=$1", c.Guild())
+	}
 	if err != nil {
 		comboLimit = types.DefaultMaxComboLength
+	} else {
+		comboLimit = config.ComboLength
 	}
+
 	if len(elemVals) > comboLimit {
 		c.Respond(sevcord.NewMessage(fmt.Sprintf("You can only combine up to %d elements! "+types.RedCircle, comboLimit)))
 		return

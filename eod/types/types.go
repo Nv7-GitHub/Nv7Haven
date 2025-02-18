@@ -76,6 +76,7 @@ type Config struct {
 	PlayChannels  pq.StringArray `db:"play"`
 	VoteIcons     pq.StringArray `db:"voteicons"`
 	ProgIcons     pq.StringArray `db:"progicons"`
+	ComboLength   int            `db:"combolength"`
 }
 
 type ServerMem struct {
@@ -84,6 +85,7 @@ type ServerMem struct {
 
 	CommandStatsTODO    map[string]int
 	CommandStatsTODOCnt int
+	ConfigCache         map[string]Config //map[guildID]Config
 }
 
 // Polls
