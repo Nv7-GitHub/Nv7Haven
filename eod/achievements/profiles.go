@@ -53,7 +53,13 @@ func (u *Users) ProfileHandler(c sevcord.Ctx, params string) {
 		u.base.Error(c, err)
 		return
 	}
-
+	var highesttreesize int
+	var highesttreesizeelem string
+	err = u.db.QueryRow(`SELECT name,treesize FROM elements WHERE id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) AND guild=$1 ORDER BY treesize DESC LIMIT 1`, c.Guild(), parts[0]).Scan(&highesttreesizeelem, &highesttreesize)
+	if err != nil {
+		u.base.Error(c, err)
+		return
+	}
 	//get user avatar
 	img := user.User.AvatarURL("128")
 	emb := sevcord.NewEmbed().
@@ -62,7 +68,8 @@ func (u *Users) ProfileHandler(c sevcord.Ctx, params string) {
 	emb = emb.AddField("🔍 Elements Found", fmt.Sprintf("%d", invsize), true)
 	emb = emb.AddField("💡 Elements Made", fmt.Sprintf("%d", madesize), true)
 	emb = emb.AddField("🗳️ Votes Cast", fmt.Sprintf("%d", votecnt), true)
-	emb = emb.AddField("🏆 Achievements Found", fmt.Sprintf("%d", achievementcnt), false)
+	emb = emb.AddField("🌲 Highest Tree Size", fmt.Sprintf("%d (%s)", highesttreesize, highesttreesizeelem), true)
+	emb = emb.AddField("🏆 Achievements Found", fmt.Sprintf("%d", achievementcnt), true)
 
 	emb = emb.Thumbnail(img)
 	c.Respond(sevcord.NewMessage("").AddEmbed(emb))
