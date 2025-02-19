@@ -18,6 +18,7 @@ const catInfoCount = 3
 
 func (e *Elements) Info(c sevcord.Ctx, el int) {
 	// Get element
+	c.Acknowledge()
 	var elem types.Element
 	err := e.db.Get(&elem, "SELECT * FROM elements WHERE id=$1 AND guild=$2", el, c.Guild())
 	if err != nil {
@@ -82,6 +83,11 @@ func (e *Elements) Info(c sevcord.Ctx, el int) {
 	if err != nil {
 		e.base.Error(c, err)
 		return
+	}
+	var dbtreesize int
+	e.db.QueryRow(`SELECT treesize FROM elements WHERE id=$1 AND guild=$2`, elem.ID, c.Guild()).Scan(&dbtreesize)
+	if dbtreesize != treesize {
+		e.db.Exec(`UPDATE elements SET treesize=$3 WHERE id=$1 AND guild=$2`, elem.ID, c.Guild(), treesize)
 	}
 
 	// Element ID
