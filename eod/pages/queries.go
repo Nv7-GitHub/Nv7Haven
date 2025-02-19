@@ -80,22 +80,25 @@ func (p *Pages) QueryList(c sevcord.Ctx, opts []any) {
 var queryPageCache = make(map[string]map[string]*types.Query)
 var queryPageCacheLock = &sync.RWMutex{}
 
-// Params: prevnext|user|sort|page|query
+// Params: prevnext|user|sort|postfix|page|query
 func (p *Pages) QueryHandler(c sevcord.Ctx, params string) {
-	parts := strings.SplitN(params, "|", 5)
+	parts := strings.SplitN(params, "|", 6)
 
+	if len(parts) != 6 {
+		return
+	}
 	// Get query
 	var query *types.Query
 	queryPageCacheLock.RLock()
 	g, exists := queryPageCache[c.Guild()]
 	if exists {
-		query, exists = g[parts[4]]
+		query, exists = g[parts[5]]
 	}
 	queryPageCacheLock.RUnlock()
 
 	if !exists {
 		var ok bool
-		query, ok = p.base.CalcQuery(c, parts[4])
+		query, ok = p.base.CalcQuery(c, parts[5])
 		if !ok {
 			return
 		}
@@ -105,7 +108,7 @@ func (p *Pages) QueryHandler(c sevcord.Ctx, params string) {
 			v = make(map[string]*types.Query)
 			queryPageCache[c.Guild()] = v
 		}
-		v[parts[4]] = query
+		v[parts[5]] = query
 		queryPageCacheLock.Unlock()
 	}
 
@@ -121,15 +124,32 @@ func (p *Pages) QueryHandler(c sevcord.Ctx, params string) {
 	pagecnt := int(math.Ceil(float64(cnt) / float64(length)))
 
 	// Apply page
-	page, _ := strconv.Atoi(parts[3])
+	page, _ := strconv.Atoi(parts[4])
 	page = ApplyPage(parts[0], page, pagecnt)
 
 	// Get values
 	var items []struct {
-		Name string `db:"name"`
-		Cont bool   `db:"cont"`
+		Name    string `db:"name"`
+		Cont    bool   `db:"cont"`
+		Postfix string `db:"postfix"`
 	}
-	err = p.db.Select(&items, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont FROM elements WHERE id=ANY($2) AND guild=$1 ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), pq.Array(query.Elements), length, length*page, parts[1])
+
+	postfix := false
+	if parts[3] == "1" {
+		postfix = true
+	} else {
+		postfix = false
+	}
+	//false if not valid in DB
+	postfixable := parts[2] != "length" && parts[2] != "found"
+	if postfix && postfixable {
+		err = p.db.Select(&items, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont, `+parts[2]+` postfix FROM elements WHERE id=ANY($2) AND guild=$1 ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), pq.Array(query.Elements), length, length*page, parts[1])
+
+	} else {
+		err = p.db.Select(&items, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont FROM elements WHERE id=ANY($2) AND guild=$1 ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), pq.Array(query.Elements), length, length*page, parts[1])
+
+	}
+
 	if err != nil {
 		p.base.Error(c, err)
 		return
@@ -139,10 +159,16 @@ func (p *Pages) QueryHandler(c sevcord.Ctx, params string) {
 	desc := &strings.Builder{}
 	for _, v := range items {
 		if v.Cont {
-			fmt.Fprintf(desc, "%s %s\n", v.Name, types.Check)
+			fmt.Fprintf(desc, "%s %s", v.Name, types.Check)
 		} else {
-			fmt.Fprintf(desc, "%s %s\n", v.Name, types.NoCheck)
+			fmt.Fprintf(desc, "%s %s", v.Name, types.NoCheck)
 		}
+		if postfix && parts[2] != "found" {
+			desc.WriteString(p.PrintPostfix(parts[2], v.Name, v.Postfix))
+
+		}
+		desc.WriteString("\n")
+
 	}
 	var img string
 	var color int
@@ -154,7 +180,7 @@ func (p *Pages) QueryHandler(c sevcord.Ctx, params string) {
 
 	// Create
 	embed := sevcord.NewEmbed().
-		Title(fmt.Sprintf("%s (%s, %s%%)", parts[4], humanize.Comma(int64(cnt)), humanize.FormatFloat("", float64(common)/float64(cnt)*100))).
+		Title(fmt.Sprintf("%s (%s, %s%%)", parts[5], humanize.Comma(int64(cnt)), humanize.FormatFloat("", float64(common)/float64(cnt)*100))).
 		Description(desc.String()).
 		Footer(fmt.Sprintf("Page %d/%d", page+1, pagecnt), "").
 		Color(color)
@@ -163,7 +189,7 @@ func (p *Pages) QueryHandler(c sevcord.Ctx, params string) {
 	}
 	c.Respond(sevcord.NewMessage("").
 		AddEmbed(embed).
-		AddComponentRow(PageSwitchBtns("query", fmt.Sprintf("%s|%s|%d|%s", parts[1], parts[2], page, parts[4]))...),
+		AddComponentRow(PageSwitchBtns("query", fmt.Sprintf("%s|%s|%s|%d|%s", parts[1], parts[2], parts[3], page, parts[5]))...),
 	)
 }
 
@@ -191,7 +217,16 @@ func (p *Pages) Query(c sevcord.Ctx, args []any) {
 		delete(g, name)
 	}
 	queryPageCacheLock.Unlock()
-
+	postfix := false
+	postfixval := 0
+	if args[2] != nil {
+		postfix = args[2].(bool)
+	}
+	if postfix {
+		postfixval = 1
+	} else {
+		postfixval = 0
+	}
 	// Create embed
-	p.QueryHandler(c, fmt.Sprintf("next|%s|%s|-1|%s", c.Author().User.ID, sort, name))
+	p.QueryHandler(c, fmt.Sprintf("next|%s|%s|%d|-1|%s", c.Author().User.ID, sort, postfixval, name))
 }
