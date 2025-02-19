@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/dustin/go-humanize"
 )
@@ -52,7 +53,7 @@ func (c *Categories) Info(ctx sevcord.Ctx, opts []any) {
 	if cat.Imager != "" {
 		emb = emb.AddField("Imager", fmt.Sprintf("<@%s>", cat.Imager), true)
 	}
-
+	emb = emb.AddField("Color", util.FormatHex(cat.Color), true)
 	// Respond
 	ctx.Respond(sevcord.NewMessage("").AddEmbed(emb))
 }

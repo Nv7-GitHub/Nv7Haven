@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/dustin/go-humanize"
 )
@@ -17,6 +18,7 @@ func (e *Elements) InfoSlashCmd(c sevcord.Ctx, opts []any) {
 const catInfoCount = 3
 
 func (e *Elements) Info(c sevcord.Ctx, el int) {
+	c.Acknowledge()
 	// Get element
 	c.Acknowledge()
 	var elem types.Element
@@ -27,7 +29,7 @@ func (e *Elements) Info(c sevcord.Ctx, el int) {
 	}
 
 	// Check if you have
-	description := "**Mark**\n" + elem.Comment
+	description := "**📝 Mark**\n" + elem.Comment
 	var have bool
 	err = e.db.QueryRow(`SELECT $1=ANY(inv) FROM inventories WHERE guild=$2 AND "user"=$3`, elem.ID, c.Guild(), c.Author().User.ID).Scan(&have)
 	if err != nil {
@@ -104,7 +106,8 @@ func (e *Elements) Info(c sevcord.Ctx, el int) {
 		AddField("📊 Progress", humanize.FormatFloat("##.#", float64(found)/float64(treesize)*100)+"%", true).
 		AddField("🔨 Made With", humanize.Comma(int64(madewith)), true).
 		AddField("🧰 Used In", humanize.Comma(int64(usedin)), true).
-		AddField("🔍 Found By", humanize.Comma(int64(foundby)), true)
+		AddField("🔍 Found By", humanize.Comma(int64(foundby)), true).
+		AddField("🎨 Color", util.FormatHex(elem.Color), true)
 
 	// Optional things
 	if elem.Image != "" {
@@ -114,7 +117,7 @@ func (e *Elements) Info(c sevcord.Ctx, el int) {
 		emb = emb.AddField("💬 Commenter", fmt.Sprintf("<@%s>", elem.Commenter), true)
 	}
 	if elem.Colorer != "" {
-		emb = emb.AddField("🎨 Colorer", fmt.Sprintf("<@%s>", elem.Colorer), true)
+		emb = emb.AddField("🖌️ Colorer", fmt.Sprintf("<@%s>", elem.Colorer), true)
 	}
 	if elem.Imager != "" {
 		emb = emb.AddField("🖼️ Imager", fmt.Sprintf("<@%s>", elem.Imager), true)

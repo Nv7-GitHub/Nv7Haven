@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/dustin/go-humanize"
 	"github.com/lib/pq"
@@ -47,11 +48,12 @@ func (q *Queries) Info(ctx sevcord.Ctx, opts []any) {
 	}
 	if qu.Colorer != "" {
 		emb = emb.AddField("Colorer", fmt.Sprintf("<@%s>", qu.Colorer), true)
+
 	}
 	if qu.Imager != "" {
 		emb = emb.AddField("Imager", fmt.Sprintf("<@%s>", qu.Imager), true)
 	}
-
+	emb = emb.AddField("Color", util.FormatHex(qu.Color), true)
 	// Add query data
 	switch qu.Kind {
 	case types.QueryKindElement:
