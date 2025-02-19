@@ -30,9 +30,9 @@ func (p *Pages) PrintPostfix(postfixType string, elemName string, postfix string
 		return fmt.Sprintf(" - <@%s>", postfix)
 	case "createdon":
 		t, _ := time.Parse(time.RFC3339, postfix)
-		return fmt.Sprintf("- <t:%d>", t.Unix())
+		return fmt.Sprintf(" - <t:%d>", t.Unix())
 	default:
-		return fmt.Sprintf("- %s", postfix)
+		return fmt.Sprintf(" - %s", postfix)
 	}
 
 }
