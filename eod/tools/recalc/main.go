@@ -45,7 +45,6 @@ func main() {
 	err = db.Select(&guilds, "SELECT DISTINCT(guild) FROM elements")
 	handle(err)
 	TimingPrint("Fetched guilds")
-
 	// Create update table
 	_, err = db.Exec(`CREATE TABLE elements_update (
 		id integer,
@@ -128,10 +127,12 @@ func RecalcGuild(guild string, db *sqlx.DB) {
 	AverageTreeSize(elements)
 
 	// Recalc
+
 	changed := -1
 	for changed != 0 {
 		changed = 0
 
+		var elemdone []int32
 		// Loop through combos
 		for i, comb := range combos {
 			// Check if done
@@ -166,8 +167,13 @@ func RecalcGuild(guild string, db *sqlx.DB) {
 			el.Parents = comb.Els
 			elements[comb.Result-1] = el
 
-			// Update done
-			done[comb.Result] = struct{}{}
+			// Add to donelist
+			elemdone = append(elemdone, comb.Result)
+
+		}
+		// Update done
+		for i := 0; i < len(elemdone); i++ {
+			done[elemdone[i]] = struct{}{}
 			changed++
 		}
 	}
