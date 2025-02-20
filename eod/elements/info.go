@@ -2,6 +2,7 @@ package elements
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -13,7 +14,6 @@ func (e *Elements) InfoSlashCmd(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
 	e.Info(c, int(opts[0].(int64)))
 }
-
 
 func (e *Elements) InfoSlashCmdName(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()

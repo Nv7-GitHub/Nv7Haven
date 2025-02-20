@@ -243,25 +243,22 @@ func (b *Bot) Init() {
 		RequirePermissions(discordgo.PermissionManageServer))
 	b.s.AddButtonHandler("elemcats", b.pages.ElemCatHandler)
 	b.s.AddButtonHandler("elemfound", b.pages.ElemFoundHandler)
-	b.s.RegisterSlashCommand(sevcord.NewSlashCommand(
-		"hint",
-		"Learn how to make an element!",
-		b.elements.HintName,
-		sevcord.NewOption("element", "An element to get the hint of!", sevcord.OptionKindString, false).
-			AutoComplete(b.elements.AutocompleteName),
-		sevcord.NewOption("query", "A query to select the random element to be made from!", sevcord.OptionKindString, false).
-			AutoComplete(b.queries.Autocomplete),
+	b.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup("hint", "Learn how to make an element!",
+		sevcord.NewSlashCommand("name",
+			"Learn how to make an element by its name!",
+			b.elements.HintName,
+			sevcord.NewOption("element", "An element to get the hint of!", sevcord.OptionKindString, false).
+				AutoComplete(b.elements.AutocompleteName),
+			sevcord.NewOption("query", "A query to select the random element to be made from!", sevcord.OptionKindString, false).
+				AutoComplete(b.queries.Autocomplete)),
+		sevcord.NewSlashCommand("id",
+			"Learn how to make an element by its ID!",
+			b.elements.Hint,
+			sevcord.NewOption("id", "An element's ID to get the hint of!", sevcord.OptionKindInt, false),
+			sevcord.NewOption("query", "A query to select the random element to be made from!", sevcord.OptionKindString, false).
+				AutoComplete(b.queries.Autocomplete)),
 	))
 	b.s.AddButtonHandler("hint", b.elements.HintHandler)
-	b.s.RegisterSlashCommand(sevcord.NewSlashCommand(
-		"hintid",
-		"Learn how to make an element by its id!",
-		b.elements.Hint,
-		sevcord.NewOption("id", "An element's id to get the hint of!", sevcord.OptionKindInt, false),
-		sevcord.NewOption("query", "A query to select the random element to be made from!", sevcord.OptionKindString, false).
-			AutoComplete(b.queries.Autocomplete),
-	))
-	b.s.AddButtonHandler("hintid", b.elements.HintHandler)
 	b.s.RegisterSlashCommand(sevcord.NewSlashCommand(
 		"next",
 		"Find the next element to make!",
