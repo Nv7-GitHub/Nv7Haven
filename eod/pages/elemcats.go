@@ -61,5 +61,10 @@ func (p *Pages) ElemCats(c sevcord.Ctx, args []any) {
 	c.Acknowledge()
 
 	// Create embed
-	p.ElemCatHandler(c, fmt.Sprintf("next|%d|-1", args[0].(int64)))
+	page := -1
+	if len(args) > 3 && args[3] != nil {
+		page = int(args[3].(int64)) - 2
+	}
+	p.ElemCatHandler(c, fmt.Sprintf("next|%d|%d", args[0].(int64), page))
+
 }

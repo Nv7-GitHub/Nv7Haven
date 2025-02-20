@@ -148,6 +148,7 @@ func (b *Bot) Init() {
 			b.pages.ElemCats,
 			sevcord.NewOption("element", "The element to view the categories of!", sevcord.OptionKindInt, true).
 				AutoComplete(b.elements.Autocomplete),
+			sevcord.NewOption("page", "Which page of the results to view!", sevcord.OptionKindInt, false),
 		),
 		sevcord.NewSlashCommand(
 			"found",
@@ -155,6 +156,7 @@ func (b *Bot) Init() {
 			b.pages.ElemFound,
 			sevcord.NewOption("element", "The element to view the people who have found!", sevcord.OptionKindInt, true).
 				AutoComplete(b.elements.Autocomplete),
+			sevcord.NewOption("page", "Which page of the results to view!", sevcord.OptionKindInt, false),
 		),
 	))
 	b.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup("edit", "Edit element properties!",

@@ -124,7 +124,10 @@ func (p *Pages) Products(c sevcord.Ctx, args []any) {
 	} else {
 		postfixval = 0
 	}
-
+	page := -1
+	if len(args) > 3 && args[3] != nil {
+		page = int(args[3].(int64)) - 2
+	}
 	// Create embed
-	p.ProductsHandler(c, fmt.Sprintf("next|%d|%s|%d|-1", id, sort, postfixval))
+	p.ProductsHandler(c, fmt.Sprintf("next|%d|%s|%d|%d", id, sort, postfixval, page))
 }
