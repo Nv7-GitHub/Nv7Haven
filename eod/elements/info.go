@@ -18,6 +18,7 @@ func (e *Elements) InfoSlashCmd(c sevcord.Ctx, opts []any) {
 const catInfoCount = 3
 
 func (e *Elements) Info(c sevcord.Ctx, el int) {
+	c.Acknowledge()
 	// Get element
 	c.Acknowledge()
 	var elem types.Element
@@ -28,7 +29,7 @@ func (e *Elements) Info(c sevcord.Ctx, el int) {
 	}
 
 	// Check if you have
-	description := "**Mark**\n" + elem.Comment
+	description := "**📝 Mark**\n" + elem.Comment
 	var have bool
 	err = e.db.QueryRow(`SELECT $1=ANY(inv) FROM inventories WHERE guild=$2 AND "user"=$3`, elem.ID, c.Guild(), c.Author().User.ID).Scan(&have)
 	if err != nil {
@@ -85,6 +86,11 @@ func (e *Elements) Info(c sevcord.Ctx, el int) {
 		e.base.Error(c, err)
 		return
 	}
+	var dbtreesize int
+	e.db.QueryRow(`SELECT treesize FROM elements WHERE id=$1 AND guild=$2`, elem.ID, c.Guild()).Scan(&dbtreesize)
+	if dbtreesize != treesize {
+		e.db.Exec(`UPDATE elements SET treesize=$3 WHERE id=$1 AND guild=$2`, elem.ID, c.Guild(), treesize)
+	}
 
 	// Element ID
 	description = fmt.Sprintf("Element **#%d**\n", elem.ID) + description
@@ -111,7 +117,7 @@ func (e *Elements) Info(c sevcord.Ctx, el int) {
 		emb = emb.AddField("💬 Commenter", fmt.Sprintf("<@%s>", elem.Commenter), true)
 	}
 	if elem.Colorer != "" {
-		emb = emb.AddField("🎨 Colorer", fmt.Sprintf("<@%s>", elem.Colorer), true)
+		emb = emb.AddField("🖌️ Colorer", fmt.Sprintf("<@%s>", elem.Colorer), true)
 	}
 	if elem.Imager != "" {
 		emb = emb.AddField("🖼️ Imager", fmt.Sprintf("<@%s>", elem.Imager), true)
