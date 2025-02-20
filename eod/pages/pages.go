@@ -46,6 +46,7 @@ func (p *Pages) Init() {
 		sevcord.NewOption("sort", "The sort order of the inventory!", sevcord.OptionKindString, false).
 			AddChoices(types.Sorts...),
 		sevcord.NewOption("postfix", "Whether to add postfix!", sevcord.OptionKindBool, false),
+		sevcord.NewOption("page", "Which page of results to view!", sevcord.OptionKindInt, false),
 	))
 	p.s.AddButtonHandler("inv", p.InvHandler)
 
@@ -59,6 +60,7 @@ func (p *Pages) Init() {
 		sevcord.NewOption("user", "The user to view the leaderboard from the point of view of!", sevcord.OptionKindUser, false),
 		sevcord.NewOption("query", "View the stats within a query!", sevcord.OptionKindString, false).
 			AutoComplete(p.queries.Autocomplete),
+		sevcord.NewOption("page", "Which page of results to view!", sevcord.OptionKindInt, false),
 	))
 	p.s.AddButtonHandler("lb", p.LbHandler)
 
@@ -68,6 +70,7 @@ func (p *Pages) Init() {
 		"View a list of all categories!",
 		p.CatList,
 		sevcord.NewOption("sort", "How to order the categories!", sevcord.OptionKindString, false).AddChoices(catListSorts...),
+		sevcord.NewOption("page", "Which page of results to view!", sevcord.OptionKindInt, false),
 	), sevcord.NewSlashCommand(
 		"view",
 		"View a category's elements",
@@ -75,6 +78,7 @@ func (p *Pages) Init() {
 		sevcord.NewOption("category", "The category to view!", sevcord.OptionKindString, true).AutoComplete(p.categories.Autocomplete),
 		sevcord.NewOption("sort", "How to order the elements!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
 		sevcord.NewOption("postfix", "Whether to add postfix!", sevcord.OptionKindBool, false),
+		sevcord.NewOption("page", "Which page of results to view!", sevcord.OptionKindInt, false),
 	), sevcord.NewSlashCommand(
 		"add",
 		"Add an element to a category!",
@@ -101,6 +105,7 @@ func (p *Pages) Init() {
 		"commandlb",
 		"See which commands are used the most!",
 		p.CommandLb,
+		sevcord.NewOption("page", "Which page of results to view!", sevcord.OptionKindInt, false),
 	))
 	p.s.AddButtonHandler("cmdlb", p.CommandLbHandler)
 
@@ -110,6 +115,7 @@ func (p *Pages) Init() {
 		"View a list of every query!",
 		p.QueryList,
 		sevcord.NewOption("sort", "How to order the queries!", sevcord.OptionKindString, false).AddChoices(queryListSorts...),
+		sevcord.NewOption("page", "Which page of results to view!", sevcord.OptionKindInt, false),
 	), sevcord.NewSlashCommand(
 		"view",
 		"View the elements in a query!",
@@ -117,6 +123,7 @@ func (p *Pages) Init() {
 		sevcord.NewOption("query", "The query to view!", sevcord.OptionKindString, true).AutoComplete(p.queries.Autocomplete),
 		sevcord.NewOption("sort", "How to sort the elements!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
 		sevcord.NewOption("postfix", "Whether to add postfix!", sevcord.OptionKindBool, false),
+		sevcord.NewOption("page", "Which page of results to view!", sevcord.OptionKindInt, false),
 	), sevcord.NewSlashCommand(
 		"delete",
 		"Delete a query!",
@@ -145,6 +152,7 @@ func (p *Pages) Init() {
 			AutoComplete(p.elements.Autocomplete),
 		sevcord.NewOption("sort", "How to order the elements!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
 		sevcord.NewOption("postfix", "Whether to add postfix!", sevcord.OptionKindBool, false),
+		sevcord.NewOption("page", "Which page of results to view!", sevcord.OptionKindInt, false),
 	))
 	p.s.AddButtonHandler("products", p.ProductsHandler)
 }

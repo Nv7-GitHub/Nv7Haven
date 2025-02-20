@@ -124,6 +124,10 @@ func (p *Pages) Inv(c sevcord.Ctx, args []any) {
 	} else {
 		postfixval = 0
 	}
+	page := -1
+	if len(args) > 3 && args[3] != nil {
+		page = int(args[3].(int64)) - 2
+	}
 	// Create embed
-	p.InvHandler(c, fmt.Sprintf("next|%s|%s|%d|-1", user, sort, postfixval))
+	p.InvHandler(c, fmt.Sprintf("next|%s|%s|%d|%d", user, sort, postfixval, page))
 }
