@@ -39,7 +39,7 @@ func (c *Categories) ImageCmd(ctx sevcord.Ctx, cat string, image string) {
 	//Distinguish between adding new image and changing existing image
 	var addtext string
 	if old != "" {
-		addtext = "to change the"
+		addtext = "to edit the"
 	} else {
 		addtext = "a new"
 	}
@@ -79,7 +79,7 @@ func (c *Categories) MsgSignCmd(ctx sevcord.Ctx, cat string, mark string) {
 	//Distinguish between new and old
 	var addtext string
 	if old != types.DefaultMark {
-		addtext = "to change the"
+		addtext = "to edit the"
 	} else {
 		addtext = "a new"
 	}
@@ -114,7 +114,7 @@ func (c *Categories) SignCmd(ctx sevcord.Ctx, opts []any) {
 		}
 		var addtext string
 		if old != types.DefaultMark {
-			addtext = "to change the"
+			addtext = "to edit the"
 		} else {
 			addtext = "a new"
 		}
@@ -164,7 +164,7 @@ func (c *Categories) ColorCmd(ctx sevcord.Ctx, opts []any) {
 	}
 	var addtext string
 	if colorer != "" {
-		addtext = "to change the"
+		addtext = "to edit the"
 	} else {
 		addtext = "a new"
 	}
