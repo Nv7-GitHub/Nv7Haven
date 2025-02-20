@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
@@ -9,7 +10,9 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/elements"
 	"github.com/Nv7-Github/Nv7Haven/eod/queries"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
+	"github.com/Nv7-Github/Nv7Haven/eod/util"
 	"github.com/Nv7-Github/sevcord/v2"
+	"github.com/dustin/go-humanize"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -26,11 +29,17 @@ func (p *Pages) PrintPostfix(postfixType string, elemName string, postfix string
 	switch postfixType {
 	case "length":
 		return fmt.Sprintf(" - %d", len(elemName))
-	case "creator":
+	case "creator", "colorer", "imager":
 		return fmt.Sprintf(" - <@%s>", postfix)
 	case "createdon":
 		t, _ := time.Parse(time.RFC3339, postfix)
 		return fmt.Sprintf(" - <t:%d>", t.Unix())
+	case "treesize":
+		val, _ := strconv.Atoi(postfix)
+		return fmt.Sprintf(" - %s", humanize.Comma(int64(val)))
+	case "color":
+		val, _ := strconv.Atoi(postfix)
+		return fmt.Sprintf(" - %s", util.FormatHex(val))
 	default:
 		return fmt.Sprintf(" - %s", postfix)
 	}
