@@ -151,6 +151,14 @@ func (q *Queries) Init() {
 				sevcord.NewOption("value", "The imager to compare by!", sevcord.OptionKindUser, true),
 			),
 			sevcord.NewSlashCommand(
+				"createdon",
+				"Compare the creation dates of the elements!",
+				q.CreateComparisonCreatedonCmd,
+				sevcord.NewOption("name", "The name of the query!", sevcord.OptionKindString, true),
+				sevcord.NewOption("operator", "The operator to compare by!", sevcord.OptionKindString, true).AddChoices(ComparisonQueryOpChoices...),
+				sevcord.NewOption("value", "The date and time to compare by! (unix timestamp)", sevcord.OptionKindInt, true),
+			),
+			sevcord.NewSlashCommand(
 				"treesize",
 				"Compare the tree size of the elements!",
 				q.CreateComparisonTreesizeCmd,
