@@ -134,7 +134,10 @@ type Poll struct {
 var Sorts = []sevcord.Choice{
 	sevcord.NewChoice("ID", "id"),
 	sevcord.NewChoice("Name", "name"),
+	sevcord.NewChoice("Color", "color"),
 	sevcord.NewChoice("Creator", "creator"),
+	sevcord.NewChoice("Colorer", "colorer"),
+	sevcord.NewChoice("Imager", "imager"),
 	sevcord.NewChoice("Created On", "createdon"),
 	sevcord.NewChoice("Tree Size", "treesize"),
 	sevcord.NewChoice("Length", "length"),
@@ -144,11 +147,19 @@ var Sorts = []sevcord.Choice{
 var SortSql = map[string]string{
 	"id":        "id",
 	"name":      "name",
+	"color":     "color",
 	"creator":   "creator",
+	"colorer":   "colorer",
+	"imager":    "imager",
 	"createdon": "createdon",
 	"treesize":  "treesize DESC",
 	"length":    "LENGTH(name) DESC",
 	"found":     "cont DESC, id",
+}
+
+var SearchTypes = []sevcord.Choice{
+	sevcord.NewChoice("Prefix", "prefix"),
+	sevcord.NewChoice("Regex", "regex"),
 }
 
 var Postfixes = []sevcord.Choice{
@@ -249,3 +260,4 @@ const RedCircle = "🔴"
 const Check = "<:eodCheck:765333533362225222>"
 const NoCheck = "❌"
 const MaxComboLength = 21
+const DefaultMark = "None"

@@ -36,8 +36,15 @@ func (c *Categories) ImageCmd(ctx sevcord.Ctx, cat string, image string) {
 		return
 	}
 
+	//Distinguish between adding new image and changing existing image
+	var addtext string
+	if old != "" {
+		addtext = "to edit the"
+	} else {
+		addtext = "a new"
+	}
 	// Respond
-	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested an image for category **%s** 📷", name)))
+	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s image for category **%s** 📷", addtext, name)))
 }
 
 func (c *Categories) MsgSignCmd(ctx sevcord.Ctx, cat string, mark string) {
@@ -69,9 +76,15 @@ func (c *Categories) MsgSignCmd(ctx sevcord.Ctx, cat string, mark string) {
 		ctx.Respond(res.Response())
 		return
 	}
-
+	//Distinguish between new and old
+	var addtext string
+	if old != types.DefaultMark {
+		addtext = "to edit the"
+	} else {
+		addtext = "a new"
+	}
 	// Respond
-	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested a note for **%s** 🖋️", name)))
+	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s note for **%s** 🖋️", addtext, name)))
 }
 
 func (c *Categories) SignCmd(ctx sevcord.Ctx, opts []any) {
@@ -99,10 +112,16 @@ func (c *Categories) SignCmd(ctx sevcord.Ctx, opts []any) {
 			ctx.Respond(res.Response())
 			return
 		}
+		var addtext string
+		if old != types.DefaultMark {
+			addtext = "to edit the"
+		} else {
+			addtext = "a new"
+		}
 
 		// Respond
-		ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested a note for category **%s** 🖋️", name)))
-	}).Input(sevcord.NewModalInput("New Comment", "None", sevcord.ModalInputStyleParagraph, 2400)))
+		ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s note for category **%s** 🖋️", addtext, name)))
+	}).Input(sevcord.NewModalInput("New Comment", types.DefaultMark, sevcord.ModalInputStyleParagraph, 2400)))
 }
 
 func (c *Categories) ColorCmd(ctx sevcord.Ctx, opts []any) {
@@ -120,10 +139,11 @@ func (c *Categories) ColorCmd(ctx sevcord.Ctx, opts []any) {
 		return
 	}
 
-	// Check element
+	// Check category
 	var name string
 	var old int
-	err = c.db.QueryRow("SELECT name, color FROM categories WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(opts[0].(string)), ctx.Guild()).Scan(&name, &old)
+	var colorer string
+	err = c.db.QueryRow("SELECT name, color,colorer FROM categories WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(opts[0].(string)), ctx.Guild()).Scan(&name, &old)
 	if err != nil {
 		c.base.Error(ctx, err, "Category **"+opts[0].(string)+"** doesn't exist!")
 		return
@@ -142,7 +162,12 @@ func (c *Categories) ColorCmd(ctx sevcord.Ctx, opts []any) {
 		ctx.Respond(res.Response())
 		return
 	}
-
+	var addtext string
+	if colorer != "" {
+		addtext = "to edit the"
+	} else {
+		addtext = "a new"
+	}
 	// Respond
-	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested a color for category **%s** 🎨", name)))
+	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s color for category **%s** 🎨", addtext, name)))
 }

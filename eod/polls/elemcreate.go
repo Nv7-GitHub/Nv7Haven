@@ -101,7 +101,7 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 			Name:      p.Data["result"].(string),
 			Color:     col,
 			Creator:   p.Creator,
-			Comment:   "None",
+			Comment:   types.DefaultMark,
 			CreatedOn: time.Now(),
 			Parents:   pq.Int32Array(util.Map(els, func(a int) int32 { return int32(a) })),
 			TreeSize:  treeSize,

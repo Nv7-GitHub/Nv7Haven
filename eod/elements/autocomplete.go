@@ -21,3 +21,17 @@ func (e *Elements) Autocomplete(c sevcord.Ctx, val any) []sevcord.Choice {
 	}
 	return choices
 }
+
+func (e *Elements) AutocompleteName(ctx sevcord.Ctx, val any) []sevcord.Choice {
+	var res []types.Element
+	err := e.db.Select(&res, "SELECT name FROM elements WHERE guild=$1 AND name ILIKE $2 || '%' ORDER BY similarity(name, $2) DESC, name LIMIT 25", ctx.Guild(), val.(string))
+	if err != nil {
+		log.Println("autocomplete error", err)
+		return nil
+	}
+	choices := make([]sevcord.Choice, len(res))
+	for i, v := range res {
+		choices[i] = sevcord.NewChoice(v.Name, v.Name)
+	}
+	return choices
+}
