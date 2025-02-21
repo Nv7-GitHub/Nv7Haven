@@ -11,16 +11,15 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-func (p *Pages) Search(c sevcord.Ctx, args []any) {
-	c.Acknowledge()
+func SearchInputs(args []any) (string, int, int) {
 	sort := ""
-	if args[2] != nil {
-		sort = args[2].(string)
+	if args[1] != nil {
+		sort = args[1].(string)
 	}
 	postfix := false
 	postfixval := 0
 
-	if args[3] != nil {
+	if args[2] != nil {
 		postfix = args[2].(bool)
 	}
 	if postfix {
@@ -29,10 +28,20 @@ func (p *Pages) Search(c sevcord.Ctx, args []any) {
 		postfixval = 0
 	}
 	page := -1
-	if len(args) > 4 && args[4] != nil {
-		page = int(args[4].(int64)) - 2
+	if len(args) > 3 && args[3] != nil {
+		page = int(args[3].(int64)) - 2
 	}
-	p.SearchHandler(c, fmt.Sprintf("next|%s|%s|%d|%d|%s|%s", c.Author().User.ID, sort, postfixval, page, args[0].(string), args[1].(string)))
+	return sort, postfixval, page
+}
+func (p *Pages) SearchPrefix(c sevcord.Ctx, args []any) {
+	c.Acknowledge()
+	sort, postfixval, page := SearchInputs(args)
+	p.SearchHandler(c, fmt.Sprintf("next|%s|%s|%d|%d|%s|prefix", c.Author().User.ID, sort, postfixval, page, args[0].(string)))
+}
+func (p *Pages) SearchRegex(c sevcord.Ctx, args []any) {
+	c.Acknowledge()
+	sort, postfixval, page := SearchInputs(args)
+	p.SearchHandler(c, fmt.Sprintf("next|%s|%s|%d|%d|%s|regex", c.Author().User.ID, sort, postfixval, page, args[0].(string)))
 }
 
 // Format: prevnext|user|sort|postfix|page|searchquery|searchtype

@@ -171,15 +171,26 @@ func (p *Pages) Init() {
 		sevcord.NewOption("page", "Which page of the results to view!", sevcord.OptionKindInt, false),
 	))
 	p.s.AddButtonHandler("products", p.ProductsHandler)
-	p.s.RegisterSlashCommand(sevcord.NewSlashCommand(
+	p.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup(
 		"search",
 		"Search for elements!",
-		p.Search,
-		sevcord.NewOption("searchquery", "The query to search with!", sevcord.OptionKindString, true),
-		sevcord.NewOption("type", "The type of search to perform!", sevcord.OptionKindString, true).AddChoices(types.SearchTypes...),
-		sevcord.NewOption("sort", "How to order the elements!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
-		sevcord.NewOption("postfix", "Whether to add postfix!", sevcord.OptionKindBool, false),
-		sevcord.NewOption("page", "Which page of the results to view!", sevcord.OptionKindInt, false)),
+		sevcord.NewSlashCommand(
+			"prefix",
+			"Search by a prefix!",
+			p.SearchPrefix,
+			sevcord.NewOption("prefix", "The prefix to search with!", sevcord.OptionKindString, true),
+			sevcord.NewOption("sort", "How to order the elements!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
+			sevcord.NewOption("postfix", "Whether to add postfix!", sevcord.OptionKindBool, false),
+			sevcord.NewOption("page", "Which page of the results to view!", sevcord.OptionKindInt, false)),
+		sevcord.NewSlashCommand(
+			"regex",
+			"Search by a regex!",
+			p.SearchRegex,
+			sevcord.NewOption("regex", "The regex to search with!", sevcord.OptionKindString, true),
+			sevcord.NewOption("sort", "How to order the elements!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
+			sevcord.NewOption("postfix", "Whether to add postfix!", sevcord.OptionKindBool, false),
+			sevcord.NewOption("page", "Which page of the results to view!", sevcord.OptionKindInt, false)),
+	),
 	)
 	p.s.AddButtonHandler("search", p.SearchHandler)
 }
