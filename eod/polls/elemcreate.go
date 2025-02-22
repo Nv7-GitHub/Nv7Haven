@@ -108,11 +108,12 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 			MadeWith:  1,
 			UsedIn:    0,
 			FoundBy:   1,
+			Tier:      1,
 		}
 		name = el.Name
 
 		// Insert element
-		_, err = tx.NamedExec(`INSERT INTO elements (id, guild, name, image, color, comment, creator, createdon, commenter, colorer, imager, parents, treesize,madewith,usedin,foundby) VALUES (:id, :guild, :name, :image, :color, :comment, :creator, :createdon, :commenter, :colorer, :imager, :parents, :treesize,:madewith, :usedin,:foundby)`, el)
+		_, err = tx.NamedExec(`INSERT INTO elements (id, guild, name, image, color, comment, creator, createdon, commenter, colorer, imager, parents, treesize,madewith,usedin,foundby,tier) VALUES (:id, :guild, :name, :image, :color, :comment, :creator, :createdon, :commenter, :colorer, :imager, :parents, :treesize,:madewith, :usedin,:foundby,:tier)`, el)
 		if err != nil {
 			return
 		}

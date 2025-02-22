@@ -68,6 +68,7 @@ type Element struct {
 	MadeWith int `db:"madewith"`
 	UsedIn   int `db:"usedin"`
 	FoundBy  int `db:"foundby"`
+	Tier     int `db:"tier"`
 }
 
 // Guilds
@@ -161,8 +162,8 @@ var SortSql = map[string]string{
 	"treesize":  "treesize DESC",
 	"length":    "LENGTH(name) DESC",
 	"found":     "cont DESC, id",
-	"madewith":  "madewith",
-	"usedin":    "usedin",
+	"madewith":  "madewith DESC",
+	"usedin":    "usedin DESC",
 }
 
 var Postfixes = []sevcord.Choice{

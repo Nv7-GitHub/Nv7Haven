@@ -54,7 +54,8 @@ func main() {
 		treesize integer,
 		usedin integer,
 		madewith integer,
-foundby integer
+foundby integer,
+tier integer
  	)`)
 	handle(err)
 
@@ -91,6 +92,7 @@ type Element struct {
 	MadeWith int           `db:"madewith"`
 	FoundBy  int           `db:"foundby"`
 	UsedIn   int           `db:"usedin"`
+	Tier     int           `db:"tier"`
 }
 
 func AverageTreeSize(els []Element) {
@@ -129,7 +131,7 @@ func RecalcGuild(guild string, db *sqlx.DB) {
 
 	// Fetch elements
 	var elements []Element
-	err = db.Select(&elements, "SELECT guild, id, treesize, parents, madewith, foundby, usedin FROM elements WHERE guild=$1 ORDER BY id", guild)
+	err = db.Select(&elements, "SELECT guild, id, treesize, parents, madewith, foundby, usedin,tier FROM elements WHERE guild=$1 ORDER BY id", guild)
 	handle(err)
 	TimingPrint("Fetched elements")
 
@@ -218,7 +220,7 @@ func RecalcGuild(guild string, db *sqlx.DB) {
 	AverageTreeSize(elements)
 
 	// Add elements to update table
-	BulkInsert(`INSERT INTO elements_update (id, guild, parents, treesize, usedin, madewith) VALUES (:id, :guild, :parents, :treesize, :usedin, :madewith)`, elements, db)
+	BulkInsert(`INSERT INTO elements_update (id, guild, parents, treesize, usedin, madewith,tier) VALUES (:id, :guild, :parents, :treesize, :usedin, :madewith,:tier)`, elements, db)
 	handle(err)
 	TimingPrint("Added elements to update table")
 }
