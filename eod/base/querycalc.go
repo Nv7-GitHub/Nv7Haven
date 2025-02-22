@@ -102,16 +102,7 @@ func (b *Base) CalcQuery(ctx sevcord.Ctx, name string) (*types.Query, bool) {
 		}
 
 	case types.QueryKindRegex:
-		var parent = &types.Query{}
-		err = b.db.Get(parent, "SELECT * FROM queries WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(query.Data["query"].(string)), ctx.Guild())
-
-		if err != nil || parent.Kind == types.QueryKindElements {
-			err = b.db.Select(&query.Elements, `SELECT id FROM elements WHERE guild=$1 AND name ~ $2`, ctx.Guild(), query.Data["regex"].(string))
-		} else {
-			parent, _ = b.CalcQuery(ctx, parent.Name)
-			err = b.db.Select(&query.Elements, `SELECT id FROM elements WHERE guild=$1 AND name ~ $2 AND id=ANY($3)`, ctx.Guild(), query.Data["regex"].(string), pq.Array(parent.Elements))
-		}
-
+		err = b.db.Select(&query.Elements, `SELECT id FROM elements WHERE guild=$1 AND name ~ $2`, ctx.Guild(), query.Data["regex"].(string))
 		if err != nil {
 			b.Error(ctx, err)
 			return nil, false
