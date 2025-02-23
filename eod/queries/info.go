@@ -86,6 +86,7 @@ func (q *Queries) Info(ctx sevcord.Ctx, opts []any) {
 
 	case types.QueryKindRegex:
 		emb = emb.AddField("🔍 Kind", "Regex", true)
+		emb = emb.AddField("🧮 Query", qu.Data["query"].(string), true)
 		emb = emb.AddField("🔍 Regex", "```"+qu.Data["regex"].(string)+"```", false)
 
 	case types.QueryKindComparison:

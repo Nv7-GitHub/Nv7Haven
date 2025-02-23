@@ -163,13 +163,20 @@ func (q *Queries) CreateInventoryCmd(c sevcord.Ctx, opts []any) {
 
 func (q *Queries) CreateRegexCmd(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
+	// Get name
+	var name string
+	err := q.db.Get(&name, "SELECT name FROM queries WHERE LOWER(name)=$1", strings.ToLower(opts[1].(string)))
+	if err != nil {
+		q.base.Error(c, err, "Query **"+opts[1].(string)+"** doesn't exist!")
+		return
+	}
 	// Check regex
-	_, err := regexp.CompilePOSIX(opts[1].(string))
+	_, err = regexp.CompilePOSIX(opts[2].(string))
 	if err != nil {
 		q.base.Error(c, err)
 		return
 	}
-	q.createCmd(c, opts[0].(string), types.QueryKindRegex, map[string]any{"regex": opts[1].(string)})
+	q.createCmd(c, opts[0].(string), types.QueryKindRegex, map[string]any{"query": name, "regex": opts[2].(string)})
 }
 
 var ComparisonQueryOpChoices = []sevcord.Choice{
