@@ -248,6 +248,15 @@ func (q *Queries) CreateComparisonTreesizeCmd(c sevcord.Ctx, opts []any) {
 func (q *Queries) CreateComparisonLengthCmd(c sevcord.Ctx, opts []any) {
 	q.createComparison(c, opts[0].(string), "length", opts[1].(string), float64(opts[2].(int64)))
 }
+func (q *Queries) CreateComparisonUsedinCmd(c sevcord.Ctx, opts []any) {
+	q.createComparison(c, opts[0].(string), "usedin", opts[1].(string), float64(opts[2].(int64)))
+}
+func (q *Queries) CreateComparisonMadeWithCmd(c sevcord.Ctx, opts []any) {
+	q.createComparison(c, opts[0].(string), "madewith", opts[1].(string), float64(opts[2].(int64)))
+}
+func (q *Queries) CreateComparisonTierCmd(c sevcord.Ctx, opts []any) {
+	q.createComparison(c, opts[0].(string), "tier", opts[1].(string), float64(opts[2].(int64)))
+}
 
 func (q *Queries) createComparison(c sevcord.Ctx, name string, field string, operator string, value any) {
 	c.Acknowledge()

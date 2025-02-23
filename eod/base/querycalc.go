@@ -25,6 +25,9 @@ var comparisonFieldMap = map[string]string{
 	"imager":    "imager",
 	"treesize":  "treesize",
 	"length":    "LENGTH(name)",
+	"usedin":    "usedin",
+	"madewith":  "madewith",
+	"tier":      "tier",
 }
 
 func (b *Base) CalcQuery(ctx sevcord.Ctx, name string) (*types.Query, bool) {

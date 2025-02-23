@@ -84,12 +84,12 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 		col /= len(parents)
 
 		// Calc treesize
-		var treeSize int
-		err = tx.QueryRow(`WITH RECURSIVE parents(els, id) AS (
-			VALUES($2::integer[], 1)
+		var treeSize, tier int
+		err = tx.QueryRow(`WITH RECURSIVE parents(els, id,depth) AS (
+			VALUES($2::integer[], 1,0)
 	 	UNION
-			(SELECT b.parents els, b.id id FROM elements b INNER JOIN parents p ON b.id=ANY(p.els) where guild=$1)
-	 	) SELECT COUNT(*) FROM parents WHERE id>0`, p.Guild, pq.Array(els)).Scan(&treeSize)
+			(SELECT b.parents els, b.id id,depth+1 FROM elements b INNER JOIN parents p ON b.id=ANY(p.els) where guild=$1)
+	 	) SELECT COUNT(*), MAX(depth) FROM parents WHERE id>0`, p.Guild, pq.Array(els)).Scan(&treeSize, &tier)
 		if err != nil {
 			return
 		}
@@ -108,7 +108,7 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 			MadeWith:  1,
 			UsedIn:    0,
 			FoundBy:   1,
-			Tier:      1,
+			Tier:      tier,
 		}
 		name = el.Name
 

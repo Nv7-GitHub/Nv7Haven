@@ -65,11 +65,8 @@ tier integer
 	}
 
 	// Update
-	_, err = db.Exec(`UPDATE elements SET parents = elements_update.parents, treesize = elements_update.treesize FROM elements_update WHERE elements.id = elements_update.id AND elements.guild = elements_update.guild`)
+	_, err = db.Exec(`UPDATE elements SET parents = elements_update.parents, treesize = elements_update.treesize,usedin=elements_update.usedin, madewith=elements_update.madewith, tier=elements_update.tier FROM elements_update WHERE elements.id = elements_update.id AND elements.guild = elements_update.guild`)
 	handle(err)
-	_, err = db.Exec(`UPDATE elements SET usedin = elements_update.usedin FROM elements_update WHERE elements.id = elements_update.id`)
-	handle(err)
-	_, err = db.Exec(`UPDATE elements SET madewith = elements_update.madewith FROM elements_update WHERE elements.id = elements_update.id`)
 	TimingPrint("Updated element")
 
 	// Drop update table
@@ -207,12 +204,17 @@ func RecalcGuild(guild string, db *sqlx.DB) {
 		elements[i].UsedIn = int(usedmap[int32(i)])
 		elements[i].MadeWith = int(mademap[int32(i)])
 		if i < 4 {
+			elements[i].Tier = 0
 			continue
 		}
 		done := make(map[int32]struct{}, el.TreeSize)
 		CalcTreeSize(el.ID, elements, done)
 		elements[i].TreeSize = len(done)
-
+		partier := make([]int, 0)
+		for _, par := range elements[i].Parents {
+			partier = append(partier, elements[par].Tier)
+		}
+		elements[i].Tier = slices.Max(partier) + 1
 	}
 	TimingPrint("Recalculated tree size")
 

@@ -149,6 +149,7 @@ var Sorts = []sevcord.Choice{
 	sevcord.NewChoice("Found", "found"),
 	sevcord.NewChoice("Made With", "madewith"),
 	sevcord.NewChoice("Used In", "usedin"),
+	sevcord.NewChoice("Tier", "tier"),
 }
 
 var SortSql = map[string]string{
@@ -164,6 +165,7 @@ var SortSql = map[string]string{
 	"found":     "cont DESC, id",
 	"madewith":  "madewith DESC",
 	"usedin":    "usedin DESC",
+	"tier":      "tier DESC",
 }
 
 var Postfixes = []sevcord.Choice{
