@@ -64,6 +64,11 @@ type Element struct {
 
 	Parents  pq.Int32Array `db:"parents"`
 	TreeSize int           `db:"treesize"`
+
+	MadeWith int `db:"madewith"`
+	UsedIn   int `db:"usedin"`
+	FoundBy  int `db:"foundby"`
+	Tier     int `db:"tier"`
 }
 
 // Guilds
@@ -134,21 +139,33 @@ type Poll struct {
 var Sorts = []sevcord.Choice{
 	sevcord.NewChoice("ID", "id"),
 	sevcord.NewChoice("Name", "name"),
+	sevcord.NewChoice("Color", "color"),
 	sevcord.NewChoice("Creator", "creator"),
+	sevcord.NewChoice("Colorer", "colorer"),
+	sevcord.NewChoice("Imager", "imager"),
 	sevcord.NewChoice("Created On", "createdon"),
 	sevcord.NewChoice("Tree Size", "treesize"),
 	sevcord.NewChoice("Length", "length"),
 	sevcord.NewChoice("Found", "found"),
+	sevcord.NewChoice("Made With", "madewith"),
+	sevcord.NewChoice("Used In", "usedin"),
+	sevcord.NewChoice("Tier", "tier"),
 }
 
 var SortSql = map[string]string{
 	"id":        "id",
 	"name":      "name",
+	"color":     "color",
 	"creator":   "creator",
+	"colorer":   "colorer",
+	"imager":    "imager",
 	"createdon": "createdon",
 	"treesize":  "treesize DESC",
 	"length":    "LENGTH(name) DESC",
 	"found":     "cont DESC, id",
+	"madewith":  "madewith DESC",
+	"usedin":    "usedin DESC",
+	"tier":      "tier DESC",
 }
 
 var Postfixes = []sevcord.Choice{

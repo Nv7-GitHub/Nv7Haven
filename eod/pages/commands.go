@@ -58,5 +58,10 @@ func (p *Pages) CommandLbHandler(c sevcord.Ctx, params string) {
 
 func (p *Pages) CommandLb(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
-	p.CommandLbHandler(c, "next|-1")
+	page := -1
+	if len(opts) > 0 && opts[0] != nil {
+		page = int(opts[0].(int64)) - 2
+	}
+	p.CommandLbHandler(c, fmt.Sprintf("next|%d", page))
+
 }
