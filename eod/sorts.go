@@ -249,13 +249,13 @@ func (b *Bot) getElementIds(c sevcord.Ctx, vals []string) ([]int64, bool) {
 		return nil, false
 	}
 	if len(invalid) == 1 {
-		c.Respond(sevcord.NewMessage("Element **" + convert[strings.TrimPrefix(strings.TrimSuffix(invalid[0], "**"), "**")] + "** doesn't exist! " + types.RedCircle))
+		c.Respond(sevcord.NewMessage("Element **" + convert[strings.TrimPrefix(strings.TrimSuffix(strings.TrimSpace(invalid[0]), "**"), "**")] + "** doesn't exist! " + types.RedCircle))
 		return nil, false
 	} else {
 		var orderedinvalid []string
 		for i := 0; i < len(vals); i++ {
-			if slices.Contains(invalid, fmt.Sprintf("**%s**", strings.ToLower(vals[i]))) {
-				orderedinvalid = append(orderedinvalid, fmt.Sprintf("**%s**", vals[i]))
+			if slices.Contains(invalid, fmt.Sprintf("**%s**", strings.TrimSpace(strings.ToLower(vals[i])))) {
+				orderedinvalid = append(orderedinvalid, fmt.Sprintf("**%s**", strings.TrimSpace(vals[i])))
 			}
 		}
 		output := makeListResp("Elements", "and", " don't exist!", orderedinvalid)

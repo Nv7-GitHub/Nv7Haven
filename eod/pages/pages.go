@@ -1,6 +1,9 @@
 package pages
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/categories"
 	"github.com/Nv7-Github/Nv7Haven/eod/elements"
@@ -19,6 +22,20 @@ type Pages struct {
 	s          *sevcord.Sevcord
 }
 
+func (p *Pages) PrintPostfix(postfixType string, elemName string, postfix string) (val string) {
+	switch postfixType {
+	case "length":
+		return fmt.Sprintf(" - %d", len(elemName))
+	case "creator":
+		return fmt.Sprintf(" - <@%s>", postfix)
+	case "createdon":
+		t, _ := time.Parse(time.RFC3339, postfix)
+		return fmt.Sprintf(" - <t:%d>", t.Unix())
+	default:
+		return fmt.Sprintf(" - %s", postfix)
+	}
+
+}
 func (p *Pages) Init() {
 	// Inv
 	p.s.RegisterSlashCommand(sevcord.NewSlashCommand(
@@ -28,6 +45,7 @@ func (p *Pages) Init() {
 		sevcord.NewOption("user", "The user to view the inventory of!", sevcord.OptionKindUser, false),
 		sevcord.NewOption("sort", "The sort order of the inventory!", sevcord.OptionKindString, false).
 			AddChoices(types.Sorts...),
+		sevcord.NewOption("postfix", "Whether to add postfix!", sevcord.OptionKindBool, false),
 	))
 	p.s.AddButtonHandler("inv", p.InvHandler)
 
@@ -56,6 +74,7 @@ func (p *Pages) Init() {
 		p.Cat,
 		sevcord.NewOption("category", "The category to view!", sevcord.OptionKindString, true).AutoComplete(p.categories.Autocomplete),
 		sevcord.NewOption("sort", "How to order the elements!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
+		sevcord.NewOption("postfix", "Whether to add postfix!", sevcord.OptionKindBool, false),
 	), sevcord.NewSlashCommand(
 		"add",
 		"Add an element to a category!",
@@ -96,7 +115,8 @@ func (p *Pages) Init() {
 		"View the elements in a query!",
 		p.Query,
 		sevcord.NewOption("query", "The query to view!", sevcord.OptionKindString, true).AutoComplete(p.queries.Autocomplete),
-		sevcord.NewOption("sort", "How to order the categories!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
+		sevcord.NewOption("sort", "How to sort the elements!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
+		sevcord.NewOption("postfix", "Whether to add postfix!", sevcord.OptionKindBool, false),
 	), sevcord.NewSlashCommand(
 		"delete",
 		"Delete a query!",
@@ -123,7 +143,8 @@ func (p *Pages) Init() {
 		p.Products,
 		sevcord.NewOption("element", "The element to view the products of!", sevcord.OptionKindInt, true).
 			AutoComplete(p.elements.Autocomplete),
-		sevcord.NewOption("sort", "How to order the categories!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
+		sevcord.NewOption("sort", "How to order the elements!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
+		sevcord.NewOption("postfix", "Whether to add postfix!", sevcord.OptionKindBool, false),
 	))
 	p.s.AddButtonHandler("products", p.ProductsHandler)
 }
