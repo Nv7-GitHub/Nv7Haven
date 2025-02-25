@@ -8,6 +8,7 @@ import (
 	"github.com/Nv7-Github/Nv7Haven/eod/queries"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
+	"github.com/bwmarrin/discordgo"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -147,6 +148,12 @@ func (p *Pages) Init() {
 				sevcord.NewOption("achievement", "The achievement to view the people who have found!", sevcord.OptionKindString, true).
 					AutoComplete(p.achievements.Autocomplete),
 			),
+			sevcord.NewSlashCommand("give",
+				"Give an achievement to a user!",
+				p.base.GiveAchievement,
+				sevcord.NewOption("user", "The user to give the achivement to!", sevcord.OptionKindUser, true),
+				sevcord.NewOption("achivement", "The achievement to give!", sevcord.OptionKindString, true).AutoComplete(p.achievements.AutocompleteName),
+			).RequirePermissions(discordgo.PermissionManageChannels),
 		))
 
 	//add achivement user command here

@@ -195,8 +195,13 @@ func (p *Pages) AchievementFoundHandler(c sevcord.Ctx, params string) {
 		fmt.Fprintf(desc, "<@%s>\n", v)
 	}
 	//get achievement name
+	id, err := strconv.Atoi(parts[1])
+	if err != nil {
+		p.base.Error(c, err)
+		return
+	}
 	var name string
-	err = p.db.Get(&name, `SELECT name from achievements WHERE id=$1 AND guild=$2`, int(params[1]), c.Guild())
+	err = p.db.Get(&name, `SELECT name from achievements WHERE id=$1 AND guild=$2`, id, c.Guild())
 	if err != nil {
 		p.base.Error(c, err)
 		return
