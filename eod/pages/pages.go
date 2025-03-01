@@ -1,25 +1,28 @@
 package pages
 
 import (
+
 	"fmt"
 	"time"
-
+  "github.com/Nv7-Github/Nv7Haven/eod/achievements"
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/categories"
 	"github.com/Nv7-Github/Nv7Haven/eod/elements"
 	"github.com/Nv7-Github/Nv7Haven/eod/queries"
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
+	"github.com/bwmarrin/discordgo"
 	"github.com/jmoiron/sqlx"
 )
 
 type Pages struct {
-	base       *base.Base
-	db         *sqlx.DB
-	categories *categories.Categories
-	elements   *elements.Elements
-	queries    *queries.Queries
-	s          *sevcord.Sevcord
+	base         *base.Base
+	db           *sqlx.DB
+	categories   *categories.Categories
+	elements     *elements.Elements
+	queries      *queries.Queries
+	achievements *achievements.Achievements
+	s            *sevcord.Sevcord
 }
 
 func (p *Pages) PrintPostfix(postfixType string, elemName string, postfix string) (val string) {
@@ -147,16 +150,45 @@ func (p *Pages) Init() {
 		sevcord.NewOption("postfix", "Whether to add postfix!", sevcord.OptionKindBool, false),
 	))
 	p.s.AddButtonHandler("products", p.ProductsHandler)
+
+	//Achievements
+	p.s.RegisterSlashCommand(
+		sevcord.NewSlashCommandGroup("achievement", "View achievements!",
+			sevcord.NewSlashCommand("list",
+				"View a list of all achievements!",
+				p.AchievementList,
+				sevcord.NewOption("sort", "How to order the achievements!", sevcord.OptionKindString, false).AddChoices(achievmentListSorts...)),
+			sevcord.NewSlashCommand("user",
+				"View a user's found achievements!",
+				p.UserAchievments,
+				sevcord.NewOption("user", "The user to view!", sevcord.OptionKindUser, false),
+				sevcord.NewOption("sort", "How to order the achievements!", sevcord.OptionKindString, false).AddChoices(achievmentListSorts...),
+			),
+			sevcord.NewSlashCommand("found", "See who has found an achievement!",
+				p.AchievementFound,
+				sevcord.NewOption("achievement", "The achievement to view the people who have found!", sevcord.OptionKindString, true).
+					AutoComplete(p.achievements.Autocomplete),
+			),
+			sevcord.NewSlashCommand("give",
+				"Give an achievement to a user!",
+				p.base.GiveAchievement,
+				sevcord.NewOption("user", "The user to give the achivement to!", sevcord.OptionKindUser, true),
+				sevcord.NewOption("achivement", "The achievement to give!", sevcord.OptionKindString, true).AutoComplete(p.achievements.AutocompleteName),
+			).RequirePermissions(discordgo.PermissionManageChannels),
+		))
+
+	//add achivement user command here
 }
 
-func NewPages(base *base.Base, db *sqlx.DB, s *sevcord.Sevcord, categories *categories.Categories, elements *elements.Elements, queries *queries.Queries) *Pages {
+func NewPages(base *base.Base, db *sqlx.DB, s *sevcord.Sevcord, categories *categories.Categories, elements *elements.Elements, queries *queries.Queries, achievements *achievements.Achievements) *Pages {
 	p := &Pages{
-		base:       base,
-		db:         db,
-		categories: categories,
-		elements:   elements,
-		queries:    queries,
-		s:          s,
+		base:         base,
+		db:           db,
+		categories:   categories,
+		elements:     elements,
+		queries:      queries,
+		achievements: achievements,
+		s:            s,
 	}
 	p.Init()
 	return p

@@ -37,6 +37,11 @@ func (b *Bot) PingCmd(c sevcord.Ctx, opts []any) {
 
 func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 	switch name {
+	case "infoachievement":
+		if !b.base.CheckCtx(c, "info") {
+			return
+		}
+		b.achievements.Info(c, []any{any(content)})
 	case "s", "suggest":
 		if !b.base.CheckCtx(c, "suggest") {
 			return
@@ -71,11 +76,13 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 		b.queries.Info(c, []any{content})
+    case "profile", "prof":
+		b.users.Profile(c, []any{nil})
 	case "cat", "c", "category":
 
 		if !b.base.CheckCtx(c, "cat") {
 			return
-		}
+		}	
 		if content != "" {
 			parts := strings.SplitN(content, "|", 2)
 			if len(parts) == 2 {
@@ -101,6 +108,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 		b.pages.CommandLb(c, []any{nil})
 	case "inv", "inventory":
+
 		if !b.base.CheckCtx(c, "inv") {
 			return
 		}
@@ -438,6 +446,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 				inps = append(inps, strings.TrimSpace(parts[1]))
 			}
 			b.elements.Combine(c, inps)
+			b.achievements.CheckRequirements(c)
 			return
 		} else {
 			// Get prev
@@ -460,6 +469,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 				new = append(new, name)
 			}
 			b.elements.Combine(c, new)
+			b.achievements.CheckRequirements(c)
 			return
 		}
 	}
@@ -476,6 +486,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 			// Combine
 			elems := strings.Split(content, sep)
 			b.elements.Combine(c, elems)
+			b.achievements.CheckRequirements(c)
 			return
 		}
 	}
