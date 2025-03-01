@@ -119,7 +119,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		} else {
 			id = content
 			if content == "" {
-				b.pages.Inv(c, []any{nil, nil})
+				b.pages.Inv(c, []any{nil, nil, nil})
 				return
 			}
 		}
@@ -133,7 +133,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			b.base.Error(c, err)
 			return
 		}
-		b.pages.Inv(c, []any{any(user), nil})
+		b.pages.Inv(c, []any{any(user), nil, nil})
 
 	case "lb", "leaderboard":
 		if !b.base.CheckCtx(c, "lb") {
@@ -151,7 +151,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		if !ok {
 			return
 		}
-		b.pages.Products(c, []any{any(id), nil})
+		b.pages.Products(c, []any{any(id), nil, nil})
 
 	case "q", "query":
 		parts := strings.SplitN(content, "|", 2)
@@ -163,10 +163,10 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			if len(parts) == 2 {
 
 				sort := getSort(strings.ToLower(strings.TrimSpace(parts[1])))
-				b.pages.Query(c, []any{any(strings.TrimSpace(parts[0])), sort})
+				b.pages.Query(c, []any{any(strings.TrimSpace(parts[0])), sort, nil})
 
 			} else {
-				b.pages.Query(c, []any{any(parts[0]), nil})
+				b.pages.Query(c, []any{any(parts[0]), nil, nil})
 			}
 
 		} else {
