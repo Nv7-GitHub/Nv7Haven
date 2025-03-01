@@ -242,21 +242,21 @@ func (b *Bot) Init() {
 	b.s.RegisterSlashCommand(sevcord.NewSlashCommand(
 		"hint",
 		"Learn how to make an element!",
-		b.elements.Hint,
+		b.pages.Hint,
 		sevcord.NewOption("element", "An element to get the hint of!", sevcord.OptionKindInt, false).
 			AutoComplete(b.elements.Autocomplete),
 		sevcord.NewOption("query", "A query to select the random element to be made from!", sevcord.OptionKindString, false).
 			AutoComplete(b.queries.Autocomplete),
 	))
-	b.s.AddButtonHandler("hint", b.elements.HintHandler)
+	b.s.AddButtonHandler("hint", b.pages.HintHandler)
 	b.s.RegisterSlashCommand(sevcord.NewSlashCommand(
 		"next",
 		"Find the next element to make!",
-		b.elements.Next,
+		b.pages.Next,
 		sevcord.NewOption("query", "A query to select the random element to be made from!", sevcord.OptionKindString, false).
 			AutoComplete(b.queries.Autocomplete),
 	))
-	b.s.AddButtonHandler("next", b.elements.NextHandler)
+	b.s.AddButtonHandler("next", b.pages.NextHandler)
 	b.s.RegisterSlashCommand(sevcord.NewSlashCommand(
 		"idea",
 		"Get an element idea!",

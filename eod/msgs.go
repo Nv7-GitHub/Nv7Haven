@@ -65,12 +65,12 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			}
 			val = any(v)
 		}
-		b.elements.Hint(c, []any{val, nil})
+		b.pages.Hint(c, []any{val, nil})
 	case "hq", "qh", "hintquery":
 		if !b.base.CheckCtx(c, "hint") {
 			return
 		}
-		b.elements.Hint(c, []any{nil, content})
+		b.pages.Hint(c, []any{nil, content})
 	case "ic", "ci", "infocategory", "infocat", "catinfo", "categoryinfo":
 		if !b.base.CheckCtx(c, "info") {
 			return
@@ -293,7 +293,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		if part != "" {
 			val = any(part)
 		}
-		b.elements.Next(c, []any{val})
+		b.pages.Next(c, []any{val})
 	case "elemcats":
 		id, ok := b.getElementId(c, content)
 		if ok {

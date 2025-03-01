@@ -1,8 +1,9 @@
-package elements
+package pages
 
 import (
 	"database/sql"
 	"fmt"
+	"math"
 	"sort"
 	"strconv"
 	"strings"
@@ -59,21 +60,20 @@ NOT (id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2))
 %s
 LIMIT 1`
 
-// Format: user|elementid|query
-func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
+// Format: prevnext|user|elementid|query|page
+func (p *Pages) HintHandler(c sevcord.Ctx, params string) {
 	parts := strings.Split(params, "|")
-	if c.Author().User.ID != parts[0] {
+	if c.Author().User.ID != parts[1] {
 		c.Acknowledge()
 		c.Respond(sevcord.NewMessage("You are not authorized! " + types.RedCircle))
 		return
 	}
-	elVal, err := strconv.Atoi(parts[1])
+	elVal, err := strconv.Atoi(parts[2])
 	if err != nil {
-		e.base.Error(c, err)
+		p.base.Error(c, err)
 		return
 	}
-	query := parts[2]
-
+	query := parts[3]
 	// Get element
 	var el int
 	var elem types.Element
@@ -83,18 +83,18 @@ func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 		// Pick random element
 		var err error
 		if query == "" { // Not from a query
-			err = e.db.QueryRow(fmt.Sprintf(hintQueryRand, "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID).Scan(&el)
+			err = p.db.QueryRow(fmt.Sprintf(hintQueryRand, "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID).Scan(&el)
 		} else { // From a query
 			var qu *types.Query
 			var ok bool
-			qu, ok = e.base.CalcQuery(c, query)
+			qu, ok = p.base.CalcQuery(c, query)
 			if !ok {
 				return
 			}
 
-			err = e.db.QueryRow(fmt.Sprintf(hintQuery, "AND id=ANY($3)", "AND RANDOM() < 0.01"), c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
+			err = p.db.QueryRow(fmt.Sprintf(hintQuery, "AND id=ANY($3)", "AND RANDOM() < 0.01"), c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
 			if err == sql.ErrNoRows {
-				err = e.db.QueryRow(fmt.Sprintf(hintQuery, "AND id=ANY($3)", "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
+				err = p.db.QueryRow(fmt.Sprintf(hintQuery, "AND id=ANY($3)", "ORDER BY RANDOM()"), c.Guild(), c.Author().User.ID, pq.Array(qu.Elements)).Scan(&el)
 			}
 		}
 		// Get random element that the user can make
@@ -102,22 +102,22 @@ func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 			if err == sql.ErrNoRows {
 				c.Respond(sevcord.NewMessage("No hints found! Try again later. " + types.RedCircle))
 			} else {
-				e.base.Error(c, err)
+				p.base.Error(c, err)
 			}
 			return
 		}
 	}
 	//Get element for thumbnail
-	err = e.db.Get(&elem, "SELECT * FROM elements WHERE id=$1 AND guild=$2", el, c.Guild())
+	err = p.db.Get(&elem, "SELECT * FROM elements WHERE id=$1 AND guild=$2", el, c.Guild())
 	if err != nil {
-		e.base.Error(c, err)
+		p.base.Error(c, err)
 		return
 	}
 	// Check if you have
 	var has bool
-	err = e.db.QueryRow(`SELECT $3=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2)`, c.Guild(), c.Author().User.ID, el).Scan(&has)
+	err = p.db.QueryRow(`SELECT $3=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2)`, c.Guild(), c.Author().User.ID, el).Scan(&has)
 	if err != nil {
-		e.base.Error(c, err)
+		p.base.Error(c, err)
 		return
 	}
 
@@ -126,9 +126,17 @@ func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 		Els  pq.Int32Array `db:"els"`
 		Cont bool          `db:"cont"` // Whether user can make it
 	}
-	err = e.db.Select(&items, `SELECT els, els <@ (SELECT inv FROM inventories WHERE guild=$1 AND "user"=$2 LIMIT 1) cont FROM combos WHERE guild=$1 AND result=$3`, c.Guild(), c.Author().User.ID, el)
+	cnt := 0
+	p.db.QueryRow(`SELECT COUNT(*) FROM combos WHERE guild=$1 AND result=$2`, c.Guild(), el).Scan(&cnt)
+	pagecnt := int(math.Ceil(float64(cnt) / float64(maxHintEls)))
+
+	// Apply page
+
+	page, _ := strconv.Atoi(parts[4])
+	page = ApplyPage(parts[0], page, pagecnt)
+	err = p.db.Select(&items, `SELECT els, els <@ (SELECT inv FROM inventories WHERE guild=$1 AND "user"=$2 LIMIT 1) cont FROM combos WHERE guild=$1 AND result=$3 LIMIT $4 OFFSET $5`, c.Guild(), c.Author().User.ID, el, maxHintEls, maxHintEls*page)
 	if err != nil {
-		e.base.Error(c, err)
+		p.base.Error(c, err)
 		return
 	}
 
@@ -139,19 +147,18 @@ func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 		}
 		return false
 	})
-	itemCnt := len(items)
-	if len(items) > maxHintEls {
-		items = items[:maxHintEls]
-	}
+	// if len(items) > maxHintEls {
+	// 	items = items[:maxHintEls]
+	// }
 
 	// Get names
 	ids := []int32{int32(el)}
 	for _, item := range items {
 		ids = append(ids, item.Els...)
 	}
-	nameMap, err := e.base.NameMap(util.Map(ids, func(a int32) int { return int(a) }), c.Guild())
+	nameMap, err := p.base.NameMap(util.Map(ids, func(a int32) int { return int(a) }), c.Guild())
 	if err != nil {
-		e.base.Error(c, err)
+		p.base.Error(c, err)
 		return
 	}
 	// Create message
@@ -185,22 +192,34 @@ func (e *Elements) HintHandler(c sevcord.Ctx, params string) {
 	if !has {
 		dontHave = " don't"
 	}
+	pgtext := ""
+	if pagecnt > 1 {
+		pgtext = fmt.Sprintf("Page %d/%d • ", page+1, pagecnt)
+	}
+
 	emb := sevcord.NewEmbed().
 		Title("Hints for "+nameMap[int(el)]).
 		Description(description.String()).
 		Color(elem.Color).
-		Footer(fmt.Sprintf("%s Hints • You%s have this", humanize.Comma(int64(itemCnt)), dontHave), "")
+		Footer(fmt.Sprintf("%s%s Hints • You%s have this", pgtext, humanize.Comma(int64(cnt)), dontHave), "")
 
 	if elem.Image != "" {
 		emb = emb.Thumbnail(elem.Image)
 	}
-	c.Respond(sevcord.NewMessage("").
+	comps := make([]sevcord.Component, 0)
+
+	comps = append(comps, sevcord.NewButton("New Hint", sevcord.ButtonStylePrimary, "hint", params).WithEmoji(sevcord.ComponentEmojiCustom("hint", "932833472396025908", false)))
+
+	if pagecnt > 1 {
+		comps = append(comps, PageSwitchBtns("hint", fmt.Sprintf("%s|%d|%s|%d", parts[1], el, parts[3], page))...)
+	}
+	err = c.Respond(sevcord.NewMessage("").
 		AddEmbed(emb).
-		AddComponentRow(sevcord.NewButton("New Hint", sevcord.ButtonStylePrimary, "hint", params).
-			WithEmoji(sevcord.ComponentEmojiCustom("hint", "932833472396025908", false))))
+		AddComponentRow(comps...))
+
 }
 
-func (e *Elements) Hint(c sevcord.Ctx, opts []any) {
+func (p *Pages) Hint(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
 	el := -1
 	if opts[0] != nil {
@@ -210,5 +229,10 @@ func (e *Elements) Hint(c sevcord.Ctx, opts []any) {
 	if opts[1] != nil {
 		query = opts[1].(string)
 	}
-	e.HintHandler(c, fmt.Sprintf("%s|%d|%s", c.Author().User.ID, el, query))
+	page := -1
+	if len(opts) > 3 && opts[2] != nil {
+		page = opts[2].(int)
+	}
+
+	p.HintHandler(c, fmt.Sprintf("next|%s|%d|%s|%d", c.Author().User.ID, el, query, page))
 }
