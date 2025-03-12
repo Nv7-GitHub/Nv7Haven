@@ -247,6 +247,7 @@ func (b *Bot) Init() {
 			AutoComplete(b.elements.Autocomplete),
 		sevcord.NewOption("query", "A query to select the random element to be made from!", sevcord.OptionKindString, false).
 			AutoComplete(b.queries.Autocomplete),
+		sevcord.NewOption("page", "Which page of the results to view!", sevcord.OptionKindInt, false),
 	))
 	b.s.AddButtonHandler("hint", b.pages.HintHandler)
 	b.s.RegisterSlashCommand(sevcord.NewSlashCommand(
@@ -255,6 +256,7 @@ func (b *Bot) Init() {
 		b.pages.Next,
 		sevcord.NewOption("query", "A query to select the random element to be made from!", sevcord.OptionKindString, false).
 			AutoComplete(b.queries.Autocomplete),
+		sevcord.NewOption("page", "Which page of the results to view!", sevcord.OptionKindInt, false),
 	))
 	b.s.AddButtonHandler("next", b.pages.NextHandler)
 	b.s.RegisterSlashCommand(sevcord.NewSlashCommand(

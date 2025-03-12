@@ -3,6 +3,7 @@ package pages
 import (
 	"database/sql"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 
@@ -13,18 +14,21 @@ import (
 	"github.com/lib/pq"
 )
 
-// Format: user|query|offset
+// Format: prevnext|user|query|offset|page
 func (p *Pages) NextHandler(c sevcord.Ctx, params string) {
 	parts := strings.Split(params, "|")
-	if c.Author().User.ID != parts[0] {
+	if c.Author().User.ID != parts[1] {
 		c.Acknowledge()
 		c.Respond(sevcord.NewMessage("You are not authorized! " + types.RedCircle))
 		return
 	}
-	offset, _ := strconv.Atoi(parts[2])
+	if len(parts) != 5 {
+		return
+	}
+	offset, _ := strconv.Atoi(parts[3])
 
 	// Get element to make
-	qu := parts[1]
+	qu := parts[2]
 	var err error
 	var res int
 	var elem types.Element
@@ -66,9 +70,14 @@ func (p *Pages) NextHandler(c sevcord.Ctx, params string) {
 		p.base.Error(c, err)
 		return
 	}
+	maxHintEls := p.base.PageLength(c)
+	pagecnt := int(math.Ceil(float64(len(items)) / float64(maxHintEls)))
+	page, _ := strconv.Atoi(parts[4])
+	page = ApplyPage(parts[0], page, pagecnt)
 	itemCnt := len(items)
 	if len(items) > maxHintEls {
-		items = items[:maxHintEls]
+		max := math.Min(float64(maxHintEls+page*maxHintEls), float64(len(items)))
+		items = items[page*maxHintEls : int(max)]
 	}
 
 	// Get names
@@ -97,20 +106,25 @@ func (p *Pages) NextHandler(c sevcord.Ctx, params string) {
 		}
 		desc.WriteRune('\n')
 	}
+	pgtext := ""
+	pgtext = fmt.Sprintf("Page %d/%d • ", page+1, pagecnt)
 
-	params = fmt.Sprintf("%s|%s|%d", parts[0], parts[1], offset+1)
+	params = fmt.Sprintf("next|%s|%s|%d|-1", parts[1], parts[2], offset+1)
 	emb := sevcord.NewEmbed().
 		Title("Your next element is "+nameMap[int(res)]).
 		Description(desc.String()).
 		Color(elem.Color).
-		Footer(fmt.Sprintf("%s Combos", humanize.Comma(int64(itemCnt))), "")
+		Footer(fmt.Sprintf("%s%s Combos", pgtext, humanize.Comma(int64(itemCnt))), "")
 	if elem.Image != "" {
 		emb = emb.Thumbnail(elem.Image)
 	}
+	comps := make([]sevcord.Component, 0)
+	comps = append(comps, sevcord.NewButton("Next Element", sevcord.ButtonStylePrimary, "next", params).
+		WithEmoji(sevcord.ComponentEmojiCustom("next", "1133079167043375204", false)))
+	comps = append(comps, PageSwitchBtns("next", fmt.Sprintf("%s|%s|%s|%d", parts[1], parts[2], parts[3], page))...)
 	c.Respond(sevcord.NewMessage("").
 		AddEmbed(emb).
-		AddComponentRow(sevcord.NewButton("Next Element", sevcord.ButtonStylePrimary, "next", params).
-			WithEmoji(sevcord.ComponentEmojiCustom("next", "1133079167043375204", false))))
+		AddComponentRow(comps...))
 }
 
 func (p *Pages) Next(c sevcord.Ctx, opts []any) {
@@ -119,5 +133,9 @@ func (p *Pages) Next(c sevcord.Ctx, opts []any) {
 	if opts[0] != nil {
 		query = opts[0].(string)
 	}
-	p.NextHandler(c, fmt.Sprintf("%s|%s|0", c.Author().User.ID, query))
+	page := -1
+	if len(opts) > 2 && opts[1] != nil {
+		page = (int)(opts[1].(int64) - 1)
+	}
+	p.NextHandler(c, fmt.Sprintf("next|%s|%s|0|%d", c.Author().User.ID, query, page))
 }
