@@ -44,7 +44,7 @@ func (b *Bot) getElementIds(c sevcord.Ctx, vals []string) ([]int64, bool) {
 		} else {
 			names = append(names, strings.TrimSpace(strings.ToLower(vals[i])))
 		}
-		convert[strings.ToLower(vals[i])] = vals[i]
+		convert[strings.TrimSpace(strings.ToLower(vals[i]))] = strings.TrimSpace(vals[i])
 	}
 	type nameres struct {
 		ID   int64
