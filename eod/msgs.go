@@ -386,7 +386,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 		if len(content) < 2 {
 			return
 		}
-		parts := strings.SplitN(content[1:], " ", 2)
+		parts := strings.SplitN(content[2:], " ", 2)
 		if len(parts) < 2 {
 			parts = append(parts, "")
 		}
@@ -400,7 +400,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 		if !b.base.CheckCtx(c, "info") {
 			return
 		}
-		id, ok := b.getElementId(c, strings.TrimSpace(content[1:]))
+		id, ok := b.getElementId(c, strings.TrimSpace(content[2:]))
 		if ok {
 			b.elements.Info(c, int(id))
 		}
