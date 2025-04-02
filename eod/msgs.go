@@ -382,25 +382,25 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 		b.elements.Combine(c, append([]string{name}, parts...))
 		return
 	}
-	if strings.HasPrefix(content, "¡") {
+	if strings.HasPrefix(content, "!") {
 		if len(content) < 2 {
 			return
 		}
-		parts := strings.SplitN(content[2:], " ", 2)
+		parts := strings.SplitN(content[1:], " ", 2)
 		if len(parts) < 2 {
 			parts = append(parts, "")
 		}
 		b.textCommandHandler(c, strings.ToLower(parts[0]), parts[1])
 		return
 	}
-	if strings.HasPrefix(content, "¿") {
+	if strings.HasPrefix(content, "?") {
 		if len(content) < 2 {
 			return
 		}
 		if !b.base.CheckCtx(c, "info") {
 			return
 		}
-		id, ok := b.getElementId(c, strings.TrimSpace(content[2:]))
+		id, ok := b.getElementId(c, strings.TrimSpace(content[1:]))
 		if ok {
 			b.elements.Info(c, int(id))
 		}
