@@ -25,13 +25,23 @@ func (b *Bot) PingCmd(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
 	t2 := time.Now()
 	ping := t2.Sub(t1)
-	//ping := b.s.Dg().HeartbeatLatency().Microseconds()
+	name := "ping"
+	if len(opts) > 0 && opts != nil {
+		name = opts[0].(string)
+	}
+	msg := "🏓 Pong!"
+	switch name {
+	case "pong":
+		msg = "Ping! 🏓"
+	case "pingpong":
+		msg = "Ping Pong! 🏓"
+	}
 	milliseconds := float64(ping) / 1000000
 	if milliseconds > 1000 {
 		seconds := milliseconds / 1000
-		c.Respond(sevcord.NewMessage("🏓 Pong! Latency: **" + humanize.Ftoa(math.Floor(seconds*100)/100) + "s**"))
+		c.Respond(sevcord.NewMessage(msg + " Latency: **" + humanize.Ftoa(math.Floor(seconds*100)/100) + "s**"))
 	} else {
-		c.Respond(sevcord.NewMessage("🏓 Pong! Latency: **" + humanize.Ftoa(math.Floor(milliseconds*100)/100) + "ms**"))
+		c.Respond(sevcord.NewMessage(msg + " Latency: **" + humanize.Ftoa(math.Floor(milliseconds*100)/100) + "ms**"))
 	}
 }
 
@@ -88,8 +98,11 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		} else {
 			b.pages.CatList(c, []any{"name"})
 		}
-	case "ping":
-		b.PingCmd(c, []any{nil})
+	case "ping", "pong", "pingpong":
+		if !b.base.CheckCtx(c, "ping") {
+			return
+		}
+		b.PingCmd(c, []any{name})
 	case "stats":
 		if !b.base.CheckCtx(c, "stats") {
 			return
@@ -144,7 +157,12 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 		b.pages.Products(c, []any{any(id), nil, nil})
-
+	case "dq":
+		parts := strings.SplitN(content, "|", 2)
+		if !b.base.CheckCtx(c, "query") {
+			return
+		}
+		b.queries.DeleteQuery(c, []any{any(strings.TrimSpace(parts[0]))})
 	case "q", "query":
 		parts := strings.SplitN(content, "|", 2)
 
