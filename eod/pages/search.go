@@ -51,8 +51,14 @@ func (p *Pages) SearchHandler(c sevcord.Ctx, params string) {
 	length := p.base.PageLength(c)
 	cnt := 0
 	cond := "ILIKE $2||'%'"
-	if parts[6] == "regex" {
+	sorttype := "similarity(name,$2) DESC"
+	switch parts[6] {
+	case "prefix":
+		cond = "ILIKE $2||'%'"
+		sorttype = "similarity(name,$2) DESC"
+	case "regex":
 		cond = "~ $2"
+		sorttype = "id"
 	}
 	err := p.db.QueryRow("SELECT COUNT(*) from elements WHERE guild=$1 AND name "+cond, c.Guild(), parts[5]).Scan(&cnt)
 	if err != nil {
@@ -81,16 +87,13 @@ func (p *Pages) SearchHandler(c sevcord.Ctx, params string) {
 	//false if not valid in DB
 	postfixable := parts[2] != "length" && parts[2] != "found" && parts[2] != ""
 	postfixadd := ""
-	sorttype := "similarity(name,$2) DESC"
+
 	if postfix && postfixable {
 		postfixadd = "," + parts[2] + " postfix"
-		//	err = p.db.Select(&items, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont, `+parts[2]+` postfix FROM elements WHERE name ILIKE $2 AND guild=$1 ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), parts[5], length, length*page, parts[1])
-
 	} else {
 		if parts[2] != "" {
 			sorttype = types.SortSql[parts[2]]
 		}
-		//err = p.db.Select(&items, `SELECT name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont FROM elements WHERE name ILIKE $2 AND guild=$1 ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), parts[5], length, length*page, parts[1])
 
 	}
 

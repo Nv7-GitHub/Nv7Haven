@@ -184,7 +184,7 @@ func (p *Pages) Init() {
 			sevcord.NewOption("page", "Which page of the results to view!", sevcord.OptionKindInt, false)),
 		sevcord.NewSlashCommand(
 			"regex",
-			"Search by a regex!",
+			"Search using a POSIX-style regex!",
 			p.SearchRegex,
 			sevcord.NewOption("regex", "The regex to search with!", sevcord.OptionKindString, true),
 			sevcord.NewOption("sort", "How to order the elements!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
