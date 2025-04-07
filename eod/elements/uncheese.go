@@ -2,6 +2,7 @@ package elements
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -106,7 +107,14 @@ func (e *Elements) UncheeseHandler(c sevcord.Ctx, params string) {
 			// Find minimum tree size and combo
 			min := -1
 			var minind int
+
 			for i, combo := range combos {
+				elems := make([]int32, 0)
+				elems = append(elems, combo.Elements...)
+				//skip recursive combos and the combo that is deleted
+				if i == combind || slices.Contains(elems, int32(qu.Elements[ind])) {
+					continue
+				}
 				treesize, loop, err := e.base.TreeSize(tx, qu.Elements[ind], util.Map(combo.Elements, func(a int32) int { return int(a) }), c.Guild())
 				if err != nil {
 					tx.Rollback()
