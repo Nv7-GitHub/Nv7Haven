@@ -45,13 +45,13 @@ func (p *Pages) ProductsHandler(c sevcord.Ctx, params string) {
 	} else {
 		postfix = false
 	}
+	postfixstr := ""
 	postfixable := parts[2] != "found" && parts[2] != "length"
 	if postfixable && postfix {
-		err = p.db.Select(&items, `WITH els AS MATERIALIZED(SELECT *, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont FROM elements WHERE guild=$1 AND id IN (SELECT result FROM combos WHERE guild=$1 AND $2=ANY(els))) SELECT name, cont, `+parts[2]+` postfix FROM els ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), elem, length, length*page, c.Author().User.ID)
-	} else {
-		err = p.db.Select(&items, `WITH els AS MATERIALIZED(SELECT *, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont FROM elements WHERE guild=$1 AND id IN (SELECT result FROM combos WHERE guild=$1 AND $2=ANY(els))) SELECT name, cont FROM els ORDER BY `+types.SortSql[parts[2]]+` LIMIT $3 OFFSET $4`, c.Guild(), elem, length, length*page, c.Author().User.ID)
+		postfixstr = fmt.Sprintf(", %s postfix", parts[2])
 	}
-
+	querystr := fmt.Sprintf(`WITH els AS MATERIALIZED(SELECT *, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont FROM elements WHERE guild=$1 AND id IN (SELECT result FROM combos WHERE guild=$1 AND $2=ANY(els))) SELECT name, cont %s FROM els ORDER BY %s LIMIT $3 OFFSET $4`, postfixstr, types.SortSql[parts[2]])
+	err = p.db.Select(&items, querystr, c.Guild(), elem, length, length*page, c.Author().User.ID)
 	if err != nil {
 		p.base.Error(c, err)
 		return
@@ -124,7 +124,10 @@ func (p *Pages) Products(c sevcord.Ctx, args []any) {
 	} else {
 		postfixval = 0
 	}
-
+	page := -1
+	if len(args) > 3 && args[3] != nil {
+		page = int(args[3].(int64)) - 2
+	}
 	// Create embed
-	p.ProductsHandler(c, fmt.Sprintf("next|%d|%s|%d|-1", id, sort, postfixval))
+	p.ProductsHandler(c, fmt.Sprintf("next|%d|%s|%d|%d", id, sort, postfixval, page))
 }

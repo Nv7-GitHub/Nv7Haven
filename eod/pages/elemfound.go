@@ -66,6 +66,10 @@ func (p *Pages) ElemFoundHandler(c sevcord.Ctx, params string) {
 func (p *Pages) ElemFound(c sevcord.Ctx, args []any) {
 	c.Acknowledge()
 
+	page := -1
+	if len(args) > 1 && args[1] != nil {
+		page = int(args[1].(int64)) - 2
+	}
 	// Create embed
-	p.ElemFoundHandler(c, fmt.Sprintf("next|%d|-1", args[0].(int64)))
+	p.ElemFoundHandler(c, fmt.Sprintf("next|%d|%d", args[0].(int64), page))
 }

@@ -178,7 +178,11 @@ func (p *Pages) Lb(c sevcord.Ctx, opts []any) {
 	if opts[2] != nil {
 		query = opts[2].(string)
 	}
+	page := -1
+	if len(opts) > 3 && opts[3] != nil {
+		page = int(opts[3].(int64)) - 2
+	}
 
 	// Handler
-	p.LbHandler(c, "next|"+user+"|"+sort+"|-1|"+query)
+	p.LbHandler(c, "next|"+user+"|"+sort+"|"+fmt.Sprintf("%d", page)+"|"+query)
 }
