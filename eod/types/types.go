@@ -248,6 +248,28 @@ type Category struct {
 	Elements pq.Int32Array `db:"elements"`
 }
 
+type AchievementKind string
+
+const (
+	AchievementKindElement      AchievementKind = "element"
+	AchievementKindCatNum       AchievementKind = "catnum"
+	AchievementKindCatPercent   AchievementKind = "catpercent"
+	AchievementKindQueryNum     AchievementKind = "querynum"
+	AchievementKindQueryPercent AchievementKind = "querypercent"
+	AchievementKindInvCnt       AchievementKind = "invcnt"
+	AchievementKindMadeCnt      AchievementKind = "madecnt"
+	AchievementKindVoteCnt      AchievementKind = "votecnt"
+)
+
+type Achievement struct {
+	Guild string          `db:"guild"`
+	ID    int             `db:"id"`
+	Name  string          `db:"name"`
+	Kind  AchievementKind `db:"kind"`
+	Icon  string          `db:"icon"`
+	Data  PgData          `db:"data"`
+}
+
 // Util
 
 type CombCache struct {

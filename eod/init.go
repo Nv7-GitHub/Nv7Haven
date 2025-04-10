@@ -3,6 +3,7 @@ package eod
 import (
 	"time"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/achievements"
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/Nv7Haven/eod/categories"
 	"github.com/Nv7-Github/Nv7Haven/eod/elements"
@@ -20,7 +21,10 @@ func (b *Bot) Init() {
 	b.elements = elements.NewElements(b.s, b.db, b.base, b.polls)
 	b.categories = categories.NewCategories(b.db, b.base, b.s, b.polls)
 	b.queries = queries.NewQueries(b.s, b.db, b.base, b.polls, b.elements, b.categories)
-	b.pages = pages.NewPages(b.base, b.db, b.s, b.categories, b.elements, b.queries)
+	b.achievements = achievements.NewAchievements(b.db, b.base, b.s)
+	b.pages = pages.NewPages(b.base, b.db, b.s, b.categories, b.elements, b.queries, b.achievements)
+	b.users = achievements.NewUsers(b.base, b.db, b.s, b.categories, b.elements, b.queries)
+
 	b.s.SetMessageHandler(b.messageHandler)
 
 	// Start saving stats
@@ -141,6 +145,13 @@ func (b *Bot) Init() {
 			b.queries.Info,
 			sevcord.NewOption("query", "The query to view the info of!", sevcord.OptionKindString, true).
 				AutoComplete(b.queries.Autocomplete),
+		),
+		sevcord.NewSlashCommand(
+			"achievement",
+			"Get achievement info",
+			b.achievements.Info,
+			sevcord.NewOption("achievement", "The achievement to view the info of", sevcord.OptionKindString, true).
+				AutoComplete(b.achievements.AutocompleteName),
 		),
 		sevcord.NewSlashCommand(
 			"categories",
@@ -295,6 +306,53 @@ func (b *Bot) Init() {
 		AutoComplete(b.queries.Autocomplete)).
 		RequirePermissions(discordgo.PermissionManageServer))
 	b.s.AddButtonHandler("uncheese", b.elements.UncheeseHandler)
+	b.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup("newachievement", "Add a new achievement!",
+		sevcord.NewSlashCommand("element",
+			"Add an element-based achievement!",
+			b.achievements.CreateElementCmd,
+			sevcord.NewOption("name", "The name of the achievement!", sevcord.OptionKindString, true),
+			sevcord.NewOption("element", "The element required for this achievement!", sevcord.OptionKindInt, true).
+				AutoComplete(b.elements.Autocomplete),
+		), sevcord.NewSlashCommand("catnum",
+			"Add a category-based achievement with a fixed number requirement!",
+			b.achievements.CreateCatNumCmd,
+			sevcord.NewOption("name", "The name of the achievement", sevcord.OptionKindString, true),
+			sevcord.NewOption("category", "The category used for this achievement!", sevcord.OptionKindString, true).
+				AutoComplete(b.categories.Autocomplete),
+			sevcord.NewOption("number", "The number of elements needed for the achievement!", sevcord.OptionKindInt, true)),
+		sevcord.NewSlashCommand("catpercent",
+			"Add a category-based achievement with a percent-based requirement!",
+			b.achievements.CreateCatPercentCmd,
+			sevcord.NewOption("name", "The name of the achievement", sevcord.OptionKindString, true),
+			sevcord.NewOption("category", "The category used for this achievement!", sevcord.OptionKindString, true).
+				AutoComplete(b.categories.Autocomplete),
+			sevcord.NewOption("percent", "The percentage of elements needed for the achievement!", sevcord.OptionKindFloat, true)),
+		sevcord.NewSlashCommand("querynum",
+			"Add a query-based achievement with a fixed number requirement!",
+			b.achievements.CreateCatNumCmd,
+			sevcord.NewOption("name", "The name of the achievement", sevcord.OptionKindString, true),
+			sevcord.NewOption("query", "The query used for this achievement!", sevcord.OptionKindString, true).
+				AutoComplete(b.queries.Autocomplete),
+			sevcord.NewOption("number", "The number of elements needed for the achievement!", sevcord.OptionKindInt, true)),
+		sevcord.NewSlashCommand("querypercent",
+			"Add a query-based achievement with a percent-based requirement!",
+			b.achievements.CreateCatPercentCmd,
+			sevcord.NewOption("name", "The name of the achievement", sevcord.OptionKindString, true),
+			sevcord.NewOption("query", "The query used for this achievement!", sevcord.OptionKindString, true).
+				AutoComplete(b.queries.Autocomplete),
+			sevcord.NewOption("percent", "The percentage of elements needed for the achievement!", sevcord.OptionKindFloat, true)),
+		sevcord.NewSlashCommand("invnum",
+			"Create an inventory based achievement with a fixed number requirement!",
+			b.achievements.CreateInvNumCmd,
+			sevcord.NewOption("name", "The name of the achievement", sevcord.OptionKindString, true),
+			sevcord.NewOption("number", "The number of elements needed for the achievement!", sevcord.OptionKindInt, true)),
+		sevcord.NewSlashCommand("madenum",
+			"Create a elements made achievement with a fixed number requirement!",
+			b.achievements.CreateMadeNumCmd,
+			sevcord.NewOption("name", "The name of the achievement", sevcord.OptionKindString, true),
+			sevcord.NewOption("number", "The number of elements needed for the achievement!", sevcord.OptionKindInt, true)),
+	).RequirePermissions(discordgo.PermissionManageServer))
+
 	b.s.RegisterSlashCommand(sevcord.NewSlashCommand(
 		"ping",
 		"Check the server ping!",

@@ -55,7 +55,7 @@ func (p *Pages) ElemFoundHandler(c sevcord.Ctx, params string) {
 		Title(fmt.Sprintf("%s's Found (%s)", name, humanize.Comma(int64(cnt)))).
 		Description(desc.String()).
 		Footer(fmt.Sprintf("Page %d/%d", page+1, pagecnt), "").
-		Color(15277667) // Orange
+		Color(15277667) // Pink
 
 	c.Respond(sevcord.NewMessage("").
 		AddEmbed(embed).
