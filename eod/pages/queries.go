@@ -72,9 +72,13 @@ func (p *Pages) QueryList(c sevcord.Ctx, opts []any) {
 	if opts[0] != nil {
 		sort = opts[0].(string)
 	}
+	page := -1
+	if len(opts) > 1 && opts[1] != nil {
+		page = int(opts[1].(int64)) - 2
+	}
 
 	// Respond
-	p.QueryListHandler(c, "next|"+sort+"|-1")
+	p.QueryListHandler(c, "next|"+sort+"|"+fmt.Sprint("%d", page))
 }
 
 var queryPageCache = make(map[string]map[string]*types.Query)
@@ -227,6 +231,10 @@ func (p *Pages) Query(c sevcord.Ctx, args []any) {
 	} else {
 		postfixval = 0
 	}
+	page := -1
+	if len(args) > 3 && args[3] != nil {
+		page = int(args[3].(int64)) - 2
+	}
 	// Create embed
-	p.QueryHandler(c, fmt.Sprintf("next|%s|%s|%d|-1|%s", c.Author().User.ID, sort, postfixval, name))
+	p.QueryHandler(c, fmt.Sprintf("next|%s|%s|%d|%d|%s", c.Author().User.ID, sort, postfixval, page, name))
 }
