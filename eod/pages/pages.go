@@ -105,7 +105,8 @@ func (p *Pages) Init() {
 		"Delete all the elements from a category!",
 		p.categories.DelCat,
 		sevcord.NewOption("category", "The category to delete!", sevcord.OptionKindString, true).AutoComplete(p.categories.Autocomplete),
-	)))
+	),
+	))
 	p.s.AddButtonHandler("catlist", p.CatListHandler)
 	p.s.AddButtonHandler("cat", p.CatHandler)
 
@@ -164,6 +165,28 @@ func (p *Pages) Init() {
 		sevcord.NewOption("page", "Which page of the results to view!", sevcord.OptionKindInt, false),
 	))
 	p.s.AddButtonHandler("products", p.ProductsHandler)
+	p.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup(
+		"search",
+		"Search for elements!",
+		sevcord.NewSlashCommand(
+			"prefix",
+			"Search by a prefix!",
+			p.SearchPrefix,
+			sevcord.NewOption("prefix", "The prefix to search with!", sevcord.OptionKindString, true),
+			sevcord.NewOption("sort", "How to order the elements!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
+			sevcord.NewOption("postfix", "Whether to add postfix!", sevcord.OptionKindBool, false),
+			sevcord.NewOption("page", "Which page of the results to view!", sevcord.OptionKindInt, false)),
+		sevcord.NewSlashCommand(
+			"regex",
+			"Search using a POSIX-style regex!",
+			p.SearchRegex,
+			sevcord.NewOption("regex", "The regex to search with!", sevcord.OptionKindString, true),
+			sevcord.NewOption("sort", "How to order the elements!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
+			sevcord.NewOption("postfix", "Whether to add postfix!", sevcord.OptionKindBool, false),
+			sevcord.NewOption("page", "Which page of the results to view!", sevcord.OptionKindInt, false)),
+	),
+	)
+	p.s.AddButtonHandler("search", p.SearchHandler)
 }
 
 func NewPages(base *base.Base, db *sqlx.DB, s *sevcord.Sevcord, categories *categories.Categories, elements *elements.Elements, queries *queries.Queries) *Pages {

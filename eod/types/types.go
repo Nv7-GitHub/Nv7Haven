@@ -157,6 +157,11 @@ var SortSql = map[string]string{
 	"found":     "cont DESC, id",
 }
 
+var SearchTypes = []sevcord.Choice{
+	sevcord.NewChoice("Prefix", "prefix"),
+	sevcord.NewChoice("Regex", "regex"),
+}
+
 var Postfixes = []sevcord.Choice{
 	sevcord.NewChoice("ID", "id"),
 	sevcord.NewChoice("Image", "image"),
@@ -255,3 +260,4 @@ const RedCircle = "🔴"
 const Check = "<:eodCheck:765333533362225222>"
 const NoCheck = "❌"
 const MaxComboLength = 21
+const DefaultMark = "None"
