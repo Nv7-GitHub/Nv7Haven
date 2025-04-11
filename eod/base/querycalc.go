@@ -23,6 +23,7 @@ var comparisonFieldMap = map[string]string{
 	"commenter": "commenter",
 	"colorer":   "colorer",
 	"imager":    "imager",
+	"createdon": "createdon",
 	"treesize":  "treesize",
 	"length":    "LENGTH(name)",
 }

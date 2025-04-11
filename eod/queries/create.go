@@ -69,7 +69,7 @@ func (q *Queries) createCmd(c sevcord.Ctx, name string, kind types.QueryKind, da
 
 	// Create
 	if !edit { // Delete this if statement to make query creation require poll
-		_, err := q.db.Exec(`INSERT INTO queries (guild, name, creator, createdon, kind, data, image, comment, imager, colorer, commenter, color) VALUES ($1, $2, $3, $4, $5, $6, $7, $9, $7, $7, $7, $8)`, c.Guild(), name, c.Author().User.ID, time.Now(), string(kind), types.PgData(data), "", 0, "None")
+		_, err := q.db.Exec(`INSERT INTO queries (guild, name, creator, createdon, kind, data, image, comment, imager, colorer, commenter, color) VALUES ($1, $2, $3, $4, $5, $6, $7, $9, $7, $7, $7, $8)`, c.Guild(), name, c.Author().User.ID, time.Now(), string(kind), types.PgData(data), "", 0, types.DefaultMark)
 		if err != nil {
 			q.base.Error(c, err)
 			return
@@ -239,6 +239,10 @@ func (q *Queries) CreateColorerImageCmd(c sevcord.Ctx, opts []any) {
 
 func (q *Queries) CreateComparisonImagerCmd(c sevcord.Ctx, opts []any) {
 	q.createComparison(c, opts[0].(string), "imager", opts[1].(string), opts[2].(*discordgo.User).ID)
+}
+func (q *Queries) CreateComparisonCreatedonCmd(c sevcord.Ctx, opts []any) {
+	utime := time.Unix(opts[2].(int64), 0)
+	q.createComparison(c, opts[0].(string), "createdon", opts[1].(string), utime)
 }
 
 func (q *Queries) CreateComparisonTreesizeCmd(c sevcord.Ctx, opts []any) {

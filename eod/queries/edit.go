@@ -35,9 +35,15 @@ func (q *Queries) ImageCmd(ctx sevcord.Ctx, query string, image string) {
 		ctx.Respond(res.Response())
 		return
 	}
-
+	// Distinguish between adding new image and changing existing image
+	var addtext string
+	if old != "" {
+		addtext = "to edit the"
+	} else {
+		addtext = "a new"
+	}
 	// Respond
-	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested an image for query **%s** 📷", name)))
+	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s image for query **%s** 📷", addtext, name)))
 }
 
 func (q *Queries) SignCmd(ctx sevcord.Ctx, opts []any) {
@@ -65,10 +71,16 @@ func (q *Queries) SignCmd(ctx sevcord.Ctx, opts []any) {
 			ctx.Respond(res.Response())
 			return
 		}
+		var addtext string
+		if old != types.DefaultMark {
+			addtext = "to edit the"
+		} else {
+			addtext = "a new"
+		}
 
 		// Respond
-		ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested a note for query **%s** 🖋️", name)))
-	}).Input(sevcord.NewModalInput("New Comment", "None", sevcord.ModalInputStyleParagraph, 2400)))
+		ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s note for query **%s** 🖋️", addtext, name)))
+	}).Input(sevcord.NewModalInput("New Comment", types.DefaultMark, sevcord.ModalInputStyleParagraph, 2400)))
 }
 
 func (q *Queries) MsgSignCmd(ctx sevcord.Ctx, query string, mark string) {
@@ -100,9 +112,15 @@ func (q *Queries) MsgSignCmd(ctx sevcord.Ctx, query string, mark string) {
 		ctx.Respond(res.Response())
 		return
 	}
+	var addtext string
+	if old != types.DefaultMark {
+		addtext = "to edit the"
+	} else {
+		addtext = "a new"
+	}
 
 	// Respond
-	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested a note for **%s** 🖋️", name)))
+	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s note for **%s** 🖋️", addtext, name)))
 }
 
 func (q *Queries) ColorCmd(ctx sevcord.Ctx, opts []any) {
@@ -120,10 +138,11 @@ func (q *Queries) ColorCmd(ctx sevcord.Ctx, opts []any) {
 		return
 	}
 
-	// Check element
+	// Check query
 	var name string
 	var old int
-	err = q.db.QueryRow("SELECT name, color FROM queries WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(opts[0].(string)), ctx.Guild()).Scan(&name, &old)
+	var colorer string
+	err = q.db.QueryRow("SELECT name, color,colorer FROM queries WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(opts[0].(string)), ctx.Guild()).Scan(&name, &old, &colorer)
 	if err != nil {
 		q.base.Error(ctx, err, "Query **"+opts[0].(string)+"** doesn't exist!")
 		return
@@ -142,7 +161,13 @@ func (q *Queries) ColorCmd(ctx sevcord.Ctx, opts []any) {
 		ctx.Respond(res.Response())
 		return
 	}
+	var addtext string
+	if colorer != "" {
+		addtext = "to edit the"
+	} else {
+		addtext = "a new"
+	}
 
 	// Respond
-	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested a color for query **%s** 🎨", name)))
+	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s color for query **%s** 🎨", addtext, name)))
 }

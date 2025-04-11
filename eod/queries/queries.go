@@ -151,6 +151,14 @@ func (q *Queries) Init() {
 				sevcord.NewOption("value", "The imager to compare by!", sevcord.OptionKindUser, true),
 			),
 			sevcord.NewSlashCommand(
+				"createdon",
+				"Compare the creation dates of the elements!",
+				q.CreateComparisonCreatedonCmd,
+				sevcord.NewOption("name", "The name of the query!", sevcord.OptionKindString, true),
+				sevcord.NewOption("operator", "The operator to compare by!", sevcord.OptionKindString, true).AddChoices(ComparisonQueryOpChoices...),
+				sevcord.NewOption("value", "The date and time to compare by! (unix timestamp)", sevcord.OptionKindInt, true),
+			),
+			sevcord.NewSlashCommand(
 				"treesize",
 				"Compare the tree size of the elements!",
 				q.CreateComparisonTreesizeCmd,
@@ -208,6 +216,21 @@ func (q *Queries) Init() {
 		sevcord.NewOption("user", "The user to give the elements to!", sevcord.OptionKindUser, true),
 		sevcord.NewOption("query", "The query to give the elements of!", sevcord.OptionKindString, true).AutoComplete(q.Autocomplete),
 	).RequirePermissions(discordgo.PermissionManageChannels))
+	q.s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"set",
+		"Set a user's elements to a query",
+		q.base.Set,
+		sevcord.NewOption("user", "The user to set the elements of!", sevcord.OptionKindUser, true),
+		sevcord.NewOption("query", "The query to set the elements to!", sevcord.OptionKindString, true).AutoComplete(q.Autocomplete),
+	).RequirePermissions(discordgo.PermissionManageChannels))
+	q.s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"take",
+		"Remove the elements in a query from a user!",
+		q.base.Take,
+		sevcord.NewOption("user", "The user to set the elements of!", sevcord.OptionKindUser, true),
+		sevcord.NewOption("query", "The query to remove the elements from!", sevcord.OptionKindString, true).AutoComplete(q.Autocomplete),
+	).RequirePermissions(discordgo.PermissionManageChannels))
+
 }
 
 func NewQueries(s *sevcord.Sevcord, db *sqlx.DB, base *base.Base, polls *polls.Polls, elements *elements.Elements, categories *categories.Categories) *Queries {
