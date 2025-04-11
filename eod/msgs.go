@@ -157,7 +157,12 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 		b.pages.Products(c, []any{any(id), nil, nil})
-
+	case "dq":
+		parts := strings.SplitN(content, "|", 2)
+		if !b.base.CheckCtx(c, "query") {
+			return
+		}
+		b.queries.DeleteQuery(c, []any{any(strings.TrimSpace(parts[0]))})
 	case "q", "query":
 		parts := strings.SplitN(content, "|", 2)
 
