@@ -11,6 +11,36 @@ import (
 	"github.com/lib/pq"
 )
 
+func ComparisonQueryInfoEmoji(name string) string {
+	switch name {
+	case "id":
+		return "#️⃣"
+	case "name":
+		return "📛"
+	case "image":
+		return "📷"
+	case "color":
+		return "🎨"
+	case "comment":
+		return "📝"
+	case "creator":
+		return "🧑"
+	case "commenter":
+		return "💬"
+	case "colorer":
+		return "🖌️"
+	case "imager":
+		return "🖼️"
+	case "createdon":
+		return "📅"
+	case "treesize":
+		return "🌲"
+	case "length":
+		return "🔤"
+	default:
+		return ""
+	}
+}
 func (q *Queries) Info(ctx sevcord.Ctx, opts []any) {
 	ctx.Acknowledge()
 
@@ -90,9 +120,11 @@ func (q *Queries) Info(ctx sevcord.Ctx, opts []any) {
 		emb = emb.AddField("🔍 Regex", "```"+qu.Data["regex"].(string)+"```", false)
 
 	case types.QueryKindComparison:
+
 		emb = emb.AddField("⚖️ Kind", "Comparison", true)
-		emb = emb.AddField("🔤 Field", "`"+qu.Data["field"].(string)+"`", true)
-		emb = emb.AddField("⚖️ Operator", strings.Title(qu.Data["typ"].(string)), true)
+		emoji := ComparisonQueryInfoEmoji(qu.Data["field"].(string))
+		emb = emb.AddField(emoji+" Field", "`"+qu.Data["field"].(string)+"`", true)
+		emb = emb.AddField("🔤 Operator", strings.Title(qu.Data["typ"].(string)), true)
 		emb = emb.AddField("🔢 Value", fmt.Sprintf("%v", qu.Data["value"]), true)
 
 	case types.QueryKindOperation:
@@ -100,6 +132,7 @@ func (q *Queries) Info(ctx sevcord.Ctx, opts []any) {
 		emb = emb.AddField("🔢 Operation", strings.Title(qu.Data["op"].(string)), true)
 		emb = emb.AddField("🔤 Left", qu.Data["left"].(string), true)
 		emb = emb.AddField("🔤 Right", qu.Data["right"].(string), true)
+
 	}
 
 	// Respond
