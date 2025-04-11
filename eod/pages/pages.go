@@ -149,7 +149,18 @@ func (p *Pages) Init() {
 			AddChoices(types.Sorts...),
 		sevcord.NewOption("postfix", "Retrieve data from the element!", sevcord.OptionKindString, false).
 			AddChoices(types.Postfixes...),
-	)))
+	), sevcord.NewSlashCommand(
+		"downloadid",
+		"Download a query's contents via element IDs!",
+		p.queries.DownloadIDs,
+		sevcord.NewOption("query", "The query to download", sevcord.OptionKindString, true).
+			AutoComplete(p.queries.Autocomplete),
+		sevcord.NewOption("sort", "How to sort the elements!", sevcord.OptionKindString, false).
+			AddChoices(types.Sorts...),
+		sevcord.NewOption("postfix", "Retrieve data from the element!", sevcord.OptionKindString, false).
+			AddChoices(types.Postfixes...),
+	),
+	))
 	p.s.AddButtonHandler("querylist", p.QueryListHandler)
 	p.s.AddButtonHandler("query", p.QueryHandler)
 
