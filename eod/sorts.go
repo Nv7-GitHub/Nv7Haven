@@ -44,7 +44,7 @@ func (b *Bot) getElementIds(c sevcord.Ctx, vals []string) ([]int64, bool) {
 		} else {
 			names = append(names, strings.TrimSpace(strings.ToLower(vals[i])))
 		}
-		convert[strings.ToLower(vals[i])] = vals[i]
+		convert[strings.TrimSpace(strings.ToLower(vals[i]))] = strings.TrimSpace(vals[i])
 	}
 	type nameres struct {
 		ID   int64
@@ -180,7 +180,7 @@ func getSort(input string) string {
 		return "createdon"
 	case "treesize", "tree size":
 		return "treesize"
-	case "length":
+	case "length", "len":
 		return "length"
 	case "found":
 		return "found"
@@ -194,8 +194,8 @@ func getLbSort(input string) string {
 		return "made"
 	case "imaged", "img":
 		return "img"
-	case "votes":
-		return "voted"
+	case "votes", "voted":
+		return "votes"
 	case "signed":
 		return "signed"
 	case "colored", "colour", "coloured", "color":
