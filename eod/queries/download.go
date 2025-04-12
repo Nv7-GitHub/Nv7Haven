@@ -28,7 +28,6 @@ func (q *Queries) DownloadHandler(c sevcord.Ctx, params string) {
 		conttext = `, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$3) cont`
 	}
 	sql := fmt.Sprintf(`SELECT name,id %s FROM elements WHERE guild=$1 AND id=ANY($2) ORDER BY %s `, conttext, types.SortSql[sort])
-	//sql := `SELECT name ` + conttext + ` FROM elements WHERE guild=$1 AND id=ANY($2) ORDER BY ` + types.SortSql[sort]
 	if parts[3] != "" {
 		sql = fmt.Sprintf(`SELECT name, id %s postfix %s FROM elements WHERE guild = $1 AND id=ANY($2) ORDER BY %s `, conttext, types.PostfixSql[parts[3]], types.SortSql[sort])
 	}
@@ -56,7 +55,7 @@ func (q *Queries) DownloadHandler(c sevcord.Ctx, params string) {
 	out := &strings.Builder{}
 	for _, name := range names {
 		if parts[4] == "id" {
-			out.WriteString(fmt.Sprintf("#%d", name.ID))
+			out.WriteString(fmt.Sprintf("%d", name.ID))
 		} else {
 			out.WriteString(name.Name)
 		}
@@ -98,18 +97,9 @@ func (q *Queries) Download(c sevcord.Ctx, opts []any) {
 	if opts[2] != nil {
 		postfix = opts[2].(string)
 	}
-	q.DownloadHandler(c, fmt.Sprintf("%s|%s|%s|%s|id", c.Author().GuildID, opts[0].(string), sort, postfix))
-}
-func (q *Queries) DownloadIDs(c sevcord.Ctx, opts []any) {
-	c.Acknowledge()
-
-	sort := "id"
-	if opts[1] != nil {
-		sort = opts[1].(string)
+	dtype := "name"
+	if opts[3] != nil {
+		dtype = opts[3].(string)
 	}
-	postfix := ""
-	if opts[2] != nil {
-		postfix = opts[2].(string)
-	}
-	q.DownloadHandler(c, fmt.Sprintf("%s|%s|%s|%s|id", c.Author().User.ID, opts[0].(string), sort, postfix))
+	q.DownloadHandler(c, fmt.Sprintf("%s|%s|%s|%s|%s", c.Author().GuildID, opts[0].(string), sort, postfix, dtype))
 }

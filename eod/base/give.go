@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/bwmarrin/discordgo"
 	"github.com/lib/pq"
@@ -57,11 +58,12 @@ func (b *Base) GiveFile(c sevcord.Ctx, opts []any) {
 		if elemsstr[i] == "" {
 			continue
 		}
-		id, _ := strconv.Atoi(strings.TrimPrefix(elemsstr[i], "#"))
+		id, err := strconv.Atoi(elemsstr[i])
+		if err != nil {
+			c.Respond(sevcord.NewMessage("Invalid element ID! " + types.RedCircle))
+			return
+		}
 		elems = append(elems, int32(id))
-	}
-	if len(elems) == 0 {
-		return
 	}
 	// Combine to inv
 	_, err = b.db.Exec(`UPDATE inventories SET inv=inv | $1 WHERE guild=$2 AND "user"=$3`, elems, c.Guild(), user)
