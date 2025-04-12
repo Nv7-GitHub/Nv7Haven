@@ -182,7 +182,7 @@ func (e *Elements) Idea(c sevcord.Ctx, opts []any) {
 		cnt = int(opts[1].(int64))
 	}
 	distinctval := 1
-	if len(opts) > 1 && !opts[2].(bool) {
+	if len(opts) > 1 && opts[2] != nil && !opts[2].(bool) {
 		distinctval = 0
 	}
 	e.IdeaHandler(c, fmt.Sprintf("%s|%s|%d|%d|idea", c.Author().User.ID, query, cnt, distinctval))
