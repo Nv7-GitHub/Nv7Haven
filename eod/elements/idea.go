@@ -49,6 +49,7 @@ func (e *Elements) IdeaHandler(c sevcord.Ctx, params string) {
 		max = 1
 	}
 	for i := 0; i < max; i++ {
+		els = make(pq.Int32Array, 0)
 		// Get elements
 		var err error
 		if distinct > 0 {
