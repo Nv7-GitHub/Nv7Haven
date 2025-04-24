@@ -143,7 +143,7 @@ func (c *Categories) ColorCmd(ctx sevcord.Ctx, opts []any) {
 	var name string
 	var old int
 	var colorer string
-	err = c.db.QueryRow("SELECT name, color,colorer FROM categories WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(opts[0].(string)), ctx.Guild()).Scan(&name, &old)
+	err = c.db.QueryRow("SELECT name, color,colorer FROM categories WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(opts[0].(string)), ctx.Guild()).Scan(&name, &old, &colorer)
 	if err != nil {
 		c.base.Error(ctx, err, "Category **"+opts[0].(string)+"** doesn't exist!")
 		return
