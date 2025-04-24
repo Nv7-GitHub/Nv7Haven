@@ -149,7 +149,9 @@ func (p *Pages) Init() {
 			AddChoices(types.Sorts...),
 		sevcord.NewOption("postfix", "Retrieve data from the element!", sevcord.OptionKindString, false).
 			AddChoices(types.Postfixes...),
-	)))
+		sevcord.NewOption("type", "Which type of download to perform!", sevcord.OptionKindString, false).AddChoices(types.DownloadTypes...),
+	),
+	))
 	p.s.AddButtonHandler("querylist", p.QueryListHandler)
 	p.s.AddButtonHandler("query", p.QueryHandler)
 
