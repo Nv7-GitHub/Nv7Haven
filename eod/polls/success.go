@@ -114,6 +114,16 @@ func (b *Polls) pollSuccess(p *types.Poll, dg *discordgo.Session) {
 		if err != nil {
 			log.Println("query image error", err)
 		}
+	case types.PollKindCatRename:
+		err := b.catRenameSuccess(p, newsFunc)
+		if err != nil {
+			log.Println("cat rename error", err)
+		}
+	case types.PollKindQueryRename:
+		err := b.queryRenameSuccess(p, newsFunc)
+		if err != nil {
+			log.Println("query rename error", err)
+		}
 	}
 
 	b.deletePoll(p, dg)

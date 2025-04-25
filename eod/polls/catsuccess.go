@@ -138,3 +138,24 @@ func (p *Polls) catColorSuccess(po *types.Poll, newsFunc func(string)) error {
 
 	return nil
 }
+func (p *Polls) catRenameSuccess(po *types.Poll, newsFunc func(string)) error {
+
+	//update cat name
+	_, err := p.db.Exec(`UPDATE categories SET name=$1 WHERE name=$2 AND guild=$3`, po.Data["new"], po.Data["cat"], po.Guild)
+	if err != nil {
+		return err
+	}
+	var queries []types.Query
+	//Update dependent queries
+	err = p.db.Select(&queries, "SELECT * FROM queries WHERE data->>'cat'=$1 AND guild=$2", po.Data["cat"], po.Guild)
+	if err == nil {
+		_, err = p.db.Exec(`UPDATE queries SET data=$1 WHERE data->>'cat'=$2 AND guild=$3`, types.PgData(map[string]any{"cat": po.Data["new"]}), po.Data["cat"], po.Guild)
+		if err != nil {
+			return err
+		}
+	}
+
+	//_, err = p.db.Exec("")
+	newsFunc(fmt.Sprintf("📝 Renamed Category - **%s** %s", po.Data["new"].(string), p.pollContextMsg(po)))
+	return nil
+}
