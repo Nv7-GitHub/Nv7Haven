@@ -80,7 +80,31 @@ func (p *Polls) queryColorSuccess(po *types.Poll, newsFunc func(string)) error {
 	}
 
 	// News
-	newsFunc(fmt.Sprintf("🎨 Colored Category - **%s** %s", po.Data["query"].(string), p.pollContextMsg(po)))
+	newsFunc(fmt.Sprintf("🎨 Colored Query - **%s** %s", po.Data["query"].(string), p.pollContextMsg(po)))
 
+	return nil
+}
+func (p *Polls) queryRenameSuccess(po *types.Poll, newsFunc func(string)) error {
+	//Update name
+
+	_, err := p.db.Exec(`UPDATE queries SET name=$1 WHERE name=$2 AND guild=$3`, po.Data["new"], po.Data["query"], po.Guild)
+	if err != nil {
+		return err
+	}
+
+	//Update dependent queries
+	var queries []types.Query
+	var queriesdata []struct {
+		name string       `db:name`
+		data types.PgData `db:data`
+	}
+
+	err = p.db.Select(&queriesdata, `SELECT name,data FROM queries WHERE data->>'query'=$1 AND guild =$2`, po.Data["query"], po.Guild)
+	if err == nil && len(queries) > 0 {
+		//_, err = p.db.Exec("UPDATE queries set data=arraytojson")
+	}
+
+	//News
+	newsFunc(fmt.Sprintf("📝 Renamed Query - **%s** %s", po.Data["new"].(string), p.pollContextMsg(po)))
 	return nil
 }
