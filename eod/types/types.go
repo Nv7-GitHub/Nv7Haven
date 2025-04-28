@@ -162,6 +162,11 @@ var SearchTypes = []sevcord.Choice{
 	sevcord.NewChoice("Regex", "regex"),
 }
 
+var HintTypes = []sevcord.Choice{
+	sevcord.NewChoice("ID", "id"),
+	sevcord.NewChoice("Name", "name"),
+}
+
 var Postfixes = []sevcord.Choice{
 	sevcord.NewChoice("ID", "id"),
 	sevcord.NewChoice("Image", "image"),
