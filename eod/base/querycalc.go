@@ -26,6 +26,9 @@ var comparisonFieldMap = map[string]string{
 	"createdon": "createdon",
 	"treesize":  "treesize",
 	"length":    "LENGTH(name)",
+	"usedin":    "usedin",
+	"madewith":  "madewith",
+	"tier":      "tier",
 }
 
 func (b *Base) CalcQuery(ctx sevcord.Ctx, name string) (*types.Query, bool) {

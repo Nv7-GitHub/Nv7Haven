@@ -64,6 +64,11 @@ type Element struct {
 
 	Parents  pq.Int32Array `db:"parents"`
 	TreeSize int           `db:"treesize"`
+
+	MadeWith int `db:"madewith"`
+	UsedIn   int `db:"usedin"`
+	FoundBy  int `db:"foundby"`
+	Tier     int `db:"tier"`
 }
 
 // Guilds
@@ -142,6 +147,9 @@ var Sorts = []sevcord.Choice{
 	sevcord.NewChoice("Tree Size", "treesize"),
 	sevcord.NewChoice("Length", "length"),
 	sevcord.NewChoice("Found", "found"),
+	sevcord.NewChoice("Made With", "madewith"),
+	sevcord.NewChoice("Used In", "usedin"),
+	sevcord.NewChoice("Tier", "tier"),
 }
 
 var SortSql = map[string]string{
@@ -155,6 +163,9 @@ var SortSql = map[string]string{
 	"treesize":  "treesize DESC",
 	"length":    "LENGTH(name) DESC",
 	"found":     "cont DESC, id",
+	"madewith":  "madewith DESC",
+	"usedin":    "usedin DESC",
+	"tier":      "tier DESC",
 }
 
 var SearchTypes = []sevcord.Choice{
