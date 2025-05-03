@@ -80,7 +80,7 @@ func (p *Polls) queryColorSuccess(po *types.Poll, newsFunc func(string)) error {
 	}
 
 	// News
-	newsFunc(fmt.Sprintf("🎨 Colored Category - **%s** %s", po.Data["query"].(string), p.pollContextMsg(po)))
+	newsFunc(fmt.Sprintf("🎨 Colored Query - **%s** %s", po.Data["query"].(string), p.pollContextMsg(po)))
 
 	return nil
 }
