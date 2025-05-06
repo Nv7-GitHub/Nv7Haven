@@ -294,6 +294,31 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			val = any(part)
 		}
 		b.elements.Next(c, []any{val})
+	case "idea":
+		if !b.base.CheckCtx(c, "idea") {
+			return
+		}
+		parts := strings.Split(content, "|")
+		if len(parts) > 2 {
+			c.Respond(sevcord.NewMessage("Use `!idea <query name>]|<idea length>`! " + types.RedCircle))
+			return
+		}
+		query := ""
+		cnt := 2
+		var err error
+		if len(parts) > 0 {
+			query = strings.TrimSpace(parts[0])
+		}
+		if len(parts) > 1 {
+			cnt, err = strconv.Atoi(strings.TrimSpace(parts[1]))
+			if err != nil {
+				c.Respond(sevcord.NewMessage("Use `!idea <query name>]|<idea length>`! " + types.RedCircle))
+				return
+			}
+		}
+
+		b.elements.Idea(c, []any{query, int64(cnt), true})
+
 	case "elemcats":
 		id, ok := b.getElementId(c, content)
 		if ok {

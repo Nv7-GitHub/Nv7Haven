@@ -182,8 +182,16 @@ func (e *Elements) Idea(c sevcord.Ctx, opts []any) {
 		cnt = int(opts[1].(int64))
 	}
 	distinctval := 1
-	if len(opts) > 1 && opts[2] != nil && !opts[2].(bool) {
+	if len(opts) > 2 && opts[2] != nil && !opts[2].(bool) {
 		distinctval = 0
+	}
+	if cnt > types.MaxComboLength {
+		c.Respond(sevcord.NewMessage(fmt.Sprintf("You can only combine up to %d elements! "+types.RedCircle, types.MaxComboLength)))
+		return
+	}
+	if cnt < 1 {
+		c.Respond(sevcord.NewMessage("You need to combine at least 2 elements! " + types.RedCircle))
+		return
 	}
 	e.IdeaHandler(c, fmt.Sprintf("%s|%s|%d|%d|idea", c.Author().User.ID, query, cnt, distinctval))
 }
@@ -200,6 +208,14 @@ func (e *Elements) RandomCombo(c sevcord.Ctx, opts []any) {
 	distinctval := 0
 	if len(opts) > 1 && opts[2] != nil && opts[2].(bool) {
 		distinctval = 1
+	}
+	if cnt > types.MaxComboLength {
+		c.Respond(sevcord.NewMessage(fmt.Sprintf("You can only combine up to %d elements! "+types.RedCircle, types.MaxComboLength)))
+		return
+	}
+	if cnt < 1 {
+		c.Respond(sevcord.NewMessage("You need to combine at least 2 elements! " + types.RedCircle))
+		return
 	}
 	e.IdeaHandler(c, fmt.Sprintf("%s|%s|%d|%d|randomcombo", c.Author().User.ID, query, cnt, distinctval))
 }
