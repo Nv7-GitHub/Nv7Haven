@@ -118,15 +118,10 @@ func (b *Bot) Init() {
 		sevcord.NewSlashCommand(
 			"element",
 			"Get element info!",
-			b.elements.InfoSlashCmdName,
+			b.elements.InfoSlashCmd,
 			sevcord.NewOption("element", "The element to view the info of!", sevcord.OptionKindString, true).
 				AutoComplete(b.elements.AutocompleteName),
-		),
-		sevcord.NewSlashCommand(
-			"elementid",
-			"Get element info by its ID!",
-			b.elements.InfoSlashCmd,
-			sevcord.NewOption("id", "The ID of the element to view the info of!", sevcord.OptionKindInt, true),
+			sevcord.NewOption("type", "The type of element info to view!", sevcord.OptionKindString, false).AddChoices(types.HintTypes...),
 		),
 		sevcord.NewSlashCommand(
 			"category",
