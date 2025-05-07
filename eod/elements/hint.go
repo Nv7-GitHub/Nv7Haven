@@ -208,35 +208,18 @@ func (e *Elements) Hint(c sevcord.Ctx, opts []any) {
 	if opts[1] != nil {
 		query = opts[1].(string)
 	}
-	if opts[0] != nil && len(opts) > 2 && opts[2].(string) == "name" || opts[2] == nil {
+	if opts[0] != nil && len(opts) > 2 && opts[2].(string) == "name" || len(opts) < 2 || opts[2] == nil {
 		err = e.db.QueryRow("SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(strings.TrimSpace(opts[0].(string))), c.Guild()).Scan(&el)
 		if err != nil {
 			e.base.Error(c, err, "Element **"+opts[0].(string)+"** doesn't exist!")
 			return
 		}
 	} else if opts[0] != nil {
-
 		el, err = strconv.Atoi(opts[0].(string))
 		if err != nil {
 
 		}
 	}
 
-	e.HintHandler(c, fmt.Sprintf("%s|%d|%s", c.Author().User.ID, el, query))
-}
-func (e *Elements) HintName(c sevcord.Ctx, opts []any) {
-	c.Acknowledge()
-	el := -1
-	if opts[0] != nil {
-		err := e.db.QueryRow("SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(strings.TrimSpace(opts[0].(string))), c.Guild()).Scan(&el)
-		if err != nil {
-			e.base.Error(c, err, "Element **"+opts[0].(string)+"** doesn't exist!")
-		}
-
-	}
-	query := ""
-	if opts[1] != nil {
-		query = opts[1].(string)
-	}
 	e.HintHandler(c, fmt.Sprintf("%s|%d|%s", c.Author().User.ID, el, query))
 }
