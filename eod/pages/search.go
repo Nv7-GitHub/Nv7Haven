@@ -11,7 +11,7 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-func SearchInputs(args []any) (string, int, int) {
+func SearchInputs(args []any) (string, int, string, int, int) {
 	sort := ""
 	if args[1] != nil {
 		sort = args[1].(string)
@@ -27,31 +27,59 @@ func SearchInputs(args []any) (string, int, int) {
 	} else {
 		postfixval = 0
 	}
-	page := -1
+	itemtype := "elements"
 	if len(args) > 3 && args[3] != nil {
-		page = int(args[3].(int64)) - 2
+		itemtype = args[3].(string)
 	}
-	return sort, postfixval, page
+	casesensitiveval := 1
+	casesensitive := true
+	if args[4] != nil {
+		casesensitive = args[4].(bool)
+	}
+	if casesensitive {
+		casesensitiveval = 1
+	} else {
+		casesensitiveval = 0
+	}
+
+	page := -1
+	if len(args) > 5 && args[5] != nil {
+		page = int(args[5].(int64)) - 2
+	}
+	return sort, postfixval, itemtype, casesensitiveval, page
 }
 func (p *Pages) SearchPrefix(c sevcord.Ctx, args []any) {
 	c.Acknowledge()
-	sort, postfixval, page := SearchInputs(args)
-	p.SearchHandler(c, fmt.Sprintf("next|%s|%s|%d|%d|%s|prefix", c.Author().User.ID, sort, postfixval, page, args[0].(string)))
+	sort, postfixval, itemtype, casesensitive, page := SearchInputs(args)
+	p.SearchHandler(c, fmt.Sprintf("next|%s|%s|%d|%d|%s|prefix|%s|%d", c.Author().User.ID, sort, postfixval, page, args[0].(string), itemtype, casesensitive))
 }
 func (p *Pages) SearchRegex(c sevcord.Ctx, args []any) {
 	c.Acknowledge()
-	sort, postfixval, page := SearchInputs(args)
-	p.SearchHandler(c, fmt.Sprintf("next|%s|%s|%d|%d|%s|regex", c.Author().User.ID, sort, postfixval, page, args[0].(string)))
+	sort, postfixval, itemtype, casesensitive, page := SearchInputs(args)
+	p.SearchHandler(c, fmt.Sprintf("next|%s|%s|%d|%d|%s|regex|%s|%d", c.Author().User.ID, sort, postfixval, page, args[0].(string), itemtype, casesensitive))
+}
+func (p *Pages) SearchContains(c sevcord.Ctx, args []any) {
+	c.Acknowledge()
+	sort, postfixval, itemtype, casesensitive, page := SearchInputs(args)
+	p.SearchHandler(c, fmt.Sprintf("next|%s|%s|%d|%d|%s|contains|%s|%d", c.Author().User.ID, sort, postfixval, page, args[0].(string), itemtype, casesensitive))
 }
 
-// Format: prevnext|user|sort|postfix|page|searchquery|searchtype
+// Format: prevnext|user|sort|postfix|page|searchquery|searchtype|itemtype|casesensitive
 func (p *Pages) SearchHandler(c sevcord.Ctx, params string) {
 
 	parts := strings.Split(params, "|")
 	length := p.base.PageLength(c)
 	cnt := 0
 	cond := "ILIKE $2||'%'"
+	casesensitive := true
+	if parts[8] == "1" {
+		casesensitive = true
+	} else {
+		casesensitive = false
+	}
+
 	sorttype := "similarity(name,$2) DESC"
+	itemtype := parts[7]
 	switch parts[6] {
 	case "prefix":
 		cond = "ILIKE $2||'%'"
@@ -59,8 +87,22 @@ func (p *Pages) SearchHandler(c sevcord.Ctx, params string) {
 	case "regex":
 		cond = "~ $2"
 		sorttype = "id"
+		if itemtype != "elements" {
+			sorttype = "name"
+		}
+
+	case "contains":
+		cond = "LIKE %$2%"
+		sorttype = "name"
 	}
-	err := p.db.QueryRow("SELECT COUNT(*) from elements WHERE guild=$1 AND name "+cond, c.Guild(), parts[5]).Scan(&cnt)
+	if !casesensitive {
+		cond = strings.Replace(cond, "$2", "LOWER($2)", 1)
+	}
+	casesensitiveadd := "name"
+	if !casesensitive {
+		casesensitiveadd = "LOWER(name)"
+	}
+	err := p.db.QueryRow("SELECT COUNT(*) FROM "+itemtype+" WHERE guild=$1 AND "+casesensitiveadd+" "+cond, c.Guild(), parts[5]).Scan(&cnt)
 	if err != nil {
 		return
 	}
@@ -97,9 +139,16 @@ func (p *Pages) SearchHandler(c sevcord.Ctx, params string) {
 
 	}
 
-	querystr := fmt.Sprintf(`SELECT name,id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont %s FROM elements  WHERE name %s AND guild=$1 ORDER BY %s LIMIT $3 OFFSET $4`, postfixadd, cond, sorttype)
+	querystr := ""
+	if itemtype == "elements" {
+		querystr = fmt.Sprintf(`SELECT name,id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont %s FROM elements WHERE %s %s AND guild=$1 ORDER BY %s LIMIT $3 OFFSET $4`, postfixadd, casesensitiveadd, cond, sorttype)
+		err = p.db.Select(&items, querystr, c.Guild(), parts[5], length, length*page, parts[1])
 
-	err = p.db.Select(&items, querystr, c.Guild(), parts[5], length, length*page, parts[1])
+	} else {
+		querystr = fmt.Sprintf(`SELECT name, FALSE cont %s FROM %s WHERE %s %s AND guild=$1 ORDER BY %s LIMIT $3 OFFSET $4`, postfixadd, itemtype, casesensitiveadd, cond, sorttype)
+		err = p.db.Select(&items, querystr, c.Guild(), parts[5], length, length*page)
+
+	}
 
 	if err != nil {
 		p.base.Error(c, err)
@@ -107,11 +156,14 @@ func (p *Pages) SearchHandler(c sevcord.Ctx, params string) {
 	}
 	desc := &strings.Builder{}
 	for _, v := range items {
-		if v.Cont {
-			fmt.Fprintf(desc, "%s %s", v.Name, types.Check)
-		} else {
-			fmt.Fprintf(desc, "%s %s", v.Name, types.NoCheck)
+		if itemtype == "elements" {
+			if v.Cont {
+				fmt.Fprintf(desc, "%s %s", v.Name, types.Check)
+			} else {
+				fmt.Fprintf(desc, "%s %s", v.Name, types.NoCheck)
+			}
 		}
+
 		if postfix && parts[2] != "found" {
 			desc.WriteString(p.PrintPostfix(parts[2], v.Name, v.Postfix))
 
