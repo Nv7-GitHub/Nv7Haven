@@ -333,15 +333,14 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		switch strings.ToLower(parts[0]) {
 		case "e", "element":
 			// Get ID
-			var id int
-			err := b.db.QueryRow("SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(parts[1]), c.Guild()).Scan(&id)
-			if err != nil {
-				b.base.Error(c, err, "Element **"+parts[1]+"** doesn't exist!")
+			var id int64
+			id, ok := b.getElementId(c, parts[1])
+			if !ok {
 				return
 			}
 
 			// Command
-			b.elements.ImageCmd(c, id, image)
+			b.elements.ImageCmd(c, int(id), image)
 
 		case "c", "cat", "category":
 			b.categories.ImageCmd(c, parts[1], image)
