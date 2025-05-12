@@ -102,6 +102,8 @@ const (
 	PollKindQueryColor   PollKind = "querycolor"
 	PollKindQuery        PollKind = "query"
 	PollKindDelQuery     PollKind = "delquery"
+	PollKindCatRename    PollKind = "renamecat"
+	PollKindQueryRename  PollKind = "renamequery"
 )
 
 type PgData map[string]interface{}

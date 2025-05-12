@@ -110,7 +110,16 @@ func (b *Polls) makePollEmbed(p *types.Poll) (sevcord.EmbedBuilder, error) {
 			Description(makeMessage(fmt.Sprintf("**%s**\nNew Color: %s (shown on left)\n\nOld Color: %s", p.Data["query"].(string), util.FormatHex(int(p.Data["new"].(float64))), util.FormatHex(int(p.Data["old"].(float64)))), p)).
 			Color(int(p.Data["new"].(float64))).
 			Footer(footer, ""), nil
-
+	case types.PollKindCatRename:
+		return sevcord.NewEmbed().
+			Title("Rename Category").
+			Description(makeMessage(fmt.Sprintf("**%s**\n New Name: %s", p.Data["cat"].(string), p.Data["new"].(string)), p)).
+			Footer(footer, ""), nil
+	case types.PollKindQueryRename:
+		return sevcord.NewEmbed().
+			Title("Rename Query").
+			Description(makeMessage(fmt.Sprintf("**%s**\n New Name: %s", p.Data["query"].(string), p.Data["new"].(string)), p)).
+			Footer(footer, ""), nil
 	case types.PollKindCategorize, types.PollKindUncategorize:
 		elems := util.Map(p.Data["elems"].([]any), func(v any) int { return int(v.(float64)) })
 		moreTxt := ""

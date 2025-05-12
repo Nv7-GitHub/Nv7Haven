@@ -33,6 +33,22 @@ func (b *Bot) Init() {
 	}()
 
 	// Commands
+	b.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup("rename", "Change a name!",
+		sevcord.NewSlashCommand("category",
+			"Change the name of a category!",
+			b.categories.RenameCmd,
+			sevcord.NewOption("category", "The category to change the name of!", sevcord.OptionKindString, true).
+				AutoComplete(b.categories.Autocomplete),
+			sevcord.NewOption("name", "The new name for the category!", sevcord.OptionKindString, true),
+		),
+		sevcord.NewSlashCommand("query",
+			"Change the name of a query!",
+			b.queries.RenameCmd,
+			sevcord.NewOption("query", "The query to change the name of!", sevcord.OptionKindString, true).
+				AutoComplete(b.queries.Autocomplete),
+			sevcord.NewOption("name", "The new name for the query!", sevcord.OptionKindString, true),
+		),
+	))
 	b.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup("sign", "Change a comment!",
 		sevcord.NewSlashCommand(
 			"element",
