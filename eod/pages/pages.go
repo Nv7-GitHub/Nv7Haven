@@ -167,15 +167,19 @@ func (p *Pages) Init() {
 	p.s.AddButtonHandler("products", p.ProductsHandler)
 	p.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup(
 		"search",
-		"Search for elements!",
+		"Search for items!",
 		sevcord.NewSlashCommand(
 			"prefix",
 			"Search by a prefix!",
 			p.SearchPrefix,
 			sevcord.NewOption("prefix", "The prefix to search with!", sevcord.OptionKindString, true),
-			sevcord.NewOption("sort", "How to order the elements!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
+			sevcord.NewOption("sort", "How to order the items!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
 			sevcord.NewOption("postfix", "Whether to add postfix!", sevcord.OptionKindBool, false),
-			sevcord.NewOption("page", "Which page of the results to view!", sevcord.OptionKindInt, false)),
+			sevcord.NewOption("type", "What type of item to search for!", sevcord.OptionKindString, false).AddChoices(types.SearchItemTypes...),
+			sevcord.NewOption("casesensitive", "Whether the search is case sensitive!", sevcord.OptionKindBool, false),
+			sevcord.NewOption("page", "Which page of the results to view!", sevcord.OptionKindInt, false),
+		),
+
 		sevcord.NewSlashCommand(
 			"regex",
 			"Search using a POSIX-style regex!",
@@ -183,6 +187,18 @@ func (p *Pages) Init() {
 			sevcord.NewOption("regex", "The regex to search with!", sevcord.OptionKindString, true),
 			sevcord.NewOption("sort", "How to order the elements!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
 			sevcord.NewOption("postfix", "Whether to add postfix!", sevcord.OptionKindBool, false),
+			sevcord.NewOption("type", "What type of item to search for!", sevcord.OptionKindString, false).AddChoices(types.SearchItemTypes...),
+			sevcord.NewOption("casesensitive", "Whether the search is case sensitive!", sevcord.OptionKindBool, false),
+			sevcord.NewOption("page", "Which page of the results to view!", sevcord.OptionKindInt, false)),
+		sevcord.NewSlashCommand(
+			"contains",
+			"Search by whether items contain a string!",
+			p.SearchRegex,
+			sevcord.NewOption("string", "The string to search with!", sevcord.OptionKindString, true),
+			sevcord.NewOption("sort", "How to order the elements!", sevcord.OptionKindString, false).AddChoices(types.Sorts...),
+			sevcord.NewOption("postfix", "Whether to add postfix!", sevcord.OptionKindBool, false),
+			sevcord.NewOption("type", "What type of item to search for!", sevcord.OptionKindString, false).AddChoices(types.SearchItemTypes...),
+			sevcord.NewOption("casesensitive", "Whether the search is case sensitive!", sevcord.OptionKindBool, false),
 			sevcord.NewOption("page", "Which page of the results to view!", sevcord.OptionKindInt, false)),
 	),
 	)
