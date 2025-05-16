@@ -351,6 +351,11 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		if ok {
 			b.pages.ElemCats(c, []any{any(id)})
 		}
+	case "elemfound", "found":
+		id, ok := b.getElementId(c, content)
+		if ok {
+			b.pages.ElemFound(c, []any{any(id)})
+		}
 
 	case "img", "image":
 		if !b.base.CheckCtx(c, "image") {
