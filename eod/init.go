@@ -300,4 +300,11 @@ func (b *Bot) Init() {
 		"Check the server ping!",
 		b.PingCmd,
 	))
+	b.s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"lbhide",
+		"Hide a player from the leaderboards!",
+		b.LbHide,
+		sevcord.NewOption("user", "A user to hide or unhide!", sevcord.OptionKindUser, true),
+		sevcordNewOption("hidden", "Whether the user will be hidden from leaderboards!", sevcord.OptionKindBool, true)).
+		RequrePermissions(discordgo.PermissionManageServer))
 }
