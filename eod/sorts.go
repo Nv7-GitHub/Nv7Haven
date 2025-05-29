@@ -109,27 +109,31 @@ func convertVariableID(c sevcord.Ctx, b *Bot, val string) string {
 
 	prefix := ""
 	teststr := ""
+
 	for _, pre := range IDPrefixes {
 		teststr = strings.ToLower(strings.TrimSpace(strings.TrimPrefix(val, pre)))
 		if teststr != strings.ToLower(strings.TrimSpace(val)) {
 			prefix = pre
+
 			break
 		}
 	}
-
+	if prefix == "" {
+		return val
+	}
 	switch teststr {
 	case "last":
 		cache, _ := b.base.GetCombCache(c)
 		if cache.Result != -1 {
 			return prefix + fmt.Sprintf("%d", cache.Result)
 		}
-	case "rand":
+	case "rand,random":
 		var id int
 		err := b.db.QueryRow(`SELECT id FROM elements WHERE guild=$1 ORDER BY RANDOM()`, c.Guild()).Scan(&id)
 		if err == nil {
 			return prefix + fmt.Sprintf("%d", id)
 		}
-	case "randinv", "randininv":
+	case "randinv", "randininv", "randominv":
 		var id int
 		err := b.db.QueryRow(`SELECT id FROM elements WHERE guild=$1 AND id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) ORDER BY RANDOM()`, c.Guild(), c.Author().User.ID).Scan(&id)
 		if err == nil {
@@ -154,7 +158,11 @@ func convertName(val string) string {
 func IsNumericID(val string) (int64, bool) {
 
 	for _, prefix := range IDPrefixes {
-		id, err := strconv.ParseInt(strings.TrimPrefix(strings.TrimSpace(val), prefix), 10, 64)
+		teststr := strings.TrimPrefix(strings.TrimSpace(val), prefix)
+		if teststr == val {
+			continue
+		}
+		id, err := strconv.ParseInt(teststr, 10, 64)
 		if err == nil {
 			return id, true
 		}
