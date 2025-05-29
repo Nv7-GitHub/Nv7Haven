@@ -447,13 +447,13 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 	}
 
 	ok, multelements := b.ApplyMultiplier(c, content)
-	elems = append(elems, multelements...)
-
+	if ok {
+		elems = append(elems, multelements...)
+	}
+	//case for +[element]
 	if len(elems) == 1 {
 		elems = append(elems, content)
 	}
+	b.combineElements(c, elems)
 
-	if ok {
-		b.combineElements(c, elems)
-	}
 }

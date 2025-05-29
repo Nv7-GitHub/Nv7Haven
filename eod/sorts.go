@@ -32,6 +32,8 @@ func (b *Bot) combineElements(c sevcord.Ctx, elements []string) {
 
 }
 func (b *Bot) ApplyMultiplier(c sevcord.Ctx, val string) (ok bool, multelements []string) {
+
+	val = strings.TrimSpace(val)
 	if strings.HasPrefix(val, "*") {
 		parts := strings.SplitN(val[1:], " ", 2)
 		cnt, err := strconv.Atoi(parts[0])
@@ -127,7 +129,7 @@ func convertVariableID(c sevcord.Ctx, b *Bot, val string) string {
 		if cache.Result != -1 {
 			return prefix + fmt.Sprintf("%d", cache.Result)
 		}
-	case "rand,random":
+	case "rand", "random":
 		var id int
 		err := b.db.QueryRow(`SELECT id FROM elements WHERE guild=$1 ORDER BY RANDOM()`, c.Guild()).Scan(&id)
 		if err == nil {
