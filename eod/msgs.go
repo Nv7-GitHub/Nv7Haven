@@ -413,6 +413,7 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 	}
 	for _, sep := range seps {
 		if strings.Contains(content, sep) {
+
 			// Check ctx
 
 			if sep != "\n" && strings.Contains(strings.ToLower(content), "{raw}") {
@@ -439,12 +440,19 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 					elems = append(elems, multels[1:]...)
 				}
 			}
+
 			b.combineElements(c, elems)
 			return
 		}
 	}
+
 	ok, multelements := b.ApplyMultiplier(c, content)
 	elems = append(elems, multelements...)
+
+	if len(elems) == 1 {
+		elems = append(elems, content)
+	}
+
 	if ok {
 		b.combineElements(c, elems)
 	}
