@@ -49,6 +49,7 @@ func (e *Elements) IdeaHandler(c sevcord.Ctx, params string) {
 		max = 1
 	}
 	for i := 0; i < max; i++ {
+		els = make(pq.Int32Array, 0)
 		// Get elements
 		var err error
 		if distinct > 0 {
@@ -59,27 +60,19 @@ func (e *Elements) IdeaHandler(c sevcord.Ctx, params string) {
 				err = e.db.Select(&els, `SELECT id FROM elements WHERE guild=$1 AND id=ANY($2) AND id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$4) ORDER BY RANDOM() LIMIT $3`, c.Guild(), pq.Array(query.Elements), cnt, c.Author().User.ID)
 			}
 		} else {
-			if parts[1] == "" {
-
-				for i := 0; i < cnt; i++ {
-					var el int32
+			for i := 0; i < cnt; i++ {
+				var el int32
+				if parts[1] == "" {
 					err = e.db.Get(&el, `SELECT id FROM elements WHERE guild=$1 AND id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) ORDER BY RANDOM()`, c.Guild(), c.Author().User.ID)
-					if err != nil {
-						e.base.Error(c, err)
-						return
-					}
-					els = append(els, el)
-				}
-			} else {
-				for i := 0; i < cnt; i++ {
-					var el int32
+				} else {
 					err = e.db.Get(&el, `SELECT id FROM elements WHERE guild=$1 AND id=ANY($2) AND id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$3) ORDER BY RANDOM()`, c.Guild(), pq.Array(query.Elements), c.Author().User.ID)
-					if err != nil {
-						e.base.Error(c, err)
-						return
-					}
-					els = append(els, el)
 				}
+
+				if err != nil {
+					e.base.Error(c, err)
+					return
+				}
+				els = append(els, el)
 			}
 
 		}
