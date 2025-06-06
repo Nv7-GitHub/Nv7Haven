@@ -196,7 +196,9 @@ func (p *Pages) HintHandler(c sevcord.Ctx, params string) {
 		dontHave = " don't"
 	}
 	pgtext := ""
-	pgtext = fmt.Sprintf("Page %d/%d • ", page+1, pagecnt)
+	if cnt > maxHintEls {
+		pgtext = fmt.Sprintf("Page %d/%d • ", page+1, pagecnt)
+	}
 
 	emb := sevcord.NewEmbed().
 		Title("Hints for "+nameMap[int(el)]).
@@ -216,7 +218,14 @@ func (p *Pages) HintHandler(c sevcord.Ctx, params string) {
 	params = fmt.Sprintf("next|%s|%s|%s|-1", parts[1], elemparam, parts[3])
 
 	comps = append(comps, sevcord.NewButton("New Hint", sevcord.ButtonStylePrimary, "hint", params).WithEmoji(sevcord.ComponentEmojiCustom("hint", "932833472396025908", false)))
-	comps = append(comps, PageSwitchBtns("hint", fmt.Sprintf("%s|+%d|%s|%d", parts[1], el, parts[3], page))...)
+	if cnt > maxHintEls {
+		randelemstr := ""
+		if strings.HasPrefix(parts[2], "+") || elemparam == "-1" {
+			randelemstr = "+"
+		}
+		comps = append(comps, PageSwitchBtns("hint", fmt.Sprintf("%s|%s%d|%s|%d", parts[1], randelemstr, el, parts[3], page))...)
+	}
+
 	c.Respond(sevcord.NewMessage("").
 		AddEmbed(emb).
 		AddComponentRow(comps...))

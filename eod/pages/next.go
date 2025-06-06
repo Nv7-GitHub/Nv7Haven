@@ -107,7 +107,9 @@ func (p *Pages) NextHandler(c sevcord.Ctx, params string) {
 		desc.WriteRune('\n')
 	}
 	pgtext := ""
-	pgtext = fmt.Sprintf("Page %d/%d • ", page+1, pagecnt)
+	if itemCnt > maxHintEls {
+		pgtext = fmt.Sprintf("Page %d/%d • ", page+1, pagecnt)
+	}
 
 	params = fmt.Sprintf("next|%s|%s|%d|-1", parts[1], parts[2], offset+1)
 	emb := sevcord.NewEmbed().
@@ -121,7 +123,10 @@ func (p *Pages) NextHandler(c sevcord.Ctx, params string) {
 	comps := make([]sevcord.Component, 0)
 	comps = append(comps, sevcord.NewButton("Next Element", sevcord.ButtonStylePrimary, "next", params).
 		WithEmoji(sevcord.ComponentEmojiCustom("next", "1133079167043375204", false)))
-	comps = append(comps, PageSwitchBtns("next", fmt.Sprintf("%s|%s|%s|%d", parts[1], parts[2], parts[3], page))...)
+	if itemCnt > maxHintEls {
+		comps = append(comps, PageSwitchBtns("next", fmt.Sprintf("%s|%s|%s|%d", parts[1], parts[2], parts[3], page))...)
+	}
+
 	c.Respond(sevcord.NewMessage("").
 		AddEmbed(emb).
 		AddComponentRow(comps...))
