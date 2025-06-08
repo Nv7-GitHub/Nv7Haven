@@ -224,24 +224,25 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			c.Respond(sevcord.NewMessage("Use `!sign [element name]|<text>` or `!sign [e/c/q] [element/category/query name]|<text>`! " + types.RedCircle))
 			return
 		}
+		var prefixSplit []string
 		if len(parts) == 2 {
-			parts2 := strings.SplitN(parts[0], " ", 2)
+			prefixSplit = strings.SplitN(parts[0], " ", 2)
 		}
-		if len(parts2) == 1 {
+		if len(prefixSplit) == 1 {
 			// assume signing element
 			b.elements.MsgSignCmd(c, strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1]))
 			return
 		}
 		// check for signing element/category/query
-		switch strings.ToLower(strings.TrimSpace(parts2[0])) {
+		switch strings.ToLower(strings.TrimSpace(prefixSplit[0])) {
 		case "e", "element":
-			b.elements.MsgSignCmd(c, strings.TrimSpace(parts2[1]), strings.TrimSpace(parts[1]))
+			b.elements.MsgSignCmd(c, strings.TrimSpace(prefixSplit[1]), strings.TrimSpace(parts[1]))
 
 		case "c", "cat", "category":
-			b.categories.MsgSignCmd(c, strings.TrimSpace(parts2[1]), strings.TrimSpace(parts[1]))
+			b.categories.MsgSignCmd(c, strings.TrimSpace(prefixSplit[1]), strings.TrimSpace(parts[1]))
 
 		case "q", "query":
-			b.queries.MsgSignCmd(c, strings.TrimSpace(parts2[1]), strings.TrimSpace(parts[1]))
+			b.queries.MsgSignCmd(c, strings.TrimSpace(prefixSplit[1]), strings.TrimSpace(parts[1]))
 
 		case "":
 			// no text was provided before the separator, invalid
@@ -250,7 +251,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		default:
 			// first arg is invalid, assume all text before the separator is the element
 			b.elements.MsgSignCmd(c, strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1]))
-			
+
 		}
 	case "col", "color", "colour":
 		if !b.base.CheckCtx(c, "color") {
@@ -263,32 +264,33 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			c.Respond(sevcord.NewMessage("Use `!color [element name]|<hex code>` or `!color [e/c/q] [element/category/query name]|<hex code>`! " + types.RedCircle))
 			return
 		}
+		var prefixSplit []string
 		if len(parts) == 2 {
 			// split args before hex code to determine existence of first arg
-			parts2 := strings.SplitN(content, " ", 2)
+			prefixSplit = strings.SplitN(content, " ", 2)
 		}
-		if len(parts2) == 1 {
+		if len(prefixSplit) == 1 {
 			// no second arg, assume first arg is the element
-			id, ok := b.getElementId(c, parts2[1])
+			id, ok := b.getElementId(c, prefixSplit[1])
 			if !ok {
 				return
 			}
 			b.elements.ColorCmd(c, []any{id, strings.TrimSpace(parts[1])})
 		}
 		// check for coloring element/category/query
-		switch strings.ToLower(strings.TrimSpace(parts2[0])) {
+		switch strings.ToLower(strings.TrimSpace(prefixSplit[0])) {
 		case "e", "element":
-			id, ok := b.getElementId(c, parts2[1])
+			id, ok := b.getElementId(c, prefixSplit[1])
 			if !ok {
 				return
 			}
 			b.elements.ColorCmd(c, []any{id, strings.TrimSpace(parts[1])})
 
 		case "c", "cat", "category":
-			b.categories.ColorCmd(c, []any{strings.TrimSpace(parts2[1]), strings.TrimSpace(parts[1])})
+			b.categories.ColorCmd(c, []any{strings.TrimSpace(prefixSplit[1]), strings.TrimSpace(parts[1])})
 
 		case "q", "query":
-			b.queries.ColorCmd(c, []any{strings.TrimSpace(parts2[1]), strings.TrimSpace(parts[1])})
+			b.queries.ColorCmd(c, []any{strings.TrimSpace(prefixSplit[1]), strings.TrimSpace(parts[1])})
 
 		case "":
 			// no text was provided before the separator, invalid
