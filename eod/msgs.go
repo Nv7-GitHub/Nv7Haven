@@ -50,8 +50,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		if !b.base.CheckCtx(c, "suggest") {
 			return
 		}
-		val := content
-		b.MsgSugElement(c, val)
+		b.MsgSugElement(c, content)
 	case "h", "hint":
 		if !b.base.CheckCtx(c, "hint") {
 			return
