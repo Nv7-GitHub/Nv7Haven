@@ -138,3 +138,37 @@ func (p *Polls) catColorSuccess(po *types.Poll, newsFunc func(string)) error {
 
 	return nil
 }
+func (p *Polls) catRenameSuccess(po *types.Poll, newsFunc func(string)) error {
+
+	//update cat name
+	_, err := p.db.Exec(`UPDATE categories SET name=$1 WHERE name=$2 AND guild=$3`, po.Data["new"], po.Data["cat"], po.Guild)
+	if err != nil {
+		return err
+	}
+	//Update dependent queries
+	var queriesdata []struct {
+		Name string       `db:"name"`
+		Data types.PgData `db:"data"`
+	}
+
+	err = p.db.Select(&queriesdata, `SELECT name, data FROM queries WHERE data->>'cat'=$1 AND guild =$2`, po.Data["cat"], po.Guild)
+
+	if err == nil && len(queriesdata) > 0 {
+
+		for i := 0; i < len(queriesdata); i++ {
+			if queriesdata[i].Data["cat"] != nil && queriesdata[i].Data["cat"] == po.Data["cat"] {
+				queriesdata[i].Data["cat"] = po.Data["new"]
+			}
+			_, err = p.db.Exec("UPDATE queries SET data=$1 WHERE name=$2 AND guild=$3", queriesdata[i].Data, queriesdata[i].Name, po.Guild)
+			if err != nil {
+				return err
+			}
+
+		}
+
+	}
+
+	//_, err = p.db.Exec("")
+	newsFunc(fmt.Sprintf("📝 Renamed Category - **%s** %s", po.Data["new"].(string), p.pollContextMsg(po)))
+	return nil
+}

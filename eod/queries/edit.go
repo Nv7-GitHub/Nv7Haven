@@ -171,3 +171,36 @@ func (q *Queries) ColorCmd(ctx sevcord.Ctx, opts []any) {
 	// Respond
 	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s color for query **%s** 🎨", addtext, name)))
 }
+func (q *Queries) RenameCmd(ctx sevcord.Ctx, opts []any) {
+	ctx.Acknowledge()
+
+	var name string
+	var newname string
+	//check category
+	err := q.db.QueryRow("SELECT name FROM queries WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(opts[0].(string)), ctx.Guild()).Scan(&name)
+	if err != nil {
+		q.base.Error(ctx, err, "Query **"+opts[0].(string)+"** doesn't exist!")
+		return
+	}
+	//check new name
+	err = q.db.QueryRow("SELECT name FROM queries WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(opts[1].(string)), ctx.Guild()).Scan(&newname)
+	if err == nil {
+		ctx.Respond(sevcord.NewMessage("Query **" + opts[1].(string) + "** already exists! " + types.RedCircle))
+		return
+	}
+	newname = opts[1].(string)
+
+	//Make poll
+	res := q.polls.CreatePoll(ctx, &types.Poll{
+		Kind: types.PollKindQueryRename,
+		Data: types.PgData{
+			"query": name,
+			"new":   newname,
+		},
+	})
+	if !res.Ok {
+		ctx.Respond(res.Response())
+		return
+	}
+	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested to rename query **%s** 📝", name)))
+}

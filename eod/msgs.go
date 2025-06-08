@@ -284,6 +284,31 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		default:
 			c.Respond(sevcord.NewMessage("Use `!color [e/c/q]|[element/category/query name]|<hex code>`! " + types.RedCircle))
 		}
+	case "rename":
+		if !b.base.CheckCtx(c, "rename") {
+			return
+		}
+		parts := strings.SplitN(content, " ", 2)
+		errmsg := "Use `!rename [c/q] [category/query name]|<new name>`! " + types.RedCircle
+		if len(parts) != 2 {
+			c.Respond(sevcord.NewMessage(errmsg))
+			return
+		}
+		names := strings.SplitN(parts[1], "|", 2)
+		if len(names) != 2 {
+			c.Respond(sevcord.NewMessage(errmsg))
+			return
+		}
+
+		switch strings.TrimSpace(strings.ToLower(parts[0])) {
+		case "c", "cat", "category":
+			b.categories.RenameCmd(c, []any{strings.TrimSpace(names[0]), strings.TrimSpace(names[1])})
+		case "q", "query":
+			b.queries.RenameCmd(c, []any{strings.TrimSpace(names[0]), strings.TrimSpace(names[1])})
+		default:
+			c.Respond(sevcord.NewMessage(errmsg))
+		}
+
 	case "n", "next":
 		if !b.base.CheckCtx(c, "next") {
 			return
