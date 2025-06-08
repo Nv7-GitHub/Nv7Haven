@@ -209,19 +209,40 @@ func (q *Queries) Init() {
 		sevcord.NewOption("query", "The query to view the path of!", sevcord.OptionKindString, true).
 			AutoComplete(q.Autocomplete),
 	).RequirePermissions(discordgo.PermissionManageServer))
-	q.s.RegisterSlashCommand(sevcord.NewSlashCommand(
+	q.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup(
 		"give",
-		"Give the elements in a query to a user!",
-		q.base.Give,
-		sevcord.NewOption("user", "The user to give the elements to!", sevcord.OptionKindUser, true),
-		sevcord.NewOption("query", "The query to give the elements of!", sevcord.OptionKindString, true).AutoComplete(q.Autocomplete),
-	).RequirePermissions(discordgo.PermissionManageChannels))
-	q.s.RegisterSlashCommand(sevcord.NewSlashCommand(
+		"Give elements to a user",
+		sevcord.NewSlashCommand(
+			"query",
+			"Give the elements in a query to a user!",
+			q.base.Give,
+			sevcord.NewOption("user", "The user to give the elements to!", sevcord.OptionKindUser, true),
+			sevcord.NewOption("query", "The query to give the elements of!", sevcord.OptionKindString, true).AutoComplete(q.Autocomplete),
+		),
+		sevcord.NewSlashCommand(
+			"file",
+			"Give the elements in a file to a user!",
+			q.base.GiveFile,
+			sevcord.NewOption("user", "The user to give the elements to!", sevcord.OptionKindUser, true),
+			sevcord.NewOption("file", "The file to give the elements of!", sevcord.OptionKindAttachment, true),
+		)).RequirePermissions(discordgo.PermissionManageChannels))
+	q.s.RegisterSlashCommand(sevcord.NewSlashCommandGroup(
 		"set",
-		"Set a user's elements to a query",
-		q.base.Set,
-		sevcord.NewOption("user", "The user to set the elements of!", sevcord.OptionKindUser, true),
-		sevcord.NewOption("query", "The query to set the elements to!", sevcord.OptionKindString, true).AutoComplete(q.Autocomplete),
+		"Set a user's elements",
+		sevcord.NewSlashCommand(
+			"query",
+			"Set a user's elements to a query",
+			q.base.Set,
+			sevcord.NewOption("user", "The user to set the elements of!", sevcord.OptionKindUser, true),
+			sevcord.NewOption("query", "The query to set the elements to!", sevcord.OptionKindString, true).AutoComplete(q.Autocomplete),
+		),
+		sevcord.NewSlashCommand(
+			"file",
+			"Set a user's elements to a file",
+			q.base.SetFile,
+			sevcord.NewOption("user", "The user to set the elements of!", sevcord.OptionKindUser, true),
+			sevcord.NewOption("file", "The file to set the elements to!", sevcord.OptionKindAttachment, true).AutoComplete(q.Autocomplete),
+		),
 	).RequirePermissions(discordgo.PermissionManageChannels))
 	q.s.RegisterSlashCommand(sevcord.NewSlashCommand(
 		"take",

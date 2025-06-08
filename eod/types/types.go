@@ -156,6 +156,10 @@ var SortSql = map[string]string{
 	"length":    "LENGTH(name) DESC",
 	"found":     "cont DESC, id",
 }
+var DownloadTypes = []sevcord.Choice{
+	sevcord.NewChoice("Name", "name"),
+	sevcord.NewChoice("ID", "id"),
+}
 
 var SearchTypes = []sevcord.Choice{
 	sevcord.NewChoice("Prefix", "prefix"),
