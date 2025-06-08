@@ -104,7 +104,6 @@ func (e *Elements) IdeaHandler(c sevcord.Ctx, params string) {
 		c.Respond(sevcord.NewMessage("No ideas found! Try again later. " + types.RedCircle))
 		return
 	}
-
 	// Format response
 	nameMap, err := e.base.NameMap(util.Map(els, func(a int32) int { return int(a) }), c.Guild())
 	if err != nil {
@@ -128,7 +127,7 @@ func (e *Elements) IdeaHandler(c sevcord.Ctx, params string) {
 		} else {
 			have := false
 			res := 0
-			err = e.db.QueryRow(`SELECT result FROM combos WHERE guild=$1 AND result <@ $2 AND result @> $2`, c.Guild(), pq.Array(els)).Scan(&res)
+			err = e.db.QueryRow(`SELECT result FROM combos WHERE guild=$1 AND els <@ $2 AND els @> $2`, c.Guild(), pq.Array(els)).Scan(&res)
 			if err != nil {
 				return
 			}
@@ -175,8 +174,16 @@ func (e *Elements) Idea(c sevcord.Ctx, opts []any) {
 		cnt = int(opts[1].(int64))
 	}
 	distinctval := 1
-	if len(opts) > 1 && opts[2] != nil && !opts[2].(bool) {
+	if len(opts) > 2 && opts[2] != nil && !opts[2].(bool) {
 		distinctval = 0
+	}
+	if cnt > types.MaxComboLength {
+		c.Respond(sevcord.NewMessage(fmt.Sprintf("You can only combine up to %d elements! "+types.RedCircle, types.MaxComboLength)))
+		return
+	}
+	if cnt < 2 {
+		c.Respond(sevcord.NewMessage("You need to combine at least 2 elements! " + types.RedCircle))
+		return
 	}
 	e.IdeaHandler(c, fmt.Sprintf("%s|%s|%d|%d|idea", c.Author().User.ID, query, cnt, distinctval))
 }
@@ -193,6 +200,14 @@ func (e *Elements) RandomCombo(c sevcord.Ctx, opts []any) {
 	distinctval := 0
 	if len(opts) > 1 && opts[2] != nil && opts[2].(bool) {
 		distinctval = 1
+	}
+	if cnt > types.MaxComboLength {
+		c.Respond(sevcord.NewMessage(fmt.Sprintf("You can only combine up to %d elements! "+types.RedCircle, types.MaxComboLength)))
+		return
+	}
+	if cnt < 2 {
+		c.Respond(sevcord.NewMessage("You need to combine at least 2 elements! " + types.RedCircle))
+		return
 	}
 	e.IdeaHandler(c, fmt.Sprintf("%s|%s|%d|%d|randomcombo", c.Author().User.ID, query, cnt, distinctval))
 }
