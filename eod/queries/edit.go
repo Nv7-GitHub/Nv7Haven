@@ -79,7 +79,7 @@ func (q *Queries) SignCmd(ctx sevcord.Ctx, opts []any) {
 		}
 
 		// Respond
-		ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s note for query **%s** 🖋️", addtext, name)))
+		ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s mark for query **%s** 🖋️", addtext, name)))
 	}).Input(sevcord.NewModalInput("New Comment", types.DefaultMark, sevcord.ModalInputStyleParagraph, 2400)))
 }
 
@@ -120,7 +120,7 @@ func (q *Queries) MsgSignCmd(ctx sevcord.Ctx, query string, mark string) {
 	}
 
 	// Respond
-	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s note for **%s** 🖋️", addtext, name)))
+	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s mark for **%s** 🖋️", addtext, name)))
 }
 
 func (q *Queries) ColorCmd(ctx sevcord.Ctx, opts []any) {
