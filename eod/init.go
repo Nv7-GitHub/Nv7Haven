@@ -303,8 +303,8 @@ func (b *Bot) Init() {
 	b.s.RegisterSlashCommand(sevcord.NewSlashCommand(
 		"lbhide",
 		"Hide a player from the leaderboards!",
-		b.LbHide,
+		b.base.LbHide,
 		sevcord.NewOption("user", "A user to hide or unhide!", sevcord.OptionKindUser, true),
-		sevcordNewOption("hidden", "Whether the user will be hidden from leaderboards!", sevcord.OptionKindBool, true)).
-		RequrePermissions(discordgo.PermissionManageServer))
+		sevcord.NewOption("hidden", "Whether the user will be hidden from leaderboards!", sevcord.OptionKindBool, true)).
+		RequirePermissions(discordgo.PermissionManageServer))
 }
