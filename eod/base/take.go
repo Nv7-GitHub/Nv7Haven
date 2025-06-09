@@ -46,7 +46,7 @@ func (b *Base) Set(c sevcord.Ctx, opts []any) {
 	// Respond
 	c.Respond(sevcord.NewMessage(fmt.Sprintf("Succesfully set elements of <@%s>!", user)))
 }
-func (b *Base) LbHide(c sevcord.Ctx opts []any) {
+func (b *Base) LbHide(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
 
 	user := opts[0].(*discordgo.User).ID
