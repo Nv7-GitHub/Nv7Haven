@@ -79,7 +79,7 @@ func (e *Elements) SignCmd(c sevcord.Ctx, opts []any) {
 			addtext = "a new"
 		}
 		// Respond
-		c.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s note for **%s** 🖋️", addtext, name)))
+		c.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s mark for **%s** 🖋️", addtext, name)))
 	}).Input(sevcord.NewModalInput("New Comment", types.DefaultMark, sevcord.ModalInputStyleParagraph, 2400)))
 }
 
@@ -121,7 +121,7 @@ func (e *Elements) MsgSignCmd(c sevcord.Ctx, elem string, mark string) {
 		addtext = "a new"
 	}
 	// Respond
-	c.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s note for **%s** 🖋️", addtext, name)))
+	c.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s mark for **%s** 🖋️", addtext, name)))
 }
 
 func (e *Elements) ColorCmd(c sevcord.Ctx, opts []any) {
