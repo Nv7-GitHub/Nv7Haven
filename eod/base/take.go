@@ -44,5 +44,20 @@ func (b *Base) Set(c sevcord.Ctx, opts []any) {
 	}
 
 	// Respond
-	c.Respond(sevcord.NewMessage(fmt.Sprintf("Succesfully set elements to <@%s>!", user)))
+	c.Respond(sevcord.NewMessage(fmt.Sprintf("Succesfully set elements of <@%s>!", user)))
+}
+func (b *Base) LbHide(c sevcord.Ctx, opts []any) {
+	c.Acknowledge()
+
+	user := opts[0].(*discordgo.User).ID
+
+	// Ban or unban player from leaderboards
+	_, err := b.db.Exec(`UPDATE inventories SET lbhidden=$1 WHERE guild=$2 AND "user"=$3`, opts[1], c.Guild(), user)
+	if err != nil {
+		b.Error(c, err)
+		return
+	}
+
+	// Respond
+	c.Respond(sevcord.NewMessage(fmt.Sprintf("Succesfully updated leaderboard hide status of <@%s>!", user)))
 }
