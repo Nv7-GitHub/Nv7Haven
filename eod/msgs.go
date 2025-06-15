@@ -1,7 +1,6 @@
 package eod
 
 import (
-	"fmt"
 	"math"
 	"slices"
 	"strconv"
@@ -51,8 +50,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		if !b.base.CheckCtx(c, "suggest") {
 			return
 		}
-		b.elements.Suggest(c, []any{any(content), nil})
-
+		b.MsgSugElement(c, content)
 	case "h", "hint":
 		if !b.base.CheckCtx(c, "hint") {
 			return
@@ -424,41 +422,8 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 		if !b.base.CheckCtx(c, "suggest") {
 			return
 		}
-		b.elements.Suggest(c, []any{any(strings.TrimSpace(content[1:])), nil})
-		return
-	}
-	if strings.HasPrefix(content, "+") {
-		if len(content) < 2 {
-			return
-		}
-		if !b.base.CheckCtx(c, "message") {
-			return
-		}
-		if !b.base.IsPlayChannel(c) {
-			return
-		}
-
-		comb, ok := b.base.GetCombCache(c)
-		if !ok.Ok {
-			c.Respond(ok.Response())
-			return
-		}
-		name, err := b.base.GetName(c.Guild(), comb.Result)
-		if err != nil {
-			b.base.Error(c, err)
-			return
-		}
-
-		// Get parts
-		parts := []string{content[1:]}
-		for _, sep := range seps {
-			if strings.Contains(content[1:], sep) {
-				parts = strings.Split(content[1:], sep)
-				break
-			}
-		}
-
-		b.elements.Combine(c, append([]string{name}, parts...))
+		val := strings.TrimSpace(content[1:])
+		b.MsgSugElement(c, val)
 		return
 	}
 	if strings.HasPrefix(content, "!") {
@@ -483,79 +448,77 @@ func (b *Bot) messageHandler(c sevcord.Ctx, content string) {
 		if ok {
 			b.elements.Info(c, int(id))
 		}
-
 		return
 	}
-	if strings.HasPrefix(content, "*") {
-		if len(content) < 2 {
-			return
-		}
-		if !b.base.CheckCtx(c, "message") {
-			return
-		}
-		if !b.base.IsPlayChannel(c) {
-			return
-		}
+	if !b.base.IsPlayChannel(c) {
+		return
+	}
+	if !b.base.CheckCtx(c, "message") {
+		return
+	}
+	if len(content) < 2 {
+		return
+	}
+	elems := make([]string, 0)
+	if strings.TrimSpace(content)[0] == '+' || strings.TrimSpace(content)[0] == ',' {
 
-		parts := strings.SplitN(content[1:], " ", 2)
-		cnt, err := strconv.Atoi(parts[0])
+		content = strings.TrimSpace(content)[1:]
+		comb, ok := b.base.GetCombCache(c)
+		if !ok.Ok {
+			c.Respond(ok.Response())
+			return
+		}
+		name, err := b.base.GetName(c.Guild(), comb.Result)
 		if err != nil {
-			c.Respond(sevcord.NewMessage("Invalid number of repeats! " + types.RedCircle))
+			b.base.Error(c, err)
 			return
 		}
-		if cnt > types.MaxComboLength {
-			c.Respond(sevcord.NewMessage(fmt.Sprintf("You can only combine up to %d elements! "+types.RedCircle, types.MaxComboLength)))
-			return
-		}
-		if cnt < 2 {
-			c.Respond(sevcord.NewMessage("You need to combine at least 2 elements! " + types.RedCircle))
-			return
-		}
-		if len(parts) == 2 {
-			inps := make([]string, 0, cnt)
-			for i := 0; i < cnt; i++ {
-				inps = append(inps, strings.TrimSpace(parts[1]))
-			}
-			b.elements.Combine(c, inps)
-			return
-		} else {
-			// Get prev
-			comb, ok := b.base.GetCombCache(c)
-			if !ok.Ok {
-				c.Respond(ok.Response())
-				return
-			}
-			if comb.Result == -1 {
-				c.Respond(sevcord.NewMessage("You haven't combined anything! " + types.RedCircle))
-				return
-			}
-			name, err := b.base.GetName(c.Guild(), comb.Result)
-			if err != nil {
-				b.base.Error(c, err)
-				return
-			}
-			new := make([]string, 0, cnt)
-			for i := 0; i < cnt; i++ {
-				new = append(new, name)
-			}
-			b.elements.Combine(c, new)
-			return
-		}
+		elems = append(elems, name)
+
 	}
 	for _, sep := range seps {
 		if strings.Contains(content, sep) {
+
 			// Check ctx
-			if !b.base.CheckCtx(c, "message") {
-				return
+
+			if sep != "\n" && strings.Contains(strings.ToLower(content), "{raw}") {
+				rawsplit := strings.SplitN(content, "{", 2)
+				rawsplit[1] = "{" + rawsplit[1]
+				strs := strings.Split(rawsplit[0], sep)
+
+				elems = append(elems, strs[:len(strs)-1]...)
+				if strs[len(strs)-1] != " " {
+					rawsplit[1] = strs[len(strs)-1] + rawsplit[1]
+				}
+
+				elems = append(elems, rawsplit[1])
+
+			} else {
+				elems = append(elems, strings.Split(content, sep)...)
 			}
-			if !b.base.IsPlayChannel(c) {
-				return
+			// Combine
+
+			for i := 0; i < len(elems); i++ {
+				ok, multels := b.ApplyMultiplier(c, elems[i])
+				if ok {
+					elems[i] = multels[0]
+					elems = append(elems, multels[1:]...)
+				}
 			}
 
-			// Combine
-			elems := strings.Split(content, sep)
-			b.elements.Combine(c, elems)
+			b.combineElements(c, elems)
 			return
 		}
 	}
+
+	ok, multelements := b.ApplyMultiplier(c, content)
+	if ok {
+		elems = append(elems, multelements...)
+	}
+	//case for +[element]
+	if len(elems) == 1 {
+		elems = append(elems, content)
+	}
+	b.combineElements(c, elems)
+
 }

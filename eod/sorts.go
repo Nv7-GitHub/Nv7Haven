@@ -8,25 +8,170 @@ import (
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
 	"github.com/Nv7-Github/sevcord/v2"
-
 	"github.com/lib/pq"
 )
 
-func (b *Bot) getElementId(c sevcord.Ctx, val string) (int64, bool) {
-	var id int64
-	var err error
-	id, ok := IsNumericID(val)
+var IDPrefixes = []string{
+	"#",
+	"{id}",
+}
+
+func (b *Bot) MsgSugElement(c sevcord.Ctx, val string) {
+	ok, name := b.checkElementExists(c, val)
 	if ok {
-		err = b.db.QueryRow("SELECT id FROM elements WHERE id=$1 AND guild=$2", strings.ToLower(strings.TrimLeft(strings.TrimSpace(val), "#")), c.Guild()).Scan(&id)
+		val = name
+	}
+	b.elements.Suggest(c, []any{any(val), nil})
+}
+func (b *Bot) combineElements(c sevcord.Ctx, elements []string) {
+
+	ids, ok := b.getElementIds(c, elements)
+	if ok {
+		b.elements.Combine(c, ids)
+	}
+
+}
+func (b *Bot) ApplyMultiplier(c sevcord.Ctx, val string) (ok bool, multelements []string) {
+
+	val = strings.TrimSpace(val)
+	if strings.HasPrefix(val, "*") {
+		parts := strings.SplitN(val[1:], " ", 2)
+		cnt, err := strconv.Atoi(parts[0])
+		if err != nil {
+			c.Respond(sevcord.NewMessage("Invalid number of repeats! " + types.RedCircle))
+			return false, []string{}
+		}
+		if cnt > types.MaxComboLength {
+			c.Respond(sevcord.NewMessage(fmt.Sprintf("You can only combine up to %d elements! "+types.RedCircle, types.MaxComboLength)))
+			return false, []string{}
+		}
+		if cnt < 2 {
+			c.Respond(sevcord.NewMessage("You need to combine at least 2 elements! " + types.RedCircle))
+			return false, []string{}
+		}
+		if len(parts) == 2 {
+			inps := make([]string, 0, cnt)
+			for i := 0; i < cnt; i++ {
+				inps = append(inps, strings.TrimSpace(parts[1]))
+			}
+			return true, inps
+		} else {
+			comb, ok := b.base.GetCombCache(c)
+			if !ok.Ok {
+				c.Respond(ok.Response())
+				return false, []string{}
+			}
+			if comb.Result == -1 {
+				c.Respond(sevcord.NewMessage("You haven't combined anything! " + types.RedCircle))
+				return false, []string{}
+			}
+			name, err := b.base.GetName(c.Guild(), comb.Result)
+			if err != nil {
+				b.base.Error(c, err)
+				return false, []string{}
+			}
+			new := make([]string, 0, cnt)
+			for i := 0; i < cnt; i++ {
+				new = append(new, name)
+			}
+			return true, new
+		}
+	}
+	return false, []string{}
+}
+func (b *Bot) checkElementExists(c sevcord.Ctx, val string) (bool, string) {
+
+	val = convertVariableID(c, b, val)
+	var err error
+	_, ok := IsNumericID(val)
+	val = convertName(val)
+	var name string
+	if ok {
+		err = b.db.QueryRow("SELECT name FROM elements WHERE id=$1 AND guild=$2", strings.ToLower(strings.TrimLeft(strings.TrimSpace(val), "#")), c.Guild()).Scan(&name)
 	} else {
-		err = b.db.QueryRow("SELECT id FROM elements WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(strings.TrimSpace(val)), c.Guild()).Scan(&id)
+		err = b.db.QueryRow("SELECT name FROM elements WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(strings.TrimLeft(strings.TrimSpace(val), "#")), c.Guild()).Scan(&name)
 	}
 	if err != nil {
-		b.base.Error(c, err, "Element **"+val+"** doesn't exist!")
-		return 0, false
+		return false, ""
+	} else {
+		return true, name
 	}
-	return id, true
+
 }
+func (b *Bot) getElementId(c sevcord.Ctx, val string) (int64, bool) {
+	ids, ok := b.getElementIds(c, []string{val})
+	if len(ids) == 1 {
+		return ids[0], ok
+	} else {
+		return 0, ok
+	}
+
+}
+func convertVariableID(c sevcord.Ctx, b *Bot, val string) string {
+
+	prefix := ""
+	teststr := ""
+
+	for _, pre := range IDPrefixes {
+		teststr = strings.ToLower(strings.TrimSpace(strings.TrimPrefix(val, pre)))
+		if teststr != strings.ToLower(strings.TrimSpace(val)) {
+			prefix = pre
+
+			break
+		}
+	}
+	if prefix == "" {
+		return val
+	}
+	switch teststr {
+	case "last":
+		cache, _ := b.base.GetCombCache(c)
+		if cache.Result != -1 {
+			return prefix + fmt.Sprintf("%d", cache.Result)
+		}
+	case "rand", "random":
+		var id int
+		err := b.db.QueryRow(`SELECT id FROM elements WHERE guild=$1 ORDER BY RANDOM()`, c.Guild()).Scan(&id)
+		if err == nil {
+			return prefix + fmt.Sprintf("%d", id)
+		}
+	case "randinv", "randininv", "randominv":
+		var id int
+		err := b.db.QueryRow(`SELECT id FROM elements WHERE guild=$1 AND id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) ORDER BY RANDOM()`, c.Guild(), c.Author().User.ID).Scan(&id)
+		if err == nil {
+			return prefix + fmt.Sprintf("%d", id)
+		}
+	}
+	return val
+
+}
+func convertName(val string) string {
+	parts := strings.SplitN(val, "}", 2)
+	if strings.HasPrefix(val, "{") && len(parts) > 1 {
+		prefix := strings.TrimPrefix(strings.TrimSpace(parts[0]), "{")
+		switch strings.ToLower(prefix) {
+		case "raw", "text", "name":
+			return strings.TrimLeft(parts[1], " ")
+		}
+	}
+
+	return val
+}
+func IsNumericID(val string) (int64, bool) {
+
+	for _, prefix := range IDPrefixes {
+		teststr := strings.TrimPrefix(strings.TrimSpace(val), prefix)
+		if teststr == val {
+			continue
+		}
+		id, err := strconv.ParseInt(teststr, 10, 64)
+		if err == nil {
+			return id, true
+		}
+	}
+	return -1, false
+}
+
 func (b *Bot) getElementIds(c sevcord.Ctx, vals []string) ([]int64, bool) {
 
 	var ids []int64
@@ -38,10 +183,15 @@ func (b *Bot) getElementIds(c sevcord.Ctx, vals []string) ([]int64, bool) {
 	namemap := make(map[string]int64)
 	convert := make(map[string]string)
 	for i := 0; i < len(vals); i++ {
+		vals[i] = convertVariableID(c, b, vals[i])
 		id, ok := IsNumericID(strings.TrimSpace(vals[i]))
 		if ok {
+			//convert all ids to "#" format
+			vals[i] = "#" + fmt.Sprintf("%d", id)
 			numericIDs = append(numericIDs, id)
 		} else {
+
+			vals[i] = convertName(vals[i])
 			names = append(names, strings.TrimSpace(strings.ToLower(vals[i])))
 		}
 		convert[strings.TrimSpace(strings.ToLower(vals[i]))] = strings.TrimSpace(vals[i])
@@ -83,6 +233,7 @@ func (b *Bot) getElementIds(c sevcord.Ctx, vals []string) ([]int64, bool) {
 		for i := 0; i < len(datares); i++ {
 			idmap[datares[i].ID] = datares[i].Name
 			namemap[datares[i].Name] = datares[i].ID
+
 			convert[fmt.Sprintf("#%d", datares[i].ID)] = datares[i].Name
 		}
 		for i := 0; i < len(numericIDs); i++ {
@@ -117,7 +268,6 @@ func (b *Bot) getElementIds(c sevcord.Ctx, vals []string) ([]int64, bool) {
 				orderedinvalid = append(orderedinvalid, fmt.Sprintf("**%s**", strings.TrimSpace(vals[i])))
 			}
 		}
-
 		output := makeListResp("Elements", "and", " don't exist!", orderedinvalid)
 		c.Respond(sevcord.NewMessage(output))
 		return nil, false
@@ -125,14 +275,6 @@ func (b *Bot) getElementIds(c sevcord.Ctx, vals []string) ([]int64, bool) {
 
 }
 
-func IsNumericID(val string) (int64, bool) {
-	id, err := strconv.ParseInt(strings.TrimPrefix(strings.TrimSpace(val), "#"), 10, 64)
-	if err == nil && strings.HasPrefix(val, "#") {
-		return id, true
-	} else {
-		return -1, false
-	}
-}
 func makeListResp(start, join, end string, vals []string) string {
 
 	if len(vals) > 1 {
