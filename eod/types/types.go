@@ -156,10 +156,20 @@ var SortSql = map[string]string{
 	"length":    "LENGTH(name) DESC",
 	"found":     "cont DESC, id",
 }
-
+var SearchItemTypes = []sevcord.Choice{
+	sevcord.NewChoice("Elements", "elements"),
+	sevcord.NewChoice("Categories", "categories"),
+	sevcord.NewChoice("Queries", "queries"),
+}
 var SearchTypes = []sevcord.Choice{
 	sevcord.NewChoice("Prefix", "prefix"),
 	sevcord.NewChoice("Regex", "regex"),
+	sevcord.NewChoice("Contains", "contains"),
+}
+
+var HintTypes = []sevcord.Choice{
+	sevcord.NewChoice("ID", "id"),
+	sevcord.NewChoice("Name", "name"),
 }
 
 var Postfixes = []sevcord.Choice{

@@ -65,12 +65,16 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			}
 			val = any(v)
 		}
-		b.elements.Hint(c, []any{val, nil})
+		strval := fmt.Sprintf("%d", val)
+		if val == any(nil) {
+			strval = "-1"
+		}
+		b.elements.Hint(c, []any{strval, nil, "id"})
 	case "hq", "qh", "hintquery":
 		if !b.base.CheckCtx(c, "hint") {
 			return
 		}
-		b.elements.Hint(c, []any{nil, content})
+		b.elements.Hint(c, []any{"-1", content, "id"})
 	case "ic", "ci", "infocategory", "infocat", "catinfo", "categoryinfo":
 		if !b.base.CheckCtx(c, "info") {
 			return
@@ -332,10 +336,63 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			val = any(part)
 		}
 		b.elements.Next(c, []any{val})
+	case "idea":
+		if !b.base.CheckCtx(c, "idea") {
+			return
+		}
+		parts := strings.Split(content, "|")
+		if len(parts) > 2 {
+			c.Respond(sevcord.NewMessage("Use `!idea <query name>]|<idea count>`! " + types.RedCircle))
+			return
+		}
+		query := ""
+		cnt := 2
+		var err error
+		if len(parts) > 0 {
+			query = strings.TrimSpace(parts[0])
+		}
+		if len(parts) > 1 {
+			cnt, err = strconv.Atoi(strings.TrimSpace(parts[1]))
+			if err != nil {
+				c.Respond(sevcord.NewMessage("Use `!idea <query name>]|<idea count>`! " + types.RedCircle))
+				return
+			}
+		}
+
+		b.elements.Idea(c, []any{query, int64(cnt), true})
+	case "random_combination", "randomcombination", "rcom", "randomcombo":
+		if !b.base.CheckCtx(c, "randomcombo") {
+			return
+		}
+		parts := strings.Split(content, "|")
+		if len(parts) > 2 {
+			c.Respond(sevcord.NewMessage("Use `!randomcombo <query name>]|<combination count>`! " + types.RedCircle))
+			return
+		}
+		query := ""
+		cnt := 2
+		var err error
+		if len(parts) > 0 {
+			query = strings.TrimSpace(parts[0])
+		}
+		if len(parts) > 1 {
+			cnt, err = strconv.Atoi(strings.TrimSpace(parts[1]))
+			if err != nil {
+				c.Respond(sevcord.NewMessage("Use `!randomcombo <query name>]|<combination count>`! " + types.RedCircle))
+				return
+			}
+		}
+		b.elements.RandomCombo(c, []any{query, int64(cnt), false})
+
 	case "elemcats":
 		id, ok := b.getElementId(c, content)
 		if ok {
 			b.pages.ElemCats(c, []any{any(id)})
+		}
+	case "elemfound", "found":
+		id, ok := b.getElementId(c, content)
+		if ok {
+			b.pages.ElemFound(c, []any{any(id)})
 		}
 
 	case "img", "image":

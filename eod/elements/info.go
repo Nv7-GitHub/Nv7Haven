@@ -13,17 +13,18 @@ import (
 
 func (e *Elements) InfoSlashCmd(c sevcord.Ctx, opts []any) {
 	c.Acknowledge()
-	e.Info(c, int(opts[0].(int64)))
-}
-
-func (e *Elements) InfoSlashCmdName(c sevcord.Ctx, opts []any) {
-	c.Acknowledge()
 	var id int
-	err := e.db.QueryRow("SELECT id FROM elements WHERE guild=$1 AND LOWER(name)=$2", c.Guild(), strings.ToLower(opts[0].(string))).Scan(&id)
+	var err error
+	if len(opts) > 1 && opts[1] == "id" {
+		id, err = strconv.Atoi(opts[0].(string))
+	} else {
+		err = e.db.QueryRow("SELECT id FROM elements WHERE guild=$1 AND LOWER(name)=$2", c.Guild(), strings.ToLower(opts[0].(string))).Scan(&id)
+	}
 	if err != nil {
 		e.base.Error(c, err, "Element **"+opts[0].(string)+"** doesn't exist!")
 		return
 	}
+
 	e.Info(c, id)
 }
 
