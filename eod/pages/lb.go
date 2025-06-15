@@ -73,14 +73,14 @@ func (p *Pages) LbHandler(c sevcord.Ctx, params string) {
 		Cnt  int    `db:"cnt"`
 	}
 	if qu == nil {
-		err = p.db.Select(&vals, `SELECT "user", `+lbSortCode[parts[2]]+` cnt FROM inventories WHERE guild=$1 ORDER BY cnt DESC`, c.Guild())
+		err = p.db.Select(&vals, `SELECT "user", `+lbSortCode[parts[2]]+` cnt FROM inventories WHERE guild=$1 AND lbhidden=false ORDER BY cnt DESC`, c.Guild())
 	} else {
 		sort, ok := lbQuerySortCode[parts[2]]
 		if !ok {
 			c.Respond(sevcord.NewMessage("This sort doesn't support queries! " + types.RedCircle))
 			return
 		}
-		err = p.db.Select(&vals, `SELECT "user", `+sort+` cnt FROM inventories WHERE guild=$1 ORDER BY cnt DESC`, c.Guild(), pq.Array(qu.Elements))
+		err = p.db.Select(&vals, `SELECT "user", `+sort+` cnt FROM inventories WHERE guild=$1 AND lbhidden=false ORDER BY cnt DESC`, c.Guild(), pq.Array(qu.Elements))
 	}
 	if err != nil {
 		p.base.Error(c, err)
