@@ -84,7 +84,7 @@ func (c *Categories) MsgSignCmd(ctx sevcord.Ctx, cat string, mark string) {
 		addtext = "a new"
 	}
 	// Respond
-	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s note for **%s** 🖋️", addtext, name)))
+	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s mark for **%s** 🖋️", addtext, name)))
 }
 
 func (c *Categories) SignCmd(ctx sevcord.Ctx, opts []any) {
@@ -120,7 +120,7 @@ func (c *Categories) SignCmd(ctx sevcord.Ctx, opts []any) {
 		}
 
 		// Respond
-		ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s note for category **%s** 🖋️", addtext, name)))
+		ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s mark for category **%s** 🖋️", addtext, name)))
 	}).Input(sevcord.NewModalInput("New Comment", types.DefaultMark, sevcord.ModalInputStyleParagraph, 2400)))
 }
 

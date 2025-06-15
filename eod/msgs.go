@@ -233,7 +233,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 		b.categories.DelCat(c, []any{parts[0]})
-	case "sign", "mark":
+	case "sign", "mark", "note":
 		if !b.base.CheckCtx(c, "sign") {
 			return
 		}
