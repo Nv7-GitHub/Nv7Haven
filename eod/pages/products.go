@@ -91,7 +91,7 @@ func (p *Pages) ProductsHandler(c sevcord.Ctx, params string) {
 	embed := sevcord.NewEmbed().
 		Title(fmt.Sprintf("Products of %s (%s)", name, humanize.Comma(int64(cnt)))).
 		Description(desc.String()).
-		Footer(fmt.Sprintf("Page %d/%d", page+1, pagecnt), "").
+		Footer(fmt.Sprintf("Page %d/%d • Element #%d", page+1, pagecnt, elem), "").
 		Color(color)
 	if img != "" {
 		embed = embed.Thumbnail(img)

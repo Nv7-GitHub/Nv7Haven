@@ -44,8 +44,9 @@ func (b *Base) CalcQuery(ctx sevcord.Ctx, name string) (*types.Query, bool) {
 
 	case types.QueryKindCategory:
 		var els pq.Int32Array
-		err = b.db.QueryRow(`SELECT elements FROM categories WHERE name=$1 AND guild=$2`, query.Data["cat"].(string), ctx.Guild()).Scan(&els)
+		err = b.db.QueryRow(`SELECT elements FROM categories WHERE LOWER(name)=$1 AND guild=$2`, strings.ToLower(query.Data["cat"].(string)), ctx.Guild()).Scan(&els)
 		if err != nil {
+
 			b.Error(ctx, err, "Category **"+query.Data["cat"].(string)+"** doesn't exist!")
 			return nil, false
 		}

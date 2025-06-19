@@ -84,7 +84,7 @@ func (c *Categories) MsgSignCmd(ctx sevcord.Ctx, cat string, mark string) {
 		addtext = "a new"
 	}
 	// Respond
-	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s note for **%s** 🖋️", addtext, name)))
+	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s mark for **%s** 🖋️", addtext, name)))
 }
 
 func (c *Categories) SignCmd(ctx sevcord.Ctx, opts []any) {
@@ -120,7 +120,7 @@ func (c *Categories) SignCmd(ctx sevcord.Ctx, opts []any) {
 		}
 
 		// Respond
-		ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s note for category **%s** 🖋️", addtext, name)))
+		ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s mark for category **%s** 🖋️", addtext, name)))
 	}).Input(sevcord.NewModalInput("New Comment", types.DefaultMark, sevcord.ModalInputStyleParagraph, 2400)))
 }
 
@@ -143,7 +143,7 @@ func (c *Categories) ColorCmd(ctx sevcord.Ctx, opts []any) {
 	var name string
 	var old int
 	var colorer string
-	err = c.db.QueryRow("SELECT name, color,colorer FROM categories WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(opts[0].(string)), ctx.Guild()).Scan(&name, &old)
+	err = c.db.QueryRow("SELECT name, color,colorer FROM categories WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(opts[0].(string)), ctx.Guild()).Scan(&name, &old, &colorer)
 	if err != nil {
 		c.base.Error(ctx, err, "Category **"+opts[0].(string)+"** doesn't exist!")
 		return

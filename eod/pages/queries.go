@@ -78,7 +78,7 @@ func (p *Pages) QueryList(c sevcord.Ctx, opts []any) {
 	}
 
 	// Respond
-	p.QueryListHandler(c, "next|"+sort+"|"+fmt.Sprint("%d", page))
+	p.QueryListHandler(c, "next|"+sort+"|"+fmt.Sprintf("%d", page))
 }
 
 var queryPageCache = make(map[string]map[string]*types.Query)

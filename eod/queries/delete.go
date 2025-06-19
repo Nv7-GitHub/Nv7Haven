@@ -18,7 +18,6 @@ func (q *Queries) DeleteQuery(c sevcord.Ctx, opts []any) {
 		q.base.Error(c, err, "Query **"+opts[0].(string)+"** doesn't exist!")
 		return
 	}
-
 	// Check if used
 	var usedName string
 	err = q.db.QueryRow(`SELECT name FROM queries WHERE data->>'query'=$1 OR data->>'left'=$1 OR data->>'right'=$1 AND guild=$2`, name, c.Guild()).Scan(&usedName)
