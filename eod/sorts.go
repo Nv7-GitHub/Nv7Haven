@@ -41,10 +41,12 @@ func (b *Bot) getElementIds(c sevcord.Ctx, vals []string) ([]int64, bool) {
 		id, ok := IsNumericID(strings.TrimSpace(vals[i]))
 		if ok {
 			numericIDs = append(numericIDs, id)
+			convert[fmt.Sprintf("#%d", id)] = fmt.Sprintf("#%d", id)
 		} else {
 			names = append(names, strings.TrimSpace(strings.ToLower(vals[i])))
+			convert[strings.TrimSpace(strings.ToLower(vals[i]))] = strings.TrimSpace(vals[i])
 		}
-		convert[strings.TrimSpace(strings.ToLower(vals[i]))] = strings.TrimSpace(vals[i])
+
 	}
 	type nameres struct {
 		ID   int64
@@ -99,6 +101,13 @@ func (b *Bot) getElementIds(c sevcord.Ctx, vals []string) ([]int64, bool) {
 			id, ok := namemap[convert[strings.ToLower(strings.TrimSpace(vals[i]))]]
 			if ok {
 				ids = append(ids, id)
+			} else {
+				//Check for ids with leading 0s
+				newval := "#" + strings.TrimLeft(strings.ToLower(strings.TrimSpace(vals[i])), "#0")
+				id, ok = namemap[convert[newval]]
+				if ok {
+					ids = append(ids, id)
+				}
 			}
 		}
 		return ids, true
