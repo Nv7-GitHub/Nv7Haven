@@ -51,7 +51,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		if !b.base.CheckCtx(c, "suggest") {
 			return
 		}
-		b.elements.Suggest(c, []any{any(content), nil})
+		b.elements.Suggest(c, []any{any(strings.TrimSpace(content)), nil})
 
 	case "h", "hint":
 		if !b.base.CheckCtx(c, "hint") {
