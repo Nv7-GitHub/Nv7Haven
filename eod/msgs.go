@@ -47,6 +47,20 @@ func (b *Bot) PingCmd(c sevcord.Ctx, opts []any) {
 
 func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 	switch name {
+	case "unsuggest", "us":
+		c.Acknowledge()
+		var poll types.Poll
+
+		b.db.Get(&poll, `SELECT * FROM polls  WHERE guild = $1 AND creator = $2  AND kind ='combo' ORDER BY createdon DESC `, c.Guild(), c.Author().User.ID)
+		//no polls to unsuggest
+		if poll.Guild == "" {
+			c.Respond(sevcord.NewMessage("You have no polls to unsuggest! " + types.RedCircle))
+			return
+		}
+		b.polls.DeletePoll(&poll, c.Dg())
+
+		c.Respond(sevcord.NewMessage("Unsuggested your last poll! " + types.Check))
+
 	case "s", "suggest":
 		if !b.base.CheckCtx(c, "suggest") {
 			return
