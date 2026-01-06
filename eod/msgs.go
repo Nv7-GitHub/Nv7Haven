@@ -47,19 +47,44 @@ func (b *Bot) PingCmd(c sevcord.Ctx, opts []any) {
 
 func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 	switch name {
-	case "unsuggest", "us":
+	case "unsuggest", "us", "removepoll":
 		c.Acknowledge()
 		var poll types.Poll
+		var polls []types.Poll
+		var err error
+		parts := strings.Split(content, " ")
+		pollcount := 1
+		if len(parts) >= 1 && parts[0] != "" {
+			pollcount, err = strconv.Atoi(parts[0])
+			if err != nil {
+				c.Respond(sevcord.NewMessage("Invalid syntax!" + types.RedCircle))
+				return
+			}
+		}
 
-		b.db.Get(&poll, `SELECT * FROM polls  WHERE guild = $1 AND creator = $2  AND kind ='combo' ORDER BY createdon DESC `, c.Guild(), c.Author().User.ID)
+		b.db.Get(&poll, `SELECT * FROM polls  WHERE guild = $1 AND creator = $2  ORDER BY createdon DESC `, c.Guild(), c.Author().User.ID)
+		b.db.Select(&polls, `SELECT * FROM polls  WHERE guild = $1 AND creator = $2  ORDER BY createdon DESC `, c.Guild(), c.Author().User.ID)
+		if pollcount <= 0 {
+			c.Respond(sevcord.NewMessage("You must unsuggest at least 1 poll!" + types.RedCircle))
+			return
+		}
+		if pollcount > len(polls) {
+			pollcount = len(polls)
+		}
 		//no polls to unsuggest
-		if poll.Guild == "" {
+		if len(polls) == 0 {
 			c.Respond(sevcord.NewMessage("You have no polls to unsuggest! " + types.RedCircle))
 			return
 		}
-		b.polls.DeletePoll(&poll, c.Dg())
+		for i := 0; i < pollcount; i++ {
+			b.polls.DeletePoll(&poll, c.Dg())
+		}
 
-		c.Respond(sevcord.NewMessage("Unsuggested your last poll! " + types.Check))
+		if pollcount > 1 {
+			c.Respond(sevcord.NewMessage(fmt.Sprintf("Unsuggested your last %d polls! "+types.Check, pollcount)))
+		} else {
+			c.Respond(sevcord.NewMessage("Unsuggested your last poll! " + types.Check))
+		}
 
 	case "s", "suggest":
 		if !b.base.CheckCtx(c, "suggest") {
