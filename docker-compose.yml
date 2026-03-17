@@ -153,7 +153,7 @@ services:
     security_opt: [no-new-privileges:true]
     user: "1000:1000"
     environment:
-      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_KEY}
       - DOMAINS=hope-tree.org,anarchy.nv7haven.com,elemantal.nv7haven.com,elogin.nv7haven.com,eod.nv7haven.com,main.nv7haven.com,nv7haven.nv7haven.com,single.nv7haven.com,sql.nv7haven.com,st.nv7haven.com,wordpress.nv7haven.com,elem7dev.nv7haven.com,elem7.nv7haven.com,elemc.nv7haven.com,tektitebiz.com
       - PROXIED=true
 
