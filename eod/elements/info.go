@@ -109,20 +109,22 @@ func (e *Elements) Info(c sevcord.Ctx, el int) {
 	}
 
 	// Progress
-	var treesize, found int
+	var treesize, found, tier int
+	tier = 0
 	err = e.db.QueryRow(`WITH RECURSIVE parents AS (
-		(select parents, id from elements WHERE id=$2 and guild=$1)
+		(select parents, id, 0 as depth from elements WHERE id=$2 and guild=$1)
 	UNION
-		(SELECT b.parents, b.id FROM elements b INNER JOIN parents p ON b.id=ANY(p.parents) where guild=$1)
-	) SELECT COUNT(id), (SELECT COUNT(el) FROM (SELECT UNNEST(inv) el FROM inventories WHERE guild=$1 AND "user"=$3) sub INNER JOIN parents ON parents.id=sub.el) FROM parents`, c.Guild(), el, c.Author().User.ID).Scan(&treesize, &found)
+		(SELECT b.parents, b.id,depth+1 FROM elements b INNER JOIN parents p ON b.id=ANY(p.parents) where guild=$1)
+	) SELECT COUNT(id), (SELECT COUNT(el) FROM (SELECT UNNEST(inv) el FROM inventories WHERE guild=$1 AND "user"=$3) sub INNER JOIN parents ON parents.id=sub.el), MAX(depth) FROM parents`, c.Guild(), el, c.Author().User.ID).Scan(&treesize, &found, &tier)
+
 	if err != nil {
 		e.base.Error(c, err)
 		return
 	}
-	var dbtreesize int
-	e.db.QueryRow(`SELECT treesize FROM elements WHERE id=$1 AND guild=$2`, elem.ID, c.Guild()).Scan(&dbtreesize)
+	var dbtreesize, dbtier int
+	e.db.QueryRow(`SELECT treesize,tier FROM elements WHERE id=$1 AND guild=$2`, elem.ID, c.Guild()).Scan(&dbtreesize, &dbtier)
 	if dbtreesize != treesize {
-		e.db.Exec(`UPDATE elements SET treesize=$3 WHERE id=$1 AND guild=$2`, elem.ID, c.Guild(), treesize)
+		e.db.Exec(`UPDATE elements SET treesize=$3,tier=$4 WHERE id=$1 AND guild=$2`, elem.ID, c.Guild(), treesize, tier)
 	}
 
 	// Element ID
@@ -137,10 +139,11 @@ func (e *Elements) Info(c sevcord.Ctx, el int) {
 		AddField("📅 Created On", fmt.Sprintf("<t:%d>", elem.CreatedOn.Unix()), true).
 		AddField("🌲 Tree Size", humanize.Comma(int64(treesize)), true).
 		AddField("📊 Progress", humanize.FormatFloat("##.#", float64(found)/float64(treesize)*100)+"%", true).
-		AddField("🔨 Made With", humanize.Comma(int64(madewith)), true).
-		AddField("🧰 Used In", humanize.Comma(int64(usedin)), true).
+		AddField("🔨 Made With", humanize.Comma(int64(elem.MadeWith)), true).
+		AddField("🧰 Used In", humanize.Comma(int64(elem.UsedIn)), true).
 		AddField("🔍 Found By", humanize.Comma(int64(foundby)), true).
-		AddField("🎨 Color", util.FormatHex(elem.Color), true)
+		AddField("🎨 Color", util.FormatHex(elem.Color), true).
+		AddField("📶 Tier", humanize.Comma(int64(tier)), true)
 
 	// Optional things
 	if elem.Image != "" {
