@@ -49,7 +49,6 @@ services:
       - pg
     depends_on:
       - pg
-    user: postgres:postgres
     environment:
       - POSTGRES_HOST=pg
       - POSTGRES_DB=eod
@@ -57,6 +56,10 @@ services:
       - POSTGRES_PASSWORD=${PASSWORD}
       - SCHEDULE=@daily
       - HEALTHCHECK_PORT=3005
+      - BACKUP_KEEP_MINS=10080
+      - BACKUP_KEEP_DAYS=30
+      - BACKUP_KEEP_WEEKS=12
+      - BACKUP_KEEP_MONTHS=12
     ports:
       - "3005:3005"
 
