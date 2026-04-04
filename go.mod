@@ -7,7 +7,7 @@ require (
 	github.com/Nv7-Github/average-joe v0.0.0-20220429002151-7a828e7b9d17
 	github.com/Nv7-Github/bsharp v0.0.0-20220313202721-6b77962b469f
 	github.com/Nv7-Github/firebase v0.0.0-20201012033747-47c56e1d869d
-	github.com/Nv7-Github/sevcord/v2 v2.4.1
+	github.com/Nv7-Github/sevcord/v2 v2.4.2
 	github.com/bwmarrin/discordgo v0.26.2-0.20221217201609-8a5201aae635
 	github.com/dustin/go-humanize v1.0.1
 	github.com/finnbear/moderation v0.11.4
@@ -74,7 +74,7 @@ require (
 	github.com/klauspost/compress v1.15.1 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/mattn/go-sqlite3 v1.14.22 // indirect
+	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
