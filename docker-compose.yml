@@ -51,7 +51,7 @@ services:
       - pg
     environment:
       - POSTGRES_HOST=pg
-      - POSTGRES_DB=eod
+      - POSTGRES_DB=nv7haven
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=${PASSWORD}
       - SCHEDULE=@daily
