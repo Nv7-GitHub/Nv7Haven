@@ -116,7 +116,7 @@ func (b *Polls) pollSuccess(p *types.Poll, dg *discordgo.Session) {
 		}
 	}
 
-	b.deletePoll(p, dg)
+	b.DeletePoll(p, dg)
 }
 
 func (b *Polls) pollContextMsg(p *types.Poll) string {
