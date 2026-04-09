@@ -36,23 +36,23 @@ func SearchInputs(args []any) (string, int, int) {
 func (p *Pages) SearchPrefix(c sevcord.Ctx, args []any) {
 	c.Acknowledge()
 	sort, postfixval, page := SearchInputs(args)
-	p.SearchHandler(c, fmt.Sprintf("next|%s|%s|%d|%d|%s|prefix", c.Author().User.ID, sort, postfixval, page, args[0].(string)))
+	p.SearchHandler(c, fmt.Sprintf("next|%s|%s|%d|%d|prefix|%s", c.Author().User.ID, sort, postfixval, page, args[0].(string)))
 }
 func (p *Pages) SearchRegex(c sevcord.Ctx, args []any) {
 	c.Acknowledge()
 	sort, postfixval, page := SearchInputs(args)
-	p.SearchHandler(c, fmt.Sprintf("next|%s|%s|%d|%d|%s|regex", c.Author().User.ID, sort, postfixval, page, args[0].(string)))
+	p.SearchHandler(c, fmt.Sprintf("next|%s|%s|%d|%d|regex|%s", c.Author().User.ID, sort, postfixval, page, args[0].(string)))
 }
 
-// Format: prevnext|user|sort|postfix|page|searchquery|searchtype
+// Format: prevnext|user|sort|postfix|page|searchtype|searchquery
 func (p *Pages) SearchHandler(c sevcord.Ctx, params string) {
 
-	parts := strings.Split(params, "|")
+	parts := strings.SplitN(params, "|", 7)
 	length := p.base.PageLength(c)
 	cnt := 0
 	cond := "ILIKE $2||'%'"
 	sorttype := "similarity(name,$2) DESC"
-	switch parts[6] {
+	switch parts[5] {
 	case "prefix":
 		cond = "ILIKE $2||'%'"
 		sorttype = "similarity(name,$2) DESC"
@@ -60,7 +60,7 @@ func (p *Pages) SearchHandler(c sevcord.Ctx, params string) {
 		cond = "~ $2"
 		sorttype = "id"
 	}
-	err := p.db.QueryRow("SELECT COUNT(*) from elements WHERE guild=$1 AND name "+cond, c.Guild(), parts[5]).Scan(&cnt)
+	err := p.db.QueryRow("SELECT COUNT(*) from elements WHERE guild=$1 AND name "+cond, c.Guild(), parts[6]).Scan(&cnt)
 	if err != nil {
 		return
 	}
@@ -99,7 +99,7 @@ func (p *Pages) SearchHandler(c sevcord.Ctx, params string) {
 
 	querystr := fmt.Sprintf(`SELECT name,id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$5) cont %s FROM elements  WHERE name %s AND guild=$1 ORDER BY %s LIMIT $3 OFFSET $4`, postfixadd, cond, sorttype)
 
-	err = p.db.Select(&items, querystr, c.Guild(), parts[5], length, length*page, parts[1])
+	err = p.db.Select(&items, querystr, c.Guild(), parts[6], length, length*page, parts[1])
 
 	if err != nil {
 		p.base.Error(c, err)
@@ -121,7 +121,7 @@ func (p *Pages) SearchHandler(c sevcord.Ctx, params string) {
 	}
 	color := 10181046 //Purple
 	embed := sevcord.NewEmbed().
-		Title(fmt.Sprintf(`Found %s results for "%s"`, humanize.Comma(int64(cnt)), parts[5])).
+		Title(fmt.Sprintf(`Found %s results for "%s"`, humanize.Comma(int64(cnt)), parts[6])).
 		Description(desc.String()).
 		Footer(fmt.Sprintf("Page %d/%d", page+1, pagecnt), "").
 		Color(color)
