@@ -132,7 +132,11 @@ func autoRestart(s *Service, wd string) {
 			}
 		}
 
-		s.Output.Write([]byte("Server crashed with error: " + err.Error() + "\n"))
+		errMsg := "Server exited unexpectedly\n"
+		if err != nil {
+			errMsg = "Server crashed with error: " + err.Error() + "\n"
+		}
+		s.Output.Write([]byte(errMsg))
 		s.Cmd = exec.Command(filepath.Join(wd, "build", s.ID), s.Flags...)
 		s.Cmd.Stdout = s.Output
 		s.Cmd.Stderr = s.Output

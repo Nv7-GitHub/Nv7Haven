@@ -50,7 +50,8 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		if !b.base.CheckCtx(c, "suggest") {
 			return
 		}
-		b.MsgSugElement(c, content)
+		b.elements.Suggest(c, []any{any(strings.TrimSpace(content)), nil})
+
 	case "h", "hint":
 		if !b.base.CheckCtx(c, "hint") {
 			return
@@ -287,26 +288,30 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 		if len(prefixSplit) == 1 {
 			// no second arg, assume first arg is the element
-			id, ok := b.getElementId(c, prefixSplit[1])
+			var item = strings.TrimSpace(strings.Split(prefixSplit[0], "|")[0])
+			id, ok := b.getElementId(c, item)
 			if !ok {
 				return
 			}
 			b.elements.ColorCmd(c, []any{id, strings.TrimSpace(parts[1])})
+			return
 		}
 		// check for coloring element/category/query
+		var item = strings.TrimSpace(strings.Split(prefixSplit[1], "|")[0])
 		switch strings.ToLower(strings.TrimSpace(prefixSplit[0])) {
 		case "e", "element":
-			id, ok := b.getElementId(c, prefixSplit[1])
+
+			id, ok := b.getElementId(c, item)
 			if !ok {
 				return
 			}
 			b.elements.ColorCmd(c, []any{id, strings.TrimSpace(parts[1])})
 
 		case "c", "cat", "category":
-			b.categories.ColorCmd(c, []any{strings.TrimSpace(prefixSplit[1]), strings.TrimSpace(parts[1])})
+			b.categories.ColorCmd(c, []any{item, strings.TrimSpace(parts[1])})
 
 		case "q", "query":
-			b.queries.ColorCmd(c, []any{strings.TrimSpace(prefixSplit[1]), strings.TrimSpace(parts[1])})
+			b.queries.ColorCmd(c, []any{item, strings.TrimSpace(parts[1])})
 
 		case "":
 			// no text was provided before the separator, invalid
@@ -330,10 +335,62 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			val = any(part)
 		}
 		b.elements.Next(c, []any{val})
+	case "idea":
+		if !b.base.CheckCtx(c, "idea") {
+			return
+		}
+		parts := strings.Split(content, "|")
+		if len(parts) > 2 {
+			c.Respond(sevcord.NewMessage("Use `!idea <query name>]|<idea count>`! " + types.RedCircle))
+			return
+		}
+		query := ""
+		cnt := 2
+		var err error
+		if len(parts) > 0 {
+			query = strings.TrimSpace(parts[0])
+		}
+		if len(parts) > 1 {
+			cnt, err = strconv.Atoi(strings.TrimSpace(parts[1]))
+			if err != nil {
+				c.Respond(sevcord.NewMessage("Use `!idea <query name>]|<idea count>`! " + types.RedCircle))
+				return
+			}
+		}
+
+		b.elements.Idea(c, []any{query, int64(cnt), true})
+	case "random_combination", "randomcombination", "rcom", "randomcombo":
+		if !b.base.CheckCtx(c, "randomcombo") {
+			return
+		}
+		parts := strings.Split(content, "|")
+		if len(parts) > 2 {
+			c.Respond(sevcord.NewMessage("Use `!randomcombo <query name>]|<combination count>`! " + types.RedCircle))
+			return
+		}
+		query := ""
+		cnt := 2
+		var err error
+		if len(parts) > 0 {
+			query = strings.TrimSpace(parts[0])
+		}
+		if len(parts) > 1 {
+			cnt, err = strconv.Atoi(strings.TrimSpace(parts[1]))
+			if err != nil {
+				c.Respond(sevcord.NewMessage("Use `!randomcombo <query name>]|<combination count>`! " + types.RedCircle))
+				return
+			}
+		}
+		b.elements.RandomCombo(c, []any{query, int64(cnt), false})
 	case "elemcats":
 		id, ok := b.getElementId(c, content)
 		if ok {
 			b.pages.ElemCats(c, []any{any(id)})
+		}
+	case "elemfound", "found":
+		id, ok := b.getElementId(c, content)
+		if ok {
+			b.pages.ElemFound(c, []any{any(id)})
 		}
 
 	case "img", "image":
