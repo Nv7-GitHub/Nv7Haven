@@ -199,7 +199,7 @@ func getSort(input string) string {
 }
 func getLbSort(input string) string {
 	switch input {
-	case "made":
+	case "invented":
 		return "made"
 	case "imaged", "img":
 		return "img"

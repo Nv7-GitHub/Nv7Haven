@@ -16,7 +16,7 @@ import (
 
 var lbSorts = []sevcord.Choice{
 	sevcord.NewChoice("Found", "found"),
-	sevcord.NewChoice("Made", "made"),
+	sevcord.NewChoice("Invented", "made"),
 	sevcord.NewChoice("Votes", "votes"),
 	sevcord.NewChoice("Signed", "signed"),
 	sevcord.NewChoice("Imaged", "img"),
