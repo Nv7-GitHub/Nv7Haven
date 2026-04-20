@@ -171,3 +171,38 @@ func (c *Categories) ColorCmd(ctx sevcord.Ctx, opts []any) {
 	// Respond
 	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested %s color for category **%s** 🎨", addtext, name)))
 }
+
+func (c *Categories) RenameCmd(ctx sevcord.Ctx, opts []any) {
+	ctx.Acknowledge()
+
+	var name string
+	var newname string
+	//check category
+	err := c.db.QueryRow("SELECT name FROM categories WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(opts[0].(string)), ctx.Guild()).Scan(&name)
+	if err != nil {
+		c.base.Error(ctx, err, "Category **"+opts[0].(string)+"** doesn't exist!")
+		return
+	}
+	//check new name
+	err = c.db.QueryRow("SELECT name FROM categories WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(opts[1].(string)), ctx.Guild()).Scan(&newname)
+	if err == nil {
+		ctx.Respond(sevcord.NewMessage("Category **" + opts[1].(string) + "** already exists! " + types.RedCircle))
+		return
+	}
+	newname = opts[1].(string)
+
+	//Make poll
+	res := c.polls.CreatePoll(ctx, &types.Poll{
+		Kind: types.PollKindCatRename,
+		Data: types.PgData{
+			"cat": name,
+			"new": newname,
+		},
+	})
+	if !res.Ok {
+		ctx.Respond(res.Response())
+		return
+	}
+	ctx.Respond(sevcord.NewMessage(fmt.Sprintf("Suggested to rename category **%s** 📝", name)))
+
+}

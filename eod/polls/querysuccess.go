@@ -84,3 +84,42 @@ func (p *Polls) queryColorSuccess(po *types.Poll, newsFunc func(string)) error {
 
 	return nil
 }
+func (p *Polls) queryRenameSuccess(po *types.Poll, newsFunc func(string)) error {
+	//Update name
+
+	_, err := p.db.Exec(`UPDATE queries SET name=$1 WHERE name=$2 AND guild=$3`, po.Data["new"], po.Data["query"], po.Guild)
+	if err != nil {
+		return err
+	}
+
+	//Update dependent queries
+	var queriesdata []struct {
+		Name string       `db:"name"`
+		Data types.PgData `db:"data"`
+	}
+
+	err = p.db.Select(&queriesdata, `SELECT name, data FROM queries WHERE data->>'query'=$1 AND guild =$2 OR data->>'left'=$1 AND guild = $2 OR data->>'right'=$1 AND guild = $2`, po.Data["query"], po.Guild)
+
+	if err == nil && len(queriesdata) > 0 {
+		for i := 0; i < len(queriesdata); i++ {
+			if queriesdata[i].Data["query"] != nil && queriesdata[i].Data["query"] == po.Data["query"] {
+				queriesdata[i].Data["query"] = po.Data["new"]
+			}
+			if queriesdata[i].Data["left"] != nil && queriesdata[i].Data["left"] == po.Data["query"] {
+				queriesdata[i].Data["left"] = po.Data["new"]
+			}
+			if queriesdata[i].Data["right"] != nil && queriesdata[i].Data["right"] == po.Data["query"] {
+				queriesdata[i].Data["right"] = po.Data["new"]
+			}
+
+			_, err = p.db.Exec("UPDATE queries SET data=$1 WHERE name=$2 AND guild=$3", queriesdata[i].Data, queriesdata[i].Name, po.Guild)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	//News
+	newsFunc(fmt.Sprintf("📝 Renamed Query - **%s** %s", po.Data["new"].(string), p.pollContextMsg(po)))
+	return nil
+}
