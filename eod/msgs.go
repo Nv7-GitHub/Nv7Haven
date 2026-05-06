@@ -113,7 +113,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 		b.pages.CommandLb(c, []any{nil})
-	case "inv", "inventory":
+	case "inv", "inventory", "bag":
 		if !b.base.CheckCtx(c, "inv") {
 			return
 		}
@@ -140,13 +140,27 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 		b.pages.Inv(c, []any{any(user), nil, nil})
 
-	case "lb", "leaderboard":
+	case "lb", "leaderboard", "top":
 		if !b.base.CheckCtx(c, "lb") {
 			return
 		}
-		parts := strings.Split(content, " ")
+		parts := strings.Split(strings.TrimLeft(content, " "), " ")
+		query := ""
 		Lbsort := getLbSort(strings.ToLower(parts[0]))
-		b.pages.Lb(c, []any{Lbsort, nil, nil})
+
+		queryPrefixIndex := 0
+		if len(parts) > 1 && (parts[0] == "found" || Lbsort != "found") {
+			//move query index to 1 if there is a leaderboard option present
+			queryPrefixIndex = 1
+		}
+		if strings.TrimSpace(strings.ToLower(parts[queryPrefixIndex])) == "q" {
+			prefixSplit := parts[queryPrefixIndex+1:]
+			if len(prefixSplit) >= 1 {
+				query = strings.TrimLeft(strings.Join(prefixSplit[0:], " "), " ")
+			}
+
+		}
+		b.pages.Lb(c, []any{Lbsort, nil, query})
 
 	case "p", "products", "ih", "inversehint", "invhint":
 		if !b.base.CheckCtx(c, "products") {
