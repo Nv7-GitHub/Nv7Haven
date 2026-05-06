@@ -89,7 +89,7 @@ func (b *Polls) checkPoll(p *types.Poll, votecnt int, dg *discordgo.Session) {
 		if err != nil {
 			log.Println("news err", err)
 		}
-		b.deletePoll(p, dg)
+		b.DeletePoll(p, dg)
 		//DM user
 		emb, _ := b.makePollEmbed(p)
 		dm, err := dg.UserChannelCreate(p.Creator)
@@ -117,11 +117,10 @@ func (b *Polls) checkPoll(p *types.Poll, votecnt int, dg *discordgo.Session) {
 	}
 }
 
-func (b *Polls) deletePoll(p *types.Poll, dg *discordgo.Session) {
+func (b *Polls) DeletePoll(p *types.Poll, dg *discordgo.Session) {
 	// Delete from channel
 	err := dg.ChannelMessageDelete(p.Channel, p.Message)
 	if err != nil {
-		return
 	}
 
 	// Delete from DB
