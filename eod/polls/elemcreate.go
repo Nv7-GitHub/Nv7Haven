@@ -84,12 +84,12 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 		col /= len(parents)
 
 		// Calc treesize
-		var treeSize int
-		err = tx.QueryRow(`WITH RECURSIVE parents(els, id) AS (
-			VALUES($2::integer[], 1)
+		var treeSize, tier int
+		err = tx.QueryRow(`WITH RECURSIVE parents(els, id,depth) AS (
+			VALUES($2::integer[], 1,0)
 	 	UNION
-			(SELECT b.parents els, b.id id FROM elements b INNER JOIN parents p ON b.id=ANY(p.els) where guild=$1)
-	 	) SELECT COUNT(*) FROM parents WHERE id>0`, p.Guild, pq.Array(els)).Scan(&treeSize)
+			(SELECT b.parents els, b.id id,depth+1 FROM elements b INNER JOIN parents p ON b.id=ANY(p.els) where guild=$1)
+	 	) SELECT COUNT(*), MAX(depth) FROM parents WHERE id>0`, p.Guild, pq.Array(els)).Scan(&treeSize, &tier)
 		if err != nil {
 			return
 		}
@@ -105,11 +105,15 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 			CreatedOn: time.Now(),
 			Parents:   pq.Int32Array(util.Map(els, func(a int) int32 { return int32(a) })),
 			TreeSize:  treeSize,
+			MadeWith:  1,
+			UsedIn:    0,
+			FoundBy:   1,
+			Tier:      tier,
 		}
 		name = el.Name
 
 		// Insert element
-		_, err = tx.NamedExec(`INSERT INTO elements (id, guild, name, image, color, comment, creator, createdon, commenter, colorer, imager, parents, treesize) VALUES (:id, :guild, :name, :image, :color, :comment, :creator, :createdon, :commenter, :colorer, :imager, :parents, :treesize)`, el)
+		_, err = tx.NamedExec(`INSERT INTO elements (id, guild, name, image, color, comment, creator, createdon, commenter, colorer, imager, parents, treesize,madewith,usedin,foundby,tier) VALUES (:id, :guild, :name, :image, :color, :comment, :creator, :createdon, :commenter, :colorer, :imager, :parents, :treesize,:madewith, :usedin,:foundby,:tier)`, el)
 		if err != nil {
 			return
 		}
@@ -125,11 +129,16 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 
 		// Get name
 		var currtreesize int
-		err = tx.QueryRow(`SELECT name, treesize FROM elements WHERE id=$1 AND guild=$2`, id, p.Guild).Scan(&name, &currtreesize)
+		var madewith int
+		err = tx.QueryRow(`SELECT name, treesize,madewith FROM elements WHERE id=$1 AND guild=$2`, id, p.Guild).Scan(&name, &currtreesize)
 		if err != nil {
 			return
 		}
-
+		madewith++
+		_, err = tx.Exec(`UPDATE elements SET madewith=$1 WHERE id=$2 AND guild=$3`, madewith, id, p.Guild)
+		if err != nil {
+			return
+		}
 		// Check if need to update parents
 		var treesize int
 		var loop bool
@@ -143,6 +152,24 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 			if err != nil {
 				return
 			}
+		}
+
+	}
+	//update used in
+
+	var parIDorder []int
+	var parusedin []int
+
+	err = tx.Select(&parIDorder, `SELECT id FROM elements WHERE id=ANY($1) AND guild=$2`, pq.Array(els), p.Guild)
+	err = tx.Select(&parusedin, `SELECT usedin FROM elements WHERE id=ANY($1) AND guild=$2`, pq.Array(els), p.Guild)
+	if err != nil {
+
+	}
+	for i, _ := range parIDorder {
+		parusedin[i]++
+		_, err = tx.Exec(`UPDATE elements SET usedin = $3 WHERE id=$1 AND guild=$2 `, parIDorder[i], p.Guild, parusedin[i])
+		if err != nil {
+			return
 		}
 	}
 
