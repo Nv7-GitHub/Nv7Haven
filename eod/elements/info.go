@@ -62,7 +62,9 @@ func (e *Elements) Info(c sevcord.Ctx, el int) {
 	}
 
 	// Check if you have
-	description := "**📝 Mark**\n" + elem.Comment
+	var description strings.Builder
+	// Element ID
+	description.WriteString(fmt.Sprintf("Element **#%d**\n", elem.ID))
 	var have bool
 	err = e.db.QueryRow(`SELECT $1=ANY(inv) FROM inventories WHERE guild=$2 AND "user"=$3`, elem.ID, c.Guild(), c.Author().User.ID).Scan(&have)
 	if err != nil {
@@ -70,10 +72,12 @@ func (e *Elements) Info(c sevcord.Ctx, el int) {
 		return
 	}
 	if have {
-		description = "📫 **You have this.**\n\n" + description
+		description.WriteString("📫 **You have this.**\n\n")
 	} else {
-		description = "📪 **You don't have this.**\n\n" + description
+
+		description.WriteString("📪 **You don't have this.**\n\n")
 	}
+	description.WriteString("**📝 Mark**\n" + elem.Comment + "\n\n")
 
 	// Get stats
 	var madewith int
@@ -125,35 +129,35 @@ func (e *Elements) Info(c sevcord.Ctx, el int) {
 		e.db.Exec(`UPDATE elements SET treesize=$3 WHERE id=$1 AND guild=$2`, elem.ID, c.Guild(), treesize)
 	}
 
-	// Element ID
-	description = fmt.Sprintf("Element **#%d**\n", elem.ID) + description
+	//add properties to the description
+	description.WriteString("**🧑 Creator - ** " + fmt.Sprintf("<@%s>", elem.Creator) + "\n")
+	if elem.Commenter != "" {
+		description.WriteString("**💬 Commenter - **" + fmt.Sprintf("<@%s>", elem.Commenter) + "\n")
+	}
+	if elem.Colorer != "" {
+		description.WriteString("**🖌️ Colorer - **" + fmt.Sprintf("<@%s>", elem.Colorer) + "\n")
+	}
+	if elem.Imager != "" {
+		description.WriteString("**🖼️ Imager - **" + fmt.Sprintf("<@%s>", elem.Imager) + "\n")
+	}
+
+	description.WriteString("**📅 Created On - ** " + fmt.Sprintf("<t:%d>", elem.CreatedOn.Unix()) + "\n")
+	description.WriteString("**🌲 Tree Size - ** " + humanize.Comma(int64(treesize)) + "\n")
+	description.WriteString("**📊 Path Completion - ** " + humanize.FormatFloat("##.#", float64(found)/float64(treesize)*100) + "%" + "\n")
+	description.WriteString("**🔨 Made With - ** " + humanize.Comma(int64(madewith)) + "\n")
+	description.WriteString("**🧰 Used In - ** " + humanize.Comma(int64(usedin)) + "\n")
+	description.WriteString("**🔍 Found By - ** " + humanize.Comma(int64(foundby)) + "\n")
+	description.WriteString("**🎨 Color	- ** " + util.FormatHex(elem.Color) + "\n")
 
 	// Embed
 	emb := sevcord.NewEmbed().
-		Title(elem.Name+" Info").
-		Description(description).
-		Color(elem.Color).
-		AddField("🧑 Creator", fmt.Sprintf("<@%s>", elem.Creator), true).
-		AddField("📅 Created On", fmt.Sprintf("<t:%d>", elem.CreatedOn.Unix()), true).
-		AddField("🌲 Tree Size", humanize.Comma(int64(treesize)), true).
-		AddField("📊 Progress", humanize.FormatFloat("##.#", float64(found)/float64(treesize)*100)+"%", true).
-		AddField("🔨 Made With", humanize.Comma(int64(madewith)), true).
-		AddField("🧰 Used In", humanize.Comma(int64(usedin)), true).
-		AddField("🔍 Found By", humanize.Comma(int64(foundby)), true).
-		AddField("🎨 Color", util.FormatHex(elem.Color), true)
+		Title(elem.Name + " Info").
+		Description(description.String()).
+		Color(elem.Color)
 
 	// Optional things
 	if elem.Image != "" {
 		emb = emb.Thumbnail(elem.Image)
-	}
-	if elem.Commenter != "" {
-		emb = emb.AddField("💬 Commenter", fmt.Sprintf("<@%s>", elem.Commenter), true)
-	}
-	if elem.Colorer != "" {
-		emb = emb.AddField("🖌️ Colorer", fmt.Sprintf("<@%s>", elem.Colorer), true)
-	}
-	if elem.Imager != "" {
-		emb = emb.AddField("🖼️ Imager", fmt.Sprintf("<@%s>", elem.Imager), true)
 	}
 	if len(categories) > 0 {
 		emb = emb.AddField("📁 Categories", strings.Join(categories, ", "), false)
