@@ -246,7 +246,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		if len(parts) == 2 {
 			prefixSplit = strings.SplitN(parts[0], " ", 2)
 		}
-		if len(prefixSplit) == 1 {
+		if len(prefixSplit) == 1 || strings.TrimSpace(prefixSplit[1]) == "" {
 			// assume signing element
 			b.elements.MsgSignCmd(c, strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1]))
 			return
@@ -285,9 +285,9 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		var prefixSplit []string
 		if len(parts) == 2 {
 			// split args before hex code to determine existence of first arg
-			prefixSplit = strings.SplitN(content, " ", 2)
+			prefixSplit = strings.SplitN(parts[0], " ", 2)
 		}
-		if len(prefixSplit) == 1 {
+		if len(prefixSplit) == 1 || strings.TrimSpace(prefixSplit[1]) == "" {
 			// no second arg, assume first arg is the element
 			var item = strings.TrimSpace(strings.Split(prefixSplit[0], "|")[0])
 			id, ok := b.getElementId(c, item)

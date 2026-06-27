@@ -55,7 +55,7 @@ func (c *Categories) MsgSignCmd(ctx sevcord.Ctx, cat string, mark string) {
 	err := c.db.QueryRow("SELECT name, comment FROM categories WHERE LOWER(name)=$1 AND guild=$2", strings.ToLower(cat), ctx.Guild()).Scan(&name, &old)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			ctx.Respond(sevcord.NewMessage("Element **" + cat + "** doesn't exist! " + types.RedCircle))
+			ctx.Respond(sevcord.NewMessage("Category **" + cat + "** doesn't exist! " + types.RedCircle))
 			return
 		} else {
 			c.base.Error(ctx, err)
