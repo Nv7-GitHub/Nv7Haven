@@ -1,6 +1,8 @@
 package polls
 
 import (
+	"sync"
+
 	"github.com/Nv7-Github/Nv7Haven/eod/base"
 	"github.com/Nv7-Github/sevcord/v2"
 	"github.com/bwmarrin/discordgo"
@@ -11,6 +13,9 @@ type Polls struct {
 	db   *sqlx.DB
 	base *base.Base
 	s    *sevcord.Sevcord
+
+	lock    *sync.RWMutex
+	triaged map[string]bool // map[guild]triaged
 }
 
 func (p *Polls) Init() {
@@ -24,6 +29,9 @@ func NewPolls(d *sqlx.DB, b *base.Base, s *sevcord.Sevcord) *Polls {
 		db:   d,
 		base: b,
 		s:    s,
+
+		lock:    &sync.RWMutex{},
+		triaged: make(map[string]bool),
 	}
 	p.Init()
 	return p

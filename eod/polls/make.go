@@ -78,41 +78,43 @@ func (b *Polls) checkPoll(p *types.Poll, votecnt int, dg *discordgo.Session) {
 	}
 
 	if p.Downvotes-p.Upvotes >= votecnt {
-		var news string
-		err := b.db.QueryRow(`SELECT news FROM config WHERE guild=$1`, p.Guild).Scan(&news)
-		if err != nil {
-			log.Println("news err", err)
-			return
-		}
+		b.pollReject(p, dg)
+	}
+}
 
-		_, err = dg.ChannelMessageSend(news, fmt.Sprintf("❌ **Poll Rejected** %s", b.pollContextMsg(p)))
-		if err != nil {
-			log.Println("news err", err)
-		}
-		b.deletePoll(p, dg)
-		//DM user
-		emb, _ := b.makePollEmbed(p)
-		dm, err := dg.UserChannelCreate(p.Creator)
-		if err != nil {
+func (b *Polls) pollReject(p *types.Poll, dg *discordgo.Session) {
+	var news string
+	err := b.db.QueryRow(`SELECT news FROM config WHERE guild=$1`, p.Guild).Scan(&news)
+	if err != nil {
+		log.Println("news err", err)
+		return
+	}
 
-			return
-		}
-		guild, _ := dg.Guild(p.Guild)
+	_, err = dg.ChannelMessageSend(news, fmt.Sprintf("❌ **Poll Rejected** %s", b.pollContextMsg(p)))
+	if err != nil {
+		log.Println("news err", err)
+	}
+	b.deletePoll(p, dg)
+	//DM user
+	emb, _ := b.makePollEmbed(p)
+	dm, err := dg.UserChannelCreate(p.Creator)
+	if err != nil {
 
-		upvotetext := "upvotes"
-		if p.Upvotes == 0 {
-			upvotetext = "upvote"
-		}
-		downvotetext := "downvotes"
-		if p.Downvotes == 0 {
-			downvotetext = "downvote"
-		}
-		msg := sevcord.NewMessage(fmt.Sprintf("Your poll in **%s** was rejected with **%d %s** and **%d %s**. 🔴\n\n**Your Poll**", guild.Name, p.Upvotes+1, upvotetext, p.Downvotes+1, downvotetext)).AddEmbed(emb)
-		_, err = dg.ChannelMessageSendComplex(dm.ID, msg.Dg())
-		if err != nil {
-			return
-		}
+		return
+	}
+	guild, _ := dg.Guild(p.Guild)
 
+	upvotetext := "upvotes"
+	if p.Upvotes == 0 {
+		upvotetext = "upvote"
+	}
+	downvotetext := "downvotes"
+	if p.Downvotes == 0 {
+		downvotetext = "downvote"
+	}
+	msg := sevcord.NewMessage(fmt.Sprintf("Your poll in **%s** was rejected with **%d %s** and **%d %s**. 🔴\n\n**Your Poll**", guild.Name, p.Upvotes+1, upvotetext, p.Downvotes+1, downvotetext)).AddEmbed(emb)
+	_, err = dg.ChannelMessageSendComplex(dm.ID, msg.Dg())
+	if err != nil {
 		return
 	}
 }
@@ -121,7 +123,7 @@ func (b *Polls) deletePoll(p *types.Poll, dg *discordgo.Session) {
 	// Delete from channel
 	err := dg.ChannelMessageDelete(p.Channel, p.Message)
 	if err != nil {
-		return
+		log.Println("poll message delete err", err) // May already be deleted, still remove from DB
 	}
 
 	// Delete from DB
