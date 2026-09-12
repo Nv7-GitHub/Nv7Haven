@@ -38,7 +38,7 @@ func (c *Categories) Info(ctx sevcord.Ctx, opts []any) {
 		Description(description).
 		Color(cat.Color).
 		AddField("💼 Element Count", humanize.Comma(int64(len(cat.Elements))), true).
-		AddField("📊 Progress", humanize.FormatFloat("", float64(common)/float64(len(cat.Elements))*100)+"%", true)
+		AddField("📊 Progress", humanize.FormatFloat("", float64(common)/float64(len(cat.Elements))*100)+"% ("+humanize.Comma(int64(len(cat.Elements)-common))+" left)", true)
 
 	// Optional things
 	if cat.Image != "" {

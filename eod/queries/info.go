@@ -67,7 +67,7 @@ func (q *Queries) Info(ctx sevcord.Ctx, opts []any) {
 		Description(description).
 		Color(qu.Color).
 		AddField("💼 Element Count", humanize.Comma(int64(len(qu.Elements))), true).
-		AddField("📊 Progress", humanize.FormatFloat("", float64(common)/float64(len(qu.Elements))*100)+"%", true)
+		AddField("📊 Progress", humanize.FormatFloat("", float64(common)/float64(len(qu.Elements))*100)+"% ("+humanize.Comma(int64(len(qu.Elements)-common))+" left)", true)
 
 	// Optional things
 	if qu.Image != "" {
