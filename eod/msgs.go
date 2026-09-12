@@ -238,17 +238,15 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 		parts := strings.SplitN(content, "|", 2)
-		if len(parts) < 2 {
+		item := strings.TrimSpace(parts[0])
+		if len(parts) < 2 || item == "" {
 			c.Respond(sevcord.NewMessage("Use `!sign [element name]|<text>` or `!sign [e/c/q] [element/category/query name]|<text>`! " + types.RedCircle))
 			return
 		}
-		var prefixSplit []string
-		if len(parts) == 2 {
-			prefixSplit = strings.SplitN(parts[0], " ", 2)
-		}
+		prefixSplit := strings.SplitN(item, " ", 2)
 		if len(prefixSplit) == 1 || strings.TrimSpace(prefixSplit[1]) == "" {
 			// assume signing element
-			b.elements.MsgSignCmd(c, strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1]))
+			b.elements.MsgSignCmd(c, item, strings.TrimSpace(parts[1]))
 			return
 		}
 		// check for signing element/category/query
@@ -262,13 +260,9 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		case "q", "query":
 			b.queries.MsgSignCmd(c, strings.TrimSpace(prefixSplit[1]), strings.TrimSpace(parts[1]))
 
-		case "":
-			// no text was provided before the separator, invalid
-			c.Respond(sevcord.NewMessage("Use `!sign [element name]|<text>` or `!sign [e/c/q] [element/category/query name]|<text>`! " + types.RedCircle))
-
 		default:
 			// first arg is invalid, assume all text before the separator is the element
-			b.elements.MsgSignCmd(c, strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1]))
+			b.elements.MsgSignCmd(c, item, strings.TrimSpace(parts[1]))
 
 		}
 	case "col", "color", "colour":
@@ -277,19 +271,16 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		}
 		// check part amount
 		parts := strings.SplitN(content, "|", 2)
-		if len(parts) < 2 {
+		item := strings.TrimSpace(parts[0])
+		if len(parts) < 2 || item == "" {
 			// improperly formatted command, cannot extract hex code
 			c.Respond(sevcord.NewMessage("Use `!color [element name]|<hex code>` or `!color [e/c/q] [element/category/query name]|<hex code>`! " + types.RedCircle))
 			return
 		}
-		var prefixSplit []string
-		if len(parts) == 2 {
-			// split args before hex code to determine existence of first arg
-			prefixSplit = strings.SplitN(parts[0], " ", 2)
-		}
+		// split args before hex code to determine existence of first arg
+		prefixSplit := strings.SplitN(item, " ", 2)
 		if len(prefixSplit) == 1 || strings.TrimSpace(prefixSplit[1]) == "" {
 			// no second arg, assume first arg is the element
-			var item = strings.TrimSpace(strings.Split(prefixSplit[0], "|")[0])
 			id, ok := b.getElementId(c, item)
 			if !ok {
 				return
@@ -298,7 +289,7 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 			return
 		}
 		// check for coloring element/category/query
-		var item = strings.TrimSpace(strings.Split(prefixSplit[1], "|")[0])
+		item = strings.TrimSpace(prefixSplit[1])
 		switch strings.ToLower(strings.TrimSpace(prefixSplit[0])) {
 		case "e", "element":
 
@@ -314,13 +305,9 @@ func (b *Bot) textCommandHandler(c sevcord.Ctx, name string, content string) {
 		case "q", "query":
 			b.queries.ColorCmd(c, []any{item, strings.TrimSpace(parts[1])})
 
-		case "":
-			// no text was provided before the separator, invalid
-			c.Respond(sevcord.NewMessage("Use `!color [element name]|<hex code>` or `!color [e/c/q] [element/category/query name]|<hex code>`! " + types.RedCircle))
-
 		default:
 			// first arg is not valid, assume the entirety of the text before the separator is the element
-			id, ok := b.getElementId(c, parts[0])
+			id, ok := b.getElementId(c, item)
 			if !ok {
 				return
 			}
