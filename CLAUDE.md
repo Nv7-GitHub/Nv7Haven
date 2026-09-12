@@ -18,3 +18,7 @@ Go Discord bot (`eod/`) + web backend. Prefer the smallest change that works.
 ## Before claiming
 - Verify with the compiler/grep instead of asserting. `go build ./... && go vet ./...` before saying it's done.
 - Say plainly what wasn't tested (nothing here runs against live Discord or the DB).
+
+## Reviewing a PR
+- Read the PR body and check the diff against it: what it claims but doesn't do, and what it promises but omits. Quote the description line and the code that contradicts it.
+- Say when the diff does more than the body describes.
