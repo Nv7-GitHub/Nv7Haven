@@ -3,9 +3,7 @@ package elements
 import (
 	"database/sql"
 	"fmt"
-	"slices"
 	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/Nv7-Github/Nv7Haven/eod/types"
@@ -30,105 +28,24 @@ type comboRes struct {
 	Cont bool   `db:"cont"`
 }
 
-func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
+func (e *Elements) Combine(c sevcord.Ctx, ids []int64) {
 	c.Acknowledge()
 	e.base.IncrementCommandStat(c, "combine")
 
-	if len(elemVals) > types.MaxComboLength {
+	if len(ids) > types.MaxComboLength {
 		c.Respond(sevcord.NewMessage(fmt.Sprintf("You can only combine up to %d elements! "+types.RedCircle, types.MaxComboLength)))
 		return
 	}
-	if len(elemVals) < 2 {
+	if len(ids) < 2 {
 		c.Respond(sevcord.NewMessage("You need to combine at least 2 elements! " + types.RedCircle))
 		return
 	}
-
-	// Cleanup
-	lowered := make([]string, len(elemVals))
-	for i, v := range elemVals {
-		elemVals[i] = strings.TrimSpace(v)
-		lowered[i] = strings.ToLower(elemVals[i])
-	}
-
-	// Get status of everything (exists, whether you have it, etc.)
 	var res []comboRes
-	err := e.db.Select(&res, `SELECT id, name, id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) cont FROM elements WHERE guild=$1 AND LOWER(name)=ANY($3)`, c.Guild(), c.Author().User.ID, pq.Array(lowered))
+	err := e.db.Select(&res, `SELECT id,name,id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) cont FROM elements WHERE guild=$1 AND id=ANY($3)`, c.Guild(), c.Author().User.ID, pq.Array(ids))
 	if err != nil {
 		e.base.Error(c, err)
 		return
 	}
-
-	// See what elements don't exist
-	exist := make(map[string]struct{}, len(res))
-	for _, v := range res {
-		exist[strings.ToLower(v.Name)] = struct{}{}
-	}
-	dontExist := make([]string, 0)
-	for _, v := range elemVals {
-		_, exists := exist[strings.ToLower(v)]
-		if !exists && !slices.Contains(dontExist, "**"+v+"**") {
-			dontExist = append(dontExist, "**"+v+"**")
-		}
-	}
-
-	// Combine with IDs
-	removed := make(map[int]struct{}, 0) // Removed indices
-	for i, v := range dontExist {
-		// Check if number element
-		if strings.HasPrefix(v, "**#") && len(v) > 5 {
-			id, err := strconv.Atoi(strings.TrimSuffix(v[3:], "**"))
-			if err != nil {
-				continue
-			}
-			// Check if ok
-			var name string
-			err = e.db.QueryRow(`SELECT name FROM elements WHERE guild=$1 AND id=$2`, c.Guild(), id).Scan(&name)
-			if err != nil {
-				if err == sql.ErrNoRows {
-					continue
-				}
-				e.base.Error(c, err)
-				return
-			}
-			// Check if have
-			var cont bool
-			err = e.db.QueryRow(`SELECT id=ANY(SELECT UNNEST(inv) FROM inventories WHERE guild=$1 AND "user"=$2) FROM elements WHERE guild=$1 AND id=$3`, c.Guild(), c.Author().User.ID, id).Scan(&cont)
-			if err != nil {
-				continue
-			}
-
-			// Update
-			res = append(res, comboRes{
-				ID:   id,
-				Name: name,
-				Cont: cont,
-			})
-			removed[i] = struct{}{}
-			for j, val := range lowered {
-				if "**"+val+"**" == v {
-					lowered[j] = strings.ToLower(name)
-				}
-			}
-		}
-	}
-	if len(removed) > 0 {
-		oldDontExist := dontExist
-		dontExist = make([]string, 0, len(oldDontExist)-len(removed))
-		for i, v := range oldDontExist {
-			if _, exists := removed[i]; !exists {
-				dontExist = append(dontExist, v)
-			}
-		}
-	}
-
-	if len(dontExist) == 1 {
-		c.Respond(sevcord.NewMessage(fmt.Sprintf("Element %s doesn't exist! %s", dontExist[0], types.RedCircle)))
-		return
-	} else if len(dontExist) > 1 {
-		c.Respond(sevcord.NewMessage(makeListResp("Elements", "and", " don't exist!", dontExist)))
-		return
-	}
-
 	// See what elements you don't have
 	dontHave := make([]string, 0)
 	for _, v := range res {
@@ -149,9 +66,9 @@ func (e *Elements) Combine(c sevcord.Ctx, elemVals []string) {
 	for _, v := range res {
 		nameMap[strings.ToLower(v.Name)] = v.ID
 	}
-	items := make([]int, len(lowered))
-	for i, v := range lowered {
-		items[i] = nameMap[v]
+	items := make([]int, len(ids))
+	for i := range ids {
+		items[i] = int(ids[i])
 	}
 	sort.Ints(items)
 
