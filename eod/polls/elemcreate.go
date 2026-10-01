@@ -83,15 +83,23 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 		colg := 0
 		colb := 0
 
+		countmap := make(map[int]int)
+		for _, parent := range parents {
+			countmap[parent.ID] = 0
+		}
+		for index := range els {
+			countmap[els[index]]++
+		}
+
 		for _, parent := range parents {
 			r, g, b := util.HexToRGB(util.FormatHex(parent.Color))
-			colr += r
-			colg += g
-			colb += b
+			colr += r * countmap[parent.ID]
+			colg += g * countmap[parent.ID]
+			colb += b * countmap[parent.ID]
 		}
-		colr /= len(parents)
-		colg /= len(parents)
-		colb /= len(parents)
+		colr /= len(els)
+		colg /= len(els)
+		colb /= len(els)
 		col64, _ := strconv.ParseInt(strings.Trim(util.RGBToHex(colr, colg, colb), "#"), 16, 64)
 		col = int(col64)
 		// Calc treesize
