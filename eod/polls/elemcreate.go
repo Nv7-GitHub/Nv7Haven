@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -78,11 +79,21 @@ func (e *Polls) elemCreate(p *types.Poll, news func(string)) (err error) {
 			return
 		}
 		col := 0
-		for _, parent := range parents {
-			col += parent.Color
-		}
-		col /= len(parents)
+		colr := 0
+		colg := 0
+		colb := 0
 
+		for _, parent := range parents {
+			r, g, b := util.HexToRGB(util.FormatHex(parent.Color))
+			colr += r
+			colg += g
+			colb += b
+		}
+		colr /= len(parents)
+		colg /= len(parents)
+		colb /= len(parents)
+		col64, _ := strconv.ParseInt(strings.Trim(util.RGBToHex(colr, colg, colb), "#"), 16, 64)
+		col = int(col64)
 		// Calc treesize
 		var treeSize int
 		err = tx.QueryRow(`WITH RECURSIVE parents(els, id) AS (
